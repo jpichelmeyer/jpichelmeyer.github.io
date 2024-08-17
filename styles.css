@@ -1,0 +1,498 @@
+* {
+  box-sizing: border-box;
+}
+
+/* Global variables */
+:root {
+	--color_highlight: #f1f1f1;
+	--color_lowlight: #aaaaaa;
+	--color_wrap: #1E201E;
+	--color_core: #3C3D37;
+	--margin_left: 200px;
+	--icon_size: 20px;
+	--icon_size_social: 15px;
+	--icon_margin_bottom: 6px;
+	--brightness_social: 100%;
+	--opacity_timeline: 0.25;
+	--size_research_thumb_width: 170px;
+	--border_radius_thumb: 5px;
+	--border_style_thumb: solid;
+}
+
+/* Hyperlink styling */
+a {
+	color: var(--color_lowlight);
+	text-decoration: underline;
+}
+a:hover {
+	color: var(--color_highlight);
+	text-decoration: none;
+}
+
+/* Style the body */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  color: var(--color_lowlight);
+  background-color: var(--color_wrap);
+}
+
+/* Portrait */
+.portrait {
+	height: 160px;
+	padding-top: 20px;
+	cursor: pointer;
+}
+/* Name */
+.name_rank {
+	color: var(--color_highlight);
+}
+
+/* Name and letters */
+.name_and_letters {
+	width: 100%;
+	padding-bottom: 15px;
+	padding-top: 10px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.name_and_letters_name {
+	color: var(--color_highlight);
+	font-size: 15px;
+	font-weight: bold;
+}
+.name_and_letters_letters {
+	color: var(--color-lowlight);
+	font-size: 12px;
+	float: right;
+	padding-top: 3px;
+}
+
+/* Typewriter effect */
+.c1{
+	display: inline-block;
+	height: 14px;
+}
+h1 {
+	display: inline-block;
+	margin-top: 1%;
+	font-size: 12px;
+	font-family: Lucida Typewriter, monospace;
+	color: var(--color_lowlight);
+}
+h1 .type{
+	overflow: hidden;
+	white-space: nowrap; 
+	width: 0;
+	animation: 
+	typing 1s steps(13, end) forwards;
+}
+h1 .type2{
+	overflow: hidden;
+	white-space: nowrap; 
+	width: 0;
+	animation: 
+	typing 1s steps(16, end) forwards;
+	animation-delay: 1s;
+}
+h1 .type3{
+	overflow: hidden;
+	white-space: nowrap; 
+	width: 0;
+	animation: 
+	typing 1s steps(18, end) forwards;
+	animation-delay: 2s;
+}
+@keyframes typing {
+	from { width: 0 }
+	to { width: 100% }
+}
+@keyframes blink {
+	from { border-color: transparent }
+	to { border-color: orange; }
+}
+
+/* Style the top navigation bar */
+.navbar {
+  overflow: hidden;
+  padding: 0px;
+  padding-top: 15px;
+  font-size: 12px;
+}
+
+/* Style the navigation bar links */
+.navbar a {
+  float: left;
+  display: block;
+  color: var(--color_lowlight);
+  text-align: left;
+  padding: 8px 2px;
+  text-decoration: none;
+  width: var(--margin_left);
+}
+
+/* Social nav container */
+.navbarsocial {
+	text-align: left;
+	padding-top: 10px;
+}
+.navbarsocial img {
+	filter: var(--brightness_social);
+	width: var(--icon_size_social);
+}
+
+/* Color control container */
+.color_control_container {
+	padding-top: 30px;
+	height: 80px;
+	display: flex;
+	gap: 10px;
+	display: flex;
+	flex-wrap: wrap;
+}
+.color_control_button {
+	background-color: #777777;
+	height: 15px;
+	width: 15px;
+	cursor: pointer;
+	border-radius: 100%;
+	opacity: 0.25;
+	transition: all 0.25s;
+}
+.color_control_button:hover {
+	opacity: 1.0;
+	transition: all 0.1s;
+}
+
+/* Column container */
+.row {  
+  display: -ms-flexbox; /* IE10 */
+  display: flex;
+}
+
+/* Create two unequal columns that sits next to each other */
+
+/* Sidebar/left column */
+.side_left {
+  background-color: var(--color_wrap);
+  padding: 20px;
+  width: var(--margin_left);
+  position: fixed;
+  height: 100%;
+}
+
+/* Main column */
+.main {   
+  flex: 1;
+  margin-left: var(--margin_left);
+  background-color: var(--color_foot);
+  padding: 0px;
+  height: 100%;
+  overflow: auto;
+}
+
+/* Right side column */
+.side_right {
+	width: 30px;
+	background-color: var(--color_wrap);
+}
+
+/* Header - only to show that viewer is at the top of page */
+.header {
+	background-color: var(--color_wrap);
+	height: 20px;
+}
+
+/* Container within the main column (might be able to merge into main class) */
+.mainsub {
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-size: 13px;
+	background-color: var(--color_core);
+}
+/* Section */
+.main_section {
+	padding-top: 10px;
+	padding-bottom: 70px;
+}
+
+/* Page heading */
+.page_heading {
+	color: var(--color_highlight);
+	font-weight: bold;
+	font-size: 15px;
+	text-transform: uppercase;
+}
+
+/* Timeline */
+.timeline {
+	padding-left: 20px;
+	padding-bottom: 30px;
+}
+.timeline_row {
+	display: flex;
+	flex-wrap: flex;
+	gap: 10px;
+}
+.timeline_dates {
+	width: 100px;
+	font-size: 11px;
+	padding-top: 10px;
+	text-align: right;
+}
+.timeline_icon {
+	filter: var(--brightness_social);
+}
+.timeline_icon_arrow {
+	content: url(./timeline_arrow.png);
+	height: 40px;
+	opacity: var(--opacity_timeline);
+}
+.timeline_icon_degree {
+	content: url(./timeline_degree.png);
+	height: 40px;
+}
+.timeline_icon_dot {
+	content: url(./timeline_dot.png);
+	height: 40px;
+}
+.timeline_icon_line {
+	content: url(./timeline_line.png);
+	width: 40px;
+	height: 20px;
+	opacity: var(--opacity_timeline);
+}
+.timeline_icon_tail {
+	content: url(./timeline_tail.png);
+	height: 40px;
+	opacity: var(--opacity_timeline);
+}
+.timeline_textbox {
+	width: 100%;
+}
+.timeline_textbox_title {
+	font-weight: bold;
+	color: var(--color_highlight);
+	font-size: 12px;
+	padding-top: 5px;
+}
+.timeline_textbox_place {
+	color: var(--color_lowlight);
+	font-size: 12px;
+}
+
+/* Taught courses */
+.taught_course {
+	padding-top:4px;
+	padding-bottom: 20px;
+}
+.taught_course_section_head {
+	font-size: 15px;
+	text-transform: uppercase;
+	color: var(--color_lowlight);
+	padding-bottom: 20px;
+	padding-top: 20px;
+	font-weight: bold;
+}
+.taught_course_section {
+	padding-left: 20px;
+}
+.taught_course_title {
+	font-weight: bold;
+	font-size: 14px;
+	text-transform: uppercase;
+	color: var(--color_highlight);
+}
+.taught_course_description {
+	font-size: 12px;
+	color: var(--color_lowlight);
+}
+
+/* Interactables block */
+.interactables {
+	padding: 10px;
+	padding-bottom: 50px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	column-gap: 5px;
+	row-gap: 60px;
+}
+
+
+/* Tags (programming languages, software, institutions) */
+.tag {
+	width: fit-content;
+	height: fit-content;
+	border-radius: 5px;
+	text-align: center;
+	padding: 5px;
+	color: #f1f1f1;
+	font-size: 9px;
+	opacity: 0.90;
+}
+.tag_aseprite{
+	background-color: #dddddd;
+	color: #111111;
+}
+.tag_blender {
+	background-color: #f27718;
+	color: #f1f1f1;
+}
+.tag_csharp {
+	background-color: #c669f5;
+}
+.tag_css {
+	 background-color: #2e7de6;
+	 color: f1f1f1;
+}
+.tag_cty {
+	background-color: #c669f5;
+}
+.tag_gdscript {
+	background-color: #4476b8;
+	color: #f1f1f1;
+}
+.tag_gt {
+	background-color: #c4b480;
+	color: #f1f1f1;
+}
+.tag_godot {
+	background-color: #4476b8;
+	color: #f1f1f1;
+}
+.tag_html {
+	background-color: #f27718;
+	color: #f1f1f1;
+}
+.tag_javascript {
+	background-color: #f5d742;
+	color: #333333;
+}
+.tag_jhu {
+	background-color: #114ebf;
+	color: #f1f1f1;
+}
+.tag_ksu {
+	background-color: #8533d6;
+	color: #f1f1f1;
+}
+.tag_mathematica {
+	background-color: #f21818;
+	color: #f1f1f1;
+}
+.tag_matlab {
+	background-color: #f27718;
+	color: #18f2ef;
+}
+.tag_octave {
+	background-color: #1d7e8f;
+	color: #ffa861;
+}
+.tag_python {
+	background-color: #f5d742;
+	color: #333333;
+}
+.tag_r {
+	background-color: #cccccc;
+	color: #2e7de6;
+}
+.tag_unity {
+	background-color: #222222;
+	color: #f1f1f1;
+}
+.tag_uwm {
+	background-color: #c669f5;
+}
+.tag_westminster {
+	background-color: #2e7de6;
+}
+
+/* Research */
+.research_paper_row {
+	height: 100px;
+	display: flex;
+	flex-wrap: wrap;
+	padding-top: 10px;
+	padding-bottom: 140px;
+	padding-left: 10px;
+	gap: 20px;
+}
+.research_paper_thumbnail {
+	width: var(--size_research_thumb_width);
+	height: 100% vh;
+	border-radius: var(--border_radius_thumb);
+	border-style: var(--border_style_thumb);
+}
+.research_paper_thumbnail_genera {
+	content: url("./thumb_genera_knots.png");
+}
+.research_paper_thumbnail_genera_four {
+	content: url("./thumb_genera_four.png");
+}
+.research_paper_text {
+	width: 100hw;
+}
+.research_paper_text_title {
+	color: var(--color_highlight);
+	font-weight: bold;
+}
+.research_paper_text_authors {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+.research_paper_text_journal {
+	text-transform: uppercase;
+	font-size: 11px;
+}
+.research_paper_text_links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	padding-top: 6px;
+}
+.research_link {
+	width: fit-content;
+	height: fit-content;
+	border-radius: 5px;
+	cursor: pointer;
+	text-align: center;
+	padding: 5px;
+	color: #f1f1f1;
+}
+.research_link_arxiv {
+	background-color: #a3140a;
+}
+.research_link_publisher {
+	background-color: #6162c9;
+}
+
+
+/* Footer */
+.footer {
+  padding: 4px;
+  text-align: center;
+  background: var(--color_wrap);
+  font-size: 12px;
+  color: var(--color_navt);
+}
+
+
+
+/* Responsive layout - when the screen is less than 700px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 700px) {
+  .row {   
+    flex-direction: column;
+  }
+}
+
+/* Responsive layout - when the screen is less than 400px wide, make the navigation links stack on top of each other instead of next to each other */
+@media screen and (max-width: 400px) {
+  .navbar a {
+    float: none;
+    width: 100%;
+  }
+}
