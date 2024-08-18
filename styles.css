@@ -524,4 +524,11 @@ h1 .type3{
 		height: 160px;
 		width: 160px;
 	}
+	.research_paper_row {
+		display: block;
+		height: 250px;
+	}
+	.research_paper_text {
+		padding-top: 10px;
+	}
 }
