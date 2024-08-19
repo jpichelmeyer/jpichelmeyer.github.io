@@ -508,9 +508,8 @@ h1 .type3{
 	}
 	.side_left {
 		position: relative;
-	}
-	.main {
-		margin-left: 0px;
+		width: 400px;
+		margin-left: 20px;
 	}
 	.portrait {
 		height: 0px;
@@ -521,8 +520,32 @@ h1 .type3{
 		width: 0px;
 	}
 	.portrait_combined {
-		height: 160px;
-		width: 160px;
+		height: 220px;
+		width: 220px;
+	}
+	.name_and_letters_name {
+		font-size: 20px;
+	}
+	.name_and_letters_letters {
+		font-size: 17px;
+	}
+	.c1 {
+		font-size: 16px;
+		font-weight: normal;
+	}
+	.navbarsocial img {
+		width: 23px;
+	}
+	.navbar {
+		width: 0px;
+		height: 0px;
+	}
+	.color_control_button {
+		width: 30px;
+		height: 30px;
+	}
+	.main {
+		margin-left: 0px;
 	}
 	.research_paper_row {
 		display: block;
