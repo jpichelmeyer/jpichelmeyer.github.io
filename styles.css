@@ -377,7 +377,7 @@ h1 .type3{
 }
 .tag_gt {
 	background-color: #c4b480;
-	color: #f1f1f1;
+	color: #303c69;
 }
 .tag_godot {
 	background-color: #4476b8;
@@ -407,6 +407,10 @@ h1 .type3{
 	background-color: #f27718;
 	color: #18f2ef;
 }
+.tag_msoe {
+	background-color: #ba211c;
+	color: #f1f1f1;
+}
 .tag_octave {
 	background-color: #1d7e8f;
 	color: #ffa861;
@@ -424,7 +428,8 @@ h1 .type3{
 	color: #f1f1f1;
 }
 .tag_uwm {
-	background-color: #c669f5;
+	background-color: #ffc73b;
+	color: #1f1f1f;
 }
 .tag_westminster {
 	background-color: #2e7de6;
