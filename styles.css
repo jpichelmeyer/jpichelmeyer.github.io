@@ -225,7 +225,16 @@ h1 .type3{
 /* Section */
 .main_section {
 	padding-top: 10px;
-	padding-bottom: 70px;
+	padding-bottom: 30px;
+}
+
+/* Section divider bar */
+.section_divider {
+	color: var(--color-lowlight);
+	padding-bottom: 10px;
+}
+.section_divider:after {
+	content: "_______________________________________________________________";
 }
 
 /* Page heading */
@@ -299,7 +308,7 @@ h1 .type3{
 	padding-bottom: 20px;
 }
 .taught_course_section_head {
-	font-size: 15px;
+	font-size: 14px;
 	text-transform: uppercase;
 	color: var(--color_lowlight);
 	padding-bottom: 20px;
@@ -442,7 +451,7 @@ h1 .type3{
 	flex-wrap: wrap;
 	padding-top: 10px;
 	padding-bottom: 140px;
-	padding-left: 10px;
+	padding-left: 0px;
 	gap: 20px;
 }
 .research_paper_thumbnail {
@@ -451,11 +460,14 @@ h1 .type3{
 	border-radius: var(--border_radius_thumb);
 	border-style: var(--border_style_thumb);
 }
+.research_paper_thumbnail_genera_four {
+	content: url("./thumb_genera_four.png");
+}
 .research_paper_thumbnail_genera {
 	content: url("./thumb_genera_knots.png");
 }
-.research_paper_thumbnail_genera_four {
-	content: url("./thumb_genera_four.png");
+.research_paper_thumbnail_para {
+	content: url("./thumb_para.png");
 }
 .research_paper_text {
 	width: 100hw;
@@ -463,6 +475,7 @@ h1 .type3{
 .research_paper_text_title {
 	color: var(--color_highlight);
 	font-weight: bold;
+	width: 320px;
 }
 .research_paper_text_authors {
 	padding-top: 5px;
@@ -493,6 +506,13 @@ h1 .type3{
 .research_link_publisher {
 	background-color: #6162c9;
 }
+.research_link_semantic_scholar {
+	color: #e0c677;
+	background-color: #263180;
+}
+.research_link_krex {
+	background-color: #4a2569;
+}
 
 
 /* Footer */
@@ -507,7 +527,7 @@ h1 .type3{
 
 
 /* Responsive layout - when the screen is less than 700px wide, make the two columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 800px) {
 	.row {   
 		flex-direction: column;
 	}
