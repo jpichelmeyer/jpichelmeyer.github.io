@@ -1,7 +1,7 @@
 function loadAll(){
     blinkOn();
     catBlinkOn();
-    changePageColors(0);
+    changePageColors(1);
     hideHeart();
 }
 
