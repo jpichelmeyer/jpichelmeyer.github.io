@@ -460,6 +460,12 @@ h1 .type3{
 	border-radius: var(--border_radius_thumb);
 	border-style: var(--border_style_thumb);
 }
+.research_paper_thumbnail_cycle_basis {
+	content: url("./thumb_cycle_basis.png");
+}
+.research_paper_thumbnail_tooth {
+	content: url("./thumb_tooth.png");
+}
 .research_paper_thumbnail_genera_four {
 	content: url("./thumb_genera_four.png");
 }
