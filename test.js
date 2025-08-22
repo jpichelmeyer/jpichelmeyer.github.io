@@ -52,7 +52,7 @@ function changePageColors(idx){
     // Store color palettes here
     const color_palettes = [
         ['#1e201e', '#3c3d37', '#f1f1f1', '#aaaaaa', '100%'], // 0 Default (dark)
-        ['#dddddd', '#f1f1f1', '#0f0f0f', '#777777',   '0%'], // 1 Default (light)
+        ['#f1f1f1', '#f1f1f1', '#060606', '#4f4f4f',   '0%'], // 1 Default (light)
         ['#1E201E', '#3C3D37', '#ECDFCC', '#697565', '100%'], // 2 Dark green
         ['#6482AD', '#7FA1C3', '#F5EDED', '#E2DAD6', '100%'], // 3 Calm blue
         ['#201E43', '#134B70', '#EEEEEE', '#508C9B', '100%'], // 4 Dark blue / Cyan
@@ -68,7 +68,8 @@ function changePageColors(idx){
     var color_palette = color_palettes[idx];
 
     var wrap_color = color_palette[0];
-    var core_color = color_palette[1];
+	// var core_color = color_palette[1];
+    var core_color = color_palette[0];
     var high_color = color_palette[2];
     var low_color = color_palette[3];
     var soc_bright = 'brightness(' + color_palette[4] + ')';

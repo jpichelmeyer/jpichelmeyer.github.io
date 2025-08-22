@@ -6,6 +6,7 @@
 :root {
 	--color_highlight: #f1f1f1;
 	--color_lowlight: #aaaaaa;
+	--color_section_head_bg: #ff0000;
 	--color_wrap: #1E201E;
 	--color_core: #3C3D37;
 	--margin_left: 200px;
@@ -29,9 +30,14 @@ a:hover {
 	text-decoration: none;
 }
 
+h1, .page_heading {
+  font-family: 'Merriweather', serif;
+}
+
 /* Style the body */
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  /*font-family: Arial, Helvetica, sans-serif;*/
+  font-family: 'Inter', sans-serif;
   margin: 0;
   color: var(--color_lowlight);
   background-color: var(--color_wrap);
@@ -64,7 +70,7 @@ body {
 	padding-top: 10px;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
+	gap: 4px;
 }
 .name_and_letters_name {
 	color: var(--color_highlight);
@@ -73,9 +79,9 @@ body {
 }
 .name_and_letters_letters {
 	color: var(--color-lowlight);
-	font-size: 12px;
+	font-size: 13px;
 	float: right;
-	padding-top: 3px;
+	padding-top: 0px;
 }
 
 /* Typewriter effect */
@@ -223,9 +229,21 @@ h1 .type3{
 	background-color: var(--color_core);
 }
 /* Section */
+/*
 .main_section {
 	padding-top: 10px;
 	padding-bottom: 30px;
+}
+*/
+
+.main_section {
+  padding: 25px 20px;
+  width: 550px;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  transition: background 0.3s;
 }
 
 /* Section divider bar */
@@ -233,12 +251,15 @@ h1 .type3{
 	color: var(--color-lowlight);
 	padding-bottom: 10px;
 }
+/*
 .section_divider:after {
 	content: "_______________________________________________________________";
 }
+*/
 
 /* Page heading */
 .page_heading {
+	/*background: var(--color_section_head_bg);*/
 	color: var(--color_highlight);
 	font-weight: bold;
 	font-size: 15px;
@@ -316,7 +337,7 @@ h1 .type3{
 	font-weight: bold;
 }
 .taught_course_section {
-	padding-left: 20px;
+	padding-left: 10px;
 }
 .taught_course_tags {
 	padding-top: 4px;
@@ -460,11 +481,17 @@ h1 .type3{
 	border-radius: var(--border_radius_thumb);
 	border-style: var(--border_style_thumb);
 }
-.research_paper_thumbnail_cycle_basis {
-	content: url("./thumb_cycle_basis.png");
+.research_paper_thumbnail_tda_eeg {
+	content: url("./thumb_tda_eeg.png");
+}
+.research_paper_thumbnail_tda_llm {
+	content: url("./thumb_tda_llm.png");
 }
 .research_paper_thumbnail_tooth {
 	content: url("./thumb_tooth.png");
+}
+.research_paper_thumbnail_cycle_basis {
+	content: url("./thumb_cycle_basis.png");
 }
 .research_paper_thumbnail_genera_four {
 	content: url("./thumb_genera_four.png");
@@ -481,7 +508,7 @@ h1 .type3{
 .research_paper_text_title {
 	color: var(--color_highlight);
 	font-weight: bold;
-	width: 320px;
+	width: 260px;
 }
 .research_paper_text_authors {
 	padding-top: 5px;
