@@ -318,6 +318,11 @@ h1 .type3{
 	font-size: 12px;
 	padding-top: 5px;
 }
+.timeline_textbox_spec {
+	color: var(--color_lowlight);
+	font-size: 10px;
+}
+
 .timeline_textbox_place {
 	color: var(--color_lowlight);
 	font-size: 12px;
