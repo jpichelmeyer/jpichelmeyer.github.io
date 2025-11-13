@@ -147,6 +147,25 @@ h1 .type3{
   width: var(--margin_left);
 }
 
+/* Style the resources bar container */
+.resourcesbar {
+  font-size: 12px;
+  padding: 0px;
+  padding-top: 15px;
+  margin-top: 20px;
+  color: var(--color_lowlight);
+  width: var(--margin_left);
+}
+
+/* Style the links inside resources bar to stack vertically */
+.resourcesbar a {
+  display: block; /* Makes each link take full width and stack */
+  color: var(--color_lowlight);
+  text-align: left;
+  padding: 8px 2px;
+  text-decoration: none;
+}
+
 /* Social nav container */
 .navbarsocial {
 	text-align: left;
@@ -286,26 +305,26 @@ h1 .type3{
 	filter: var(--brightness_social);
 }
 .timeline_icon_arrow {
-	content: url(./timeline_arrow.png);
+	content: url(./images/timeline_arrow.png);
 	height: 40px;
 	opacity: var(--opacity_timeline);
 }
 .timeline_icon_degree {
-	content: url(./timeline_degree.png);
+	content: url(./images/timeline_degree.png);
 	height: 40px;
 }
 .timeline_icon_dot {
-	content: url(./timeline_dot.png);
+	content: url(./images/timeline_dot.png);
 	height: 40px;
 }
 .timeline_icon_line {
-	content: url(./timeline_line.png);
+	content: url(./images/timeline_line.png);
 	width: 40px;
 	height: 20px;
 	opacity: var(--opacity_timeline);
 }
 .timeline_icon_tail {
-	content: url(./timeline_tail.png);
+	content: url(./images/timeline_tail.png);
 	height: 40px;
 	opacity: var(--opacity_timeline);
 }
@@ -487,25 +506,25 @@ h1 .type3{
 	border-style: var(--border_style_thumb);
 }
 .research_paper_thumbnail_tda_eeg {
-	content: url("./thumb_tda_eeg.png");
+	content: url("./images/thumb_tda_eeg.png");
 }
 .research_paper_thumbnail_tda_llm {
-	content: url("./thumb_tda_llm.png");
+	content: url("./images/thumb_tda_llm.png");
 }
 .research_paper_thumbnail_tooth {
-	content: url("./thumb_tooth.png");
+	content: url("./images/thumb_tooth.png");
 }
 .research_paper_thumbnail_cycle_basis {
-	content: url("./thumb_cycle_basis.png");
+	content: url("./images/thumb_cycle_basis.png");
 }
 .research_paper_thumbnail_genera_four {
-	content: url("./thumb_genera_four.png");
+	content: url("./images/thumb_genera_four.png");
 }
 .research_paper_thumbnail_genera {
-	content: url("./thumb_genera_knots.png");
+	content: url("./images/thumb_genera_knots.png");
 }
 .research_paper_thumbnail_para {
-	content: url("./thumb_para.png");
+	content: url("./images/thumb_para.png");
 }
 .research_paper_text {
 	width: 100hw;

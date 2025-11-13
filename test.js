@@ -1,41 +1,8 @@
 function loadAll(){
-    blinkOn();
-    catBlinkOn();
     changePageColors(1);
     hideHeart();
 }
 
-function blinkOn(){
-    document.getElementById("portrait_pixel_eyes").style.zIndex = "-1";
-    var min = 1, max = 6;
-    var rand = min + (max-min)*Math.random();
-    rand *= 1000;
-    setTimeout(blinkOff, rand);
-}
-
-function blinkOff(){
-    document.getElementById("portrait_pixel_eyes").style.zIndex = "-2";
-    var min = 0.05, max = 0.2;
-    var rand = min + (max-min)*Math.random();
-    rand *= 1000;
-    setTimeout(blinkOn, rand);
-}
-
-function catBlinkOn(){
-    document.getElementById("portrait_pixel_eyes_cat").style.zIndex = "-1";
-    var min = 2, max = 10;
-    var rand = min + (max-min)*Math.random();
-    rand *= 1000;
-    setTimeout(catBlinkOff, rand);
-}
-
-function catBlinkOff(){
-    document.getElementById("portrait_pixel_eyes_cat").style.zIndex = "-2";
-    var min = 0.4, max = 1.6;
-    var rand = min + (max-min)*Math.random();
-    rand *= 1000;
-    setTimeout(catBlinkOn, rand);
-}
 
 function reloadCSS(){
     var links = document.getElementsByTagName("link");
