@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>K-means p2</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    h3 {
+      margin-bottom: 6px;
+      margin-top: 16px;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .controls {
+      width: 320px;
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .controls button,
+    .controls select,
+    .controls input[type="range"] {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .controls label {
+      font-size: 14px;
+      display: block;
+      margin-top: 6px;
+    }
+
+    .stats {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .viz {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    canvas {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .note {
+      font-size: 12px;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    hr {
+      margin: 14px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>K-means algorithm: Building intuition</h1>
+
+<div class="container">
+  <div class="controls">
+
+    <h3>Dataset generation</h3>
+
+    <label>
+      Number of points:
+      <span id="numPointsLabel">30</span>
+    </label>
+    <input type="range" id="numPoints" min="1" max="300" value="30">
+
+    <label>
+      Number of blobs:
+      <span id="numBlobsLabel">2</span>
+    </label>
+    <input type="range" id="numBlobs" min="1" max="10" value="2">
+
+    <label>
+      Blob looseness:
+      <span id="loosenessLabel">30</span>
+    </label>
+    <input type="range" id="looseness" min="10" max="200" value="80">
+
+    <button onclick="generatePoints()">Generate random dataset</button>
+
+    <hr>
+
+    <h3>Initialization (one-time)</h3>
+
+    <label>Number of clusters (K)</label>
+    <select id="kSelect">
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+
+    <button onclick="initializeCenters()">Randomly initialize centers</button>
+
+    <hr>
+
+    <h3>Iterative optimization</h3>
+
+    <button onclick="assignPoints()">Assign points to nearest center</button>
+    <button onclick="updateCenters()">Update centers (means)</button>
+    <button onclick="iterate()">Run one full iteration</button>
+
+    <div class="stats">
+      <div><strong>Iteration:</strong> <span id="iteration">0</span></div>
+      <div><strong>Current loss:</strong></div>
+      <div id="loss">—</div>
+    </div>
+
+    <div class="note">
+      Loss = sum of squared distances to cluster centers.
+    </div>
+  </div>
+
+  <div class="viz">
+    <canvas id="dataCanvas" width="600" height="400"></canvas>
+    <canvas id="lossCanvas" width="600" height="180"></canvas>
+  </div>
+</div>
+
+<script>
+  const dataCanvas = document.getElementById("dataCanvas");
+  const dataCtx = dataCanvas.getContext("2d");
+
+  const lossCanvas = document.getElementById("lossCanvas");
+  const lossCtx = lossCanvas.getContext("2d");
+
+  const width = dataCanvas.width;
+  const height = dataCanvas.height;
+
+  let points = [];
+  let centers = [];
+  let assignments = [];
+  let iteration = 0;
+  let lossHistory = [];
+
+  const colors = [
+    "#e41a1c", "#377eb8", "#4daf4a", "#984ea3",
+    "#ff7f00", "#ffff33", "#a65628", "#f781bf",
+    "#999999", "#66c2a5"
+  ];
+
+  const numPointsSlider = document.getElementById("numPoints");
+  const numBlobsSlider = document.getElementById("numBlobs");
+  const loosenessSlider = document.getElementById("looseness");
+
+  const numPointsLabel = document.getElementById("numPointsLabel");
+  const numBlobsLabel = document.getElementById("numBlobsLabel");
+  const loosenessLabel = document.getElementById("loosenessLabel");
+
+  function updateLabels() {
+    numPointsLabel.textContent = numPointsSlider.value;
+    numBlobsLabel.textContent = numBlobsSlider.value;
+    loosenessLabel.textContent = loosenessSlider.value;
+  }
+
+  numPointsSlider.oninput = updateLabels;
+  numBlobsSlider.oninput = updateLabels;
+  loosenessSlider.oninput = updateLabels;
+
+  function resetState() {
+    centers = [];
+    assignments = new Array(points.length).fill(null);
+    iteration = 0;
+    lossHistory = [];
+    document.getElementById("iteration").textContent = iteration;
+    document.getElementById("loss").textContent = "—";
+    drawLossPlot();
+  }
+  
+  function randomIntExcl(min, max){
+	// Use Math.ceil() and Math.floor() to ensure integer boundaries
+	const minCeiled = Math.ceil(min);
+	const maxFloored = Math.floor(max);
+	
+	// The core formula for a range inclusive of both ends
+	return Math.floor(Math.random() * (maxFloored - minCeiled)) + minCeiled
+  }
+  
+  function randomPoint(passedWidth, passedHeight){
+	
+	return {
+		x: Math.random() * (passedWidth - 100) + 50,
+		y: Math.random() * (passedHeight - 100) + 50
+		}
+  }
+  
+  function randomAng(){
+	return Math.random() * 2 * Math.PI;
+  }
+  
+  function randomRad(radMax=20){
+	return Math.random() * radMax;
+  }
+  
+  function randomVec(passedRad=5){
+	let randVecAng = randomAng();
+	return {
+		x: passedRad * Math.cos(randVecAng), 
+		y: passedRad * Math.sin(randVecAng)
+		}
+  }
+  
+  function clamp(value, min, max){
+	return Math.max(min, Math.min(max, value));
+  }
+  
+  function boundP(passedP){
+	let xMin = 100;
+	let xMax = 450;
+	let yMin = 100;
+	let yMax = 325;
+	return {
+		x: clamp(passedP.x, xMin, xMax),
+		y: clamp(passedP.y, yMin, yMax)
+	}
+  }
+
+  function generatePoints() {
+    const totalPoints = parseInt(numPointsSlider.value);
+    const numBlobs = parseInt(numBlobsSlider.value);
+    const looseness = parseInt(loosenessSlider.value);
+
+    points = [];
+    resetState();
+
+    let blobCenters = [];	
+	
+	for (let i=0; i< numBlobs; i++){
+		let center = boundP(randomPoint(width, height))
+		blobCenters.push(center);
+	}
+	
+	// Add the centers (remove later)
+	for (const center of blobCenters){
+		points.push(center)
+	}
+	
+	
+	for (let i=0; i<totalPoints; i++){
+		
+		// Choose a random blob center
+		blobIdx = randomIntExcl(0, blobCenters.length);
+		let b = blobCenters[blobIdx];
+		
+		// Assign a point at a random angle and radius
+		let u = randomVec(randomRad(looseness));
+		points.push({x:b.x+u.x, y:b.y+u.y});
+
+		// Adjust the blob center slightly
+		// Could add a 'drift' radius parameter
+		u = randomVec(10);
+		let p = {
+			x: b.x + u.x,
+			y: b.y + u.y
+		};
+		p = boundP(p)
+		blobCenters[blobIdx] = p;
+		
+	}
+
+    drawData(reset=true);
+  }
+
+  function initializeCenters() {
+    const k = parseInt(document.getElementById("kSelect").value);
+    centers = [];
+
+    for (let i = 0; i < k; i++) {
+      centers.push({
+        x: Math.random() * width,
+        y: Math.random() * height
+      });
+    }
+
+    iteration = 0;
+    lossHistory = [];
+    document.getElementById("iteration").textContent = iteration;
+    document.getElementById("loss").textContent = "—";
+
+    drawData();
+    drawLossPlot();
+  }
+
+  function assignPoints() {
+    if (centers.length === 0) return;
+
+    assignments = points.map(p => {
+      let best = 0;
+      let bestDist = Infinity;
+
+      centers.forEach((c, i) => {
+        const d = (p.x - c.x) ** 2 + (p.y - c.y) ** 2;
+        if (d < bestDist) {
+          bestDist = d;
+          best = i;
+        }
+      });
+
+      return best;
+    });
+
+    computeLoss();
+    drawData();
+  }
+
+  function updateCenters() {
+    if (centers.length === 0) return;
+
+    const k = centers.length;
+    let sums = Array.from({ length: k }, () => ({ x: 0, y: 0, count: 0 }));
+
+    points.forEach((p, i) => {
+      const c = assignments[i];
+      if (c !== null) {
+        sums[c].x += p.x;
+        sums[c].y += p.y;
+        sums[c].count += 1;
+      }
+    });
+
+    sums.forEach((s, i) => {
+      if (s.count > 0) {
+        centers[i].x = s.x / s.count;
+        centers[i].y = s.y / s.count;
+      }
+    });
+
+    drawData();
+  }
+
+  function iterate() {
+    assignPoints();
+    updateCenters();
+    iteration += 1;
+    document.getElementById("iteration").textContent = iteration;
+  }
+
+  function computeLoss() {
+    let loss = 0;
+    points.forEach((p, i) => {
+      const c = centers[assignments[i]];
+      if (c) {
+        loss += (p.x - c.x) ** 2 + (p.y - c.y) ** 2;
+      }
+    });
+
+    lossHistory.push(loss);
+    document.getElementById("loss").textContent = loss.toFixed(2);
+    drawLossPlot();
+  }
+
+  function drawData(reset=false) {
+    dataCtx.clearRect(0, 0, width, height);
+
+    points.forEach((p, i) => {
+      const cluster = assignments[i];
+      dataCtx.beginPath();
+      dataCtx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      dataCtx.fillStyle = cluster === null ? "#999" : colors[cluster % colors.length];
+	  if (reset==true){
+		dataCtx.fillStyle = "#888888";
+	  }
+      dataCtx.fill();
+    });
+
+    centers.forEach((c, i) => {
+      dataCtx.beginPath();
+      dataCtx.arc(c.x, c.y, 10, 0, Math.PI * 2);
+      dataCtx.strokeStyle = colors[i % colors.length];
+      dataCtx.lineWidth = 3;
+      dataCtx.stroke();
+    });
+  }
+
+  function drawLossPlot() {
+    lossCtx.clearRect(0, 0, lossCanvas.width, lossCanvas.height);
+
+    if (lossHistory.length === 0) return;
+
+    const padding = 30;
+    const w = lossCanvas.width - 2 * padding;
+    const h = lossCanvas.height - 2 * padding;
+
+    const maxLoss = Math.max(...lossHistory);
+    const minLoss = Math.min(...lossHistory);
+
+    lossCtx.strokeStyle = "#333";
+    lossCtx.beginPath();
+    lossCtx.moveTo(padding, padding);
+    lossCtx.lineTo(padding, padding + h);
+    lossCtx.lineTo(padding + w, padding + h);
+    lossCtx.stroke();
+
+    lossCtx.strokeStyle = "#377eb8";
+    lossCtx.beginPath();
+
+    lossHistory.forEach((loss, i) => {
+      const x = padding + (i / Math.max(1, lossHistory.length - 1)) * w;
+      const y = padding + h * (1 - (loss - minLoss) / (maxLoss - minLoss || 1));
+      if (i === 0) lossCtx.moveTo(x, y);
+      else lossCtx.lineTo(x, y);
+    });
+
+    lossCtx.stroke();
+
+    lossCtx.fillStyle = "#333";
+    lossCtx.font = "12px system-ui";
+    lossCtx.fillText("Loss", 5, 12);
+    lossCtx.fillText("Iteration", lossCanvas.width - 60, lossCanvas.height - 5);
+  }
+
+  updateLabels();
+  // generatePoints();
+</script>
+
+</body>
+</html>
+
