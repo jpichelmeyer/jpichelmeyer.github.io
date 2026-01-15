@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>K-means p1</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .controls {
+      width: 360px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 10px;
+      display: block;
+    }
+
+    select, input[type="range"], button {
+      width: 100%;
+      margin-top: 5px;
+    }
+
+    button {
+      padding: 8px;
+      margin-top: 10px;
+    }
+
+    canvas {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 4px;
+      text-align: right;
+    }
+
+    th {
+      background: #f0f0f0;
+      text-align: center;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>K-means motivation: Patient data exploration</h1>
+
+<div class="container">
+  <div class="controls">
+
+    <label>
+      Number of patients:
+      <span id="nLabel">300</span>
+    </label>
+    <input type="range" min="5" max="100" step="1" value="10"
+           oninput="updateN(this.value)">
+	
+    <label>X-axis feature</label>
+    <select id="xSelect" onchange="draw()"></select>
+
+    <label>Y-axis feature</label>
+    <select id="ySelect" onchange="draw()"></select>
+
+    <button onclick="generateData()">Regenerate dataset</button>
+
+    <table id="dataTable"></table>
+	
+	<div class="note">
+      <p>
+	  PD-L1 Expression Level (%). Percentage of tumor cells expressing PD-L1 protein
+	  </p>
+	  
+	  <p>
+	  Circulating tumor DNA (ctDNA). Quantifies the amount of tumor DNA found in a blood sample.
+	  </P>
+	  
+	  <p>
+	  HER2. A growth-promoting protein.
+	  </P>
+	  
+	  <p>
+	  Lactate Dehydrogenase (LDH). A common enzyme measured in blood that increases with tissue damage and rapid tumor growth.
+	  </P>
+	  
+    </div>
+	
+  </div>
+
+  <canvas id="canvas" width="650" height="450"></canvas>
+</div>
+
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const padding = 40;
+  
+  // Populate features array
+  const features = [
+	"PD-L1",
+	"ctDNA",
+	"HER2",
+	"LDH", 
+	];
+  
+  // Generate all distinct pairs of distinct markers
+  const structuredPairs = [
+  ];
+  for (i=0; i<features.length; i++){
+	for (j=0; j<features.length; j++){
+		if (i < j){
+			structuredPairs.push([features[i],features[j]]);
+		}
+	}
+  }
+  
+  
+  let N = 300;
+  let K = 2;
+  let data = [];
+
+  function updateN(v) {
+    N = parseInt(v);
+    document.getElementById("nLabel").textContent = v;
+    generateData();
+  }
+
+  function updateK(v) {
+    K = parseInt(v);
+    document.getElementById("kLabel").textContent = v;
+    generateData();
+  }
+
+  function generateData() {
+    
+	data = [];
+	
+	const cols = []
+	for (i=0; i<features.length; i++){
+		cols.push[0];
+	}
+	
+	for (i=0; i<N; i++){
+		
+		// Set feature 0 totally random
+		let feature0 = Math.random()*100.0;
+		
+		// Set feature 1 totally random
+		let feature1 = Math.random()*2500.0;
+		
+		// Set feature 2 totally random
+		let feature2 = Math.random()*(200-5) + 5;
+		
+		// Set feature 3 to be 
+		//		high when feature 2 is low
+		//		low when feature 2 is high
+		let feature2Mid = 100.0;
+		let feature3 = Math.random()*(2000-100) + 100;
+		if (feature2<feature2Mid){
+			feature3 = Math.random()*(2000-1000) + 1000;
+		} else{
+			feature3 = Math.random()*(1000-0) + 0;
+		}
+		
+		data.push({
+			"PD-L1": feature0,
+			"ctDNA": feature1,
+			"HER2": feature2,
+			"LDH": feature3
+		});
+		
+	}
+
+    updateTable();
+    draw();
+  }
+
+  function updateTable() {
+    const table = document.getElementById("dataTable");
+    table.innerHTML = "";
+
+    const header = document.createElement("tr");
+    features.forEach(f => {
+      const th = document.createElement("th");
+      th.textContent = f;
+      header.appendChild(th);
+    });
+    table.appendChild(header);
+
+    data.slice(0, 5).forEach(row => {
+      const tr = document.createElement("tr");
+      features.forEach(f => {
+        const td = document.createElement("td");
+        td.textContent = row[f].toFixed(1);
+        tr.appendChild(td);
+      });
+      table.appendChild(tr);
+    });
+  }
+
+  function draw() {
+	  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	  const fx = xSelect.value;
+	  const fy = ySelect.value;
+
+	  const xs = data.map(d => d[fx]);
+	  const ys = data.map(d => d[fy]);
+
+	  const xmin = Math.min(...xs), xmax = Math.max(...xs);
+	  const ymin = Math.min(...ys), ymax = Math.max(...ys);
+
+	  const sx = x =>
+		padding + (x - xmin) / (xmax - xmin) * (canvas.width - 2 * padding);
+	  const sy = y =>
+		canvas.height - padding -
+		(y - ymin) / (ymax - ymin) * (canvas.height - 2 * padding);
+
+	  /* Axes */
+	  ctx.strokeStyle = "#444";
+	  ctx.lineWidth = 1.5;
+	  ctx.beginPath();
+	  ctx.moveTo(padding, padding);
+	  ctx.lineTo(padding, canvas.height - padding);
+	  ctx.lineTo(canvas.width - padding, canvas.height - padding);
+	  ctx.stroke();
+
+	  /* Points */
+	  ctx.fillStyle = "#888888";
+	  data.forEach(d => {
+		ctx.beginPath();
+		ctx.arc(sx(d[fx]), sy(d[fy]), 3, 0, Math.PI * 2);
+		ctx.fill();
+	  });
+
+	  /* Axis labels and min/max */
+	  ctx.fillStyle = "#000";
+	  ctx.font = "13px system-ui";
+	  ctx.textAlign = "center";
+
+	  // X-axis label
+	  ctx.fillText(
+		`${fx}  [${xmin.toFixed(1)}, ${xmax.toFixed(1)}]`,
+		canvas.width / 2,
+		canvas.height - 8
+	  );
+
+	  // X-axis min/max ticks
+	  ctx.textAlign = "right";
+	  ctx.fillText(xmin.toFixed(1), padding - 6, canvas.height - padding + 4);
+
+	  ctx.textAlign = "center";
+	  ctx.fillText(
+		xmax.toFixed(1),
+		canvas.width - padding,
+		canvas.height - padding + 16
+	  );
+
+	  // Y-axis label (rotated)
+	  ctx.save();
+	  ctx.translate(14, canvas.height / 2);
+	  ctx.rotate(-Math.PI / 2);
+	  ctx.textAlign = "center";
+	  ctx.fillText(
+		`${fy}  [${ymin.toFixed(1)}, ${ymax.toFixed(1)}]`,
+		0,
+		0
+	  );
+	  ctx.restore();
+
+	  // Y-axis min/max ticks
+	  ctx.textAlign = "right";
+	  ctx.fillText(ymin.toFixed(1), padding - 6, canvas.height - padding + 4);
+	  ctx.fillText(ymax.toFixed(1), padding - 6, padding + 4);
+	}
+
+
+  function init() {
+
+    features.forEach(f => {
+      xSelect.add(new Option(f, f));
+      ySelect.add(new Option(f, f));
+    });
+
+    xSelect.value = features[0];
+    ySelect.value = features[1];
+
+    generateData();
+  }
+
+  init();
+</script>
+
+</body>
+</html>

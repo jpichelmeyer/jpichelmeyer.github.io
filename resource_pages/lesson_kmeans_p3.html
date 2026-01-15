@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>K-means p3</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    background: #f7f7f7;
+    padding: 30px;
+  }
+
+  .algo {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    max-width: 800px;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .line {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2px 6px;
+    white-space: pre;
+  }
+
+  .indent1 { margin-left: 20px; }
+  .indent2 { margin-left: 40px; }
+
+  .section {
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  .highlight {
+    background: #e8f0fe;
+    border-radius: 4px;
+  }
+
+  .objective {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #333;
+  }
+</style>
+</head>
+<body>
+
+<div class="algo">
+  <div class="title">K-means: algorithm pseudocode</div>
+
+  <div class="line">Input: data points x₁, …, xₙ ∈ ℝᵈ, number of clusters K</div>
+  <div class="line">Output: cluster assignments c₁, …, cₙ and centers μ₁, …, μ_K</div>
+
+  <div class="line section">1. Initialize centers μ₁, …, μ_K randomly</div>
+
+  <div class="line section">Repeat:</div>
+
+  <div class="line indent1 section">2. Assignment step</div>
+  <div class="line indent2">For each point xᵢ:</div>
+  <div class="line indent2 highlight">
+    cᵢ ← argminⱼ ‖xᵢ − μⱼ‖²
+  </div>
+
+  <div class="line indent1 section">3. Update step</div>
+  <div class="line indent2">For each cluster j = 1,…,K:</div>
+  <div class="line indent2 highlight">
+    μⱼ ← mean of all points assigned to cluster j
+  </div>
+
+  <div class="line section">Until assignments no longer change</div>
+
+  <div class="objective">
+    Objective: minimize ∑ᵢ ‖xᵢ − μ_{cᵢ}‖²
+  </div>
+</div>
+
+</body>
+</html>
