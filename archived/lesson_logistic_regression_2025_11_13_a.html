@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Interactive Logistic Regression Demo</title>
+<style>
+  :root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --muted:#96a0b8;
+    --accent:#7c3aed; /* purple */
+    --blue:#2563eb;
+    --red:#ef4444;
+    --panel:#071122;
+    --glass: rgba(255,255,255,0.03);
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{background:linear-gradient(180deg,#041025 0%, #081428 100%); color:#e6eef8; padding:20px; box-sizing:border-box;}
+  .wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:18px;}
+  header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;}
+  h1{font-size:18px;margin:0;color:#f3f7ff}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03);}
+  .left .plotWrap{padding:12px;}
+  canvas{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border-radius:8px;display:block;width:100%;height:420px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02);}
+  .controls{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  label{font-size:13px;color:var(--muted)}
+  .row{display:flex;align-items:center;gap:8px;margin-top:8px}
+  input[type=range]{width:100%}
+  .side{display:flex;flex-direction:column;gap:12px;}
+  .kv{display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--glass);border-radius:8px}
+  .btn{background:transparent;border:1px solid rgba(255,255,255,0.06); padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer}
+  .btn:hover{border-color:rgba(255,255,255,0.12); color:#fff}
+  .btn-primary{background:linear-gradient(90deg,var(--accent),#5b21b6);border:none;color:white}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.03); text-align:left}
+  th{font-size:12px;color:var(--muted)}
+  .muted{color:var(--muted);font-size:13px}
+  .loss{font-weight:700;color:var(--accent);font-size:18px}
+  .legend{display:flex;gap:6px;align-items:center}
+  .legend .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .footer{margin-top:10px;color:var(--muted);font-size:12px}
+  @media (max-width:980px){
+    .wrap{grid-template-columns:1fr; padding:10px}
+    canvas{height:360px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Logistic regression — interactive demo</h1>
+        <p class="lead">One continuous feature ("hours studying") → binary outcome (received an A: yes/no). Change data size, randomize, and adjust logistic parameters to see log loss.</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="legend">
+          <div class="dot" style="background:var(--blue)"></div><div class="muted">Yes (1)</div>
+          <div style="width:10px"></div>
+          <div class="dot" style="background:var(--red)"></div><div class="muted">No (0)</div>
+          <div style="width:10px"></div>
+          <div class="dot" style="background:var(--accent)"></div><div class="muted">Logistic</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="left card">
+      <div class="plotWrap">
+        <canvas id="plot" width="800" height="420"></canvas>
+        <div class="controls" style="margin-top:12px">
+          <div style="min-width:220px">
+            <label>Number of points: <span id="nLabel">20</span></label>
+            <input id="nPoints" type="range" min="4" max="40" step="2" value="20" />
+          </div>
+          <button id="randBtn" class="btn">Randomize data</button>
+          <button id="regenBtn" class="btn">Regenerate labels (no coord change)</button>
+          <div style="flex:1"></div>
+          <div style="text-align:right">
+            <div class="muted">Log loss</div>
+            <div class="loss" id="lossVal">—</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">
+          <div class="card" style="padding:10px">
+            <label>Max value L: <span id="Lval">1.00</span></label>
+            <input id="L" type="range" min="0.1" max="1.0" step="0.01" value="1.0" />
+          </div>
+          <div class="card" style="padding:10px">
+            <label>Midpoint x₀: <span id="x0val">10.0</span></label>
+            <input id="x0" type="range" min="0" max="20" step="0.1" value="10.0" />
+          </div>
+          <div class="card" style="padding:10px">
+            <label>Slope k: <span id="kval">0.50</span></label>
+            <input id="k" type="range" min="-5.0" max="5.0" step="0.05" value="0.5" />
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+          <button id="resetLog" class="btn">Reset logistic params</button>
+          <div class="muted">Defaults: L=1.0, x₀=10, k=0.5</div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="muted">Dataset (hours, received A)</div>
+            <div style="font-weight:700">Points: <span id="countDisplay">20</span></div>
+          </div>
+          <div style="text-align:right">
+            <div class="muted">Toggle</div>
+            <button id="showTable" class="btn">Show table</button>
+          </div>
+        </div>
+
+        <div id="tableWrap" style="margin-top:10px;max-height:420px;overflow:auto;display:none">
+          <table id="dataTable">
+            <thead><tr><th>#</th><th>Hours</th><th>Received A</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="compactStats" style="margin-top:12px">
+          <div class="kv"><div class="muted">Mean hours</div><div id="meanHours">—</div></div>
+          <div class="kv" style="margin-top:8px"><div class="muted">Yes fraction</div><div id="fracYes">—</div></div>
+          <div class="kv" style="margin-top:8px"><div class="muted">Std dev hours</div><div id="stdHours">—</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="muted">Quick tips</div>
+        <ul style="margin:6px 0 0 18px;color:var(--muted);font-size:13px">
+          <li>Move L, x₀, k to see the logistic curve shift.</li>
+          <li>Log loss lower ⇒ better fit (on this dataset).</li>
+          <li>Use <strong>Randomize data</strong> to create a fresh sample.</li>
+        </ul>
+      </div>
+
+      <div class="card footer">
+        <div style="font-size:12px;color:var(--muted)">Made for exploration — logistic: <code>p = L / (1 + exp(-k (x - x₀)))</code></div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+(() => {
+  // Config / defaults
+  const defaults = { L:1.0, x0:10.0, k:0.5 };
+  const canvas = document.getElementById('plot');
+  const ctx = canvas.getContext('2d');
+  const WIDTH = canvas.width;
+  const HEIGHT = canvas.height;
+  const PAD = {left:60, right:20, top:20, bottom:60};
+  const XMIN = 0, XMAX = 20;
+  // state
+  let nPoints = parseInt(document.getElementById('nPoints').value,10);
+  let data = [];
+  let params = {...defaults};
+
+  // Helpers
+  function logistic(x, {L, x0, k}) {
+    return L / (1 + Math.exp(-k * (x - x0)));
+  }
+  function clip(p) {
+    const eps = 1e-15;
+    return Math.min(Math.max(p, eps), 1-eps);
+  }
+  function computeLogLoss(dataset, paramsObj) {
+    if (dataset.length === 0) return NaN;
+    let sum = 0;
+    for (const d of dataset) {
+      const p = clip(logistic(d.x, paramsObj));
+      sum += -(d.y * Math.log(p) + (1 - d.y) * Math.log(1 - p));
+    }
+    return sum / dataset.length;
+  }
+  function mean(arr) {
+    if (!arr.length) return 0;
+    return arr.reduce((a,b)=>a+b,0)/arr.length;
+  }
+  function std(arr) {
+    if (!arr.length) return 0;
+    const m = mean(arr);
+    const v = arr.reduce((s,x)=>s + (x-m)**2,0)/arr.length;
+    return Math.sqrt(v);
+  }
+
+  // UI elements
+  const nPointsEl = document.getElementById('nPoints');
+  const nLabel = document.getElementById('nLabel');
+  const randBtn = document.getElementById('randBtn');
+  const regenBtn = document.getElementById('regenBtn');
+  const LEl = document.getElementById('L');
+  const x0El = document.getElementById('x0');
+  const kEl = document.getElementById('k');
+  const Lval = document.getElementById('Lval');
+  const x0val = document.getElementById('x0val');
+  const kval = document.getElementById('kval');
+  const resetLog = document.getElementById('resetLog');
+  const lossVal = document.getElementById('lossVal');
+  const showTableBtn = document.getElementById('showTable');
+  const tableWrap = document.getElementById('tableWrap');
+  const dataTableBody = document.querySelector('#dataTable tbody');
+  const countDisplay = document.getElementById('countDisplay');
+  const meanHours = document.getElementById('meanHours');
+  const stdHours = document.getElementById('stdHours');
+  const fracYes = document.getElementById('fracYes');
+
+  // map data x to pixel
+  function xToPx(x) {
+    const w = WIDTH - PAD.left - PAD.right;
+    return PAD.left + (x - XMIN) / (XMAX - XMIN) * w;
+  }
+  function yToPx(y) {
+    // y in [0,1] for plotting logistic vertical: 0 at bottom axis (0), 1 at top axis (max)
+    const h = HEIGHT - PAD.top - PAD.bottom;
+    // map 1 -> PAD.top, 0 -> HEIGHT - PAD.bottom
+    return PAD.top + (1 - y) * h;
+  }
+  function pxToX(px) {
+    const w = WIDTH - PAD.left - PAD.right;
+    return XMIN + (px - PAD.left) / w * (XMAX - XMIN);
+  }
+
+  // Drawing
+  function clear() {
+    ctx.clearRect(0,0,WIDTH,HEIGHT);
+    // BG
+    const g = ctx.createLinearGradient(0,0,0,HEIGHT);
+    g.addColorStop(0, 'rgba(255,255,255,0.015)');
+    g.addColorStop(1, 'rgba(255,255,255,0.005)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,WIDTH,HEIGHT);
+  }
+
+  function drawAxes() {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    // x axis
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, HEIGHT - PAD.bottom);
+    ctx.lineTo(WIDTH - PAD.right, HEIGHT - PAD.bottom);
+    ctx.stroke();
+    // y axis (0..1)
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, PAD.top);
+    ctx.lineTo(PAD.left, HEIGHT - PAD.bottom);
+    ctx.stroke();
+
+    // ticks x
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.textAlign = 'center';
+    ctx.font = '12px Inter, Arial';
+    const xticks = 5;
+    for (let i=0;i<=xticks;i++){
+      const x = XMIN + (XMAX-XMIN) * i/xticks;
+      const px = xToPx(x);
+      ctx.beginPath();
+      ctx.moveTo(px, HEIGHT - PAD.bottom);
+      ctx.lineTo(px, HEIGHT - PAD.bottom + 6);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(230,238,248,0.85)';
+      ctx.fillText(x.toFixed(0), px, HEIGHT - PAD.bottom + 20);
+    }
+
+    // y ticks (0..1)
+    ctx.textAlign = 'right';
+    for (let i=0;i<=5;i++){
+      const y = i/5;
+      const py = yToPx(y);
+      ctx.beginPath();
+      ctx.moveTo(PAD.left-6, py);
+      ctx.lineTo(PAD.left, py);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(230,238,248,0.85)';
+      ctx.fillText(y.toFixed(1), PAD.left-10, py+4);
+    }
+
+    // axis labels
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(180,200,220,0.8)';
+    ctx.font = '13px Inter, Arial';
+    ctx.fillText('Number of hours spent studying', (PAD.left + WIDTH - PAD.right)/2, HEIGHT - PAD.bottom + 44);
+    ctx.save();
+    ctx.translate(PAD.left-46, (PAD.top + HEIGHT - PAD.bottom)/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = 'center';
+    ctx.fillText('Probability of receiving an A', 0, 0);
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  function drawGrid() {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+    ctx.lineWidth = 1;
+    // draw subtle vertical grid
+    for (let i=0;i<=10;i++){
+      const x = PAD.left + i*(WIDTH - PAD.left - PAD.right)/10;
+      ctx.beginPath();
+      ctx.moveTo(x, PAD.top);
+      ctx.lineTo(x, HEIGHT - PAD.bottom);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawLogisticCurve(paramsObj) {
+    ctx.save();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(124,58,237,0.95)'; // purple
+    ctx.beginPath();
+    const samples = 300;
+    for (let i=0;i<=samples;i++){
+      const x = XMIN + (XMAX-XMIN)*i/samples;
+      const p = logistic(x, paramsObj);
+      const px = xToPx(x);
+      const py = yToPx(p);
+      if (i===0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPoints(dataset) {
+    for (const d of dataset) {
+      const px = xToPx(d.x);
+      const py = yToPx(d.y); // y is 0/1; plot at bottom or top? We will jitter vertically a bit for visibility but color encodes label
+      ctx.beginPath();
+      // small vertical jitter so overlapping points are visible
+      const jitterY = (Math.random()-0.5) * 6;
+      const cy = yToPx(d.y) + jitterY;
+      ctx.fillStyle = d.y === 1 ? 'rgba(37,99,235,0.95)' : 'rgba(239,68,68,0.95)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(px, cy, 6, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+
+  function render() {
+    clear();
+    drawGrid();
+    drawAxes();
+    drawLogisticCurve(params);
+    drawPoints(data);
+    // draw small legend on canvas
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    ctx.font = '12px Inter, Arial';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`L=${params.L.toFixed(2)}  x₀=${params.x0.toFixed(2)}  k=${params.k.toFixed(2)}`, WIDTH-260, PAD.top+16);
+    ctx.restore();
+    // stats
+    const loss = computeLogLoss(data, params);
+    lossVal.textContent = isFinite(loss) ? loss.toFixed(4) : '—';
+  }
+
+  // Data generation: generate x in [0,20], y sampled from a logistic with noise
+  function generateData(n, baseParams = {L:1.0, x0:10, k:0.5}) {
+    const arr = [];
+    for (let i=0;i<n;i++){
+      const x = Math.random() * (XMAX - XMIN) + XMIN;
+      // create label probabilistically according to base logistic (so data tends to make sense)
+      const p = logistic(x, baseParams);
+      const y = Math.random() < p ? 1 : 0;
+      arr.push({x: +x.toFixed(3), y});
+    }
+    return arr;
+  }
+
+  function regenerateLabelsFromParams(newParams) {
+    // keep x coordinates, resample labels based on newParams
+    data = data.map(d => {
+      const p = logistic(d.x, newParams);
+      return {...d, y: Math.random() < p ? 1 : 0};
+    });
+    updateUI();
+    render();
+  }
+
+  // Table & stats update
+  function updateTable() {
+    dataTableBody.innerHTML = '';
+    data.forEach((d,i) => {
+      const tr = document.createElement('tr');
+      const c1 = document.createElement('td'); c1.textContent = i+1;
+      const c2 = document.createElement('td'); c2.textContent = d.x.toFixed(2);
+      const c3 = document.createElement('td'); c3.textContent = d.y===1 ? 'Yes' : 'No';
+      c3.style.color = d.y===1 ? '#a9d1ff' : '#ffb7b7';
+      tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3);
+      dataTableBody.appendChild(tr);
+    });
+    countDisplay.textContent = data.length;
+    // stats
+    const xs = data.map(d=>d.x);
+    meanHours.textContent = data.length ? mean(xs).toFixed(2) : '—';
+    stdHours.textContent = data.length ? std(xs).toFixed(2) : '—';
+    const yesCount = data.reduce((s,d)=>s + (d.y===1?1:0),0);
+    fracYes.textContent = data.length ? (yesCount/data.length).toFixed(3) : '—';
+  }
+
+  function updateUI() {
+    nLabel.textContent = nPoints;
+    document.getElementById('countDisplay').textContent = data.length;
+    Lval.textContent = params.L.toFixed(2);
+    x0val.textContent = params.x0.toFixed(2);
+    kval.textContent = params.k.toFixed(2);
+    updateTable();
+  }
+
+  // Event bindings
+  nPointsEl.addEventListener('input', (e) => {
+    nPoints = parseInt(e.target.value,10);
+    nLabel.textContent = nPoints;
+    // regenerate data preserving distribution (use base defaults)
+    data = generateData(nPoints, {L:1.0, x0:10, k:0.5});
+    updateUI();
+    render();
+  });
+
+  randBtn.addEventListener('click', (e) => {
+    // randomize data using default base logistic but with small randomness so you get interesting patterns
+    const base = {L:1.0, x0:10 + (Math.random()-0.5)*4, k:0.4 + Math.random()*1.6};
+    data = generateData(nPoints, base);
+    updateUI();
+    render();
+  });
+
+  regenBtn.addEventListener('click', (e) => {
+    // regenerate labels for current x coords using defaults (so labels will change)
+    regenerateLabelsFromParams({L:1.0, x0:10, k:0.5});
+  });
+
+  LEl.addEventListener('input', (e) => {
+    params.L = parseFloat(e.target.value);
+    Lval.textContent = params.L.toFixed(2);
+    render();
+  });
+  x0El.addEventListener('input', (e) => {
+    params.x0 = parseFloat(e.target.value);
+    x0val.textContent = params.x0.toFixed(2);
+    render();
+  });
+  kEl.addEventListener('input', (e) => {
+    params.k = parseFloat(e.target.value);
+    kval.textContent = params.k.toFixed(2);
+    render();
+  });
+
+  resetLog.addEventListener('click', (e) => {
+    params = {...defaults};
+    LEl.value = params.L;
+    x0El.value = params.x0;
+    kEl.value = params.k;
+    updateUI();
+    render();
+  });
+
+  showTableBtn.addEventListener('click', () => {
+    if (tableWrap.style.display === 'none' || tableWrap.style.display === '') {
+      tableWrap.style.display = 'block';
+      showTableBtn.textContent = 'Hide table';
+    } else {
+      tableWrap.style.display = 'none';
+      showTableBtn.textContent = 'Show table';
+    }
+  });
+
+  // clickable canvas: show predicted p at clicked x
+  canvas.addEventListener('click', (ev) => {
+    const rect = canvas.getBoundingClientRect();
+    const cx = (ev.clientX - rect.left) * (canvas.width / rect.width);
+    const xClicked = pxToX(cx);
+    const p = logistic(xClicked, params);
+    // draw a small marker and tooltip
+    render();
+    ctx.save();
+    const px = xToPx(xClicked);
+    const py = yToPx(p);
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(124,58,237,0.95)';
+    ctx.arc(px, py, 6, 0, Math.PI*2);
+    ctx.fill();
+    ctx.font = '13px Inter, Arial';
+    ctx.fillStyle = '#fff';
+    const s = `x=${xClicked.toFixed(2)}, p=${p.toFixed(3)}`;
+    ctx.fillText(s, px + 12, py - 8);
+    ctx.restore();
+  });
+
+  // initial generation
+  function init() {
+    nPoints = parseInt(nPointsEl.value,10);
+    params = {...defaults};
+    data = generateData(nPoints, {L:1.0, x0:10, k:0.5});
+    // set sliders to defaults
+    LEl.value = params.L; x0El.value = params.x0; kEl.value = params.k;
+    updateUI();
+    render();
+  }
+
+  // make sure canvas scales nicely on HiDPI screens
+  function fixCanvasScaling() {
+    const ratio = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    canvas.width = Math.floor(w * ratio);
+    canvas.height = Math.floor(h * ratio);
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  }
+
+  // on resize
+  window.addEventListener('resize', () => {
+    // clamp canvas size to current layout
+    const parentWidth = canvas.clientWidth;
+    canvas.width = parentWidth;
+    fixCanvasScaling();
+    render();
+  });
+
+  // initial setup
+  fixCanvasScaling();
+  init();
+})();
+</script>
+</body>
+</html>

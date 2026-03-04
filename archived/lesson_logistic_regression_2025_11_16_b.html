@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Logistic Regression Teaching Demo</title>
+<style>
+  :root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --muted:#96a0b8;
+    --accent:#7c3aed;
+    --blue:#2563eb;
+    --red:#ef4444;
+    --green:#10b981;
+    --orange:#f97316;
+    --panel:#071122;
+    --glass: rgba(255,255,255,0.03);
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{background:linear-gradient(180deg,#041025 0%, #081428 100%); color:#e6eef8; padding:20px; box-sizing:border-box;}
+  .wrap{max-width:1400px;margin:0 auto;}
+  
+  /* Lesson plan sections */
+  .lesson-section{margin-bottom:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03);}
+  .lesson-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:pointer;user-select:none;}
+  .lesson-title{font-size:16px;font-weight:600;color:#f3f7ff;display:flex;align-items:center;gap:8px;}
+  .lesson-time{font-size:13px;color:var(--muted);font-weight:normal;}
+  .lesson-content{display:none;}
+  .lesson-content.active{display:block;}
+  .toggle-icon{transition:transform 0.3s;color:var(--accent);}
+  .toggle-icon.active{transform:rotate(90deg);}
+  
+  .main-grid{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-top:12px;}
+  
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  h1{font-size:20px;margin:0;color:#f3f7ff}
+  p.lead{margin:4px 0 0 0;color:var(--muted);font-size:13px}
+  
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03);}
+  canvas{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border-radius:8px;display:block;width:100%;height:420px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02);}
+  
+  .controls{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  label{font-size:13px;color:var(--muted)}
+  input[type=range]{width:100%}
+  .btn{background:transparent;border:1px solid rgba(255,255,255,0.06); padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer;font-size:13px;}
+  .btn:hover{border-color:rgba(255,255,255,0.12); color:#fff}
+  .btn-primary{background:linear-gradient(90deg,var(--accent),#5b21b6);border:none;color:white}
+  
+  .model-toggle{display:flex;gap:8px;margin-bottom:12px;}
+  .model-btn{padding:8px 16px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);font-size:13px;}
+  .model-btn.active{background:var(--accent);color:white;border-color:var(--accent);}
+  
+  .loss-display{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  .loss-box{background:var(--glass);padding:10px;border-radius:8px;text-align:center;}
+  .loss-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+  .loss-value{font-size:18px;font-weight:700;}
+  .loss-value.logistic{color:var(--accent);}
+  .loss-value.linear{color:var(--green);}
+  
+  .legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .legend .dot{width:12px;height:12px;border-radius:50%;display:inline-block;}
+  .legend-item{display:flex;align-items:center;gap:4px;}
+  
+  .param-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;margin-top:12px;}
+  .param-card{background:var(--glass);padding:10px;border-radius:8px;}
+  
+  .key-points{background:var(--glass);padding:12px;border-radius:8px;margin-top:12px;}
+  .key-points ul{margin:8px 0 0 20px;padding:0;}
+  .key-points li{margin:6px 0;color:var(--muted);font-size:13px;}
+  
+  .formula{background:rgba(0,0,0,0.3);padding:8px 12px;border-radius:6px;font-family:monospace;font-size:13px;margin:8px 0;color:#e0e7ff;}
+  
+  .side-panel{display:flex;flex-direction:column;gap:12px;}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.03); text-align:left}
+  th{font-size:12px;color:var(--muted)}
+  .muted{color:var(--muted);font-size:13px}
+  
+  @media (max-width:1200px){
+    .main-grid{grid-template-columns:1fr;}
+    canvas{height:360px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Logistic Regression: A Teaching Demonstration</h1>
+        <p class="lead">ISL Chapter 4.1-4.3 | 30-minute interactive lesson for 3rd year data science students</p>
+      </div>
+    </header>
+
+    <!-- Lesson Section 1: Warm-up -->
+    <div class="lesson-section">
+      <div class="lesson-header" onclick="toggleSection('warmup')">
+        <div class="lesson-title">
+          <span class="toggle-icon" id="warmup-icon">▶</span>
+          <span>1. Warm-up: Why Linear Regression Fails for Classification</span>
+        </div>
+        <div class="lesson-time">5 minutes</div>
+      </div>
+      <div class="lesson-content" id="warmup-content">
+        <div class="key-points">
+          <strong>Learning Goal:</strong> Understand why linear regression is problematic for binary outcomes
+          <ul>
+            <li>Linear regression predicts <em>continuous</em> values, but we need probabilities in [0,1]</li>
+            <li>Linear models can predict p < 0 or p > 1 (nonsensical probabilities)</li>
+            <li>MSE treats errors symmetrically, but classification is about decision boundaries</li>
+          </ul>
+        </div>
+        
+        <div class="main-grid" style="margin-top:12px">
+          <div class="card">
+            <div class="model-toggle">
+              <button class="model-btn" id="btn-both" onclick="setModel('both')">Both Models</button>
+              <button class="model-btn active" id="btn-linear" onclick="setModel('linear')">Linear Only</button>
+              <button class="model-btn" id="btn-logistic" onclick="setModel('logistic')">Logistic Only</button>
+            </div>
+            <canvas id="plot" width="800" height="420"></canvas>
+            
+            <div class="controls">
+              <div style="min-width:200px">
+                <label>Number of points: <span id="nLabel">20</span></label>
+                <input id="nPoints" type="range" min="4" max="40" step="2" value="20" />
+              </div>
+              <button id="randBtn" class="btn">Randomize data</button>
+            </div>
+            
+            <div id="linearParams">
+              <h3 style="font-size:14px;color:var(--green);margin:12px 0 8px 0">Linear Model: p = a + b·x</h3>
+              <div class="param-grid">
+                <div class="param-card">
+                  <label>Intercept a: <span id="aVal">0.00</span></label>
+                  <input id="aSlider" type="range" min="-1" max="2" step="0.01" value="0" />
+                </div>
+                <div class="param-card">
+                  <label>Slope b: <span id="bVal">0.05</span></label>
+                  <input id="bSlider" type="range" min="-0.2" max="0.2" step="0.005" value="0.05" />
+                </div>
+              </div>
+              <button id="resetLinear" class="btn" style="margin-top:8px">Reset linear params</button>
+            </div>
+            
+            <div id="logisticParams" style="display:none">
+              <h3 style="font-size:14px;color:var(--accent);margin:12px 0 8px 0">Logistic Model: p = L / (1 + exp(-k(x - x₀)))</h3>
+              <div class="param-grid">
+                <div class="param-card">
+                  <label>Max L: <span id="Lval">1.00</span></label>
+                  <input id="L" type="range" min="0.1" max="1.0" step="0.01" value="1.0" />
+                </div>
+                <div class="param-card">
+                  <label>Midpoint x₀: <span id="x0val">10.0</span></label>
+                  <input id="x0" type="range" min="0" max="20" step="0.1" value="10.0" />
+                </div>
+                <div class="param-card">
+                  <label>Slope k: <span id="kval">0.50</span></label>
+                  <input id="k" type="range" min="-5.0" max="5.0" step="0.05" value="0.5" />
+                </div>
+              </div>
+              <button id="resetLog" class="btn" style="margin-top:8px">Reset logistic params</button>
+            </div>
+            
+            <div class="loss-display">
+              <div class="loss-box">
+                <div class="loss-label">Linear: MSE</div>
+                <div class="loss-value linear" id="mseLoss">—</div>
+              </div>
+              <div class="loss-box">
+                <div class="loss-label">Logistic: Log Loss</div>
+                <div class="loss-value logistic" id="logLoss">—</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="side-panel">
+            <div class="card">
+              <div class="muted" style="font-weight:600;margin-bottom:8px">Key Observations</div>
+              <ul style="margin:0 0 0 20px;padding:0;color:var(--muted);font-size:13px">
+                <li>Watch linear predictions go below 0 and above 1</li>
+                <li>Linear fit is sensitive to extreme x values</li>
+                <li>MSE penalizes being "very wrong" quadratically</li>
+              </ul>
+            </div>
+            
+            <div class="card">
+              <div class="legend">
+                <div class="legend-item"><div class="dot" style="background:var(--blue)"></div><span class="muted">Class 1</span></div>
+                <div class="legend-item"><div class="dot" style="background:var(--red)"></div><span class="muted">Class 0</span></div>
+                <div class="legend-item"><div class="dot" style="background:var(--green)"></div><span class="muted">Linear</span></div>
+                <div class="legend-item"><div class="dot" style="background:var(--accent)"></div><span class="muted">Logistic</span></div>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson Section 2: Logistic Function -->
+    <div class="lesson-section">
+      <div class="lesson-header" onclick="toggleSection('logistic')">
+        <div class="lesson-title">
+          <span class="toggle-icon" id="logistic-icon">▶</span>
+          <span>2. The Logistic Function (ISL 4.2)</span>
+        </div>
+        <div class="lesson-time">8 minutes</div>
+      </div>
+      <div class="lesson-content" id="logistic-content">
+        <div class="key-points">
+          <strong>The Logistic Function:</strong>
+          <div class="formula">p(X) = L / (1 + exp(-k(X - x₀)))</div>
+          <ul>
+            <li><strong>L:</strong> Maximum value (typically 1 for probability)</li>
+            <li><strong>x₀:</strong> Midpoint where p(x₀) = L/2 (decision boundary when L=1)</li>
+            <li><strong>k:</strong> Steepness/slope parameter (larger |k| = steeper S-curve)</li>
+            <li>Always outputs values in (0, L), making it perfect for probabilities</li>
+            <li>S-shaped curve: gradual transitions, never linear at extremes</li>
+          </ul>
+          
+          <strong style="margin-top:12px;display:block">Try this:</strong>
+          <ul>
+            <li>Set model to "Logistic Only" above</li>
+            <li>Adjust k: see how steepness changes the decision boundary</li>
+            <li>Adjust x₀: move the decision boundary left/right</li>
+            <li>Notice: predictions always stay between 0 and 1</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson Section 3: Maximum Likelihood -->
+    <div class="lesson-section">
+      <div class="lesson-header" onclick="toggleSection('likelihood')">
+        <div class="lesson-title">
+          <span class="toggle-icon" id="likelihood-icon">▶</span>
+          <span>3. Estimating Parameters: Maximum Likelihood (ISL 4.3)</span>
+        </div>
+        <div class="lesson-time">10 minutes</div>
+      </div>
+      <div class="lesson-content" id="likelihood-content">
+        <div class="key-points">
+          <strong>Why not least squares?</strong>
+          <ul>
+            <li>For binary outcomes, we use <strong>maximum likelihood estimation (MLE)</strong></li>
+            <li>Goal: find parameters that maximize the probability of observing our data</li>
+          </ul>
+          
+          <strong style="margin-top:12px;display:block">The Likelihood Function:</strong>
+          <div class="formula">L(β) = ∏ᵢ p(xᵢ)^yᵢ · (1 - p(xᵢ))^(1-yᵢ)</div>
+          <ul>
+            <li>Product over all observations</li>
+            <li>If yᵢ = 1: contribute p(xᵢ) to likelihood</li>
+            <li>If yᵢ = 0: contribute (1 - p(xᵢ)) to likelihood</li>
+          </ul>
+          
+          <strong style="margin-top:12px;display:block">Log Likelihood (easier to work with):</strong>
+          <div class="formula">ℓ(β) = ∑ᵢ [yᵢ log(p(xᵢ)) + (1-yᵢ) log(1-p(xᵢ))]</div>
+          <ul>
+            <li>Maximize log likelihood = minimize negative log likelihood</li>
+            <li><strong>Cross-entropy loss</strong> = negative log likelihood / n</li>
+            <li>This is what you see as "Log Loss" above</li>
+          </ul>
+          
+          <strong style="margin-top:12px;display:block">Interactive Exploration:</strong>
+          <ul>
+            <li>Set model to "Both Models" to compare</li>
+            <li>Adjust parameters to minimize log loss</li>
+            <li>Notice: log loss heavily penalizes confident wrong predictions</li>
+            <li>If p(x)→0 but y=1, or p(x)→1 but y=0, loss → ∞</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson Section 4: Interpretation -->
+    <div class="lesson-section">
+      <div class="lesson-header" onclick="toggleSection('interpretation')">
+        <div class="lesson-title">
+          <span class="toggle-icon" id="interpretation-icon">▶</span>
+          <span>4. Interpretation & Decision Boundaries</span>
+        </div>
+        <div class="lesson-time">5 minutes</div>
+      </div>
+      <div class="lesson-content" id="interpretation-content">
+        <div class="key-points">
+          <strong>Making Predictions:</strong>
+          <ul>
+            <li>Logistic regression gives us p(Y=1|X) - the probability of class 1</li>
+            <li>Decision rule: predict class 1 if p(X) > threshold (usually 0.5)</li>
+            <li>The <strong>decision boundary</strong> is where p(X) = 0.5</li>
+            <li>In our simple model: decision boundary at x = x₀</li>
+          </ul>
+          
+          <strong style="margin-top:12px;display:block">Odds and Log-Odds:</strong>
+          <div class="formula">odds = p/(1-p),   log(odds) = β₀ + β₁X</div>
+          <ul>
+            <li>The log-odds is <em>linear</em> in X</li>
+            <li>This is why it's called logistic <em>regression</em></li>
+            <li>Coefficient β₁: one unit increase in X multiplies odds by exp(β₁)</li>
+          </ul>
+          
+          <strong style="margin-top:12px;display:block">Click on the plot above:</strong>
+          <ul>
+            <li>See the predicted probability at any x value</li>
+            <li>Observe how probability changes smoothly across the boundary</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lesson Section 5: Wrap-up -->
+    <div class="lesson-section">
+      <div class="lesson-header" onclick="toggleSection('wrapup')">
+        <div class="lesson-title">
+          <span class="toggle-icon" id="wrapup-icon">▶</span>
+          <span>5. Summary & Extensions</span>
+        </div>
+        <div class="lesson-time">2 minutes</div>
+      </div>
+      <div class="lesson-content" id="wrapup-content">
+        <div class="key-points">
+          <strong>Key Takeaways:</strong>
+          <ul>
+            <li>✓ Logistic regression models <strong>probabilities</strong> for binary outcomes</li>
+            <li>✓ Uses logistic function to constrain predictions to [0,1]</li>
+            <li>✓ Parameters estimated via <strong>maximum likelihood</strong> (minimize log loss)</li>
+            <li>✓ Interpretable via odds ratios and decision boundaries</li>
+          </ul>
+          
+          <strong style="margin-top:12px;display:block">Extensions (ISL Chapter 4):</strong>
+          <ul>
+            <li>Multiple logistic regression: p(X) = logistic(β₀ + β₁X₁ + β₂X₂ + ...)</li>
+            <li>Multi-class: multinomial logistic regression (softmax)</li>
+            <li>Regularization: L1 (lasso) and L2 (ridge) penalties</li>
+            <li>Alternative: Linear/Quadratic Discriminant Analysis (LDA/QDA)</li>
+          </ul>
+          
+          <strong style="margin-top:12px;display:block">Next Steps:</strong>
+          <ul>
+            <li>Practice: implement logistic regression from scratch</li>
+            <li>Read ISL 4.4-4.5 for multiple logistic regression and LDA</li>
+            <li>Homework: compare logistic regression vs LDA on real datasets</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // State
+  let currentModel = 'linear'; // 'linear', 'logistic', 'both'
+  const defaultLinear = {a: 0, b: 0.05};
+  const defaultLogistic = {L:1.0, x0:10.0, k:0.5};
+  let linearParams = {...defaultLinear};
+  let logisticParams = {...defaultLogistic};
+  let nPoints = 20;
+  let data = [];
+  
+  // Canvas setup
+  const canvas = document.getElementById('plot');
+  const ctx = canvas.getContext('2d');
+  const WIDTH = canvas.width;
+  const HEIGHT = canvas.height;
+  const PAD = {left:60, right:20, top:20, bottom:60};
+  const XMIN = 0, XMAX = 20;
+
+  // Helper functions
+  function linear(x, {a, b}) {
+    return a + b * x;
+  }
+  
+  function logistic(x, {L, x0, k}) {
+    return L / (1 + Math.exp(-k * (x - x0)));
+  }
+  
+  function clip(p) {
+    const eps = 1e-15;
+    return Math.min(Math.max(p, eps), 1-eps);
+  }
+  
+  function computeMSE(dataset, params) {
+    if (!dataset.length) return NaN;
+    let sum = 0;
+    for (const d of dataset) {
+      const pred = linear(d.x, params);
+      sum += (pred - d.y) ** 2;
+    }
+    return sum / dataset.length;
+  }
+  
+  function computeLogLoss(dataset, params) {
+    if (!dataset.length) return NaN;
+    let sum = 0;
+    for (const d of dataset) {
+      const p = clip(logistic(d.x, params));
+      sum += -(d.y * Math.log(p) + (1 - d.y) * Math.log(1 - p));
+    }
+    return sum / dataset.length;
+  }
+  
+  function generateData(n) {
+    const arr = [];
+    const baseParams = {L:1.0, x0:10, k:0.5};
+    for (let i=0; i<n; i++) {
+      const x = Math.random() * (XMAX - XMIN) + XMIN;
+      const p = logistic(x, baseParams);
+      const y = Math.random() < p ? 1 : 0;
+      arr.push({x: +x.toFixed(3), y});
+    }
+    return arr;
+  }
+
+  // Drawing functions
+  function xToPx(x) {
+    const w = WIDTH - PAD.left - PAD.right;
+    return PAD.left + (x - XMIN) / (XMAX - XMIN) * w;
+  }
+  
+  function yToPx(y) {
+    const h = HEIGHT - PAD.top - PAD.bottom;
+    return PAD.top + (1 - y) * h;
+  }
+  
+  function pxToX(px) {
+    const w = WIDTH - PAD.left - PAD.right;
+    return XMIN + (px - PAD.left) / w * (XMAX - XMIN);
+  }
+  
+  function clear() {
+    ctx.clearRect(0,0,WIDTH,HEIGHT);
+    const g = ctx.createLinearGradient(0,0,0,HEIGHT);
+    g.addColorStop(0, 'rgba(255,255,255,0.015)');
+    g.addColorStop(1, 'rgba(255,255,255,0.005)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,WIDTH,HEIGHT);
+  }
+  
+  function drawAxes() {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    
+    // x axis
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, HEIGHT - PAD.bottom);
+    ctx.lineTo(WIDTH - PAD.right, HEIGHT - PAD.bottom);
+    ctx.stroke();
+    
+    // y axis
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, PAD.top);
+    ctx.lineTo(PAD.left, HEIGHT - PAD.bottom);
+    ctx.stroke();
+    
+    // x ticks
+    ctx.fillStyle = 'rgba(230,238,248,0.85)';
+    ctx.textAlign = 'center';
+    ctx.font = '12px Inter, Arial';
+    for (let i=0; i<=5; i++) {
+      const x = XMIN + (XMAX-XMIN) * i/5;
+      const px = xToPx(x);
+      ctx.beginPath();
+      ctx.moveTo(px, HEIGHT - PAD.bottom);
+      ctx.lineTo(px, HEIGHT - PAD.bottom + 6);
+      ctx.stroke();
+      ctx.fillText(x.toFixed(0), px, HEIGHT - PAD.bottom + 20);
+    }
+    
+    // y ticks
+    ctx.textAlign = 'right';
+    for (let i=0; i<=5; i++) {
+      const y = i/5;
+      const py = yToPx(y);
+      ctx.beginPath();
+      ctx.moveTo(PAD.left-6, py);
+      ctx.lineTo(PAD.left, py);
+      ctx.stroke();
+      ctx.fillText(y.toFixed(1), PAD.left-10, py+4);
+    }
+    
+    // axis labels
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(180,200,220,0.8)';
+    ctx.font = '13px Inter, Arial';
+    ctx.fillText('Hours studying', (PAD.left + WIDTH - PAD.right)/2, HEIGHT - PAD.bottom + 44);
+    
+    ctx.save();
+    ctx.translate(PAD.left-46, (PAD.top + HEIGHT - PAD.bottom)/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = 'center';
+    ctx.fillText('Probability of A grade', 0, 0);
+    ctx.restore();
+    
+    ctx.restore();
+  }
+  
+  function drawGrid() {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+    ctx.lineWidth = 1;
+    for (let i=0; i<=10; i++) {
+      const x = PAD.left + i*(WIDTH - PAD.left - PAD.right)/10;
+      ctx.beginPath();
+      ctx.moveTo(x, PAD.top);
+      ctx.lineTo(x, HEIGHT - PAD.bottom);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  
+  function drawLinearLine(params) {
+    ctx.save();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(16,185,129,0.9)';
+    ctx.beginPath();
+    const x1 = XMIN, y1 = linear(x1, params);
+    const x2 = XMAX, y2 = linear(x2, params);
+    ctx.moveTo(xToPx(x1), yToPx(y1));
+    ctx.lineTo(xToPx(x2), yToPx(y2));
+    ctx.stroke();
+    ctx.restore();
+  }
+  
+  function drawLogisticCurve(params) {
+    ctx.save();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(124,58,237,0.95)';
+    ctx.beginPath();
+    const samples = 300;
+    for (let i=0; i<=samples; i++) {
+      const x = XMIN + (XMAX-XMIN)*i/samples;
+      const p = logistic(x, params);
+      const px = xToPx(x);
+      const py = yToPx(p);
+      if (i===0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+  
+  function drawPoints(dataset) {
+    for (const d of dataset) {
+      const px = xToPx(d.x);
+      const jitterY = (Math.random()-0.5) * 6;
+      const cy = yToPx(d.y) + jitterY;
+      ctx.beginPath();
+      ctx.fillStyle = d.y === 1 ? 'rgba(37,99,235,0.95)' : 'rgba(239,68,68,0.95)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+      ctx.lineWidth = 1;
+      ctx.arc(px, cy, 6, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+  
+  function render() {
+    clear
