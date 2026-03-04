@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!--
+
+	This is a base template page (course.html) that will be populated by data from a data file (courses.json) based on the passed id ID
+	
+	In index.html, use link code of the form:
+	
+		<a href="course.html?id=ID">
+			Link text
+		</a>
+	
+	In courses.json, make sure to have and entry:
+	
+		"ID": {
+			"title": "Course title",
+			"code": "PREFIX and NUMBER",
+			"semester": "semester",
+			"description": "course description",
+			...
+		}
+
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Course Page</title>
+
+  <style>
+    /* ── Reset & base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      background: #fafaf8;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+
+    a { color: #2a5db0; }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    header {
+      background: #1a2e4a;
+      color: #fff;
+      padding: 2rem 2rem 1.5rem;
+    }
+
+    header .course-code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: normal;
+    }
+
+    header .meta {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      opacity: 0.75;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    main {
+      max-width: 860px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      gap: 2rem;
+    }
+
+    /* ── Sections ─────────────────────────────────────────── */
+    section {
+      background: #fff;
+      border: 1px solid #e0e0d8;
+      border-radius: 4px;
+      padding: 1.5rem;
+    }
+
+    section h2 {
+      font-size: 1rem;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2a5db0;
+      border-bottom: 1px solid #e0e0d8;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Info grid (instructor details) ──────────────────── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 0.4rem 1rem;
+      font-size: 0.95rem;
+    }
+
+    .info-grid .label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    /* ── Announcements ────────────────────────────────────── */
+    #announcements-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    #announcements-list li {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 0 1rem;
+      font-size: 0.95rem;
+    }
+
+    #announcements-list .date {
+      color: #888;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      padding-top: 0.1rem;
+    }
+
+    /* ── Schedule table ───────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #ebebeb;
+    }
+
+    th {
+      background: #f4f4f0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafaf4; }
+
+    td.week-num {
+      color: #aaa;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+    }
+
+    td.notes {
+      color: #888;
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    /* ── Error / loading state ────────────────────────────── */
+    #error-msg {
+      display: none;
+      max-width: 860px;
+      margin: 4rem auto;
+      padding: 2rem;
+      background: #fff3f3;
+      border: 1px solid #f5c6c6;
+      border-radius: 4px;
+      color: #a00;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Populated by JS -->
+  <header id="page-header" style="display:none">
+    <div class="course-code" id="hdr-code"></div>
+    <h1 id="hdr-title"></h1>
+    <div class="meta">
+      <span id="hdr-semester"></span>
+      <span id="hdr-schedule"></span>
+      <span id="hdr-location"></span>
+    </div>
+  </header>
+
+  <main id="page-main" style="display:none">
+
+    <!-- Course description -->
+    <section>
+      <h2>About This Course</h2>
+      <p id="course-description"></p>
+      <p style="margin-top:0.75rem">
+        <!--
+		<a id="syllabus-link" href="#">📄 Download Syllabus</a>
+		-->
+      </p>
+    </section>
+
+    <!-- Instructor info -->
+    <section>
+      <h2>Instructor</h2>
+      <div class="info-grid">
+        <span class="label">Name</span>        <span id="info-name"></span>
+        <span class="label">Email</span>       <span id="info-email"></span>
+        <span class="label">Office Hours</span><span id="info-office"></span>
+      </div>
+    </section>
+
+    <!-- Announcements -->
+    <section>
+      <h2>Announcements</h2>
+      <ul id="announcements-list"></ul>
+    </section>
+
+    <!-- Weekly schedule -->
+    <section>
+      <h2>Schedule</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Topic</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- Shown when course id is missing or not found -->
+  <div id="error-msg"></div>
+
+
+  <script>
+    // ============================================================
+    //  HOW URL QUERY PARAMS WORK
+    //
+    //  When you link to this page as:
+    //    <a href="course.html?id=cs101">CS 101</a>
+    //
+    //  The browser appends "?id=cs101" to the URL.
+    //  URLSearchParams lets us read that value cleanly:
+    //    new URLSearchParams(window.location.search).get("id")
+    //    → "cs101"
+    //
+    //  The id must match a key in courses.json exactly.
+    // ============================================================
+
+    (async function init() {
+
+      // ── 1. Read the course id from the URL ──────────────────
+      const params   = new URLSearchParams(window.location.search);
+      const courseId = params.get("id");   // e.g. "cs101"
+
+      if (!courseId) {
+        showError("No course id specified. Add <code>?id=YOUR_COURSE_ID</code> to the URL.");
+        return;
+      }
+
+      // ── 2. Fetch the JSON data file ──────────────────────────
+      //  The JSON file lives next to this HTML file on your server.
+      //  If you rename it or move it, update the path below.
+      let courses;
+      try {
+        const response = await fetch("courses.json");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        courses = await response.json();
+      } catch (err) {
+        showError(`Could not load course data (courses.json). ${err.message}`);
+        return;
+      }
+
+      // ── 3. Look up the requested course ─────────────────────
+      const course = courses[courseId];
+      if (!course) {
+        showError(`Unknown course id: "<strong>${courseId}</strong>". Check courses.json.`);
+        return;
+      }
+
+      // ── 4. Populate the page ─────────────────────────────────
+      populatePage(course);
+    })();
+
+
+    // ── Populate all page sections from a course object ───────
+    function populatePage(c) {
+
+      // Page <title>
+      document.title = `${c.code} — ${c.title}`;
+
+      // Header
+      setText("hdr-code",     c.code);
+      setText("hdr-title",    c.title);
+      setText("hdr-semester", c.semester);
+      setText("hdr-schedule", c.schedule);
+      setText("hdr-location", c.location);
+
+      // About
+      setText("course-description", c.description);
+      //document.getElementById("syllabus-link").href = c.syllabus;
+
+      // Instructor
+      setText("info-name",   c.instructor);
+      setText("info-email",  c.email);
+      setText("info-office", c.officeHours);
+
+      // Announcements
+      const annList = document.getElementById("announcements-list");
+      annList.innerHTML = "";
+      (c.announcements || []).forEach(ann => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="date">${ann.date}</span><span>${ann.text}</span>`;
+        annList.appendChild(li);
+      });
+
+      // Schedule table
+      const tbody = document.getElementById("schedule-body");
+      tbody.innerHTML = "";
+      (c.schedule_weeks || []).forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="week-num">${row.week}</td>
+          <td>${row.topic}</td>
+          <td class="notes">${row.notes || ""}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Show the page
+      document.getElementById("page-header").style.display = "";
+      document.getElementById("page-main").style.display   = "";
+    }
+
+
+    // ── Helpers ────────────────────────────────────────────────
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value ?? "";
+    }
+
+    function showError(msg) {
+      const el = document.getElementById("error-msg");
+      el.innerHTML = `<strong>Error:</strong> ${msg}`;
+      el.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>

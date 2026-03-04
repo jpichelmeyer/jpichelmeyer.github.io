@@ -40,18 +40,40 @@ body {
 	background-color: var(--color_wrap);
 }
 
-/* ── Portrait ── */
-.portrait { height: 160px; padding-top: 20px; cursor: pointer; }
-.portrait_combined { content: url(./portrait_combined.gif); visibility: visible; height: 0; width: 0; }
+/*
+------------------------------------------------------------------
+	Portrait
+------------------------------------------------------------------
+*/
+.portrait { 
+	height: 160px; 
+	padding-top: 20px; 
+	cursor: pointer;
+}
 
-/* ── Name ── */
+.portrait_combined { 
+	content: url(./portrait_combined.gif); 
+	visibility: visible; 
+	height: 0; 
+	width: 0; 
+}
+
+/*
+------------------------------------------------------------------
+	Name
+------------------------------------------------------------------
+*/
 .name_and_letters {
 	width: 100%; padding: 10px 0 15px; display: flex; flex-wrap: wrap; gap: 4px;
 }
 .name_and_letters_name { color: var(--color_highlight); font-size: 14px; font-weight: bold; }
 .name_and_letters_letters { font-size: 12px; }
 
-/* ── Typewriter ── */
+/*
+------------------------------------------------------------------
+	Typewriter
+------------------------------------------------------------------
+*/
 .c1 { display: inline-block; height: 14px; }
 h1 {
 	display: inline-block; margin-top: 1%; font-size: 12px;
@@ -62,20 +84,25 @@ h1 .type2 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1s steps(18,end) forwards; animation-delay: 2s; }
 @keyframes typing { from{width:0} to{width:100%} }
 
-/* ── Social ── */
+/*
+------------------------------------------------------------------
+	Social links
+------------------------------------------------------------------
+*/
 .navbarsocial { text-align: left; padding-top: 10px; }
 .navbarsocial img { filter: var(--brightness_social); width: var(--icon_size_social); }
 
-/* ══════════════════════════════════════════
-   NAV BAR — animated colored pill links
-   ══════════════════════════════════════════ */
+/*
+------------------------------------------------------------------
+	Navbar links (animated)
+------------------------------------------------------------------
+*/
 .navbar {
 	padding-top: 20px;
 	display: flex;
 	flex-direction: column;
 	gap: 3px;
 }
-
 .navbar a {
 	position: relative;
 	display: block;
@@ -90,8 +117,6 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 	overflow: hidden;
 	transition: color 0.22s ease, border-left-color 0.22s ease;
 }
-
-/* Sliding fill behind the text */
 .navbar a::before {
 	content: '';
 	position: absolute;
@@ -102,11 +127,12 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 	transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 	z-index: 0;
 }
-
-.navbar a span { position: relative; z-index: 1; }
-
-/* Per-section colors */
-.navbar a[href="#about"]      { border-left-color: var(--color_about); }
+.navbar a span { 
+	position: relative; z-index: 1; 
+}
+.navbar a[href="#about"] { 
+	border-left-color: var(--color_about); 
+}
 .navbar a[href="#about"]::before      { background: var(--color_about); opacity: 0.20; }
 
 .navbar a[href="#careerPath"] { border-left-color: var(--color_career); }
@@ -121,7 +147,11 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 .navbar a:hover { color: var(--color_highlight); }
 .navbar a:hover::before { transform: scaleX(1); }
 
-/* ── Layout ── */
+/*
+------------------------------------------------------------------
+	Layout
+------------------------------------------------------------------
+*/
 .row { display: flex; }
 
 .side_left {
@@ -159,15 +189,15 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 	transition: background 0.3s;
 }
 
-/* 
-══════════════════════════════════════════
-	SECTION HEADING BARS
-══════════════════════════════════════════ 
+/*
+------------------------------------------------------------------
+	Section heading bars
+------------------------------------------------------------------
 */
 .section_heading_bar {
 	display: flex;
 	align-items: center;
-	padding: 13px 22px;
+	padding: 8px 16px;
 	/* 
 	top corners follow the card; bottom corners square off into the content */
 	border-radius: 10px 10px 0 0;
@@ -175,8 +205,8 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 
 .section_heading_bar .page_heading {
 	margin: 0;
-	font-size: 19px;
-	font-weight: 700;
+	font-size: 15px;
+	font-weight: 500;
 	letter-spacing: 0.03em;
 	color: #fff;
 	text-shadow: 0 1px 4px rgba(0,0,0,0.35);
@@ -193,7 +223,11 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 
 .section_divider { padding-bottom: 10px; }
 
-/* ── Timeline ── */
+/*
+------------------------------------------------------------------
+	Timeline
+------------------------------------------------------------------
+*/
 .timeline { padding-left: 20px; padding-bottom: 30px; }
 .timeline_row { display: flex; gap: 10px; }
 .timeline_dates { width: 100px; font-size: 11px; padding-top: 10px; text-align: right; }
@@ -208,7 +242,11 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 .timeline_textbox_spec  { color: var(--color_lowlight); font-size: 10px; }
 .timeline_textbox_place { color: var(--color_lowlight); font-size: 12px; }
 
-/* ── Courses ── */
+/*
+------------------------------------------------------------------
+	Courses
+------------------------------------------------------------------
+*/
 .taught_course { padding: 4px 0 20px; }
 .taught_course_section_head {
 	font-size: 14px; text-transform: uppercase; color: var(--color_lowlight);
@@ -233,9 +271,12 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 	font-size: 10px; font-weight: bold; opacity: 0.8;
 }
 .taught_course_title { font-weight: bold; font-size: 14px; text-transform: uppercase; color: var(--color_highlight); }
-.taught_course_description { font-size: 12px; color: var(--color_lowlight); }
 
-/* COURSE LINKS */
+.taught_course_description { 
+	font-size: 12px;
+	color: var(--color_lowlight); 
+}
+
 .course_link {
 	display: inline-flex;
 	align-items: center;
@@ -271,7 +312,11 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 	animation: bounce_right 0.45s ease-in-out infinite alternate;
 }
 
-/* ── Tags ── */
+/*
+------------------------------------------------------------------
+	Course Tags
+------------------------------------------------------------------
+*/
 .tag {
 	width: fit-content; 
 	height: fit-content; 
@@ -319,7 +364,11 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 }
 
 
-/* ── Research ── */
+/*
+------------------------------------------------------------------
+	Research
+------------------------------------------------------------------
+*/
 .research_paper_row {
 	height: 100px; display: flex; flex-wrap: wrap;
 	padding: 10px 0 140px; gap: 20px;
@@ -349,13 +398,21 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 .research_link_semantic_scholar{ color:#e0c677; background:#263180; }
 .research_link_krex            { background:#4a2569; }
 
-/* ── Footer ── */
+/*
+------------------------------------------------------------------
+	Footer
+------------------------------------------------------------------
+*/
 .footer {
 	padding: 8px 80px 40px 40px; text-align: center;
 	background: var(--color_wrap); font-size: 12px;
 }
 
-/* ── Responsive ── */
+/*
+------------------------------------------------------------------
+	Responsive
+------------------------------------------------------------------
+*/
 @media screen and (max-width: 800px) {
 	.row { flex-direction: column; }
 	.side_left { position: relative; width: 400px; margin-left: 20px; }
@@ -394,9 +451,9 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 	
 	<div class="titles">
 		<h1>
-			<div class="c1"><div class="type">Mathematician</div></div><br>
-			<div class="c1"><div class="type2">Computer Scientist</div></div><br>
-			<div class="c1"><div class="type3">Indie Game Maker</div></div>
+			<div class="c1"><div class="type">Computer Scientist</div></div><br>
+			<div class="c1"><div class="type2">Indie Game Maker</div></div>
+			<div class="c1"><div class="type3">Mathematician</div></div>
 		</h1>
 	</div>
 	
@@ -1030,7 +1087,7 @@ function changePageColors(idx){
 		['#f0d1c0','#ffded6','#2F3645','#939185',  '0%'], // 6 cream
 		['#f0d1c0','#f1f1f1','#DC5F00','#7a746a',  '0%'], // 7 cream-orange
 	];
-	if(idx >= palettes.length){ idx = 0; }
+	if(idx >= palettes.length){ idx = 1; }
 	var p = palettes[idx];
 	var r = document.querySelector(":root");
 	r.style.setProperty('--color_wrap', p[0]);
