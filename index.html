@@ -159,9 +159,11 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 	transition: background 0.3s;
 }
 
-/* ══════════════════════════════════════════
-   SECTION HEADING BARS
-   ══════════════════════════════════════════ */
+/* 
+══════════════════════════════════════════
+	SECTION HEADING BARS
+══════════════════════════════════════════ 
+*/
 .section_heading_bar {
 	display: flex;
 	align-items: center;
@@ -223,7 +225,7 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 	opacity: 0.8;
 }
 .taught_course_tags_all {
-	padding: 4px 50px; 
+	padding: 20px 30px; 
 	display: flex; 
 	flex-wrap: wrap; 
 	gap: 4px;
@@ -302,6 +304,20 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 .tag_unity      { background:#222; }
 .tag_uwm        { background:#ffc73b; color:#1f1f1f; }
 .tag_westminster{ background:#2459c9; color:#fff; }
+
+.teaching_tag_two_col {
+	display: flex;
+	gap: 0px;
+}
+.teaching_tag_two_col_left {
+	flex: 1.5;
+	padding: 2px;
+}
+.teaching_tag_two_col_right {
+	flex: 1;
+	padding: 2px;
+}
+
 
 /* ── Research ── */
 .research_paper_row {
@@ -642,6 +658,8 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 				<div class="page_heading">Teaching</div>
 			</div>
 			<div class="section_body">
+				
+				<!--
 				<p>
 				Below is a select list of courses that I've taught. Each course has a catalog description pulled from one of the institutions I've taught the course at and has tags showing information such as where I've taught the course (potentially multiple institutions) and different key programming languages and software used in the course.
 				</p>
@@ -665,6 +683,55 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 						<div class="tag tag_unity">Unity</div>
 					</div>
 				</p>
+				-->
+				
+				<!--
+				.teaching_tag_two_col {
+					display: flex;
+					gap: 10px;
+				}
+				.teaching_tag_two_col_col {
+					flex: 1;
+					padding: 15px;
+				}
+				-->
+				
+				<div class="teaching_tag_two_col">
+					<div class="teaching_tag_two_col_left">					
+						<p>
+						Below is a select list of courses that I've taught. 
+						</p>
+						
+						<p>
+						For a confluence of reasons (large number of courses, variety/lack of prefixes, institutional overlap, etc), it has proven challenging to organize this list in a way that is clear at a glance. Thus, the list is organized only loosely in a vertical/sequential sense and is instead made manageable by the inclusion of a variety of decorative and searchable tags that include things such as institution where the course was taught, programming language or software used, etc.
+						</p>
+						
+						<p>
+						A master list of course tags can be found to the right and using CTRL/Command+F should make it easier to parse the list.
+						</p>
+					</div>
+					
+					<div class="teaching_tag_two_col_right">
+						<div class="taught_course_tags_all">
+							<div class="tag tag_carthage">Carthage College</div>
+							<div class="tag tag_ksu">Kansas State University</div>
+							<div class="tag tag_msoe">Milwaukee School of Engineering</div>
+							<div class="tag tag_uwm">UW-Milwaukee</div>
+							<div class="tag tag_westminster">Westminster College</div>
+							<div class="tag tag_cpp">C++</div>
+							<div class="tag tag_csharp">C#</div>
+							<div class="tag tag_mathematica">Mathematica</div>
+							<div class="tag tag_matlab">MATLAB</div>
+							<div class="tag tag_octave">Octave</div>
+							<div class="tag tag_python">Python</div>
+							<div class="tag tag_r">R</div>
+							<div class="tag tag_godot">Godot</div>
+							<div class="tag tag_unity">Unity</div>
+						</div>
+					</div>
+				
+				</div>
+				
 				
 				<div class="taught_course_section_head">Instructor of Record</div>
 				<div class="taught_course_section">
@@ -672,7 +739,7 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 					<!-- CSC 1110 Intro to Comp -->
 					<div class="taught_course">
 						<div class="taught_course_title">
-							<a href="courses/course.html?id=cs101" class="course_link">
+							<a href="courses/course.html?id=cscGEN" class="course_link">
 								CSC 1110 : Introduction to Computing
 							</a>
 						</div>
@@ -683,7 +750,7 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 					<!-- CSC 1810 Fund CS I -->
 					<div class="taught_course">
 						<div class="taught_course_title">
-							<a href="courses/course.html?id=cs101" class="course_link">
+							<a href="courses/course.html?id=cscGEN" class="course_link">
 								CSC 1810 : Fundamentals of Computer Science I
 							</a>
 						</div>
@@ -697,7 +764,7 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 					<!-- CSC 2710 Game Dev I -->
 					<div class="taught_course">
 						<div class="taught_course_title">
-							<a href="courses/course.html?id=cs101" class="course_link">
+							<a href="courses/course.html?id=cscGEN" class="course_link">
 								CSC 2710 : Game Development I
 							</a>
 						</div>
@@ -708,7 +775,7 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 					<!-- CSC 3530 AI and Cog -->
 					<div class="taught_course">
 						<div class="taught_course_title">
-							<a href="courses/course.html?id=cs101" class="course_link">
+							<a href="courses/course.html?id=cscGEN" class="course_link">
 								CSC 3530 : Artificial Intelligence and Cognitive Modeling
 							</a>
 						</div>
@@ -719,7 +786,7 @@ h1 .type3 { overflow: hidden; white-space: nowrap; width: 0; animation: typing 1
 					<!-- CSC 3730 AI for Sim -->
 					<div class="taught_course">
 						<div class="taught_course_title">
-							<a href="courses/course.html?id=cs101" class="course_link">
+							<a href="courses/course.html?id=cscGEN" class="course_link">
 								CSC 3730 : Artificial Intelligence for Simulations
 							</a>
 						</div>
