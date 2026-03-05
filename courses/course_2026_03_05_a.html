@@ -43,32 +43,15 @@
 ------------------------------------------------------------------
 */
 :root {
-	--color_accent: #2a4878;
-	
-	/*
-	Colors specific to sections
-	*/
-	--color_announcements: 		#a33340;
-	--color_assessment: 		#bf7a41;
-	--color_course:	 			#609aa6;
-	--color_instructor: 		#60a688;
-	--color_lessons: 			#6083a6;
-	--color_meeting: 			#a69860;
-	--color_policies: 			#a66079;
-	--color_schedule: 			#8d679e;
-	
-	--color_highlight:    				#060606;
-	--color_lowlight:     				#4f4f4f;
-	--color_wrap:         				#f1f1f1;
-	--color_core:         				#f1f1f1;
-	--margin_left:        				200px;
-	--main_section_card_width: 			550px;
-	--brightness_social:  				brightness(0%);
+	--color_highlight:    #060606;
+	--color_lowlight:     #4f4f4f;
+	--color_wrap:         #f1f1f1;
+	--color_core:         #f1f1f1;
+	--margin_left:        220px;
+	--brightness_social:  brightness(0%);
 
 	/* Default accent color; overridden by data-color on <body> */
-	/*
 	--color_accent: #2a4878;
-	*/
 }
 
 /*
@@ -123,16 +106,6 @@ body {
 */
 .row { display: flex; }
 
-/*
-SIDE LEFT in index.html
-.side_left {
-	background-color: var(--color_wrap);
-	padding: 20px;
-	width: var(--margin_left);
-	position: fixed;
-	height: 100%;
-}
-*/
 .side_left {
 	background-color: var(--color_wrap);
 	padding: 20px;
@@ -142,24 +115,10 @@ SIDE LEFT in index.html
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
-	/* 
-	Subtle separator so sidebar reads as distinct from main body 
-	*/
-	/*
+	/* Subtle separator so sidebar reads as distinct from main body */
 	border-right: 1px solid rgba(0,0,0,0.09);
-	*/
 }
 
-/*
-MAIN in index.html
-.main {
-	flex: 1;
-	margin-left: var(--margin_left);
-	padding: 0;
-	height: 100%;
-	overflow: auto;
-}
-*/
 .main {
 	flex: 1;
 	margin-left: var(--margin_left);
@@ -228,10 +187,8 @@ MAIN in index.html
 .course_id_block { margin-bottom: 12px; }
 
 .course_id_code {
-	/*
 	font-family: 'Courier New', monospace;
-	*/
-	font-size: 20px;
+	font-size: 10px;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: var(--color_accent);
@@ -240,8 +197,8 @@ MAIN in index.html
 
 .course_id_title {
 	color: var(--color_highlight);
-	font-size: 16px;
-	font-weight: 400;
+	font-size: 13px;
+	font-weight: 700;
 	line-height: 1.35;
 }
 
@@ -322,101 +279,12 @@ MAIN in index.html
 .navbar a:hover::before { transform: scaleX(1); }
 
 /*
-Navbars with color specific to section
-	
-	--color_announcements: 		#a33340;
-	--color_assessment: 		#bf7a41;
-	--color_course:	 			#609aa6;
-	--color_instructor: 		#60a688;
-	--color_lessons: 			#6083a6;
-	--color_meeting: 			#a69860;
-	--color_policies: 			#a66079;
-	--color_schedule: 			#8d679e;
-	
-	<div class="navbar">
-		<a href="#section_announcements"><span>Announcements</span></a>
-		<a href="#section_assessment"><span>Assessment</span></a>
-		<a href="#section_course"><span>Course</span></a>
-		<a href="#section_instructor"><span>Instructor</span></a>
-		<a href="#section_lessons"><span>Lessons</span></a>
-		<a href="#section_meeting"><span>Meeting</span></a>
-		<a href="#section_policies"><span>Policies</span></a>
-		<a href="#section_schedule"><span>Schedule</span></a>
-	</div>
-	
-*/
-.navbar a[href="#section_announcements"] { 
-	border-left-color: var(--color_announcements); 
-}
-.navbar a[href="#section_announcements"]::before { 
-	background: var(--color_announcements); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_assessment"] { 
-	border-left-color: var(--color_assessment); 
-}
-.navbar a[href="#section_assessment"]::before { 
-	background: var(--color_assessment); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_course"] { 
-	border-left-color: var(--color_course); 
-}
-.navbar a[href="#section_course"]::before { 
-	background: var(--color_course); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_instructor"] { 
-	border-left-color: var(--color_instructor); 
-}
-.navbar a[href="#section_instructor"]::before { 
-	background: var(--color_instructor); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_lessons"] { 
-	border-left-color: var(--color_lessons); 
-}
-.navbar a[href="#section_lessons"]::before { 
-	background: var(--color_lessons); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_meeting"] { 
-	border-left-color: var(--color_meeting); 
-}
-.navbar a[href="#section_meeting"]::before { 
-	background: var(--color_meeting); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_policies"] { 
-	border-left-color: var(--color_policies); 
-}
-.navbar a[href="#section_policies"]::before { 
-	background: var(--color_policies); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_schedule"] { 
-	border-left-color: var(--color_schedule); 
-}
-.navbar a[href="#section_schedule"]::before { 
-	background: var(--color_schedule); 
-	opacity: 0.20; 
-}
-
-
-/*
 ------------------------------------------------------------------
 	Section cards
 ------------------------------------------------------------------
 */
 .main_section {
-	width: var(--main_section_card_width);
+	width: 580px;
 	margin-bottom: 30px;
 	border-radius: 10px;
 	/* Slightly whiter card on the light background — same technique
@@ -432,38 +300,6 @@ Navbars with color specific to section
 	padding: 8px 16px;
 	border-radius: 10px 10px 0 0;
 	background: var(--color_accent);
-}
-
-.section_heading_bar-announcements {
-	background: var(--color_announcements);
-}
-
-.section_heading_bar-assessment {
-	background: var(--color_assessment);
-}
-
-.section_heading_bar-course {
-	background: var(--color_course);
-}
-
-.section_heading_bar-instructor {
-	background: var(--color_instructor);
-}
-
-.section_heading_bar-lessons {
-	background: var(--color_lessons);
-}
-
-.section_heading_bar-meeting {
-	background: var(--color_meeting);
-}
-
-.section_heading_bar-policies {
-	background: var(--color_policies);
-}
-
-.section_heading_bar-schedule {
-	background: var(--color_schedule);
 }
 
 .section_heading_bar .page_heading {
@@ -593,14 +429,7 @@ Navbars with color specific to section
 */
 @media screen and (max-width: 800px) {
 	.row          { flex-direction: column; }
-	.side_left    { 
-		position: relative; 
-		width: 100%; 
-		height: auto; 
-		border-right: 
-		none; 
-		border-bottom: 1px solid rgba(255.0,0,0,1.0); 
-		}
+	.side_left    { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.09); }
 	.main         { margin-left: 0; }
 	.main_section { width: 100%; }
 }
@@ -618,6 +447,9 @@ Navbars with color specific to section
   -->
   <div class="side_left">
 
+	<!-- Back to main site -->
+	<a href="../index.html" class="back_link"><span>Back to site</span></a>
+
 	<!--
 		Course gif.
 		src is set by JS: ../images/<gif field from courses.json>
@@ -631,12 +463,11 @@ Navbars with color specific to section
 		<div class="course_id_code" id="side-code"></div>
 		<div class="course_id_title" id="side-title"></div>
 	</div>
-	<!--
+
 	<hr class="side_divider">
-	-->
-	
+
 	<!-- Meeting info -->
-	<!--
+	
 	<div class="side_info_block">
 		<div class="side_info_row">
 			<span class="side_info_label">Semester</span>
@@ -651,11 +482,12 @@ Navbars with color specific to section
 			<span class="side_info_value" id="side-location"></span>
 		</div>
 	</div>
+	
 	<hr class="side_divider">
-	-->
+	
 
 	<!-- Instructor info -->
-	<!--
+	
 	<div class="side_info_block">
 		<div class="side_info_row">
 			<span class="side_info_label">Instructor</span>
@@ -670,24 +502,16 @@ Navbars with color specific to section
 			<span class="side_info_value" id="side-office"></span>
 		</div>
 	</div>
+
 	<hr class="side_divider">
-	-->
+	
 
 	<!-- Section navbar -->
 	<div class="navbar">
-		<a href="#section_announcements"><span>Announcements</span></a>
-		<a href="#section_assessment"><span>Assessment</span></a>
-		<a href="#section_course"><span>Course</span></a>
-		<a href="#section_instructor"><span>Instructor</span></a>
-		<a href="#section_lessons"><span>Lessons</span></a>
-		<a href="#section_meeting"><span>Meeting</span></a>
-		<a href="#section_policies"><span>Policies</span></a>
-		<a href="#section_schedule"><span>Schedule</span></a>
+		<a href="#announcements"><span>ANNOUNCEMENTS</span></a>
+		<a href="#about"><span>ABOUT</span></a>
+		<a href="#schedule"><span>SCHEDULE</span></a>
 	</div>
-	
-	<!-- Back to main site -->
-	<br><br>
-	<a href="../index.html#teaching" class="back_link"><span>Back to site</span></a>
 
   </div>
 
@@ -699,106 +523,43 @@ Navbars with color specific to section
   <div class="main">
 	<div class="header"></div>
 	<div class="mainsub" id="page-main" style="display:none">
-	
-		<!-- TOP -->
-		<a id="top"></a>
-		
-		<!-- ANNOUNCEMENTS (OWN) -->
-		<a id="section_announcements"></a>
+
+		<!-- ── ANNOUNCEMENTS ── -->
+		<a id="announcements"></a>
 		<br>
 		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-announcements">
+			<div class="section_heading_bar">
 				<div class="page_heading">Announcements</div>
 			</div>
 			<div class="section_body">
-				<p>Announcement stuff here.</p>
 				<ul class="announcement_list" id="announcements-list"></ul>
 			</div>
 		</div>
-		
-		<!-- ASSESSMENT (OWN) -->
-		<a id="section_assessment"></a>
+
+		<div class="section_divider"></div>
+
+		<!-- ── ABOUT ── -->
+		<a id="about"></a>
 		<br>
 		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-assessment">
-				<div class="page_heading">Assessment</div>
+			<div class="section_heading_bar">
+				<div class="page_heading">About This Course</div>
 			</div>
 			<div class="section_body">
-				Assessment stuff here.
-			</div>
-		</div>
-		
-		<!-- COURSE (OWN) -->
-		<a id="section_course"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-course">
-				<div class="page_heading">Course</div>
-			</div>
-			<div class="section_body">
-				<p>Course stuff here.</p>
 				<p id="course-description"></p>
 			</div>
 		</div>
-		
-		<!-- INSTRUCTOR (OWN) -->
-		<a id="section_instructor"></a>
+
+		<div class="section_divider"></div>
+
+		<!-- ── SCHEDULE ── -->
+		<a id="schedule"></a>
 		<br>
 		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-instructor">
-				<div class="page_heading">Instructor</div>
-			</div>
-			<div class="section_body">
-				Instructor stuff here.
-			</div>
-		</div>
-		
-		<!-- LESSONS (OWN) -->
-		<a id="section_lessons"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-lessons">
-				<div class="page_heading">Lessons</div>
-			</div>
-			<div class="section_body">
-				Lessons stuff here.
-			</div>
-		</div>
-		
-		<!-- MEETING (OWN) -->
-		<a id="section_meeting"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-meeting">
-				<div class="page_heading">Meeting</div>
-			</div>
-			<div class="section_body">
-				Meeting stuff here.
-			</div>
-		</div>
-		
-		<!-- POLICIES (OWN) -->
-		<a id="section_policies"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-policies">
-				<div class="page_heading">Policies</div>
-			</div>
-			<div class="section_body">
-				Policy stuff here.
-			</div>
-		</div>
-		
-		<!-- POLICIES (OWN) -->
-		<a id="section_schedule"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-schedule">
+			<div class="section_heading_bar">
 				<div class="page_heading">Schedule</div>
 			</div>
 			<div class="section_body">
-				<p>Schedule stuff here.</p>
-				
 				<table class="schedule_table">
 					<thead>
 						<tr>
@@ -809,7 +570,26 @@ Navbars with color specific to section
 					</thead>
 					<tbody id="schedule-body"></tbody>
 				</table>
-				
+			</div>
+		</div>
+
+		<div class="section_divider"></div>
+		
+		<div class="main_section">
+			<div class="section_heading_bar">
+				<div class="page_heading">Filler</div>
+			</div>
+			<div class="section_body">
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
+				<p> This is some text. </p><br>
 			</div>
 		</div>
 

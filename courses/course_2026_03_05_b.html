@@ -44,19 +44,7 @@
 */
 :root {
 	--color_accent: #2a4878;
-	
-	/*
-	Colors specific to sections
-	*/
-	--color_announcements: 		#a33340;
-	--color_assessment: 		#bf7a41;
-	--color_course:	 			#609aa6;
-	--color_instructor: 		#60a688;
-	--color_lessons: 			#6083a6;
-	--color_meeting: 			#a69860;
-	--color_policies: 			#a66079;
-	--color_schedule: 			#8d679e;
-	
+	--color_heading_announcements: 		#a33340;
 	--color_highlight:    				#060606;
 	--color_lowlight:     				#4f4f4f;
 	--color_wrap:         				#f1f1f1;
@@ -322,95 +310,6 @@ MAIN in index.html
 .navbar a:hover::before { transform: scaleX(1); }
 
 /*
-Navbars with color specific to section
-	
-	--color_announcements: 		#a33340;
-	--color_assessment: 		#bf7a41;
-	--color_course:	 			#609aa6;
-	--color_instructor: 		#60a688;
-	--color_lessons: 			#6083a6;
-	--color_meeting: 			#a69860;
-	--color_policies: 			#a66079;
-	--color_schedule: 			#8d679e;
-	
-	<div class="navbar">
-		<a href="#section_announcements"><span>Announcements</span></a>
-		<a href="#section_assessment"><span>Assessment</span></a>
-		<a href="#section_course"><span>Course</span></a>
-		<a href="#section_instructor"><span>Instructor</span></a>
-		<a href="#section_lessons"><span>Lessons</span></a>
-		<a href="#section_meeting"><span>Meeting</span></a>
-		<a href="#section_policies"><span>Policies</span></a>
-		<a href="#section_schedule"><span>Schedule</span></a>
-	</div>
-	
-*/
-.navbar a[href="#section_announcements"] { 
-	border-left-color: var(--color_announcements); 
-}
-.navbar a[href="#section_announcements"]::before { 
-	background: var(--color_announcements); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_assessment"] { 
-	border-left-color: var(--color_assessment); 
-}
-.navbar a[href="#section_assessment"]::before { 
-	background: var(--color_assessment); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_course"] { 
-	border-left-color: var(--color_course); 
-}
-.navbar a[href="#section_course"]::before { 
-	background: var(--color_course); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_instructor"] { 
-	border-left-color: var(--color_instructor); 
-}
-.navbar a[href="#section_instructor"]::before { 
-	background: var(--color_instructor); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_lessons"] { 
-	border-left-color: var(--color_lessons); 
-}
-.navbar a[href="#section_lessons"]::before { 
-	background: var(--color_lessons); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_meeting"] { 
-	border-left-color: var(--color_meeting); 
-}
-.navbar a[href="#section_meeting"]::before { 
-	background: var(--color_meeting); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_policies"] { 
-	border-left-color: var(--color_policies); 
-}
-.navbar a[href="#section_policies"]::before { 
-	background: var(--color_policies); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_schedule"] { 
-	border-left-color: var(--color_schedule); 
-}
-.navbar a[href="#section_schedule"]::before { 
-	background: var(--color_schedule); 
-	opacity: 0.20; 
-}
-
-
-/*
 ------------------------------------------------------------------
 	Section cards
 ------------------------------------------------------------------
@@ -435,35 +334,7 @@ Navbars with color specific to section
 }
 
 .section_heading_bar-announcements {
-	background: var(--color_announcements);
-}
-
-.section_heading_bar-assessment {
-	background: var(--color_assessment);
-}
-
-.section_heading_bar-course {
-	background: var(--color_course);
-}
-
-.section_heading_bar-instructor {
-	background: var(--color_instructor);
-}
-
-.section_heading_bar-lessons {
-	background: var(--color_lessons);
-}
-
-.section_heading_bar-meeting {
-	background: var(--color_meeting);
-}
-
-.section_heading_bar-policies {
-	background: var(--color_policies);
-}
-
-.section_heading_bar-schedule {
-	background: var(--color_schedule);
+	background: var(--color_heading_announcements);
 }
 
 .section_heading_bar .page_heading {
@@ -675,14 +546,12 @@ Navbars with color specific to section
 
 	<!-- Section navbar -->
 	<div class="navbar">
-		<a href="#section_announcements"><span>Announcements</span></a>
-		<a href="#section_assessment"><span>Assessment</span></a>
-		<a href="#section_course"><span>Course</span></a>
-		<a href="#section_instructor"><span>Instructor</span></a>
-		<a href="#section_lessons"><span>Lessons</span></a>
-		<a href="#section_meeting"><span>Meeting</span></a>
-		<a href="#section_policies"><span>Policies</span></a>
-		<a href="#section_schedule"><span>Schedule</span></a>
+		<a href="#top"><span>Announcements</span></a>
+		<a href="#top"><span>Course</span></a>
+		<a href="#top"><span>Gathering</span></a>
+		<a href="#top"><span>Instructor</span></a>
+		<a href="#top"><span>Lessons</span></a>
+		<a href="#top"><span>Schedule</span></a>
 	</div>
 	
 	<!-- Back to main site -->
@@ -711,94 +580,46 @@ Navbars with color specific to section
 				<div class="page_heading">Announcements</div>
 			</div>
 			<div class="section_body">
-				<p>Announcement stuff here.</p>
 				<ul class="announcement_list" id="announcements-list"></ul>
 			</div>
 		</div>
-		
-		<!-- ASSESSMENT (OWN) -->
-		<a id="section_assessment"></a>
+
+		<!-- ANNOUNCEMENTS -->
+		<a id="announcements"></a>
 		<br>
 		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-assessment">
-				<div class="page_heading">Assessment</div>
+			<div class="section_heading_bar">
+				<div class="page_heading">Announcements</div>
 			</div>
 			<div class="section_body">
-				Assessment stuff here.
+				<ul class="announcement_list" id="announcements-list"></ul>
 			</div>
 		</div>
-		
-		<!-- COURSE (OWN) -->
-		<a id="section_course"></a>
+
+		<div class="section_divider"></div>
+
+		<!-- ABOUT -->
+		<a id="about"></a>
 		<br>
 		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-course">
-				<div class="page_heading">Course</div>
+			<div class="section_heading_bar">
+				<div class="page_heading">About This Course</div>
 			</div>
 			<div class="section_body">
-				<p>Course stuff here.</p>
 				<p id="course-description"></p>
 			</div>
 		</div>
-		
-		<!-- INSTRUCTOR (OWN) -->
-		<a id="section_instructor"></a>
+
+		<div class="section_divider"></div>
+
+		<!-- SCHEDULE -->
+		<a id="schedule"></a>
 		<br>
 		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-instructor">
-				<div class="page_heading">Instructor</div>
-			</div>
-			<div class="section_body">
-				Instructor stuff here.
-			</div>
-		</div>
-		
-		<!-- LESSONS (OWN) -->
-		<a id="section_lessons"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-lessons">
-				<div class="page_heading">Lessons</div>
-			</div>
-			<div class="section_body">
-				Lessons stuff here.
-			</div>
-		</div>
-		
-		<!-- MEETING (OWN) -->
-		<a id="section_meeting"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-meeting">
-				<div class="page_heading">Meeting</div>
-			</div>
-			<div class="section_body">
-				Meeting stuff here.
-			</div>
-		</div>
-		
-		<!-- POLICIES (OWN) -->
-		<a id="section_policies"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-policies">
-				<div class="page_heading">Policies</div>
-			</div>
-			<div class="section_body">
-				Policy stuff here.
-			</div>
-		</div>
-		
-		<!-- POLICIES (OWN) -->
-		<a id="section_schedule"></a>
-		<br>
-		<div class="main_section">
-			<div class="section_heading_bar section_heading_bar-schedule">
+			<div class="section_heading_bar">
 				<div class="page_heading">Schedule</div>
 			</div>
 			<div class="section_body">
-				<p>Schedule stuff here.</p>
-				
 				<table class="schedule_table">
 					<thead>
 						<tr>
@@ -809,7 +630,25 @@ Navbars with color specific to section
 					</thead>
 					<tbody id="schedule-body"></tbody>
 				</table>
-				
+			</div>
+		</div>
+		<div class="section_divider"></div>
+		
+		<!-- FILLER -->
+		<div class="main_section">
+			<div class="section_heading_bar">
+				<div class="page_heading">Filler</div>
+			</div>
+			<div class="section_body">
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
 			</div>
 		</div>
 
