@@ -322,95 +322,6 @@ MAIN in index.html
 .navbar a:hover::before { transform: scaleX(1); }
 
 /*
-Navbars with color specific to section
-	
-	--color_announcements: 		#a33340;
-	--color_assessment: 		#bf7a41;
-	--color_course:	 			#609aa6;
-	--color_instructor: 		#60a688;
-	--color_lessons: 			#6083a6;
-	--color_meeting: 			#a69860;
-	--color_policies: 			#a66079;
-	--color_schedule: 			#8d679e;
-	
-	<div class="navbar">
-		<a href="#section_announcements"><span>Announcements</span></a>
-		<a href="#section_assessment"><span>Assessment</span></a>
-		<a href="#section_course"><span>Course</span></a>
-		<a href="#section_instructor"><span>Instructor</span></a>
-		<a href="#section_lessons"><span>Lessons</span></a>
-		<a href="#section_meeting"><span>Meeting</span></a>
-		<a href="#section_policies"><span>Policies</span></a>
-		<a href="#section_schedule"><span>Schedule</span></a>
-	</div>
-	
-*/
-.navbar a[href="#section_announcements"] { 
-	border-left-color: var(--color_announcements); 
-}
-.navbar a[href="#section_announcements"]::before { 
-	background: var(--color_announcements); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_assessment"] { 
-	border-left-color: var(--color_assessment); 
-}
-.navbar a[href="#section_assessment"]::before { 
-	background: var(--color_assessment); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_course"] { 
-	border-left-color: var(--color_course); 
-}
-.navbar a[href="#section_course"]::before { 
-	background: var(--color_course); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_instructor"] { 
-	border-left-color: var(--color_instructor); 
-}
-.navbar a[href="#section_instructor"]::before { 
-	background: var(--color_instructor); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_lessons"] { 
-	border-left-color: var(--color_lessons); 
-}
-.navbar a[href="#section_lessons"]::before { 
-	background: var(--color_lessons); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_meeting"] { 
-	border-left-color: var(--color_meeting); 
-}
-.navbar a[href="#section_meeting"]::before { 
-	background: var(--color_meeting); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_policies"] { 
-	border-left-color: var(--color_policies); 
-}
-.navbar a[href="#section_policies"]::before { 
-	background: var(--color_policies); 
-	opacity: 0.20; 
-}
-
-.navbar a[href="#section_schedule"] { 
-	border-left-color: var(--color_schedule); 
-}
-.navbar a[href="#section_schedule"]::before { 
-	background: var(--color_schedule); 
-	opacity: 0.20; 
-}
-
-
-/*
 ------------------------------------------------------------------
 	Section cards
 ------------------------------------------------------------------
@@ -711,8 +622,7 @@ Navbars with color specific to section
 				<div class="page_heading">Announcements</div>
 			</div>
 			<div class="section_body">
-				<p>Announcement stuff here.</p>
-				<ul class="announcement_list" id="announcements-list"></ul>
+				Announcements here.
 			</div>
 		</div>
 		
@@ -736,8 +646,7 @@ Navbars with color specific to section
 				<div class="page_heading">Course</div>
 			</div>
 			<div class="section_body">
-				<p>Course stuff here.</p>
-				<p id="course-description"></p>
+				Course stuff here.
 			</div>
 		</div>
 		
@@ -810,6 +719,74 @@ Navbars with color specific to section
 					<tbody id="schedule-body"></tbody>
 				</table>
 				
+			</div>
+		</div>
+
+		<!-- ANNOUNCEMENTS -->
+		<a id="announcements"></a>
+		<br>
+		<div class="main_section">
+			<div class="section_heading_bar">
+				<div class="page_heading">Announcements</div>
+			</div>
+			<div class="section_body">
+				<ul class="announcement_list" id="announcements-list"></ul>
+			</div>
+		</div>
+
+		<div class="section_divider"></div>
+
+		<!-- ABOUT -->
+		<a id="about"></a>
+		<br>
+		<div class="main_section">
+			<div class="section_heading_bar">
+				<div class="page_heading">About This Course</div>
+			</div>
+			<div class="section_body">
+				<p id="course-description"></p>
+			</div>
+		</div>
+
+		<div class="section_divider"></div>
+
+		<!-- SCHEDULE -->
+		<a id="schedule"></a>
+		<br>
+		<div class="main_section">
+			<div class="section_heading_bar">
+				<div class="page_heading">Schedule</div>
+			</div>
+			<div class="section_body">
+				<table class="schedule_table">
+					<thead>
+						<tr>
+							<th>Wk</th>
+							<th>Topic</th>
+							<th>Notes</th>
+						</tr>
+					</thead>
+					<tbody id="schedule-body"></tbody>
+				</table>
+			</div>
+		</div>
+		<div class="section_divider"></div>
+		
+		<!-- FILLER -->
+		<div class="main_section">
+			<div class="section_heading_bar">
+				<div class="page_heading">Filler</div>
+			</div>
+			<div class="section_body">
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
+				<p> This is some text. </p>
 			</div>
 		</div>
 
