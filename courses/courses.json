@@ -16,8 +16,34 @@
 		"title": "Artificial Intelligence for Simulations",
 		"title_short": "AI for Sim",
 		
-		"meeting_time": "MWF 10:00–10:50am",
-		"meeting_place": "Straz Center Xxx",
+		"announcements": [
+			{ 
+				"date": "2026-08-25",
+				"text": "Welcome to CS 101! Please read the syllabus before the first class." 
+			},
+			{ 
+				"date": "2026-09-01", 
+				"text": "Problem Set 1 is now available on the course page."
+			}
+		],
+		
+		"assessments": [
+			{ 
+				"name": 		"Attendance", 
+				"description": 	"Students are expected to attend class regularly.", 
+				"percentage": 	"10%"
+			},
+			{ 
+				"name": 		"Exams", 
+				"description": 	"There will be X exams throughout the semester. Each exam will be comprehensive.", 
+				"percentage": 	"50%"
+			},
+			{ 
+				"name": 		"Projects", 
+				"description": 	"Projects are where you...", 
+				"percentage": 	"40%"
+			}
+		],
 		
 		"course_catalog_description": "Explore the fundamental AI algorithms used in simulations and game development. This course covers techniques like pathfinding, decision trees, behavior trees, finite state machines, and machine learning. Students will apply these algorithms to create more dynamic, responsive, and intelligent virtual environments. Ideal for those interested in game design, simulations, and AI programming",
 		"course_learning_goals": [
@@ -48,18 +74,10 @@
 			}
 		],
 		
-		"syllabus": "syllabus_cs101.pdf",
+		"meeting_time": "MWF 10:00–10:50am",
+		"meeting_place": "Straz Center Xxx",
 		
-		"announcements": [
-			{ 
-				"date": "2026-08-25",
-				"text": "Welcome to CS 101! Please read the syllabus before the first class." 
-			},
-			{ 
-				"date": "2026-09-01", 
-				"text": "Problem Set 1 is now available on the course page."
-			}
-		],
+		"syllabus": "syllabus_cs101.pdf",
 		
 		"schedule_weeks": [
 			{ 
