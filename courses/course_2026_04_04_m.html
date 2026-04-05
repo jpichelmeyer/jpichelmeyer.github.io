@@ -129,7 +129,7 @@
         --panel_bg:             #ffffff;
         --panel_border:         rgba(0,0,0,0.10);
         --panel_visual_height:  260px;
-        --panel_strip_height:   90px;
+        --panel_strip_height:   148px;
         --panel_thumb_width:    152px;
 
         /* Resize handle dimensions */
@@ -467,7 +467,7 @@
         z-index: 100;
         /* min/max width constraints for panel resize */
         min-width: 320px;
-        max-width: 100vw;
+        max-width: calc(100vw - var(--margin_left) - 40px);
     }
 
     body.panel-open .lesson_panel { transform: translateX(0); }
@@ -953,75 +953,91 @@
         max-height: 300px;
     }
 
-    .panel_strip_area::after { content: ''; flex-shrink: 0; width: 10px; }
+    .panel_strip_area::after { content: ''; flex-shrink: 0; width: 20px; }
 
-    /* ── Beat pill (replaces old thumbnail card) ── */
-    .beat_pill {
+    /* Individual thumbnail */
+    .beat_thumb {
         flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        padding: 8px 12px;
-        border-radius: 8px;
+        width: var(--panel_thumb_width);
+        height: calc(var(--panel_strip_height) - 20px);
+        border-radius: 6px;
         border: 2px solid transparent;
         background: #fff;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+        box-shadow: 0 1px 5px rgba(0,0,0,0.10);
         cursor: pointer;
-        min-width: 64px;
-        max-width: 100px;
-        height: calc(var(--panel_strip_height) - 20px);
-        transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s, background 0.15s;
-        position: relative;
         overflow: hidden;
-        text-align: center;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
     }
-    .beat_pill:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.14); transform: translateY(-2px); }
+    .beat_thumb:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.16); transform: translateY(-1px); }
+    .beat_thumb.selected { box-shadow: 0 0 0 3px rgba(96,131,166,0.20); }
 
-    /* Colored left-edge accent bar */
-    .beat_pill::before {
-        content: '';
-        position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 3px;
-        border-radius: 8px 0 0 8px;
-        background: var(--pill-color, #888);
+    /* Colored top stripe indicating beat type */
+    .beat_thumb_stripe {
+        flex-shrink: 0;
+        height: 3px;
+        width: 100%;
     }
 
-    /* Beat number — large and monospaced */
-    .beat_pill_num {
+    /* Preview area (image or icon) */
+    .beat_thumb_preview {
+        flex-shrink: 0;
+        height: 50%;
+        background: #1a1a2e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .beat_thumb_preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+
+    /* Type icon shown when there's no image to preview */
+    .beat_thumb_icon {
+        font-size: 22px;
+        opacity: 0.35;
+        user-select: none;
+    }
+
+    /* Beat number + text snippet */
+    .beat_thumb_num {
         font-family: 'Courier New', monospace;
-        font-size: 17px;
-        font-weight: 700;
-        line-height: 1;
-        color: var(--pill-color, #888);
-        letter-spacing: -0.02em;
+        font-size: 8px;
+        color: var(--color_lessons);
+        padding: 3px 7px 0;
+        opacity: 0.75;
     }
 
-    /* Keyword / mini-title */
-    .beat_pill_label {
-        font-size: 9px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
+    .beat_thumb_text {
+        flex: 1;
+        padding: 2px 7px 4px;
+        font-size: 9.5px;
+        line-height: 1.4;
         color: var(--color_lowlight);
-        line-height: 1.3;
-        word-break: break-word;
-        hyphens: auto;
-        max-width: 80px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
     }
 
-    /* Selected state — colored border + light tinted bg */
-    .beat_pill.selected {
-        border-color: var(--pill-color, #888);
-        background: color-mix(in srgb, var(--pill-color, #888) 8%, white);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--pill-color, #888) 18%, transparent);
-    }
+    /* Per-type stripe and selection border colors */
+    .beat_thumb[data-type="image"]     .beat_thumb_stripe { background: var(--color_beat_image); }
+    .beat_thumb[data-type="slideshow"] .beat_thumb_stripe { background: var(--color_beat_slideshow); }
+    .beat_thumb[data-type="code_check"].beat_thumb_stripe { background: var(--color_beat_code); }
+    .beat_thumb[data-type="quiz"]      .beat_thumb_stripe { background: var(--color_beat_quiz); }
+    .beat_thumb[data-type="text_only"] .beat_thumb_stripe { background: var(--color_beat_text); }
 
-    /* Fallback for browsers without color-mix */
-    @supports not (background: color-mix(in srgb, red 10%, white)) {
-        .beat_pill.selected { background: #f0f4fa; }
-    }
+    .beat_thumb[data-type="image"].selected     { border-color: var(--color_beat_image); }
+    .beat_thumb[data-type="slideshow"].selected { border-color: var(--color_beat_slideshow); }
+    .beat_thumb[data-type="code_check"].selected{ border-color: var(--color_beat_code); }
+    .beat_thumb[data-type="quiz"].selected      { border-color: var(--color_beat_quiz); }
+    .beat_thumb[data-type="text_only"].selected { border-color: var(--color_beat_text); }
 
     /* ── Error state ── */
     #error-msg {
@@ -1483,7 +1499,7 @@ const PREFS_KEY   = "lessonPanelPrefs";
 const PREFS_DEFAULT = {
     panelWidth:   800,
     visualHeight: 260,
-    stripHeight:  90,
+    stripHeight:  148,
 };
 
 function loadPrefs() {
@@ -1514,8 +1530,8 @@ function applyPrefs(prefs) {
     panelVisual.style.height         = `${prefs.visualHeight}px`;
     panelStrip.style.height          = `${prefs.stripHeight}px`;
 
-    // Sync pill heights too
-    document.querySelectorAll(".beat_pill").forEach(t => {
+    // Sync thumbnail heights too
+    document.querySelectorAll(".beat_thumb").forEach(t => {
         t.style.height = `${prefs.stripHeight - 20}px`;
     });
 }
@@ -1529,7 +1545,6 @@ let prefs = loadPrefs();
 
 let activeLessonId  = null;
 let activeBeatIndex = null;
-let activeBeats     = [];   // kept in sync so arrow-key nav can reference it
 
 
 // ══════════════════════════════════════════════════════════════════
@@ -1606,7 +1621,7 @@ handleWidth.addEventListener("mousedown", makeDragHandler({
         document.documentElement.style.setProperty("--panel_width", `${px}px`);
     },
     min:        320,
-    max:        () => window.innerWidth - 40,
+    max:        () => window.innerWidth - parseInt(getComputedStyle(document.documentElement).getPropertyValue("--margin_left")) - 40,
     bodyCursor: "resizing",
 }));
 
@@ -1634,8 +1649,8 @@ handleStrip.addEventListener("mousedown", makeDragHandler({
         prefs.stripHeight = px;
         panelStrip.style.height = `${px}px`;
         document.documentElement.style.setProperty("--panel_strip_height", `${px}px`);
-        // Update pill heights to match
-        document.querySelectorAll(".beat_pill").forEach(t => {
+        // Update thumb heights to match
+        document.querySelectorAll(".beat_thumb").forEach(t => {
             t.style.height = `${px - 20}px`;
         });
     },
@@ -1675,7 +1690,6 @@ panelReset.addEventListener("click", () => {
 
 function openPanel(lesson) {
     activeLessonId = lesson.id;
-    activeBeats    = lesson.beats || [];
     panelTitle.textContent = lesson.title || "Lesson";
 
     buildStrip(lesson.beats || []);
@@ -1700,26 +1714,12 @@ function closePanel() {
     panelEl.setAttribute("aria-hidden", "true");
     activeLessonId  = null;
     activeBeatIndex = null;
-    activeBeats     = [];
     document.querySelectorAll(".lesson_open_btn").forEach(btn => btn.classList.remove("active"));
 }
 
 panelClose.addEventListener("click", closePanel);
 document.addEventListener("keydown", e => {
-    if (!document.body.classList.contains("panel-open")) return;
-
-    if (e.key === "Escape") { closePanel(); return; }
-
-    // Arrow-key beat navigation — skip if focus is inside an input/textarea
-    const tag = document.activeElement?.tagName;
-    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") return;
-
-    if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && activeBeats.length) {
-        e.preventDefault();
-        const dir  = e.key === "ArrowRight" ? 1 : -1;
-        const next = (activeBeatIndex + dir + activeBeats.length) % activeBeats.length;
-        selectBeat(activeBeats, next);
-    }
+    if (e.key === "Escape" && document.body.classList.contains("panel-open")) closePanel();
 });
 
 
@@ -1737,12 +1737,12 @@ function selectBeat(beats, index) {
     // Visual area
     renderBeatVisual(beat, index, beats.length);
 
-    // Highlight selected pill
-    document.querySelectorAll(".beat_pill").forEach((t, i) => {
+    // Highlight selected thumb
+    document.querySelectorAll(".beat_thumb").forEach((t, i) => {
         t.classList.toggle("selected", i === index);
     });
 
-    const sel = document.querySelectorAll(".beat_pill")[index];
+    const sel = document.querySelectorAll(".beat_thumb")[index];
     if (sel) sel.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
 }
 
@@ -1965,96 +1965,62 @@ function renderTextOnly(beat) {
 //  THUMBNAIL STRIP
 // ══════════════════════════════════════════════════════════════════
 
-// ── Auto-generate a short keyword label for each beat ────────────
-// Priority: explicit caption/question/prompt first word(s), then
-// a meaningful excerpt from the beat text, falling back to the type label.
-function beatKeyword(beat) {
-    // Explicit label in JSON always wins
-    if (beat.label) return beat.label;
-
-    const info = beatTypeInfo(beat.type);
-
-    // quiz: first 2 meaningful words of the question
-    if (beat.type === "quiz" && beat.question) {
-        return firstWords(beat.question, 2);
-    }
-    // code_check: first 2 words of the prompt
-    if (beat.type === "code_check" && beat.prompt) {
-        return firstWords(beat.prompt, 2);
-    }
-    // image / slideshow: use caption if present
-    if (beat.caption) return firstWords(beat.caption, 2);
-    if (beat.slides && beat.slides[0] && beat.slides[0].caption) {
-        return firstWords(beat.slides[0].caption, 2);
-    }
-    // fall back: first 2 content words from the narrative text
-    if (beat.text) {
-        const plain = beat.text.replace(/<[^>]+>/g, "");
-        return firstWords(plain, 2);
-    }
-    return info.label;
-}
-
-// Return the first `n` significant words (skip stop-words for 1-word results)
-const STOP = new Set(["a","an","the","is","are","was","were","it","in","on","at",
-                      "to","of","for","and","or","but","so","let","with","this",
-                      "that","we","i","you","how","why","what","when","where","which"]);
-
-function firstWords(str, n) {
-    const words = str.replace(/["""''()[\]{}<>]/g, "")
-                     .split(/\s+/)
-                     .filter(w => w.length > 1);
-    // For a 2-word result try to skip leading stop-words
-    const meaningful = words.filter(w => !STOP.has(w.toLowerCase()));
-    const pool = meaningful.length >= n ? meaningful : words;
-    return pool.slice(0, n).join(" ") || str.slice(0, 12);
-}
-
-// Resolve the raw CSS color value for a beat type (for --pill-color)
-function beatColorValue(type) {
-    const map = {
-        image:      "var(--color_beat_image)",
-        slideshow:  "var(--color_beat_slideshow)",
-        code_check: "var(--color_beat_code)",
-        quiz:       "var(--color_beat_quiz)",
-        text_only:  "var(--color_beat_text)",
-    };
-    return map[type] || "#888";
-}
-
 function buildStrip(beats) {
     panelStrip.innerHTML = "";
 
     beats.forEach((beat, i) => {
-        const info    = beatTypeInfo(beat.type);
-        const keyword = beatKeyword(beat);
-        const color   = beatColorValue(beat.type);
+        const info  = beatTypeInfo(beat.type);
+        const thumb = el("div", "beat_thumb");
+        thumb.dataset.type = beat.type || "image";
+        thumb.setAttribute("role", "button");
+        thumb.setAttribute("tabindex", "0");
+        thumb.setAttribute("aria-label", `Beat ${i + 1}: ${info.label}`);
+        // Apply current strip height to thumb
+        thumb.style.height = `${prefs.stripHeight - 20}px`;
 
-        const pill = el("div", "beat_pill");
-        pill.style.setProperty("--pill-color", color);
-        pill.style.height = `${prefs.stripHeight - 20}px`;
-        pill.dataset.type  = beat.type || "image";
-        pill.setAttribute("role",       "button");
-        pill.setAttribute("tabindex",   "0");
-        pill.setAttribute("aria-label", `Beat ${i + 1}: ${info.label} — ${keyword}`);
-        pill.title = `${info.label}: ${keyword}`;
+        // Colored stripe
+        const stripe = el("div", "beat_thumb_stripe");
+        stripe.style.background = info.color;
+        thumb.appendChild(stripe);
 
-        // Number
-        const numEl = el("div", "beat_pill_num");
-        numEl.textContent = i + 1;
-        pill.appendChild(numEl);
+        // Preview area
+        const preview = el("div", "beat_thumb_preview");
 
-        // Keyword label
-        const labelEl = el("div", "beat_pill_label");
-        labelEl.textContent = keyword;
-        pill.appendChild(labelEl);
+        if (beat.type === "image" && beat.visual) {
+            const img = el("img");
+            img.src = `../images/${beat.visual}`;
+            img.alt = "";
+            preview.appendChild(img);
+        } else if (beat.type === "slideshow" && beat.slides && beat.slides[0] && beat.slides[0].visual) {
+            const img = el("img");
+            img.src = `../images/${beat.slides[0].visual}`;
+            img.alt = "";
+            preview.appendChild(img);
+        } else {
+            const icon = el("div", "beat_thumb_icon");
+            icon.textContent = info.icon;
+            preview.appendChild(icon);
+        }
 
-        pill.addEventListener("click",   () => selectBeat(beats, i));
-        pill.addEventListener("keydown", e => {
+        thumb.appendChild(preview);
+
+        // Beat number
+        const num = el("div", "beat_thumb_num");
+        num.textContent = `Beat ${i + 1}  ·  ${info.label}`;
+        thumb.appendChild(num);
+
+        // Text snippet
+        const txt  = el("div", "beat_thumb_text");
+        const plain = (beat.text || beat.question || beat.prompt || "").replace(/<[^>]+>/g, "");
+        txt.textContent = plain;
+        thumb.appendChild(txt);
+
+        thumb.addEventListener("click",   () => selectBeat(beats, i));
+        thumb.addEventListener("keydown", e => {
             if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectBeat(beats, i); }
         });
 
-        panelStrip.appendChild(pill);
+        panelStrip.appendChild(thumb);
     });
 }
 
