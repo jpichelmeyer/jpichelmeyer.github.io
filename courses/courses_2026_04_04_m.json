@@ -192,42 +192,30 @@
                 "title": "History: Algorithms",
                 "beats": [
                     {
-                        "label": "Overview",
                         "type": "text",
                         "text": "<h1>Overview</h1>In this unit, we will:<ol><li>Talk about what an algorithm is.</li><li>Ask the question: Can all algorithms can be executed?</li><li>Investigate one historically vital attempt to answer it.</li></ol>",
                         "visual": "astar_intro.png",
                         "caption": "optional caption"
                     },
                     {
-                        "label": "Definition?",
                         "type": "text",
-                        "text": "<h3>Definition?</h3>Two distinct, but important perspectives.<br><br> <b>Definition</b> (Knuth): An alorithm is a set of rules satisfying the following properties:<ol><li>Input</li><li>Output</li><li>Finiteness</li><li>Definiteness</li><li>Effectiveness</li></ol><b>Definition</b> (Turing): Any process that can be executed by a Turing machine.<br><br>But, intuitively...<br><br><b>Definition</b> (NIH):An algorithm is a set of instructions that is designed to accomplish a task.",
+                        "text": "<h3>Definition?</h3>Two distinct, but important perspectives.<br><br> <b>Definition</b> (Knuth): An alorithm is a set of rules satisfying the following properties:<ol><li>Input</li><li>Output</li><li>Finiteness</li><li>Definiteness</li><li>Effectiveness</li></ol>",
                         "visual": "astar_intro.png",
                         "caption": "optional caption"
                     },
                     {
-                        "label": "Pseudocode",
                         "type": "text",
-                        "text": "<h3>Pseudocode</h3><p>Suppose you are nuclear engineer who is tasked with maintaining a certain part of a nuclear reactor. You notice that the part you are supposed to watch is acting unusually. You know you need to add a particular type of coolant, but can't remember which one or how much and if you are off by even a little bit, the part could fail and the entire facility could explode. You ask your supervisor and their response is: 'Just add a little of the blue stuff.' How helpful was this direction?</p> <p>Pseudocode is a way of trying to make an algorithm explicit enough that there is no ambiguity as to what should be done, but not so explicit that it becomes difficult to parse, requiring more mental energy and time than the process is worth.</p><p>No universal convention. Large range in degree of formality. An example below.</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>FIND-MAXIMUM(A)\n1  max=A[1]\n2  FOR i=2 to A.length\n3      IF A[i] > max THEN\n4          max <- A[i]\n5      END IF\n6  END FOR\n7  RETURN  max</pre>",
+                        "text": "<p>Test </p><br><br> Another test.",
                         "visual": "astar_intro.png",
                         "caption": "optional caption"
                     },
                     {
-                        "label": "Pseudocode Examples",
-                        "type": "text",
-                        "text": "<h3>Pseudocode: Examples</h3><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>FIND-MAXIMUM(A)\n1  max=A[1]\n2  FOR i=2 to A.length\n3      IF A[i] > max THEN\n4          max <- A[i]\n5      END IF\n6  END FOR\n7  RETURN  max</pre>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    },
-                    {
-                        "label": "Visuals",
                         "type": "image",
-                        "text": "For some (like me), parsing text can be overly challenging for what is meant to be conveyed. There is a visual language (or family of languages, really) for communicating algorithms.",
+                        "text": "EXAMPLE TEMPLATE: image",
                         "visual": "astar_intro.png",
                         "caption": "optional caption"
                     },
                     {
-                        "label": "Definition?",
                         "type": "slideshow",
                         "text": "EXAMPLE TEMPLATE: slideshow",
                         "slides": [
@@ -236,7 +224,6 @@
                         ]
                     },
                     {
-                        "label": "Definition?",
                         "type": "code_check",
                         "text": "EXAMPLE TEMPLATE: code_check",
                         "prompt": "What does this function return for f(3, 4)?",
@@ -244,12 +231,10 @@
                         "hint": "optional hint shown after a wrong attempt"
                     },
                     {
-                        "label": "Definition?",
                         "type": "text_only",
                         "text": "EXAMPLE TEMPLATE: text_only"
                     },
                     {
-                        "label": "Definition?",
                         "type": "quiz",
                         "text": "EXAMPLE TEMPLATE: quiz",
                         "question": "Which algorithm uses a heuristic?",
@@ -257,152 +242,8 @@
                         "correct": 1
                     },
                     {
-                        "label": "Definition?",
                         "text": "Conclusion.",
                         "visual": "dijkstra.png"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "History: Bits and Circuits",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_programming_languages",
-                "title": "History: Programming Languages",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "Python 1: Decision logic and logic flow",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "Python 1: Functions",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "Python 2: Classes",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "Python 2: Strings",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "Python 2: Files, Exceptions, Modules",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "AI: Simulation Overview",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "AI: Decision Trees",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "AI: Finite State Machines",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    }
-                ]
-            },
-            {
-                "id": "history_bits_circuits",
-                "title": "Final Project: Firey the Firebird",
-                "beats": [
-                    {
-                        "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li></li><li></li><li></li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
                     }
                 ]
             }
