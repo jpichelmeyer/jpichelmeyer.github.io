@@ -638,6 +638,17 @@
         /* min/max constraints */
         min-height: 80px;
         max-height: calc(100vh - 200px);
+        /* hiding visual panel for text_only */
+        transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Hiding visual area for "text_only" type lesson beats */
+    .panel_visual_area.hidden,
+    .panel_resize_visual.hidden {
+        height: 0 !important;
+        min-height: 0 !important;
+        overflow: hidden;
+        transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Beat counter badge */
@@ -909,6 +920,8 @@
         text-transform: uppercase;
     }
     .panel_visual_placeholder::before { content: '⬛'; font-size: 32px; opacity: 0.18; }
+
+    
 
     /* ── Beat text (MIDDLE) ── */
     .panel_beat_text_area {
@@ -1736,6 +1749,12 @@ function selectBeat(beats, index) {
 
     // Visual area
     renderBeatVisual(beat, index, beats.length);
+
+    // TESTING
+    const isTextOnly = (beat.type === "text_only");
+    panelVisual.classList.toggle("hidden", isTextOnly);
+    document.getElementById("handle-visual-height").classList.toggle("hidden", isTextOnly);
+
 
     // Highlight selected pill
     document.querySelectorAll(".beat_pill").forEach((t, i) => {

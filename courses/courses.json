@@ -193,8 +193,8 @@
                 "beats": [
                     {
                         "label": "Overview",
-                        "type": "text",
-                        "text": "<h1>Overview</h1>In this unit, we will:<ol><li>Talk about what an algorithm is.</li><li>Ask the question: Can all algorithms can be executed?</li><li>Investigate one historically vital attempt to answer it.</li></ol>",
+                        "type": "text_only",
+                        "text": "<h2>Overview</h2><p>In this unit, we will:</p><ol><li>Discuss what an algorithm is.</li><li>Look at two ways to represent them:</li><ol><li>Pseudocode</li><li>Flow diagrams</li></ol><li>Look at an important historical development in computer science regarding algorithms: The Turing Machine</li></ol>",
                         "visual": "astar_intro.png",
                         "caption": "optional caption"
                     },
