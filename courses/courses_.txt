@@ -1,0 +1,120 @@
+"csc_1110_introduction_to_computing_lessons" : 
+		"lessons" : [
+			{
+				"id" : "history:_algorithms",
+				"title" : "History: Algorithms",
+				"beats" : [
+					{
+						"label" : "Overview",
+						"text" : "<h2>Overview</h2><p>In this unit, we will:</p><ol><li>Discuss what an algorithm is.</li><li>Look at two ways to represent them:</li><ol><li>Pseudocode</li><li>Flow diagrams</li></ol><li>Look at an important historical development in computer science regarding algorithms: The Turing Machine</li></ol>"
+					},
+					{
+						"label" : "Definition?",
+						"text" : "<h2>Definition?</h2><b>Definition</b> (Intuitive): An algorithm is a set of instructions that is designed to accomplish a task.<br><p>This is not very formal (and so hard to do much with), so people have tried to take more formal and mathematical approaches. Among them, there have been three notable perspectives:</p><ul><li>Lambda Calculus (Alonzo Church). An algorithm is a series of applications of mathematical functions and transformations.</li><li>Recursive Functions (Kurt Godel, Stephen Kleene). An algorithm is a set of simple mathematical functions that can be built into increasingly complex functions through repetition.</li><li>Turing Machines (Alan Turing). An algorithm is a set of rules for a hypothetical machine that reads and writes symbols on an infinite tape.</li></ul><p>All of these approaches are independent <i>and equivalent</i> ways of defining algorithms and computability. We will look at how a Turing Machine works later.</p>"
+					},
+					{
+						"label" : "Pseudocode",
+						"text" : "<h2>Pseudocode</h2><p>Suppose you are nuclear engineer who is tasked with maintaining a certain part of a nuclear reactor. You notice that the part you are supposed to watch is acting unusually. You know you need to add a particular type of coolant, but can't remember which one or how much and if you are off by even a little bit, the part could fail and the entire facility could explode. You ask your supervisor and their response is: 'Just add a little of the blue stuff.'</p><p>How helpful was your supervisor's direction?</p><p>Pseudocode is a way of trying to make an algorithm explicit enough that there is no ambiguity as to what should be done, but not so explicit that it becomes difficult to parse, requiring more mental energy and time than the process is worth.</p><p>No universal convention. Large range in degree of formality. One example below.</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a collection A of numbers a1, a2, a3, ..., an\nOutpt: a number ai from the collection such that aj is less than or equal to ai for all j=1,2,...,n\n\nFIND-MAXIMUM(A)\n1  max <-- A[1]\n2  FOR i from 2 to A.length\n3      IF A[i] > max THEN\n4          max <-- A[i]\n5      END IF\n6  END FOR\n7  RETURN  max</pre>"
+					},
+					{
+						"label" : "Pseudocode:",
+						"text" : "<h2>Pseudocode: Examples</h2><p>Here is the same task (addition of two numbers), but approached in three very different ways.</p><br><b>Version: Accumulation</b><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a,b\nOutput: sum of a and b\n\nADD(a,b)\n1  sum <-- 0\n2  sum <-- sum + a>\n3  sum <-- sum + b>\n4  RETURN sum</pre><br><b>Version: Iteration</b><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a,b\nOutput: sum of a and b\n\nADD(a,b)\n1  sum <-- a\n2  REPEAT b times\n3      sum <-- sum + 1\n4  END REPEAT\n5  RETURN sum</pre><b>Version: Recursion</b><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a,b\nOutput: sum of a and b\n\nADD(a,b)\n1  IF b == 0 THEN\n2      RETURN a\n3  END IF\n4  RETURN Add(a+1, b-1)</pre>"
+					},
+					{
+						"label" : "Visual",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>Visual representation of algorithms</h2>Above is a visual version of the Add algorithm below:<pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a,b\nOutput: sum of a and b\n\nADD(a,b)\n1  sum <-- a\n2  REPEAT b times\n3      sum <-- sum + 1\n4  END REPEAT\n5  RETURN sum</pre>"
+					},
+					{
+						"label" : "Tedium",
+						"text" : "<h2>Tedium</h2><p>Try carrying out the steps of the algorithm below very carefully and methodically.</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: sequence A = {a1, a2, ..., aN} of integersOutput: a reordering B = {b1, b2, ..., bN} of a1, a2, ..., aN such that bi <= bj whenever i<= j\nInsertionSort(A)\n1  FOR j from 2 to n\n2      key <-- A[j]\n3      i <-- j-1\n4      WHILE i > 0 and A[i] > key\n5          A[i+1] <-- A[i]\n6          i <--i-1\n7      END WHILE\n8      A[i+1] <-- key\n9  END FOR\n10 RETURN A</pre><p>As we start to formalize algorithms, carrying them out becomes quite tedious. If only we had a happy little helper who would gladly punch away at these highly precise, yet highly monotonous microtasks. If only...</p><p>But first we should maybe ask outselves whether having such a helper would even be useful. In particular, could we even reasonably guarantee that it would be competent? That is, that it would be able to solve any algorithm that we threw at it?</p><p>To that end, we now turn to the Turing machine.</p>"
+					},
+					{
+						"label" : "Turing",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>Turing machine components</h2><p>There are three core components of Turing machine:</p><ol><li>Infinite tape</li><li>Tape head</li><li>Transition table</li></ol>"
+					},
+					{
+						"label" : "What",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>What does a Turing machine do?</h2>"
+					},
+					{
+						"label" : "Transition",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>Transition table</h2>"
+					},
+					{
+						"label" : "Turing",
+						"text" : "<h2>Turing Machine: Even or Odd Task: Setup</h2><p>Tape alphabet: 0,1,2,3,4,5,6,7,9,e,o</p><p>Task: Check if a number is even or odd.</p><p>The tape alphabet and task are fixed. It is up to us to determine:<ol><li>How many states the tape head can take (keeping in mind that there is always a START and HALT state)</li><li>The transition table for those states</li></ol></p>"
+					},
+					{
+						"label" : "Transition",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>Transition diagram</h2><p>It can be very easy for a human mind to lose sight of what path of states and choices a Turing machine is making. A transition diagram helps make that more clear. Above we show the transition diagram for one Turing machine configuration that successfully completes the even or odd task mentioned previously.</p>"
+					},
+					{
+						"label" : "Unwieldy",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>Unwieldy</h2><p>Turing Machines become unwiedly quite fast. The image above is of a transition diagram for a turing machine that accomplishes the task of 'subtraction.' Note how complex that already is.</p>"
+					},
+					{
+						"label" : "Why",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>Why do we care about Turing machines?</h2><p>The three main approaches of formalism (Church's Lambda Calculus, Godel's Recursive Functions, and Turing's Turing machines') are all equivalent. Each approach has at least one instance where its perspective is uniquely helpful. Thinking about algorithmic formalism through the Turing machine perspective is especially helpful when looking at hardware (which we will do in the next unit).</p><p><b>Church-Turing thesis:</b> Our intuitive notion of an <i>algorithm</i> is perfectly captured by the formal mathematical concept of a Turing machine.</p><p>The Church-Turing thesis is unproven (and unprovable), but most computer scientists believe it. From this came the notion of Turing Completeness for programming languages, whereby if a language can simulate a Turing machine, it can perform any computation that any other computer can (and by the Church-Turing thesis, can carry out any algorithm that a human could).</p>"
+					},
+					{
+						"label" : "Test",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>Test Beat</h2><p></p><p></p><p></p><p></p><p></p><p></p><p></p>History: Bits and Circuits-->"
+					}
+				]
+			},
+			{
+				"id" : "history:_bits_and_circuits",
+				"title" : "History: Bits and Circuits",
+				"beats" : [
+					{
+						"label" : "Overview",
+						"visual" : "default.png",
+						"type" : "image",
+						"text" : "<h2>Overview</h2><p>In this unit, we will:</p><ol><li></li><li></li><li></li><li></li><li></li><li></li></ol><p></p><p></p><p></p><p></p><p></p><p></p>"
+					},
+					{
+						"label" : "Beat",
+						"visual" : "",
+						"type" : "image",
+						"text" : "<h2>Beat template</h2><p></p><p></p><p></p><p></p><p></p><p></p><p></p>History: Programming Languages-->"
+					}
+				]
+			},
+			{
+				"id" : "history:_programming_languages",
+				"title" : "History: Programming Languages",
+				"beats" : [
+				]
+			}
+		]
+"csc_1810_principles_of_computer_science_i_lessons" : 
+		"lessons" : [
+		]
+"csc_2710_introduction_to_game_development_i_lessons" : 
+		"lessons" : [
+		]
+"csc_3530_artificial_intelligence_and_cognitive_modeling_lessons" : 
+		"lessons" : [
+		]
+"csc_3730_artificial_intelligence_for_simulations_lessons" : 
+		"lessons" : [
+		]
+"csc_gen_course_title_lessons" : 
+		"lessons" : [
+		]
