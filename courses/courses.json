@@ -188,16 +188,14 @@
 		],
         "lessons": [
             {
-                "id": "history_algorithms",
+                "id" : "history:_algorithms",
                 "title": "History: Algorithms",
                 "beats": [
                     {
-                        "label": "Overview",
-                        "type": "text_only",
-                        "text": "<h2>Overview</h2><p>In this unit, we will:</p><ol><li>Discuss what an algorithm is.</li><li>Look at two ways to represent them:</li><ol><li>Pseudocode</li><li>Flow diagrams</li></ol><li>Look at an important historical development in computer science regarding algorithms: The Turing Machine</li></ol>",
-                        "visual": "astar_intro.png",
-                        "caption": "optional caption"
-                    },
+						"label" : "Overview",
+						"type" : "text_only",
+						"text" : "<p>In this unit, we will:</p><ol><li>Discuss what an algorithm is.</li><li>Look at two ways to represent them:</li><ol><li>Pseudocode</li><li>Flow diagrams</li></ol><li>Look at an important historical development in computer science regarding algorithms: The Turing Machine</li></ol>"
+					},
                     {
                         "label": "Definition?",
                         "type": "text",
