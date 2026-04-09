@@ -436,13 +436,8 @@
                         "label": "Quiz",
                         "type": "quiz",
                         "question": "If base  \\(b=4 \\) is used, how many distinct symbols will there need to be?",
-                        "choices": [
-                            "2",
-                            "3",
-                            "4",
-                            "5"
-                        ],
-                        "correct": 2,
+                        "choices": "[2, 3*, 4, 5]",
+                        "correct": "2",
                         "text": "<h2>Quiz</h2><p>If base  \\(b=4 \\) is used, how many distinct symbols will there need to be?</p>"
                     },
                     {
@@ -658,12 +653,12 @@
                     {
                         "label": "Examples: Variables",
                         "type": "text_only",
-                        "text": "<h2>Examples: Variables</h2><div class='code-container'><div class='code-header'>Python</div><div class='code-guide'>1. Declaration of variable a<br>2. Assignment of integer 5 to a</div><div class='code-body'><div class='line-numbers'>1<br>2<br></div><div class='code-lines'>a<br>a = 5</div></div></div>"
+                        "text": "<h2>Examples: Variables</h2><div class='code-container'><div class='code-header'>Python</div><div class='code-guide'>Declaration of the variable a.</div><pre><code>a</code></pre></div></div></div><div class='code-container'><div class='code-header'>Python</div><div class='code-guide'>Declaration of the variable a, following by assignment (number 5 assigned to a as its value.</div><pre><code>1<br>2<br></div></code></pre>a<br>a = 5<br></code></pre></div><div class='code-output'>How are u<br>class str</div></div>"
                     },
                     {
                         "label": "Example: Variables",
                         "type": "text_only",
-                        "text": "<h2>Example: Variables</h2><div class='code-container'><div class='code-header'>Python</div><div class='code-guide'>1. Declaration of variable cat<br>1. String 'cute' assigned as value to variable cat<br>2. String 'How are ' is put into the default print function<br>2. One of the characters in the string assigned to cat is also sent to the output through the print function<br>3. The python class/type of the data stored in the 'cute' variable is sent to output (which is str for String)</div><div class='code-body'><div class='line-numbers'>1<br>2<br>3<br></div><div class='code-lines'>cat = 'cute'<br>print('How are ', cat[1])<br>print(type(cat))</div></div><div class='code-output'>How are u<br>class str</div></div>"
+                        "text": "<h2>Example: Variables</h2><div class='code-container'><div class='code-header'>Python</div><div class='code-guide'>1. Declaration of variable cat<br>1. String 'cute' assigned as value to variable cat<br>2. String 'How are ' is put into the default print function<br>2. One of the characters in the string assigned to cat is also sent to the output through the print function<br>3. The python class/type of the data stored in the 'cute' variable is sent to output (which is str for String)</div><div class='code-body'><div class='line-numbers'>1<br>2<br>3<br></div><pre><code>cat = 'cute'<br>print('How are ', cat[1])<br>print(type(cat))</code></pre></div><div class='code-output'>How are u<br>class str</div></div><div class='code-container'><div class='code-header'>Python</div><div class='code-body'><div class='line-numbers'>1<br>2<br>3<br></div><div class='code-lines'>cat = 'cute'<br>print('How are ', cat[1])<br>print(type(cat))</div></div><div class='code-output'>How are u<br>class str</div></div>"
                     },
                     {
                         "label": "Naming conventions",
@@ -676,23 +671,6 @@
                         "type": "image",
                         "visual": "default.png",
                         "text": "<h2>Python conventions</h2><p>In Python, the preferred stylings are:</p><ul><li><b>Variables:</b><code>snake_case</code></li><li><b>Functions:</b><code>snake_case</code></li><li><b>Methods:</b><code>snake_case</code></li><li><b>Classes</b><code>PascalCase</code></li><li><b>Constants</b><code>SCREAAMING_SNAKE_CASE</code></li></ul>"
-                    },
-                    {
-                        "label": "Anatomy of a variable",
-                        "type": "image",
-                        "visual": "default.png",
-                        "text": "<h2>Anatomy of a variable</h2><p>Every Python variable has 3 core properties:</p><ul><li><b>Identity.</b>A unique integer (accessible via <code>id()</code>) representing its address in the computer memory.</li><li><b>Type.</b>The data type of the information stored in the variable. Example types are <code>int</code>, <code>str</code>, and <code>bool</code>.</li><li><b>Value.</b>The actual data stored in that variable.</li></ul>"
-                    },
-                    {
-                        "label": "Types",
-                        "type": "image",
-                        "visual": "default.png",
-                        "text": "<h2>Types</h2><p>As we just saw, every variable has a data type (or data structure). In Python, the data structure of piece of information comes from its <i>class</i>, a concept that will be very important later.</p><p>So what are the types? There are eight foundational ones, which are as follows:</p><ul><li>Boolean</li><ul><li><b>bool.</b> Takes on one of two values: <b>True</b>, or <b>False</b>.</li></ul><li>Numerical</li><ul><li><b>int.</b> Takes on any positive or negative <i>integer</i>. So \\( ..., -3, -2, -1, 0, 1, 2, 3, ... \\)</li><li><b>float. </b> For floating point decimal. Numbers like <code>3.85</code> and <code>0.0</code></li></ul><li>Collections</li><ul><li><b>tuple.</b> An ordered sequence of elements that can be of mixed type, but not elements may be added or removed.</li><li><b>list.</b> An ordered sequence of elements that can be of mixed type, with adding and removing allowed.</li><li><b>set.</b> An unordered collection of elements with no duplicates. Individual elements cannot be accessed, but you can check whether an element is in the set or not.</li><li><b>dict.</b> A partially ordered collection of elements with its true power being that you can access elements through any key (like a string name, or integer, or any unmutable thing. This is essentially a lookup table, which is wonderful. Who doesn't love lookup tables?! (Actually, <i>I</i> do....I love lookup tables...)</li></ul><li>Boolean</li><ul><li><b>str.</b> Strings! These are collections of characters (with spaces and some special characters allowed). We'll be dealing a lot with Strings.</li></ul></ul>"
-                    },
-                    {
-                        "label": "Finding the type",
-                        "type": "text_only",
-                        "text": "<h2>Finding the type</h2><p>Finding type of a variable <code>a</code> is as easy wrapping a in <code>type()</code> and then printing the result.</p><div class='code-container'><div class='code-header'>Python</div><div class='code-body'><div class='line-numbers'>1<br>2</div><div class='code-lines'>a = False<br>print(type(a))</div></div><div class='code-output'>class bool<br></div></div><p>Keep in mind that Python will only do exactly what you tell it to do in exactly the way it understands. If you don't ask it to print something, it won't do it.</p><div class='code-container'><div class='code-header'>Python</div><div class='code-body'><div class='line-numbers'>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br></div><div class='code-lines'>a = 7<br>b = 'hello'<br>c = { 'hey' : 'there' }<br>d = [8, '3', len('hello')]<br>type(a) <br>print(type(b)) <br>print(type(c)) <br>print(type(d)) <br></div></div><div class='code-output'>class str<br>class dict<br>class list<br></div></div>"
                     },
                     {
                         "label": "Tracebacks 1",
@@ -710,20 +688,7 @@
                         "label": "Print and Debugging",
                         "type": "image",
                         "visual": "default.png",
-                        "text": "<h2>Print and Debugging</h2><p>The <b>print</b> function is perhaps the most important function you will every use in Python (or really, the equivalent of print in any programming language). Print can show you what data is actually contained in a variable at any time.</p><p><b>print</b> is pretty robust:</p><ul><li><b>Unlimited arguments.</b>It can take as many arguments as you want to put in it (all separated by commas), like <code>print('hi', 1, type(0.21), None)</code></li><li><b>Arguments can individually be of any type.</b>We'll talk about types(classes) soon, but the important thing is that there are very little restrictions on what you can pass to print.</li><li><b>Arguments can collectively be of mixed types.</b>So long as you separate with a comma.</li></ul>"
-                    },
-                    {
-                        "label": "Quiz",
-                        "type": "quiz",
-                        "question": "What do you think will appear in the output area when the following script is run?",
-                        "choices": [
-                            "__name__",
-                            "'__name__'",
-                            "'__main__'",
-                            "__main__"
-                        ],
-                        "correct": 3,
-                        "text": "<h2>Quiz</h2><p>'Question'</p><div class='code-container'><div class='code-header'>Python</div><div class='code-body'><div class='line-numbers'>1</div><div class='code-lines'>print(__name__)</div></div><div class='code-output'><br></div></div>"
+                        "text": "<h2>Print and Debugging</h2><p>The <b>print</b> function is perhaps the most important function you will every use in Python (or really, the equivalent of print in any programming language). Print can show you what data is actually contained in a variable at any time.</p><p><b>print</b> is pretty robust:</p><ul><li><b>Unlimited arguments.</b>It can take as many arguments as you want to put in it (all separated by commas), like <code>print('hi', 1, type(0.21), None)</code></li><li><b></b></li><li><b>Arguments can be of any type.</b>We'll talk about types(classes) soon, but the important thing is that there are very little restrictions on what you can pass to print.</li><li><b>Arguments can of mixed types.</b>So long as you separate with a comma.</li></ul>"
                     },
                     {
                         "label": "Beat template",

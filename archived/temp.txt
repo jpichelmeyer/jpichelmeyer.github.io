@@ -1,4 +1,4 @@
-"csc_1110_introduction_to_computing_lessons" : 
+"csc_1110_introduction_to_computing_lessons : "
 		"lessons" : [
 			{
 				"id" : "history:_algorithms",
@@ -103,18 +103,18 @@
 				]
 			}
 		]
-"csc_1810_principles_of_computer_science_i_lessons" : 
+"csc_1810_principles_of_computer_science_i_lessons : "
 		"lessons" : [
 		]
-"csc_2710_introduction_to_game_development_i_lessons" : 
+"csc_2710_introduction_to_game_development_i_lessons : "
 		"lessons" : [
 		]
-"csc_3530_artificial_intelligence_and_cognitive_modeling_lessons" : 
+"csc_3530_artificial_intelligence_and_cognitive_modeling_lessons : "
 		"lessons" : [
 		]
-"csc_3730_artificial_intelligence_for_simulations_lessons" : 
+"csc_3730_artificial_intelligence_for_simulations_lessons : "
 		"lessons" : [
 		]
-"csc_gen_course_title_lessons" : 
+"csc_gen_course_title_lessons : "
 		"lessons" : [
 		]
