@@ -51,6 +51,73 @@
         /* Add space above for visual separation of units */        
         margin-top: 200px;
         }
+    .code-block {
+        background-color: #f4f4f4;
+        border-left: 5px solid #007bff;
+        border-radius: 4px;
+        margin: 20px 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .code-container {
+        background-color: #f9f9f9;
+        border-left: 5px solid #007bff;
+        border-radius: 4px;
+        margin: 20px 0;
+        padding: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column; /* Stacks elements vertically */
+    }
+
+    /* 1. THE GUIDE (Top Row) */
+    .code-container::before {
+        content: var(--guide);
+        background-color: #999999;
+        color: #eeeeee;
+        font-family: sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 8px 15px;
+        border-bottom: 1px solid #888;
+        order: 2;
+    }
+
+    /* 2. THE LABEL (Middle Row) */
+    .code-container::after {
+        content: var(--label);
+        background-color: #444444;
+        color: #f1f1f1;
+        font-family: sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        padding: 8px 15px;
+        border-bottom: 1px solid #ddd;
+        order: 1;
+    }
+
+    /* 3. THE CODE (Bottom Row) */
+    pre {
+        margin: 0;
+        padding: 15px;
+        overflow-x: auto;
+        order: 3; /* Always at the bottom */
+    }
+
+    pre code {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .code-h-key {
+        color: #ce7aff;
+    }
+
+    /*
     .code-container {
         background-color: #f9f9f9;
         border-left: 5px solid #007bff;
@@ -59,7 +126,7 @@
         <!-- Remove padding from here so the header can touch the edges -->
         padding: 0; 
         overflow: hidden;
-        }
+    }
     .code-header {
         background-color: #444444;
         color: #f1f1f1;
@@ -69,7 +136,7 @@
         text-transform: uppercase;
         padding: 8px 15px;
         border-bottom: 1px solid #ddd;
-        }
+    }
     .code-guide {
         background-color: #999999;
         color: #eeeeee;
@@ -78,112 +145,28 @@
         font-weight: bold;
         padding: 8px 15px;
         border-bottom: 1px solid #ddd;
-        }
-    .code-output {
-        background-color: #666666;
-        color: #eeeeee;
-        font-family: sans-serif;
-        font-size: 12px;
-        font-weight: bold;
-        padding: 8px 15px;
-        border-bottom: 1px solid #ddd;
-        }
+    }
     .code-h-key {
         color: " #ce7aff";   
-        }
-    
-    pre {
-        flex-grow: 1;
-        margin: 0; /* IMPORTANT: Removes browser default spacing */
-        padding: 15px; /* Match the top padding of .line-numbers */
-        line-height: 1.5; /* Must match .line-numbers exactly */
     }
+    pre {
+        margin: 0;
+        padding: 15px;
+        overflow-x: auto;
+    }
+
     pre code {
         font-family: "Courier New", Courier, monospace;
         font-size: 14px;
         color: #333;
     }
-    
-    .code-body {
-        display: flex;
-        background-color: #fff;
-        align-items: stretch; /* Ensures both columns are the same height */
-    }
-
-    .line-numbers {
-        width: 30px;
-        background-color: #f1f1f1;
-        color: #999;
-        font-family: "Courier New", Courier, monospace;
-        font-size: 14px;
-        text-align: right;
-        /* Match this padding exactly to the 'pre' padding below */
-        padding: 15px 10px; 
-        border-right: 1px solid #ddd;
-        line-height: 1.5;
-    }
-    .code-lines {
-        /*width: 30px;/*
-        /*background-color: #f1f1f1;*/
-        color: #000;
-        font-family: "Courier New", Courier, monospace;
-        font-size: 14px;
-        /*text-align: right;*/
-        /* Match this padding exactly to the 'pre' padding below */
-        padding: 15px 10px; 
-        /*border-right: 1px solid #ddd;*/
-        line-height: 1.5;
-    }
-
-
+    */
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 
 
-<!--
-==============================================================================
 
-
-
-
-    CSC GEN
-
-
-
-
-==============================================================================
--->
-
-<div class="course-header">CSC GEN</div>
-
-<!--
-==============================================================================
-
-    UNIT
-
-==============================================================================
--->
-
-<div class="unit-header">Unit</div>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Beat</div>
-
-<p>
-In this unit, we will:
-</p>
-
-<ol>
-    <li>Discuss what an algorithm is.</li>
-    <li>Look at two ways to represent them:</li>
-    <ol>
-        <li>Pseudocode</li>
-        <li>Flow diagrams</li>
-    </ol>
-    <li>Look at an important historical development in computer science regarding algorithms: The Turing Machine</li>
-</ol>
 
 
 <!--
@@ -269,16 +252,16 @@ Pseudocode is a way of trying to make an algorithm explicit enough that there is
 </p>
 
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-Input: a collection A of numbers a1, a2, a3, ..., an<br>
-Outpt: a number ai from the collection such that aj is less than or equal to ai for all j=1,2,...,n<br>
-<br>
-FIND-MAXIMUM(A)<br>
-1  max <-- A[1]<br>
-2  FOR i from 2 to A.length<br>
-3      IF A[i] > max THEN<br>
-4          max <-- A[i]<br>
-5      END IF<br>
-6  END FOR<br>
+Input: a collection A of numbers a1, a2, a3, ..., an\n
+Outpt: a number ai from the collection such that aj is less than or equal to ai for all j=1,2,...,n\n
+\n
+FIND-MAXIMUM(A)\n
+1  max <-- A[1]\n
+2  FOR i from 2 to A.length\n
+3      IF A[i] > max THEN\n
+4          max <-- A[i]\n
+5      END IF\n
+6  END FOR\n
 7  RETURN  max
 </pre>
 
@@ -294,13 +277,13 @@ Here is the same task (addition of two numbers), but approached in three very di
 
 <b>Version: Accumulation</b>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-Input: a,b<br>
-Output: sum of a and b<br>
-<br>
-ADD(a,b)<br>
-1  sum <-- 0<br>
-2  sum <-- sum + a<br>
-3  sum <-- sum + b<br>
+Input: a,b\n
+Output: sum of a and b\n
+\n
+ADD(a,b)\n
+1  sum <-- 0\n
+2  sum <-- sum + a>\n
+3  sum <-- sum + b>\n
 4  RETURN sum
 </pre>
 
@@ -308,26 +291,26 @@ ADD(a,b)<br>
 
 <b>Version: Iteration</b>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-Input: a,b<br>
-Output: sum of a and b<br>
-<br>
-ADD(a,b)<br>
-1  sum <-- a<br>
-2  REPEAT b times<br>
-3      sum <-- sum + 1<br>
-4  END REPEAT<br>
+Input: a,b\n
+Output: sum of a and b\n
+\n
+ADD(a,b)\n
+1  sum <-- a\n
+2  REPEAT b times\n
+3      sum <-- sum + 1\n
+4  END REPEAT\n
 5  RETURN sum
 </pre>
 
 <b>Version: Recursion</b>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-Input: a,b<br>
-Output: sum of a and b<br>
-<br>
-ADD(a,b)<br>
-1  IF b == 0 THEN<br>
-2      RETURN a<br>
-3  END IF<br>
+Input: a,b\n
+Output: sum of a and b\n
+\n
+ADD(a,b)\n
+1  IF b == 0 THEN\n
+2      RETURN a\n
+3  END IF\n
 4  RETURN Add(a+1, b-1)
 </pre>
 
@@ -341,14 +324,14 @@ ADD(a,b)<br>
 Above is a visual version of the Add algorithm below:
 
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-Input: a,b<br>
-Output: sum of a and b<br>
-<br>
-ADD(a,b)<br>
-1  sum <-- a<br>
-2  REPEAT b times<br>
-3      sum <-- sum + 1<br>
-4  END REPEAT<br>
+Input: a,b\n
+Output: sum of a and b\n
+\n
+ADD(a,b)\n
+1  sum <-- a\n
+2  REPEAT b times\n
+3      sum <-- sum + 1\n
+4  END REPEAT\n
 5  RETURN sum
 </pre>
 
@@ -361,19 +344,19 @@ Try carrying out the steps of the algorithm below very carefully and methodicall
 </p>
 
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-Input: sequence A = {a1, a2, ..., aN} of integers<br>
-Output: a reordering B = {b1, b2, ..., bN} of a1, a2, ..., aN such that bi <= bj whenever i<= j<br>
-<br>
-InsertionSort(A)<br>
-1  FOR j from 2 to n<br>
-2      key <-- A[j]<br>
-3      i <-- j-1<br>
-4      WHILE i > 0 and A[i] > key<br>
-5          A[i+1] <-- A[i]<br>
-6          i <--i-1<br>
-7      END WHILE<br>
-8      A[i+1] <-- key<br>
-9  END FOR<br>
+Input: sequence A = {a1, a2, ..., aN} of integers
+Output: a reordering B = {b1, b2, ..., bN} of a1, a2, ..., aN such that bi <= bj whenever i<= j 
+\n
+InsertionSort(A)\n
+1  FOR j from 2 to n\n
+2      key <-- A[j]\n
+3      i <-- j-1\n
+4      WHILE i > 0 and A[i] > key\n
+5          A[i+1] <-- A[i]\n
+6          i <--i-1\n
+7      END WHILE\n
+8      A[i+1] <-- key\n
+9  END FOR\n
 10 RETURN A
 </pre>
 
@@ -643,7 +626,7 @@ What is the simplest base  \(b \) we can have, yet also be able to represent thi
 
 <div class="beat-header">Quiz</div>
 
-<div class="quiz-placeholder">"question": "If base  \(b=4 \) is used, how many distinct symbols will there need to be?",,"choices": ["2", "3", "4", "5"],,"correct": 2</div>
+<div class="quiz-placeholder">"question": "If base  \(b=4 \) is used, how many distinct symbols will there need to be?",, "choices": ["2", "3*", "4", "5"],, "correct": 2</div>
 
 <p>
 If base  \(b=4 \) is used, how many distinct symbols will there need to be?
@@ -765,7 +748,7 @@ We can represent true as 1 and false as 0. Now Boolean logic and binary numbers 
 
 <!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">Boolean Logic: AND</div>
+<div class="beat-header">Example: Boolean logic</div>
 
 <div class="img-placeholder">default.png</div>
 
@@ -775,50 +758,26 @@ Let's make this concrete with truth tables. A truth table exhaustively lists eve
  
 <p><b>AND</b></p>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-A | B | A AND B<br>
-0 | 0 |   0<br>
-0 | 1 |   0<br>
-1 | 0 |   0<br>
-1 | 1 |   1<br>
+A | B | A AND B
+0 | 0 |   0
+0 | 1 |   0
+1 | 0 |   0
+1 | 1 |   1
 </pre>
-
-<p>
-Notice that NOT is the only operation here that takes just one input. AND and OR take two. We can chain these operations together to represent more complex logical conditions, just like we chain arithmetic operations together to write complex mathematical expressions.
-</p>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Boolean Logic: OR</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Let's make this concrete with truth tables. A truth table exhaustively lists every combination of inputs and the corresponding output for a given logical operation.
-</p>
-
+ 
 <p><b>OR</b></p>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-A | B | A OR B<br>
-0 | 0 |   0<br>
-0 | 1 |   1<br>
-1 | 0 |   1<br>
-1 | 1 |   1<br>
+A | B | A OR B
+0 | 0 |   0
+0 | 1 |   1
+1 | 0 |   1
+1 | 1 |   1
 </pre>
-
-<p>
-Notice that NOT is the only operation here that takes just one input. AND and OR take two. We can chain these operations together to represent more complex logical conditions, just like we chain arithmetic operations together to write complex mathematical expressions.
-</p>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Boolean Logic: NOT</div>
-
-<div class="img-placeholder">default.png</div>
  
 <p><b>NOT</b></p>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-A | NOT A<br>
-0 |   1<br>
+A | NOT A
+0 |   1
 1 |   0
 </pre>
  
@@ -837,9 +796,9 @@ Here is something fun: what happens when we try to add two binary digits togethe
 </p>
  
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-0 + 0 = 0<br>
-0 + 1 = 1<br>
-1 + 0 = 1<br>
+0 + 0 = 0
+0 + 1 = 1
+1 + 0 = 1
 1 + 1 = 10  (that is, 0 with a carry of 1)
 </pre>
  
@@ -875,7 +834,7 @@ The standard gates correspond directly to our Boolean operations: the AND gate, 
 
 <!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">Example: Logic Gate AND</div>
+<div class="beat-header">Example: Logic gate</div>
 
 <div class="img-placeholder">default.png</div>
 
@@ -904,24 +863,6 @@ What we've just built is a NAND gate. The output is high unless <i>both</i> inpu
 
 <!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">The Eight Core Logic Gates</div>
-
-<div class="img-placeholder">default.png</div>
- 
-There are 8 main classes
-<p>
-BUFFER, NOT <br>
-AND, NAND <br>
-OR   NOR  <br>
-XOR, XNOR <br>
-</p>
-
-<p>
-But there is one that is most special of all. Can you guess (or figure out), which of the 8 is able to contruct all others by only taking configurations of multiple copies of itself?
-</p>
-
-<!-- -------------------------------------------------------------------- -->
-
 <div class="beat-header">Circuits</div>
 
 <div class="img-placeholder">default.png</div>
@@ -940,24 +881,6 @@ We will look at two important circuits that illustrate how this works in practic
 
 <!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">Example: Core Logic Gate</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-There is one logic gate that can take on the behavior of each of the others just by setting itself up in a circuit made entirely of itself. Were you able to guess which one?
-</p>
-
-<p>
-It's NAND!
-</p>
-
-<p>
-Let's see why...
-</p>
-
-<!-- -------------------------------------------------------------------- -->
-
 <div class="beat-header">Example: Half Adder circuit</div>
 
 <div class="img-placeholder">default.png</div>
@@ -967,9 +890,9 @@ A half adder takes two single binary digits (A and B) as input and produces two 
 </p>
  
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-Inputs:  A, B<br>
-Outputs: Sum = A XOR B<br>
-         Carry = A AND B<br>
+Inputs:  A, B
+Outputs: Sum = A XOR B
+         Carry = A AND B
 </pre>
  
 <p>
@@ -991,9 +914,9 @@ A full adder extends the half adder by accepting a third input: a <b>carry-in</b
 </p>
  
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-Inputs:  A, B, Cin<br>
-Outputs: Sum   = A XOR B XOR Cin<br>
-         Cout  = (A AND B) OR (Cin AND (A XOR B))<br>
+Inputs:  A, B, Cin
+Outputs: Sum   = A XOR B XOR Cin
+         Cout  = (A AND B) OR (Cin AND (A XOR B))
 </pre>
  
 <p>
@@ -1320,26 +1243,26 @@ Let us trace a single, small example all the way down the stack. Suppose a progr
  
 <p><b>Pseudocode:</b></p>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-result <-- a + b<br>
+result <-- a + b
 </pre>
  
 <p><b>Python (source code):</b></p>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-result = a + b<br>
+result = a + b
 </pre>
  
 <p><b>Assembly (after compilation):</b></p>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-MOV EAX, [a]<br>
-ADD EAX, [b]<br>
-MOV [result], EAX<br>
+MOV EAX, [a]
+ADD EAX, [b]
+MOV [result], EAX
 </pre>
  
 <p><b>Machine code (binary):</b></p>
 <pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>
-10001011 00000101 ... <br>
-00000011 00000101 ... <br>
-10001001 00000101 ... <br>
+10001011 00000101 ...
+00000011 00000101 ...
+10001001 00000101 ...
 </pre>
  
 <p><b>Physical execution:</b> The processor fetches each binary instruction, decodes it, routes signals through the ALU and registers, and produces the result as a voltage pattern stored in memory.
@@ -1477,380 +1400,22 @@ A <i>development environment</i> broadly is the dedicated workspace consisting o
 <p>
 In Python, a variable may be defined, simply by typing an unbroken string of characters, following the rules
 </p>
-<ul>
-    <li><b>Starting character.</b> Must start with a letter (a-z,A-Z) or an underscore (_).</li>
-    <li><b>Successive characters.</b>After the first character, successive characters may include letters (a-z,A-z), an underscore (_), or a number (0-9).</li>
-    <li><b>Case sensitivity.</b>'a' and 'A' are different variables, for instance.</li>
-    <li><b>Reserved keywords.</b>Python has a number of reserved keywords, such as <b>for</b>, <b>return</b>, <b>while</b>, <b>if</b>, <b>else</b>, <b>try</b>, <b>except</b>, <b>in</b>, and <a href='https://realpython.com/lessons/reserved-keywords/'>many more</a>.</li>
-    <li><b>Special characters not allowed</b>Symbols like @, $, % are not allowed. Nor are spaces.</li>
-</ul>
 
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Examples: Variables</div>
-
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-guide'>
-        1. Declaration of variable a<br>
-        2. Assignment of integer 5 to a
-    </div>
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            a<br>
-            a = 5
-        </div>
-    </div>
-</div>
-
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Example: Variables</div>
-
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-guide'>
-        1. Declaration of variable cat<br>
-        1. String 'cute' assigned as value to variable cat<br>
-        2. String 'How are ' is put into the default print function<br>
-        2. One of the characters in the string assigned to cat is also sent to the output through the print function<br>
-        3. The python class/type of the data stored in the 'cute' variable is sent to output (which is str for String)
-    </div>
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            cat = 'cute'<br>
-            print('How are ', cat[1])<br>
-            print(type(cat))
-        </div>
-    </div>
-    <div class='code-output'>
-        How are u<br>
-        class str
-    </div>
-</div>
-
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Naming conventions</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-There are a variety of established naming conventions for naming variables and other objects in programming languages. The main ones are shown below:
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            snake_case_looks_like_this = "snake"<br>
-            SCREAMING_SNAKE_LIKE_THIS  = "SCREEAMING"<br>
-            camelCaseLooksLikeThis     = "camel"<br>
-            PascalCaseLooksLikeThis    = "Pascal"<br>
-            kebab-case-looks-like-this = "kebab"<br>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Python conventions</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-In Python, the preferred stylings are:
-</p>
-
-<ul>
-    <li><b>Variables:</b><code>snake_case</code></li>
-    <li><b>Functions:</b><code>snake_case</code></li>
-    <li><b>Methods:</b><code>snake_case</code></li>
-    <li><b>Classes</b><code>PascalCase</code></li>
-    <li><b>Constants</b><code>SCREAAMING_SNAKE_CASE</code></li>
-</ul>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Anatomy of a variable</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Every Python variable has 3 core properties:
-</p>
-
-<ul>
-    <li><b>Identity.</b>A unique integer (accessible via <code>id()</code>) representing its address in the computer memory.</li>
-    <li><b>Type.</b>The data type of the information stored in the variable. Example types are <code>int</code>, <code>str</code>, and <code>bool</code>.</li>
-    <li><b>Value.</b>The actual data stored in that variable.</li>
-</ul>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Types</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-As we just saw, every variable has a data type (or data structure). In Python, the data structure of piece of information comes from its <i>class</i>, a concept that will be very important later.
-</p>
-
-
-<p>
-So what are the types? There are eight foundational ones, which are as follows:
-</p>
-<ul>
-    <li>Boolean</li>
-    <ul>
-        <li><b>bool.</b> Takes on one of two values: <b>True</b>, or <b>False</b>.</li>
-    </ul>
-    <li>Numerical</li>
-    <ul>    
-        <li><b>int.</b> Takes on any positive or negative <i>integer</i>. So \( ..., -3, -2, -1, 0, 1, 2, 3, ... \)</li>
-        <li><b>float. </b> For floating point decimal. Numbers like <code>3.85</code> and <code>0.0</code></li>
-    </ul>
-    <li>Collections</li>
-    <ul>
-        <li><b>tuple.</b> An ordered sequence of elements that can be of mixed type, but not elements may be added or removed.</li>
-        <li><b>list.</b> An ordered sequence of elements that can be of mixed type, with adding and removing allowed.</li>
-        <li><b>set.</b> An unordered collection of elements with no duplicates. Individual elements cannot be accessed, but you can check whether an element is in the set or not.</li>
-        <li><b>dict.</b> A partially ordered collection of elements with its true power being that you can access elements through any key (like a string name, or integer, or any unmutable thing. This is essentially a lookup table, which is wonderful. Who doesn't love lookup tables?! (Actually, <i>I</i> do....I love lookup tables...)</li>
-    </ul>  
-    <li>Boolean</li>
-    <ul>   
-        <li><b>str.</b> Strings! These are collections of characters (with spaces and some special characters allowed). We'll be dealing a lot with Strings.</li>
-    </ul>
-</ul>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Finding the type</div>
-
-<p>
-Finding type of a variable <code>a</code> is as easy wrapping a in <code>type()</code> and then printing the result.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            a = False<br>
-            print(type(a))
-        </div>
-    </div>
-
-    <!-- Output -->
-    <div class='code-output'>
-        class bool<br>
-    </div>
-</div>
-
-<p>
-Keep in mind that Python will only do exactly what you tell it to do in exactly the way it understands. If you don't ask it to print something, it won't do it.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            a = 7<br>
-            b = 'hello'<br>
-            c = { 'hey' : 'there' }<br>
-            d = [8, '3', len('hello')]<br>
-            type(a) <br>
-            print(type(b)) <br>
-            print(type(c)) <br>
-            print(type(d)) <br>
-        </div>
-    </div>
-
-    <!-- Output -->
-    <div class='code-output'>
-        class str<br>
-        class dict<br>
-        class list<br>
-    </div>
-    
-</div>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Tracebacks 1</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-If you had the line shown below in your script and tried to run it, what do you think would happen?
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            my_variable = 
-        </div>
-    </div>
-</div>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Tracebacks 2</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-You will get a message like the following in whatever area output appears (generally different per development area type).
-</p>
-
-<div class='code-container'>
-<div class='code-header'>Python</div>
-<div class="code-body">
-<div class="line-numbers">
-1
-</div>
-<pre><code>my_variable = 
-</div>
+<div class="code-container"
+style="--guide: 'Declaration: a.'; --label: 'Python';">
+<pre><code>
+a
 </code></pre>
-<div class="code-output">Traceback (most recent call last):<br><br>
-File "script.py", line 1<br>
-    my_variable = <br>
-                  ^</span><br>
-SyntaxError: invalid syntax
-</div>
 </div>
 
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Print and Debugging</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-The <b>print</b> function is perhaps the most important function you will every use in Python (or really, the equivalent of print in any programming language). Print can show you what data is actually contained in a variable at any time.
-</p>
-
-<p>
-<b>print</b> is pretty robust:
-</p>
-
-<ul>
-    <li><b>Unlimited arguments.</b>It can take as many arguments as you want to put in it (all separated by commas), like <code>print("hi", 1, type(0.21), None)</code></li>
-    <li><b>Arguments can individually be of any type.</b>We'll talk about types(classes) soon, but the important thing is that there are very little restrictions on what you can pass to print.</li>
-    <li><b>Arguments can collectively be of mixed types.</b>So long as you separate with a comma.</li>
-</ul>
-
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Quiz</div>
-
-
-<div class="quiz-placeholder">"question": "What do you think will appear in the output area when the following script is run?",,"choices": ["__name__","'__name__'","'__main__'","__main__"],,"correct":3,</div>
-
-<p>
-"Question"
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            print(__name__)
-        </div>
-    </div>
-    <div class='code-output'>
-        <br>
-    </div>
+<div class="code-container" 
+style="--guide: 'Initialization/Assignment: a'; --label: 'Python';">
+<pre><code>
+a = 5
+</code></pre>
 </div>
 
-<!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">Beat template</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-
-</p>
 
 <!-- -------------------------------------------------------------------- -->
 

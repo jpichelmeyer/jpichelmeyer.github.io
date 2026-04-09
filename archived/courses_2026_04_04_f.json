@@ -1,0 +1,875 @@
+{
+	"_shared": {
+		"instructor_name": "Jacob Pichelmeyer, PhD",
+		"instructor_email": "jpichelmeyer@carthage.edu",
+		"instructor_oh": "TBD",
+		"semester": "AY 2026-2027 Fall",
+		"policies": [
+			{
+				"name": "Academic Integrity",
+				"description": [
+					"Absolute integrity is expected of every Carthage student in all academic undertakings, at all Ɵmes. The importance of following this guideline cannot be overstated. For the purposes of this class, it is especially disallowed to use AI to write your code. If you are using a particular post from stackoverflow, please cite it in a comment line in your code. Failure to comply with expectaƟons regarding academic integrity will result in serious penalƟes that will have repercussions for the rest of your academic career. For more information on academic integrity, please refer to <a href='google.com'>Carthage College's Community Code</a>."
+				]
+			},
+			{
+				"name": "AI Usage",
+				"description": [
+					"However, in an educational environment you should get used to using AI as a tutor rather than an assistant. Use it to help you do the work, don't offload the work to it. Learn from the explanations provided, then apply that understanding to your work. Repeat this process as needed. AI assistants have infinite patience for your questions.",
+					"When you graduate, you will be competing with people who learned to code before AI assistants existed. These people may use AI for their daily work today, but they benefit from having built their foundational knowledge without relying on it during their formative years. This likely makes them better equipped and more resilient to handle the inherent uncertainty in building software systems",
+					"When you enter the tech-related workforce, employers will expect you to solve coding problems independently without the use of AI tools. For sure, this will include during job interviews but it also includes brainstorming with teammates. You must be able to think creativelyand communicate about your code without relying on AI. Even if you excel at programming with AI assistance, being unable to demonstrate your skills without it will significantly hinder your job prospects."
+				]
+			},
+			{
+				"name": "Be a Good Human",
+				"description": [
+					"No human likes to be treated poorly, so no human should endeavor to treat other humans poorly. As such, bigotry, bullying, or any other form of mistreatment of others will not be tolerated in this class."
+				]
+			},
+			{
+				"name": "Late Work",
+				"description": [
+					"Paragraph1",
+					"Paragraph2",
+					"Paragraph3"
+				]
+			}
+		]
+	},
+
+	"cscGEN": {
+		
+		"gif": "",
+		
+		"pre_num": "CSC 1110",
+		
+		"title": "Introduction to Computing",
+		"title_short": "Intro Comp",
+		
+		"announcements": [
+			{ 
+				"date": "2026 08 01",
+				"text": "This is an announcement" 
+			},
+			{ 
+				"date": "2026 09 01", 
+				"text": "So is this - or did you read this one first and now you are confused?"
+			}
+		],
+		
+		"assessments": [
+			{ 
+				"name": 		"Daily Quizzes", 
+				"description": 	"Each day that we meet in class in person, we will have a very brief (5 min) quiz at either the beginning or the end of the class period.", 
+				"percentage": 	"10%"
+			},
+			{ 
+				"name": 		"Exam 1", 
+				"description": 	"This exam will cover the first major unit of the course: History.", 
+				"percentage": 	"30%"
+			},
+			{ 
+				"name": 		"Exam 2", 
+				"description": 	"Covers the second major unit of the course: Python.", 
+				"percentage": 	"30%"
+			},
+            { 
+				"name": 		"Final Project", 
+				"description": 	"This involves three components: code submission, presentation, and oral exam.", 
+				"percentage": 	"30%"
+			}
+		],
+		
+		"course_prerequisites": "",
+		"course_catalog_description": "An introduction to the art and science of computer programming for the student without previous programming experience. Topics covered include the historical development of computing, the basic operating principles of computers, and an introduction to problem-solving using one or more high-level computing languages, such as Python. Intended for non-majors/non-minors.",
+		"course_learning_goals": [
+			{ 
+				"num": 		1, 
+				"action": 	"Develop", 
+				"detail": 	"knowledge of a basic computer system architecture."
+			},
+			{ 
+				"num": 		2, 
+				"action": 	"Develop", 
+				"detail": 	"a problem solving methodology and apply it to writng programs in Python."
+			},
+			{ 
+				"num": 		3, 
+				"action": 	"Acquire", 
+				"detail": 	"an understanding of the basic Python language concepts."
+			},
+			{ 
+				"num": 		4, 
+				"action": 	"Develop", 
+				"detail": 	"your ability to use a Python editor and debugger."
+			}
+		],
+		
+		"meeting_time": "MWF 9:15-10:20am",
+		"meeting_place": "TBD",
+		
+		"syllabus": "syllabus_cs101.pdf",
+		
+		"schedule_weeks": [
+			{ 
+				"week": 1, 
+				"topic": "History: Algorithms", 
+				"notes": ""
+			},
+			{ 
+				"week": 2, 
+				"topic": "History: Bits and Circuits",
+				"notes": ""
+			},
+			{ 
+				"week": 3, 
+				"topic": "History: Progragmming Languages",
+				"notes": ""
+			},
+			{ 
+				"week": 4, 
+				"topic": "Python 1: Decision logic and logic flow", 
+				"notes": ""
+			},
+            { 
+				"week": 5, 
+				"topic": "Python 1: Loops",
+				"notes": ""
+			},
+            { 
+				"week": 6, 
+				"topic": "Python 1: Functions",
+				"notes": ""
+			},
+            { 
+				"week": 7, 
+				"topic": "Python 2: Classes",
+				"notes": ""
+			},
+            { 
+				"week": 8, 
+				"topic": "Python 2: Strings",
+				"notes": ""
+			},
+            { 
+				"week": 9, 
+				"topic": "Python 2: Files, Exceptions, Modules",
+				"notes": ""
+			},
+            { 
+				"week": 10, 
+				"topic": "AI: Simulation environment and goal",
+				"notes": ""
+			},
+            { 
+				"week": 11, 
+				"topic": "AI: Decision trees",
+				"notes": ""
+			},
+            { 
+				"week": 12, 
+				"topic": "AI: Finite state machines",
+				"notes": ""
+			},
+            { 
+				"week": 13, 
+				"topic": "Final Project: Lab work",
+				"notes": ""
+			},
+            { 
+				"week": 14, 
+				"topic": "Final Project: Lab work",
+				"notes": ""
+			},
+            { 
+				"week": 15, 
+				"topic": "Final Project: Presentations, Oral Exams",
+				"notes": ""
+			}
+		],
+        "lessons" : [
+		]
+	},
+
+    "csc1110": {
+		
+		"gif": "",
+		
+		"pre_num": "CSC 1110",
+		
+		"title": "Introduction to Computing",
+		"title_short": "Intro Comp",
+		
+		"announcements": [
+			{ 
+				"date": "2026 08 01",
+				"text": "This is an announcement" 
+			},
+			{ 
+				"date": "2026 09 01", 
+				"text": "So is this - or did you read this one first and now you are confused?"
+			}
+		],
+		
+		"assessments": [
+			{ 
+				"name": 		"Daily Quizzes", 
+				"description": 	"Each day that we meet in class in person, we will have a very brief (5 min) quiz at either the beginning or the end of the class period.", 
+				"percentage": 	"10%"
+			},
+			{ 
+				"name": 		"Exam 1", 
+				"description": 	"This exam will cover the first major unit of the course: History.", 
+				"percentage": 	"30%"
+			},
+			{ 
+				"name": 		"Exam 2", 
+				"description": 	"Covers the second major unit of the course: Python.", 
+				"percentage": 	"30%"
+			},
+            { 
+				"name": 		"Final Project", 
+				"description": 	"This involves three components: code submission, presentation, and oral exam.", 
+				"percentage": 	"30%"
+			}
+		],
+		
+		"course_prerequisites": "",
+		"course_catalog_description": "An introduction to the art and science of computer programming for the student without previous programming experience. Topics covered include the historical development of computing, the basic operating principles of computers, and an introduction to problem-solving using one or more high-level computing languages, such as Python. Intended for non-majors/non-minors.",
+		"course_learning_goals": [
+			{ 
+				"num": 		1, 
+				"action": 	"Develop", 
+				"detail": 	"knowledge of a basic computer system architecture."
+			},
+			{ 
+				"num": 		2, 
+				"action": 	"Develop", 
+				"detail": 	"a problem solving methodology and apply it to writng programs in Python."
+			},
+			{ 
+				"num": 		3, 
+				"action": 	"Acquire", 
+				"detail": 	"an understanding of the basic Python language concepts."
+			},
+			{ 
+				"num": 		4, 
+				"action": 	"Develop", 
+				"detail": 	"your ability to use a Python editor and debugger."
+			}
+		],
+		
+		"meeting_time": "MWF 9:15-10:20am",
+		"meeting_place": "TBD",
+		
+		"syllabus": "syllabus_cs101.pdf",
+		
+		"schedule_weeks": [
+			{ 
+				"week": 1, 
+				"topic": "History: Algorithms", 
+				"notes": ""
+			},
+			{ 
+				"week": 2, 
+				"topic": "History: Bits and Circuits",
+				"notes": ""
+			},
+			{ 
+				"week": 3, 
+				"topic": "History: Progragmming Languages",
+				"notes": ""
+			},
+			{ 
+				"week": 4, 
+				"topic": "Python 1: Decision logic and logic flow", 
+				"notes": ""
+			},
+            { 
+				"week": 5, 
+				"topic": "Python 1: Loops",
+				"notes": ""
+			},
+            { 
+				"week": 6, 
+				"topic": "Python 1: Functions",
+				"notes": ""
+			},
+            { 
+				"week": 7, 
+				"topic": "Python 2: Classes",
+				"notes": ""
+			},
+            { 
+				"week": 8, 
+				"topic": "Python 2: Strings",
+				"notes": ""
+			},
+            { 
+				"week": 9, 
+				"topic": "Python 2: Files, Exceptions, Modules",
+				"notes": ""
+			},
+            { 
+				"week": 10, 
+				"topic": "AI: Simulation environment and goal",
+				"notes": ""
+			},
+            { 
+				"week": 11, 
+				"topic": "AI: Decision trees",
+				"notes": ""
+			},
+            { 
+				"week": 12, 
+				"topic": "AI: Finite state machines",
+				"notes": ""
+			},
+            { 
+				"week": 13, 
+				"topic": "Final Project: Lab work",
+				"notes": ""
+			},
+            { 
+				"week": 14, 
+				"topic": "Final Project: Lab work",
+				"notes": ""
+			},
+            { 
+				"week": 15, 
+				"topic": "Final Project: Presentations, Oral Exams",
+				"notes": ""
+			}
+		],
+        "lessons" : [
+			{
+				"id" : "history:_algorithms",
+				"title" : "History: Algorithms",
+				"beats" : [
+					{
+						"label" : "Overview",
+						"type" : "text_only",
+						"text" : "<h2>Overview</h2><p>In this unit, we will:</p><ol><li>Discuss what an algorithm is.</li><li>Look at two ways to represent them:</li><ol><li>Pseudocode</li><li>Flow diagrams</li></ol><li>Look at an important historical development in computer science regarding algorithms: The Turing Machine</li></ol>"
+					},
+					{
+						"label" : "Definition?",
+						"type" : "text_only",
+						"text" : "<h2>Definition?</h2><b>Definition</b> (Intuitive): An algorithm is a set of instructions that is designed to accomplish a task.<br><p>This is not very formal (and so hard to do much with), so people have tried to take more formal and mathematical approaches. Among them, there have been three notable perspectives:</p><ul><li>Lambda Calculus (Alonzo Church). An algorithm is a series of applications of mathematical functions and transformations.</li><li>Recursive Functions (Kurt Godel, Stephen Kleene). An algorithm is a set of simple mathematical functions that can be built into increasingly complex functions through repetition.</li><li>Turing Machines (Alan Turing). An algorithm is a set of rules for a hypothetical machine that reads and writes symbols on an infinite tape.</li></ul><p>All of these approaches are independent <i>and equivalent</i> ways of defining algorithms and computability. We will look at how a Turing Machine works later.</p>"
+					},
+					{
+						"label" : "Pseudocode",
+						"type" : "text_only",
+						"text" : "<h2>Pseudocode</h2><p>Suppose you are nuclear engineer who is tasked with maintaining a certain part of a nuclear reactor. You notice that the part you are supposed to watch is acting unusually. You know you need to add a particular type of coolant, but can't remember which one or how much and if you are off by even a little bit, the part could fail and the entire facility could explode. You ask your supervisor and their response is: 'Just add a little of the blue stuff.'</p><p>How helpful was your supervisor's direction?</p><p>Pseudocode is a way of trying to make an algorithm explicit enough that there is no ambiguity as to what should be done, but not so explicit that it becomes difficult to parse, requiring more mental energy and time than the process is worth.</p><p>No universal convention. Large range in degree of formality. One example below.</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a collection A of numbers a1, a2, a3, ..., an\nOutpt: a number ai from the collection such that aj is less than or equal to ai for all j=1,2,...,n\n\nFIND-MAXIMUM(A)\n1  max <-- A[1]\n2  FOR i from 2 to A.length\n3      IF A[i] > max THEN\n4          max <-- A[i]\n5      END IF\n6  END FOR\n7  RETURN  max</pre>"
+					},
+					{
+						"label" : "Pseudocode:",
+						"type" : "text_only",
+						"text" : "<h2>Pseudocode: Examples</h2><p>Here is the same task (addition of two numbers), but approached in three very different ways.</p><br><b>Version: Accumulation</b><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a,b\nOutput: sum of a and b\n\nADD(a,b)\n1  sum <-- 0\n2  sum <-- sum + a>\n3  sum <-- sum + b>\n4  RETURN sum</pre><br><b>Version: Iteration</b><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a,b\nOutput: sum of a and b\n\nADD(a,b)\n1  sum <-- a\n2  REPEAT b times\n3      sum <-- sum + 1\n4  END REPEAT\n5  RETURN sum</pre><b>Version: Recursion</b><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a,b\nOutput: sum of a and b\n\nADD(a,b)\n1  IF b == 0 THEN\n2      RETURN a\n3  END IF\n4  RETURN Add(a+1, b-1)</pre>"
+					},
+					{
+						"label" : "Visual",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Visual representation of algorithms</h2>Above is a visual version of the Add algorithm below:<pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: a,b\nOutput: sum of a and b\n\nADD(a,b)\n1  sum <-- a\n2  REPEAT b times\n3      sum <-- sum + 1\n4  END REPEAT\n5  RETURN sum</pre>"
+					},
+					{
+						"label" : "Tedium",
+						"type" : "text_only",
+						"text" : "<h2>Tedium</h2><p>Try carrying out the steps of the algorithm below very carefully and methodically.</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Input: sequence A = {a1, a2, ..., aN} of integersOutput: a reordering B = {b1, b2, ..., bN} of a1, a2, ..., aN such that bi <= bj whenever i<= j\nInsertionSort(A)\n1  FOR j from 2 to n\n2      key <-- A[j]\n3      i <-- j-1\n4      WHILE i > 0 and A[i] > key\n5          A[i+1] <-- A[i]\n6          i <--i-1\n7      END WHILE\n8      A[i+1] <-- key\n9  END FOR\n10 RETURN A</pre><p>As we start to formalize algorithms, we might notice that carrying out even relatively simple ones can be quite tedious. If only we had a happy little helper who would gladly punch away at these highly precise, yet highly monotonous microtasks. If only...</p><p>But first we should maybe ask outselves whether having such a helper would even be useful. In particular, could we even reasonably guarantee that it would be competent? That is, that it would be able to solve any algorithm that we threw at it?</p><p>To that end, we now turn to the Turing machine.</p>"
+					},
+					{
+						"label" : "Turing",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Turing machine components</h2><p>A Turing machine is principally made up of three components. They are:</p><ol><li><b>Infinite tape.</b> An infinitely-long roll of tape, broken up into one long sequence of cells in which letters, numbers, and really any type of character could by printed upon. Tape here doesn't mean sticky tape like painters tape. in the sense that it can be printed upon. So alternatively, this of it as an infinitely long, but singular line in a word or txt document. A cell of the tape can either be blank (&#9633;) or have a symbol from the tape alphabet (a list of allowed symbols).</li><li><b>Tape head.</b>The tape head focuses on a single cell of the tape at a time. It always exists in one state (starting in the START state and ending in the HALT state) and can <i>read</i> what symbol is in the current cell (whichever it is stationed over at that moment). It can <i>write</i> a new symbol in the current cell (again, with the requirement that the symbol must come from a pre-established library).</li><li><b>Transition table.</b>This is a table that gives a complete map of behavior for the tape head. Whatever state the map head is in, and whatever the symbol (or blankness) of the cell below it, the transition table will explains what the tape head will do: in particular, depending on the current <i>state</i> of the tape head, what it should do once it has <i>read</i> the cell below it, what it should <i>write</i> in that cell (writing over the symbol it just read), then how it should <i>move</i> (left, right, or stay in place), and then, what state to <i>change</i> to.</li></ol>"
+					},
+					{
+						"label" : "What",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>What does a Turing machine do?</h2><p>Simply, a Turing machine:</p><ol><li>Starts with the infite tape being in a certain configuration. Some cells are blank, some have symbols from the tape alphabet, and so on.</li><li>Starting in the START state, it follows its transition table through a sequence of <i>state check</i>, <i>read</i>, <i>write</i>, <i>move</i>, and <i>state change</i> actions. The machine stops only when it state changes to the HALT state.</li><li>Once the HALT state has been reached, the final configuration of the tape is considered the output of the turing machine.</li></ol><p>Start with an input, perform systematic steps, end with an output. Sound familiar?</p>"
+					},
+					{
+						"label" : "Transition",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Transition table</h2><p>The sequence of actions (<i>state check</i>, <i>read</i>, <i>write</i>, <i>move</i>, <i>state change</i>) that the tape head will take in a single cycle of action is always the same. There is always an infinite tape, The only thing that changes is the tape alphabet and the transition table. There are ways to reduce the tape alphabet down to a universal one with only two symbols (0 and 1), but alternatively, we can think of the tape alphabet as being derivable from the transition table. Because outside of the symbols seen in the transition table, all the other symbols are irrelant (since the transition table can't do anything with them).</p><p>So what makes one Turing machine different from the next is it's transition table. As you can see in the image above, the table has rows for the core <i>state check</i>, <i>read</i>, <i>write</i>, <i>move</i>, and <i>state change</i> action sequence.</p><ol><li><b>State check.</b>The first row of the table shows the states. The tape head always starts in the START state and ends in the HALT state.</li><li><b>Read.</b>The second row gives options for which column to follow based on the read symbol. </li><li><b>Write.</b>The third row shows what symbol the tape head should write. </li><li><b>Move.</b>The fourth row shows how the tape head moves. Options are left (&larr;), right (&rarr;), and  </li><li><b>State change.</b>The fifth row shows what state the tape head changes to after it has moved. After the state change the main action sequence is complete. If the tape head is not in the HALT state at this point, it will start the action sequence again.</li></ol>"
+					},
+					{
+						"label" : "Turing",
+						"type" : "text_only",
+						"text" : "<h2>Turing Machine: Even or Odd Task: Setup</h2><p><b>Tape alphabet:</b> &#9633;,0,1,2,3,4,5,6,7,9,e,o</p><p><b>Task:</b> Check if a number is even or odd. If it is odd, write an o to the right of its last digit and then halt. If it is even, write an e to the right of its last digit and then halt. Start at the left-most digit of the number.</p><p>The tape alphabet and task are fixed. It is up to us to determine:</p><ol><li>How many (and what) states the tape head can take. Kkeep in mind that there must always be a STATE and HALT state.</li><li>The complete transition table for the machine. For each state chosen, and for each symbol in the tape alphabet, there must be a column in the transition table.</li></ol><ol><li>Start with a one digit even number. What is the minimal number of states needed? What do they look like in the transition table?</li><li>Start with a one digit number, could be even or odd. Unsure to start. Now what is the minimal number of states needed? What do they look like in the transition table?</li><li>Try with two digit numbers.</li><li>Can you generalize to any number of digits in the starting number?</li></ol>"
+					},
+					{
+						"label" : "Transition",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Transition diagram</h2><p>It can be very easy for a human mind to lose sight of what path of states and choices a Turing machine is making. A transition diagram helps make that more clear. Above we show the transition diagram for one Turing machine configuration that successfully completes the even or odd task mentioned previously.</p>"
+					},
+					{
+						"label" : "Unwieldy",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Unwieldy</h2><p>Turing Machines become unwiedly quite fast. The image above is of a transition diagram for a turing machine that accomplishes the task of subtraction. Note how complex it already is.</p>"
+					},
+					{
+						"label" : "Why",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Why do we care about Turing machines?</h2><p>We follow algorithms all the time. We have an intuitive notion of what they are. But that notion (like so many powerful and useful notions) is fuzzy and hard to derive useful new information from. If made more technical, mathematics and other intellectual tools could be applied to it. Work on making the notion of algorithms more technical is known as <i>formalism</i>.</p><p>The three main approaches of formalism (Church's Lambda Calculus, Godel's Recursive Functions, and Turing's Turing machines') have been found to be all equivalent. And we've bothered to keep all three in mind becuse each approach has at least one instance where its perspective is uniquely helpful. Thinking about algorithmic formalism through the Turing machine perspective is especially helpful when looking at hardware (which we will do in the next unit).</p><p>To connect the mathematically precise notion of Turing machines to our very fuzzy intuition regarding algorithms, we turn )to:</p><p><b>Church-Turing thesis:</b> Our intuitive notion of an <i>algorithm</i> is perfectly captured by the formal mathematical concept of a Turing machine.</p><p>The Church-Turing thesis is unproven (and unprovable), but most computer scientists believe it. From this came the notion of Turing Completeness for programming languages, whereby if a language can simulate a Turing machine, it can perform any computation that any other computer can (and by the Church-Turing thesis, can carry out any algorithm that a human could).</p>"
+					},
+					{
+						"label" : "Universal",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Universal Turing Machine</h2><p>The Universal Turing Machine is a turing machine itself that can carry out the task of any individual Turing machine of the type we have examined so far. Further, in pursuit of simplicity and generalizability, the UTM tape alphabet if often thought to consist of just &#9633;, 0, and 1.</p><p>Is there something in your life you can think of that is often associated with just 0 and 1?</p>"
+					},
+					{
+						"label" : "Conclusion",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Conclusion</h2><p>In this unit, we discussed <i>algorithms</i>:</p><ol><li><b>What they are.</b>Our intuition, formalism.</li><li><b>How to represent them.</b>Pseudocode, logic flow diagrams.</li><li><b>Theoretical machines that could do them.</b>Turing machines.</li></ol><p>We now look at the physical side of computers as we use them today. Or, said a different way, at one <i>physical implementatiion and approximation of a Universal Turing machine</i>.</p>History: Bits and Circuits-->"
+					}
+				]
+			},
+			{
+				"id" : "history:_bits_and_circuits",
+				"title" : "History: Bits and Circuits",
+				"beats" : [
+					{
+						"label" : "Overview",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Overview</h2><p>In this unit, we will:</p><ol><li>Binary numbers</li><li>Boolean (binary) logic</li><li>Logic gates</li><li>Circuits</li><li>von Neumann architecture</li></ol>"
+					},
+					{
+						"label" : "Base",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Base systems</h2><p>The primary number system used by humans on planet earth to communicate numericl concepts to each other (such as money, populations, crime rates, etc) is a <i>base 10</i> system. Much like how civilian clocks often reset their count every 12 hours, the same thing happens in the base 10 system. Whenever 10 of someething accrue, we reset and make a new mark.</p><p>Take the number 472. There are 3 marks (ie, symbols) use to represent this number. One of the marks is 4, another one is 7, and the last one is 2. Let's start with the 7. In a three-digit number, the 7 represents a collection of 10s. That is 70 = 7*10. Likewise, 400 represents 4 sets of 100. So we have 472 = 4(100) + 7(10) + 2(1). The 4, 7, 2 are just the coefficients in front of a pattern involving 10. The pattern is...</p><p>\\(10^2  \\) = 100 <br>  \\(10^1  \\) = &nbsp;10 <br>  \\(10^0  \\) = &nbsp; &nbsp;1</p><p>Notice that we could represent 2 alternatively as 002 and 70 alternatively as 070.So 742 = 400 + 070 + 002. Notably, observe that only the symbols 0, 1, 2, ..., 9 are used in this system. It goes 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 (REPEAT symbols, the 1 and 0). Notably, the right most space resets. That right most space is always cycling (as you count upwards) 0&rarr; 1&rarr;2&rarr;3&rarr;4&rarr;5&rarr;6&rarr;7&rarr;8&rarr;9&rarr;0&rarr;1&rarr;...</p>"
+					},
+					{
+						"label" : "Bases",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Bases besides 10</h2><p>Any positive integer (ie, 1, 2, 3, 4, 5, ...) can be used as a base. Whatever the base number is, say  \\(b \\), we need  \\(b \\) distinct symbols to represent all the numerical possibilities up to  \\(b \\). Note that zero is a possibility and we don't need to represent  \\(b \\) with its own symbol since that is just 1 of itself.</p><p><b>Base 16.</b>You may have come across hexadecimal numbers (commonly used for representing RBG values like ##ff0000 for pure red). In this case, 16 distinct symbols are used to represent the numerical values of zero, one, two, three, ..., fifteen. The symbols used are 0, 1, 2, 3, ..., 9, a, b, c, d, e, f. Instead of raising the base, let's lower it and see what happens.</p><p><b>Base 1.</b> If we used 1 as a base, what symbols would we have. Well, we have  \\(b \\) symbols. Since  \\(b \\) is 1, there is only one symbol. And there must be a 0 symbol. So all we can represent is 0, nothing. Well this isn't helpful.</p><p>What is the simplest base  \\(b \\) we can have, yet also be able to represent things besides 0?</p>"
+					},
+					{
+						"label" : "Quiz",
+						"type" : "quiz",
+						"question": "If base  \\(b=4 \\) is used, how many distinct symbols will there need to be?",
+						"choices": ["2", "3*", "4", "5"],
+						"correct": 2,
+						"text" : "<h2>Quiz</h2><p>If base  \\(b=4 \\) is used, how many distinct symbols will there need to be?</p>"
+					},
+					{
+						"label" : "What",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>What about b=2?</h2><p>Binary numbers are numbers written in base 2. Any number  \\(x \\) in binary is written in the form</p><center><p>\\(x =   \\cdots + (x_n  \\cdot 2^n) + (x_{n-1}  \\cdot 2^{n-1}) +   \\cdots + x_3  \\cdot 2^3 + x_2  \\cdot 2^2 + x_1  \\cdot 2^1 + x_0  \\cdot 2^0 \\)</p></center><p>Or alternatively as</p><center><p>\\( \\cdots x_n x_{n-1}   \\cdots x_3 x_2 x_1 x_0 \\)</p></center><p>Note that the left side in theory goes on forever, but it becomes unwieldy (and impossible) to write down, so we terminate when the highest power of the base is reached from the right, since adding only zeros forever to the left doesn't provide any new or useful information.</p><p>We would denote the base 10 number 7 in its binary number form by noting that  \\(7=(\\textbf{1}  \\cdot 2^2) + (\\textbf{1} \\cdot 2^1) + (\\textbf{1} \\cdot 2^0) \\), so  \\(\\textbf{111} \\).</p><p>We would denote the base 10 number  \\(9 = 8 + 1 = (\\textbf{1} \\cdot 2^3) + (\\textbf{0} \\cdot 2^2) + (\\textbf{0} \\cdot 2^1) + (\\textbf{1} \\cdot 2^0) \\) in binary number form as  \\(\\textbf{1001} \\).</p>"
+					},
+					{
+						"label" : "Why",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Why binary numbers?</h2><p>We established that base 2 is the simplest base that lets us represent more than nothing. But is there a more practical reason that computers specifically settled on binary?</p><p>Think about a light switch. It has two states: on and off. A physical transistor , the tiny electronic component that modern computers are built from , is not so different. It either allows current to pass through, or it doesn't. On or off. 1 or 0.</p><p>Trying to get a physical component to reliably distinguish between, say, ten different voltage levels (as base 10 would require) is an engineering nightmare. Noise, heat, and manufacturing imperfections make fine-grained distinctions unreliable. But distinguishing between 'current flowing' and 'no current flowing'? That's robust. That's easy to build and maintain at enormous scale.</p><p>So binary numbers aren't just mathematically convenient. They map onto the physical reality of the hardware in a remarkably clean way. The abstract and the physical line up. That doesn't happen all the time, and it's worth appreciating when it does.</p>"
+					},
+					{
+						"label" : "Boolean",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Boolean (binary) logic</h2><p>Boolean logic is a system of reasoning where every statement is either true or false — exactly two possibilities, which maps perfectly onto our 1s and 0s. It was developed by mathematician George Boole in the mid-1800s, long before computers existed, as a way to formalize logical reasoning algebraically.</p><p>There are three fundamental operations in Boolean logic. The first is NOT, which simply flips the value: NOT 1 is 0, and NOT 0 is 1. The second is AND, which outputs 1 only when both inputs are 1 (and 0 otherwise).The third is OR, which outputs 1 when at least one input is 1, and only outputs 0 when both inputs are 0.</p><table><tr><th>x</th><th>NOT(x)</th></tr><tr><td class='center-cell'>0</td><td class='center-cell'>1</td></tr><tr><td class='center-cell'>1</td><td class='center-cell'>0</td></tr></table><p>George Boole was a 19th-century mathematician who asked a seemingly odd question: what if we treated logical statements like algebraic expressions and tried to do math with them? The result was <i>Boolean algebra</i>, a system for reasoning about statements that are either <b>true</b> or <b>false</b>, and nothing in between (fun fact, this 'nothing in between' is known as the <i>Law of the Excluded Middle</i>).</p><p>The fundamental operations in Boolean logic are:</p><ul><li><b>AND.</b> The result is true only if <i>both</i> inputs are true. 'I will go to the party if it is on a Friday AND if I have finished my homework.'</li><li><b>OR.</b> The result is true if <i>at least one</i> input is true. 'I will have dessert if there is cake OR if there is pie.'</li><li><b>NOT.</b> The result is the opposite of the input. 'I will go outside if it is NOT raining.'</li></ul><p>We can represent true as 1 and false as 0. Now Boolean logic and binary numbers are speaking the same language. This is not a coincidence. Tt is exactly the bridge that makes computation possible.</p>"
+					},
+					{
+						"label" : "Example:",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Example: Boolean logic</h2><p>Let's make this concrete with truth tables. A truth table exhaustively lists every combination of inputs and the corresponding output for a given logical operation.</p><p><b>AND</b></p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>A | B | A AND B0 | 0 |   00 | 1 |   01 | 0 |   01 | 1 |   1</pre><p><b>OR</b></p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>A | B | A OR B0 | 0 |   00 | 1 |   11 | 0 |   11 | 1 |   1</pre><p><b>NOT</b></p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>A | NOT A0 |   11 |   0</pre><p>Notice that NOT is the only operation here that takes just one input. AND and OR take two. We can chain these operations together to represent more complex logical conditions, just like we chain arithmetic operations together to write complex mathematical expressions.</p>"
+					},
+					{
+						"label" : "Boolean",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Boolean arithmetic</h2><p>Here is something fun: what happens when we try to add two binary digits together? Let's work through the four possible cases.</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>0 + 0 = 00 + 1 = 11 + 0 = 11 + 1 = 10  (that is, 0 with a carry of 1)</pre><p>The last case is interesting. 1 + 1 in binary is 2, which in binary is written as 10. So we get a result bit of 0 and a carry bit of 1, exactly like how adding 5 + 7 in base 10 produces a units digit of 2 and carries a 1 into the tens column.</p><p>Now look at the result bit column: 0, 1, 1, 0. Does that pattern look familiar? Compare it to the truth table for XOR (exclusive OR: true when the inputs are <i>different</i>). And the carry bit column: 0, 0, 0, 1. That is exactly the AND truth table.</p><p>In other words, binary addition is just Boolean logic. And Boolean logic, as we are about to see, is something we can build physically out of electronic components.</p>"
+					},
+					{
+						"label" : "Logic",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Logic gates</h2><p>A logic gate is a physical electronic component that implements one of the Boolean operations. It takes one or two electrical signals as input (where high voltage represents 1 and low voltage represents 0) and produces an output signal according to its internal structure.</p><p>Think of a gate as a small section of pipe with a valve. Depending on what signals arrive and what type of gate it is, the valve opens or closes, allowing current to pass through or not. The output of one gate can be fed directly into another as input. String enough of them together, and you have a <i>circuit</i> capable of performing complex operations.</p><p>The standard gates correspond directly to our Boolean operations: the AND gate, the OR gate, the NOT gate (also called an inverter), and a few derived ones like NAND (NOT AND), NOR (NOT OR), and XOR (exclusive OR). In fact, NAND alone is sufficient to build every other gate, it is said to be <i>functionally complete</i>.</p>"
+					},
+					{
+						"label" : "Example:",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Example: Logic gate</h2><p>Let's trace a specific example. Consider an AND gate with two input wires, A and B, and one output wire.</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>A = 1 (high voltage)B = 0 (low voltage)AND gate output: A AND B = 1 AND 0 = 0 (low voltage)</pre><p>Now suppose we wire the output of this AND gate into a NOT gate:</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>NOT (A AND B) = NOT (0) = 1 (high voltage)</pre><p>What we've just built is a NAND gate. The output is high unless <i>both</i> inputs are high. We didn't need a new component; we just chained two existing ones. This is the basic idea behind all circuit design. More connections, more gates, more complex behavior.</p>"
+					},
+					{
+						"label" : "Circuits",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Circuits</h2><p>A circuit is a network of logic gates wired together such that their collective behavior accomplishes some desired computational task. The inputs to the circuit enter from one side, flow through layers of gates, and produce outputs on the other side. The circuit itself doesn't 'know' what it is doing in any meaningful sense; it just passes voltages through gates. But if we design it correctly, that mechanical process implements exactly the computation we wanted.</p><p>There is something philosophically striking here worth pausing on. We started with an abstract, mathematical notion of Boolean logic. We mapped that onto physical electronic components. And now we are assembling those components into machines capable of adding numbers, comparing values, and storing state. The gap between 'pure symbol manipulation' and 'physical hardware doing computation' is closing fast.</p><p>We will look at two important circuits that illustrate how this works in practice: the half adder and the full adder.</p>"
+					},
+					{
+						"label" : "Example:",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Example: Half Adder circuit</h2><p>A half adder takes two single binary digits (A and B) as input and produces two outputs: a <b>sum bit</b> and a <b>carry bit</b>. We already worked out the logic in the Boolean arithmetic section. Now we build it.</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Inputs:  A, BOutputs: Sum = A XOR BCarry = A AND B</pre><p>That's it. Two gates, two outputs. Feed A and B into an XOR gate and you get the sum bit. Feed A and B into an AND gate and you get the carry bit.</p><p>Why is it called a <i>half</i> adder? Because it can only add two bits. It has no way to accept a carry-in from a previous column's addition. For single-digit binary arithmetic, that's fine. But what happens when we want to add multi-digit binary numbers column by column? We need something that can handle a carry coming in from the right. That's where the full adder comes in.</p>"
+					},
+					{
+						"label" : "Example:",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Example: Full Adder circuit</h2><p>A full adder extends the half adder by accepting a third input: a <b>carry-in</b> bit (C<sub>in</sub>) from the result of a previous addition. It still produces a sum bit and a carry-out bit (C<sub>out</sub>).</p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>Inputs:  A, B, CinOutputs: Sum   = A XOR B XOR CinCout  = (A AND B) OR (Cin AND (A XOR B))</pre><p>One clean way to build a full adder is to chain two half adders together, then OR their carry outputs. The first half adder adds A and B, producing an intermediate sum and carry. The second half adder adds that intermediate sum to C<sub>in</sub>.</p><p>Once you have a full adder, you can chain a series of them together (one per binary column); to add numbers of arbitrary length. This is called a <i>ripple-carry adder</i>, and it is one of the foundational building blocks of a real processor. An operation as familiar as '5 + 3' is, at the hardware level, a sequence of full adders passing carry bits down a line.</p>"
+					},
+					{
+						"label" : "Von",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Von Neumann</h2><p>Architecture of a von Neuman machine.</p><ul><li><b>Input unit.</b></li><li><b>Output unit.</b></li><li><b>Memory unit (Main memory, RAM).</b></li><li><b>Central processing unit (CPU).</b></li><ul><li><b>Arithmetic logic unit (ALU).</b></li><li><b>Control unit (CU).</b></li><li><b>Registers.</b></li></ul><li><b>System bus (Interconnect).</b></li></ul><p>We have circuits that can add and compare. We have a way to represent data and instructions in binary. What we still need is an architecture. That is, some overall organizational plan for how all these pieces fit together into a working computer. The most influential answer to that question came from John von Neumann in 1945, and it describes, in broad strokes, essentially every general-purpose computer built since.</p><p>The key insight of the von Neumann architecture is deceptively simple: <i>store both data and program instructions in the same memory</i>. The computer reads instructions from memory one at a time, figures out what to do, does it, and repeats.</p>"
+					},
+					{
+						"label" : "Fetch-Execute",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Fetch-Execute cycle</h2><p><b>Fetch-Execute cycle.</b> A von Neumann machine operates sequentially using the Fetch-Decode-Execute cycle.</p><ol><li><b>Fetch.</b> The control unit retrieves the next instruction from main memory. The address of that instruction is tracked by a special register called the <i>program counter</i>, which increments after each fetch.</li><li><b>Decode.</b> The fetched instruction is a binary pattern. The control unit interprets what operation it represents and determines what resources (registers, memory addresses, etc.) are needed to carry it out.</li><li><b>Execute.</b> The actual operation takes place. If it is arithmetic, the ALU does the work. If it involves reading from or writing to memory, the appropriate signals are sent out over the system bus.</li><li><b>Store.</b> The result of the operation is written back , either to a register for immediate use, or to main memory for longer-term storage.</li></ol><p>Then the cycle begins again. Fetch, decode, execute, store. Billions of times per second on a modern processor. It is almost aggressively straightforward for something so powerful.</p>"
+					},
+					{
+						"label" : "Characteristics",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Characteristics</h2><p>The von Neumann architecture has a few defining characteristics worth naming explicitly, because they have shaped both the possibilities and the limitations of computing ever since.</p><p><b>Stored-program model.</b> Data and instructions live in the same memory. This is what makes a general-purpose computer possible: you can change what the machine does simply by loading a different program, without rewiring anything. Compare this to earlier machines that were physically reconfigured to perform different tasks.</p><p><b>Sequential execution.</b> Instructions are carried out one at a time, in order, unless a special 'jump' instruction tells the processor to go somewhere else in the program. This makes programs relatively easy to reason about, but it also means the processor is never doing more than one thing at once (at least in the basic model).</p><p><b>Von Neumann bottleneck.</b> Because data and instructions share the same memory and the same bus, the processor is constantly waiting on that single pipeline to deliver what it needs. It can't fetch the next instruction and load a data value simultaneously. As processors got faster and memory stayed comparatively slow, this bottleneck became an increasingly real constraint. Many modern architectural innovations (caches, pipelines, separate instruction and data buses) are, in some sense, engineering workarounds for this fundamental design tension.</p>"
+					},
+					{
+						"label" : "Conclusion",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Conclusion</h2><p>In this unit, we traced a path from abstract mathematics all the way down to physical hardware.</p><p>We started with <b>binary numbers</b>: the simplest numbering system that can represent more than nothing, and one that maps cleanly onto physical electronic states. We then introduced <b>Boolean logic</b>, a system for reasoning with true/false values that turns out to describe binary arithmetic exactly. From there, we saw how Boolean operations can be implemented as <b>logic gates</b>, physical components that combine into <b>circuits</b> capable of performing real computations like addition.</p><p>Finally, we zoomed out to the <b>von Neumann architecture</b>, the organizational blueprint that tells us how memory, a processor, and input/output components fit together into a working machine , one that fetches instructions, decodes them, executes them, and stores results, over and over again.</p><p>What we have described, in broad strokes, is the physical implementation and approximation of that hypothetical Universal Turing Machine we met in the last unit. The abstract became concrete. That is a remarkable thing.</p>History: Programming Languages-->"
+					}
+				]
+			},
+			{
+				"id" : "history:_programming_languages",
+				"title" : "History: Programming Languages",
+				"beats" : [
+					{
+						"label" : "Overview",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Overview</h2><p>In this unit, we will:</p><ol><li>Examine the many layers of abstraction that sit between a human idea and a computer executing it.</li><li>Look at how programming languages serve as a bridge between human thought and machine behavior.</li><li>Trace the translation process from high-level code down to the binary instructions a processor actually runs.</li><li>Briefly survey the history of programming languages and why so many of them exist.</li></ol>"
+					},
+					{
+						"label" : "A",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>A gap</h2><p>By this point we have a fairly complete picture of two things. On one end, we have algorithms: structured, step-by-step procedures for solving problems, which we can represent in pseudocode or flow diagrams. On the other end, we have physical hardware: circuits built from logic gates, organized according to the von Neumann architecture, executing binary instructions one at a time in the fetch-decode-execute cycle.</p><p>These two things feel very far apart. And they are. The gap between 'here is a process I want a computer to carry out' and 'here are the exact binary patterns that a processor will chew through' is enormous. Programming languages exist to bridge that gap.</p><p>But before we get to programming languages themselves, it is worth slowing down and looking more carefully at just how many layers of translation are involved , because there are more than most people realize, and some of them happen entirely inside a human head before a single line of code is ever written.</p>"
+					},
+					{
+						"label" : "What",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>What you actually know vs. what you can say</h2><p>Think about how you make a cup of tea. You know how to do it. You have done it dozens or hundreds of times. If someone asked you to make one right now, you could do so without consciously thinking through each step. But now try to write down, in full, every action involved, starting from the moment you decide you want tea.</p><p>You will quickly realize you know far more than you can easily articulate. You know to fill the kettle to a reasonable level, not too full, not too empty. You know not to put the tea bag in before the water is hot. You know how long to let it steep based on how strong you like it, a duration that varies by mood and that you have never once measured. You know when the color looks right. None of this lives in an explicit list of instructions in your head , it lives somewhere murkier, as intuition and embodied habit.</p><p>This is the first and fuzziest level of algorithm: the tacit knowledge that a person possesses and acts on without being able to fully articulate it. It is deeply human, and it is completely useless to a computer.</p>"
+					},
+					{
+						"label" : "The",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>The levels</h2><p>There is not one jump from 'human idea' to 'computer execution.' There are several. And each level in this stack is more explicit, more precise, and less forgiving than the one above it.</p><ol><li><b>Tacit knowledge.</b> What you know how to do but cannot fully put into words. The unspoken, embodied understanding that guides human action. Completely inaccessible to a machine.</li><li><b>Natural language description.</b> 'First, sort the list. Then find the largest item.' This is explicit enough that another person could follow it, but still full of assumptions. What does 'sort' mean, exactly? Largest by what measure?</li><li><b>Pseudocode.</b> The first real attempt at rigor. Structured enough that there is little ambiguity, but still not tied to any particular language or machine. A skilled programmer could translate pseudocode into many different programming languages.</li><li><b>Source code.</b> A programming language: precise, unambiguous, and governed by strict rules of syntax. A human writes this. A machine (mostly) cannot yet run it directly.</li><li><b>Machine code.</b> Binary instructions that a specific processor can execute. Typically generated automatically from source code by another program. Deeply unpleasant for humans to read or write directly.</li><li><b>Physical execution.</b> Voltages, transistors, logic gates, and circuits carrying out the fetch-decode-execute cycle on actual silicon. The algorithm has become electricity.</li></ol><p>Each transition downward in this stack involves a translation, and each translation loses some of the looseness and flexibility of the level above. The computer, at the bottom, has no tolerance for ambiguity whatsoever.</p>"
+					},
+					{
+						"label" : "Tacit",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Tacit knowledge</h2><p>It is worth dwelling on that first level a bit longer, because it is easy to underestimate how much of human cognition lives there.</p><p>The philosopher Michael Polanyi coined the phrase 'we know more than we can tell' to describe this gap between what people can do and what they can articulate. When an experienced chess player looks at a board, they do not consciously enumerate every possible move and evaluate each one systematically. They see, almost immediately, that certain regions of the board feel dangerous, that a particular piece is badly placed, that an opportunity is opening up. This knowledge is real , it produces correct play , but it resists verbalization.</p><p>The entire history of artificial intelligence can, from one angle, be read as a long struggle with exactly this problem. Getting computers to do things that humans do easily but cannot explain turns out to be extraordinarily hard. Getting computers to do things that humans find laborious but can explain in precise steps , like sorting a list or finding a shortest path , turns out to be comparatively straightforward.</p><p>Algorithms, in the formal sense, live in the explicitly articulable portion of human knowledge. If you cannot describe what you are doing in precise enough steps that an unambiguous procedure results, you do not yet have an algorithm. You might have something valuable, but it is not yet something a computer can help you with.</p>"
+					},
+					{
+						"label" : "From",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>From fuzzy to firm: the role of pseudocode</h2><p>Pseudocode sits at an interesting position in the stack. It is more structured than a natural language description, but it does not commit to the specific rules of any real programming language. You can write pseudocode in dozens of different styles and still be understood, because the reader is assumed to be a human who can fill in small gaps.</p><p>Consider the instruction: <code>FOR each item in the list</code>. In pseudocode, this is fine. Everyone understands what 'each' and 'list' mean here. But a real programming language needs to know: what type of list? How is it stored in memory? How do you signal that you've reached the end?</p><p>Pseudocode is a useful tool for thinking, communicating, and planning. But it is a staging area, not a destination. At some point, the looseness has to go. Every implicit assumption has to be made explicit. Every fuzzy boundary has to be drawn precisely. That process of tightening is what writing actual code feels like , and why it is harder than it looks from the outside.</p><p>In fact, experienced programmers often find that the act of writing code reveals gaps in their understanding of the problem that pseudocode happily glossed over. The computer has a way of forcing clarity.</p>"
+					},
+					{
+						"label" : "Programming",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Programming languages</h2><p>A programming language is a formal language with a precisely defined syntax (rules about what sequences of symbols are valid) and semantics (rules about what valid programs mean and what they do). Unlike natural languages, there is no ambiguity permitted. Every program has exactly one meaning, or it is invalid.</p><p>Programming languages exist at various levels of abstraction. A <i>high-level</i> language like Python or Java lets you write something close to pseudocode , expressive, readable, relatively close to how a human thinks about the problem. A <i>low-level</i> language like C or Assembly is closer to the hardware , less expressive, but giving the programmer more direct control over what the machine actually does and how efficiently it does it.</p><p>The trade-off between abstraction and control is one of the central tensions in programming language design, and it has never been fully resolved. Different tasks call for different tools. Writing the firmware for a medical device and writing a web application are both 'programming,' but they benefit from very different languages.</p><p>What all programming languages share is the need to eventually be translated into something the processor can run. That translation is the job of either a <i>compiler</i> or an <i>interpreter</i>.</p>"
+					},
+					{
+						"label" : "Compilers",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Compilers and interpreters</h2><p>How does source code written in a programming language become something a machine can execute? There are two main approaches, and they differ in when the translation happens.</p><p>A <b>compiler</b> translates the entire source code into machine code (or something close to it) before the program runs at all. You write your program, run the compiler, and get back an executable file. When you run that file, the processor is running machine code directly , the original source is gone from the picture. C and C++ work this way. Compiled programs tend to run quickly because all the translation overhead has already been paid upfront.</p><p>An <b>interpreter</b>, by contrast, reads and executes the source code one piece at a time, translating on the fly as the program runs. Python and JavaScript commonly work this way. There is no separate compilation step: you run your script and the interpreter handles the rest. This makes development faster and more interactive, but it can be slower at runtime because the translation is happening continuously.</p><p>Many modern languages blur this distinction. Java, for example, compiles to an intermediate form called <i>bytecode</i>, which is then run by a virtual machine that interprets or further compiles it. The underlying idea, though, is always the same: bridge the gap between the language a human wrote in and the binary instructions the hardware understands.</p>"
+					},
+					{
+						"label" : "Machine",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Machine code and assembly</h2><p>At the bottom of the software stack , just above the physical hardware , sits machine code. Machine code is a sequence of binary instructions that a specific processor model is designed to execute directly. Every operation the processor knows how to perform has a corresponding binary pattern called an <i>opcode</i>. Add these two numbers. Load this value from memory. Jump to this address if the last result was zero.</p><p>Reading machine code as a human is, to put it gently, not a pleasant experience. A stretch of machine code looks something like: <code>10110000 01100001</code>. This particular sequence happens to mean 'load the value 97 into a specific register.' Perfectly clear, if you are a processor. Somewhat less so otherwise.</p><p>Assembly language was an early attempt to make this slightly more humane. Assembly uses short human-readable mnemonics in place of raw binary: <code>MOV AL, 61h</code> instead of <code>10110000 01100001</code>. It is a thin layer over machine code , each assembly instruction maps almost directly to one machine instruction , and a program called an <i>assembler</i> translates it. Assembly gives you the full power and directness of machine code with marginally less agony. Marginally.</p><p>Almost nobody writes in assembly by choice anymore. But understanding that it exists, and that all higher-level code eventually passes through something like it, matters. When your Python script runs, somewhere beneath the interpreter, machine code is executing.</p>"
+					},
+					{
+						"label" : "The",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>The full journey</h2><p>Let us trace a single, small example all the way down the stack. Suppose a programmer wants to add two numbers and store the result. At each level, here is what that looks like.</p><p><b>Natural language:</b> 'Add the two numbers together and remember the answer.'</p><p><b>Pseudocode:</b></p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>result <-- a + b</pre><p><b>Python (source code):</b></p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>result = a + b</pre><p><b>Assembly (after compilation):</b></p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>MOV EAX, [a]ADD EAX, [b]MOV [result], EAX</pre><p><b>Machine code (binary):</b></p><pre style='background:#f4f4f4; padding:10px; font-family:monospace; white-space:pre;'>10001011 00000101 ...00000011 00000101 ...10001001 00000101 ...</pre><p><b>Physical execution:</b> The processor fetches each binary instruction, decodes it, routes signals through the ALU and registers, and produces the result as a voltage pattern stored in memory.</p><p>The idea, simple addition, did not change. But the representation of that idea transformed, at each level, into something more explicit and more concrete, until it became electrical signals in silicon.</p>"
+					},
+					{
+						"label" : "A",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>A brief history of programming languages</h2><p>The history of programming languages is, in a sense, the history of humans trying to reclaim expressiveness from the machine without giving up too much performance or precision.</p><p>In the 1940s and early 1950s, programmers worked directly in machine code or assembly. Every program was written with intimate knowledge of the specific hardware it would run on. Tedious, error-prone, and completely non-portable: a program written for one machine would not run on another.</p><p>In 1957, IBM released <b>FORTRAN</b> (Formula Translation), widely considered the first successful high-level programming language. For the first time, scientists and engineers could write something that looked vaguely like mathematical notation, and a compiler would handle the translation. The claim that a compiled FORTRAN program could run as efficiently as hand-written assembly was controversial , and, remarkably, turned out to be largely true.</p><p><b>COBOL</b> followed in 1959, designed for business data processing and intended to read almost like English. <b>LISP</b>, also from 1958, took a completely different approach rooted in Alonzo Church's lambda calculus, and became the language of early artificial intelligence research. <b>BASIC</b> in the 1960s aimed for simplicity and accessibility. <b>C</b> in the early 1970s offered low-level control with high-level syntax, and became one of the most influential languages ever written.</p><p>Today there are thousands of programming languages. Most of them solve a real problem that existing languages handled poorly, or reflect a particular philosophy about how programming should feel. They are not all equally good or equally appropriate for every task , but they are all, in the end, different answers to the same question: how do we tell a machine what to do, in a way that a human can also understand?</p>"
+					},
+					{
+						"label" : "Why",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Why so many languages?</h2><p>A reasonable question at this point is: why do we need more than one? If a programming language is Turing complete , if it can simulate a Turing machine, and therefore carry out any computable algorithm , then in a strict theoretical sense, any one of them can do anything any other one can do. So why the proliferation?</p><p>The answer is that theoretical capability and practical usability are very different things. Yes, you could write a web server in assembly. You could also dig a foundation with a spoon. The question is not whether it is possible but whether it is reasonable.</p><p>Different languages are optimized for different concerns. Some prioritize raw performance (C, Rust). Some prioritize safety and catching errors before the program runs (Haskell, Rust again). Some prioritize rapid development and readability (Python, Ruby). Some are designed for a specific domain: R for statistical computing, SQL for querying databases, HTML and CSS for describing web pages. Some reflect a particular mathematical or philosophical framework for thinking about computation.</p><p>There is also a deeply human reason: programming languages are designed by people, and people have different intuitions about what good code should look like and feel like to write. A language embeds a set of values about what matters. Learning multiple languages, even briefly, has a way of expanding how you think about problems, in the same way that learning a second natural language reveals things about your first one that you never noticed.</p>"
+					},
+					{
+						"label" : "General",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>General wrap up</h2><p>So far, we've talked about programming languages generally in order to better understand how they fit into the general framework of communication between human brains and electronic machines (I want to say 'laborers' because they do so much work for us, but maybe let's say 'electronic <i>partners</i>').</p><p>That general contextualization:<ol><li>Started with <b>tacit knowledge</b>: the things we know how to do but cannot fully articulate.</li><li>It passes through <b>natural language</b> and <b>pseudocode</b>, each more structured than the last</li><li>It arrives at <b>source code</b> in a formal programming language, where ambiguity is no longer permitted.</li><li>From there, compilers and interpreters carry it into <b>machine code</b>: binary instruction sequences the processor can actually run.</li><li>And finally, <b>physical execution</b>: logic gates, circuits, and the fetch-decode-execute cycle doing their silent, rapid work.</li></ol></p><p>The remarkable thing is not that any one of these layers exists. It is that humans built a chain of translations connecting all of them , from intuition to electricity , and that the chain is reliable enough that when you type <code>result = a + b</code>, you can be quite confident that somewhere deep in the hardware, addition will actually happen.</p><p>In the next unit, we will begin to look at how to actually write programs ourselves, starting from the ground up.</p>"
+					},
+					{
+						"label" : "Installing",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Installing Python</h2><p>In order to use Python, it needs to be either installed on your machine, or you need to have access to it through a cloud-based service like Google Colab.</p><ol><li><a href='https://thonny.org/'>Thonny</a>. Thonny will install Python on your machine if you don't already have it.</li><li><a href='https://colab.research.google.com/'>Google Colab</a>. You must have a Google account and be able to access Google Drive. If we all have easy access to Drive, we will it Colab out.</li></ol>"
+					},
+					{
+						"label" : "What",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>What is a development environment?</h2><p>A <i>development environment</i> broadly is the dedicated workspace consisting of hardware and software tools where developers write, test, and debug code. For us, this will take the following forms:</p><ol><li><b>Shell environment.</b> Consists of opening a shell /terminal on your machine and entering lines of pythong code. Okay for up to a few lines of code, but pretty limited generally. Still, worth seeing.</li><li><b>Scripting.</b>This consists of a script file (script.py, for instance), a text editor, and some interpreter (usually whatever shell is handy). Tell the shell to run the script and away it goes. Scripts can be as long as you want, so this method works decently.</li><li><b>Notebook environment.</b>One of the easier ways to jump into coding in Python. Open a <a href='https://colab.research.google.com/'>Google Colab</a> file in your Google Drive and essentially just start writing python code. The <a href='https://anaconda.org/channels/anaconda/packages/jupyter/overview'>Jupyter</a> notebook Python module also supports notebooks. You can have both text (MarkDown, technically, which allows for text customization) and code cells. THese are very helpful to guiding yourself and others through whatever it is your code is doing. They start to become problematic when one wants to get deep into the code engineering, but they are great as a learning/teaching/project sharing tool.</li><li><b>Integrated development environment (IDE).</b>Python IDEs are usually many things wrapped in one: source code editor, debugger, and interpretor, to name a few. They are pretty great: especially when they are lightweight. We will be using <a href='https://thonny.org/'>Thonny</a>.</li></ol>"
+					},
+					{
+						"label" : "Variables",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Variables</h2><p><b>Definition</b> (conceptual): A variable is a marked storage container that holds a piece of information.</p><p><b>Definition</b> (slightly more technical, verbose): A variable is a labeled storage container in memory that holds a piece of information, which can be referenced and changed during program execution.</p><p>In Python, a variable may be defined, simply by typing an unbroken string of characters, following the rules</p><ul><li><b>Starting character.</b> Must start with a letter (a-z,A-Z) or an underscore (_).</li><li><b>Successive characters.</b>After the first character, successive characters may include letters (a-z,A-z), an underscore (_), or a number (0-9).</li><li><b>Case sensitivity.</b>'a' and 'A' are different variables, for instance.</li><li><b>Reserved keywords.</b>Python has a number of reserved keywords, such as <b>for</b>, <b>return</b>, <b>while</b>, <b>if</b>, <b>else</b>, <b>try</b>, <b>except</b>, <b>in</b>, and <a href='https://realpython.com/lessons/reserved-keywords/'>many more</a>.</li><li><b>Special characters not allowed</b>Symbols like @, $, % are not allowed. Nor are spaces.</li></ul>"
+					},
+					{
+						"label" : "Examples:",
+						"type" : "text_only",
+						"text" : "<h2>Examples: Variables</h2><div class='code-container'><div class='code-header'>Python</div><div class='code-guide'>Declaration of the variable a.</div><pre><code>a</code></pre></div><div class='code-container'><div class='code-header'>Python</div><div class='code-guide'>Declaration of the variable a, following by assignment (number 5 assigned to a as its value.</div><pre><code>a<br>a = 5</code></pre></div><div class='code-container'><div class='code-header'>Python</div><div class='code-guide'>Declaration of variable cat<br>String 'cute' assigned as value to variable cat<br>sent following to the output: How are (1st, actually 2nd), character in the string 'cute'<br> send following to the output: the python class/type of data 'cute' (which is str for String)</div><pre><code>cat = 'cute'<br>print('How are ', cat[1])<br>print(type(cat))<br></code></pre><div class='code-output'>How are u<br>str</div></div><p>In Python, a variable may be defined, simply by typing an unbroken string of characters, following the rules</p><ul><li><b>Starting character.</b> Must start with a letter (a-z,A-Z) or an underscore (_).</li><li><b>Successive characters.</b>After the first character, successive characters may include letters (a-z,A-z), an underscore (_), or a number (0-9).</li><li><b>Case sensitivity.</b>'a' and 'A' are different variables, for instance.</li><li><b>Reserved keywords.</b>Python has a number of reserved keywords, such as <b>for</b>, <b>return</b>, <b>while</b>, <b>if</b>, <b>else</b>, <b>try</b>, <b>except</b>, <b>in</b>, and <a href='https://realpython.com/lessons/reserved-keywords/'>many more</a>.</li><li><b>Special characters not allowed</b>Symbols like @, $, % are not allowed. Nor are spaces.</li></ul>"
+					},
+					{
+						"label" : "Beat",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Beat template</h2><p></p>Python 1: Decision logic and logic flow-->"
+					}
+				]
+			},
+			{
+				"id" : "python_1:_decision_logic_and_logic_flow",
+				"title" : "Python 1: Decision logic and logic flow",
+				"beats" : [
+					{
+						"label" : "Beat",
+						"type" : "image",
+						"visual" : "default.png",
+						"text" : "<h2>Beat template</h2><p></p>Python 1: Loops-->"
+					}
+				]
+			},
+			{
+				"id" : "python_1:_loops",
+				"title" : "Python 1: Loops",
+				"beats" : [
+				]
+			},
+			{
+				"id" : "python_1:_functions",
+				"title" : "Python 1: Functions",
+				"beats" : [
+				]
+			},
+			{
+				"id" : "python_2:_classes",
+				"title" : "Python 2: Classes",
+				"beats" : [
+				]
+			},
+			{
+				"id" : "python_2:_strings",
+				"title" : "Python 2: Strings",
+				"beats" : [
+				]
+			},
+			{
+				"id" : "pythons:_files,_exceptions,_modules",
+				"title" : "Pythons: Files, Exceptions, Modules",
+				"beats" : [
+				]
+			},
+			{
+				"id" : "ai:_situated_agent_model",
+				"title" : "AI: Situated Agent Model",
+				"beats" : [
+				]
+			},
+			{
+				"id" : "ai:_decision_trees",
+				"title" : "AI: Decision Trees",
+				"beats" : [
+				]
+			},
+			{
+				"id" : "ai:_finite_state_machines",
+				"title" : "AI: Finite State Machines",
+				"beats" : [
+				]
+			},
+			{
+				"id" : "final_project",
+				"title" : "Final Project",
+				"beats" : [
+				]
+			}
+		]
+	},
+    
+    "csc3730": {
+		
+		"gif": "course_pixel_test.png",
+		
+		"pre_num": "CSC 1110",
+		
+		"title": "Introduction to Computing",
+		"title_short": "Intro Comp",
+		
+		"announcements": [
+			{ 
+				"date": "2026 08 01",
+				"text": "This is an announcement" 
+			},
+			{ 
+				"date": "2026 09 01", 
+				"text": "So is this - or did you read this one first and now you are confused?"
+			}
+		],
+		
+		"assessments": [
+			{ 
+				"name": 		"Daily Quizzes", 
+				"description": 	"Each day that we meet in class in person, we will have a very brief (5 min) quiz at either the beginning or the end of the class period.", 
+				"percentage": 	"10%"
+			},
+			{ 
+				"name": 		"Exam 1", 
+				"description": 	"This exam will cover the first major unit of the course: History.", 
+				"percentage": 	"30%"
+			},
+			{ 
+				"name": 		"Exam 2", 
+				"description": 	"Covers the second major unit of the course: Python.", 
+				"percentage": 	"30%"
+			},
+            { 
+				"name": 		"Final Project", 
+				"description": 	"This involves three components: code submissionn, presentation, and oral exam.", 
+				"percentage": 	"30%"
+			}
+		],
+		
+		"course_prerequisites": "CSC 2560 Data Structures and Algorithms",
+		"course_catalog_description": "An introduction to the art and science of computer programming for the student without previous programming experience. Topics covered include the historical development of computing, the basic operating principles of computers, and an introduction to problem-solving using one or more high-level computing languages, such as Python. Intended for non-majors/non-minors.",
+		"course_learning_goals": [
+			{ 
+				"num": 		1, 
+				"action": 	"Apply", 
+				"detail": 	"AI algorithms such as pathfinding, decision trees, and behavior trees to create dynamic and responsive simulations."
+			},
+			{ 
+				"num": 		2, 
+				"action": 	"Analyze", 
+				"detail": 	"the performance and effectiveness of different AI techniques in game and simulation environments."
+			},
+			{ 
+				"num": 		3, 
+				"action": 	"Design", 
+				"detail": 	"intelligent behaviors for virtual environments by implementing AI-driven systems and solutions."
+			},
+			{ 
+				"num": 		4, 
+				"action": 	"Evaluate", 
+				"detail": 	"the use of machine learning algorithms in simulations, determining their suitability for specific scenarios."
+			},
+			{ 
+				"num": 		5, 
+				"action": 	"Create", 
+				"detail": 	"a fully functional AI-driven simulation project that demonstrates the integration of multiple AI techniques."
+			}
+		],
+		
+		"meeting_time": "MWF 10:00–10:50am",
+		"meeting_place": "Straz Center Xxx",
+		
+		"syllabus": "syllabus_cs101.pdf",
+		
+		"schedule_weeks": [
+			{ 
+				"week": 1, 
+				"topic": "Course Overview & Intro to Programming", 
+				"notes": ""
+			},
+			{ 
+				"week": 2, 
+				"topic": "Variables, Types, and Expressions",
+				"notes": "PS1 released"
+			},
+			{ 
+				"week": 3, 
+				"topic": "Control Flow: Conditionals & Loops",
+				"notes": "PS1 due"
+			},
+			{ 
+				"week": 4, 
+				"topic": "Functions and Scope", 
+				"notes": "PS2 released"
+			}
+		],
+        "lessons": [
+            {
+                "id": "lesson_01",
+                "title": "Introduction to A*",
+                "beats": [
+                    {
+                        "text": "Today we're talking about pathfinding — getting from A to B through obstacles.",
+                        "visual": "astar_intro.png",
+                        "caption": "The classic grid pathfinding problem"
+                    },
+                    {
+                        "type": "image",
+                        "text": "EXAMPLE TEMPLATE: image",
+                        "visual": "astar_intro.png",
+                        "caption": "optional caption"
+                    },
+                    {
+                        "type": "code_check",
+                        "text": "EXAMPLE TEMPLATE: code_check",
+                        "prompt": "What does this function return for f(3, 4)?",
+                        "answer": "7",
+                        "hint": "optional hint shown after a wrong attempt"
+                    },
+                    {
+                        "type": "text_only",
+                        "text": "EXAMPLE TEMPLATE: text_only"
+                    },
+                    {
+                        "type": "quiz",
+                        "text": "EXAMPLE TEMPLATE: quiz",
+                        "question": "Which algorithm uses a heuristic?",
+                        "choices": ["Dijkstra", "A*", "BFS", "DFS"],
+                        "correct": 1
+                    },
+                    {
+                        "text": "Conclusion.",
+                        "visual": "dijkstra.png"
+                    }
+                ]
+            }
+        ]
+	}
+	
+}

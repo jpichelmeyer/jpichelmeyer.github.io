@@ -35,12 +35,26 @@ EXAMPLE: Condensed HTML
 import copy
 import os
 
+"""
+def read_file(path:str="lessons_pre_json.html"):
+    with open(path, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+    return lines
+
+lines = read_file()
+
+for i in range(min(10, len(lines))):
+    lc = copy.deepcopy(lines[i])
+    lc = lc.strip()
+    print(lc)
+"""
 
 class H2Hconverter():
     
     def __init__(self):
         self.path = "courses_.html"
-        self.path_temp = "courses_.txt"
+        self.path_temp = "courses__.txt"
+        self.beat_types = ["text_only", "image", "quiz"]
         pass
     
     def _clean_lines(self, lines:list=[], lines_max:int=-1):
@@ -76,10 +90,42 @@ class H2Hconverter():
                     beat_string = '\t'*5 + '{\n'
                     label = copy.deepcopy(beat_name).split(' ')[0]
                     beat_string += '\t'*6 + '"label" : ' + '"' + label + '"' + ',\n'
-                    for line in beat_lines:
-                        if '<div class="img-placeholder">' in line:
-                            beat_string += '\t'*6 + '"visual" : "' + self._parse_head(line) + '",\n' 
-                            beat_string += '\t'*6 + '"type" : "image",\n'
+                    
+                    
+                    #################################################
+                    #
+                    #	Set type
+                    #
+                    #################################################
+                    #beat_type = ""
+                    
+                    #for line in beat_lines:
+                        
+                        
+                        
+                        # Parse out image type
+                        #if '<div class="img-placeholder">' in line:
+                            #beat_string += '\t'*6 + '"visual" : "' + self._parse_head(line) + '",\n' 
+                            #beat_string += '\t'*6 + '"type" : "image",\n'
+                    
+                    
+                    #beat_string += self._parse_type(beat_lines=beat_lines)
+                        
+                    beat_type, parsed_content = self._parse_beat_type(beat_lines=beat_lines)
+                    if beat_type == self.beat_types[1]:
+                        beat_string += '\t'*6 + '"type" : "image",\n'
+                        beat_string += '\t'*6 + '"visual" : "' + parsed_content + '",\n' 
+                    elif beat_type == self.beat_types[2]:
+                        beat_string += '\t'*6 + '"type" : "quiz",\n'
+                        parsed_content = parsed_content.split(",,")
+                        for pc in parsed_content:
+                            beat_string += '\t'*6 + pc.lstrip() + ',\n'
+                        #beat_string += copy.deepcopy(parsed_content)
+    
+                    
+                    ################################################
+                    
+                    
                     beat_string += '\t'*6 + '"text"' + ' : '
                     beat_line = '"' + '<h2>' + beat_name + '</h2>'
                     for line in beat_lines:
@@ -91,6 +137,7 @@ class H2Hconverter():
                         """
                         filter_segments = [
                             '<div class="img-placeholder">',
+                            '<div class="quiz-placeholder">',
                             '====',
                             ]
                         line_clear = True
@@ -207,6 +254,61 @@ class H2Hconverter():
         
         return data
     
+    """
+    def _parse_type(self, beat_lines:list=[]):
+        type_line = ""
+        
+        beat_types = ["text_only", "image", "quiz"]
+        beat_type = ""
+        parsed_text = ""
+        
+        for line in beat_lines:
+            
+            # Type: image
+            # 
+            if '<div class="img-placeholder">' in line:
+                beat_type = beat_types[1]
+                parsed_text = self._parse_head(line)
+                
+                #type_line += '\t'*6 + '"visual" : "' + self._parse_head(line) + '",\n' 
+                #type_line += '\t'*6 + '"type" : "image",\n'
+            
+            # Type: quiz
+            if '<div class="quiz-placeholder">' in line:
+                beat_type = beat_types[2]
+                parsed_text_lines = self._parse_head(line).split(",,")
+                print(parsed_text_lines)
+                for subline in parsed_text_lines:
+                    parsed_text += '\t'*6 + copy.deepcopy(subline) + ',\n"'
+        
+        if beat_type == beat_types[1]:
+            type_line += '\t'*6 + '"type" : "image",\n'
+            type_line += '\t'*6 + '"visual" : "' + parsed_text + '",\n' 
+        elif beat_type == beat_types[2]:
+            type_line += '\t'*6 + '"type" : "quiz",\n'
+            type_line += copy.deepcopy(parsed_text)
+            #type_line += '\t'*6 + parsed_text
+        else:
+            type_line += '\t'*6 + '"type" : "text_only",\n'
+        
+        return type_line 
+    """
+    
+    def _parse_beat_type(self, beat_lines:list=[]):
+        parsed_content = ""
+        for line in beat_lines:
+            # Type: image
+            if '<div class="img-placeholder">' in line:
+                parsed_content = self._parse_head(line)
+                return self.beat_types[1], parsed_content
+            # Type: quiz
+            if '<div class="quiz-placeholder">' in line:
+                parsed_content = self._parse_head(line)
+                return self.beat_types[2], parsed_content
+        return self.beat_types[0], parsed_content
+        
+        
+    
     def _read_file(self):
         with open(self.path, "r", encoding="utf-8") as file:
             lines = file.readlines()
@@ -215,9 +317,8 @@ class H2Hconverter():
     def _save_strings(self, single_strings:dict={}):
         with open(self.path_temp, "w", encoding="utf-8") as file:
             for course in single_strings:
-                file.writelines('"' + course.lower().replace(' ', "_") + '_lessons" : \n')
+                file.writelines('"' + course.lower().replace(' ', "_") + '_lessons : "\n')
                 file.writelines(single_strings[course])
-        
     
     def convert(self):
         lines = self._read_file()
@@ -225,9 +326,6 @@ class H2Hconverter():
         data = self._parse_lines(lines=lines)
         single_strings = self._make_strings(data=data)
         self._save_strings(single_strings=single_strings)
-        
-        
-        #print(f"len(lines) : {len(lines)}")
     
     
 if __name__ == "__main__":
@@ -235,3 +333,4 @@ if __name__ == "__main__":
     converter = H2Hconverter()
     converter.convert()
     
+
