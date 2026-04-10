@@ -3537,6 +3537,8 @@ That works. Now suppose you needed to print the numbers 1 through 10,000. Writin
 
 <div class="beat-header">The while loop</div>
 
+<div class="img-placeholder">default.png</div>
+
 <p>
 A <b>while</b> loop repeats a block of code for as long as a given condition remains <cl>True</cl>. The moment the condition becomes <cl>False</cl>, the loop stops and execution continues with whatever comes after it.
 </p>
@@ -3589,6 +3591,8 @@ Notice the variable <cl>i</cl>. It is called a <i>loop counter</i> or <i>loop va
 
 <div class="beat-header">Infinite loops</div>
  
+<div class="img-placeholder">default.png</div>
+ 
 <p>
 A while loop whose condition never becomes <cl>False</cl> runs forever. This is called an <i>infinite loop</i>, and it is one of the most common beginner mistakes.
 </p>
@@ -3621,6 +3625,8 @@ The lesson: before writing a while loop, ask yourself — <i>what will eventuall
 <!-- -------------------------------------------------------------------- -->
 
 <div class="beat-header">The for loop</div>
+ 
+<div class="img-placeholder">default.png</div>
  
 <p>
 Where a while loop keeps going until a condition fails, a <b>for</b> loop steps through a collection one element at a time, running its body once per element. When the collection is exhausted, the loop ends automatically.
@@ -3670,6 +3676,8 @@ Any iterable collection works: a <cl>list</cl>, a <cl>tuple</cl>, a <cl>str</cl>
  
 <div class="beat-header">range()</div>
  
+<div class="img-placeholder">default.png</div>
+ 
 <p>
 Very often, you want to loop a specific number of times rather than over an existing collection. Python's built-in <cl>range()</cl> function generates a sequence of integers for exactly this purpose.
 </p>
@@ -3708,6 +3716,8 @@ One subtlety worth memorizing: <cl>range(n)</cl> produces <cl>n</cl> values star
 <!-- -------------------------------------------------------------------- -->
  
 <div class="beat-header">Loop control: break and continue</div>
+ 
+<div class="img-placeholder">default.png</div>
  
 <p>
 Sometimes you need more fine-grained control over when a loop stops or skips. Two keywords handle this: <b>break</b> and <b>continue</b>.
@@ -3765,6 +3775,8 @@ Sometimes you need more fine-grained control over when a loop stops or skips. Tw
  
 <div class="beat-header">Nested loops</div>
  
+<div class="img-placeholder">default.png</div>
+ 
 <p>
 A loop can contain another loop inside its body. This is called a <i>nested loop</i>. The inner loop completes all of its iterations for every single iteration of the outer loop.
 </p>
@@ -3801,6 +3813,8 @@ Be careful with nesting: if the outer loop runs <cl>m</cl> times and the inner l
 <!-- -------------------------------------------------------------------- -->
  
 <div class="beat-header">Accumulator pattern</div>
+ 
+<div class="img-placeholder">default.png</div>
  
 <p>
 One of the most common and useful patterns when working with loops is the <i>accumulator pattern</i>: initialize a variable before the loop, then update it on each iteration. By the end of the loop, it holds the accumulated result.
@@ -3843,6 +3857,8 @@ The accumulator pattern appears constantly in real programs: summing, counting, 
  
 <div class="beat-header">while vs. for: when to use which</div>
  
+<div class="img-placeholder">default.png</div>
+ 
 <p>
 Both <cl>while</cl> and <cl>for</cl> loops can, in principle, do anything the other can do. But each has a natural use case:
 </p>
@@ -3881,6 +3897,8 @@ Use a <b>while</b> loop when the number of iterations is not known in advance an
 <!-- -------------------------------------------------------------------- -->
  
 <div class="beat-header">Loops and algorithms: putting it together</div>
+ 
+<div class="img-placeholder">default.png</div>
  
 <p>
 Now that we have loops, we can actually implement the algorithms we studied earlier. Here is the FIND-MAXIMUM pseudocode from the very first unit, translated into Python:
