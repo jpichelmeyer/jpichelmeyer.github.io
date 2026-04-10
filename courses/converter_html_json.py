@@ -25,7 +25,7 @@ EXAMPLE: Readable HTML
     </ol>
 
 
-EXAMPLE: Condensed HTML
+EXAMPLE: Condensed HTML (injected directly into courses.json dictionary)
 
     <h2>Overview</h2><p>In this unit, we will:</p><ol><li>Discuss what an algorithm is.</li><li>Look at two ways to represent them:</li><ol><li>Pseudocode</li><li>Flow diagrams</li></ol><li>Look at an important historical development in computer science regarding algorithms: The Turing Machine</li></ol>
 
@@ -214,9 +214,9 @@ class H2Hconverter():
                     elif beat_type == self.beat_types[2]:
                         
                         quiz_parts = parsed_content.split(",,")
-                        print("quiz_parts[0]: ", quiz_parts[0])
-                        print("quiz_parts[1]: ", quiz_parts[1])
-                        print("quiz_parts[2]: ", quiz_parts[2])
+                        #print("quiz_parts[0]: ", quiz_parts[0])
+                        #print("quiz_parts[1]: ", quiz_parts[1])
+                        #print("quiz_parts[2]: ", quiz_parts[2])
                         
                         for i in range(len(quiz_parts)):
                             
@@ -227,6 +227,8 @@ class H2Hconverter():
                             quiz_parts[i] = quiz_parts[i].strip().replace('"', '')
                             
                         beat_dict["question"] = quiz_parts[0]
+                        
+                        
                         quiz_parts_1 = copy.deepcopy(quiz_parts[1].replace("[", ""))
                         quiz_parts_1 = quiz_parts_1.replace("]", "")
                         #quiz_parts_1 = quiz_parts_1.replace(",", "")
@@ -239,21 +241,15 @@ class H2Hconverter():
                             choice = choice.replace("[", "")
                             choice = choice.replace(" ", "")
                             choice = choice.rstrip()
-                            print("choice : ", choice)
+                            #print("choice : ", choice)
                             choices.append(choice)
-                        print("choices: ", choices)
-                        print("len(choices) : ", len(choices))
+                        #print("choices: ", choices)
+                        #print("len(choices) : ", len(choices))
                         beat_dict["choices"] = copy.deepcopy(choices)
                         quiz_parts_2 = quiz_parts[2].replace('correct:', '')
                         quiz_parts_2 = quiz_parts_2.replace(',', '')
-                        #quiz_parts_2 = quiz_parts_2.replace("[", "")
-                        #quiz_parts_2 = quiz_parts_2[0]
-                        #print(type(quiz_parts_2))
-                        print(quiz_parts_2)
-                        #print("quiz_parts_2 : ", quiz_parts_2)
+                        #print(quiz_parts_2)
                         beat_dict["correct"] = int(quiz_parts_2)
-                        #quiz_parts_2 = quiz_parts_2[1].strip()
-                        #beat_dict["correct"] = int(quiz_parts_2)
 
                     # Common to all types
                     beat_dict["text"] = ""
@@ -271,7 +267,7 @@ class H2Hconverter():
             
             new_json_dict[course_key]["lessons"] = copy.deepcopy(course_lessons_list)
             
-            print(course_lessons_list)
+            #print(course_lessons_list)
             
         with open(self.path_json, 'r') as file:
             data_json = json.load(file)
@@ -296,7 +292,7 @@ class H2Hconverter():
         
     
 if __name__ == "__main__":
-    print('__name__ == "__main__" syntax working')
+    #print('__name__ == "__main__" syntax working')
     converter = H2Hconverter()
     converter.convert()
     
