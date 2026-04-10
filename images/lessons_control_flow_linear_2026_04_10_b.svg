@@ -1,0 +1,122 @@
+<svg width="600" height="350" viewBox="0 0 600 350">
+
+    <!--
+    ========================================================================
+        Definitions
+    ========================================================================
+    -->
+    <defs>
+
+        <!-- Template: Execution node -->
+        <ellipse 
+            id="exec-node"
+            cx="0" cy="0" 
+            rx="20" ry="20"
+            fill="#999999"
+            stroke="#555555"
+            strike-width="2"
+            />
+
+        <!-- Arrow head -->
+        <marker 
+            id="arrow-head-marker"
+            viewBox="0 0 10 10" 
+            refX="2" refY="5"
+            markerWidth="5" markerHeight="5"
+            orient="auto-start-reverse">
+            <!-- A simple triangle pointing right (at x=10) -->
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#555555" />
+        </marker>
+
+        <polygon
+            id="arrow-head-poly"
+            x="0" y="0"
+            stroke="#555555"
+            points="0 0, 10 0, 5 10"
+        />
+
+        <!-- Arrow body -->
+        <line 
+            id="arrow-body"
+            x1="0" y1="0" 
+            x2="0" y2="60" 
+            stroke="#555555"
+            stroke-width="5"
+            marker-end="url(#arrow-head-marker)"           
+            />     
+
+    </defs>
+
+    <!--
+    ========================================================================
+        Document Background
+    ========================================================================
+    -->
+	<rect class="bg" width="100%" height="100%"/>
+    
+    <!--
+    ========================================================================
+        Body
+    ========================================================================
+    -->
+
+    <!-- Linear, non-terminating flow -->
+    <!--
+           ( )     (0,0
+            |
+            v       
+           ( )      
+            |
+            v
+            
+    -->
+    <g transform="translate(300, 25)">
+        
+        <!-- Execution node and progress arrow 0 -->
+        <g transform="translate(0, 0)">
+            <!-- Progress arrow -->
+            <g>
+                <use href="#arrow-body" x="0" y="0"/>
+                <use href="#arrow-head" x="0" y="60"/>
+            </g>
+
+            <!-- Execution node -->
+            <use href="#exec-node" x="0" y="0"/>
+        </g>        
+        
+        <!-- Execution node and progress arrow 1-->
+        <g transform="translate(0, 100)">
+            <!-- Progress arrow -->
+            <g>
+                <use href="#arrow-body" x="0" y="0"/>
+                <use href="#arrow-head" x="0" y="60"/>
+            </g>
+
+            <!-- Execution node -->
+            <use href="#exec-node" x="0" y="0"/>
+        </g>    
+        
+        <!-- Execution node and progress arrow 2-->
+        <g transform="translate(0, 200)">
+            <!-- Progress arrow -->
+            <g>
+                <use href="#arrow-body" x="0" y="0"/>
+                <use href="#arrow-head" x="0" y="60"/>
+            </g>
+
+            <!-- Execution node -->
+            <use href="#exec-node" x="0" y="0"/>
+        </g>  
+
+        <!-- Execution node 3-->
+        <g transform="translate(0, 300)">
+
+            <!-- Execution node -->
+            <use href="#exec-node" x="0" y="0"/>
+        </g> 
+   
+    </g>
+
+    
+
+</svg>

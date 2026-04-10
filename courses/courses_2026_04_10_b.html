@@ -169,11 +169,11 @@
     cl {
         max-width: 600px;
         margin: 4px;
-        padding: 4px;
+        padding: 2px 2px 2px 2px;
         
         /* The "Dark Mode" Look */
-        background-color: #1f1f1f !important;
-        color: #ffffff !important;
+        background-color: #282c34 !important;
+        color: #abb2bf !important;
         border-radius: 6px;
         border: 1px solid #181a1f;
 
@@ -2477,6 +2477,18 @@ Below is a <b>dict</b> (short for 'dictionary').
 
 
 
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+
+
 <!--
 ==============================================================================
 
@@ -2665,6 +2677,22 @@ Some examples of conditions are shown below:
         f"type(S4): class bool <br>
     </div>   
 </div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
 
 
 <div class="beat-header">Non-conditions</div>
@@ -2877,253 +2905,138 @@ Meanwhile, in comparison...
     </div>   
 </div>
 
+
 <p>
-Why did the Detour print that time?
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
 </p>
 
 
 <!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">Condition processing structure: Head, tail</div>
-
-<p>
-The <cl>if</cl> keyword is actually part of a larger structure. Looking at the whole thing right away might be a bit much, so instead, let's build it up from what we just saw.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-guide'>
-    Showing <br>
-    &emsp;&emsp;&emsp;&emsp;HEAD <br>
-    </div>    
-
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # -------------- Head -------------------------- <br>
-            <b>if</b> condition_head:<br>
-            &emsp;&emsp;&emsp;&emsp;# This is the body logic of the head <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-    </div>
-</div>
-
-<p>
-Now we add a tail...
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-guide'>
-    Showing <br>
-    &emsp;&emsp;&emsp;&emsp;HEAD <br>
-    &emsp;&emsp;&emsp;&emsp;---- <br>
-    &emsp;&emsp;&emsp;&emsp;TAIL <br>
-    </div>    
-
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # -------------- Head -------------------------- <br>
-            <b>if</b> condition_head:<br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the head <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-            # -------------- Tail -------------------------- <br>
-            <b>else:</b><br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the tail <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-    </div>
-</div>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Condition processing structure: Body</div>
-
-
-<p>
-Between the head and tail in the condition processing structure can be any number of body segments.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-guide'>
-    Showing <br>
-    &emsp;&emsp;&emsp;&emsp;HEAD <br>
-    &emsp;&emsp;&emsp;&emsp;---- <br>
-    &emsp;&emsp;&emsp;&emsp;BODY_1 <br>
-    &emsp;&emsp;&emsp;&emsp;---- <br>
-    &emsp;&emsp;&emsp;&emsp;TAIL <br>
-    </div>    
-
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # -------------- Head -------------------------- <br>
-            <b>if</b> condition_head:<br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the head <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-            # -------------- Body1 -------------------------- <br>
-            <b>elif</b> condition_body_1:<br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the tail <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-            # -------------- Tail -------------------------- <br>
-            <b>else:</b><br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the tail <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-    </div>
-</div>
-
-<p>The most general form of the condition processing structure</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-guide'>
-    Showing <br>
-    &emsp;&emsp;&emsp;&emsp;HEAD <br>
-    &emsp;&emsp;&emsp;&emsp;---- <br>
-    &emsp;&emsp;&emsp;&emsp;BODY_1 <br>
-    &emsp;&emsp;&emsp;&emsp;---- <br>
-    &emsp;&emsp;&emsp;&emsp;... <br>
-    &emsp;&emsp;&emsp;&emsp;---- <br>
-    &emsp;&emsp;&emsp;&emsp;BODY_N <br>
-    &emsp;&emsp;&emsp;&emsp;---- <br>
-    &emsp;&emsp;&emsp;&emsp;TAIL <br>
-    </div>    
-
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # -------------- Head -------------------------- <br>
-            <b>if</b> condition_head:<br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the head <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-            # -------------- Body 1 -------------------------- <br>
-            <b>elif</b> condition_body_1:<br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the 1st body segment <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-            # -------------- Body ... -------------------------- <br>
-            # ... <br>
-            # ... <br>
-            # ... <br>
-            # -------------- Body N -------------------------- <br>
-            <b>elif</b> condition_body_N:<br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the Nth (and final) body segment <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-            # -------------- Tail -------------------------- <br>
-            <b>else:</b><br>
-            &emsp;&emsp;&emsp;&emsp;# This is the logic of the tail <br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b> <br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-    </div>
-</div>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Control Flow Diagrams</div>
+<div class="beat-header">Beat template</div>
 
 <div class="img-placeholder">default.png</div>
 
 <p>
-Core elements
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
 </p>
 
 <ol>
-    <li><b>Start</b>, <b>End.</b> Where the program/algorithm starts, and where it ends.</li>
-    <li><b>Input.</b>Here the user is asked to input something and it is assumed that whatever is accessible will be stored.</li>
-    <li><b>Decision.</b> This is the condition processing structure we just saw.</li>
-    <li><b>Assign.</b> The assignment of a value to a variable. In python this is denoted by <cl>=</cl>. In pseudocode, it could be denoted with (=) or with (<--).</li>
-    <li><b>While.</b> This is a type of loop. We haven't looked at this yet.</li>
-    <li><b>For.</b> Another type of loop. We also haven't look at this yet.</li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
     <li><b></b></li>
     <li><b></b></li>
 </ol>
 
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+
 <!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">Example: Control Flow 1</div>
+<div class="beat-header">Beat template</div>
 
 <div class="img-placeholder">default.png</div>
 
@@ -3237,7 +3150,7 @@ Core elements
 
 <!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">Example: Control Flow 2</div>
+<div class="beat-header">Beat template</div>
 
 <div class="img-placeholder">default.png</div>
 
@@ -3348,6 +3261,808 @@ Core elements
         <br>
     </div>
 </div>
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -3476,464 +4191,6 @@ Core elements
 -->
 
 <div class="unit-header">Python 1: Loops</div>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Beat template</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-In this unit, we will:
-</p>
- 
-<ol>
-    <li>Motivate why loops are necessary in programming.</li>
-    <li>Introduce the <b>while</b> loop: condition-controlled repetition.</li>
-    <li>Introduce the <b>for</b> loop: collection-controlled repetition.</li>
-    <li>Look at loop control keywords: <b>break</b>, <b>continue</b>, and <b>pass</b>.</li>
-    <li>Examine nested loops and how to reason about them.</li>
-    <li>Connect loops back to the pseudocode and algorithms we saw earlier.</li>
-</ol>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Why loops?</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Recall the InsertionSort algorithm from our algorithms unit. Carrying it out by hand was tedious. The tedium came from repetition: doing the same kind of step again and again, with only the data changing. This is exactly the kind of task computers are extraordinarily good at, and it is exactly what loops are designed to handle.
-</p>
- 
-<p>
-Suppose you wanted to print the numbers 1 through 5. You could write:
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>5<br>
-        </div>
-        <div class='code-lines'>
-            print(1)<br>
-            print(2)<br>
-            print(3)<br>
-            print(4)<br>
-            print(5)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        1<br>2<br>3<br>4<br>5<br>
-    </div>
-</div>
- 
-<p>
-That works. Now suppose you needed to print the numbers 1 through 10,000. Writing 10,000 print statements is not a reasonable approach. A loop lets you say, once and cleanly: <i>repeat this block of instructions</i>. The rest is handled for you.
-</p>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">The while loop</div>
-
-<p>
-A <b>while</b> loop repeats a block of code for as long as a given condition remains <cl>True</cl>. The moment the condition becomes <cl>False</cl>, the loop stops and execution continues with whatever comes after it.
-</p>
- 
-<p>
-The structure looks like this:
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>
-        </div>
-        <div class='code-lines'>
-            <b>while</b> condition:<br>
-            &emsp;&emsp;&emsp;&emsp;# body: code that runs on each iteration<br>
-            &emsp;&emsp;&emsp;&emsp;<b>pass</b><br>
-        </div>
-    </div>
-</div>
- 
-<p>
-A concrete example: printing the numbers 1 through 5 using a while loop.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>
-        </div>
-        <div class='code-lines'>
-            i = 1<br>
-            <b>while</b> i &lt;= 5:<br>
-            &emsp;&emsp;&emsp;&emsp;print(i)<br>
-            &emsp;&emsp;&emsp;&emsp;i += 1<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        1<br>2<br>3<br>4<br>5<br>
-    </div>
-</div>
- 
-<p>
-Notice the variable <cl>i</cl>. It is called a <i>loop counter</i> or <i>loop variable</i>. Each time through the loop, the body executes and then <cl>i</cl> is incremented. When <cl>i</cl> reaches 6, the condition <cl>i &lt;= 5</cl> becomes <cl>False</cl>, and the loop ends.
-</p>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Infinite loops</div>
- 
-<p>
-A while loop whose condition never becomes <cl>False</cl> runs forever. This is called an <i>infinite loop</i>, and it is one of the most common beginner mistakes.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>
-        </div>
-        <div class='code-lines'>
-            i = 1<br>
-            <b>while</b> i &lt;= 5:<br>
-            &emsp;&emsp;&emsp;&emsp;print(i) &nbsp;&nbsp;&nbsp;# forgot to increment i!<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        1<br>1<br>1<br>1<br>... (runs forever)<br>
-    </div>
-</div>
- 
-<p>
-Since <cl>i</cl> never changes, the condition is always <cl>True</cl>, and the loop never exits. If you accidentally run an infinite loop, you can usually stop it by pressing <b>Ctrl+C</b> in the terminal, or using the stop button in your IDE or notebook.
-</p>
- 
-<p>
-The lesson: before writing a while loop, ask yourself — <i>what will eventually make this condition False?</i> If you can't answer that, you probably have an infinite loop on your hands.
-</p>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">The for loop</div>
- 
-<p>
-Where a while loop keeps going until a condition fails, a <b>for</b> loop steps through a collection one element at a time, running its body once per element. When the collection is exhausted, the loop ends automatically.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>
-        </div>
-        <div class='code-lines'>
-            <b>for</b> element <b>in</b> collection:<br>
-            &emsp;&emsp;&emsp;&emsp;# body: runs once per element<br>
-        </div>
-    </div>
-</div>
- 
-<p>
-Any iterable collection works: a <cl>list</cl>, a <cl>tuple</cl>, a <cl>str</cl>, a <cl>set</cl>, a <cl>dict</cl>, and others. Some examples:
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>
-        </div>
-        <div class='code-lines'>
-            # Iterating over a list<br>
-            fruits = ["apple", "banana", "cherry"]<br>
-            <b>for</b> fruit <b>in</b> fruits:<br>
-            &emsp;&emsp;&emsp;&emsp;print(fruit)<br>
-            <br>
-            # Iterating over a string (character by character)<br>
-            word = "hello"<br>
-            <b>for</b> char <b>in</b> word:<br>
-            &emsp;&emsp;&emsp;&emsp;print(char)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        apple<br>banana<br>cherry<br>h<br>e<br>l<br>l<br>o<br>
-    </div>
-</div>
-
-<!-- -------------------------------------------------------------------- -->
- 
-<div class="beat-header">range()</div>
- 
-<p>
-Very often, you want to loop a specific number of times rather than over an existing collection. Python's built-in <cl>range()</cl> function generates a sequence of integers for exactly this purpose.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>
-        </div>
-        <div class='code-lines'>
-            # range(stop): 0 up to (but not including) stop<br>
-            <b>for</b> i <b>in</b> range(5):<br>
-            &emsp;&emsp;&emsp;&emsp;print(i)<br>
-            <br>
-            # range(start, stop): start up to (but not including) stop<br>
-            <b>for</b> i <b>in</b> range(2, 6):<br>
-            &emsp;&emsp;&emsp;&emsp;print(i)<br>
-            <br>
-            # range(start, stop, step): every step-th value<br>
-            <b>for</b> i <b>in</b> range(0, 10, 2):<br>
-            &emsp;&emsp;&emsp;&emsp;print(i)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        0<br>1<br>2<br>3<br>4<br>
-        2<br>3<br>4<br>5<br>
-        0<br>2<br>4<br>6<br>8<br>
-    </div>
-</div>
- 
-<p>
-One subtlety worth memorizing: <cl>range(n)</cl> produces <cl>n</cl> values starting from <cl>0</cl>, ending at <cl>n-1</cl>. The stop value is always <i>excluded</i>.
-</p>
-
-<!-- -------------------------------------------------------------------- -->
- 
-<div class="beat-header">Loop control: break and continue</div>
- 
-<p>
-Sometimes you need more fine-grained control over when a loop stops or skips. Two keywords handle this: <b>break</b> and <b>continue</b>.
-</p>
- 
-<p>
-<b>break</b> exits the loop immediately, regardless of whether the condition is still true or there are remaining elements.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>5<br>
-        </div>
-        <div class='code-lines'>
-            # Stop as soon as we find the number 3<br>
-            <b>for</b> i <b>in</b> range(10):<br>
-            &emsp;&emsp;&emsp;&emsp;<b>if</b> i == 3:<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>break</b><br>
-            &emsp;&emsp;&emsp;&emsp;print(i)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        0<br>1<br>2<br>
-    </div>
-</div>
- 
-<p>
-<b>continue</b> skips the rest of the current iteration and jumps immediately to the next one.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>5<br>
-        </div>
-        <div class='code-lines'>
-            # Skip odd numbers<br>
-            <b>for</b> i <b>in</b> range(6):<br>
-            &emsp;&emsp;&emsp;&emsp;<b>if</b> i % 2 != 0:<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>continue</b><br>
-            &emsp;&emsp;&emsp;&emsp;print(i)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        0<br>2<br>4<br>
-    </div>
-</div>
-
-
-
-<!-- -------------------------------------------------------------------- -->
- 
-<div class="beat-header">Nested loops</div>
- 
-<p>
-A loop can contain another loop inside its body. This is called a <i>nested loop</i>. The inner loop completes all of its iterations for every single iteration of the outer loop.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>
-        </div>
-        <div class='code-lines'>
-            <b>for</b> row <b>in</b> range(1, 4):<br>
-            &emsp;&emsp;&emsp;&emsp;<b>for</b> col <b>in</b> range(1, 4):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;print(f"({row},{col})", end=" ")<br>
-            &emsp;&emsp;&emsp;&emsp;print()&nbsp;&nbsp;# newline after each row<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        (1,1) (1,2) (1,3)<br>
-        (2,1) (2,2) (2,3)<br>
-        (3,1) (3,2) (3,3)<br>
-    </div>
-</div>
- 
-<p>
-A useful mental model: think of the outer loop as the hands of a clock's hour hand, and the inner loop as the minute hand. The minute hand completes a full cycle every time the hour hand moves one step.
-</p>
- 
-<p>
-Be careful with nesting: if the outer loop runs <cl>m</cl> times and the inner loop runs <cl>n</cl> times, the body of the inner loop executes <cl>m &times; n</cl> times total. Nesting can get expensive quickly.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
- 
-<div class="beat-header">Accumulator pattern</div>
- 
-<p>
-One of the most common and useful patterns when working with loops is the <i>accumulator pattern</i>: initialize a variable before the loop, then update it on each iteration. By the end of the loop, it holds the accumulated result.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>
-        </div>
-        <div class='code-lines'>
-            # Sum all numbers from 1 to 100<br>
-            total = 0<br>
-            <b>for</b> i <b>in</b> range(1, 101):<br>
-            &emsp;&emsp;&emsp;&emsp;total += i<br>
-            print("Sum:", total)<br>
-            <br>
-            # Collect all even numbers from a list<br>
-            numbers = [3, 7, 2, 8, 5, 4, 11, 6]<br>
-            evens = []<br>
-            <b>for</b> n <b>in</b> numbers:<br>
-            &emsp;&emsp;&emsp;&emsp;<b>if</b> n % 2 == 0:<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;evens.append(n)<br>
-            print("Evens:", evens)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        Sum: 5050<br>
-        Evens: [2, 8, 4, 6]<br>
-    </div>
-</div>
- 
-<p>
-The accumulator pattern appears constantly in real programs: summing, counting, building lists, concatenating strings. It is worth recognizing it by shape.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
- 
-<div class="beat-header">while vs. for: when to use which</div>
- 
-<p>
-Both <cl>while</cl> and <cl>for</cl> loops can, in principle, do anything the other can do. But each has a natural use case:
-</p>
- 
-<p>
-Use a <b>for</b> loop when you know in advance what you are iterating over — a collection, or a fixed number of steps via <cl>range()</cl>. The number of iterations is determined by the size of the collection.
-</p>
- 
-<p>
-Use a <b>while</b> loop when the number of iterations is not known in advance and depends on something that changes during execution — user input, a search that might terminate early, a simulation that runs until some condition is reached.
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>
-        </div>
-        <div class='code-lines'>
-            # while: keep asking until valid input is given<br>
-            user_input = ""<br>
-            <b>while</b> user_input <b>not in</b> ["yes", "no"]:<br>
-            &emsp;&emsp;&emsp;&emsp;user_input = input("Please enter 'yes' or 'no': ")<br>
-            print(f"You entered: {user_input}")<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        Please enter 'yes' or 'no': maybe<br>
-        Please enter 'yes' or 'no': yes<br>
-        You entered: yes<br>
-    </div>
-</div>
-
-
-
-<!-- -------------------------------------------------------------------- -->
- 
-<div class="beat-header">Loops and algorithms: putting it together</div>
- 
-<p>
-Now that we have loops, we can actually implement the algorithms we studied earlier. Here is the FIND-MAXIMUM pseudocode from the very first unit, translated into Python:
-</p>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>
-        </div>
-        <div class='code-lines'>
-            A = [3, 17, 5, 42, 8, 1, 99, 23]<br>
-            <br>
-            maximum = A[0]<br>
-            <b>for</b> element <b>in</b> A:<br>
-            &emsp;&emsp;&emsp;&emsp;<b>if</b> element &gt; maximum:<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;maximum = element<br>
-            <br>
-            print("Maximum:", maximum)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        Maximum: 99<br>
-    </div>
-</div>
- 
-<p>
-Compare this carefully to the pseudocode from the algorithms unit. The structure is nearly identical. The pseudocode said what to do; Python says the same thing in a form the machine can execute. This is the translation chain in action.
-</p>
- 
- 
-<!-- -------------------------------------------------------------------- -->
- 
-<div class="beat-header">Quiz</div>
- 
-<div class="quiz-placeholder">"question": "How many times will the word 'hello' be printed by the code below?",,"choices": ["3", "4", "5", "It will run forever"],,"correct": 1</div>
- 
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>2<br>3<br>4<br>
-        </div>
-        <div class='code-lines'>
-            i = 0<br>
-            <b>while</b> i &lt; 4:<br>
-            &emsp;&emsp;&emsp;&emsp;print("hello")<br>
-            &emsp;&emsp;&emsp;&emsp;i += 1<br>
-        </div>
-    </div>
-</div>
-
 
 
 <!--

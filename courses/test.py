@@ -1,7 +1,6 @@
-a = 3
-b = 5
-c = 1 + 8
-d = a + c
-e = d + 0.5
-print(d)
-print(e)
+if 0 > 1:
+    print("0>1")
+elif 1 > 0:
+    print("1 > 0")
+else:
+    print("no LoEM?")
