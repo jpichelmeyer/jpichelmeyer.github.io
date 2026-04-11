@@ -75,7 +75,7 @@
     .code-guide {
         background-color: #999999;
         color: #eeeeee;
-        font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-family: sans-serif;
         font-size: 12px;
         font-weight: bold;
         padding: 8px 15px;
@@ -275,6 +275,24 @@
 -->
 
 <div class="unit-header">Unit</div>
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat</div>
+
+<p>
+In this unit, we will:
+</p>
+
+<ol>
+    <li>Discuss what an algorithm is.</li>
+    <li>Look at two ways to represent them:</li>
+    <ol>
+        <li>Pseudocode</li>
+        <li>Flow diagrams</li>
+    </ol>
+    <li>Look at an important historical development in computer science regarding algorithms: The Turing Machine</li>
+</ol>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -4082,9 +4100,6 @@ Honestly, functions in programming are a huge deal. Here are some of the major r
     <li><b>Readability</b> A well-named function, like <i>calculate_total()</i>, acts as its own documentation, making the code's purpose clearer to other developers.</li>
 </ol>
 
-<p>
-A lot of that might not be super resonant with you at this point, which is understandable. Nothing instills within you a sense of appreciation for things like code reusability or maintainability as suffering through days and days of soul crushing repetition and backtracking, only to discover that a concept like functions that make all the pain go away :)
-</p>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -4178,12 +4193,13 @@ Below is an example of a function with name 'greet,' which takes one parameter c
     </div>
 </div>
 
+
 <!-- -------------------------------------------------------------------- -->
 
 <div class="beat-header">Calling a function</div>
 
 <p>
-Calling a function involves simply writing the function name and passing values to the function for each parameter it has. In the function below, <cl>greet</cl>, it requires one <b>argument</b>, which is just a value given to the function to satisfy the respective <b>parameter</b>. 
+Calling a function involves simply writing the function name and passing values to the function for each parameter it has.
 </p>
 
 <div class='code-container'>
@@ -4191,9 +4207,82 @@ Calling a function involves simply writing the function name and passing values 
     
     <!-- Area: guide -->
     <div class='code-guide'>
-        1-4: Define function<br>
-        7&emsp;&emsp;: CALL the function, passing arugment 'cold passage of time' <br>
+        This is how a function is DEFINED in Python.<br>
+    
     </div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <b>def</b> <b>function_name</b>(param_1, param_2, ..., param_N):<br>
+            &emsp;&emsp;&emsp;&emsp;# Function body start<br>
+            &emsp;&emsp;&emsp;&emsp;# ...<br>
+            &emsp;&emsp;&emsp;&emsp;# Function body end<br>
+            &emsp;&emsp;&emsp;&emsp;<b>return</b> ret <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+    </div>
+</div>
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Function names</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
     
     <!-- Area: main code -->
     <div class='code-body'>
@@ -4207,24 +4296,60 @@ Calling a function involves simply writing the function name and passing values 
             5<br>
             6<br>
             7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
         </div>
 
         <!-- Main col -->
         <div class='code-lines'>
-            # Define the function <br>
-            def</b> <b>greet</b>(name:str):<br>
-            &emsp;&emsp;&emsp;&emsp;print(f"Hello, {name}!")<br>
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> len(name)<br>
             <br>
-            # CALL the function<br>
-            greet(name='cold passage of time') <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
         </div>
 
     </div>
 
     <!-- Area: output -->
     <div class='code-output'>
-    Hello, cold passage of time!<br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
     </div>
 </div>
 
@@ -4236,18 +4361,43 @@ Calling a function involves simply writing the function name and passing values 
 <div class="img-placeholder">default.png</div>
 
 <p>
-Naturally, values we pass to functions to fill their parameters slots can come from anything that is holding a value, like a variable.
+
 </p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
 
 <div class='code-container'>
     <div class='code-header'>Python</div>
-    
-    <!-- Area: guide -->
-    <div class='code-guide'>
-        1-4. Define function<br>
-        6-7: Ready variable to pass as argument<br>
-        9&nbsp;&nbsp;: CALL function, passing value stored in variable as an argument<br>
-    </div>
     
     <!-- Area: main code -->
     <div class='code-body'>
@@ -4264,618 +4414,637 @@ Naturally, values we pass to functions to fill their parameters slots can come f
             8<br>
             9<br>
             10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
         </div>
 
         <!-- Main col -->
         <div class='code-lines'>
-            # Define the function <br>
-            def</b> <b>greet</b>(name:str):<br>
-            &emsp;&emsp;&emsp;&emsp;print(f"Hello {name}!")<br>
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> len(name)<br>
             <br>
-            # Ready parameters <br>
-            my_name = 'Existential_Crisis_472' <br>
             <br>
-            # CALL the function, passing a value via a variable<br>
-            greet(name=my_name) <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
         </div>
 
     </div>
 
     <!-- Area: output -->
     <div class='code-output'>
-    Hello, Existential_Crisis_472!<br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
     </div>
 </div>
 
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Function body</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
 
 
 <!-- -------------------------------------------------------------------- -->
 
 <div class="beat-header">Function return</div>
 
-<p>
-Note that previously, we never saw anything with the return <cl>len(name)</cl>. Where did it go? Well, the function provided it as output, we just didn't collect it. Depending on the situation, that may be fine. You might not need it for anything. But usually one wants to provide a useful return, and oftentimes it will be vitally important. Below we show an example of storing the return in a variable as part of the function call.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: guide -->
-    <div class='code-guide'>
-        1-4. Define function<br>
-        6-7: Ready variable to pass as argument<br>
-        9&nbsp;&nbsp;: CALL function, store its return/output in variable 'ret'<br>
-    </div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # Define the function <br>
-            def</b> <b>greet</b>(name:str):<br>
-            &emsp;&emsp;&emsp;&emsp;print(f"Hello {name}!")<br>
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> len(name)<br>
-            <br>
-            # Ready parameters <br>
-            my_name = 'Existential_Crisis_472' <br>
-            <br>
-            # CALL the function and collect its return<br>
-            ret = greet(name=my_name) <br>
-            <br>
-            # Show what the return / output is<br>
-            print('The output/return is : ', ret) <br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-    Hello, Existential_Crisis_472!<br>
-    The output/return is : 22 <br>
-    </div>
-</div>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Default parameter values</div>
-
-<p>
-Consider the Python function below.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # Define the function 'accumulate' <br>
-            <b>def</b> <b>accumulate</b>(start:int, end:int):<br>
-            &emsp;&emsp;&emsp;&emsp;# Define a variable we will use to accumulate<br>
-            &emsp;&emsp;&emsp;&emsp;ret = 0<br>
-            &emsp;&emsp;&emsp;&emsp;<br>
-            &emsp;&emsp;&emsp;&emsp;# Accumulate values onto ret<br>
-            &emsp;&emsp;&emsp;&emsp;<b>for</b> i in <b>range</b>(start, end)<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; ret += i<br>  
-            &emsp;&emsp;&emsp;&emsp;<br>
-            &emsp;&emsp;&emsp;&emsp;# Return the value of ret as output<br>
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> ret <br>
-            <br>
-            # Call the function 'accumulate', store the return value in variable 'ret'<br>
-            ret = <b>accumulate</b>(start=1, end=10)<br>
-            <br>
-            # Print the value of the return <br>
-            <b>print</b>(ret)<br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-        45<br>
-    </div>
-</div>
-
-<p>
-Suppose you found yourself using the start and end of 1 and 10 a lot. You can always set default parameter values. If a parameter has a default value and no argument is passed to it, the function will use the default value. See an example below.
-</p>
-
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # Define the function 'accumulate' <br>
-            <b>def</b> <b>accumulate</b>(start:int=1, end:int=10):<br>
-            &emsp;&emsp;&emsp;&emsp;ret = 0<br>
-            &emsp;&emsp;&emsp;&emsp;<b>for</b> i in <b>range</b>(start, end)<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; ret += i<br>  
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> ret <br>
-            <br>
-            # Call function, store return val, print val<br>
-            ret = <b>accumulate</b>() # <-- Notice no arguments needed to be passed<br>
-            <b>print</b>(ret)<br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-        45<br>
-    </div>
-</div>
-
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Scope</div>
-
 <div class="img-placeholder">default.png</div>
 
 <p>
-Not all variables are visible everywhere in a program. <b>Scope</b> describes which parts of a program can see and use a given variable.
+
 </p>
 
 <p>
-A variable created inside a function body is called a <b>local variable</b>. It only exists while that function is running, and it cannot be seen from outside the function.
+
 </p>
 
 <p>
-A variable created at the top level of a script (outside any function) is called a <b>global variable</b>. It can be read from inside functions, though modifying it requires the <code>global</code> keyword (something to avoid in practice).
+
 </p>
-
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            message = 'I am global'&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# global variable <br>
-            <br>
-            <b>def</b> <b>show_scope</b>(): <br>
-            &emsp;&emsp;&emsp;&emsp;inner = 'I am local' &emsp;&emsp;&emsp;&emsp;# local variable<br>
-           &emsp;&emsp;&emsp;&emsp;print(message)&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# can read global<br>
-            &emsp;&emsp;&emsp;&emsp;print(inner)&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;# can read local <br>
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> "Yay!"<br>
-            <br>
-            <b>show_scope</b>()<br>
-            <br>
-            <b>try</b>:<br>
-            &emsp;&emsp;&emsp;&emsp;<b>print</b>(inner)<br>
-            <b>except</b> <b>Exception</b> as e:<br>
-            &emsp;&emsp;&emsp;&emsp;<b>print</b>('An exception occured: ', e)<br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-        I am global<br>
-        I am local<br>
-        An exception occured:  name 'inner' is not defined <br>
-    </div>
-</div>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Multiple return values</div>
 
 <p>
-Python functions can return more than one value at a time. Technically, what gets returned is a single <i>tuple</i>. This is ordered, immutable collection type we saw earlier, but Python allows you to unpack it cleanly on the receiving end.
+
 </p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # Define a function with multiple returns<br>
-            <b>def</b> <b>min_and_max</b>(numbers):<br>
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> min(numbers), max(numbers)<br>
-            <br>
-            # Define a collection of numbers <br>
-            my_numbers = [8,9, -3, 5, 7, 4]<br>
-            <br>
-            # Call function, passing collection, storing return<br>
-            ret = <b>min_and_max</b>(numbers=my_numbers):<br>
-            <br>
-            # Investigate how many items were returned <br>
-            <b>print</b>(f"the number of elements returned by min_and_max is: {len(ret)}")<br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-        the number of elements returned by min_and_max is: 2<br>
-    </div>
-</div>
-
-<p>
-You can also <i>unpack</i> a tuple (such as a function with multiple return values) into separate variables, as shown below: 
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # Define a function with multiple returns<br>
-            <b>def</b> <b>min_and_max</b>(numbers):<br>
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> min(numbers), max(numbers)<br>
-            <br>
-            # Define a collection of numbers <br>
-            my_numbers = [8,9, -3, 5, 7, 4]<br>
-            <br>
-            # Call function, passing collection, storing return<br>
-            min, max = <b>min_and_max</b>(numbers=my_numbers):<br>
-            <br>
-            # Investigate which items were returned <br>
-            <b>print</b>(f"the minimum is: {min}")<br>
-            <b>print</b>(f"the maximum is: {max}")<br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-        the minimum is: -3<br>
-        the maximum is: 9<br>
-    </div>
-</div>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Docstrings</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-A <i>docstring</i> is a string literal placed at the very top of a function body, used to document what the function does. Python treats it as the function's official description and makes it accessible via the built-in <cl><b>help</b>()</cl> function.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            <b>def</b> <b>celsius_to_fahrenheit</b>(temp_c): <br>
-            &emsp;&emsp;&emsp;&emsp;''' # ------- Start of the docstring<br>
-            &emsp;&emsp;&emsp;&emsp;description <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Convert a temperature from Celsius to Fahrenheit. <br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;params <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;temp_c&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;float &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;temperature in degrees Celsius. <br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;return <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;ret &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;float:&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;temperature in degrees Fahrenheit. <br>
-            &emsp;&emsp;&emsp;&emsp;''' # ------- End of the docstring <br>                              
-                <br>                
-            &emsp;&emsp;&emsp;&emsp;<b>return</b> (temp_c * 9/5) + 32  <br>
-            <br>
-            <b>help</b>(celsius_to_fahrenheit)<br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-        Help on celsius_to_fahrenheit in module __main__:<br>
-        <br>
-        &emsp;&emsp;&emsp;&emsp;description <br>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Convert a temperature from Celsius to Fahrenheit. <br>
-        <br>
-        &emsp;&emsp;&emsp;&emsp;params <br>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;temp_c&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;float &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;temperature in degrees Celsius. <br>
-        <br>
-        &emsp;&emsp;&emsp;&emsp;return <br>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;ret &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;float&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;temperature in degrees Fahrenheit. <br>
-    </div>
-</div>
-
-<p>
-Writing docstrings is a habit worth forming early. Code is read far more often than it is written, and a clear docstring tells the next reader (which is often future you) what a function is supposed to do, without them having to reverse-engineer the implementation.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Functions calling functions</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Functions can call other functions. In fact, building complex behavior out of smaller, well-named functions calling each other is one of the central skills in programming. It connects directly back to the idea we saw in the algorithms unit: algorithms can be built from simpler algorithms, and those from simpler ones still.
-</p>
-
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: guide -->
-    <div class='code-guide'>
-        A small pipeline: raw score --> letter grade --> feedback message<br>
-    </div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-            18<br>
-            19<br>
-            20<br>
-            21<br>
-            22<br>
-            23<br>
-            24<br>
-            25<br>
-            26<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            # Define function that turns percentage into letter grade <br>
-            <b>def</b> <b>letter_grade</b>(score:int=0): <br>
-            &emsp;&emsp;&emsp;&emsp;<b>if</b> score >= 90: <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>return</b> 'A' <br>
-            &emsp;&emsp;&emsp;&emsp;<b>elif</b> score >= 80: <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>return</b> 'B' <br>
-            &emsp;&emsp;&emsp;&emsp;<b>elif</b> score >= 70: <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>return</b> 'C' <br>
-            &emsp;&emsp;&emsp;&emsp;<b>elif</b> score >= 60: <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>return</b> 'D' <br>
-            &emsp;&emsp;&emsp;&emsp;<b>else</b>: <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>return</b> 'F' <br>
-            <br>
-            # Define function that turns score into natural language response <br>
-            def feedback(score): <br>
-            &emsp;&emsp;&emsp;&emsp;grade = letter_grade(score)   # calls another function  <br>
-            &emsp;&emsp;&emsp;&emsp;if grade == 'A': <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return f'{score}/100 ({grade}) : Excellent work!' <br>
-            &emsp;&emsp;&emsp;&emsp;elif grade in ['B', 'C']: <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return f'{score}/100 ({grade}) : Solid effort, keep going.' <br>
-            &emsp;&emsp;&emsp;&emsp;else: <br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return f'{score}/100 ({grade}) : Lets talk after class.' <br>
-            <br>
-            print(feedback(94)) <br>
-            print(feedback(77)) <br>
-            print(feedback(52)) <br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-        94/100 (A) : Excellent work!<br>
-        77/100 (C) : Solid effort, keep going<br>
-        52/100 (F) : Lets talk after class<br>
-    </div>
-</div>
-
-
-
-<p>
-Notice that <cl>feedback()</cl> does not need to know how <cl>letter_grade()</cl> works internally. It only needs to know what it takes in and what it gives back. This separation (caring about what a function does, not how) is fundamental to writing programs that are manageable as they grow.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Quiz</div>
-
-<div class="quiz-placeholder">"question": "What does the function below return when called as add(3, 4)?",,"choices": ["None", "7", "34", "SyntaxError"],,"correct": 0</div>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    
-    <!-- Area: main code -->
-    <div class='code-body'>
-
-        <!-- Line numbers -->
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-        </div>
-
-        <!-- Main col -->
-        <div class='code-lines'>
-            def add(a, b):<br>
-            &emsp;&emsp;&emsp;&emsp;total = a + b <br>
-            &emsp;&emsp;&emsp;&emsp;print(total)<br>
-        </div>
-
-    </div>
-
-    <!-- Area: output -->
-    <div class='code-output'>
-    </div>
-</div>
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Conclusion</div>
-
-<p>In this unit, we covered functions:</p>
 
 <ol>
-    <li><b>Why they exist.</b> Reusability, DRY, and readable program structure.</li>
-    <li><b>Defining and calling.</b> The <code>def</code> keyword, function bodies, and calling by name.</li>
-    <li><b>Parameters and arguments.</b> Positional and keyword arguments.</li>
-    <li><b>Return values.</b> The <code>return</code> keyword, and the difference between printing and returning.</li>
-    <li><b>Default parameter values.</b> Optional arguments with sensible fallbacks.</li>
-    <li><b>Scope.</b> Local vs. global variables, and why isolation is useful.</li>
-    <li><b>Multiple return values.</b> Returning tuples and unpacking them.</li>
-    <li><b>Docstrings.</b> Documenting functions for humans (including your future self).</li>
-    <li><b>Functions calling functions.</b> Building complexity from simplicity.</li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
 </ol>
 
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
 <p>
-In the next unit, we will begin to look at how functions, combined with the data structures and control flow we have already seen, let us tackle meaningfully complex problems. We'll also look at how to reason about the efficiency of the solutions we write.
+
 </p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<p>
+
+</p>
+
+<ol>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ol>
+
+
+<ul>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+    <li><b></b></li>
+</ul>
+
+
+<div class='code-container'>
+    <div class='code-header'>Python</div>
+    
+    <!-- Area: main code -->
+    <div class='code-body'>
+
+        <!-- Line numbers -->
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+
+        <!-- Main col -->
+        <div class='code-lines'>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+    </div>
+
+    <!-- Area: output -->
+    <div class='code-output'>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
 
 
 
@@ -4890,886 +5059,7 @@ In the next unit, we will begin to look at how functions, combined with the data
 
 <div class="unit-header">Python 2: Classes</div>
 
-<!-- -------------------------------------------------------------------- -->
 
-<div class="beat-header">Overview</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-In this unit, we will:
-</p>
-
-<ol>
-    <li>Motivate why classes exist and what problem they solve.</li>
-    <li>Introduce the core vocabulary: <b>class</b>, <b>object</b>, <b>instance</b>, <b>attribute</b>, and <b>method</b>.</li>
-    <li>Write our first class from scratch, including <b>__init__</b> and instance methods.</li>
-    <li>Understand <b>self</b> and why it appears everywhere.</li>
-    <li>Look at special (dunder) methods that let our objects behave like built-in Python types.</li>
-    <li>Introduce <b>inheritance</b>: building new classes on top of existing ones.</li>
-    <li>Connect everything back to the types we have already been using.</li>
-</ol>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">The problem classes solve</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Suppose you are writing a program to manage a library. You need to keep track of books. Each book has a title, an author, a year of publication, and a count of how many times it has been checked out. You might start by doing something like this:
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-        </div>
-        <div class='code-lines'>
-            # Book 1<br>
-            title_1 = "Dune"<br>
-            author_1 = "Frank Herbert"<br>
-            year_1 = 1965<br>
-            checkouts_1 = 0<br>
-            <br>
-            # Book 2<br>
-            title_2 = "1984"<br>
-            author_2 = "George Orwell"<br>
-            year_2 = 1949<br>
-            checkouts_2 = 0<br>
-        </div>
-    </div>
-</div>
-
-<p>
-This works for two books. Now imagine you have ten thousand books. Or that you need to pass a book's information to a function. Or sort a collection of books by year. Managing all of these loose variables quickly becomes unworkable. What you really want is a way to bundle related data together into a single, coherent thing, and to attach the operations that act on that data right alongside it. That is exactly what a <b>class</b> lets you do.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Core vocabulary</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Before writing any code, let's establish the vocabulary. These terms will appear constantly and are worth getting right from the start.
-</p>
-
-<ul>
-    <li><b>Class.</b> A blueprint or template that describes a category of things. It defines what data those things hold and what operations can be performed on them. A class is not a thing itself — it is the description of a kind of thing.</li>
-    <li><b>Object.</b> A specific thing created from a class. If <cl>Book</cl> is the class (the blueprint), then a specific book like <i>Dune</i> is an object (a thing built from that blueprint).</li>
-    <li><b>Instance.</b> Another word for object. 'Creating an instance of a class' means building one specific object using the class as a template. The terms object and instance are used interchangeably.</li>
-    <li><b>Attribute.</b> A piece of data stored inside an object. For a book, attributes might be its title, author, and year. Each instance has its own copy of each attribute.</li>
-    <li><b>Method.</b> A function that belongs to a class and operates on the data of an instance. A book might have a method called <cl>checkout()</cl> that increments its checkout counter.</li>
-</ul>
-
-<p>
-One useful analogy: a class is like a cookie cutter, and objects are the cookies. The cutter defines the shape; the cookies are actual, individual things you can hold, eat, or stack. Each cookie is its own object, but they all share the same shape.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">A familiar example: you already know classes</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Here is something worth pausing on: every Python type you have already used is a class. <cl>int</cl>, <cl>str</cl>, <cl>list</cl>, <cl>dict</cl> — these are all classes. Every time you have written something like <cl>my_list = [1, 2, 3]</cl>, you have been creating an <i>instance</i> of the <cl>list</cl> class.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-        </div>
-        <div class='code-lines'>
-            my_list = [1, 2, 3]<br>
-            my_string = "hello"<br>
-            my_dict = {"a": 1}<br>
-            <br>
-            print(type(my_list))    # class list<br>
-            print(type(my_string))  # class str<br>
-            print(type(my_dict))    # class dict<br>
-            <br>
-        </div>
-    </div>
-    <div class='code-output'>
-        class list<br>
-        class str<br>
-        class dict<br>
-    </div>
-</div>
-
-<p>
-When you called <cl>my_list.append(4)</cl>, you were calling a <i>method</i> on an instance of the <cl>list</cl> class. When you asked for <cl>len(my_string)</cl>, Python was reaching into the <cl>str</cl> class to find out how to compute that. Classes are not some advanced, separate topic that appears late in the course — they have been the underlying structure of everything from the beginning.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Defining a class</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-The keyword to define a class in Python is <b>class</b>, followed by the class name (which, per Python convention, is written in <cl>PascalCase</cl>), a colon, and then an indented body.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;pass<br>
-            <br>
-            # Create an instance of the Book class<br>
-            my_book = Book()<br>
-            print(type(my_book))<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        class __main__.Book<br>
-    </div>
-</div>
-
-<p>
-This is a valid (if empty) class. <cl>Book()</cl> on line 5 is the call that actually creates an instance — notice the parentheses, exactly like calling a function. The <cl>pass</cl> keyword is a placeholder that tells Python 'there is nothing here yet, and that is intentional.' Once we add attributes and methods, <cl>pass</cl> will be removed.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">__init__: the constructor</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-An empty class is not very useful. We want our <cl>Book</cl> objects to actually hold data. The special method <b>__init__</b> is where that happens. It is called automatically the moment a new instance is created. Its job is to set up the initial state of the object — to assign starting values to all of its attributes.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.title = title<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.author = author<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.year = year<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.checkouts = 0<br>
-            <br>
-            dune = Book("Dune", "Frank Herbert", 1965)<br>
-            <br>
-            print(dune.title)<br>
-            print(dune.year)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        Dune<br>
-        1965<br>
-    </div>
-</div>
-
-<p>
-Notice a few things. First, <cl>__init__</cl> takes parameters just like any other function. When we write <cl>Book("Dune", "Frank Herbert", 1965)</cl>, those three values are passed into <cl>__init__</cl> as <cl>title</cl>, <cl>author</cl>, and <cl>year</cl>. Second, <cl>checkouts</cl> is set to <cl>0</cl> automatically, without any argument — every new book starts with zero checkouts. Third, and most importantly: <b>self</b>. We need to talk about <b>self</b>.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Understanding self</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-The word <cl>self</cl> is the most confusing thing for most beginners when they first encounter classes. Here is the clearest way to think about it.
-</p>
-
-<p>
-When you create two separate <cl>Book</cl> objects, they are two separate things in memory. Each one has its own title, its own author, its own checkout count. When a method runs on a specific instance, Python needs to know <i>which</i> instance it is working with. <cl>self</cl> is how Python passes that information. <cl>self</cl> is always a reference to the specific instance the method is currently acting on.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.title = title<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.author = author<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.year = year<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.checkouts = 0<br>
-            <br>
-            book_a = Book("Dune", "Frank Herbert", 1965)<br>
-            book_b = Book("1984", "George Orwell", 1949)<br>
-            <br>
-            print(book_a.title)  # Dune<br>
-            print(book_b.title)  # 1984<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        Dune<br>
-        1984<br>
-    </div>
-</div>
-
-<p>
-<cl>book_a</cl> and <cl>book_b</cl> are two entirely separate objects. When we access <cl>book_a.title</cl>, Python looks at the specific block of memory associated with <cl>book_a</cl> and retrieves its <cl>title</cl> attribute. <cl>self</cl> is what makes this possible: it is the object pointing at itself. The name <cl>self</cl> is a convention, not a keyword — you could technically name it anything — but you should always use <cl>self</cl>. Deviating from this convention will confuse everyone, including future you.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Instance methods</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Attributes store data. Methods define what the object can <i>do</i>. An instance method is a function defined inside a class body that always takes <cl>self</cl> as its first argument. It can read and modify the instance's attributes, and it can call other methods on the same instance.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-            18<br>
-            19<br>
-            20<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.title = title<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.author = author<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.year = year<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.checkouts = 0<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def checkout(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.checkouts += 1<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;print(f"'{self.title}' checked out. Total checkouts: {self.checkouts}")<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def summary(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;print(f"{self.title} by {self.author} ({self.year})")<br>
-            <br>
-            dune = Book("Dune", "Frank Herbert", 1965)<br>
-            dune.summary()<br>
-            dune.checkout()<br>
-            dune.checkout()<br>
-            print(dune.checkouts)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        Dune by Frank Herbert (1965)<br>
-        'Dune' checked out. Total checkouts: 1<br>
-        'Dune' checked out. Total checkouts: 2<br>
-        2<br>
-    </div>
-</div>
-
-<p>
-Notice that when we call <cl>dune.checkout()</cl>, we do not pass anything for <cl>self</cl>. Python fills that in automatically. The call <cl>dune.checkout()</cl> is Python shorthand for <cl>Book.checkout(dune)</cl> — passing the instance in as the first argument. This is the core mechanic behind how methods know which object's data to operate on.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Quiz</div>
-
-<div class="quiz-placeholder">"question": "If you create two instances of the same class and call a method on one of them that modifies an attribute, what happens to the other instance?",,"choices": ["Both instances are updated", "Only the instance the method was called on is updated", "A new instance is created", "Python throws an error"],,"correct": 1</div>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Dunder methods: making objects feel native</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Python has a system of special methods whose names begin and end with double underscores: <cl>__init__</cl>, <cl>__str__</cl>, <cl>__len__</cl>, and so on. These are called <b>dunder methods</b> (short for 'double underscore') or <b>magic methods</b>. They are how Python lets your custom objects plug in to built-in language behavior.
-</p>
-
-<p>
-For instance: what happens when you <cl>print()</cl> an object? By default, Python shows something like <cl>&lt;__main__.Book object at 0x7f3c...&gt;</cl> — a memory address, which is technically accurate but completely useless to a human. The <cl>__str__</cl> method lets you define a readable string representation for your object that <cl>print()</cl> will use instead.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.title = title<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.author = author<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.year = year<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.checkouts = 0<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def __str__(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return f"'{self.title}' by {self.author} ({self.year})"<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def __len__(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return self.checkouts<br>
-            <br>
-            dune = Book("Dune", "Frank Herbert", 1965)<br>
-            print(dune)           # uses __str__<br>
-            print(len(dune))      # uses __len__<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        'Dune' by Frank Herbert (1965)<br>
-        0<br>
-    </div>
-</div>
-
-<p>
-By defining <cl>__len__</cl>, we are telling Python: 'when someone calls <cl>len()</cl> on a <cl>Book</cl>, return the checkout count.' This is the mechanism that makes all of Python's built-in types feel consistent. <cl>len(my_list)</cl> and <cl>len(my_string)</cl> work the same way because both <cl>list</cl> and <cl>str</cl> define <cl>__len__</cl>. Your custom classes can do the same.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Common dunder methods</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-There are many dunder methods. The ones below are the most commonly used and the most worth knowing:
-</p>
-
-<ul>
-    <li><b>__init__(self, ...)</b> Called when a new instance is created. Sets up initial state.</li>
-    <li><b>__str__(self)</b> Called by <cl>print()</cl> and <cl>str()</cl>. Should return a human-readable string.</li>
-    <li><b>__repr__(self)</b> Called when an object is displayed in the shell or in a list. Should return an unambiguous, developer-facing string representation.</li>
-    <li><b>__len__(self)</b> Called by <cl>len()</cl>. Should return an integer.</li>
-    <li><b>__eq__(self, other)</b> Called when comparing two objects with <cl>==</cl>. Should return a <cl>bool</cl>.</li>
-    <li><b>__lt__(self, other)</b> Called when comparing with <cl>&lt;</cl>. Enables sorting. Should return a <cl>bool</cl>.</li>
-    <li><b>__add__(self, other)</b> Called when using the <cl>+</cl> operator. Recall that <cl>+</cl> already works differently for <cl>int</cl>, <cl>str</cl>, and <cl>list</cl> — this is why.</li>
-</ul>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-            18<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.title = title<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.author = author<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.year = year<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.checkouts = 0<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def __eq__(self, other):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return self.title == other.title and self.author == other.author<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def __lt__(self, other):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return self.year &lt; other.year<br>
-            <br>
-            book_a = Book("Dune", "Frank Herbert", 1965)<br>
-            book_b = Book("1984", "George Orwell", 1949)<br>
-            book_c = Book("Dune", "Frank Herbert", 1965)<br>
-            print(book_a == book_b)   # False<br>
-            print(book_a == book_c)   # True<br>
-            print(book_b &lt; book_a)    # True (1949 < 1965)<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        False<br>
-        True<br>
-        True<br>
-    </div>
-</div>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Class attributes vs. instance attributes</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-So far, all of the attributes we have defined have been <i>instance attributes</i>: they are set inside <cl>__init__</cl> using <cl>self</cl>, and each instance gets its own separate copy. But Python also supports <i>class attributes</i>: values that are defined directly on the class itself and are shared by all instances.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;# Class attribute: shared by all Book instances<br>
-            &emsp;&emsp;&emsp;&emsp;library_name = "Unnamed Library"<br>
-            &emsp;&emsp;&emsp;&emsp;total_books_created = 0<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.title = title<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.author = author<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.year = year<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Book.total_books_created += 1  # update the class attribute<br>
-            <br>
-            book_a = Book("Dune", "Frank Herbert", 1965)<br>
-            book_b = Book("1984", "George Orwell", 1949)<br>
-            <br>
-            print(Book.library_name)          # accessed on the class itself<br>
-            print(book_a.library_name)        # also accessible from an instance<br>
-            print(Book.total_books_created)   # 2<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        Unnamed Library<br>
-        Unnamed Library<br>
-        2<br>
-    </div>
-</div>
-
-<p>
-A useful rule of thumb: if a piece of data describes an individual thing, it should be an instance attribute. If it describes a property that belongs to the entire category, it should be a class attribute. <cl>total_books_created</cl> is a count across all books, not a property of any one book — so it belongs on the class.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Inheritance: building on existing classes</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Suppose our library also holds audiobooks. An audiobook has everything a book has — a title, an author, a year, a checkout count — plus a narrator and a runtime in minutes. We could write an entirely new class from scratch. But that would mean duplicating all of the code we already wrote for <cl>Book</cl>.
-</p>
-
-<p>
-<b>Inheritance</b> is the mechanism that lets one class build on top of another. The class being built on is called the <b>parent class</b> (or superclass). The new class is called the <b>child class</b> (or subclass). The child automatically has all of the attributes and methods of the parent, and can add new ones or override existing ones.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.title = title<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.author = author<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.year = year<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.checkouts = 0<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def __str__(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return f"'{self.title}' by {self.author} ({self.year})"<br>
-            <br>
-            # AudioBook inherits from Book<br>
-            class AudioBook(Book):<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year, narrator, runtime_minutes):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;super().__init__(title, author, year)  # call the parent's __init__<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.narrator = narrator<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.runtime_minutes = runtime_minutes<br>
-        </div>
-    </div>
-</div>
-
-<p>
-The key line is <cl>super().__init__(title, author, year)</cl>. The function <cl>super()</cl> returns a reference to the parent class, and calling <cl>.__init__</cl> on it runs the parent's initialization logic. This means we get all of <cl>Book</cl>'s setup for free, and only have to write the code specific to <cl>AudioBook</cl>.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Inheritance in action</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Let's verify that our <cl>AudioBook</cl> actually inherits the attributes and methods of <cl>Book</cl>, and then add a method that only makes sense for audiobooks.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-            18<br>
-            19<br>
-            20<br>
-            21<br>
-            22<br>
-        </div>
-        <div class='code-lines'>
-            class Book:<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.title = title<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.author = author<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.year = year<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.checkouts = 0<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def __str__(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return f"'{self.title}' by {self.author} ({self.year})"<br>
-            <br>
-            class AudioBook(Book):<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, title, author, year, narrator, runtime_minutes):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;super().__init__(title, author, year)<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.narrator = narrator<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.runtime_minutes = runtime_minutes<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def playback_summary(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;hours = self.runtime_minutes // 60<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;mins = self.runtime_minutes % 60<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;print(f"Narrated by {self.narrator}. Runtime: {hours}h {mins}m")<br>
-            <br>
-            ab = AudioBook("Dune", "Frank Herbert", 1965, "Scott Brick", 847)<br>
-            print(ab)              # inherited __str__ from Book<br>
-            ab.playback_summary()  # method unique to AudioBook<br>
-            print(ab.checkouts)    # inherited attribute from Book<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        'Dune' by Frank Herbert (1965)<br>
-        Narrated by Scott Brick. Runtime: 14h 7m<br>
-        0<br>
-    </div>
-</div>
-
-<p>
-<cl>AudioBook</cl> can use <cl>__str__</cl> and <cl>checkouts</cl> from <cl>Book</cl> without redefining them. It also adds <cl>playback_summary()</cl>, which only exists for audiobooks. This is the practical payoff of inheritance: write shared logic once, extend it where needed.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">isinstance() and issubclass()</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Two useful built-in functions let you check the class relationships of objects at runtime.
-</p>
-
-<p>
-<b>isinstance(obj, ClassName)</b> returns <cl>True</cl> if <cl>obj</cl> is an instance of <cl>ClassName</cl> <i>or</i> any of its parent classes. This is frequently used in real programs to safely handle objects of multiple related types.
-</p>
-
-<p>
-<b>issubclass(ChildClass, ParentClass)</b> returns <cl>True</cl> if <cl>ChildClass</cl> is a subclass of <cl>ParentClass</cl>.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-        </div>
-        <div class='code-lines'>
-            book = Book("1984", "George Orwell", 1949)<br>
-            audio = AudioBook("Dune", "Frank Herbert", 1965, "Scott Brick", 847)<br>
-            <br>
-            print(isinstance(book, Book))         # True<br>
-            print(isinstance(audio, AudioBook))   # True<br>
-            print(isinstance(audio, Book))        # True — AudioBook IS a Book<br>
-            print(isinstance(book, AudioBook))    # False — a Book is not an AudioBook<br>
-            <br>
-            print(issubclass(AudioBook, Book))    # True<br>
-            print(issubclass(Book, AudioBook))    # False<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        True<br>
-        True<br>
-        True<br>
-        False<br>
-        True<br>
-        False<br>
-    </div>
-</div>
-
-<p>
-Notice that <cl>isinstance(audio, Book)</cl> returns <cl>True</cl>. This is because an <cl>AudioBook</cl> <i>is a kind of</i> <cl>Book</cl> — the inheritance relationship creates an 'is-a' relationship. This is one of the most important ideas in object-oriented programming: a child class is a more specific version of its parent. Anywhere a <cl>Book</cl> is expected, an <cl>AudioBook</cl> can stand in.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Putting it together: a small library system</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-Let's write a small but complete example that uses everything from this unit: a <cl>Library</cl> class that holds a collection of <cl>Book</cl> and <cl>AudioBook</cl> objects and provides a few useful operations.
-</p>
-
-<div class='code-container'>
-    <div class='code-header'>Python</div>
-    <div class='code-body'>
-        <div class='line-numbers'>
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            5<br>
-            6<br>
-            7<br>
-            8<br>
-            9<br>
-            10<br>
-            11<br>
-            12<br>
-            13<br>
-            14<br>
-            15<br>
-            16<br>
-            17<br>
-            18<br>
-            19<br>
-            20<br>
-            21<br>
-            22<br>
-            23<br>
-            24<br>
-            25<br>
-            26<br>
-            27<br>
-            28<br>
-            29<br>
-            30<br>
-        </div>
-        <div class='code-lines'>
-            class Library:<br>
-            &emsp;&emsp;&emsp;&emsp;def __init__(self, name):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.name = name<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.collection = []<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def add(self, item):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;if isinstance(item, Book):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;self.collection.append(item)<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;else:<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;print("Only Book instances can be added.")<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def catalog(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;print(f"--- {self.name} catalog ---")<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;for item in self.collection:<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;print(f"  {item}")<br>
-            <br>
-            &emsp;&emsp;&emsp;&emsp;def oldest(self):<br>
-            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;return min(self.collection, key=lambda b: b.year)<br>
-            <br>
-            lib = Library("City Public Library")<br>
-            lib.add(Book("1984", "George Orwell", 1949))<br>
-            lib.add(Book("Dune", "Frank Herbert", 1965))<br>
-            lib.add(AudioBook("Beloved", "Toni Morrison", 1987, "Bahni Turpin", 682))<br>
-            <br>
-            lib.catalog()<br>
-            print()<br>
-            oldest = lib.oldest()<br>
-            print(f'Oldest item: {oldest}')<br>
-        </div>
-    </div>
-    <div class='code-output'>
-        --- City Public Library catalog ---<br>
-        &nbsp;&nbsp;'1984' by George Orwell (1949)<br>
-        &nbsp;&nbsp;'Dune' by Frank Herbert (1965)<br>
-        &nbsp;&nbsp;'Beloved' by Toni Morrison (1987)<br>
-        <br>
-        Oldest item: '1984' by George Orwell (1949)<br>
-    </div>
-</div>
-
-<p>
-Notice that <cl>add()</cl> uses <cl>isinstance(item, Book)</cl> to check that only valid items enter the collection — and because <cl>AudioBook</cl> is a subclass of <cl>Book</cl>, audiobooks pass the check automatically. The <cl>catalog()</cl> method loops over the collection and calls <cl>print()</cl> on each item, which silently invokes each object's <cl>__str__</cl>. The <cl>oldest()</cl> method uses Python's <cl>min()</cl> with a <cl>key</cl> function — a preview of a more advanced pattern, but notice how cleanly it reads.
-</p>
-
-
-<!-- -------------------------------------------------------------------- -->
-
-<div class="beat-header">Conclusion</div>
-
-<div class="img-placeholder">default.png</div>
-
-<p>
-In this unit, we introduced <b>classes</b>, the primary mechanism Python uses to let programmers define their own types:
-</p>
-
-<ol>
-    <li><b>The problem classes solve.</b> Bundling related data and behavior together into a coherent, reusable unit.</li>
-    <li><b>Vocabulary.</b> Class, object, instance, attribute, method.</li>
-    <li><b>__init__.</b> The constructor, called automatically when a new instance is created.</li>
-    <li><b>self.</b> The reference that every method uses to access the specific instance it is operating on.</li>
-    <li><b>Instance methods.</b> Functions defined on a class that act on instance data.</li>
-    <li><b>Dunder methods.</b> Special methods like <cl>__str__</cl>, <cl>__len__</cl>, and <cl>__eq__</cl> that plug custom classes into Python's built-in behavior.</li>
-    <li><b>Class vs. instance attributes.</b> Shared data lives on the class; individual data lives on each instance.</li>
-    <li><b>Inheritance.</b> Child classes extend parent classes, inheriting their attributes and methods and adding or overriding as needed.</li>
-</ol>
-
-<p>
-One last thing worth saying: every type you have used since the very first Python lesson — <cl>int</cl>, <cl>str</cl>, <cl>list</cl>, <cl>dict</cl> — is a class. The work of this unit is not adding something foreign to what you know. It is revealing the structure that was already there.
-</p>
 
 <!--
 ==============================================================================
