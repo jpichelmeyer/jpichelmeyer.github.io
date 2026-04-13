@@ -10,17 +10,12 @@
 -->
 
 <head>
-
-    <!-- course.html -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Course Page</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
-    <script src="../terminal/interpreters.js"></script>  <!-- or ./interpreters.js on index.html -->
-    <script src="../terminal/terminal.js"></script>
-    <link rel="stylesheet" href="../terminal/terminal.html">
-    <!-- <script src="../interpreters.js"></script> -->
+    <script src="../interpreters.js"></script>
 
     <style>
         * { box-sizing: border-box; }
@@ -1137,15 +1132,226 @@
         }
     
 
-        
-
-        #computer-drawer {
-            z-index: 150;  /* higher than lesson panel's 100 */
+        /*
+        ===========================================================
+            Transpiler
+        ===========================================================
+        */
+        .ide-overlay {
+            position: absolute;
+            inset: 0;
+            background: #1e1e2e;
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            font-family: 'Courier New', monospace;
         }
-    
-    </style>
+         
+        .ide-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: #13131f;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+         
+        .ide-lang-badge {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #fff;
+        }
+        .ide-lang-badge.csharp     { background: #6a3fd4; }
+        .ide-lang-badge.python     { background: #3d7ebf; }
+        .ide-lang-badge.javascript { background: #b08a18; }
+         
+        .ide-instructions {
+            flex: 1;
+            font-size: 11px;
+            color: rgba(255,255,255,0.50);
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 6px;
+        }
+         
+        .ide-btn {
+            flex-shrink: 0;
+            padding: 5px 13px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .ide-btn:hover { opacity: 0.82; }
+        .ide-btn.run   { background: #3a8a5a; color: #fff; }
+        .ide-btn.reset { background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.65); }
+        .ide-btn.exit  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); font-size: 10px; }
+         
+        .ide-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+        }
+         
+        .ide-editor-wrap {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+            overflow: hidden;
+        }
+         
+        /* The actual textarea masquerading as a code editor */
+        .ide-editor {
+            width: 100%;
+            height: 100%;
+            background: #1e1e2e;
+            color: #cdd6f4;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 12px 14px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            tab-size: 4;
+            -moz-tab-size: 4;
+            box-sizing: border-box;
+            caret-color: #cdd6f4;
+        }
+         
+        /* Line-number gutter overlay — rendered by canvas beside textarea */
+        .ide-gutter {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 36px;
+            background: #181825;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .ide-gutter canvas { display: block; }
+         
+        /* Shift editor text right of gutter */
+        .ide-editor { padding-left: 50px; }
+         
+        .ide-divider {
+            height: 4px;
+            background: #13131f;
+            cursor: row-resize;
+            flex-shrink: 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+         
+        .ide-output-wrap {
+            flex-shrink: 0;
+            height: 140px;
+            min-height: 60px;
+            max-height: 60%;
+            background: #11111b;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+         
+        .ide-output-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            background: #0d0d17;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+         
+        .ide-output-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            font-family: 'Inter', sans-serif;
+        }
+         
+        .ide-status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: background 0.2s;
+        }
+        .ide-status-dot.ok  { background: #a6e3a1; }
+        .ide-status-dot.err { background: #f38ba8; }
+        .ide-status-dot.run { background: #f9e2af; }
+         
+        .ide-clear-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.25);
+            font-size: 10px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: color 0.15s;
+        }
+        .ide-clear-btn:hover { color: rgba(255,255,255,0.55); }
+         
+        .ide-output {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #cdd6f4;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+         
+        .ide-output .out-normal { color: #cdd6f4; }
+        .ide-output .out-error  { color: #f38ba8; }
+        .ide-output .out-system { color: rgba(255,255,255,0.30); font-style: italic; }
+        .ide-output .out-ok     { color: #a6e3a1; }
+         
+        /* Pyodide loading spinner */
+        .ide-loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            color: rgba(255,255,255,0.40);
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+        }
+         
+        @keyframes ide-spin {
+            to { transform: rotate(360deg); }
+        }
+        .ide-spinner {
+            width: 12px; height: 12px;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-top-color: rgba(255,255,255,0.55);
+            border-radius: 50%;
+            animation: ide-spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+         
+        /* Output resize handle drag */
+        .ide-divider:hover { background: rgba(255,255,255,0.10); }
 
-    <link rel="stylesheet" href="../terminal/terminal.css">
+    </style>
 
 </head>
 
@@ -1189,28 +1395,7 @@
 
         <br><br>
         <a href="../index.html#teaching" class="back_link"><span>Back to site</span></a>
-        
-        <!--
-      ===========================
-         START Testing: Terminal power button
-      ===========================
-      -->  
 
-        <div class="pos-power-wrapper">
-            <button id="pos-power-btn" title="Boot Pichelmeyer OS (POS)">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12,21.5C6.75,21.5 2.5,17.25 2.5,12C2.5,7.74 5.33,4.12 9.2,2.96L9.77,4.87C6.54,5.84 4.17,8.85 4.17,12C4.17,16.32 7.68,19.83 12,19.83C16.32,19.83 19.83,16.32 19.83,12C19.83,8.85 17.46,5.84 14.23,4.87L14.8,2.96C18.67,4.12 21.5,7.74 21.5,12C21.5,17.25 17.25,21.5 12,21.5Z" />
-                    <rect x="11.17" y="2" width="1.67" height="10" rx="0.83" />
-                </svg>
-            </button>
-        </div>
-
-      <!--
-      ===========================
-         END Testing: Terminal power button
-      ===========================
-      -->  
-        
     </div>
 
     <!-- 
@@ -1418,28 +1603,7 @@
 
     </div>
 
-    </div>
-
-
-<script>
-    fetch('../terminal/terminal.html')
-        .then(r => r.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            if (typeof initTerminal === 'function') initTerminal();
-        });
-</script>
-
-
-
-
-</body>
-
-
-
-
-
-
+</div>
 
 <!-- 
 ═══════════════════════════════════════════════════════════
@@ -2588,16 +2752,5 @@
 
 </script>
 
-<script>
-    fetch('../terminal/terminal.html')           // adjust path: './' for index.html
-        .then(r => r.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            // terminal.js auto-inits via DOMContentLoaded, but the fetch
-            // happens after that fires, so call manually:
-            if (typeof initTerminal === 'function') initTerminal();
-        });
-</script>
-
-
+</body>
 </html>

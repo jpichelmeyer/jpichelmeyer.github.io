@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- index.html -->
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Jacob Pichelmeyer, PhD</title>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 	
-    <script src="terminal/interpreters.js"></script>  <!-- or ./interpreters.js on index.html -->
-    <script src="terminal/terminal.js"></script>
-    <!-- <script src="../interpreters.js"></script> -->
+    <script src="interpreters.js"></script>
 
     <!-- 
     ═══════════════════════════════════════════════════════
@@ -52,7 +49,7 @@
 .........//-\\..\\................
 .................................
 Type 'help' for command list.;
-            --cliColorPOS: #bfff70;
+            --cliColorPOS: #ff;
             --cliCmdPrefix: /MyProject/ $> ;
         }
 
@@ -479,34 +476,213 @@ Type 'help' for command list.;
         }
 
 
-	</style>
+        /* 
+        =======================================================
+             START  TESTING
 
-    <link rel="stylesheet" href="../terminal/terminal.css">
+        =======================================================
+        */
+        /* Drawer Animation Logic */
+        #computer-drawer {
+            position: fixed;
+            top: 0;
+            /* Start exactly where your main content starts */
+            left: var(--margin_left); 
+            /* Occupy the remaining width of the screen */
+            width: calc(100% - var(--margin_left)); 
+            height: 100vh;
+            background: var(--color_wrap);
+            /* Lower than sidebar (usually 10+), higher than main content */
+            z-index: 5; 
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            border-left: 2px solid rgba(255,255,255,0.1);
+        }
+
+        #computer-drawer.drawer-open {
+            transform: translateX(0);
+        }
+
+        #computer-drawer {
+            /* ... previous positioning ... */
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px; /* Space between windows */
+        }
+
+        /* Ensure the sidebar stays on top of the drawer */
+        .side_left {
+            z-index: 10; 
+        }
+
+        /* Internal Layout */
+        #computer-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .vfs-header {
+            display: flex;
+            justify-content: space-between;
+            color: var(--color_highlight);
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .vfs-main {
+            display: flex;
+            flex-direction: column; /* This stacks them vertically */
+            gap: 15px;
+            height: 100%;
+        }
+
+        .vfs-window {
+            flex: 1;
+            background: #fff;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            min-height: 0; /* Important for flex-scroll behavior */
+        }
+
+        /* Editor Styling (Light) */
+        #vfs-editor {
+            /* flex: 1; */
+            border: none;
+            /* padding: 15px; */
+            /* font-family: 'Courier New', monospace; */
+            font-size: 14px;
+            outline: none;
+            /* background: #fafafa; */
+            /* color: #333; */
+            background: #ffffff;
+            color: #222;
+            /* border: none; */
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            flex: 1;
+            resize: none;
+        }
+
+        .vfs-toolbar {
+            background: #eee;
+            padding: 5px;
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* CLI Styling (Dark) */
+        .cli-win { background: #000; color: #0f0; font-family: monospace; }
+        .cli-header { background: #222; padding: 5px 10px; font-size: 14px; color: #7cb346; font-family: monospace; }
+        #cli-output { flex: 1; padding: 15px; overflow-y: auto; white-space: pre-wrap; color: #0f0; }
+        .cli-input-area { display: flex; padding: 10px; background: #111; border-top: 1px solid #222; }
+        #cli-input { background: transparent; border: none; color: #fff; flex: 1; outline: none; }
+        .prompt { color: #f5f5f5; margin-right: 10px; margin-left: 5px; font-size: 14px; content: var(--cliCmdPrefix)}
+
+        #close-computer {
+            background: transparent;
+            border: 1px solid var(--color_lowlight);
+            color: var(--color_lowlight);
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        /* Container to fix the button at the bottom of the sidebar */
+        .pos-power-wrapper {
+            /* position: absolute; */
+            /* bottom: 30px; */        /* Space from the very bottom */
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: left; /* Center horizontally in sidebar */
+            padding: 20px 20px;
+            box-sizing: border-box;
+        }
+
+        #pos-power-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            /* Subtle initial state using your lowlight color */
+            color: var(--color_lowlight);
+            opacity: 0.6;
+            
+            /* Smooth transitions for all states */
+            transition: 
+                color 0.25s ease, 
+                opacity 0.25s ease, 
+                transform 0.2s cubic-bezier(0.17, 0.67, 0.83, 0.67),
+                box-shadow 0.3s ease;
+        }
+
+        /* The Power Icon SVG */
+        #pos-power-btn svg {
+            width: 36px; /* Ideal minimalist size */
+            height: 36px;
+            fill: currentColor; /* Inherits color from the button */
+        }
+
+        /* --- THE HOVER STATE (The satisfying part) --- */
+        #pos-power-btn:hover {
+            opacity: 1;
+            color: var(--color_highlight); /* Ignites to full brightness */
+            
+            /* Adds a soft, circular glow behind the button */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+            
+            /* Gentle scale-up 'pop' */
+            transform: scale(1.1);
+        }
+
+        /* --- THE ACTIVE STATE (When physically clicked) --- */
+        #pos-power-btn:active {
+            transform: scale(0.95); /* Slight compress feeling */
+            transition: transform 0.05s ease; /* Instant response */
+        }
+
+        /* Optional: Subtle 'pulse' animation when POS is open */
+        #computer-drawer.drawer-open ~ .side_left #pos-power-btn {
+            opacity: 1;
+            color: var(--color_highlight);
+            animation: pos-pulse 2s infinite;
+        }
+
+        @keyframes pos-pulse {
+            0% { box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
+            50% { box-shadow: 0 0 18px rgba(255, 255, 255, 0.25); }
+            100% { box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
+        }
+
+        
+
+        /* 
+        =======================================================
+            
+            END     TESTING
+        =======================================================
+        */
+
+	</style>
 
 </head>
 
-<script>
-    fetch('../terminal/terminal.html')
-        .then(r => r.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            if (typeof initTerminal === 'function') initTerminal();
-        });
-</script>
 
-
-<!--
-<script>
-    fetch('terminal/terminal.css')           // adjust path: './' for index.html
-        .then(r => r.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            // terminal.js auto-inits via DOMContentLoaded, but the fetch
-            // happens after that fires, so call manually:
-            if (typeof initTerminal === 'function') initTerminal();
-        });
-</script>
--->
 
 <!-- 
 ═══════════════════════════════════════════════════════
@@ -1160,6 +1336,56 @@ Type 'help' for command list.;
   
 </div>
 
+<!--
+====================================================================
+    START     TEST CODE
+
+====================================================================
+-->
+<div id="computer-drawer" class="drawer-hidden">
+    <div id="computer-container">
+        <div class="vfs-header">
+            <span class="vfs-path">C:\Users\Jacob\MyProject</span>
+            <!-- <button id="close-computer">✕ Close System</button> -->
+        </div>
+        
+        <div class="vfs-main">
+            
+            <!--
+            =======================================
+                CLI
+            =======================================
+            -->
+            <div class="vfs-window cli-win">
+                <div class="cli-header">POShell</div>
+                <div id="cli-output" textContent==var(--cliMsgInitial)>...</div>
+                <div class="cli-input-area">
+                    <span class="prompt">/MyProject/ $> </span>
+                    <input type="text" id="cli-input" autofocus>
+                </div>
+            </div>
+
+            <!--
+            =======================================
+                Text Editor, File management
+            =======================================
+            -->
+            <div class="vfs-window editor-win">
+                <div class="vfs-toolbar">
+                    <div id="file-tabs"></div>
+                    <button id="add-file-btn">+ New</button>
+                </div>
+                <textarea id="vfs-editor" spellcheck="false"></textarea>
+            </div>
+
+            <!--
+            ======================================
+            -->
+
+        </div>
+    </div>
+</div>
+
 
 <script onload="loadAll()">
 
@@ -1170,6 +1396,58 @@ Type 'help' for command list.;
 
     =======================================================
     */
+    // --- 1. GLOBAL STATE ---
+    let myProject = {
+        "Program.cs": 'using System;\n\nclass Program {\n  static void Main() {\n    Console.WriteLine(" -- SUCCESS! -- If this message shows, C# ran!.");\n  }\n}',
+        "script.py": 'print("Hello World")'
+    };
+    let currentFile = "Program.cs";
+    let output, editor, tabs, input;
+    
+    //let cliMsgInitial = "PICHELMEYER OPERATING SYSTEM (POS) v1.0\nType 'help' for command list.";
+        
+    //let cliColorPOS = "#bfff70"
+
+    // Access the root
+    //const root = document.documentElement;
+    //const styes = getComputedStyle(root);
+    
+    //let root = document.documentElement;
+
+    // 2. Get all styles applied to it
+    //let styles = getComputedStyle(root);
+
+    // 3. Retrieve the specific variable value
+    //const bgColor = styles.getPropertyValue('--main-bg-color').trim();
+    let root = document.documentElement;    
+    let styles = getComputedStyle(root);    
+    let cliMsgInitial = styles.getPropertyValue('--cliMsgInitial');
+    let cliCmdPrefix = styles.getPropertyValue('--cliCmdPrefix');   
+    let cliColorPOS = styles.getPropertyValue('--cliColorPOS');  
+    document.getElementById('cli-output').style.color = cliColorPOS;
+    document.getElementById('cli-output').textContent = cliMsgInitial.trim();
+    
+    //let cliMsgInitial = "Your mom";
+    /*
+    =======================================================
+
+        Rendering stuff
+
+    =======================================================
+    */
+    // --- 2. THE CANVAS FUNCTION ---
+    // Generates a grid of characters to act as a "buffer" or background
+    function getAsciiCanvas(width=10, height=10, blankChar='.') {
+        let wholeString = "";        
+        for (let row=0; row < height; row++) {
+            let rowString = "";            
+            for (let col = 0; col < width; col++) {
+                rowString += blankChar; 
+            }
+            wholeString += rowString + "\n";
+        }
+        return wholeString;
+    }
 
     function reloadCSS(){
         var links = document.getElementsByTagName("link");
@@ -1201,8 +1479,206 @@ Type 'help' for command list.;
         reloadCSS(); // This will now work because function is defined above
     }
 
-    changePageColors(1);  
+    function updateUI() {
+        if (!tabs || !editor) return;
+        tabs.innerHTML = "";
+        Object.keys(myProject).forEach(name => {
+            const btn = document.createElement('button');
+            btn.textContent = name;
+            btn.style.cssText = `
+                padding: 5px 10px; border:none; cursor:pointer; font-size:11px;
+                background: ${name === currentFile ? cliColorPOS : '#ccc'};
+                color: ${name === currentFile ? '#000' : '#444'};
+                margin-right: 2px;
+            `;
+            btn.onclick = () => switchFile(name);
+            tabs.appendChild(btn);
+        });
+        editor.value = myProject[currentFile];
+    }
+
+    function switchFile(name) {
+        myProject[currentFile] = editor.value;
+        currentFile = name;
+        updateUI();
+    }
+
+     /*
+    =======================================================
+
+        Core Logic
+
+    =======================================================
+    */
+    // --- 2. CORE LOGIC ---
+    function handleCommand(val) {
+        const parts = val.trim().split(/\s+/);
+        const cmd = parts[0].toLowerCase();
+        const arg1 = parts[1];
+        
+        printToCli(`$ ${val}`, "#fff");
+
+        switch (cmd) {
+            case "help":
+                var cmdList = ["ls", "python fileName", "csharp fileName", "clear"];
+                var msg = "";
+                for (let cmd of cmdList){
+                    msg += " " + cmd + "\n";
+                }
+                printToCli("Commands\n------------\n" + msg, cliColorPOS, false);
+                break;
+            case "ls":
+                printToCli(cliCmdPrefix + " " + cmd, cliColorPOS, true);
+                printToCli(Object.keys(myProject).join("    "), cliColorPOS, false);
+                break;
+            case "clear":
+                //output.innerHTML = printToCli("", cliColorPOS, true);
+                //output.innerHTML = cliMsgInitial;
+                //output.innerHTML = cliCmdPrefix + " ";
+                output.innerHTML = " ";
+                printToCli(cliCmdPrefix, cliColorPOS, true);
+                //printToCli("yo yo", cliColorPOS, true);
+                break;
+            /*
+            case "python":
+                if (myProject[arg1]) {
+                    printToCli(getAsciiCanvas(30, 5, '.'), "#444", false); 
+                    printToCli(`Initializing Python interpret on ${arg1}...`, "#888", false);
+                    if(typeof runPython === 'function') runPython(myProject[arg1], (result) => printToCli(result), cliColorPOS, false);
+                } else {
+                    printToCli(`File '${arg1}' not found.`, "#ff5f56");
+                }
+                break;
+            */                  
+            case "python":
+
+                if (myProject[arg1]) {
+                    printToCli(getAsciiCanvas(30, 5, '.'), "#444", false); 
+                    printToCli(`Initializing Python interpret on ${arg1}...`, "#888", false);
+                    printToCli('Wassup..');
+                    if(typeof runPython === 'function') runPython(myProject[arg1], (result) => printToCli(result), cliColorPOS, false);
+                } else {
+                    printToCli(`File '${arg1}' not found.`, "#ff5f56");
+                }
+                break;
+
+
+                
+                console.log("Detecting runPython:", typeof runPython); // Is this 'function' or 'undefined'?
+                if (myProject[arg1]) {
+                    // ...
+                    if(typeof runPython === 'function') {
+                        console.log("Calling runPython with:", myProject[arg1]);
+                        runPython(myProject[arg1], (result) => {
+                            console.log("Callback received:", result);
+                            printToCli(result);
+                        });
+                    } else {
+                        console.error("runPython function not found! Check interpreters.js");
+                    }
+                }
+                
+            case "csharp":
+                if (myProject[arg1]) {
+                    printToCli(`Compiling ${arg1}...`, "#888", false);
+                    if (typeof runCSharp === 'function') {
+                        // Create a temporary DOM output element it can append to
+                        const tempOut = document.createElement('div');
+                        const tempDot = { className: '' }; // dummy statusDot
+                        runCSharp(myProject[arg1], tempOut, tempDot);
+                        // Pull the text back out and print to your CLI
+                        tempOut.childNodes.forEach(node => {
+                            const isError = node.className?.includes('error');
+                            printToCli(node.textContent.trim(), isError ? '#ff5f56' : cliColorPOS, false);
+                        });
+                    }
+                }
+                break;
+            default:
+                if(cmd) printToCli(`'${cmd}' is not recognized.`, cliColorPOS, false);
+        }
+        output.scrollTop = output.scrollHeight;
+    }
+
+    function printToCli(text, color = cliColorPOS, showLogo = true) {
+        if(!output) return;
+        const line = document.createElement('div');
+
+        line.style.color = cliColorPOS;
+        line.style.marginBottom = "4px";
+        line.style.whiteSpace = "pre";
+        line.textContent = ""; 
+
+        // Add the cmd prefix
+        
+        // Input
+        // line.textContent += cliCmdPrefix ;
+
+        
+        //if (showLogo){
+        //    
+            //newString += cliMsgInitial + "YAY";
+        //    line.textContent += cliMsgInitial + "YAY";
+            //line.textContent += cliMsgInitial;
+        //}
+        
+        line.textContent += text;
+        //output.style.color = "ff0000";
+        output.appendChild(line);
+        //output.append("another line");
+              
+        //document.getElementById('cli-output').textContent = new_string);
+        //return text
+        //output.appendChild();
+    }
     
+     /*
+    =======================================================
+
+        Initialization
+
+    =======================================================
+    */
+    // --- 3. INITIALIZATION ---
+    function initComputer() {
+        output = document.getElementById('cli-output');
+        editor = document.getElementById('vfs-editor');
+        tabs = document.getElementById('file-tabs');
+        input = document.getElementById('cli-input');
+        
+        const drawer = document.getElementById('computer-drawer');
+        const powerBtn = document.getElementById('pos-power-btn');
+
+        if(powerBtn && drawer) {
+            powerBtn.onclick = (e) => {
+                e.preventDefault();
+                const isOpen = drawer.classList.toggle('drawer-open');
+                if (isOpen && input) {
+                    //printToCli(cliMsgInitial, "#ffffff");
+                    printToCli("", cliColorPOS, false);
+                    setTimeout(() => input.focus(), 400);
+                }
+            };
+        }
+
+        if(input) {
+            input.onkeydown = (e) => {
+                if (e.key === "Enter") {
+                    handleCommand(input.value);
+                    input.value = "";
+                }
+            };
+        }
+
+        updateUI(); 
+    }
+
+    function loadAll() {
+        changePageColors(1);        
+        initComputer();       
+    }
+
+    window.onload = loadAll;
 
 </script>
 

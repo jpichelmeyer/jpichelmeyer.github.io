@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- index.html -->
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Jacob Pichelmeyer, PhD</title>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 	
-    <script src="terminal/interpreters.js"></script>  <!-- or ./interpreters.js on index.html -->
-    <script src="terminal/terminal.js"></script>
-    <!-- <script src="../interpreters.js"></script> -->
+    <script src="interpreters.js"></script>
 
     <!-- 
     ═══════════════════════════════════════════════════════
@@ -41,19 +38,6 @@
 	        --color_career:   #8a7830;
 	        --color_research: #2a6055;
 	        --color_teaching: #364880;
-
-            /* Terminal stuff */
-            /* --cliMsgInitial: "System initialized. Type 'help' to begin."; */
-            --cliMsgInitial: PICHELMEYER OPERATING SYSTEM (POS) v1.0
-..................................
-........('_').....................
-..........\(......................
-.........((.)....)................
-.........//-\\..\\................
-.................................
-Type 'help' for command list.;
-            --cliColorPOS: #bfff70;
-            --cliCmdPrefix: /MyProject/ $> ;
         }
 
         a { color: var(--color_lowlight); text-decoration: underline; }
@@ -479,34 +463,211 @@ Type 'help' for command list.;
         }
 
 
-	</style>
+        /* 
+        =======================================================
+             START  TESTING
 
-    <link rel="stylesheet" href="../terminal/terminal.css">
+        =======================================================
+        */
+        /* Drawer Animation Logic */
+        #computer-drawer {
+            position: fixed;
+            top: 0;
+            /* Start exactly where your main content starts */
+            left: var(--margin_left); 
+            /* Occupy the remaining width of the screen */
+            width: calc(100% - var(--margin_left)); 
+            height: 100vh;
+            background: var(--color_wrap);
+            /* Lower than sidebar (usually 10+), higher than main content */
+            z-index: 5; 
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            border-left: 2px solid rgba(255,255,255,0.1);
+        }
+
+        #computer-drawer.drawer-open {
+            transform: translateX(0);
+        }
+
+        #computer-drawer {
+            /* ... previous positioning ... */
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px; /* Space between windows */
+        }
+
+        /* Ensure the sidebar stays on top of the drawer */
+        .side_left {
+            z-index: 10; 
+        }
+
+        /* Internal Layout */
+        #computer-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .vfs-header {
+            display: flex;
+            justify-content: space-between;
+            color: var(--color_highlight);
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .vfs-main {
+            display: flex;
+            flex-direction: column; /* This stacks them vertically */
+            gap: 15px;
+            height: 100%;
+        }
+
+        .vfs-window {
+            flex: 1;
+            background: #fff;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            min-height: 0; /* Important for flex-scroll behavior */
+        }
+
+        /* Editor Styling (Light) */
+        #vfs-editor {
+            /* flex: 1; */
+            border: none;
+            /* padding: 15px; */
+            /* font-family: 'Courier New', monospace; */
+            font-size: 14px;
+            outline: none;
+            /* background: #fafafa; */
+            /* color: #333; */
+            background: #ffffff;
+            color: #222;
+            /* border: none; */
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            flex: 1;
+            resize: none;
+        }
+
+        .vfs-toolbar {
+            background: #eee;
+            padding: 5px;
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* CLI Styling (Dark) */
+        .cli-win { background: #000; color: #0f0; font-family: monospace; }
+        .cli-header { background: #222; padding: 5px 10px; font-size: 11px; color: #aaa; }
+        #cli-output { flex: 1; padding: 15px; overflow-y: auto; white-space: pre-wrap; color: #0f0; }
+        .cli-input-area { display: flex; padding: 10px; background: #111; border-top: 1px solid #222; }
+        #cli-input { background: transparent; border: none; color: #fff; flex: 1; outline: none; }
+        .prompt { color: #f0f; margin-right: 10px; }
+
+        #close-computer {
+            background: transparent;
+            border: 1px solid var(--color_lowlight);
+            color: var(--color_lowlight);
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        /* Container to fix the button at the bottom of the sidebar */
+        .pos-power-wrapper {
+            /* position: absolute; */
+            /* bottom: 30px; */        /* Space from the very bottom */
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: left; /* Center horizontally in sidebar */
+            padding: 20px 20px;
+            box-sizing: border-box;
+        }
+
+        #pos-power-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            /* Subtle initial state using your lowlight color */
+            color: var(--color_lowlight);
+            opacity: 0.6;
+            
+            /* Smooth transitions for all states */
+            transition: 
+                color 0.25s ease, 
+                opacity 0.25s ease, 
+                transform 0.2s cubic-bezier(0.17, 0.67, 0.83, 0.67),
+                box-shadow 0.3s ease;
+        }
+
+        /* The Power Icon SVG */
+        #pos-power-btn svg {
+            width: 36px; /* Ideal minimalist size */
+            height: 36px;
+            fill: currentColor; /* Inherits color from the button */
+        }
+
+        /* --- THE HOVER STATE (The satisfying part) --- */
+        #pos-power-btn:hover {
+            opacity: 1;
+            color: var(--color_highlight); /* Ignites to full brightness */
+            
+            /* Adds a soft, circular glow behind the button */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+            
+            /* Gentle scale-up 'pop' */
+            transform: scale(1.1);
+        }
+
+        /* --- THE ACTIVE STATE (When physically clicked) --- */
+        #pos-power-btn:active {
+            transform: scale(0.95); /* Slight compress feeling */
+            transition: transform 0.05s ease; /* Instant response */
+        }
+
+        /* Optional: Subtle 'pulse' animation when POS is open */
+        #computer-drawer.drawer-open ~ .side_left #pos-power-btn {
+            opacity: 1;
+            color: var(--color_highlight);
+            animation: pos-pulse 2s infinite;
+        }
+
+        @keyframes pos-pulse {
+            0% { box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
+            50% { box-shadow: 0 0 18px rgba(255, 255, 255, 0.25); }
+            100% { box-shadow: 0 0 8px rgba(255, 255, 255, 0.1); }
+        }
+
+        /* 
+        =======================================================
+            
+            END     TESTING
+        =======================================================
+        */
+
+	</style>
 
 </head>
 
-<script>
-    fetch('../terminal/terminal.html')
-        .then(r => r.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            if (typeof initTerminal === 'function') initTerminal();
-        });
-</script>
 
-
-<!--
-<script>
-    fetch('terminal/terminal.css')           // adjust path: './' for index.html
-        .then(r => r.text())
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            // terminal.js auto-inits via DOMContentLoaded, but the fetch
-            // happens after that fires, so call manually:
-            if (typeof initTerminal === 'function') initTerminal();
-        });
-</script>
--->
 
 <!-- 
 ═══════════════════════════════════════════════════════
@@ -515,7 +676,7 @@ Type 'help' for command list.;
 
 ═══════════════════════════════════════════════════════════ 
 -->
-<body>
+<body onload="loadAll()">
 
 <div class="row">
 	
@@ -1160,51 +1321,289 @@ Type 'help' for command list.;
   
 </div>
 
+<!--
+====================================================================
+    START     TEST CODE
 
-<script onload="loadAll()">
+====================================================================
+-->
+<div id="computer-drawer" class="drawer-hidden">
+    <div id="computer-container">
+        <div class="vfs-header">
+            <span class="vfs-path">C:\Users\Jacob\MyProject</span>
+            <!-- <button id="close-computer">✕ Close System</button> -->
+        </div>
+        
+        <div class="vfs-main">
+            <div class="vfs-window editor-win">
+                <div class="vfs-toolbar">
+                    <div id="file-tabs"></div>
+                    <button id="add-file-btn">+ New</button>
+                </div>
+                <textarea id="vfs-editor" spellcheck="false"></textarea>
+            </div>
+
+            <div class="vfs-window cli-win">
+                <div class="cli-header">Terminal - bash</div>
+                <div id="cli-output">System initialized. Type 'help' to begin.</div>
+                <div class="cli-input-area">
+                    <span class="prompt">/MyProject/ ( * _*) $</span>
+                    <input type="text" id="cli-input" autofocus>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+    /*
+    =======================================================
+
+        JS      globals
+
+    =======================================================
+    */
+    let myProject = {
+        "Program.cs": 'using System;\n\nclass Program {\n  static void Main() {\n    Console.WriteLine("System Online.");\n  }\n}',
+        "script.py": 'print("Hello World")'
+    };
+    let currentFile = "Program.cs";
+    let output, editor, tabs, input;
+    let cliOutputIndent = " "
+    let cliMsgInitial = "System initialized. Type 'help' to begin."
 
     /*
     =======================================================
 
-        Global vars
+        JS      Core Logic / Utility
 
     =======================================================
     */
 
-    function reloadCSS(){
-        var links = document.getElementsByTagName("link");
-        for(var cl in links){
-            var link = links[cl];
-            if(link && link.rel === "stylesheet"){ link.href += ""; }
+    // --- 2. THE TOGGLE (Sidebar Link) ---
+
+    function updateUI() {
+        tabs.innerHTML = "";
+        Object.keys(myProject).forEach(name => {
+            const btn = document.createElement('button');
+            btn.textContent = name;
+            btn.style.cssText = `
+                padding: 5px 10px; border:none; cursor:pointer; font-size:11px;
+                background: ${name === currentFile ? '#fff' : '#ccc'};
+                border-bottom: ${name === currentFile ? 'none' : '1px solid #999'};
+            `;
+            btn.onclick = () => switchFile(name);
+            tabs.appendChild(btn);
+        });
+        editor.value = myProject[currentFile];
+    }
+
+    function switchFile(name) {
+        myProject[currentFile] = editor.value; // Save work
+        currentFile = name;
+        updateUI();
+    }
+
+    function handleCommand(val) {
+        const parts = val.trim().split(/\s+/); // Split by any whitespace
+        const cmd = parts[0].toLowerCase();
+        const arg1 = parts[1];
+        
+        // Visual feedback of the command entered
+        printToCli(`$ ${val}`, "#fff");
+
+        switch (cmd) {
+            case "help":
+                printToCli("POS (Pichelmeyer OS) v1.0 - Available Commands:", "var(--color_highlight)");
+                printToCli("  ls                  - List files in MyProject");
+                printToCli("  python [file.py]    - Run a python script");
+                printToCli("  csharp [file.cs]    - Compile and run C# code");
+                printToCli("  clear               - Clear the terminal screen");
+                printToCli("  help                - Show this menu");
+                break;
+
+            case "ls":
+                const files = cliOutputIndent + Object.keys(myProject).join("    ") 
+                printToCli(files || "[Empty Project]");
+                break;
+
+            case "clear":
+                output.innerHTML = cliMsgInitial;
+                break;
+
+            case "python":
+                if (myProject[arg1]) {
+                    printToCli(`POS: Initializing Python interpret on ${arg1}...`, "#888");
+                    // We pass the code AND a function that tells it where to print
+                    runPython(myProject[arg1], (result) => {
+                        printToCli(result); 
+                    });
+                }
+                break;
+
+            case "csharp":
+                if (myProject[arg1]) {
+                    printToCli(`POS: Initializing C# interpret on ${arg1}...`, "#888");
+                    runCSharp(myProject[arg1], (result) => {
+                        printToCli(result);
+                    });
+                }
+                break;
+
+            case "": // User just pressed enter
+                break;
+
+            default:
+                printToCli(`POS: '${cmd}' is not recognized as a command.`, "#ff5f56");
+                break;
         }
+        
+        output.scrollTop = output.scrollHeight;
+    }
+
+    // Helper to handle printing to the CLI window
+    function printToCli(text, color = "#0f0") {
+        const line = document.createElement('div');
+        line.style.color = color;
+        line.style.marginBottom = "2px";
+        line.textContent = text;
+        output.appendChild(line);
+    }
+
+    function logError(msg) {
+        const err = document.createElement('div');
+        err.style.color = "#ff5f56";
+        err.textContent = msg;
+        output.appendChild(err);
+    }
+
+    // --- 3. INITIALIZATION ---
+
+
+    /*
+    =======================================================
+
+        JS      SETUP
+
+    =======================================================
+    */
+
+    function setupSidebarToggle() {
+        const nav = document.querySelector('.navbar');
+        if (!nav) return;
+        
+        const compLink = document.createElement('a');
+        compLink.href = "#";
+        compLink.innerHTML = "<span>VIRTUAL TERMINAL</span>";
+        compLink.style.borderLeftColor = "#f1f1f1"; 
+        compLink.onclick = (e) => {
+            e.preventDefault();
+            const drawer = document.getElementById('computer-drawer');
+            drawer.classList.toggle('drawer-open');
+            if (drawer.classList.contains('drawer-open')) {
+                setTimeout(() => input.focus(), 400); // Focus CLI after slide
+            }
+        };
+        nav.appendChild(compLink);
+    }
+
+    function initComputer() {
+        // Assign the globals without 'const'
+        output = document.getElementById('cli-output');
+        editor = document.getElementById('vfs-editor');
+        tabs = document.getElementById('file-tabs');
+        input = document.getElementById('cli-input');
+        
+        const drawer = document.getElementById('computer-drawer');
+        const powerBtn = document.getElementById('pos-power-btn');
+        const addBtn = document.getElementById('add-file-btn');
+
+        if(powerBtn) {
+            powerBtn.onclick = (e) => {
+                e.preventDefault();
+                drawer.classList.toggle('drawer-open');
+                if (drawer.classList.contains('drawer-open')) {
+                    printToCli("System Booting...", "#888");
+                    setTimeout(() => input.focus(), 400); 
+                }
+            };
+        }
+
+        if(addBtn) {
+            addBtn.onclick = () => { /* ... prompt logic ... */ };
+        }
+
+        input.onkeydown = (e) => {
+            if (e.key === "Enter") {
+                handleCommand(input.value);
+                input.value = "";
+            }
+        };
+
+        updateUI(); 
+    }
+
+    // --- 4. CORE LOGIC ---
+
+    /*
+    =======================================================
+
+        JS      entry point
+
+    =======================================================
+    */
+    function loadAll() {
+        changePageColors(1); // Call your color function
+        initComputer();      // Start your computer logic
+    }
+
+    // Call loadAll explicitly if index.html doesn't
+    window.onload = loadAll;
+</script>
+
+<!--
+====================================================================
+
+    END     TEST CODE
+====================================================================
+-->
+
+<script>
+    function loadAll(){ changePageColors(1); }
+
+    function reloadCSS(){
+	    var links = document.getElementsByTagName("link");
+	    for(var cl in links){
+		    var link = links[cl];
+		    if(link.rel === "stylesheet"){ link.href += ""; }
+	    }
     }
 
     function changePageColors(idx){
-        const palettes = [
-            ['#1e201e','#3c3d37','#f1f1f1','#aaaaaa','100%'], // 0 dark
-            ['#f1f1f1','#f1f1f1','#060606','#4f4f4f',  '0%'], // 1 light
-            ['#1E201E','#3C3D37','#ECDFCC','#697565','100%'], // 2 dark green
-            ['#6482AD','#7FA1C3','#F5EDED','#E2DAD6','100%'], // 3 calm blue
-            ['#201E43','#134B70','#EEEEEE','#508C9B','100%'], // 4 dark blue/cyan
-            ['#405D72','#758694','#FFF8F3','#F7E7DC','100%'], // 5 grey-blue
-            ['#f0d1c0','#ffded6','#2F3645','#939185',  '0%'], // 6 cream
-            ['#f0d1c0','#f1f1f1','#DC5F00','#7a746a',  '0%'], // 7 cream-orange
-        ];
-        if(idx >= palettes.length){ idx = 1; }
-        var p = palettes[idx];
-        var r = document.querySelector(":root");
-        r.style.setProperty('--color_wrap', p[0]);
-        r.style.setProperty('--color_core', p[0]);
-        r.style.setProperty('--color_highlight', p[2]);
-        r.style.setProperty('--color_lowlight', p[3]);
-        r.style.setProperty('--brightness_social', 'brightness('+p[4]+')');
-        reloadCSS(); // This will now work because function is defined above
+	    const palettes = [
+		    ['#1e201e','#3c3d37','#f1f1f1','#aaaaaa','100%'], // 0 dark
+		    ['#f1f1f1','#f1f1f1','#060606','#4f4f4f',  '0%'], // 1 light
+		    ['#1E201E','#3C3D37','#ECDFCC','#697565','100%'], // 2 dark green
+		    ['#6482AD','#7FA1C3','#F5EDED','#E2DAD6','100%'], // 3 calm blue
+		    ['#201E43','#134B70','#EEEEEE','#508C9B','100%'], // 4 dark blue/cyan
+		    ['#405D72','#758694','#FFF8F3','#F7E7DC','100%'], // 5 grey-blue
+		    ['#f0d1c0','#ffded6','#2F3645','#939185',  '0%'], // 6 cream
+		    ['#f0d1c0','#f1f1f1','#DC5F00','#7a746a',  '0%'], // 7 cream-orange
+	    ];
+	    if(idx >= palettes.length){ idx = 1; }
+	    var p = palettes[idx];
+	    var r = document.querySelector(":root");
+	    r.style.setProperty('--color_wrap', p[0]);
+	    r.style.setProperty('--color_core', p[0]);
+	    r.style.setProperty('--color_highlight', p[2]);
+	    r.style.setProperty('--color_lowlight', p[3]);
+	    r.style.setProperty('--brightness_social', 'brightness('+p[4]+')');
+	    reloadCSS();
     }
-
-    changePageColors(1);  
-    
-
 </script>
+
+
 
 </body>
 </html>
