@@ -1,0 +1,4420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!--
+=====================================================================
+
+    HEAD
+
+=====================================================================
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Course Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        :root {
+            --color_accent: #2a4878;
+
+            --color_announcements:  #a33340;
+            --color_assessment:     #bf7a41;
+            --color_course:         #609aa6;
+            --color_instructor:     #60a688;
+            --color_lessons:        #6083a6;
+            --color_meeting:        #a69860;
+            --color_policies:       #a66079;
+            --color_schedule:       #8d679e;
+
+            --color_highlight:      #060606;
+            --color_lowlight:       #4f4f4f;
+            --color_wrap:           #f1f1f1;
+            --color_core:           #f1f1f1;
+            --margin_left:          200px;
+            --main_section_card_width: 550px;
+            --brightness_social:    brightness(0%);
+
+            /* Beat type accent colors (thumbnails + indicators) */
+            --color_beat_image:     #4a7fa5;
+            /*--color_beat_slideshow: #7a5ea8;*/
+            --color_beat_code:      #3a8a5a;
+            --color_beat_quiz:      #b05a28;
+            --color_beat_text:      #888;
+
+            /* Lesson panel dimensions — overridden by JS from localStorage */
+            --panel_width:          800px;
+            --panel_bg:             #ffffff;
+            --panel_border:         rgba(0,0,0,0.10);
+            --panel_visual_height:  260px;
+            --panel_strip_height:   90px;
+            --panel_thumb_width:    152px;
+
+            /* Resize handle dimensions */
+            --handle_width:         6px;    /* horizontal handle (panel edge) */
+            --handle_height:        6px;    /* vertical handle (row dividers)  */
+            --handle_color:         rgba(0,0,0,0.10);
+            --handle_color_hover:   rgba(0,0,0,0.22);
+            --handle_color_active:  var(--color_lessons);
+        }
+
+        /* ── Warm tones ── */
+        body[data-color="rose"]    { --color_accent: #8c2f4a; }
+        body[data-color="crimson"] { --color_accent: #8f2020; }
+        body[data-color="rust"]    { --color_accent: #8a3e18; }
+        body[data-color="amber"]   { --color_accent: #7a5c14; }
+        body[data-color="gold"]    { --color_accent: #7a6c1a; }
+
+        /* ── Cool / neutral tones ── */
+        body[data-color="teal"]    { --color_accent: #1e5c58; }
+        body[data-color="forest"]  { --color_accent: #28502e; }
+        body[data-color="slate"]   { --color_accent: #3a5068; }
+        body[data-color="navy"]    { --color_accent: #2a4878; }
+        body[data-color="indigo"]  { --color_accent: #38357a; }
+        body[data-color="plum"]    { --color_accent: #5a2e68; }
+        body[data-color="stone"]   { --color_accent: #4a4646; }
+
+        a { color: var(--color_accent); text-decoration: underline; }
+        a:hover { color: var(--color_highlight); text-decoration: none; }
+
+        h1, .page_heading { font-family: 'Merriweather', serif; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            color: var(--color_lowlight);
+            background-color: var(--color_wrap);
+        }
+
+        /* Prevent text selection while dragging */
+        body.resizing { user-select: none; cursor: col-resize; }
+        body.resizing-v { user-select: none; cursor: row-resize; }
+
+        /* ── Layout ── */
+        .row {
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        .side_left {
+            background-color: var(--color_wrap);
+            padding: 20px;
+            width: var(--margin_left);
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main {
+            flex: 1;
+            margin-left: var(--margin_left);
+            padding: 0;
+            height: 100%;
+            overflow: auto;
+            transition: margin-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.panel-open .main {
+            margin-right: var(--panel_width);
+        }
+
+        /* Suppress the margin transition while dragging to avoid lag */
+        body.resizing .main { transition: none; }
+
+        .header { background-color: var(--color_wrap); height: 20px; }
+
+        .mainsub {
+            padding: 5px 20px;
+            font-size: 13px;
+            background-color: var(--color_core);
+        }
+
+        /* ── Sidebar ── */
+        .back_link {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--color_lowlight);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 16px;
+            opacity: 0.55;
+            transition: opacity 0.2s ease, color 0.2s ease;
+        }
+        .back_link::before { content: '◀'; font-size: 7px; color: var(--color_accent); }
+        .back_link:hover { opacity: 1; color: var(--color_highlight); text-decoration: none; }
+
+        .course_gif {
+            display: block;
+            width: 160px;
+            height: auto;
+            margin: 0 0 14px 0;
+            image-rendering: pixelated;
+            border-radius: 3px;
+        }
+
+        .course_id_block { margin-bottom: 12px; }
+
+        .course_id_code {
+            font-size: 20px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color_accent);
+            margin-bottom: 4px;
+        }
+
+        .course_id_title {
+            color: var(--color_highlight);
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.35;
+        }
+
+        .side_divider { border: none; border-top: 1px solid rgba(0,0,0,0.10); margin: 10px 0; }
+        .side_info_block { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+        .side_info_row { display: flex; flex-direction: column; gap: 1px; }
+
+        .side_info_label {
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: var(--color_accent);
+            opacity: 0.80;
+        }
+
+        .side_info_value { font-size: 11px; color: var(--color_lowlight); line-height: 1.4; }
+
+        /* ── Navbar ── */
+        .navbar { padding-top: 16px; display: flex; flex-direction: column; gap: 3px; }
+
+        .navbar a {
+            position: relative;
+            display: block;
+            padding: 7px 10px 7px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.09em;
+            color: var(--color_lowlight);
+            text-decoration: none;
+            border-radius: 0 8px 8px 0;
+            border-left: 3px solid var(--color_accent);
+            overflow: hidden;
+            transition: color 0.22s ease;
+        }
+
+        .navbar a::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 0 8px 8px 0;
+            background: var(--color_accent);
+            opacity: 0.14;
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+        }
+
+        .navbar a span { position: relative; z-index: 1; }
+        .navbar a:hover { color: var(--color_highlight); }
+        .navbar a:hover::before { transform: scaleX(1); }
+
+        .navbar a[href="#section_announcements"] { border-left-color: var(--color_announcements); }
+        .navbar a[href="#section_announcements"]::before { background: var(--color_announcements); opacity: 0.20; }
+        .navbar a[href="#section_assessment"] { border-left-color: var(--color_assessment); }
+        .navbar a[href="#section_assessment"]::before { background: var(--color_assessment); opacity: 0.20; }
+        .navbar a[href="#section_course"] { border-left-color: var(--color_course); }
+        .navbar a[href="#section_course"]::before { background: var(--color_course); opacity: 0.20; }
+        .navbar a[href="#section_instructor"] { border-left-color: var(--color_instructor); }
+        .navbar a[href="#section_instructor"]::before { background: var(--color_instructor); opacity: 0.20; }
+        .navbar a[href="#section_lessons"] { border-left-color: var(--color_lessons); }
+        .navbar a[href="#section_lessons"]::before { background: var(--color_lessons); opacity: 0.20; }
+        .navbar a[href="#section_meeting"] { border-left-color: var(--color_meeting); }
+        .navbar a[href="#section_meeting"]::before { background: var(--color_meeting); opacity: 0.20; }
+        .navbar a[href="#section_policies"] { border-left-color: var(--color_policies); }
+        .navbar a[href="#section_policies"]::before { background: var(--color_policies); opacity: 0.20; }
+        .navbar a[href="#section_schedule"] { border-left-color: var(--color_schedule); }
+        .navbar a[href="#section_schedule"]::before { background: var(--color_schedule); opacity: 0.20; }
+
+        /* ── Section cards ── */
+        .main_section {
+            width: var(--main_section_card_width);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.75);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            overflow: hidden;
+        }
+
+        .section_heading_bar {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 10px 10px 0 0;
+            background: var(--color_accent);
+        }
+
+        .section_heading_bar-announcements { background: var(--color_announcements); }
+        .section_heading_bar-assessment    { background: var(--color_assessment); }
+        .section_heading_bar-course        { background: var(--color_course); }
+        .section_heading_bar-instructor    { background: var(--color_instructor); }
+        .section_heading_bar-lessons       { background: var(--color_lessons); }
+        .section_heading_bar-meeting       { background: var(--color_meeting); }
+        .section_heading_bar-policies      { background: var(--color_policies); }
+        .section_heading_bar-schedule      { background: var(--color_schedule); }
+
+        .section_heading_bar .page_heading {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+        }
+
+        .section_body { padding: 4px 20px 20px; }
+        .section_body p { margin: 10px 0 4px; font-size: 13px; }
+
+        /* ── Tables: Assessment ── */
+        .table_assessment { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+        .table_assessment th, .table_assessment td { text-align: left; padding: 6px 10px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .table_assessment th { font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color_accent); background: rgba(0,0,0,0.04); }
+        .table_assessment tr:last-child td { border-bottom: none; }
+        .table_assessment tr:hover td { background: rgba(0,0,0,0.02); }
+        .table_assessment td.percentage { color: var(--color_accent); font-size: 12px; opacity: 0.75; width: 40px; }
+        .table_assessment td.name { color: var(--color_highlight); }
+        .table_assessment td.description { color: var(--color_lowlight); font-style: italic; font-size: 11px; }
+
+        /* ── Tables: Learning Goals ── */
+        .table_learning_goals { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+        .table_learning_goals th, .table_learning_goals td { text-align: left; padding: 6px 10px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .table_learning_goals th { font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color_accent); background: rgba(0,0,0,0.04); }
+        .table_learning_goals tr:last-child td { border-bottom: none; }
+        .table_learning_goals tr:hover td { background: rgba(0,0,0,0.02); }
+        .table_learning_goals td.num { color: var(--color_accent); font-family: 'Courier New', monospace; font-size: 10px; opacity: 0.75; width: 40px; }
+        .table_learning_goals td.action { color: var(--color_highlight); }
+        .table_learning_goals td.detail { color: var(--color_lowlight); font-style: italic; font-size: 11px; }
+
+        /* ── Tables: Schedule ── */
+        .schedule_table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+        .schedule_table th, .schedule_table td { text-align: left; padding: 6px 10px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .schedule_table th { font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color_accent); background: rgba(0,0,0,0.04); }
+        .schedule_table tr:last-child td { border-bottom: none; }
+        .schedule_table tr:hover td { background: rgba(0,0,0,0.02); }
+        .schedule_table td.week_num { color: var(--color_accent); font-family: 'Courier New', monospace; font-size: 10px; opacity: 0.75; width: 40px; }
+        .schedule_table td.topic { color: var(--color_highlight); }
+        .schedule_table td.notes { color: var(--color_lowlight); font-style: italic; font-size: 11px; }
+
+        /* ── Announcements ── */
+        .announcement_list { list-style: none; display: flex; flex-direction: column; gap: 10px; padding: 8px 0 4px; }
+        .announcement_item { display: grid; grid-template-columns: 90px 1fr; gap: 0 12px; font-size: 12px; }
+        .announcement_date { font-family: 'Courier New', monospace; font-size: 10px; color: var(--color_accent); opacity: 0.85; padding-top: 1px; }
+        .announcement_text { color: var(--color_lowlight); line-height: 1.5; }
+
+        /* ── Lessons list ── */
+        .lesson_list { list-style: none; padding: 8px 0 4px; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+
+        .lesson_item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.03);
+            transition: background 0.18s ease;
+        }
+        .lesson_item:hover { background: rgba(0,0,0,0.055); }
+
+        .lesson_item_meta { display: flex; flex-direction: column; gap: 2px; }
+
+        .lesson_item_num {
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            color: var(--color_lessons);
+            opacity: 0.85;
+        }
+
+        .lesson_item_title { font-size: 12px; font-weight: 600; color: var(--color_highlight); }
+
+        .lesson_open_btn {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            border: none;
+            border-radius: 5px;
+            background: var(--color_lessons);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            cursor: pointer;
+            opacity: 0.85;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+        .lesson_open_btn::after { content: '▶'; font-size: 7px; }
+        .lesson_open_btn:hover { opacity: 1; transform: scale(1.04); }
+        .lesson_open_btn.active { background: var(--color_highlight); opacity: 0.5; }
+
+        /* 
+        ═══════════════════════════════════════════════════════════
+           LESSON PANEL
+        ═══════════════════════════════════════════════════════════
+         */
+        .lesson_panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: var(--panel_width);
+            height: 100vh;
+            background: var(--panel_bg);
+            border-left: 1px solid var(--panel_border);
+            box-shadow: -4px 0 24px rgba(0,0,0,0.10);
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            /* min/max width constraints for panel resize */
+            min-width: 320px;
+            max-width: 100vw;
+        }
+
+        body.panel-open .lesson_panel { transform: translateX(0); }
+        body.resizing .lesson_panel   { transition: none; }
+
+        /* ── Panel header ── */
+        .panel_header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px 10px 16px;
+            background: var(--color_lessons);
+            flex-shrink: 0;
+            position: relative; /* stacking context for the reset button */
+        }
+
+        .panel_header_title {
+            font-family: 'Merriweather', serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        .panel_header_actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        /* Reset layout button */
+        .panel_reset_btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 4px;
+            color: rgba(255,255,255,0.70);
+            font-size: 10px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: background 0.18s ease, color 0.18s ease;
+            white-space: nowrap;
+        }
+        .panel_reset_btn:hover { background: rgba(255,255,255,0.28); color: #fff; }
+
+        .panel_close_btn {
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.20);
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+            line-height: 1;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.18s ease;
+        }
+        .panel_close_btn:hover { background: rgba(255,255,255,0.38); }
+
+        /* 
+        ══════════════════════════════════════════════════════════
+           RESIZE HANDLES
+        ══════════════════════════════════════════════════════════ 
+        s*/
+
+        /* ── Handle 1: left edge of panel — resize panel WIDTH ── */
+        .panel_resize_left {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--handle_width);
+            cursor: col-resize;
+            background: var(--handle_color);
+            z-index: 200;
+            transition: background 0.18s ease;
+            /* visual groove */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .panel_resize_left:hover,
+        .panel_resize_left.dragging { background: var(--handle_color_active); }
+
+        /* Three-dot grip indicator */
+        .panel_resize_left::after {
+            content: '';
+            display: block;
+            width: 2px;
+            height: 28px;
+            background: rgba(255,255,255,0.55);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        /* ── Handle 2: below visual area — resize VISUAL HEIGHT ── */
+        .panel_resize_visual {
+            flex-shrink: 0;
+            height: var(--handle_height);
+            cursor: row-resize;
+            background: var(--handle_color);
+            position: relative;
+            z-index: 10;
+            transition: background 0.18s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .panel_resize_visual:hover,
+        .panel_resize_visual.dragging { background: var(--handle_color_active); }
+
+        .panel_resize_visual::after {
+            content: '';
+            display: block;
+            width: 28px;
+            height: 2px;
+            background: rgba(255,255,255,0.55);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        /* ── Handle 3: above strip — resize STRIP HEIGHT ── */
+        .panel_resize_strip {
+            flex-shrink: 0;
+            height: var(--handle_height);
+            cursor: row-resize;
+            background: var(--handle_color);
+            position: relative;
+            z-index: 10;
+            transition: background 0.18s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .panel_resize_strip:hover,
+        .panel_resize_strip.dragging { background: var(--handle_color_active); }
+
+        .panel_resize_strip::after {
+            content: '';
+            display: block;
+            width: 28px;
+            height: 2px;
+            background: rgba(255,255,255,0.55);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        /* ── Visual area (TOP ROW) ── */
+        .panel_visual_area {
+            flex-shrink: 0;
+            height: var(--panel_visual_height);
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            /* min/max constraints */
+            min-height: 80px;
+            max-height: calc(100vh - 200px);
+            /* hiding visual panel for text_only */
+            transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Hiding visual area for "text_only" type lesson beats */
+        .panel_visual_area.hidden,
+        .panel_resize_visual.hidden {
+            height: 0 !important;
+            min-height: 0 !important;
+            overflow: hidden;
+            transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Beat counter badge */
+        .panel_beat_counter {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: rgba(0,0,0,0.40);
+            color: rgba(255,255,255,0.60);
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            padding: 2px 7px;
+            border-radius: 10px;
+            z-index: 2;
+        }
+
+        /* Type badge (top-left) */
+        .panel_type_badge {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 10px;
+            z-index: 2;
+            background: rgba(0,0,0,0.35);
+            color: rgba(255,255,255,0.70);
+        }
+
+        /* ── image beat ── */
+        .beat_image_img {
+            max-width: 100%;
+            max-height: calc(var(--panel_visual_height) - 36px);
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .beat_caption {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 5px 12px;
+            background: rgba(0,0,0,0.45);
+            color: rgba(255,255,255,0.70);
+            font-size: 10px;
+            font-style: italic;
+            letter-spacing: 0.04em;
+            text-align: center;
+        }
+
+        /* ── code_check beat ── */
+        .beat_code_wrap {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 14px 16px 10px;
+            gap: 8px;
+        }
+
+        .beat_code_prompt {
+            font-size: 12px;
+            color: rgba(255,255,255,0.80);
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+
+        .beat_code_input {
+            flex: 1;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 5px;
+            color: #e8f4e8;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 8px 10px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.18s;
+            min-height: 60px;
+        }
+        .beat_code_input:focus { border-color: rgba(255,255,255,0.40); }
+
+        .beat_code_row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .beat_code_submit {
+            padding: 5px 14px;
+            border: none;
+            border-radius: 4px;
+            background: var(--color_beat_code);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.18s;
+        }
+        .beat_code_submit:hover { opacity: 0.85; }
+
+        .beat_code_feedback {
+            font-size: 11px;
+            font-style: italic;
+            color: rgba(255,255,255,0.55);
+            flex: 1;
+            transition: color 0.2s;
+        }
+        .beat_code_feedback.correct { color: #7ecb8f; }
+        .beat_code_feedback.wrong   { color: #e07878; }
+
+        /* ── quiz beat ── */
+        .beat_quiz_wrap {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 14px 16px 10px;
+            gap: 10px;
+        }
+
+        .beat_quiz_question {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.88);
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+
+        .beat_quiz_choices {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .beat_quiz_choice {
+            padding: 7px 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 5px;
+            color: rgba(255,255,255,0.75);
+            font-size: 12px;
+            cursor: pointer;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.16s, border-color 0.16s;
+        }
+        .beat_quiz_choice:hover:not(:disabled) { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.28); }
+        .beat_quiz_choice.correct { background: rgba(80,180,100,0.25); border-color: #7ecb8f; color: #b2f0be; }
+        .beat_quiz_choice.wrong   { background: rgba(200,80,80,0.22); border-color: #e07878; color: #f4b0b0; }
+        .beat_quiz_choice:disabled { cursor: default; }
+
+        .beat_quiz_feedback {
+            font-size: 11px;
+            font-style: italic;
+            color: rgba(255,255,255,0.45);
+            flex-shrink: 0;
+            min-height: 16px;
+        }
+
+        /* ── text_only beat ── */
+        .beat_text_only_wrap {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 24px;
+        }
+
+        .beat_text_only_quote {
+            border-left: 3px solid rgba(255,255,255,0.25);
+            padding-left: 16px;
+            color: rgba(255,255,255,0.65);
+            font-size: 13px;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        /* ── placeholder (no type / unknown) ── */
+        .panel_visual_placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.25);
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .panel_visual_placeholder::before { content: '⬛'; font-size: 32px; opacity: 0.18; }
+
+        
+
+        /* ── Beat text (MIDDLE) ── */
+        .panel_beat_text_area {
+            flex: 1;
+            padding: 14px 16px 10px;
+            overflow-y: auto;
+            min-height: 60px;
+        }
+
+        .panel_beat_text {
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--color_lowlight);
+        }
+
+        .panel_beat_text em { color: var(--color_accent); font-style: normal; font-weight: 600; }
+
+        .panel_beat_empty {
+            color: rgba(0,0,0,0.25);
+            font-size: 12px;
+            font-style: italic;
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        /* ── Thumbnail strip (BOTTOM ROW) ── */
+        .panel_strip_area {
+            flex-shrink: 0;
+            height: var(--panel_strip_height);
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f7f7f8;
+            border-top: 1px solid rgba(0,0,0,0.07);
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            /* min/max for strip resize */
+            min-height: 60px;
+            max-height: 300px;
+        }
+
+        .panel_strip_area::after { content: ''; flex-shrink: 0; width: 10px; }
+
+        /* ── Beat pill (replaces old thumbnail card) ── */
+        .beat_pill {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+            cursor: pointer;
+            min-width: 64px;
+            max-width: 100px;
+            height: calc(var(--panel_strip_height) - 20px);
+            transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s, background 0.15s;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .beat_pill:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.14); transform: translateY(-2px); }
+
+        /* Colored left-edge accent bar */
+        .beat_pill::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            border-radius: 8px 0 0 8px;
+            background: var(--pill-color, #888);
+        }
+
+        /* Beat number — large and monospaced */
+        .beat_pill_num {
+            font-family: 'Courier New', monospace;
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--pill-color, #888);
+            letter-spacing: -0.02em;
+        }
+
+        /* Keyword / mini-title */
+        .beat_pill_label {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--color_lowlight);
+            line-height: 1.3;
+            word-break: break-word;
+            hyphens: auto;
+            max-width: 80px;
+        }
+
+        /* Selected state — colored border + light tinted bg */
+        .beat_pill.selected {
+            border-color: var(--pill-color, #888);
+            background: color-mix(in srgb, var(--pill-color, #888) 8%, white);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--pill-color, #888) 18%, transparent);
+        }
+
+        /* Fallback for browsers without color-mix */
+        @supports not (background: color-mix(in srgb, red 10%, white)) {
+            .beat_pill.selected { background: #f0f4fa; }
+        }
+
+        /* ── Error state ── */
+        #error-msg {
+            display: none;
+            max-width: 580px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: #fff3f3;
+            border: 1px solid #f5c6c6;
+            border-radius: 6px;
+            color: #a00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            padding: 8px 80px 40px 40px;
+            text-align: center;
+            background: var(--color_wrap);
+            font-size: 12px;
+        }
+
+        /* ── Responsive ── */
+        @media screen and (max-width: 800px) {
+            .row { flex-direction: column; overflow-x: visible; }
+            .side_left { position: relative; width: 100%; height: auto; border-bottom: 1px solid rgba(0,0,0,0.08); }
+            .main { margin-left: 0; }
+            .main_section { width: 100%; }
+            .lesson_panel { width: 100%; border-left: none; }
+            body.panel-open .main { margin-right: 0; }
+            .panel_resize_left { display: none; }
+        }
+
+        
+        .beat-header {
+            /* Mimic H3 styling */
+            display: block;
+            font-size: 1.25em;
+            font-weight: bold;
+            margin-bottom: 0.83em;
+            /* Add space above for visual separation of beats */        
+            margin-top: 100px;        
+            }
+        .beat-type {
+            /* Mimic pill on beat slides */
+            }
+        .center-cell {
+            text-align: center;
+            vertical-align: middle;
+            }
+        .course-header {
+            /* Mimic H1 styling */
+            display: block;
+            font-size: 2.0em;
+            font-weight: bold;
+            margin-bottom: 0.83em;
+            /* Add space above for visual separation of units */        
+            margin-top: 200px;
+            }
+        .img-placeholder { 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 400px; 
+            height: 200px; 
+            background: #7accff; 
+            margin: 30px;
+            }
+        .quiz-placeholder{ 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 400px; 
+            height: 200px; 
+            background: #ffdc7a; 
+            margin: 30px;
+            }
+        .unit-header {
+            /* Mimic H1 styling */
+            display: block;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 0.83em;
+            /* Add space above for visual separation of units */        
+            margin-top: 200px;
+            }
+
+        /* Code container stuff */
+        .code-container {
+            background-color: #f9f9f9;
+            border-left: 5px solid #007bff;
+            border-radius: 4px;
+            margin: 20px 0;
+            <!-- Remove padding from here so the header can touch the edges -->
+            padding: 0; 
+            overflow: hidden;
+            }
+        .code-header {
+            background-color: #444444;
+            color: #f1f1f1;
+            font-family: sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 8px 15px;
+            border-bottom: 1px solid #ddd;
+            }
+        .code-guide {
+            background-color: #999999;
+            color: #eeeeee;
+            font-family: sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-bottom: 1px solid #ddd;
+            }
+        .code-output {
+            background-color: #666666;
+            color: #eeeeee;
+            font-family: sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-bottom: 1px solid #ddd;
+            padding-left: 60px;
+            padding-bottom: 20px;
+            padding-top: 20px;
+            }
+        .code-h-key {
+            color: " #ce7aff";   
+            }
+        
+        pre {
+            flex-grow: 1;
+            margin: 0; /* IMPORTANT: Removes browser default spacing */
+            padding: 15px; /* Match the top padding of .line-numbers */
+            line-height: 1.5; /* Must match .line-numbers exactly */
+        }
+        pre code {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .code-body {
+            display: flex;
+            background-color: #fff;
+            align-items: stretch; /* Ensures both columns are the same height */
+        }
+
+        .line-numbers {
+            width: 30px;
+            background-color: #f1f1f1;
+            color: #999;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            text-align: right;
+            /* Match this padding exactly to the 'pre' padding below */
+            padding: 15px 10px; 
+            border-right: 1px solid #ddd;
+            line-height: 1.5;
+            }
+        .code-lines {
+            /*width: 30px;/*
+            /*background-color: #f1f1f1;*/
+            color: #000;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            /*text-align: right;*/
+            /* Match this padding exactly to the 'pre' padding below */
+            padding: 15px 10px; 
+            /*border-right: 1px solid #ddd;*/
+            line-height: 1.5;
+            }
+        
+        /* Note currently working */
+        mcode {
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 10px;
+            min-height: 50px;
+            
+            /* The "Dark Mode" Look */
+            background-color: #282c34 !important;
+            color: #abb2bf !important;
+            border-radius: 6px;
+            border: 1px solid #181a1f;
+
+            /* The Typography */
+            font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.5;
+
+            /* Crucial: Keeps your spaces/tabs and wraps long lines */
+            white-space: pre-wrap; 
+            word-break: break-all;
+            
+            /* Layout */
+            display: block; /* Flex usually messes up code alignment */
+            }
+            
+
+        /* This is the magic part: it makes the row divs transparent to the grid */
+        /* Layout Properties */
+        .grid-absence {
+            display: grid;
+            /* This creates 6 columns that automatically size to the widest content */
+            grid-template-columns: repeat(6, auto); 
+            width: 95%; /* Increased width so the data fits */
+            border: 1px solid #ddd;
+            font-family: sans-serif;
+        }
+        .grid-absence-row {
+            display: contents; 
+        }
+        .grid-absence-cell {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
+            font-size: 12px;
+        }
+        .grid-absence-cell-absent {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
+            background: #ffaaaa;
+            font-size: 12px;
+        }
+        .grid-absence-cell-strong {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
+            background: #b8eaff;
+            font-size: 12px;
+        }
+        .header .grid-absence-cell {
+            background: #f4f4f4;
+            font-weight: bold;
+            font-size: 12px;
+        }
+    
+
+        /*
+        ===========================================================
+            Transpiler
+        ===========================================================
+        */
+        .ide-overlay {
+            position: absolute;
+            inset: 0;
+            background: #1e1e2e;
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            font-family: 'Courier New', monospace;
+        }
+         
+        .ide-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: #13131f;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+         
+        .ide-lang-badge {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #fff;
+        }
+        .ide-lang-badge.csharp     { background: #6a3fd4; }
+        .ide-lang-badge.python     { background: #3d7ebf; }
+        .ide-lang-badge.javascript { background: #b08a18; }
+         
+        .ide-instructions {
+            flex: 1;
+            font-size: 11px;
+            color: rgba(255,255,255,0.50);
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 6px;
+        }
+         
+        .ide-btn {
+            flex-shrink: 0;
+            padding: 5px 13px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .ide-btn:hover { opacity: 0.82; }
+        .ide-btn.run   { background: #3a8a5a; color: #fff; }
+        .ide-btn.reset { background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.65); }
+        .ide-btn.exit  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); font-size: 10px; }
+         
+        .ide-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+        }
+         
+        .ide-editor-wrap {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+            overflow: hidden;
+        }
+         
+        /* The actual textarea masquerading as a code editor */
+        .ide-editor {
+            width: 100%;
+            height: 100%;
+            background: #1e1e2e;
+            color: #cdd6f4;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 12px 14px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            tab-size: 4;
+            -moz-tab-size: 4;
+            box-sizing: border-box;
+            caret-color: #cdd6f4;
+        }
+         
+        /* Line-number gutter overlay — rendered by canvas beside textarea */
+        .ide-gutter {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 36px;
+            background: #181825;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .ide-gutter canvas { display: block; }
+         
+        /* Shift editor text right of gutter */
+        .ide-editor { padding-left: 50px; }
+         
+        .ide-divider {
+            height: 4px;
+            background: #13131f;
+            cursor: row-resize;
+            flex-shrink: 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+         
+        .ide-output-wrap {
+            flex-shrink: 0;
+            height: 140px;
+            min-height: 60px;
+            max-height: 60%;
+            background: #11111b;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+         
+        .ide-output-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            background: #0d0d17;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+         
+        .ide-output-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            font-family: 'Inter', sans-serif;
+        }
+         
+        .ide-status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: background 0.2s;
+        }
+        .ide-status-dot.ok  { background: #a6e3a1; }
+        .ide-status-dot.err { background: #f38ba8; }
+        .ide-status-dot.run { background: #f9e2af; }
+         
+        .ide-clear-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.25);
+            font-size: 10px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: color 0.15s;
+        }
+        .ide-clear-btn:hover { color: rgba(255,255,255,0.55); }
+         
+        .ide-output {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #cdd6f4;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+         
+        .ide-output .out-normal { color: #cdd6f4; }
+        .ide-output .out-error  { color: #f38ba8; }
+        .ide-output .out-system { color: rgba(255,255,255,0.30); font-style: italic; }
+        .ide-output .out-ok     { color: #a6e3a1; }
+         
+        /* Pyodide loading spinner */
+        .ide-loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            color: rgba(255,255,255,0.40);
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+        }
+         
+        @keyframes ide-spin {
+            to { transform: rotate(360deg); }
+        }
+        .ide-spinner {
+            width: 12px; height: 12px;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-top-color: rgba(255,255,255,0.55);
+            border-radius: 50%;
+            animation: ide-spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+         
+        /* Output resize handle drag */
+        .ide-divider:hover { background: rgba(255,255,255,0.10); }
+
+    </style>
+
+</head>
+
+<!--
+=====================================================================
+
+    BODY
+
+=====================================================================
+-->
+
+
+<body>
+
+<div class="row">
+
+    <!-- 
+    ═══════════════════════════════════════════════════════
+         LEFT SIDEBAR
+    ═══════════════════════════════════════════════════════
+    -->
+    <div class="side_left">
+
+        <img id="course-gif" class="course_gif" src="" alt="Course image" style="display:none"/>
+
+        <div class="course_id_block">
+            <div class="course_id_code" id="fill_pre_num"></div>
+            <div class="course_id_title" id="fill_title"></div>
+        </div>
+
+        <div class="navbar">
+            <a href="#section_announcements"><span>Announcements</span></a>
+            <a href="#section_assessment"><span>Assessment</span></a>
+            <a href="#section_course"><span>Course</span></a>
+            <a href="#section_instructor"><span>Instructor</span></a>
+            <a href="#section_lessons"><span>Lessons</span></a>
+            <a href="#section_meeting"><span>Meeting</span></a>
+            <a href="#section_policies"><span>Policies</span></a>
+            <a href="#section_schedule"><span>Schedule</span></a>
+        </div>
+
+        <br><br>
+        <a href="../index.html#teaching" class="back_link"><span>Back to site</span></a>
+
+    </div>
+
+    <!-- 
+    ═══════════════════════════════════════════════════════
+         MAIN CONTENT
+    ═══════════════════════════════════════════════════════════ 
+    -->
+    <div class="main">
+        <div class="header"></div>
+        <div class="mainsub" id="page-main" style="display:none">
+
+            <a id="top"></a>
+
+            <!-- ANNOUNCEMENTS -->
+            <a id="section_announcements"></a>
+            <br>
+            <div class="main_section">
+                <div class="section_heading_bar section_heading_bar-announcements">
+                    <div class="page_heading">Announcements</div>
+                </div>
+                <div class="section_body">
+                    <p>Announcement stuff here.</p>
+                    <ul class="announcement_list" id="announcements-list"></ul>
+                </div>
+            </div>
+
+            <!-- ASSESSMENT -->
+            <a id="section_assessment"></a>
+            <br>
+            <div class="main_section">
+                <div class="section_heading_bar section_heading_bar-assessment">
+                    <div class="page_heading">Assessment</div>
+                </div>
+                <div class="section_body">
+                    <p>Students will be assessed using the following instruments and with the associated weights.</p><br>
+                    <table class="table_assessment">
+                        <thead><tr><th>%</th><th>Name</th><th>Description</th></tr></thead>
+                        <tbody id="fill_table_assessment"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- COURSE -->
+            <a id="section_course"></a>
+            <br>
+            <div class="main_section">
+                <div class="section_heading_bar section_heading_bar-course">
+                    <div class="page_heading">Course</div>
+                </div>
+                <div class="section_body">
+                    <p><b>Prerequisites</b></p>
+                    <p id="fill_course_prerequisites"></p>
+                    <br>
+                    <p><b>Catalog Description</b></p>
+                    <p id="fill_course_description"></p>
+                    <br>
+                    <p><b>Learning Goals</b></p>
+                    <p id="fill_learning_goals"></p>
+                    <table class="table_learning_goals">
+                        <thead><tr><th>#</th><th>Action</th><th>Detail</th></tr></thead>
+                        <tbody id="fill_table_learning_goals"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- INSTRUCTOR -->
+            <a id="section_instructor"></a>
+            <br>
+            <div class="main_section">
+                <div class="section_heading_bar section_heading_bar-instructor">
+                    <div class="page_heading">Instructor</div>
+                </div>
+                <div class="section_body">
+                    <p>Name: <span id="fill_instructor_name"></span></p>
+                    <p>Email: <span id="fill_instructor_email"></span></p>
+                    <p>Office hours: <span id="fill_instructor_oh"></span></p>
+                </div>
+            </div>
+
+            <!-- LESSONS -->
+            <a id="section_lessons"></a>
+            <br>
+            <div class="main_section">
+                <div class="section_heading_bar section_heading_bar-lessons">
+                    <div class="page_heading">Lessons</div>
+                </div>
+                <div class="section_body">
+                    <ul class="lesson_list" id="lessons-list"></ul>
+                </div>
+            </div>
+
+            <!-- MEETING -->
+            <a id="section_meeting"></a>
+            <br>
+            <div class="main_section">
+                <div class="section_heading_bar section_heading_bar-meeting">
+                    <div class="page_heading">Meeting</div>
+                </div>
+                <div class="section_body">
+                    <p>Days/Time: <span id="fill_meeting_time"></span></p>
+                    <p>Location: <span id="fill_meeting_place"></span></p>
+                </div>
+            </div>
+
+            <!-- POLICIES -->
+            <a id="section_policies"></a>
+            <br>
+            <div class="main_section">
+                <div class="section_heading_bar section_heading_bar-policies">
+                    <div class="page_heading">Policies</div>
+                </div>
+                <div class="section_body">
+                    <br>
+                    <span id="fill_policies_body"></span>
+                </div>
+            </div>
+
+            <!-- SCHEDULE -->
+            <a id="section_schedule"></a>
+            <br>
+            <div class="main_section">
+                <div class="section_heading_bar section_heading_bar-schedule">
+                    <div class="page_heading">Schedule</div>
+                </div>
+                <div class="section_body">
+                    <p>Below is the schedule we expect to follow.</p><br>
+                    <table class="schedule_table">
+                        <thead><tr><th>Wk</th><th>Theme</th><th>Topic</th><th>Notes</th></tr></thead>
+                        <tbody id="schedule-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="error-msg"></div>
+
+        <div class="footer" id="page-footer" style="display:none">
+            <p><span id="footer-code"></span> — Jacob Pichelmeyer, PhD</p>
+        </div>
+    </div>
+
+    <!-- 
+    ═══════════════════════════════════════════════════════
+         LESSON PANEL
+
+         Three resize handles:
+           .panel_resize_left   — left edge, drags panel WIDTH
+           .panel_resize_visual — below visual area, drags VISUAL HEIGHT
+           .panel_resize_strip  — above strip, drags STRIP HEIGHT
+
+         The text area (.panel_beat_text_area) is flex:1 and expands
+         to fill whatever space the two vertical handles leave.
+    ═══════════════════════════════════════════════════════════ 
+    -->
+    <div class="lesson_panel" id="lesson-panel" aria-hidden="true">
+
+        <!-- Handle 1: resize panel width (left edge) -->
+        <div class="panel_resize_left"
+             id="handle-panel-width"
+             role="separator"
+             aria-orientation="vertical"
+             aria-label="Drag to resize panel width"
+             tabindex="0"
+             title="Drag to resize panel width"></div>
+
+        <div class="panel_header">
+            <div class="panel_header_title" id="panel-lesson-title">Lesson</div>
+            <div class="panel_header_actions">
+                <button class="panel_reset_btn" id="panel-reset-btn" title="Reset panel to default sizes">Reset layout</button>
+                <button class="panel_close_btn" id="panel-close-btn" aria-label="Close lesson panel">✕</button>
+            </div>
+        </div>
+
+        <div class="panel_visual_area" id="panel-visual-area">
+            <!-- Populated dynamically by renderBeatVisual() -->
+            <div class="panel_visual_placeholder" id="panel-visual-placeholder">Select a beat</div>
+        </div>
+
+        <!-- Handle 2: resize visual height -->
+        <div class="panel_resize_visual"
+             id="handle-visual-height"
+             role="separator"
+             aria-orientation="horizontal"
+             aria-label="Drag to resize visual area"
+             tabindex="0"
+             title="Drag to resize visual area"></div>
+
+        <div class="panel_beat_text_area">
+            <div class="panel_beat_text" id="panel-beat-text">
+                <span class="panel_beat_empty">Select a beat below to begin.</span>
+            </div>
+        </div>
+
+        <!-- Handle 3: resize strip height -->
+        <div class="panel_resize_strip"
+             id="handle-strip-height"
+             role="separator"
+             aria-orientation="horizontal"
+             aria-label="Drag to resize thumbnail strip"
+             tabindex="0"
+             title="Drag to resize thumbnail strip"></div>
+
+        <div class="panel_strip_area" id="panel-strip"></div>
+
+    </div>
+
+</div>
+
+<!-- 
+═══════════════════════════════════════════════════════════
+     INLINE DEMO DATA
+═══════════════════════════════════════════════════════════════ 
+-->
+<script>
+    const DEMO_COURSES = {
+        "_shared": {
+            "instructor_name": "INSTRUCTOR_NAME",
+            "instructor_email": "INSTRUCTOR_EMAIL",
+            "instructor_oh": "INSTRUCTOR_OFFICE_HOURS",
+            "semester": "SEMESTER",
+            "policies": [
+                {
+                    "name": "POLICY_NAME",
+                    "description": [
+                        "POLICY_DESCRIPTION_PARAGRAPH_1"
+                    ]
+                }
+            ]
+        },
+        "cscGEN": {
+            "pre_num": "PRE_NUM",
+            "title": "TITLE",
+            "title_short": "TITLE_SHORT",
+            "color": "navy",
+            "announcements": [
+                { "date": "DATE", "text": "TEXT" }
+            ],
+            "assessments": [
+                { "name": "NAME",  "description": "DESCRIPTION", "percentage": "100%" }
+            ],
+            "course_prerequisites": "COURSE_PREREQUISITES",
+            "course_catalog_description": "COURSE_DESCRIPTION",
+            "course_learning_goals": [
+                { "num": 1, "action": "ACTION",    "detail": "DETAIL" }
+            ],
+            "meeting_time": "MEETING_TIME",
+            "meeting_place": "MEETING_PLACE",
+            "schedule_weeks": [
+                { "week": 1, "topic": "TOPIC", "notes": "NOTES" }
+            ],
+            "lessons": [
+                {
+                    "id": "LESSON_ID",
+                    "title": "LESSON_TITLE",
+                    "beats": [
+                        {
+                            "type": "LESSON_BEAT_TYPE",
+                            "text": "LESSON_BEAT_TEXT"
+                        }
+                    ]
+                }
+            ]
+        }
+    };
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+
+
+
+<script>
+
+    // ══════════════════════════════════════════════════════════════════
+    //
+    //  BEAT TYPE CONFIGURATION
+    //
+    // ══════════════════════════════════════════════════════════════════
+
+    const BEAT_TYPES = {
+        image:      { label: "Image",      icon: "🖼",  color: "var(--color_beat_image)"     },
+        code_check: { label: "Code",       icon: "{}",  color: "var(--color_beat_code)"      },
+        quiz:       { label: "Quiz",       icon: "?",   color: "var(--color_beat_quiz)"      },
+        text_only:  { label: "Note",       icon: "✎",   color: "var(--color_beat_text)"      },
+    };
+
+    function beatTypeInfo(type) {
+        return BEAT_TYPES[type] || { label: type || "—", icon: "◻", color: "#888" };
+    }
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  PANEL LAYOUT PREFERENCES
+    //  Persisted to localStorage. All sizes in pixels.
+    // ══════════════════════════════════════════════════════════════════
+
+    const PREFS_KEY   = "lessonPanelPrefs";
+    const PREFS_DEFAULT = {
+        panelWidth:   800,
+        visualHeight: 260,
+        stripHeight:  90,
+    };
+
+    function loadPrefs() {
+        try {
+            const raw = localStorage.getItem(PREFS_KEY);
+            if (raw) return { ...PREFS_DEFAULT, ...JSON.parse(raw) };
+        } catch (_) {}
+        return { ...PREFS_DEFAULT };
+    }
+
+    function savePrefs(prefs) {
+        try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (_) {}
+    }
+
+    function resetPrefs() {
+        try { localStorage.removeItem(PREFS_KEY); } catch (_) {}
+        return { ...PREFS_DEFAULT };
+    }
+
+    // Apply all three dimensions to CSS variables and element styles.
+    function applyPrefs(prefs) {
+        const root = document.documentElement;
+        root.style.setProperty("--panel_width",        `${prefs.panelWidth}px`);
+        root.style.setProperty("--panel_visual_height", `${prefs.visualHeight}px`);
+        root.style.setProperty("--panel_strip_height",  `${prefs.stripHeight}px`);
+
+        panelEl.style.width              = `${prefs.panelWidth}px`;
+        panelVisual.style.height         = `${prefs.visualHeight}px`;
+        panelStrip.style.height          = `${prefs.stripHeight}px`;
+
+        // Sync pill heights too
+        document.querySelectorAll(".beat_pill").forEach(t => {
+            t.style.height = `${prefs.stripHeight - 20}px`;
+        });
+    }
+
+    let prefs = loadPrefs();
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  STATE
+    // ══════════════════════════════════════════════════════════════════
+
+    let activeLessonId  = null;
+    let activeBeatIndex = null;
+    let activeBeats     = [];   // kept in sync so arrow-key nav can reference it
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  DOM REFS
+    // ══════════════════════════════════════════════════════════════════
+
+    const panelEl       = document.getElementById("lesson-panel");
+    const panelClose    = document.getElementById("panel-close-btn");
+    const panelReset    = document.getElementById("panel-reset-btn");
+    const panelTitle    = document.getElementById("panel-lesson-title");
+    const panelVisual   = document.getElementById("panel-visual-area");
+    const panelBeatText = document.getElementById("panel-beat-text");
+    const panelStrip    = document.getElementById("panel-strip");
+
+    const handleWidth   = document.getElementById("handle-panel-width");
+    const handleVisual  = document.getElementById("handle-visual-height");
+    const handleStrip   = document.getElementById("handle-strip-height");
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  RESIZE LOGIC
+    //  Each handle gets a makeDragHandler() call with its own
+    //  dimension accessor, mutator, and constraints.
+    // ══════════════════════════════════════════════════════════════════
+
+    /**
+     * Creates a unified drag handler for resize handles.
+     *
+     * @param {Object} config
+     *   axis        — "x" or "y"
+     *   direction   — 1 = dragging right/down grows, -1 = shrinks (for left-edge drag)
+     *   getSize     — () => current size in px
+     *   setSize     — (px) => applies the new size and saves prefs
+     *   min         — minimum px
+     *   max         — () => maximum px (function, evaluated at drag time)
+     *   bodyCursor  — CSS cursor class to add to body during drag
+     */
+    function makeDragHandler({ axis, direction, getSize, setSize, min, max, bodyCursor }) {
+        return function (startEvent) {
+            startEvent.preventDefault();
+
+            const startPos  = axis === "x" ? startEvent.clientX : startEvent.clientY;
+            const startSize = getSize();
+
+            document.body.classList.add(bodyCursor);
+
+            function onMove(e) {
+                const pos   = axis === "x" ? e.clientX : e.clientY;
+                const delta = (pos - startPos) * direction;
+                const next  = Math.max(min, Math.min(max(), startSize + delta));
+                setSize(next);
+            }
+
+            function onUp() {
+                document.body.classList.remove(bodyCursor);
+                document.removeEventListener("mousemove", onMove);
+                document.removeEventListener("mouseup",   onUp);
+                savePrefs(prefs);
+            }
+
+            document.addEventListener("mousemove", onMove);
+            document.addEventListener("mouseup",   onUp);
+        };
+    }
+
+    // ── Handle 1: panel width (left edge drags left = larger) ────────
+    handleWidth.addEventListener("mousedown", makeDragHandler({
+        axis:       "x",
+        direction:  -1,  // moving mouse left → panel grows
+        getSize:    () => prefs.panelWidth,
+        setSize:    px  => {
+            prefs.panelWidth = px;
+            panelEl.style.width = `${px}px`;
+            document.documentElement.style.setProperty("--panel_width", `${px}px`);
+        },
+        min:        320,
+        max:        () => window.innerWidth - 40,
+        bodyCursor: "resizing",
+    }));
+
+    // ── Handle 2: visual height (below visual, drag down = taller) ───
+    handleVisual.addEventListener("mousedown", makeDragHandler({
+        axis:       "y",
+        direction:  1,
+        getSize:    () => prefs.visualHeight,
+        setSize:    px  => {
+            prefs.visualHeight = px;
+            panelVisual.style.height = `${px}px`;
+            document.documentElement.style.setProperty("--panel_visual_height", `${px}px`);
+        },
+        min:        80,
+        max:        () => panelEl.clientHeight - 200,
+        bodyCursor: "resizing-v",
+    }));
+
+    // ── Handle 3: strip height (above strip, drag up = taller strip) ─
+    handleStrip.addEventListener("mousedown", makeDragHandler({
+        axis:       "y",
+        direction:  -1,  // moving mouse up → strip grows
+        getSize:    () => prefs.stripHeight,
+        setSize:    px  => {
+            prefs.stripHeight = px;
+            panelStrip.style.height = `${px}px`;
+            document.documentElement.style.setProperty("--panel_strip_height", `${px}px`);
+            // Update pill heights to match
+            document.querySelectorAll(".beat_pill").forEach(t => {
+                t.style.height = `${px - 20}px`;
+            });
+        },
+        min:        60,
+        max:        () => 300,
+        bodyCursor: "resizing-v",
+    }));
+
+
+    // ── Keyboard support for handles (10px per keypress) ─────────────
+    handleWidth.addEventListener("keydown", e => {
+        if (e.key === "ArrowLeft")  { prefs.panelWidth  = Math.min(window.innerWidth - 260, prefs.panelWidth  + 10); applyPrefs(prefs); savePrefs(prefs); e.preventDefault(); }
+        if (e.key === "ArrowRight") { prefs.panelWidth  = Math.max(320, prefs.panelWidth  - 10); applyPrefs(prefs); savePrefs(prefs); e.preventDefault(); }
+    });
+
+    handleVisual.addEventListener("keydown", e => {
+        if (e.key === "ArrowDown")  { prefs.visualHeight = Math.min(panelEl.clientHeight - 200, prefs.visualHeight + 10); applyPrefs(prefs); savePrefs(prefs); e.preventDefault(); }
+        if (e.key === "ArrowUp")    { prefs.visualHeight = Math.max(80, prefs.visualHeight  - 10); applyPrefs(prefs); savePrefs(prefs); e.preventDefault(); }
+    });
+
+    handleStrip.addEventListener("keydown", e => {
+        if (e.key === "ArrowUp")    { prefs.stripHeight = Math.min(300, prefs.stripHeight + 10); applyPrefs(prefs); savePrefs(prefs); e.preventDefault(); }
+        if (e.key === "ArrowDown")  { prefs.stripHeight = Math.max(60,  prefs.stripHeight - 10); applyPrefs(prefs); savePrefs(prefs); e.preventDefault(); }
+    });
+
+
+    // ── Reset button ──────────────────────────────────────────────────
+    panelReset.addEventListener("click", () => {
+        prefs = resetPrefs();
+        applyPrefs(prefs);
+    });
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  PANEL OPEN / CLOSE
+    // ══════════════════════════════════════════════════════════════════
+
+    function openPanel(lesson) {
+        activeLessonId = lesson.id;
+        activeBeats    = lesson.beats || [];
+        panelTitle.textContent = lesson.title || "Lesson";
+
+        buildStrip(lesson.beats || []);
+
+        if (lesson.beats && lesson.beats.length > 0) {
+            selectBeat(lesson.beats, 0);
+        } else {
+            clearVisual();
+            panelBeatText.innerHTML = `<span class="panel_beat_empty">No beats defined for this lesson.</span>`;
+        }
+
+        document.body.classList.add("panel-open");
+        panelEl.setAttribute("aria-hidden", "false");
+
+        document.querySelectorAll(".lesson_open_btn").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.lessonId === lesson.id);
+        });
+    }
+
+    function closePanel() {
+        document.body.classList.remove("panel-open");
+        panelEl.setAttribute("aria-hidden", "true");
+        activeLessonId  = null;
+        activeBeatIndex = null;
+        activeBeats     = [];
+        document.querySelectorAll(".lesson_open_btn").forEach(btn => btn.classList.remove("active"));
+    }
+
+    panelClose.addEventListener("click", closePanel);
+    document.addEventListener("keydown", e => {
+        if (!document.body.classList.contains("panel-open")) return;
+
+        if (e.key === "Escape") { closePanel(); return; }
+
+        // Arrow-key beat navigation — skip if focus is inside an input/textarea
+        const tag = document.activeElement?.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") return;
+
+        if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && activeBeats.length) {
+            e.preventDefault();
+            const dir  = e.key === "ArrowRight" ? 1 : -1;
+            const next = (activeBeatIndex + dir + activeBeats.length) % activeBeats.length;
+            selectBeat(activeBeats, next);
+        }
+    });
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  BEAT SELECTION
+    // ══════════════════════════════════════════════════════════════════
+
+    function selectBeat(beats, index) {
+        activeBeatIndex = index;
+        const beat = beats[index];
+
+        // Middle text
+        panelBeatText.innerHTML = beat.text || "<em>No text for this beat.</em>";
+
+        // Visual area
+        renderBeatVisual(beat, index, beats.length);
+
+        // TESTING
+        const isTextOnly = (beat.type === "text_only");
+        panelVisual.classList.toggle("hidden", isTextOnly);
+        document.getElementById("handle-visual-height").classList.toggle("hidden", isTextOnly);
+
+
+        // Highlight selected pill
+        document.querySelectorAll(".beat_pill").forEach((t, i) => {
+            t.classList.toggle("selected", i === index);
+        });
+
+        const sel = document.querySelectorAll(".beat_pill")[index];
+        if (sel) sel.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" });
+
+        if (window.MathJax) {
+            MathJax.typesetPromise([panelBeatText]);
+        }
+    }
+
+    function clearVisual() {
+        panelVisual.innerHTML = `<div class="panel_visual_placeholder" id="panel-visual-placeholder">Select a beat</div>`;
+    }
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  BEAT VISUAL RENDERERS
+    // ══════════════════════════════════════════════════════════════════
+
+    /*
+    function renderBeatVisual(beat, index, total) {
+        panelVisual.innerHTML = "";
+
+        // Counter badge (top-right)
+        const counter = el("div", "panel_beat_counter");
+        counter.textContent = `${index + 1} / ${total}`;
+        panelVisual.appendChild(counter);
+
+        // Type badge (top-left)
+        const info  = beatTypeInfo(beat.type);
+        const badge = el("div", "panel_type_badge");
+        badge.textContent = info.label;
+        badge.style.background = info.color;
+        badge.style.color = "#fff";
+        panelVisual.appendChild(badge);
+
+        const type = beat.type || "image";
+
+        if      (type === "image")      renderImage(beat);
+        //else if (type === "slideshow")  renderSlideshow(beat);
+        else if (type === "code_check") renderCodeCheck(beat);
+        else if (type === "quiz")       renderQuiz(beat);
+        else if (type === "text_only")  renderTextOnly(beat);
+        else {
+            const ph = el("div", "panel_visual_placeholder");
+            ph.textContent = `Unknown type: "${type}"`;
+            panelVisual.appendChild(ph);
+        }
+    }
+    */
+
+    /*
+    ====================================================
+        UNTESTED
+    ====================================================
+    */
+
+    function renderBeatVisual(beat, index, total) {
+        panelVisual.innerHTML = "";
+     
+        if (beat.type === "ide") {
+            renderIde(beat);
+            return;
+        }
+     
+        // Counter badge (top-right)
+        const counter = el("div", "panel_beat_counter");
+        counter.textContent = `${index + 1} / ${total}`;
+        panelVisual.appendChild(counter);
+     
+        // Type badge (top-left)
+        const info  = beatTypeInfo(beat.type);
+        const badge = el("div", "panel_type_badge");
+        badge.textContent = info.label;
+        badge.style.background = info.color;
+        badge.style.color = "#fff";
+        panelVisual.appendChild(badge);
+     
+        const type = beat.type || "image";
+     
+        if      (type === "image")      renderImage(beat);
+        else if (type === "code_check") renderCodeCheck(beat);
+        else if (type === "quiz")       renderQuiz(beat);
+        else if (type === "text_only")  renderTextOnly(beat);
+        else {
+            const ph = el("div", "panel_visual_placeholder");
+            ph.textContent = `Unknown type: "${type}"`;
+            panelVisual.appendChild(ph);
+        }
+    }
+
+
+    /* ── image ─────────────────────────────────────────────────────── */
+    function renderImage(beat) {
+        if (beat.visual) {
+            if (beat.visual.toLowerCase().endsWith(".svg")) {
+                // Fetch and inline SVG so it actually renders
+                fetch(`../images/${beat.visual}`)
+                    .then(r => r.text())
+                    .then(svgText => {
+                        const wrapper = el("div", "beat_image_svg_wrapper");
+                        wrapper.style.cssText = "width:100%; height:100%; display:flex; align-items:center; justify-content:center;";
+                        wrapper.innerHTML = svgText;
+                        const svgEl = wrapper.querySelector("svg");
+                        if (svgEl) {
+                            svgEl.style.maxWidth  = "100%";
+                            svgEl.style.maxHeight = "100%";
+                            svgEl.style.width     = "auto";
+                            svgEl.style.height    = "auto";
+                        }
+                        panelVisual.appendChild(wrapper);
+                    })
+                    .catch(() => {
+                        const ph = el("div", "panel_visual_placeholder");
+                        ph.textContent = "Could not load SVG";
+                        panelVisual.appendChild(ph);
+                    });
+            } else {
+                // Original PNG/JPG path
+                const img = el("img", "beat_image_img");
+                img.src = `../images/${beat.visual}`;
+                img.alt = beat.caption || "";
+                panelVisual.appendChild(img);
+            }
+        } else {
+            const ph = el("div", "panel_visual_placeholder");
+            panelVisual.appendChild(ph);
+        }
+
+        if (beat.caption) {
+            const cap = el("div", "beat_caption");
+            cap.textContent = beat.caption;
+            panelVisual.appendChild(cap);
+        }
+    }
+
+    /* ── slideshow ─────────────────────────────────────────────────── */
+    /*
+    function renderSlideshow(beat) {
+        const slides = beat.slides || [];
+        let current  = 0;
+
+        const wrap = el("div", "beat_slideshow_wrap");
+
+        // Dot indicators
+        const dots = el("div", "slideshow_dots");
+        slides.forEach((_, i) => {
+            const d = el("div", "slideshow_dot");
+            d.addEventListener("click", () => goTo(i));
+            dots.appendChild(d);
+        });
+        wrap.appendChild(dots);
+
+        // Main image
+        const img = el("img", "beat_slideshow_img");
+        img.alt = "";
+        wrap.appendChild(img);
+
+        // Controls bar
+        const controls = el("div", "beat_slideshow_controls");
+
+        const prevBtn = el("button", "slideshow_btn");
+        prevBtn.textContent = "◀";
+        prevBtn.addEventListener("click", () => goTo(current - 1));
+
+        const caption = el("div", "slideshow_caption");
+
+        const nextBtn = el("button", "slideshow_btn");
+        nextBtn.textContent = "▶";
+        nextBtn.addEventListener("click", () => goTo(current + 1));
+
+        controls.appendChild(prevBtn);
+        controls.appendChild(caption);
+        controls.appendChild(nextBtn);
+        wrap.appendChild(controls);
+
+        panelVisual.appendChild(wrap);
+
+        function goTo(i) {
+            current = Math.max(0, Math.min(slides.length - 1, i));
+            const s = slides[current];
+            img.src = s.visual ? `../images/${s.visual}` : "";
+            caption.textContent = s.caption || "";
+            prevBtn.disabled = current === 0;
+            nextBtn.disabled = current === slides.length - 1;
+            dots.querySelectorAll(".slideshow_dot").forEach((d, di) => {
+                d.classList.toggle("active", di === current);
+            });
+        }
+
+        if (slides.length > 0) goTo(0);
+    }
+    */
+
+    /* ── code_check ────────────────────────────────────────────────── */
+    function renderCodeCheck(beat) {
+        const wrap = el("div", "beat_code_wrap");
+
+        const prompt = el("div", "beat_code_prompt");
+        prompt.textContent = beat.prompt || "Enter your answer below.";
+        wrap.appendChild(prompt);
+
+        const input = el("textarea", "beat_code_input");
+        input.placeholder = "Type your answer…";
+        input.rows = 3;
+        wrap.appendChild(input);
+
+        const row = el("div", "beat_code_row");
+
+        const submitBtn = el("button", "beat_code_submit");
+        submitBtn.textContent = "Check";
+        row.appendChild(submitBtn);
+
+        const feedback = el("div", "beat_code_feedback");
+        feedback.textContent = "Enter an answer and press Check.";
+        row.appendChild(feedback);
+
+        wrap.appendChild(row);
+        panelVisual.appendChild(wrap);
+
+        let attempts = 0;
+
+        function check() {
+            const val     = input.value.trim().toLowerCase();
+            const correct = (beat.answer || "").trim().toLowerCase();
+            attempts++;
+            feedback.className = "beat_code_feedback";
+
+            if (val === correct) {
+                feedback.textContent = "✓ Correct!";
+                feedback.classList.add("correct");
+                input.disabled   = true;
+                submitBtn.disabled = true;
+            } else {
+                feedback.classList.add("wrong");
+                if (beat.hint && attempts >= 2) {
+                    feedback.textContent = `✗ Not quite. Hint: ${beat.hint}`;
+                } else {
+                    feedback.textContent = "✗ Not quite — try again.";
+                }
+            }
+        }
+
+        submitBtn.addEventListener("click", check);
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); check(); }
+        });
+    }
+
+    /* ── quiz ──────────────────────────────────────────────────────── */
+    function renderQuiz(beat) {
+        const wrap = el("div", "beat_quiz_wrap");
+
+        const q = el("div", "beat_quiz_question");
+        q.textContent = beat.question || "Question";
+        wrap.appendChild(q);
+
+        const choicesWrap = el("div", "beat_quiz_choices");
+        const feedbackEl  = el("div", "beat_quiz_feedback");
+
+        (beat.choices || []).forEach((choice, i) => {
+            const btn = el("button", "beat_quiz_choice");
+            btn.textContent = choice;
+            btn.addEventListener("click", () => {
+                choicesWrap.querySelectorAll(".beat_quiz_choice").forEach(b => b.disabled = true);
+                if (i === beat.correct) {
+                    btn.classList.add("correct");
+                    feedbackEl.textContent = "✓ Correct!";
+                    feedbackEl.style.color = "#7ecb8f";
+                } else {
+                    btn.classList.add("wrong");
+                    feedbackEl.textContent = `✗ Not quite. The correct answer was: "${beat.choices[beat.correct]}"`;
+                    feedbackEl.style.color = "#e07878";
+                    choicesWrap.querySelectorAll(".beat_quiz_choice")[beat.correct].classList.add("correct");
+                }
+            });
+            choicesWrap.appendChild(btn);
+        });
+
+        wrap.appendChild(choicesWrap);
+        wrap.appendChild(feedbackEl);
+        panelVisual.appendChild(wrap);
+
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+
+        if (window.MathJax) {
+            MathJax.typesetPromise([panelBeatText]);
+        }
+    }
+
+    /* ── text_only ─────────────────────────────────────────────────── */
+    function renderTextOnly(beat) {
+        const wrap  = el("div", "beat_text_only_wrap");
+        const quote = el("div", "beat_text_only_quote");
+        const plain = (beat.text || "").replace(/<[^>]+>/g, "");
+        quote.textContent = plain.length > 180 ? plain.slice(0, 180) + "…" : plain;
+        wrap.appendChild(quote);
+        panelVisual.appendChild(wrap);
+    }
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  THUMBNAIL STRIP
+    // ══════════════════════════════════════════════════════════════════
+
+    // ── Auto-generate a short keyword label for each beat ────────────
+    // Priority: explicit caption/question/prompt first word(s), then
+    // a meaningful excerpt from the beat text, falling back to the type label.
+    function beatKeyword(beat) {
+        // Explicit label in JSON always wins
+        if (beat.label) return beat.label;
+
+        const info = beatTypeInfo(beat.type);
+
+        // quiz: first 2 meaningful words of the question
+        if (beat.type === "quiz" && beat.question) {
+            return firstWords(beat.question, 2);
+        }
+        // code_check: first 2 words of the prompt
+        if (beat.type === "code_check" && beat.prompt) {
+            return firstWords(beat.prompt, 2);
+        }
+        // image / slideshow: use caption if present
+        //if (beat.caption) return firstWords(beat.caption, 2);
+        //if (beat.slides && beat.slides[0] && beat.slides[0].caption) {
+        //    return firstWords(beat.slides[0].caption, 2);
+        //}
+        // fall back: first 2 content words from the narrative text
+        if (beat.text) {
+            const plain = beat.text.replace(/<[^>]+>/g, "");
+            return firstWords(plain, 2);
+        }
+        return info.label;
+    }
+
+    // Return the first `n` significant words (skip stop-words for 1-word results)
+    const STOP = new Set(["a","an","the","is","are","was","were","it","in","on","at",
+                          "to","of","for","and","or","but","so","let","with","this",
+                          "that","we","i","you","how","why","what","when","where","which"]);
+
+    function firstWords(str, n) {
+        const words = str.replace(/["""''()[\]{}<>]/g, "")
+                         .split(/\s+/)
+                         .filter(w => w.length > 1);
+        // For a 2-word result try to skip leading stop-words
+        const meaningful = words.filter(w => !STOP.has(w.toLowerCase()));
+        const pool = meaningful.length >= n ? meaningful : words;
+        return pool.slice(0, n).join(" ") || str.slice(0, 12);
+    }
+
+    // Resolve the raw CSS color value for a beat type (for --pill-color)
+    function beatColorValue(type) {
+        const map = {
+            image:      "var(--color_beat_image)",
+            //slideshow:  "var(--color_beat_slideshow)",
+            code_check: "var(--color_beat_code)",
+            quiz:       "var(--color_beat_quiz)",
+            text_only:  "var(--color_beat_text)",
+        };
+        return map[type] || "#888";
+    }
+
+    function buildStrip(beats) {
+        panelStrip.innerHTML = "";
+
+        beats.forEach((beat, i) => {
+            const info    = beatTypeInfo(beat.type);
+            const keyword = beatKeyword(beat);
+            const color   = beatColorValue(beat.type);
+
+            const pill = el("div", "beat_pill");
+            pill.style.setProperty("--pill-color", color);
+            pill.style.height = `${prefs.stripHeight - 20}px`;
+            pill.dataset.type  = beat.type || "image";
+            pill.setAttribute("role",       "button");
+            pill.setAttribute("tabindex",   "0");
+            pill.setAttribute("aria-label", `Beat ${i + 1}: ${info.label} — ${keyword}`);
+            pill.title = `${info.label}: ${keyword}`;
+
+            // Number
+            const numEl = el("div", "beat_pill_num");
+            numEl.textContent = i + 1;
+            pill.appendChild(numEl);
+
+            // Keyword label
+            const labelEl = el("div", "beat_pill_label");
+            labelEl.textContent = keyword;
+            pill.appendChild(labelEl);
+
+            pill.addEventListener("click",   () => selectBeat(beats, i));
+            pill.addEventListener("keydown", e => {
+                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectBeat(beats, i); }
+            });
+
+            panelStrip.appendChild(pill);
+        });
+    }
+
+    // ── Drag-to-scroll on the strip ────────────────────────────────
+    (function initDragScroll() {
+        let isDragging = false, startX, scrollLeft, hasMoved;
+
+        panelStrip.addEventListener("mousedown", e => {
+            isDragging = true; hasMoved = false;
+            startX     = e.pageX - panelStrip.offsetLeft;
+            scrollLeft = panelStrip.scrollLeft;
+            panelStrip.style.cursor = "grabbing";
+        });
+
+        document.addEventListener("mousemove", e => {
+            if (!isDragging) return;
+            const x    = e.pageX - panelStrip.offsetLeft;
+            const walk = x - startX;
+            if (Math.abs(walk) > 4) hasMoved = true;
+            panelStrip.scrollLeft = scrollLeft - walk;
+        });
+
+        document.addEventListener("mouseup", () => { isDragging = false; panelStrip.style.cursor = ""; });
+
+        panelStrip.addEventListener("click", e => { if (hasMoved) e.stopPropagation(); }, true);
+    })();
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  DATA LOADING
+    // ══════════════════════════════════════════════════════════════════
+
+    (async function init() {
+
+        // Apply saved (or default) prefs immediately so the panel opens
+        // at the correct size rather than flashing at the CSS default.
+        applyPrefs(prefs);
+
+        const params   = new URLSearchParams(window.location.search);
+        const courseId = params.get("id");
+
+        if (!courseId) {
+            showError("No course id specified. Add <code>?id=YOUR_COURSE_ID</code> to the URL.");
+            return;
+        }
+
+        // Try to load from courses.json first; fall back to inline DEMO_COURSES
+        let courses = null;
+        try {
+            const response = await fetch("courses.json");
+            if (response.ok) courses = await response.json();
+        } catch (_) { /* no server — use demo data */ }
+
+        if (!courses) courses = DEMO_COURSES;
+
+        const shared = courses["_shared"] || {};
+        const course = courses[courseId];
+
+        if (!course) {
+            showError(`Unknown course id: "<strong>${courseId}</strong>". Check courses.json.`);
+            return;
+        }
+
+        populatePage({ ...shared, ...course });
+
+    })();
+
+
+    function populatePage(c) {
+
+        document.title = `${c.pre_num || ""} ${c.title_short || ""}`.trim();
+
+        if (c.color) document.body.setAttribute("data-color", c.color);
+
+        if (c.gif) {
+            const gifEl = document.getElementById("course-gif");
+            gifEl.src   = `../images/${c.gif}`;
+            gifEl.style.display = "block";
+        }
+
+        setText("fill_pre_num",              c.pre_num);
+        setText("fill_title",                c.title);
+        setText("side-semester",             c.semester);
+        setText("fill_course_description",   c.course_catalog_description);
+        setText("fill_course_prerequisites", c.course_prerequisites);
+        setText("fill_instructor_name",      c.instructor_name);
+        setText("fill_instructor_email",     c.instructor_email);
+        setText("fill_instructor_oh",        c.instructor_oh);
+        setText("fill_meeting_time",         c.meeting_time);
+        setText("fill_meeting_place",        c.meeting_place);
+
+        // Announcements
+        const annList = document.getElementById("announcements-list");
+        annList.innerHTML = "";
+        (c.announcements || []).forEach(ann => {
+            const li = el("li", "announcement_item");
+            li.innerHTML = `<span class="announcement_date">${ann.date}</span><span class="announcement_text">${ann.text}</span>`;
+            annList.appendChild(li);
+        });
+
+        // Assessment
+        const tbody_ass = document.getElementById("fill_table_assessment");
+        tbody_ass.innerHTML = "";
+        (c.assessments || []).forEach(row => {
+            const tr = el("tr");
+            tr.innerHTML = `<td class="percentage">${row.percentage}</td><td class="name">${row.name}</td><td class="description">${row.description || ""}</td>`;
+            tbody_ass.appendChild(tr);
+        });
+
+        // Learning goals
+        const tbody_lg = document.getElementById("fill_table_learning_goals");
+        tbody_lg.innerHTML = "";
+        (c.course_learning_goals || []).forEach(row => {
+            const tr = el("tr");
+            tr.innerHTML = `<td class="num">${row.num}</td><td class="action">${row.action}</td><td class="detail">${row.detail || ""}</td>`;
+            tbody_lg.appendChild(tr);
+        });
+
+        // Policies
+        const policiesEl = document.getElementById("fill_policies_body");
+        policiesEl.innerHTML = "";
+        (c.policies || []).forEach(policy => {
+            const p = el("p");
+            p.innerHTML = `<p><b>${policy.name}</b></p>`;
+            (policy.description || []).forEach(par => { p.innerHTML += `<p>${par}</p>`; });
+            p.innerHTML += "<br>";
+            policiesEl.appendChild(p);
+        });
+
+        // Schedule
+        const tbody_sched = document.getElementById("schedule-body");
+        tbody_sched.innerHTML = "";
+        var counter = 0;
+        (c.schedule_weeks || []).forEach(row => {
+            const tr = el("tr");
+            counter += 1;
+            //tr.innerHTML = `<td class="week_num">${row.week}</td><td class="topic">${row.topic}</td><td class="notes">${row.notes || ""}</td>`;
+            tr.innerHTML = `<td class="week_num">${counter}</td>   <td class="topic">${row.theme}</td>   <td class="topic">${row.topic}</td><td class="notes">${row.notes || ""}</td>`;
+            tbody_sched.appendChild(tr);
+        });
+
+        // Lessons
+        const lessonsList = document.getElementById("lessons-list");
+        lessonsList.innerHTML = "";
+        (c.lessons || []).forEach((lesson, i) => {
+            const li  = el("li",  "lesson_item");
+            const meta = el("div", "lesson_item_meta");
+            meta.innerHTML = `
+                <div class="lesson_item_num">Lesson ${String(i + 1).padStart(2, "0")}</div>
+                <div class="lesson_item_title">${lesson.title || "Untitled"}</div>
+            `;
+
+            const lessonId = lesson.id || `lesson_${i}`;
+            const btn = el("button", "lesson_open_btn");
+            btn.textContent = "Open ";
+            btn.dataset.lessonId = lessonId;
+            btn.addEventListener("click", () => {
+                if (activeLessonId === lessonId && document.body.classList.contains("panel-open")) {
+                    closePanel();
+                } else {
+                    openPanel({ ...lesson, id: lessonId });
+                }
+            });
+
+            li.appendChild(meta);
+            li.appendChild(btn);
+            lessonsList.appendChild(li);
+        });
+
+        setText("footer-code", c.code);
+
+        document.getElementById("page-main").style.display   = "";
+        document.getElementById("page-footer").style.display = "";
+
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+
+    // ══════════════════════════════════════════════════════════════════
+    //  HELPERS
+    // ══════════════════════════════════════════════════════════════════
+
+    function el(tag, className) {
+        const e = document.createElement(tag);
+        if (className) e.className = className;
+        return e;
+    }
+
+    function setText(id, value) {
+        const e = document.getElementById(id);
+        if (e) e.textContent = value ?? "";
+    }
+
+    function showError(msg) {
+        const e = document.getElementById("error-msg");
+        e.innerHTML = `<strong>Error:</strong> ${msg}`;
+        e.style.display = "block";
+    }
+
+
+    function renderIde(beat) {
+        const lang        = (beat.language || "csharp").toLowerCase();
+        const startCode   = beat.starter_code || defaultStarter(lang);
+        const instructions = beat.instructions || "";
+     
+        // ── Build the overlay ──────────────────────────────────────────
+        const overlay = el("div", "ide-overlay");
+     
+        // Toolbar
+        const toolbar = el("div", "ide-toolbar");
+     
+        const langBadge = el("span", `ide-lang-badge ${lang}`);
+        langBadge.textContent = langLabel(lang);
+        toolbar.appendChild(langBadge);
+     
+        if (instructions) {
+            const inst = el("span", "ide-instructions");
+            inst.textContent = instructions;
+            toolbar.appendChild(inst);
+        }
+     
+        const resetBtn = el("button", "ide-btn reset");
+        resetBtn.textContent = "Reset";
+        toolbar.appendChild(resetBtn);
+     
+        const runBtn = el("button", "ide-btn run");
+        runBtn.textContent = "Run ▶";
+        toolbar.appendChild(runBtn);
+     
+        const exitBtn = el("button", "ide-btn exit");
+        exitBtn.textContent = "✕ Exit IDE";
+        toolbar.appendChild(exitBtn);
+     
+        overlay.appendChild(toolbar);
+     
+        // Body (editor + output)
+        const body = el("div", "ide-body");
+     
+        // Editor wrapper + gutter
+        const editorWrap = el("div", "ide-editor-wrap");
+     
+        const gutter = el("div", "ide-gutter");
+        const gutterCanvas = document.createElement("canvas");
+        gutter.appendChild(gutterCanvas);
+        editorWrap.appendChild(gutter);
+     
+        const editor = el("textarea", "ide-editor");
+        editor.value = startCode;
+        editor.spellcheck = false;
+        editor.autocomplete = "off";
+        editor.autocorrect = "off";
+        editor.autocapitalize = "off";
+        editorWrap.appendChild(editor);
+        body.appendChild(editorWrap);
+     
+        // Output resize divider
+        const divider = el("div", "ide-divider");
+        body.appendChild(divider);
+     
+        // Output pane
+        const outputWrap = el("div", "ide-output-wrap");
+     
+        const outputHeader = el("div", "ide-output-header");
+        const outputLabel  = el("span", "ide-output-label");
+        outputLabel.textContent = "Output";
+        const statusDot = el("span", "ide-status-dot");
+        const clearBtn  = el("button", "ide-clear-btn");
+        clearBtn.textContent = "clear";
+        outputHeader.appendChild(statusDot);
+        outputHeader.appendChild(outputLabel);
+        outputHeader.appendChild(clearBtn);
+        outputWrap.appendChild(outputHeader);
+     
+        const output = el("div", "ide-output");
+        ideAppend(output, "Ready. Press Run ▶ to execute.", "out-system");
+        outputWrap.appendChild(output);
+     
+        body.appendChild(outputWrap);
+        overlay.appendChild(body);
+     
+        panelVisual.appendChild(overlay);
+     
+        // ── Gutter line numbers ────────────────────────────────────────
+        function drawGutter() {
+            const lines   = editor.value.split("\n").length;
+            const lineH   = 13 * 1.6;  // font-size 13px * line-height 1.6
+            const h       = Math.max(overlay.clientHeight, lines * lineH + 24);
+            gutterCanvas.width  = 36;
+            gutterCanvas.height = h;
+            const ctx = gutterCanvas.getContext("2d");
+            ctx.clearRect(0, 0, 36, h);
+            ctx.font      = "11px 'Courier New', monospace";
+            ctx.fillStyle = "rgba(255,255,255,0.22)";
+            ctx.textAlign = "right";
+            for (let i = 1; i <= lines; i++) {
+                ctx.fillText(i, 30, 12 + (i - 1) * lineH + 12);
+            }
+        }
+     
+        drawGutter();
+        editor.addEventListener("input", drawGutter);
+        editor.addEventListener("scroll", () => {
+            gutter.scrollTop = editor.scrollTop;
+        });
+     
+        // Tab key inserts 4 spaces instead of switching focus
+        editor.addEventListener("keydown", e => {
+            if (e.key === "Tab") {
+                e.preventDefault();
+                const s = editor.selectionStart;
+                const v = editor.value;
+                editor.value = v.slice(0, s) + "    " + v.slice(editor.selectionEnd);
+                editor.selectionStart = editor.selectionEnd = s + 4;
+                drawGutter();
+            }
+            // Ctrl/Cmd+Enter → run
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                runCode();
+            }
+        });
+     
+        // ── Output resize (drag divider) ──────────────────────────────
+        let dragging = false, dragStartY = 0, dragStartH = 0;
+        divider.addEventListener("mousedown", e => {
+            dragging   = true;
+            dragStartY = e.clientY;
+            dragStartH = outputWrap.offsetHeight;
+            document.body.style.userSelect = "none";
+        });
+        document.addEventListener("mousemove", e => {
+            if (!dragging) return;
+            const delta = dragStartY - e.clientY;  // drag up = taller output
+            const next  = Math.max(60, Math.min(body.clientHeight * 0.7, dragStartH + delta));
+            outputWrap.style.height = `${next}px`;
+        });
+        document.addEventListener("mouseup", () => {
+            dragging = false;
+            document.body.style.userSelect = "";
+        });
+     
+        // ── Buttons ────────────────────────────────────────────────────
+        resetBtn.addEventListener("click", () => {
+            editor.value = startCode;
+            drawGutter();
+            output.innerHTML = "";
+            ideAppend(output, "Code reset.", "out-system");
+            statusDot.className = "ide-status-dot";
+        });
+     
+        clearBtn.addEventListener("click", () => {
+            output.innerHTML = "";
+            statusDot.className = "ide-status-dot";
+        });
+     
+        exitBtn.addEventListener("click", () => {
+            overlay.remove();
+        });
+     
+        runBtn.addEventListener("click", runCode);
+     
+        // ── Run dispatcher ─────────────────────────────────────────────
+        function runCode() {
+            const code = editor.value;
+            output.innerHTML = "";
+            statusDot.className = "ide-status-dot run";
+            runBtn.disabled = true;
+            runBtn.textContent = "Running…";
+     
+            try {
+                if (lang === "python") {
+                    runPython(code, output, statusDot);
+                } else if (lang === "javascript") {
+                    runJavaScript(code, output, statusDot);
+                } else {
+                    runCSharp(code, output, statusDot);
+                }
+            } catch (err) {
+                ideAppend(output, `Internal error: ${err.message}`, "out-error");
+                statusDot.className = "ide-status-dot err";
+            }
+     
+            runBtn.disabled = false;
+            runBtn.textContent = "Run ▶";
+        }
+    }
+
+    /*
+    =====================================================================
+
+        INTERPRETER: Python       
+
+    =====================================================================
+    */
+     
+    // ══════════════════════════════════════════════════════════════════
+    //  PYTHON — pure JS tree-walk interpreter (zero downloads)
+    //
+    //  Supported: variables, int/float/str/bool/None, print(), input()→"",
+    //  if/elif/else, while, for/in, range(), break/continue/return,
+    //  def (defaults, *args), class (__init__, self, inheritance),
+    //  list/dict/tuple literals + methods, string methods,
+    //  list comprehensions, f-strings, try/except, augmented assign,
+    //  tuple unpacking, lambda, map/filter/sorted/enumerate/zip,
+    //  len/type/int/float/str/bool/abs/max/min/sum/round/pow/any/all,
+    //  chr/ord/hex/bin/oct, isinstance (simplified)
+    // ══════════════════════════════════════════════════════════════════
+
+    function runPython(code, output, statusDot) {
+        const printFn = (s) => ideAppend(output, s, "out-normal");
+        try {
+            const interp = new PythonInterpreter(printFn);
+            interp.run(code);
+            ideAppend(output, "\nDone.", "out-ok");
+            statusDot.className = "ide-status-dot ok";
+        } catch (err) {
+            ideAppend(output, err.message || String(err), "out-error");
+            statusDot.className = "ide-status-dot err";
+        }
+    }
+     
+    class PythonInterpreter {
+        constructor(printFn) { this.print = printFn; this._steps = 0; this.LIMIT = 100000; }
+     
+        run(src) { const t = this.tokenize(src); const ast = this.parse(t); const env = this.makeEnv(null); this.execBlock(ast, env); }
+     
+        makeEnv(parent) { return { _parent: parent, _vars: {} }; }
+     
+        getVar(env, name) {
+            let e = env;
+            while (e) { if (name in e._vars) return e._vars[name]; e = e._parent; }
+            throw new Error(`NameError: name '${name}' is not defined`);
+        }
+     
+        setVar(env, name, val) { env._vars[name] = val; }
+     
+        setVarScoped(env, name, val) {
+            let e = env;
+            while (e._parent) { if (name in e._vars) { e._vars[name] = val; return; } e = e._parent; }
+            env._vars[name] = val;
+        }
+     
+        // ── TOKENIZER ─────────────────────────────────────────────────
+        tokenize(src) {
+            const tokens = []; const lines = src.split('\n'); let lineNo = 0;
+            for (const rawLine of lines) {
+                lineNo++;
+                const stripped = rawLine.trimStart();
+                if (stripped === '' || stripped.startsWith('#')) { tokens.push({ type:'NEWLINE', lineNo }); continue; }
+                tokens.push({ type:'INDENT', val: rawLine.length - stripped.length, lineNo });
+                let i = 0; const s = stripped;
+                while (i < s.length) {
+                    if (s[i] === '#') break;
+                    if (/\s/.test(s[i])) { i++; continue; }
+                    // f-string
+                    if ((s[i]==='f'||s[i]==='F') && (s[i+1]==='"'||s[i+1]==="'")) {
+                        const q=s[i+1]; i+=2; let raw='';
+                        while (i<s.length&&s[i]!==q) { if(s[i]==='\\'){raw+=s[i]+(s[i+1]||'');i+=2;}else{raw+=s[i];i++;} }
+                        i++; tokens.push({type:'FSTRING',val:raw,lineNo}); continue;
+                    }
+                    // Triple-quoted
+                    if ((s[i]==='"'&&s[i+1]==='"'&&s[i+2]==='"')||(s[i]==="'"&&s[i+1]==="'"&&s[i+2]==="'")) {
+                        const q3=s.slice(i,i+3); i+=3; let str='';
+                        while(i<s.length&&s.slice(i,i+3)!==q3){str+=s[i];i++;} i+=3;
+                        tokens.push({type:'STRING',val:str,lineNo}); continue;
+                    }
+                    // String
+                    if (s[i]==='"'||s[i]==="'") {
+                        const q=s[i]; i++; let str='';
+                        while(i<s.length&&s[i]!==q){ if(s[i]==='\\'){i++;str+=({n:'\n',t:'\t',r:'\r','\\':'\\','"':'"',"'":'\''}[s[i]]||'\\'+s[i]);}else str+=s[i]; i++; }
+                        i++; tokens.push({type:'STRING',val:str,lineNo}); continue;
+                    }
+                    // Number
+                    if (/\d/.test(s[i])||(s[i]==='.'&&/\d/.test(s[i+1]))) {
+                        let n=''; while(i<s.length&&/[\d.]/.test(s[i])){n+=s[i];i++;}
+                        tokens.push({type:'NUMBER',val:n.includes('.')?parseFloat(n):parseInt(n,10),lineNo}); continue;
+                    }
+                    // Identifier
+                    if (/[a-zA-Z_]/.test(s[i])) {
+                        let w=''; while(i<s.length&&/[\w]/.test(s[i])){w+=s[i];i++;}
+                        tokens.push({type:'ID',val:w,lineNo}); continue;
+                    }
+                    // Two-char ops
+                    const two=s.slice(i,i+2);
+                    if(['==','!=','<=','>=','**','//','+=','-=','*=','/=','//=','%=','**=','->'].includes(two)){tokens.push({type:'OP',val:two,lineNo});i+=2;continue;}
+                    tokens.push({type:'OP',val:s[i],lineNo}); i++;
+                }
+                tokens.push({type:'NEWLINE',lineNo});
+            }
+            tokens.push({type:'EOF'}); return tokens;
+        }
+     
+        // ── PARSER ────────────────────────────────────────────────────
+        parse(tokens) {
+            let pos = 0;
+            const peek=()=>tokens[pos], next=()=>tokens[pos++];
+            const checkV=v=>tokens[pos]?.val===v, checkT=t=>tokens[pos]?.type===t;
+            const eof=()=>tokens[pos]?.type==='EOF';
+            const skip=()=>{ while(checkT('NEWLINE'))next(); };
+            const curIndent=()=>tokens[pos]?.type==='INDENT'?tokens[pos].val:-1;
+            const consumeNL=()=>{ if(checkT('NEWLINE'))next(); };
+     
+            const parseBlock=(parentIndent)=>{
+                const stmts=[]; skip();
+                const myI=curIndent(); if(myI<=parentIndent) throw new Error('IndentationError');
+                while(!eof()){ skip(); if(eof())break; const ind=curIndent(); if(ind<myI)break; if(ind>myI)throw new Error('IndentationError: unexpected indent'); stmts.push(parseStmt(myI)); skip(); }
+                return stmts;
+            };
+     
+            const parseStmt=(indent)=>{
+                skip();
+                if(tokens[pos]?.type==='INDENT'){ if(tokens[pos].val!==indent)return{kind:'pass'}; next(); }
+                const kw=peek()?.val;
+                if(kw==='def')    return parseDef(indent);
+                if(kw==='class')  return parseClass(indent);
+                if(kw==='return') return parseReturn();
+                if(kw==='if')     return parseIf(indent);
+                if(kw==='while')  return parseWhile(indent);
+                if(kw==='for')    return parseFor(indent);
+                if(kw==='break')  {next();consumeNL();return{kind:'break'};}
+                if(kw==='continue'){next();consumeNL();return{kind:'continue'};}
+                if(kw==='pass')   {next();consumeNL();return{kind:'pass'};}
+                if(kw==='del')    {next();const t=parseExpr();consumeNL();return{kind:'del',target:t};}
+                if(kw==='raise')  {next();const ex=checkT('NEWLINE')?null:parseExpr();consumeNL();return{kind:'raise',ex};}
+                if(kw==='try')    return parseTry(indent);
+                if(kw==='import'||kw==='from'||kw==='global'||kw==='nonlocal'){while(!checkT('NEWLINE')&&!eof())next();consumeNL();return{kind:'pass'};}
+                return parseExprStmt();
+            };
+     
+            const parseDef=(indent)=>{ next(); const name=next().val; next(); // def name (
+                const params=[],defaults={};
+                while(!checkV(')')&&!eof()){ if(checkV('*')||checkV('**'))next(); const pn=next().val; if(checkV('=')){next();defaults[pn]=parseExpr();} params.push(pn); if(checkV(','))next(); }
+                next(); if(checkV(':'))next(); consumeNL();
+                return{kind:'def',name,params,defaults,body:parseBlock(indent)};
+            };
+     
+            const parseClass=(indent)=>{ next(); const name=next().val; let base=null;
+                if(checkV('(')){next();if(!checkV(')'))base=next().val;if(checkV(')'))next();}
+                if(checkV(':'))next(); consumeNL();
+                return{kind:'class',name,base,body:parseBlock(indent)};
+            };
+     
+            const parseReturn=()=>{ next(); if(checkT('NEWLINE')||eof()){consumeNL();return{kind:'return',val:null};} const val=parseExprList(); consumeNL(); return{kind:'return',val}; };
+     
+            const parseIf=(indent)=>{ next(); const cond=parseExpr(); if(checkV(':'))next(); consumeNL();
+                const then=parseBlock(indent); const elifs=[]; let els=null;
+                while(true){ skip(); const ind=curIndent(); if(ind!==indent)break;
+                    if(tokens[pos+1]?.val==='elif'){next();next();const ec=parseExpr();if(checkV(':'))next();consumeNL();elifs.push({cond:ec,body:parseBlock(indent)});}
+                    else if(tokens[pos+1]?.val==='else'){next();next();if(checkV(':'))next();consumeNL();els=parseBlock(indent);break;}
+                    else break; }
+                return{kind:'if',cond,then,elifs,els};
+            };
+     
+            const parseWhile=(indent)=>{ next(); const cond=parseExpr(); if(checkV(':'))next(); consumeNL(); return{kind:'while',cond,body:parseBlock(indent)}; };
+     
+            const parseFor=(indent)=>{ next(); const targets=[next().val];
+                while(checkV(',')){ next(); if(!checkV('in'))targets.push(next().val); }
+                next(); const iter=parseExpr(); if(checkV(':'))next(); consumeNL();
+                return{kind:'for',targets,iter,body:parseBlock(indent)};
+            };
+     
+            const parseTry=(indent)=>{ next(); if(checkV(':'))next(); consumeNL();
+                const body=parseBlock(indent); const handlers=[]; skip();
+                while(curIndent()===indent&&tokens[pos+1]?.val==='except'){
+                    next();next(); let excType=null,excName=null;
+                    if(!checkV(':')){ excType=next().val; if(checkV('as')){next();excName=next().val;} }
+                    if(checkV(':'))next(); consumeNL();
+                    handlers.push({excType,excName,body:parseBlock(indent)}); skip();
+                }
+                let finallyBody=null;
+                if(curIndent()===indent&&tokens[pos+1]?.val==='finally'){next();next();if(checkV(':'))next();consumeNL();finallyBody=parseBlock(indent);}
+                return{kind:'try',body,handlers,finallyBody};
+            };
+     
+            const parseExprStmt=()=>{ const expr=parseExprList();
+                const augOps=['+=','-=','*=','/=','//=','%=','**='];
+                if(augOps.includes(peek()?.val)){const op=next().val;const right=parseExprList();consumeNL();return{kind:'augassign',op,target:expr,right};}
+                if(checkV('=')){next();const right=parseExprList();consumeNL();return{kind:'assign',target:expr,right};}
+                consumeNL(); return{kind:'expr',expr};
+            };
+     
+            const parseExprList=()=>{ const first=parseExpr(); if(!checkV(','))return first;
+                const items=[first]; while(checkV(',')){ next(); if(checkT('NEWLINE')||checkV('=')||checkV(':')||eof())break; items.push(parseExpr()); }
+                return items.length===1?items[0]:{kind:'tuple',items};
+            };
+     
+            const parseExpr=()=>parseLambda();
+     
+            const parseLambda=()=>{ if(checkV('lambda')){ next(); const params=[]; while(!checkV(':')&&!eof()){params.push(next().val);if(checkV(','))next();} next(); return{kind:'lambda',params,body:parseExpr()}; } return parseTernary(); };
+     
+            const parseTernary=()=>{ let val=parseOr(); if(checkV('if')){ next(); const cond=parseOr(); next(); const els=parseOr(); return{kind:'ternary',val,cond,els}; } return val; };
+     
+            const parseOr=()=>parseBin(parseAnd,['or']);
+            const parseAnd=()=>parseBin(parseNot,['and']);
+            const parseNot=()=>{ if(checkV('not')){next();return{kind:'unary',op:'not',expr:parseNot()};} return parseComp(); };
+            const parseComp=()=>{ let left=parseAdd(); const cops=['==','!=','<','>','<=','>=','in','is'];
+                while(cops.includes(peek()?.val)||(peek()?.val==='not'&&tokens[pos+1]?.val==='in')){
+                    if(peek()?.val==='not'){next();next();left={kind:'binop',op:'not in',left,right:parseAdd()};}
+                    else{const op=next().val;left={kind:'binop',op,left,right:parseAdd()};} } return left; };
+            const parseAdd=()=>parseBin(parseMul,['+','-']);
+            const parseMul=()=>parseBin(parseUnary,['*','/','//','%','**']);
+            const parseBin=(sub,ops)=>{ let left=sub(); while(ops.includes(peek()?.val)){const op=next().val;left={kind:'binop',op,left,right:sub()};} return left; };
+            const parseUnary=()=>{ if(checkV('-')){next();return{kind:'unary',op:'-',expr:parseUnary()};} if(checkV('not')){next();return{kind:'unary',op:'not',expr:parseUnary()};} return parsePostfix(); };
+     
+            const parsePostfix=()=>{
+                let expr=parsePrimary();
+                while(true){
+                    if(checkV('.')){ next(); const attr=next().val; if(checkV('(')){next();const{args,kwargs}=parseCallArgs();next();expr={kind:'methodcall',obj:expr,method:attr,args,kwargs};}else expr={kind:'attr',obj:expr,attr}; }
+                    else if(checkV('(')){next();const{args,kwargs}=parseCallArgs();next();expr={kind:'call',func:expr,args,kwargs};}
+                    else if(checkV('[')){next(); let idx=null,sliceStart=null,sliceStop=null,sliceStep=null;
+                        if(!checkV(':'))idx=parseExpr();
+                        if(checkV(':')){next();sliceStart=idx;idx=null;sliceStop=checkV(']')?null:parseExpr();if(checkV(':')){next();sliceStep=checkV(']')?null:parseExpr();}next();expr={kind:'slice',obj:expr,start:sliceStart,stop:sliceStop,step:sliceStep};continue;}
+                        next();expr={kind:'index',obj:expr,idx};}
+                    else break;
+                } return expr;
+            };
+     
+            const parseCallArgs=()=>{ const args=[],kwargs={};
+                while(!checkV(')')&&!eof()){ if(peek()?.type==='ID'&&tokens[pos+1]?.val==='='){const k=next().val;next();kwargs[k]=parseExpr();}else if(checkV('*')||checkV('**')){next();args.push({kind:'spread',expr:parseExpr()});}else args.push(parseExpr()); if(checkV(','))next(); }
+                return{args,kwargs};
+            };
+     
+            const parsePrimary=()=>{
+                const t=peek();
+                if(t?.type==='NUMBER'){next();return{kind:'lit',val:t.val};}
+                if(t?.type==='STRING'){next();return{kind:'lit',val:t.val};}
+                if(t?.type==='FSTRING'){next();return{kind:'fstring',raw:t.val};}
+                if(t?.val==='True'){next();return{kind:'lit',val:true};}
+                if(t?.val==='False'){next();return{kind:'lit',val:false};}
+                if(t?.val==='None'){next();return{kind:'lit',val:null};}
+                if(t?.val==='('){ next(); if(checkV(')')){next();return{kind:'tuple',items:[]};} const first=parseExpr();
+                    if(checkV(',')){ const items=[first]; while(checkV(',')){ next(); if(checkV(')'))break; items.push(parseExpr()); } next(); return{kind:'tuple',items}; }
+                    next(); return first; }
+                if(t?.val==='['){ next(); if(checkV(']')){next();return{kind:'list',items:[]};} const first=parseExpr();
+                    if(checkV('for')){ next(); const targets=[next().val]; while(checkV(',')){ next(); targets.push(next().val); } next(); const iter=parseExpr(); let cond=null; if(checkV('if')){next();cond=parseExpr();} next(); return{kind:'listcomp',expr:first,targets,iter,cond}; }
+                    const items=[first]; while(checkV(',')){ next(); if(checkV(']'))break; items.push(parseExpr()); } next(); return{kind:'list',items}; }
+                if(t?.val==='{'){ next(); if(checkV('}')){next();return{kind:'dict',pairs:[]};} const fk=parseExpr();
+                    if(checkV(':')){ next(); const fv=parseExpr(); const pairs=[[fk,fv]]; while(checkV(',')){ next(); if(checkV('}'))break; const k=parseExpr(); next(); pairs.push([k,parseExpr()]); } next(); return{kind:'dict',pairs}; }
+                    const items=[fk]; while(checkV(',')){ next(); if(checkV('}'))break; items.push(parseExpr()); } next(); return{kind:'list',items}; }
+                if(t?.type==='ID'){next();return{kind:'id',name:t.val};}
+                throw new Error(`SyntaxError: unexpected token '${t?.val||t?.type}' on line ${t?.lineNo}`);
+            };
+     
+            const stmts=[]; skip();
+            while(!eof()){ if(tokens[pos]?.type==='INDENT'&&tokens[pos].val===0)stmts.push(parseStmt(0)); else if(tokens[pos]?.type==='NEWLINE')next(); else break; skip(); }
+            return stmts;
+        }
+     
+        // ── EXECUTION ─────────────────────────────────────────────────
+        execBlock(stmts,env){ for(const s of stmts){ if(!s)continue; const r=this.execStmt(s,env); if(r)return r; } return null; }
+     
+        execStmt(stmt,env){
+            if(++this._steps>this.LIMIT)throw new Error('RuntimeError: execution limit reached (infinite loop?)');
+            switch(stmt.kind){
+                case 'pass': return null;
+                case 'break': return{type:'break'};
+                case 'continue': return{type:'continue'};
+                case 'expr': this.evalExpr(stmt.expr,env); return null;
+                case 'assign': { const val=this.evalExpr(stmt.right,env); this.doAssign(stmt.target,val,env); return null; }
+                case 'augassign': { const cur=this.evalExpr(stmt.target,env); const rhs=this.evalExpr(stmt.right,env); const op=stmt.op.replace('=',''); this.doAssign(stmt.target,this.applyBinop(op,cur,rhs),env); return null; }
+                case 'del': { const t=stmt.target; if(t.kind==='id'){let e=env;while(e){if(t.name in e._vars){delete e._vars[t.name];return null;}e=e._parent;}} return null; }
+                case 'return': return{type:'return',val:stmt.val!==null?this.evalExpr(stmt.val,env):null};
+                case 'raise': { const ex=stmt.ex?this.evalExpr(stmt.ex,env):null; throw new Error(ex?._msg??this.pyStr(ex??'Exception')); }
+                case 'if': {
+                    if(this.pyBool(this.evalExpr(stmt.cond,env)))return this.execBlock(stmt.then,env);
+                    for(const elif of(stmt.elifs||[]))if(this.pyBool(this.evalExpr(elif.cond,env)))return this.execBlock(elif.body,env);
+                    if(stmt.els)return this.execBlock(stmt.els,env); return null;
+                }
+                case 'while': {
+                    let r; while(this.pyBool(this.evalExpr(stmt.cond,env))){ r=this.execBlock(stmt.body,env); if(r?.type==='break')return null; if(r?.type==='return')return r; if(r?.type==='continue')continue; if(++this._steps>this.LIMIT)throw new Error('RuntimeError: execution limit reached'); } return null;
+                }
+                case 'for': {
+                    const items=this.pyIter(this.evalExpr(stmt.iter,env));
+                    for(const item of items){ if(stmt.targets.length===1)this.setVar(env,stmt.targets[0],item); else{const u=this.pyIter(item);stmt.targets.forEach((t,i)=>this.setVar(env,t,u[i]??null));} const r=this.execBlock(stmt.body,env); if(r?.type==='break')return null; if(r?.type==='return')return r; if(++this._steps>this.LIMIT)throw new Error('RuntimeError: execution limit reached'); } return null;
+                }
+                case 'def': { const fn={_type:'function',_name:stmt.name,_params:stmt.params,_defaults:stmt.defaults,_body:stmt.body,_closure:env}; this.setVar(env,stmt.name,fn); return null; }
+                case 'class': {
+                    const cls={_type:'class',_name:stmt.name,_methods:{},_classVars:{}};
+                    if(stmt.base){try{cls._base=this.getVar(env,stmt.base);}catch(_){}}
+                    const clsEnv=this.makeEnv(env); this.execBlock(stmt.body,clsEnv);
+                    for(const[k,v]of Object.entries(clsEnv._vars)){ if(v?._type==='function')cls._methods[k]=v; else cls._classVars[k]=v; }
+                    this.setVar(env,stmt.name,cls); return null;
+                }
+                case 'try': {
+                    try{ const r=this.execBlock(stmt.body,env); if(r)return r; }
+                    catch(err){ let handled=false; for(const h of(stmt.handlers||[])){ const hEnv=this.makeEnv(env); if(h.excName)this.setVar(hEnv,h.excName,{_type:'exception',_msg:err.message}); const r=this.execBlock(h.body,hEnv); handled=true; if(r)return r; break; } if(!handled)throw err; }
+                    finally{ if(stmt.finallyBody)this.execBlock(stmt.finallyBody,env); }
+                    return null;
+                }
+                default: throw new Error(`RuntimeError: unknown statement '${stmt.kind}'`);
+            }
+        }
+     
+        doAssign(target,val,env){
+            if(target.kind==='id'){this.setVarScoped(env,target.name,val);return;}
+            if(target.kind==='tuple'||target.kind==='list'){const items=this.pyIter(val);target.items.forEach((t,i)=>this.doAssign(t,items[i]??null,env));return;}
+            if(target.kind==='index'){const obj=this.evalExpr(target.obj,env);const idx=this.evalExpr(target.idx,env);if(obj?._type==='list')obj._items[idx<0?obj._items.length+idx:idx]=val;else if(obj?._type==='dict')obj._map.set(idx,val);return;}
+            if(target.kind==='attr'){const obj=this.evalExpr(target.obj,env);if(obj?._fields)obj._fields[target.attr]=val;return;}
+        }
+     
+        evalExpr(expr,env){
+            switch(expr.kind){
+                case 'lit': return expr.val;
+                case 'tuple': return{_type:'tuple',_items:expr.items.map(i=>this.evalExpr(i,env))};
+                case 'list':  return{_type:'list', _items:expr.items.map(i=>this.evalExpr(i,env))};
+                case 'dict':  { const m=new Map(); for(const[k,v]of expr.pairs)m.set(this.evalExpr(k,env),this.evalExpr(v,env)); return{_type:'dict',_map:m}; }
+                case 'fstring': {
+                    let result=expr.raw;
+                    result=result.replace(/\{([^}]+)\}/g,(_,inner)=>{try{const t2=this.tokenize(inner);const a2=this.parse(t2);if(a2[0]?.kind==='expr')return this.pyStr(this.evalExpr(a2[0].expr,env));}catch(_){} return`{${inner}}`;});
+                    return result.replace(/\\n/g,'\n').replace(/\\t/g,'\t');
+                }
+                case 'id': {
+                    const n=expr.name;
+                    if(n==='None')return null; if(n==='True')return true; if(n==='False')return false;
+                    if(n in this.builtins)return{_type:'builtin',_name:n};
+                    return this.getVar(env,n);
+                }
+                case 'attr': {
+                    const obj=this.evalExpr(expr.obj,env);
+                    if(obj?._fields&&expr.attr in obj._fields)return obj._fields[expr.attr];
+                    if(obj?._type==='class'&&expr.attr in obj._methods)return obj._methods[expr.attr];
+                    if(obj?._type==='class'&&expr.attr in obj._classVars)return obj._classVars[expr.attr];
+                    return{_type:'boundmethod',_obj:obj,_attr:expr.attr};
+                }
+                case 'unary': { const v=this.evalExpr(expr.expr,env); if(expr.op==='-')return -v; if(expr.op==='not')return !this.pyBool(v); return v; }
+                case 'binop': {
+                    if(expr.op==='and'){const l=this.evalExpr(expr.left,env);return this.pyBool(l)?this.evalExpr(expr.right,env):l;}
+                    if(expr.op==='or') {const l=this.evalExpr(expr.left,env);return this.pyBool(l)?l:this.evalExpr(expr.right,env);}
+                    return this.applyBinop(expr.op,this.evalExpr(expr.left,env),this.evalExpr(expr.right,env));
+                }
+                case 'ternary': return this.pyBool(this.evalExpr(expr.cond,env))?this.evalExpr(expr.val,env):this.evalExpr(expr.els,env);
+                case 'lambda': return{_type:'function',_name:'<lambda>',_params:expr.params,_defaults:{},_body:[{kind:'return',val:expr.body}],_closure:env};
+                case 'listcomp': {
+                    const items=[]; const iterVal=this.evalExpr(expr.iter,env);
+                    for(const item of this.pyIter(iterVal)){ const le=this.makeEnv(env); if(expr.targets.length===1)this.setVar(le,expr.targets[0],item); else{const u=this.pyIter(item);expr.targets.forEach((t,i)=>this.setVar(le,t,u[i]??null));} if(!expr.cond||this.pyBool(this.evalExpr(expr.cond,le)))items.push(this.evalExpr(expr.expr,le)); }
+                    return{_type:'list',_items:items};
+                }
+                case 'index': {
+                    const obj=this.evalExpr(expr.obj,env); const idx=this.evalExpr(expr.idx,env);
+                    if(obj?._type==='list'||obj?._type==='tuple'){const i=idx<0?obj._items.length+idx:idx;if(i<0||i>=obj._items.length)throw new Error('IndexError: list index out of range');return obj._items[i];}
+                    if(obj?._type==='dict'){if(!obj._map.has(idx))throw new Error(`KeyError: ${this.pyStr(idx)}`);return obj._map.get(idx);}
+                    if(typeof obj==='string'){const i=idx<0?obj.length+idx:idx;return obj[i]??null;}
+                    return null;
+                }
+                case 'slice': {
+                    const obj=this.evalExpr(expr.obj,env); const items=obj?._items??(typeof obj==='string'?obj.split(''):[]); const len=items.length;
+                    const start=expr.start?this.evalExpr(expr.start,env):0; const stop=expr.stop?this.evalExpr(expr.stop,env):len; const step=expr.step?this.evalExpr(expr.step,env):1;
+                    const s=start<0?Math.max(0,len+start):Math.min(len,start); const e2=stop<0?Math.max(0,len+stop):Math.min(len,stop);
+                    const sliced=[]; if(step>0)for(let i=s;i<e2;i+=step)sliced.push(items[i]); else for(let i=s;i>e2;i+=step)sliced.push(items[i]);
+                    if(typeof obj==='string')return sliced.join(''); return{_type:obj?._type??'list',_items:sliced};
+                }
+                case 'call': {
+                    const fn=this.evalExpr(expr.func,env); const args=this.resolveArgs(expr.args,env);
+                    const kwargs={}; for(const[k,v]of Object.entries(expr.kwargs||{}))kwargs[k]=this.evalExpr(v,env);
+                    return this.callValue(fn,args,kwargs,env);
+                }
+                case 'methodcall': {
+                    const obj=this.evalExpr(expr.obj,env); const args=this.resolveArgs(expr.args,env);
+                    const kwargs={}; for(const[k,v]of Object.entries(expr.kwargs||{}))kwargs[k]=this.evalExpr(v,env);
+                    return this.callMethod(obj,expr.method,args,kwargs,env);
+                }
+                default: throw new Error(`RuntimeError: unknown expression '${expr.kind}'`);
+            }
+        }
+     
+        resolveArgs(rawArgs,env){ const out=[]; for(const a of rawArgs){ if(a.kind==='spread'){const v=this.evalExpr(a.expr,env);out.push(...this.pyIter(v));}else out.push(this.evalExpr(a,env)); } return out; }
+     
+        callValue(fn,args,kwargs,env){
+            if(fn?._type==='builtin')return this.callBuiltin(fn._name,args,kwargs,env);
+            if(fn?._type==='boundmethod')return this.callMethod(fn._obj,fn._attr,args,kwargs,env);
+            if(fn?._type==='class'){
+                const inst={_type:'instance',_class:fn,_fields:{}};
+                for(const[k,v]of Object.entries(fn._classVars||{}))inst._fields[k]=v;
+                const init=fn._methods['__init__']||(fn._base?._methods?.['__init__']);
+                if(init){const iEnv=this.makeEnv(init._closure);iEnv._vars['self']=inst;init._params.slice(1).forEach((p,i)=>{iEnv._vars[p]=args[i]??init._defaults[p]??null;});this.execBlock(init._body,iEnv);}
+                return inst;
+            }
+            if(fn?._type==='function'){
+                const fnEnv=this.makeEnv(fn._closure);
+                fn._params.forEach((p,i)=>{fnEnv._vars[p]=args[i]??kwargs[p]??fn._defaults[p]??null;});
+                const r=this.execBlock(fn._body,fnEnv); return r?.type==='return'?r.val:null;
+            }
+            throw new Error(`TypeError: '${fn?._type??typeof fn}' object is not callable`);
+        }
+     
+        callMethod(obj,method,args,kwargs,env){
+            if(obj?._type==='instance'){
+                const cls=obj._class; let fn=cls._methods[method]; if(!fn&&cls._base)fn=cls._base._methods?.[method];
+                if(fn){const fnEnv=this.makeEnv(fn._closure);fnEnv._vars['self']=obj;fn._params.slice(1).forEach((p,i)=>{fnEnv._vars[p]=args[i]??fn._defaults[p]??null;});const r=this.execBlock(fn._body,fnEnv);return r?.type==='return'?r.val:null;}
+            }
+            if(obj?._type==='list'){ const it=obj._items;
+                if(method==='append'){it.push(args[0]);return null;} if(method==='extend'){it.push(...this.pyIter(args[0]));return null;}
+                if(method==='insert'){it.splice(args[0],0,args[1]);return null;} if(method==='pop'){return args[0]!==undefined?it.splice(args[0],1)[0]:it.pop();}
+                if(method==='remove'){const i=it.indexOf(args[0]);if(i>=0)it.splice(i,1);return null;} if(method==='index')return it.indexOf(args[0]);
+                if(method==='count')return it.filter(x=>x===args[0]).length; if(method==='sort'){it.sort((a,b)=>a<b?-1:a>b?1:0);return null;}
+                if(method==='reverse'){it.reverse();return null;} if(method==='copy')return{_type:'list',_items:[...it]}; if(method==='clear'){obj._items=[];return null;}
+            }
+            if(obj?._type==='dict'){
+                if(method==='get')return obj._map.has(args[0])?obj._map.get(args[0]):(args[1]??null);
+                if(method==='keys')return{_type:'list',_items:[...obj._map.keys()]}; if(method==='values')return{_type:'list',_items:[...obj._map.values()]};
+                if(method==='items')return{_type:'list',_items:[...obj._map.entries()].map(([k,v])=>({_type:'tuple',_items:[k,v]}))};
+                if(method==='update'){const o=args[0];if(o?._map)for(const[k,v]of o._map)obj._map.set(k,v);return null;}
+                if(method==='pop'){const v=obj._map.get(args[0]);obj._map.delete(args[0]);return v??args[1]??null;}
+                if(method==='setdefault'){if(!obj._map.has(args[0]))obj._map.set(args[0],args[1]??null);return obj._map.get(args[0]);}
+            }
+            if(typeof obj==='string'){
+                if(method==='upper')return obj.toUpperCase(); if(method==='lower')return obj.toLowerCase();
+                if(method==='strip')return obj.trim(); if(method==='lstrip')return obj.trimStart(); if(method==='rstrip')return obj.trimEnd();
+                if(method==='split'){const sep=args[0]??null;const parts=sep===null?obj.split(/\s+/).filter(Boolean):obj.split(sep);return{_type:'list',_items:parts};}
+                if(method==='join'){return this.pyIter(args[0]).map(x=>this.pyStr(x)).join(obj);}
+                if(method==='replace')return obj.split(args[0]).join(args[1]);
+                if(method==='startswith')return obj.startsWith(args[0]); if(method==='endswith')return obj.endsWith(args[0]);
+                if(method==='find')return obj.indexOf(args[0]); if(method==='rfind')return obj.lastIndexOf(args[0]);
+                if(method==='index'){const i=obj.indexOf(args[0]);if(i<0)throw new Error('ValueError: substring not found');return i;}
+                if(method==='count')return obj.split(args[0]).length-1;
+                if(method==='format'){let i=0;return obj.replace(/\{(?:(\d+)|([^}]*))\}/g,(_,n,k)=>{if(k!==undefined)return this.pyStr(kwargs[k]??null);return this.pyStr(args[n!==undefined?parseInt(n):i++]??null);});}
+                if(method==='isdigit')return /^\d+$/.test(obj); if(method==='isalpha')return /^[a-zA-Z]+$/.test(obj);
+                if(method==='isalnum')return /^[a-zA-Z0-9]+$/.test(obj); if(method==='isspace')return /^\s+$/.test(obj);
+                if(method==='zfill')return obj.padStart(args[0],'0');
+                if(method==='ljust')return obj.padEnd(args[0],args[1]??''); if(method==='rjust')return obj.padStart(args[0],args[1]??'');
+            }
+            if(typeof obj==='number'){if(method==='__str__'||method==='toString')return this.pyStr(obj);}
+            throw new Error(`AttributeError: '${obj?._type??typeof obj}' object has no attribute '${method}'`);
+        }
+     
+        get builtins(){ return{print:1,input:1,len:1,range:1,type:1,int:1,float:1,str:1,bool:1,abs:1,max:1,min:1,sum:1,sorted:1,reversed:1,enumerate:1,zip:1,list:1,dict:1,tuple:1,isinstance:1,hasattr:1,getattr:1,setattr:1,repr:1,round:1,pow:1,divmod:1,map:1,filter:1,any:1,all:1,id:1,chr:1,ord:1,hex:1,bin:1,oct:1}; }
+     
+        callBuiltin(name,args,kwargs,env){
+            const a0=args[0],a1=args[1],a2=args[2];
+            switch(name){
+                case 'print': { const sep=kwargs.sep??' '; const end=kwargs.end??'\n'; const s=args.map(a=>this.pyStr(a)).join(sep)+end; this.print(s.endsWith('\n')?s.slice(0,-1):s); return null; }
+                case 'input': return '';
+                case 'len':   return this.pyLen(a0);
+                case 'range': { let start=0,stop,step=1; if(args.length===1)stop=a0; else if(args.length===2){start=a0;stop=a1;}else{start=a0;stop=a1;step=a2;} const items=[]; if(step>0)for(let i=start;i<stop;i+=step)items.push(i); else for(let i=start;i>stop;i+=step)items.push(i); return{_type:'list',_items:items}; }
+                case 'type':  { const t=a0?._type??(a0===null?'NoneType':typeof a0==='number'?(Number.isInteger(a0)?'int':'float'):typeof a0==='string'?'str':typeof a0==='boolean'?'bool':'object'); return`<class '${t}'>`; }
+                case 'int':   return a0===null?0:typeof a0==='boolean'?+a0:parseInt(a0,a1??10)||0;
+                case 'float': return parseFloat(a0)??0.0;
+                case 'str':   return this.pyStr(a0);
+                case 'bool':  return this.pyBool(a0);
+                case 'abs':   return Math.abs(a0);
+                case 'round': return a1!==undefined?parseFloat(a0.toFixed(a1)):Math.round(a0);
+                case 'pow':   return Math.pow(a0,a1);
+                case 'divmod':return{_type:'tuple',_items:[Math.trunc(a0/a1),a0%a1]};
+                case 'max':   return args.length===1?Math.max(...this.pyIter(a0)):Math.max(...args);
+                case 'min':   return args.length===1?Math.min(...this.pyIter(a0)):Math.min(...args);
+                case 'sum':   return this.pyIter(a0).reduce((acc,x)=>acc+x,a1??0);
+                case 'sorted':{ const it=[...this.pyIter(a0)]; it.sort((x,y)=>x<y?-1:x>y?1:0); if(kwargs.reverse)it.reverse(); return{_type:'list',_items:it}; }
+                case 'reversed':return{_type:'list',_items:[...this.pyIter(a0)].reverse()};
+                case 'enumerate':{ const s2=a1??0; return{_type:'list',_items:this.pyIter(a0).map((v,i)=>({_type:'tuple',_items:[i+s2,v]}))}; }
+                case 'zip':   { const iters=args.map(a=>this.pyIter(a)); const minL=Math.min(...iters.map(a=>a.length)); return{_type:'list',_items:Array.from({length:minL},(_,i)=>({_type:'tuple',_items:iters.map(a=>a[i])}))}; }
+                case 'list':  return{_type:'list',_items:[...this.pyIter(a0??{_type:'list',_items:[]})]};
+                case 'tuple': return{_type:'tuple',_items:[...this.pyIter(a0??{_type:'tuple',_items:[]})]};
+                case 'dict':  { const m=new Map(); if(a0?._type==='list')for(const pair of a0._items){const p=this.pyIter(pair);m.set(p[0],p[1]);} return{_type:'dict',_map:m}; }
+                case 'isinstance':return true;
+                case 'hasattr':return a0?._fields&&a1 in a0._fields;
+                case 'getattr':return a0?._fields?.[a1]??a2??null;
+                case 'setattr':if(a0?._fields)a0._fields[a1]=a2;return null;
+                case 'repr':  return this.pyRepr(a0);
+                case 'map':   return{_type:'list',_items:this.pyIter(a1).map(x=>this.callValue(a0,[x],{},env))};
+                case 'filter':return{_type:'list',_items:this.pyIter(a1).filter(x=>this.pyBool(this.callValue(a0,[x],{},env)))};
+                case 'any':   return this.pyIter(a0).some(x=>this.pyBool(x));
+                case 'all':   return this.pyIter(a0).every(x=>this.pyBool(x));
+                case 'id':    return 0;
+                case 'chr':   return String.fromCharCode(a0);
+                case 'ord':   return typeof a0==='string'?a0.charCodeAt(0):0;
+                case 'hex':   return'0x'+a0.toString(16);
+                case 'bin':   return'0b'+a0.toString(2);
+                case 'oct':   return'0o'+a0.toString(8);
+                default: throw new Error(`NameError: name '${name}' is not defined`);
+            }
+        }
+     
+        applyBinop(op,left,right){
+            switch(op){
+                case '+': if(left?._type==='list'&&right?._type==='list')return{_type:'list',_items:[...left._items,...right._items]}; if(left?._type==='tuple'&&right?._type==='tuple')return{_type:'tuple',_items:[...left._items,...right._items]}; return left+right;
+                case '-': return left-right; case '/': if(right===0)throw new Error('ZeroDivisionError');return left/right;
+                case '*': if(typeof left==='string'&&typeof right==='number')return left.repeat(right); if(left?._type==='list'&&typeof right==='number')return{_type:'list',_items:[].concat(...Array(right).fill(null).map(()=>[...left._items]))}; return left*right;
+                case '//': if(right===0)throw new Error('ZeroDivisionError');return Math.trunc(left/right);
+                case '%': return((left%right)+right)%right; case '**': return Math.pow(left,right);
+                case '==': return this.pyEq(left,right); case '!=': return !this.pyEq(left,right);
+                case '<': return left<right; case '>': return left>right; case '<=': return left<=right; case '>=': return left>=right;
+                case 'in': if(typeof right==='string')return right.includes(String(left)); if(right?._type==='list'||right?._type==='tuple')return right._items.some(x=>this.pyEq(x,left)); if(right?._type==='dict')return right._map.has(left); return false;
+                case 'not in': if(typeof right==='string')return !right.includes(String(left)); if(right?._type==='list'||right?._type==='tuple')return !right._items.some(x=>this.pyEq(x,left)); if(right?._type==='dict')return !right._map.has(left); return true;
+                case 'is': return left===right;
+                default: throw new Error(`TypeError: unsupported operator '${op}'`);
+            }
+        }
+     
+        pyEq(a,b){ if(a===b)return true; if(a?._type==='list'&&b?._type==='list')return a._items.length===b._items.length&&a._items.every((v,i)=>this.pyEq(v,b._items[i])); return false; }
+        pyBool(v){ if(v===null||v===false)return false; if(typeof v==='number')return v!==0; if(typeof v==='string')return v.length>0; if(v?._type==='list'||v?._type==='tuple')return v._items.length>0; if(v?._type==='dict')return v._map.size>0; return true; }
+        pyLen(v){ if(typeof v==='string')return v.length; if(v?._items)return v._items.length; if(v?._map)return v._map.size; throw new Error(`TypeError: object of type '${typeof v}' has no len()`); }
+        pyIter(v){ if(v?._type==='list'||v?._type==='tuple')return v._items; if(typeof v==='string')return v.split(''); if(v?._type==='dict')return[...v._map.keys()]; if(Array.isArray(v))return v; throw new Error(`TypeError: '${v?._type??typeof v}' object is not iterable`); }
+        pyStr(v){ if(v===null)return'None'; if(v===true)return'True'; if(v===false)return'False'; if(typeof v==='number')return Number.isInteger(v)?String(v):String(parseFloat(v.toPrecision(12))); if(typeof v==='string')return v; if(v?._type==='list')return'['+v._items.map(x=>this.pyRepr(x)).join(', ')+']'; if(v?._type==='tuple')return v._items.length===1?'('+this.pyRepr(v._items[0])+',)':'('+v._items.map(x=>this.pyRepr(x)).join(', ')+')'; if(v?._type==='dict')return'{'+[...v._map.entries()].map(([k,val])=>this.pyRepr(k)+': '+this.pyRepr(val)).join(', ')+'}'; if(v?._type==='instance'){const ts=v._class?._methods?.['__str__'];if(ts){const e=this.makeEnv(ts._closure);e._vars['self']=v;const r=this.execBlock(ts._body,e);return r?.type==='return'?String(r.val):`<${v._class._name} object>`;}return`<${v._class._name} object>`;} if(v?._type==='class')return`<class '${v._name}'>`; if(v?._type==='function')return`<function ${v._name}>`; return String(v); }
+        pyRepr(v){ if(typeof v==='string')return`'${v.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'`; return this.pyStr(v); }
+    }
+     
+     
+    // ══════════════════════════════════════════════════════════════════
+    //  JAVASCRIPT — sandboxed iframe eval
+    // ══════════════════════════════════════════════════════════════════
+     
+    function runJavaScript(code, output, statusDot) {
+        const logs = [];
+        const sandbox = {
+            console: {
+                log:   (...a) => logs.push({ t: "normal", v: a.map(ideStr).join(" ") }),
+                error: (...a) => logs.push({ t: "error",  v: a.map(ideStr).join(" ") }),
+                warn:  (...a) => logs.push({ t: "normal", v: "WARN: " + a.map(ideStr).join(" ") }),
+            }
+        };
+     
+        try {
+            const fn = new Function("console", code);
+            fn(sandbox.console);
+            logs.forEach(l => ideAppend(output, l.v, l.t === "error" ? "out-error" : "out-normal"));
+            ideAppend(output, "\nDone.", "out-ok");
+            statusDot.className = "ide-status-dot ok";
+        } catch (err) {
+            logs.forEach(l => ideAppend(output, l.v, l.t === "error" ? "out-error" : "out-normal"));
+            ideAppend(output, err.toString(), "out-error");
+            statusDot.className = "ide-status-dot err";
+        }
+    }
+     
+
+    /*
+    =====================================================================
+
+        INTERPRETER: C sharp        
+
+    =====================================================================
+    */
+     
+    // ══════════════════════════════════════════════════════════════════
+    //  C# — educational tree-walk interpreter
+    //
+    //  Supported subset:
+    //    • Primitives: int, double, float, bool, string, var
+    //    • Operators: + - * / % == != < > <= >= && || ! (string concat)
+    //    • Console.WriteLine / Console.Write
+    //    • if / else if / else
+    //    • while, for, foreach (over List/array)
+    //    • Methods (static, return values, parameters)
+    //    • Classes with fields + basic constructors
+    //    • new ClassName(args), new List<T>()
+    //    • List<T>: Add, Count, [index]
+    //    • string: Length, ToUpper, ToLower, Contains, Substring, Replace
+    //    • Math.Abs, Math.Max, Math.Min, Math.Pow, Math.Sqrt, Math.Floor, Math.Ceiling
+    //    • Arrays: int[] arr = new int[N]; arr[i]
+    //    • return, break, continue
+    //    • Multi-file: all files share one namespace (just paste multiple class defs)
+    // ══════════════════════════════════════════════════════════════════
+     
+    function runCSharp(code, output, statusDot) {
+        const printLines = [];
+        const printFn = (s) => printLines.push(String(s ?? ""));
+     
+        try {
+            const interp = new CSharpInterpreter(printFn);
+            interp.run(code);
+            printLines.forEach(l => ideAppend(output, l, "out-normal"));
+            ideAppend(output, "\nDone.", "out-ok");
+            statusDot.className = "ide-status-dot ok";
+        } catch (err) {
+            printLines.forEach(l => ideAppend(output, l, "out-normal"));
+            ideAppend(output, err.message || String(err), "out-error");
+            statusDot.className = "ide-status-dot err";
+        }
+    }
+    
+    /*
+    =====================================================================
+        Untested       
+    =====================================================================
+    */
+    class Environment {
+        constructor(parent = null) {
+            this.values = {}; 
+            this.parent = parent; // Link to the outer scope
+        }
+
+        // Used for 'int x = 10;' - always defines in the CURRENT scope
+        define(name, val) {
+            this.values[name] = val;
+        }
+
+        // Used for 'x = 20;' - finds where x lives and updates it there
+        assign(name, val) {
+            if (name in this.values) {
+                this.values[name] = val;
+                return;
+            }
+            if (this.parent) {
+                this.parent.assign(name, val);
+                return;
+            }
+            throw new Error(`Variable '${name}' is not defined.`);
+        }
+
+        // Used for 'return x;' - finds the value by looking up the chain
+        get(name) {
+            if (name in this.values) return this.values[name];
+            if (this.parent) return this.parent.get(name);
+            return null; 
+        }
+    }
+
+    // -================================================================
+     
+    class CSharpInterpreter {
+        constructor(printFn) {
+            this.print   = printFn;
+            this.classes = {};  // className → { fields, methods, constructors }
+            this.globals = {};  // top-level static methods (for Program.Main etc.)
+        }
+     
+        run(src) {
+            const tokens = this.tokenize(src);
+            const ast    = this.parse(tokens);
+            this.registerClasses(ast);
+            // Find entry point: class with static void Main()
+            const entry = this.findMain();
+            if (!entry) throw new Error("No static Main() method found.");
+            this.callMethod(entry.cls, entry.method, [], null, {});
+        }
+     
+        // ─── TOKENIZER ────────────────────────────────────────────────
+        tokenize(src) {
+            const tokens = [];
+            let i = 0;
+            while (i < src.length) {
+                // Whitespace
+                if (/\s/.test(src[i])) { i++; continue; }
+                // Line comment
+                if (src[i] === '/' && src[i+1] === '/') {
+                    while (i < src.length && src[i] !== '\n') i++;
+                    continue;
+                }
+                // Block comment
+                if (src[i] === '/' && src[i+1] === '*') {
+                    i += 2;
+                    while (i < src.length && !(src[i] === '*' && src[i+1] === '/')) i++;
+                    i += 2; continue;
+                }
+                // String literal
+                if (src[i] === '"') {
+                    let s = '';
+                    i++;
+                    while (i < src.length && src[i] !== '"') {
+                        if (src[i] === '\\') { i++; s += ({n:'\n',t:'\t',r:'\r','\\':'\\','"':'"'}[src[i]] || src[i]); }
+                        else s += src[i];
+                        i++;
+                    }
+                    i++;
+                    tokens.push({ type: 'str', val: s });
+                    continue;
+                }
+                // Char literal
+                if (src[i] === "'") {
+                    i++;
+                    let ch = src[i]; i++;
+                    if (ch === '\\') { ch = ({n:'\n',t:'\t',r:'\r'}[src[i]] || src[i]); i++; }
+                    i++; // closing '
+                    tokens.push({ type: 'num', val: ch.charCodeAt(0) });
+                    continue;
+                }
+                // Number
+                if (/\d/.test(src[i]) || (src[i] === '.' && /\d/.test(src[i+1]))) {
+                    let n = '';
+                    while (i < src.length && /[\d._]/.test(src[i])) { if (src[i] !== '_') n += src[i]; i++; }
+                    if (src[i] === 'f' || src[i] === 'F' || src[i] === 'd' || src[i] === 'D' || src[i] === 'L') i++;
+                    tokens.push({ type: 'num', val: parseFloat(n) });
+                    continue;
+                }
+                // Identifier / keyword
+                if (/[a-zA-Z_]/.test(src[i])) {
+                    let w = '';
+                    while (i < src.length && /[\w]/.test(src[i])) { w += src[i]; i++; }
+                    // Generic angle brackets — treat as part of type name
+                    if (src[i] === '<') {
+                        let depth = 1, gen = '<'; i++;
+                        while (i < src.length && depth > 0) {
+                            if (src[i] === '<') depth++;
+                            if (src[i] === '>') depth--;
+                            if (depth > 0) gen += src[i];
+                            i++;
+                        }
+                        gen += '>';
+                        tokens.push({ type: 'id', val: w + gen }); continue;
+                    }
+                    tokens.push({ type: 'id', val: w }); continue;
+                }
+                // Two-char operators
+                const two = src.slice(i, i+2);
+                if (['==','!=','<=','>=','&&','||','++','--','+=','-=','*=','/=','%='].includes(two)) {
+                    tokens.push({ type: 'op', val: two }); i += 2; continue;
+                }
+                // Single-char
+                tokens.push({ type: 'op', val: src[i] }); i++;
+            }
+            tokens.push({ type: 'eof' });
+            return tokens;
+        }
+     
+        // ─── PARSER ───────────────────────────────────────────────────
+        parse(tokens) {
+            let pos = 0;
+            const peek  = ()    => tokens[pos];
+            const next  = ()    => tokens[pos++];
+            const eat   = (v)   => { if (peek().val === v) return next(); throw new Error(`Expected '${v}' got '${peek().val || peek().type}' (pos ${pos})`); };
+            const check = (v)   => peek().val === v;
+            const checkT= (t)   => peek().type === t;
+            const eof   = ()    => peek().type === 'eof';
+     
+            
+
+            function parseTypeRef() {
+                let name = next().val;  // base type or id (may include generics already)
+                if (check('[')) { eat('['); eat(']'); name += '[]'; }
+                return name;
+            }
+     
+            function parseClass() {
+                // optional access modifier
+                const mod = ['public','private','protected','internal','abstract','static','sealed','partial'];
+                while (mod.includes(peek().val)) next();
+                eat('class');
+                const name = next().val;
+                // optional : BaseClass
+                if (check(':')) { next(); next(); }
+                eat('{');
+                const members = [];
+                while (!check('}') && !eof()) {
+                    members.push(parseMember(name));
+                }
+                eat('}');
+                return { kind: 'class', name, members };
+            }
+     
+            function parseMember(className) {
+                const mods = ['public','private','protected','static','override','virtual','abstract','readonly','const'];
+                const modList = [];
+                while (mods.includes(peek().val)) modList.push(next().val);
+     
+                // Constructor: ClassName(...)
+                if (peek().val === className && tokens[pos+1]?.val === '(') {
+                    const name = next().val; eat('(');
+                    const params = parseParams(); eat(')');
+                    const body = parseBlock();
+                    return { kind: 'ctor', name, params, body, mods: modList };
+                }
+     
+                const retType = parseTypeRef();
+     
+                // Property or field with initialiser
+                if (peek().type === 'id') {
+                    const memberName = next().val;
+                    // Method
+                    if (check('(')) {
+                        eat('(');
+                        const params = parseParams(); eat(')');
+                        if (check(';')) { eat(';'); return { kind: 'method', name: memberName, retType, params, body: [], mods: modList }; }
+                        const body = parseBlock();
+                        return { kind: 'method', name: memberName, retType, params, body, mods: modList };
+                    }
+                    // Field
+                    let init = null;
+                    if (check('=')) { eat('='); init = parseExpr(); }
+                    eat(';');
+                    return { kind: 'field', name: memberName, retType, init, mods: modList };
+                }
+                throw new Error(`Unexpected member token: '${peek().val}'`);
+            }
+     
+            function parseParams() {
+                const params = [];
+                while (!check(')') && !eof()) {
+                    // optional out/ref/params
+                    if (['out','ref','params'].includes(peek().val)) next();
+                    const type = parseTypeRef();
+                    const name = next().val;
+                    params.push({ type, name });
+                    if (check(',')) next();
+                }
+                return params;
+            }
+     
+            function parseBlock() {
+                eat('{');
+                const stmts = [];
+                while (!check('}') && !eof()) stmts.push(parseStmt());
+                eat('}');
+                return stmts;
+            }
+     
+            function parseStmt() {
+                
+                /*
+                if (isDecl) {
+                    // ... parsing logic ...
+                    eat('='); // you already have this
+                    // ...
+                    eat(';'); // Ensure this isn't wrapped in an 'if (check)'
+                }
+                */
+
+                // return
+                if (check('return')) {
+                    next();
+                    if (check(';')) { eat(';'); return { kind: 'return', val: null }; }
+                    const val = parseExpr(); eat(';');
+                    return { kind: 'return', val };
+                }
+                // break / continue
+                if (check('break'))    { next(); eat(';'); return { kind: 'break' }; }
+                if (check('continue')) { next(); eat(';'); return { kind: 'continue' }; }
+                // throw
+                if (check('throw')) {
+                    next(); const ex = parseExpr(); eat(';');
+                    return { kind: 'throw', ex };
+                }
+                // if
+                if (check('if')) {
+                    next(); eat('(');
+                    const cond = parseExpr(); eat(')');
+                    const then = check('{') ? parseBlock() : [parseStmt()];
+                    let els = null;
+                    if (check('else')) {
+                        next();
+                        els = check('{') ? parseBlock() : [parseStmt()];
+                    }
+                    return { kind: 'if', cond, then, els };
+                }
+                // while
+                if (check('while')) {
+                    next(); eat('(');
+                    const cond = parseExpr(); eat(')');
+                    const body = check('{') ? parseBlock() : [parseStmt()];
+                    return { kind: 'while', cond, body };
+                }
+                // for
+                if (check('for')) {
+                    next(); eat('(');
+                    let init = null;
+                    if (!check(';')) init = parseStmt(); else eat(';');
+                    let cond = null;
+                    if (!check(';')) cond = parseExpr();
+                    eat(';');
+                    let step = null;
+                    if (!check(')')) step = parseExprStmt(false);
+                    eat(')');
+                    const body = check('{') ? parseBlock() : [parseStmt()];
+                    return { kind: 'for', init, cond, step, body };
+                }
+                // foreach
+                if (check('foreach')) {
+                    next(); eat('(');
+                    const type = parseTypeRef();
+                    const varName = next().val;
+                    eat('in');
+                    const iter = parseExpr(); eat(')');
+                    const body = check('{') ? parseBlock() : [parseStmt()];
+                    return { kind: 'foreach', varName, iter, body };
+                }
+                // var / type declarations
+                const declTypes = ['var','int','double','float','bool','string','long','char','object','byte','short','uint','ulong'];
+                const isDecl = declTypes.includes(peek().val)
+                    || (peek().type === 'id' && tokens[pos+1]?.type === 'id' && tokens[pos+1]?.val !== '(' );
+                if (isDecl && !check('Console') && !check('Math')) {
+                    const type = parseTypeRef();
+                    const name = next().val;
+                    // Array init: int[] arr = new int[N]
+                    let init = null;
+                    if (check('=')) { eat('='); init = parseExpr(); }
+                    eat(';');
+                    return { kind: 'decl', varType: type, name, init };
+                }
+                // expression statement
+                return parseExprStmt(true);
+            }
+            
+            function parseExprStmt(semi) {
+                const expr = parseExpr();
+                
+                if (semi) eat(';'); 
+                return { kind: 'expr', expr };
+            }
+            /*
+            function parseExprStmt(semi) {
+                const expr = parseExpr();
+                if (semi && check(';')) eat(';');
+                return { kind: 'expr', expr };
+            }
+            */
+     
+            function parseExpr(prec = 0) { return parseAssign(); }
+     
+            function parseAssign() {
+                let left = parseTernary();
+                while (['=','+=','-=','*=','/=','%='].includes(peek().val)) {
+                    const op = next().val;
+                    const right = parseTernary();
+                    left = { kind: 'assign', op, left, right };
+                }
+                return left;
+            }
+     
+            function parseTernary() {
+                let cond = parseOr();
+                if (check('?')) {
+                    next();
+                    const then = parseTernary(); eat(':');
+                    const els  = parseTernary();
+                    return { kind: 'ternary', cond, then, els };
+                }
+                return cond;
+            }
+     
+            function parseOr()  { return parseBinary(parseAnd,  ['||']); }
+            function parseAnd() { return parseBinary(parseEq,   ['&&']); }
+            function parseEq()  { return parseBinary(parseCmp,  ['==','!=']); }
+            function parseCmp() { return parseBinary(parseAdd,  ['<','>','<=','>=']); }
+            function parseAdd() { return parseBinary(parseMul,  ['+','-']); }
+            function parseMul() { return parseBinary(parseUnary,['*','/','%']); }
+     
+            function parseBinary(sub, ops) {
+                let left = sub();
+                while (ops.includes(peek().val)) {
+                    const op = next().val;
+                    left = { kind: 'binop', op, left, right: sub() };
+                }
+                return left;
+            }
+     
+            function parseUnary() {
+                if (check('!'))  { next(); return { kind: 'unary', op: '!',   expr: parseUnary() }; }
+                if (check('-'))  { next(); return { kind: 'unary', op: '-',   expr: parseUnary() }; }
+                if (check('++')) { next(); return { kind: 'preinc', op: '++', expr: parseUnary() }; }
+                if (check('--')) { next(); return { kind: 'preinc', op: '--', expr: parseUnary() }; }
+                return parsePostfix();
+            }
+     
+            function parsePostfix() {
+                let expr = parsePrimary();
+                while (true) {
+                    if (check('++')) { next(); expr = { kind: 'postinc', op: '++', expr }; }
+                    else if (check('--')) { next(); expr = { kind: 'postinc', op: '--', expr }; }
+                    else if (check('.')) {
+                        next();
+                        const prop = next().val;
+                        if (check('(')) {
+                            eat('(');
+                            const args = parseArgs(); eat(')');
+                            expr = { kind: 'methodcall', obj: expr, method: prop, args };
+                        } else {
+                            expr = { kind: 'prop', obj: expr, prop };
+                        }
+                    }
+                    else if (check('[')) {
+                        next();
+                        const idx = parseExpr(); eat(']');
+                        expr = { kind: 'index', obj: expr, idx };
+                    }
+                    else break;
+                }
+                return expr;
+            }
+     
+            function parsePrimary() {
+                const t = peek();
+                // Literals
+                if (t.type === 'num') { next(); return { kind: 'lit', val: t.val }; }
+                if (t.type === 'str') { next(); return { kind: 'lit', val: t.val }; }
+                if (t.val === 'true')  { next(); return { kind: 'lit', val: true  }; }
+                if (t.val === 'false') { next(); return { kind: 'lit', val: false }; }
+                if (t.val === 'null')  { next(); return { kind: 'lit', val: null  }; }
+                // Grouping
+                if (t.val === '(') {
+                    next();
+                    // Cast: (int)expr
+                    if (['int','double','float','string','bool','long','char','byte'].includes(peek().val) && tokens[pos+1]?.val === ')') {
+                        const castType = next().val; eat(')');
+                        return { kind: 'cast', castType, expr: parseUnary() };
+                    }
+                    const e = parseExpr(); eat(')'); return e;
+                }
+                // new
+                if (t.val === 'new') {
+                    next();
+                    const typeName = parseTypeRef();
+                    eat('(');
+                    const args = parseArgs(); eat(')');
+                    // Optional object initialiser { Prop = val, ... }
+                    let init = null;
+                    if (check('{')) {
+                        next();
+                        init = [];
+                        while (!check('}') && !eof()) {
+                            const key = next().val; eat('=');
+                            init.push({ key, val: parseExpr() });
+                            if (check(',')) next();
+                        }
+                        eat('}');
+                    }
+                    return { kind: 'new', typeName, args, init };
+                }
+                // new array: already handled via parseTypeRef above for int[]
+                // Identifier — variable, static call, or nameof
+                if (t.type === 'id') {
+                    const name = next().val;
+                    if (check('(')) {
+                        eat('(');
+                        const args = parseArgs(); eat(')');
+                        return { kind: 'call', name, args };
+                    }
+                    return { kind: 'id', name };
+                }
+                throw new Error(`Unexpected token: '${t.val || t.type}' (pos ${pos})`);
+            }
+     
+            function parseArgs() {
+                const args = [];
+                while (!check(')') && !eof()) {
+                    if (check('out') || check('ref')) next();  // skip out/ref
+                    args.push(parseExpr());
+                    if (check(',')) next();
+                }
+                return args;
+            }
+     
+            // Top-level parse: collect class definitions (and top-level statements)
+            const ast = [];
+            while (!eof()) {
+                const mods = ['using','namespace','public','private','internal','abstract','static','sealed'];
+                if (mods.includes(peek().val) && peek().val !== 'static') {
+                    const kw = next().val;
+                    if (kw === 'using') {
+                        // using System; or using X = Y;
+                        while (!check(';') && !eof()) next();
+                        if (check(';')) next();
+                        continue;
+                    }
+                    if (kw === 'namespace') {
+                        // namespace Foo { ... } or namespace Foo; (file-scoped)
+                        while (peek().type === 'id' || check('.')) next();
+                        if (check('{')) {
+                            eat('{');
+                            while (!check('}') && !eof()) ast.push(parseClass());
+                            eat('}');
+                        } else if (check(';')) {
+                            eat(';');
+                            while (!eof()) ast.push(parseClass());
+                        }
+                        continue;
+                    }
+                    // Put modifier back — re-parse as class
+                    pos--;
+                }
+                if (check('class')) { ast.push(parseClass()); continue; }
+                // skip stray modifiers
+                if (['public','private','internal','abstract','sealed'].includes(peek().val)) { next(); continue; }
+                break;
+            }
+            return ast;
+        }
+     
+        // ─── REGISTER CLASSES ─────────────────────────────────────────
+        registerClasses(ast) {
+            for (const node of ast) {
+                if (node.kind !== 'class') continue;
+                const cls = { name: node.name, fields: {}, methods: {}, ctors: [] };
+                for (const m of node.members) {
+                    if (m.kind === 'field')  cls.fields[m.name] = m;
+                    if (m.kind === 'method') cls.methods[m.name] = m;
+                    if (m.kind === 'ctor')   cls.ctors.push(m);
+                }
+                this.classes[node.name] = cls;
+            }
+        }
+     
+        findMain() {
+            for (const [clsName, cls] of Object.entries(this.classes)) {
+                if (cls.methods['Main']) return { cls: clsName, method: 'Main' };
+            }
+            return null;
+        }
+     
+        // ─── EXECUTION ────────────────────────────────────────────────
+        callMethod(clsName, methodName, args, thisObj, parentEnv) {
+            const cls = this.classes[clsName];
+            if (!cls) throw new Error(`Class '${clsName}' not found.`);
+            const method = cls.methods[methodName];
+            if (!method) throw new Error(`Method '${methodName}' not found in '${clsName}'.`);
+     
+            const env = { ...parentEnv };
+            (method.params || []).forEach((p, i) => { env[p.name] = args[i] ?? null; });
+            if (thisObj) env['this'] = thisObj;
+     
+            const result = this.execBlock(method.body, env, clsName, thisObj);
+            if (result?.type === 'return') return result.val;
+            return null;
+        }
+     
+        /*
+        execBlock(stmts, env, clsName, thisObj) {
+            const local = { ...env };
+            for (const stmt of stmts) {
+                const r = this.execStmt(stmt, local, clsName, thisObj);
+                if (r) return r;
+            }
+            return null;
+        }
+        */
+        
+        /*
+        =====================================================================
+            Untested       
+        =====================================================================
+        */
+        execBlock(stmts, env, clsName, thisObj) {
+            // Create a nested scope
+            const blockEnv = new Environment(env); 
+            
+            for (const stmt of stmts) {
+                const r = this.execStmt(stmt, blockEnv, clsName, thisObj);
+                if (r) return r;
+            }
+            return null;
+        }
+
+        /*
+        =====================================================================
+            Untested       
+        =====================================================================
+        */
+
+     
+        execStmt(stmt, env, clsName, thisObj) {
+            const LIMIT = 100000;
+            if (!this._steps) this._steps = 0;
+            if (++this._steps > LIMIT) throw new Error("Execution limit reached (infinite loop?).");
+     
+            switch (stmt.kind) {
+                
+                /*
+                =====================================================================
+                    Untested       
+                =====================================================================
+                */
+                case 'decl': {
+                    const val = stmt.init ? this.evalExpr(stmt.init, env, clsName, thisObj) : null;
+                    env.define(stmt.name, val);
+                    return null;
+                }
+                /*
+                case 'decl': {
+                    env[stmt.name] = stmt.init ? this.evalExpr(stmt.init, env, clsName, thisObj) : null;
+                    return null;
+                }
+                */
+                case 'expr': {
+                    this.evalExpr(stmt.expr, env, clsName, thisObj);
+                    return null;
+                }
+                case 'return': {
+                    const val = stmt.val ? this.evalExpr(stmt.val, env, clsName, thisObj) : null;
+                    return { type: 'return', val };
+                }
+                case 'break':    return { type: 'break' };
+                case 'continue': return { type: 'continue' };
+                case 'throw': {
+                    const ex = this.evalExpr(stmt.ex, env, clsName, thisObj);
+                    throw new Error(ex?._msg || String(ex));
+                }
+                case 'if': {
+                    const cond = this.evalExpr(stmt.cond, env, clsName, thisObj);
+                    if (cond) return this.execBlock(stmt.then, env, clsName, thisObj);
+                    if (stmt.els) return this.execBlock(stmt.els, env, clsName, thisObj);
+                    return null;
+                }
+                case 'while': {
+                    let r;
+                    while (this.evalExpr(stmt.cond, env, clsName, thisObj)) {
+                        r = this.execBlock(stmt.body, env, clsName, thisObj);
+                        if (r?.type === 'break')    return null;
+                        if (r?.type === 'return')   return r;
+                        if (r?.type === 'continue') continue;
+                        if (++this._steps > LIMIT) throw new Error("Execution limit reached.");
+                    }
+                    return null;
+                }
+                case 'for': {
+                    const loopEnv = { ...env };
+                    if (stmt.init) this.execStmt(stmt.init, loopEnv, clsName, thisObj);
+                    let r;
+                    while (!stmt.cond || this.evalExpr(stmt.cond, loopEnv, clsName, thisObj)) {
+                        r = this.execBlock(stmt.body, loopEnv, clsName, thisObj);
+                        if (r?.type === 'break')    return null;
+                        if (r?.type === 'return')   return r;
+                        if (stmt.step) this.evalExpr(stmt.step, loopEnv, clsName, thisObj);
+                        if (++this._steps > LIMIT) throw new Error("Execution limit reached.");
+                    }
+                    return null;
+                }
+                case 'foreach': {
+                    const iter = this.evalExpr(stmt.iter, env, clsName, thisObj);
+                    const items = iter?._items ?? (Array.isArray(iter) ? iter : []);
+                    for (const item of items) {
+                        const fe = { ...env, [stmt.varName]: item };
+                        const r = this.execBlock(stmt.body, fe, clsName, thisObj);
+                        if (r?.type === 'break')  return null;
+                        if (r?.type === 'return') return r;
+                        if (++this._steps > LIMIT) throw new Error("Execution limit reached.");
+                    }
+                    return null;
+                }
+                default:
+                    throw new Error(`Unknown statement kind: ${stmt.kind}`);
+            }
+        }
+     
+        evalExpr(expr, env, clsName, thisObj) {
+            switch (expr.kind) {
+                case 'lit': return expr.val;
+                
+
+                /*
+                =====================================================================
+                    Untested       
+                =====================================================================
+                */
+                case 'id': {
+                    return env.get(expr.name);
+                }
+
+                case 'assign': {
+                    const val = this.evalExpr(expr.right, env, clsName, thisObj);
+                    // You'll need a helper or logic in doAssign that calls env.assign()
+                    this.doAssign(expr.op, expr.left, val, env, clsName, thisObj);
+                    return val;
+                }
+                /*
+                case 'id': {
+                    const n = expr.name;
+                    if (n in env) return env[n];
+                    // Static field access on current class
+                    const cls = this.classes[clsName];
+                    if (cls?.fields[n]) {
+                        const f = cls.fields[n];
+                        if (!f._initialised) {
+                            f._val = f.init ? this.evalExpr(f.init, env, clsName, thisObj) : null;
+                            f._initialised = true;
+                        }
+                        return f._val;
+                    }
+                    return null;
+                }
+     
+                case 'assign': {
+                    const val = this.evalExpr(expr.right, env, clsName, thisObj);
+                    this.doAssign(expr.op, expr.left, val, env, clsName, thisObj);
+                    return val;
+                }
+                */
+     
+                case 'ternary': {
+                    const c = this.evalExpr(expr.cond, env, clsName, thisObj);
+                    return c ? this.evalExpr(expr.then, env, clsName, thisObj)
+                             : this.evalExpr(expr.els,  env, clsName, thisObj);
+                }
+     
+                case 'binop': return this.evalBinop(expr.op,
+                    this.evalExpr(expr.left,  env, clsName, thisObj),
+                    this.evalExpr(expr.right, env, clsName, thisObj));
+     
+                case 'unary': {
+                    const v = this.evalExpr(expr.expr, env, clsName, thisObj);
+                    if (expr.op === '!') return !v;
+                    if (expr.op === '-') return -v;
+                    return v;
+                }
+     
+                case 'preinc': {
+                    const cur = this.evalExpr(expr.expr, env, clsName, thisObj);
+                    const nv  = expr.op === '++' ? cur + 1 : cur - 1;
+                    this.doAssign('=', expr.expr, nv, env, clsName, thisObj);
+                    return nv;
+                }
+     
+                case 'postinc': {
+                    const cur = this.evalExpr(expr.expr, env, clsName, thisObj);
+                    const nv  = expr.op === '++' ? cur + 1 : cur - 1;
+                    this.doAssign('=', expr.expr, nv, env, clsName, thisObj);
+                    return cur;
+                }
+     
+                case 'cast': {
+                    const v = this.evalExpr(expr.expr, env, clsName, thisObj);
+                    if (expr.castType === 'int')    return Math.trunc(v);
+                    if (expr.castType === 'double') return Number(v);
+                    if (expr.castType === 'float')  return Number(v);
+                    if (expr.castType === 'string') return String(v ?? '');
+                    if (expr.castType === 'char')   return typeof v === 'number' ? String.fromCharCode(v) : v;
+                    return v;
+                }
+     
+                case 'new': {
+                    const tName = expr.typeName.replace(/<.*>/, '').trim();
+                    // List<T>
+                    if (tName === 'List') {
+                        return { _type: 'List', _items: [] };
+                    }
+                    // Array: new int[N] — typeName will be like "int[]" with args=[N]
+                    if (tName.endsWith('[]') || expr.typeName.endsWith('[]')) {
+                        const size = expr.args[0] ? Math.trunc(this.evalExpr(expr.args[0], env, clsName, thisObj)) : 0;
+                        return { _type: 'Array', _items: new Array(size).fill(null) };
+                    }
+                    // Dictionary<K,V>
+                    if (tName === 'Dictionary') {
+                        return { _type: 'Dictionary', _map: new Map() };
+                    }
+                    // User class
+                    if (this.classes[tName]) {
+                        const inst = { _type: tName, _fields: {} };
+                        const cls2 = this.classes[tName];
+                        // Default field values
+                        for (const [fn, f] of Object.entries(cls2.fields)) {
+                            inst._fields[fn] = f.init ? this.evalExpr(f.init, env, clsName, thisObj) : null;
+                        }
+                        // Object initialiser
+                        if (expr.init) {
+                            for (const { key, val } of expr.init) {
+                                inst._fields[key] = this.evalExpr(val, env, clsName, thisObj);
+                            }
+                        }
+                        // Constructor call
+                        const args = (expr.args || []).map(a => this.evalExpr(a, env, clsName, thisObj));
+                        if (cls2.ctors.length > 0) {
+                            const ctor = cls2.ctors[0];
+                            const ctorEnv = { ...env, 'this': inst };
+                            ctor.params.forEach((p, i) => ctorEnv[p.name] = args[i] ?? null);
+                            this.execBlock(ctor.body, ctorEnv, tName, inst);
+                        }
+                        return inst;
+                    }
+                    // Exception types
+                    if (['Exception','ArgumentException','InvalidOperationException','NotImplementedException'].includes(tName)) {
+                        const msg = expr.args[0] ? this.evalExpr(expr.args[0], env, clsName, thisObj) : tName;
+                        return { _type: 'Exception', _msg: msg };
+                    }
+                    return null;
+                }
+     
+                case 'prop': {
+                    const obj = this.evalExpr(expr.obj, env, clsName, thisObj);
+                    // string length
+                    if (typeof obj === 'string' && expr.prop === 'Length') return obj.length;
+                    // List / Array count / length
+                    if (obj?._type === 'List'  && expr.prop === 'Count')  return obj._items.length;
+                    if (obj?._type === 'Array' && expr.prop === 'Length') return obj._items.length;
+                    // Dictionary
+                    if (obj?._type === 'Dictionary' && expr.prop === 'Count') return obj._map.size;
+                    // Instance field
+                    if (obj?._fields && expr.prop in obj._fields) return obj._fields[expr.prop];
+                    // Static field on named class
+                    const cls2 = this.classes[expr.obj?.name];
+                    if (cls2?.fields[expr.prop]) {
+                        const f = cls2.fields[expr.prop];
+                        if (!f._initialised) { f._val = f.init ? this.evalExpr(f.init, env, expr.obj?.name, null) : null; f._initialised = true; }
+                        return f._val;
+                    }
+                    return null;
+                }
+     
+                case 'index': {
+                    const obj = this.evalExpr(expr.obj, env, clsName, thisObj);
+                    const idx = this.evalExpr(expr.idx, env, clsName, thisObj);
+                    if (obj?._type === 'List'  || obj?._type === 'Array') return obj._items[idx] ?? null;
+                    if (obj?._type === 'Dictionary') return obj._map.get(idx) ?? null;
+                    if (typeof obj === 'string') return obj[idx] ?? null;
+                    return null;
+                }
+     
+                case 'call': {
+                    const fname = expr.name;
+                    const args  = expr.args.map(a => this.evalExpr(a, env, clsName, thisObj));
+     
+                    // Built-ins: Console
+                    if (fname === 'Console') return null; // shouldn't happen if parsed as methodcall
+     
+                    // Local method on same class
+                    const sameCls = this.classes[clsName];
+                    if (sameCls?.methods[fname]) {
+                        return this.callMethod(clsName, fname, args, thisObj, env);
+                    }
+                    // Static method on other class
+                    for (const [cn, cls2] of Object.entries(this.classes)) {
+                        if (cls2.methods[fname]) return this.callMethod(cn, fname, args, null, env);
+                    }
+                    throw new Error(`Unknown function: '${fname}'`);
+                }
+     
+                case 'methodcall': {
+                    const args = expr.args.map(a => this.evalExpr(a, env, clsName, thisObj));
+                    const method = expr.method;
+     
+                    // Resolve the object
+                    let objName = expr.obj?.name;
+                    let obj;
+     
+                    // Console.WriteLine / Console.Write
+                    if (objName === 'Console') {
+                        if (method === 'WriteLine') {
+                            const s = args.length === 0 ? '' : this.formatString(args[0], args.slice(1));
+                            this.print(s);
+                            return null;
+                        }
+                        if (method === 'Write') {
+                            // Write doesn't newline — accumulate (simplified: just print)
+                            const s = args.length === 0 ? '' : this.formatString(args[0], args.slice(1));
+                            this.print(s);
+                            return null;
+                        }
+                        if (method === 'ReadLine') return '';
+                        return null;
+                    }
+     
+                    // Math.*
+                    if (objName === 'Math') {
+                        const a = args[0], b = args[1];
+                        if (method === 'Abs')     return Math.abs(a);
+                        if (method === 'Max')     return Math.max(a, b);
+                        if (method === 'Min')     return Math.min(a, b);
+                        if (method === 'Pow')     return Math.pow(a, b);
+                        if (method === 'Sqrt')    return Math.sqrt(a);
+                        if (method === 'Floor')   return Math.floor(a);
+                        if (method === 'Ceiling') return Math.ceil(a);
+                        if (method === 'Round')   return Math.round(a);
+                        if (method === 'Log')     return b !== undefined ? Math.log(a)/Math.log(b) : Math.log(a);
+                        if (method === 'Sign')    return Math.sign(a);
+                        throw new Error(`Math.${method} not supported`);
+                    }
+     
+                    // String.*
+                    if (objName === 'String') {
+                        if (method === 'IsNullOrEmpty')  return args[0] == null || args[0] === '';
+                        if (method === 'IsNullOrWhiteSpace') return args[0] == null || String(args[0]).trim() === '';
+                        if (method === 'Join') {
+                            const sep  = args[0];
+                            const list = args[1];
+                            const items = list?._items ?? (Array.isArray(list) ? list : []);
+                            return items.join(sep);
+                        }
+                        if (method === 'Format') return this.formatString(args[0], args.slice(1));
+                    }
+     
+                    // int.Parse, double.Parse, etc.
+                    if (['int','double','float','long','byte'].includes(objName)) {
+                        if (method === 'Parse')    return Number(args[0]);
+                        if (method === 'TryParse') return false;
+                    }
+     
+                    // Evaluate the object
+                    obj = this.evalExpr(expr.obj, env, clsName, thisObj);
+     
+                    // String instance methods
+                    if (typeof obj === 'string') {
+                        if (method === 'ToUpper')    return obj.toUpperCase();
+                        if (method === 'ToLower')    return obj.toLowerCase();
+                        if (method === 'Trim')       return obj.trim();
+                        if (method === 'TrimStart')  return obj.trimStart();
+                        if (method === 'TrimEnd')    return obj.trimEnd();
+                        if (method === 'Contains')   return obj.includes(args[0]);
+                        if (method === 'StartsWith') return obj.startsWith(args[0]);
+                        if (method === 'EndsWith')   return obj.endsWith(args[0]);
+                        if (method === 'IndexOf')    return obj.indexOf(args[0]);
+                        if (method === 'Substring')  return args[1] !== undefined ? obj.substr(args[0], args[1]) : obj.slice(args[0]);
+                        if (method === 'Replace')    return obj.split(args[0]).join(args[1]);
+                        if (method === 'Split') {
+                            const sep = args[0] ?? ' ';
+                            return { _type: 'Array', _items: obj.split(typeof sep === 'string' ? sep : String.fromCharCode(sep)) };
+                        }
+                        if (method === 'PadLeft')    return obj.padStart(args[0], args[1] ?? ' ');
+                        if (method === 'PadRight')   return obj.padEnd(args[0], args[1] ?? ' ');
+                        if (method === 'ToCharArray') return { _type: 'Array', _items: obj.split('') };
+                        if (method === 'ToString')   return obj;
+                    }
+     
+                    // Number instance methods
+                    if (typeof obj === 'number') {
+                        if (method === 'ToString') return args[0] !== undefined ? obj.toFixed(args[0]) : String(obj);
+                    }
+     
+                    // Bool
+                    if (typeof obj === 'boolean') {
+                        if (method === 'ToString') return obj ? 'True' : 'False';
+                    }
+     
+                    // List<T>
+                    if (obj?._type === 'List') {
+                        if (method === 'Add')       { obj._items.push(args[0]); return null; }
+                        if (method === 'Remove')    { const idx2 = obj._items.indexOf(args[0]); if (idx2 >= 0) obj._items.splice(idx2,1); return null; }
+                        if (method === 'RemoveAt')  { obj._items.splice(args[0],1); return null; }
+                        if (method === 'Insert')    { obj._items.splice(args[0],0,args[1]); return null; }
+                        if (method === 'Clear')     { obj._items = []; return null; }
+                        if (method === 'Contains')  return obj._items.includes(args[0]);
+                        if (method === 'IndexOf')   return obj._items.indexOf(args[0]);
+                        if (method === 'Count')     return obj._items.length;
+                        if (method === 'Sort')      { obj._items.sort((a,b) => a < b ? -1 : a > b ? 1 : 0); return null; }
+                        if (method === 'Reverse')   { obj._items.reverse(); return null; }
+                        if (method === 'ToArray')   return { _type: 'Array', _items: [...obj._items] };
+                        if (method === 'ForEach')   { /* skip lambda */ return null; }
+                    }
+     
+                    // Array
+                    if (obj?._type === 'Array') {
+                        if (method === 'ToString') return obj._items.join(', ');
+                    }
+     
+                    // Dictionary<K,V>
+                    if (obj?._type === 'Dictionary') {
+                        if (method === 'Add')          { obj._map.set(args[0], args[1]); return null; }
+                        if (method === 'Remove')       { obj._map.delete(args[0]); return null; }
+                        if (method === 'ContainsKey')  return obj._map.has(args[0]);
+                        if (method === 'ContainsValue') return Array.from(obj._map.values()).includes(args[0]);
+                        if (method === 'TryGetValue')  return obj._map.has(args[0]);
+                    }
+     
+                    // User-defined instance method
+                    if (obj?._type && this.classes[obj._type]?.methods[method]) {
+                        return this.callMethod(obj._type, method, args, obj, env);
+                    }
+     
+                    // Static method call on another class
+                    if (objName && this.classes[objName]?.methods[method]) {
+                        return this.callMethod(objName, method, args, null, env);
+                    }
+     
+                    throw new Error(`Cannot call '${method}' on ${obj?._type || typeof obj}`);
+                }
+     
+                default:
+                    throw new Error(`Unknown expression kind: ${expr.kind}`);
+            }
+        }
+     
+        doAssign(op, target, val, env, clsName, thisObj) {
+            if (target.kind === 'id') {
+                const name = target.name;
+                const cur  = env[name] ?? 0;
+                env[name] = op === '='  ? val
+                          : op === '+=' ? cur + val
+                          : op === '-=' ? cur - val
+                          : op === '*=' ? cur * val
+                          : op === '/=' ? cur / val
+                          : op === '%=' ? cur % val
+                          : val;
+                // Also update field if it's a static field
+                const cls = this.classes[clsName];
+                if (cls?.fields[name]) cls.fields[name]._val = env[name];
+                return;
+            }
+            if (target.kind === 'prop') {
+                const obj = this.evalExpr(target.obj, env, clsName, thisObj);
+                if (obj?._fields) {
+                    const cur = obj._fields[target.prop] ?? 0;
+                    obj._fields[target.prop] = op === '=' ? val : op === '+=' ? cur + val : op === '-=' ? cur - val : op === '*=' ? cur * val : op === '/=' ? cur / val : val;
+                }
+                return;
+            }
+            if (target.kind === 'index') {
+                const obj = this.evalExpr(target.obj, env, clsName, thisObj);
+                const idx = this.evalExpr(target.idx, env, clsName, thisObj);
+                if (obj?._items) obj._items[idx] = val;
+                if (obj?._map)   obj._map.set(idx, val);
+                return;
+            }
+        }
+     
+        evalBinop(op, a, b) {
+            switch (op) {
+                case '+':  return (typeof a === 'string' || typeof b === 'string') ? this.csStr(a) + this.csStr(b) : a + b;
+                case '-':  return a - b;
+                case '*':  return a * b;
+                case '/':  if (b === 0) throw new Error("Division by zero"); return (Number.isInteger(a) && Number.isInteger(b)) ? Math.trunc(a/b) : a/b;
+                case '%':  return a % b;
+                case '==': return a === b;
+                case '!=': return a !== b;
+                case '<':  return a < b;
+                case '>':  return a > b;
+                case '<=': return a <= b;
+                case '>=': return a >= b;
+                case '&&': return a && b;
+                case '||': return a || b;
+                default:   throw new Error(`Unknown operator: ${op}`);
+            }
+        }
+     
+        csStr(v) {
+            if (v === null || v === undefined) return '';
+            if (typeof v === 'boolean') return v ? 'True' : 'False';
+            if (v?._type === 'List')  return `[${v._items.map(x => this.csStr(x)).join(', ')}]`;
+            if (v?._fields) {
+                const cls = this.classes[v._type];
+                if (cls?.methods['ToString']) {
+                    const r = this.callMethod(v._type, 'ToString', [], v, {});
+                    return String(r ?? '');
+                }
+                return v._type;
+            }
+            return String(v);
+        }
+     
+        formatString(fmt, args) {
+            if (typeof fmt !== 'string') return this.csStr(fmt);
+            return fmt.replace(/\{(\d+)(?::[^}]*)?\}/g, (_, i) => this.csStr(args[parseInt(i)] ?? null));
+        }
+    }
+     
+     
+    // ══════════════════════════════════════════════════════════════════
+    //  IDE HELPERS
+    // ══════════════════════════════════════════════════════════════════
+     
+    function ideAppend(output, text, cls) {
+        const span = document.createElement("span");
+        span.className = cls || "out-normal";
+        span.textContent = text + "\n";
+        output.appendChild(span);
+        output.scrollTop = output.scrollHeight;
+    }
+     
+    function ideStr(v) {
+        if (v === null || v === undefined) return 'null';
+        if (typeof v === 'object') {
+            try { return JSON.stringify(v); } catch (_) { return String(v); }
+        }
+        return String(v);
+    }
+     
+    function langLabel(lang) {
+        return { csharp: 'C#', python: 'Python', javascript: 'JavaScript' }[lang] || lang;
+    }
+     
+    function defaultStarter(lang) {
+        if (lang === 'csharp') return `class Program
+    {
+        static void Main()
+        {
+            Console.WriteLine("Hello, World!");
+        }
+    }`;
+        if (lang === 'python') return `# Python\nprint("Hello, World!")`;
+        return `// JavaScript\nconsole.log("Hello, World!");`;
+    }
+
+
+</script>
+
+</body>
+</html>

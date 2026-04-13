@@ -1544,6 +1544,14 @@
                 "title": "The Stack: Algorithms",
                 "beats": [
                     {
+                        "label": "IDE?",
+                        "type": "ide",
+                        "text": "Instruction text shown in the middle panel as usual.",
+                        "language": "csharp",
+                        "starter_code": "class Program {\n  static void Main() {\n    Console.WriteLine(\"Hello!\");\n  }\n}",
+                        "instructions": "Optional short task prompt shown above the editor."
+                    },
+                    {
                         "label": "Beat template",
                         "type": "image",
                         "visual": "default.png",
@@ -2206,20 +2214,6 @@
                         "type": "image",
                         "visual": "default.png",
                         "text": "<h2>Beat template</h2><p></p><p></p><p></p><p></p><ol><li><b></b></li><li><b></b></li><li><b></b></li><li><b></b></li><li><b></b></li><li><b></b></li></ol><ul><li><b></b></li><li><b></b></li><li><b></b></li><li><b></b></li><li><b></b></li><li><b></b></li></ul><div class='code-container'><div class='code-header'>Python</div><div class='code-body'><div class='line-numbers'>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br></div><div class='code-lines'><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br></div></div><div class='code-output'><br><br><br><br><br><br><br><br><br><br><br><br><br></div></div>CSC 2710 Introduction to Game Development I-->"
-                    }
-                ]
-            },
-            {
-                "id": "experimental:_multi_IDE",
-                "title": "<font size=2 color=#ffaaaa>EXPERIMENTAL: MULTI-IDE</font>",
-                "beats": [
-                    {
-                        "label": "IDE?",
-                        "type": "ide",
-                        "text": "Instruction text shown in the middle panel as usual.",
-                        "language": "csharp",
-                        "starter_code": "class Program {\n  static void Main() {\n    Console.WriteLine(\"Hello!\");\n  }\n}",
-                        "instructions": "Optional short task prompt shown above the editor."
                     }
                 ]
             }

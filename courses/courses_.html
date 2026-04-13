@@ -42,6 +42,15 @@
         background: #ffdc7a; 
         margin: 30px;
         }
+    .ide-placeholder{ 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 400px; 
+        height: 200px; 
+        background: #ffdc7a; 
+        margin: 30px;
+        }
     .unit-header {
         /* Mimic H1 styling */
         display: block;
@@ -412,12 +421,12 @@
 <!--
 ==============================================================================
 
-    History: Algorithms
+    History: AlgorithmZ
 
 ==============================================================================
 -->
 
-<div class="unit-header">History: Algorithms</div>
+<div class="unit-header">The Stack: Algorithms</div>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -777,7 +786,7 @@ We now look at the physical side of computers as we use them today. Or, said a d
 ==============================================================================
 -->
 
-<div class="unit-header">History: Bits and Circuits</div>
+<div class="unit-header">The Stack: Bits and Circuits</div>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -1316,7 +1325,7 @@ What we have described, in broad strokes, is the physical implementation and app
 ==============================================================================
 -->
  
-<div class="unit-header">History: Programming Languages</div>
+<div class="unit-header">The Stack: Programming Languages</div>
  
 <!-- -------------------------------------------------------------------- -->
  
@@ -1453,7 +1462,7 @@ In fact, experienced programmers often find that the act of writing code reveals
 <p>
 A programming language is a formal language with a precisely defined syntax (rules about what sequences of symbols are valid) and semantics (rules about what valid programs mean and what they do). Unlike natural languages, there is no ambiguity permitted. Every program has exactly one meaning, or it is invalid.
 </p>
- 
+
 <p>
 Programming languages exist at various levels of abstraction. A <i>high-level</i> language like Python or Java lets you write something close to pseudocode , expressive, readable, relatively close to how a human thinks about the problem. A <i>low-level</i> language like C or Assembly is closer to the hardware , less expressive, but giving the programmer more direct control over what the machine actually does and how efficiently it does it.
 </p>
@@ -1645,7 +1654,7 @@ In the next unit, we will begin to look at how to actually write programs oursel
 ==============================================================================
 -->
  
-<div class="unit-header">Python 1: Setup and Intro</div>
+<div class="unit-header">Python: Setup and Intro</div>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -2583,7 +2592,7 @@ Below is a <b>dict</b> (short for 'dictionary').
 ==============================================================================
 -->
 
-<div class="unit-header">Python 1: Decision logic and control flow</div>
+<div class="unit-header">Python: Decision logic and control flow</div>
 
 <!-- -------------------------------------------------------------------- -->
  
@@ -3573,7 +3582,7 @@ Core elements
 ==============================================================================
 -->
 
-<div class="unit-header">Python 1: Loops</div>
+<div class="unit-header">Python: Loops</div>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -4042,7 +4051,7 @@ Compare this carefully to the pseudocode from the algorithms unit. The structure
 ==============================================================================
 -->
 
-<div class="unit-header">Python 1: Functions</div>
+<div class="unit-header">Python: Functions</div>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -4888,7 +4897,7 @@ In the next unit, we will begin to look at how functions, combined with the data
 ==============================================================================
 -->
 
-<div class="unit-header">Python 2: Classes</div>
+<div class="unit-header">Python: Classes</div>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -5775,12 +5784,12 @@ One last thing worth saying: every type you have used since the very first Pytho
 <!--
 ==============================================================================
 
-    Python 2: Files and Modules
+    Python: Files and Modules
 
 ==============================================================================
 -->
 
-<div class="unit-header">Pythons: Files, Exceptions, Modules</div>
+<div class="unit-header">Python: Files, Exceptions, Modules</div>
 
 <!-- -------------------------------------------------------------------- -->
  
@@ -7618,6 +7627,40 @@ We want to install the .NET Software Development Kit (SDK) onto our systems. In 
     </div>
 </div>
 
+<p>
+Linux might try to downgrade .NET 10 to .NET 8 to keep in line with it's own repo. To keep this reset from happening, try the following.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>bash</div>
+    <div class='code-guide'>
+        Set up MS repo for .NET 10<br>
+        1. Register the MS package rep
+        2. Apply the version lock <br>
+        3. [ADD TEXT] <br>
+    </div>
+    <!-- Area: main code -->
+    <div class='code-body'>
+        <!-- Main col -->
+        <div class='code-lines'>
+            // 1. Register the MS package repo <br>
+            ...$ wget https://microsoft.com(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb <br>
+                 sudo dpkg -i packages-microsoft-prod.deb <br>
+                 rm packages-microsoft-prod.deb <br>
+                 sudo apt update <br>
+            <br>
+            // 2. Apply the version lock (apt pinning) <br>
+            ...$ sudo nano /etc/apt/preferences.d/microsoft-dotnet <br>
+            <br>
+            // 3. [ADD TEXT] <br>
+            Package: *net* <br>
+            Pin: origin packages.microsoft.com <br>
+            Pin-Priority: 1001 <br>
+        </div>
+    </div>
+</div>
+
+
 <!-- -------------------------------------------------------------------- -->
 
 <div class="beat-header">dot net macOS</div>
@@ -8081,6 +8124,8 @@ Let's add the <cl>static</cl> keyword to the method. Static as a concept for now
 <!-- -------------------------------------------------------------------- -->
 
 <div class="beat-header">Good enough?</div>
+
+<div class="img-placeholder">lessons_cli_mockup_namespace_class_method.svg</div>
 
 <p>
 We saw in the code hierarchy that <b>methods</b> are elements of a <b>class</b>. We just added the Program <b>class</b>, so now let's add the <b>Main</b> method to it as see what happens.
@@ -8704,6 +8749,728 @@ In the next unit we will start making the program respond differently depending 
 
 <div class="unit-header">C#: Decision Logic and Control Flow</div>
 
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Overview</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+In this unit, we will:
+</p>
+
+<ol>
+    <li>Introduce the idea of <i>control flow</i> and what it means for a C# program.</li>
+    <li>Look at conditions: the Boolean expressions that drive decision making.</li>
+    <li>Learn the comparison and logical operators that build those conditions.</li>
+    <li>Work through the <b>if</b>, <b>else if</b>, and <b>else</b> keywords and the structure they form together.</li>
+    <li>Meet the <b>switch</b> statement for when branching gets long and repetitive.</li>
+    <li>Connect all of this to the control flow diagrams we will use to plan and reason about programs visually.</li>
+</ol>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">What control flow means</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+<b>Definition.</b> <i>Control flow</i> is the order in which a program's instructions execute.
+</p>
+
+<p>
+Everything we have written so far has had a very simple shape: the program starts at the top of <cl>Main</cl>, works its way down line by line, and stops. Every run of the program takes the exact same path through the code. That is fine for programs that are just computing and reporting a fixed result. It becomes limiting very quickly once the program needs to respond to the outside world.
+</p>
+
+<p>
+Think about a login screen. The program needs to do something different if the password is correct versus if it is wrong. Or a game: the program needs to behave differently if the player's health just hit zero. These situations require the program to make decisions. To look at something, evaluate it, and go one way or another depending on the result.
+</p>
+
+<p>
+That is what this unit is about.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Conditions</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Before we can branch, we need something to branch <i>on</i>. In C#, that something is called a <i>condition</i>: an expression that resolves to exactly one of two possible values, <b>true</b> or <b>false</b>. The type that holds these values is <b>bool</b>.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Each of these expressions is a condition: it resolves to a bool value.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b>    score      = 74;<br>
+            <b>string</b> username   = "arcturis";<br>
+            <b>bool</b>   isLoggedIn = <b>true</b>;<br>
+            <br>
+            <b>bool</b> S1 = score >= 60;            // true<br>
+            <b>bool</b> S2 = score == 100;           // false<br>
+            <b>bool</b> S3 = username == "arcturis"; // true<br>
+            <b>bool</b> S4 = isLoggedIn;             // true<br>
+            <b>bool</b> S5 = !isLoggedIn;            // false<br>
+            <br>
+            Console.WriteLine($"S1:{S1}  S2:{S2}  S3:{S3}  S4:{S4}  S5:{S5}");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        S1:True  S2:False  S3:True  S4:True  S5:False<br>
+    </div>
+</div>
+
+<p>
+One thing to memorize right now and never forget: the equality check is <cl>==</cl>, not <cl>=</cl>. A single equals sign is <i>assignment</i> — it puts a value into a variable. A double equals sign is a <i>question</i> — it asks whether two things are equal and hands back a <b>bool</b>. Using one where you meant the other is one of the most common mistakes in all of programming. The compiler will catch some cases, but not all of them.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Comparison and logical operators</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Conditions are built from two families of operators. <i>Comparison operators</i> compare two values and produce a <b>bool</b> result. <i>Logical operators</i> combine <b>bool</b> values together to form more complex conditions.
+</p>
+
+<p>
+The comparison operators:
+</p>
+
+<ul>
+    <li><b>==</b> &nbsp; Equal to</li>
+    <li><b>!=</b> &nbsp; Not equal to</li>
+    <li><b>&gt;</b> &nbsp;&nbsp; Greater than</li>
+    <li><b>&lt;</b> &nbsp;&nbsp; Less than</li>
+    <li><b>&gt;=</b> &nbsp; Greater than or equal to</li>
+    <li><b>&lt;=</b> &nbsp; Less than or equal to</li>
+</ul>
+
+<p>
+The logical operators:
+</p>
+
+<ul>
+    <li><b>&&</b> &nbsp; AND — <b>true</b> only if <i>both</i> sides are true</li>
+    <li><b>||</b> &nbsp; OR &nbsp;— <b>true</b> if <i>at least one</i> side is true</li>
+    <li><b>!</b> &nbsp;&nbsp; NOT — flips the value: <b>true</b> becomes <b>false</b>, and vice versa</li>
+</ul>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b>  age       = 20;<br>
+            <b>bool</b> hasTicket = <b>true</b>;<br>
+            <br>
+            <b>bool</b> canEnter  = age >= 18 && hasTicket;  // both must be true<br>
+            <b>bool</b> needsHelp = age &lt; 13 || !hasTicket; // at least one true<br>
+            <br>
+            Console.WriteLine($"Can enter: {canEnter}");<br>
+            Console.WriteLine($"Needs help: {needsHelp}");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Can enter: True<br>
+        Needs help: False<br>
+    </div>
+</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">The if statement</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+The <b>if</b> statement is the most fundamental piece of decision logic in C#. If the condition is <b>true</b>, the block of code inside the curly braces runs. If the condition is <b>false</b>, the block is skipped entirely and execution continues with whatever comes after.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Basic if structure.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+        </div>
+        <div class='code-lines'>
+            <b>if</b> (condition)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;// body: only runs if condition is true<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+<p>
+A concrete example:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+        </div>
+        <div class='code-lines'>
+            Console.WriteLine("START: program begins");<br>
+            <br>
+            <b>int</b> temperature = 35;<br>
+            Console.WriteLine($"Temperature is {temperature} degrees.");<br>
+            <br>
+            <b>if</b> (temperature > 30)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("DETOUR: it's hot out there.");<br>
+            }<br>
+            <br>
+            Console.WriteLine("END: program finishes");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        START: program begins<br>
+        Temperature is 35 degrees.<br>
+        DETOUR: it's hot out there.<br>
+        END: program finishes<br>
+    </div>
+</div>
+
+<p>
+Try changing <cl>temperature</cl> to 20 and running it again. The DETOUR line disappears. The condition was false, so the block was skipped, and execution jumped straight to the END line as if the <b>if</b> block didn't exist. That's the whole mechanism.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">if / else</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+An <b>if</b> on its own handles one case: what to do when the condition is true. Often you also want to specify what happens when it is <i>not</i> true. That is what <b>else</b> is for.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        HEAD and TAIL of the condition processing structure.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+        </div>
+        <div class='code-lines'>
+            // -------------- Head --------------------------<br>
+            <b>if</b> (condition)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;// runs if condition is true<br>
+            }<br>
+            // -------------- Tail --------------------------<br>
+            <b>else</b><br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;// runs if condition is false<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b> score = 58;<br>
+            <br>
+            <b>if</b> (score >= 60)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Passing.");<br>
+            }<br>
+            <b>else</b><br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Not passing. Study harder, friend.");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Not passing. Study harder, friend.<br>
+    </div>
+</div>
+
+<p>
+Exactly one of the two blocks will always run. Never both. Never neither. An <b>if</b> / <b>else</b> pair is a clean binary fork in the road.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">if / else if / else</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Two outcomes are not always enough. When there are several cases to handle, you can chain <b>else if</b> clauses between the head and the tail. Each one introduces a new condition, checked in order, but only if all the conditions above it were false.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        HEAD, BODY (one or more else if clauses), and TAIL.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+            25<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b>    score = 83;<br>
+            <b>string</b> grade;<br>
+            <br>
+            // -------------- Head --------------------------<br>
+            <b>if</b> (score >= 90)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;grade = "A";<br>
+            }<br>
+            // -------------- Body --------------------------<br>
+            <b>else if</b> (score >= 80)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;grade = "B";<br>
+            }<br>
+            <b>else if</b> (score >= 70)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;grade = "C";<br>
+            }<br>
+            // -------------- Tail --------------------------<br>
+            <b>else</b><br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;grade = "Below C";<br>
+            }<br>
+            <br>
+            Console.WriteLine($"Score: {score}, Grade: {grade}");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Score: 83, Grade: B<br>
+    </div>
+</div>
+
+<p>
+Here is something critical to internalize: once one branch runs, the entire structure is done. Even if a later condition would <i>also</i> be true, it never gets checked. The chain evaluates top to bottom, and the first true match wins. This matters a lot when your conditions overlap. Always think about the order.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Quiz</div>
+
+<div class="quiz-placeholder">"question": "Given int x = 15; which branch executes: if (x > 20) ... else if (x > 10) ... else ...?",,"choices": ["The if block", "The else if block", "The else block", "Both the else if and else blocks"],,"correct": 1</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">The switch statement</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Suppose you need to behave differently for each of several specific values of a variable. You <i>could</i> write a long chain of <b>else if</b> clauses. The compiler wouldn't complain. But there's a structure better suited to exactly this situation: the <b>switch</b> statement. It takes an expression, compares it against a list of <b>case</b> labels, and runs the block that matches.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        switch structure. Each case ends with break to exit the block.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b>    dayNumber = 3;<br>
+            <b>string</b> dayName;<br>
+            <br>
+            <b>switch</b> (dayNumber)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>case</b> 1:<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;dayName = "Monday";<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>break</b>;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>case</b> 2:<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;dayName = "Tuesday";<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>break</b>;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>case</b> 3:<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;dayName = "Wednesday";<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>break</b>;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>default</b>:<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;dayName = "Unknown day";<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>break</b>;<br>
+            }<br>
+            <br>
+            Console.WriteLine($"Day: {dayName}");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Day: Wednesday<br>
+    </div>
+</div>
+
+<p>
+The <b>default</b> label plays the same role as a trailing <b>else</b>: it catches anything that didn't match any listed case. It is optional but generally a good habit. Unexpected input happens, and having an explicit opinion about it is better than silently doing nothing.
+</p>
+
+<p>
+The <b>break</b> at the end of each case is required in C#. It tells the program to exit the switch block once that case has run. The compiler will flag it if you forget.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">switch vs. if / else if: when to use which</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Both structures can often accomplish the same goal. The choice is mostly about clarity.
+</p>
+
+<p>
+Reach for <b>if / else if / else</b> when:
+</p>
+
+<ul>
+    <li>Your conditions involve ranges or inequalities, things like <cl>score >= 90</cl>.</li>
+    <li>Each branch tests a different variable or expression entirely.</li>
+    <li>There are only two or three cases and a switch would be more ceremony than it's worth.</li>
+</ul>
+
+<p>
+Reach for <b>switch</b> when:
+</p>
+
+<ul>
+    <li>You are matching one variable against a list of specific, discrete values.</li>
+    <li>There are four or more cases and a long <b>else if</b> chain would be harder to scan.</li>
+    <li>All the cases are of the same type.</li>
+</ul>
+
+<p>
+Neither is universally better. The right choice is whichever one is easier for another human to read at a glance, including your future self at 11pm before a deadline.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Nested conditions</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+An <b>if</b> block can contain another <b>if</b> block inside it. This is called <i>nesting</i>. It makes sense when a second condition is only meaningful to check if the first one was already true.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+        </div>
+        <div class='code-lines'>
+            <b>bool</b> isRegistered = <b>true</b>;<br>
+            <b>bool</b> hasPaid      = <b>false</b>;<br>
+            <br>
+            <b>if</b> (isRegistered)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Account found.");<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b> (hasPaid)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine("Access granted.");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;<b>else</b><br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine("Payment required.");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+            <b>else</b><br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("No account found. Please register.");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Account found.<br>
+        Payment required.<br>
+    </div>
+</div>
+
+<p>
+Nesting is useful in moderation. Code that is three or four levels deep becomes genuinely hard to follow. If you find yourself going that deep, it is often a signal that a combination of logical operators could flatten things out, or that the logic deserves to be split into a separate method. We'll get there.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Control flow diagrams</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Before writing code for any non-trivial decision structure, it is worth drawing it out. A <i>control flow diagram</i> maps the possible paths through your program visually, so you can reason about the logic before you have to also juggle the syntax.
+</p>
+
+<p>
+The core diagram elements for this unit are:
+</p>
+
+<ol>
+    <li><b>Start / End.</b> Where execution begins and terminates.</li>
+    <li><b>Process.</b> A rectangular box. Represents a line or block of code that does something: an assignment, a print, a calculation.</li>
+    <li><b>Decision.</b> A diamond. Represents a condition with two exits: one labeled for <i>true</i>, one for <i>false</i>.</li>
+</ol>
+
+<p>
+The grade example from earlier would produce a vertical sequence of decision diamonds, with branches peeling off to the right as each grade threshold is checked in turn, and all paths eventually rejoining at the <cl>Console.WriteLine</cl> at the bottom. Drawing that out first and <i>then</i> translating it to code is a surprisingly reliable way to avoid logic errors.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Putting it together: a worked example</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Let's write a small but complete program that takes user input and responds differently depending on what was entered. It will use <cl>Console.ReadLine()</cl> to receive input, <cl>int.TryParse()</cl> to safely convert that input to a number, and a full <b>if / else if / else</b> chain to respond.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Console.ReadLine() returns whatever the user typed as a string.<br>
+        int.TryParse() attempts to convert that string to an int and reports whether it succeeded.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+        </div>
+        <div class='code-lines'>
+            Console.WriteLine("Hello human. How was your day?");<br>
+            Console.WriteLine("Enter a number from 1 (terrible) to 5 (wonderful).");<br>
+            <br>
+            <b>string</b> input  = Console.ReadLine();<br>
+            <b>bool</b>   parsed = <b>int</b>.TryParse(input, <b>out int</b> rating);<br>
+            <br>
+            <b>if</b> (!parsed || rating &lt; 1 || rating > 5)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("That's not a valid rating. Concerning.");<br>
+            }<br>
+            <b>else if</b> (rating &lt;= 2)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Sorry to hear that. Tomorrow is another chance.");<br>
+            }<br>
+            <b>else if</b> (rating == 3)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Solidly okay. That counts for something.");<br>
+            }<br>
+            <b>else</b><br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Wonderful. Hang onto that.");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Hello human. How was your day?<br>
+        Enter a number from 1 (terrible) to 5 (wonderful).<br>
+        4<br>
+        Wonderful. Hang onto that.<br>
+    </div>
+</div>
+
+<p>
+A couple of things worth flagging here. First, <cl>Console.ReadLine()</cl> always returns a <b>string</b> regardless of what the user typed. If you want to treat that input as a number, you have to convert it explicitly. <cl>int.TryParse()</cl> does that conversion and stores whether it succeeded in the <b>bool</b> called <cl>parsed</cl>. We will look at parsing more carefully in a later unit. Second, notice that the first branch checks for <i>bad input</i> before doing anything else. Handling the unexpected explicitly and early is a habit worth building right from the start.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Conclusion</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+In this unit we gave the program something it was missing: the ability to respond differently to different situations. A program that always does the same thing regardless of its inputs is not very interesting, and not very useful. Decision logic is what makes it adaptive.
+</p>
+
+<p>
+We covered:
+</p>
+
+<ol>
+    <li><b>Control flow.</b> The order in which a program's instructions execute, and how that order can be made to vary.</li>
+    <li><b>Conditions.</b> Boolean expressions that resolve to <b>true</b> or <b>false</b>.</li>
+    <li><b>Comparison operators.</b> <cl>==</cl>, <cl>!=</cl>, <cl>&gt;</cl>, <cl>&lt;</cl>, <cl>&gt;=</cl>, <cl>&lt;=</cl>.</li>
+    <li><b>Logical operators.</b> <cl>&&</cl> (AND), <cl>||</cl> (OR), <cl>!</cl> (NOT).</li>
+    <li><b>if / else if / else.</b> The primary branching structure, built from a head, optional body segments, and a tail.</li>
+    <li><b>switch.</b> A cleaner alternative for matching one value against many specific cases.</li>
+    <li><b>Nesting.</b> Conditions inside conditions — useful, but watch the depth.</li>
+    <li><b>Control flow diagrams.</b> A visual tool for planning and reasoning about branching logic before writing code.</li>
+</ol>
+
+<p>
+In the next unit, we add loops. The ability to repeat a block of instructions is what lets a program do in milliseconds what would take a human hours. We have the branching. Now we get the repetition.
+</p>
+
+
 <!-- -------------------------------------------------------------------- -->
 
 <div class="beat-header">Beat template</div>
@@ -8832,6 +9599,781 @@ In the next unit we will start making the program respond differently depending 
 
 <!-- -------------------------------------------------------------------- -->
 
+<div class="beat-header">Overview</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+In this unit, we will:
+</p>
+
+<ol>
+    <li>Motivate why loops exist and what problem they solve.</li>
+    <li>Introduce the <b>while</b> loop: condition-controlled repetition.</li>
+    <li>Look at infinite loops, what causes them, and how to avoid them.</li>
+    <li>Introduce the <b>for</b> loop: counter-controlled repetition.</li>
+    <li>Introduce the <b>foreach</b> loop: collection-controlled repetition.</li>
+    <li>Look at loop control keywords: <b>break</b>, <b>continue</b>, and how they alter the flow inside a loop.</li>
+    <li>Examine nested loops and how to reason about them.</li>
+    <li>Connect loops back to the algorithms and pseudocode we studied earlier in the course.</li>
+</ol>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Why loops?</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Suppose you wanted to print the numbers 1 through 5. You could write:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+        </div>
+        <div class='code-lines'>
+            Console.WriteLine(1);<br>
+            Console.WriteLine(2);<br>
+            Console.WriteLine(3);<br>
+            Console.WriteLine(4);<br>
+            Console.WriteLine(5);<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        1<br>2<br>3<br>4<br>5<br>
+    </div>
+</div>
+
+<p>
+That works. Now suppose you needed to print the numbers 1 through 10,000. Writing 10,000 <cl>Console.WriteLine</cl> calls is not a reasonable approach. And even if it were, what if the number changed depending on user input? You wouldn't even know at the time you wrote the code how many lines to write.
+</p>
+
+<p>
+Loops solve this. They let you say, once and cleanly: <i>repeat this block of instructions</i>. The block runs as many times as needed, and the program moves on. The computer does the tedious repetition. You write the logic once.
+</p>
+
+<p>
+This is also where the algorithms we studied early in the course start to become practical. Steps like "repeat for each element" or "keep going until the condition fails" are not abstract pseudocode anymore. Loops are exactly how those steps get implemented.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">The while loop</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+A <b>while</b> loop repeats a block of code for as long as a given condition remains <b>true</b>. The moment the condition becomes <b>false</b>, the loop stops and execution continues with whatever comes after it. The condition is checked <i>before</i> each iteration, including the very first one.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Basic while structure.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+        </div>
+        <div class='code-lines'>
+            <b>while</b> (condition)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;// body: runs repeatedly as long as condition is true<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+<p>
+A concrete example — printing the numbers 1 through 5:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b> i = 1;<br>
+            <b>while</b> (i &lt;= 5)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(i);<br>
+            &emsp;&emsp;&emsp;&emsp;i++;<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        1<br>2<br>3<br>4<br>5<br>
+    </div>
+</div>
+
+<p>
+The variable <cl>i</cl> here is called a <i>loop counter</i>. It starts at 1, gets incremented by 1 each iteration with <cl>i++</cl>, and the loop's condition checks it every time around. When <cl>i</cl> reaches 6, the condition <cl>i &lt;= 5</cl> is false, and the loop ends. Walk through that in your head step by step once before moving on. That mental trace is a skill worth developing early.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Infinite loops</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+A <b>while</b> loop whose condition never becomes <b>false</b> runs forever. This is called an <i>infinite loop</i>, and it is one of the most common beginner mistakes. The program does not crash. It just... keeps going. If you are printing something inside it, your terminal fills up. If you are not, the program sits there consuming resources in silence.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b> i = 1;<br>
+            <b>while</b> (i &lt;= 5)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(i); // forgot to increment i!<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        1<br>1<br>1<br>1<br>... (runs forever)<br>
+    </div>
+</div>
+
+<p>
+Since <cl>i</cl> never changes, the condition is always <b>true</b>, and the loop never exits. If you accidentally trigger an infinite loop, you can stop it with <b>Ctrl+C</b> in the terminal, or the stop button in your IDE.
+</p>
+
+<p>
+The discipline to develop: before writing any <b>while</b> loop, ask yourself — <i>what will eventually make this condition false?</i> If you cannot answer that clearly, you probably have an infinite loop waiting to happen. Every <b>while</b> loop should have a visible path to termination.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">The for loop</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+The <b>while</b> loop is general purpose. But a very common pattern — initialize a counter, check it, do work, increment it, repeat — is common enough that C# has a dedicated structure for it: the <b>for</b> loop. It packages the counter setup, condition check, and increment all into one line.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        The three parts of the for loop header, separated by semicolons.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+        </div>
+        <div class='code-lines'>
+            <b>for</b> (initializer; condition; iterator)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;// body<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+<p>
+Here is the same 1-through-5 example, now written as a <b>for</b> loop:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+        </div>
+        <div class='code-lines'>
+            <b>for</b> (<b>int</b> i = 1; i &lt;= 5; i++)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(i);<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        1<br>2<br>3<br>4<br>5<br>
+    </div>
+</div>
+
+<p>
+The behavior is identical to the <b>while</b> version. What changed is organization: the counter logic that was spread across three separate lines is now consolidated in the loop header, which makes it much harder to accidentally forget the increment. The <b>for</b> loop is the right tool whenever you know in advance that you are iterating a fixed number of times.
+</p>
+
+<p>
+The three parts of the header run at different moments. The <i>initializer</i> runs exactly once, before anything else. The <i>condition</i> is checked before each iteration — if it is false on the very first check, the body never runs at all. The <i>iterator</i> runs after each completed iteration, just before the condition is checked again.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">for loop: variations</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+The <b>for</b> loop is more flexible than the basic example suggests. You can count upward, downward, or by any step size you like.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Counting up by 1. Counting down. Counting up by 2.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+        </div>
+        <div class='code-lines'>
+            // Count up: 0, 1, 2, 3, 4<br>
+            <b>for</b> (<b>int</b> i = 0; i &lt; 5; i++)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.Write(i + " ");<br>
+            }<br>
+            Console.WriteLine();<br>
+            <br>
+            // Count down: 5, 4, 3, 2, 1<br>
+            <b>for</b> (<b>int</b> i = 5; i >= 1; i--)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.Write(i + " ");<br>
+            }<br>
+            Console.WriteLine();<br>
+            <br>
+            // Every other: 0, 2, 4, 6, 8<br>
+            <b>for</b> (<b>int</b> i = 0; i &lt; 10; i += 2)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.Write(i + " ");<br>
+            }<br>
+            Console.WriteLine();<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        0 1 2 3 4<br>
+        5 4 3 2 1<br>
+        0 2 4 6 8<br>
+    </div>
+</div>
+
+<p>
+One thing worth committing to memory early: in most programming contexts, counters start at 0, not 1. This is a convention rooted in how arrays and collections are indexed, which we will see shortly. Getting comfortable with zero-based counting now will save you confusion later.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">The foreach loop</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Sometimes you are not counting — you are walking through a collection of items and doing something with each one. You <i>could</i> use a <b>for</b> loop with an index, but C# has a cleaner option for this: the <b>foreach</b> loop. It steps through every element in a collection automatically, one at a time, without you having to manage a counter at all.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        foreach structure. element takes on each value in the collection in turn.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+        </div>
+        <div class='code-lines'>
+            <b>foreach</b> (<b>type</b> element <b>in</b> collection)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;// body: runs once per element<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+        </div>
+        <div class='code-lines'>
+            <b>string</b>[] cities = { "Providence", "Boston", "Newport", "Warwick" };<br>
+            <br>
+            <b>foreach</b> (<b>string</b> city <b>in</b> cities)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(city);<br>
+            }<br>
+            <br>
+            <b>int</b>[] primes = { 2, 3, 5, 7, 11, 13 };<br>
+            <b>int</b> total = 0;<br>
+            <br>
+            <b>foreach</b> (<b>int</b> p <b>in</b> primes)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;total += p;<br>
+            }<br>
+            Console.WriteLine($"Sum of primes: {total}");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Providence<br>Boston<br>Newport<br>Warwick<br>
+        Sum of primes: 41<br>
+    </div>
+</div>
+
+<p>
+<b>foreach</b> is intentionally limited. You cannot modify the collection while iterating over it, and you do not get the index of the current element by default. Those constraints are actually a feature — they make the loop's intent unambiguous. When you see a <b>foreach</b>, you know exactly what it is doing: visiting every element, in order, once. No side effects on the collection itself.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Quiz</div>
+
+<div class="quiz-placeholder">"question": "How many times does the body of this loop execute?  for (int i = 0; i less than 6; i++)",,"choices": ["5", "6", "7", "It depends on runtime input"],,"correct": 1</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Loop control: break and continue</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Sometimes you need finer control over what happens mid-loop. Two keywords handle this.
+</p>
+
+<p>
+<b>break</b> exits the loop immediately, regardless of whether the condition is still true or there are remaining elements. Execution jumps to whatever comes after the closing curly brace of the loop.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Stop as soon as we find the first negative number.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b>[] values = { 4, 7, 2, -1, 9, 3 };<br>
+            <br>
+            <b>foreach</b> (<b>int</b> v <b>in</b> values)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b> (v &lt; 0)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Found negative: {v}. Stopping.");<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>break</b>;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(v);<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        4<br>7<br>2<br>Found negative: -1. Stopping.<br>
+    </div>
+</div>
+
+<p>
+<b>continue</b> skips the rest of the current iteration and jumps directly to the next one. The loop does not exit — it just moves on, skipping whatever was below the <b>continue</b> in the body.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Skip negative numbers, process everything else.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b>[] values = { 4, 7, -3, 2, -1, 9 };<br>
+            <br>
+            <b>foreach</b> (<b>int</b> v <b>in</b> values)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b> (v &lt; 0)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>continue</b>;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(v);<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        4<br>7<br>2<br>9<br>
+    </div>
+</div>
+
+<p>
+Both keywords are useful in the right situation. <b>break</b> is for when you are done entirely. <b>continue</b> is for when you just want to skip one particular iteration and keep going.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Nested loops</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+A loop can contain another loop inside its body. This is called a <i>nested loop</i>. The inner loop runs to full completion on every single iteration of the outer loop.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+        </div>
+        <div class='code-lines'>
+            <b>for</b> (<b>int</b> row = 1; row &lt;= 3; row++)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>for</b> (<b>int</b> col = 1; col &lt;= 3; col++)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.Write($"({row},{col}) ");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine();<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        (1,1) (1,2) (1,3)<br>
+        (2,1) (2,2) (2,3)<br>
+        (3,1) (3,2) (3,3)<br>
+    </div>
+</div>
+
+<p>
+A useful mental model: think of the outer loop as the hour hand of a clock, and the inner loop as the minute hand. The minute hand completes a full revolution every time the hour hand moves one step. Row 1 is processed completely before row 2 begins.
+</p>
+
+<p>
+Be careful about scale. If the outer loop runs <i>m</i> times and the inner loop runs <i>n</i> times, the innermost body executes <i>m &times; n</i> times total. At small values that is fine. At large values it gets expensive fast. This is your first real encounter with computational cost as something worth thinking about, and it won't be your last.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">The accumulator pattern</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+One of the most common and useful patterns in loop-based programming is the <i>accumulator pattern</i>: initialize a variable before the loop, update it on every iteration, and read the result after the loop ends. The variable <i>accumulates</i> something across all the iterations.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Summing, counting, and finding a maximum. All accumulator pattern.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+            25<br>
+            26<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b>[] scores = { 88, 73, 95, 61, 84, 90 };<br>
+            <br>
+            // Accumulate a sum<br>
+            <b>int</b> total = 0;<br>
+            <b>foreach</b> (<b>int</b> s <b>in</b> scores)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;total += s;<br>
+            }<br>
+            Console.WriteLine($"Total: {total}");<br>
+            <br>
+            // Accumulate a count<br>
+            <b>int</b> passingCount = 0;<br>
+            <b>foreach</b> (<b>int</b> s <b>in</b> scores)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b> (s >= 70) passingCount++;<br>
+            }<br>
+            Console.WriteLine($"Passing: {passingCount}");<br>
+            <br>
+            // Accumulate a maximum<br>
+            <b>int</b> max = scores[0];<br>
+            <b>foreach</b> (<b>int</b> s <b>in</b> scores)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b> (s > max) max = s;<br>
+            }<br>
+            Console.WriteLine($"Highest: {max}");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Total: 491<br>
+        Passing: 5<br>
+        Highest: 95<br>
+    </div>
+</div>
+
+<p>
+The accumulator pattern appears constantly — summing, counting, finding a maximum, building a string, collecting items that meet a condition. Learn to recognize its shape. Any time you see a variable initialized just before a loop and updated inside it, you are probably looking at an accumulator.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">while vs. for vs. foreach: when to use which</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+All three loop types are capable of doing what the others do. The choice between them is about clarity and fit.
+</p>
+
+<p>
+Reach for <b>while</b> when the number of iterations is not known in advance and depends on something that changes during execution — waiting for valid user input, searching until a condition is satisfied, running a simulation until some state is reached.
+</p>
+
+<p>
+Reach for <b>for</b> when you are iterating a specific number of times and a counter is naturally involved — processing a grid, running an algorithm a fixed number of steps, generating a sequence of values.
+</p>
+
+<p>
+Reach for <b>foreach</b> when you have a collection and want to visit every element in it — printing a list, summing an array, checking each item against some condition.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        while: keep asking until valid input. Classic while use case.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+        </div>
+        <div class='code-lines'>
+            <b>string</b> response = "";<br>
+            <b>while</b> (response != "yes" && response != "no")<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.Write("Please enter 'yes' or 'no': ");<br>
+            &emsp;&emsp;&emsp;&emsp;response = Console.ReadLine();<br>
+            }<br>
+            Console.WriteLine($"You entered: {response}");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Please enter 'yes' or 'no': maybe<br>
+        Please enter 'yes' or 'no': yes<br>
+        You entered: yes<br>
+    </div>
+</div>
+
+<p>
+The rule of thumb: pick the loop that makes your intent most obvious to someone reading the code cold.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Loops and algorithms: putting it together</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Early in the course we looked at algorithms expressed in pseudocode, including FIND-MAXIMUM and InsertionSort. Those felt abstract at the time. Now we have the tools to implement them directly. Here is FIND-MAXIMUM, translated from pseudocode into working C#:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Pseudocode: max &lt;-- A[1], FOR i from 2 to n, IF A[i] > max THEN max &lt;-- A[i]<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b>[] A = { 3, 17, 5, 42, 8, 1, 99, 23 };<br>
+            <br>
+            <b>int</b> max = A[0];<br>
+            <b>foreach</b> (<b>int</b> element <b>in</b> A)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b> (element > max)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;max = element;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+            Console.WriteLine($"Maximum: {max}");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Maximum: 99<br>
+    </div>
+</div>
+
+<p>
+Compare that to the pseudocode version from the algorithms unit. The structure is essentially the same. An accumulator (<cl>max</cl>) is initialized before the loop. The loop visits every element. A condition inside the loop decides whether to update the accumulator. The result is read after the loop ends. The pseudocode described the idea. The C# executes it. That translation from one to the other is exactly the skill this course is building.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Conclusion</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+In this unit, we gave the program the ability to repeat itself — which turns out to be one of the most powerful things a computer can do. The gap between "do this once" and "do this a million times" is, from the program's perspective, almost nothing. From a human's perspective, it's the whole point.
+</p>
+
+<p>
+We covered:
+</p>
+
+<ol>
+    <li><b>Why loops exist.</b> Repetition is tedious for humans and trivial for machines. Loops are how we hand that tedium off.</li>
+    <li><b>while.</b> Condition-controlled repetition. Runs as long as the condition is true. Use when the number of iterations isn't known in advance.</li>
+    <li><b>Infinite loops.</b> What they are, why they happen, and how to make sure every while loop has a visible path to termination.</li>
+    <li><b>for.</b> Counter-controlled repetition. Packages the counter setup, condition, and increment into one line. Use when iterating a fixed number of times.</li>
+    <li><b>foreach.</b> Collection-controlled repetition. Visits every element in a collection in order. Use when you have a collection and want to process each item.</li>
+    <li><b>break and continue.</b> Fine-grained loop control. break exits entirely; continue skips to the next iteration.</li>
+    <li><b>Nested loops.</b> Loops inside loops. Powerful, but the body of the inner loop runs m &times; n times total — think about cost.</li>
+    <li><b>The accumulator pattern.</b> Initialize before, update inside, read after. The single most common loop-based pattern in programming.</li>
+</ol>
+
+<p>
+In the next unit, we will look at methods: a way to give a name to a block of code so it can be called from anywhere in the program. Loops let us repeat work within a block. Methods let us reuse entire blocks. Together, they are the foundation of how real programs are organized.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
 <div class="beat-header">Beat template</div>
 
 <div class="img-placeholder">default.png</div>
@@ -8950,12 +10492,886 @@ In the next unit we will start making the program respond differently depending 
 <!--
 ==============================================================================
 
-    C#: Functions
+    C#: Methods
 
 ==============================================================================
 -->
 
-<div class="unit-header">C#: Functions</div>
+<div class="unit-header">C#: Methods</div>
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Overview</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+In this unit, we will:
+</p>
+
+<ol>
+    <li>Understand what a method is and why they exist.</li>
+    <li>Learn how to define a method in C# with the correct syntax.</li>
+    <li>Understand parameters: how to pass information into a method.</li>
+    <li>Understand return values: how to get information back out of a method.</li>
+    <li>Meet the <b>void</b> return type for methods that do work but hand nothing back.</li>
+    <li>Look at how C# resolves <b>scope</b>: which variables are visible where.</li>
+    <li>Explore method <b>overloading</b>: defining multiple versions of the same method name.</li>
+    <li>Connect methods back to the structure of programs we have been writing all along.</li>
+</ol>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Why methods?</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Suppose you needed to print a greeting for three different users. Without methods, you might write:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+        </div>
+        <div class='code-lines'>
+            Console.WriteLine("Hello, Arcturis! Welcome back.");<br>
+            Console.WriteLine("Your last login was recorded.");<br>
+            Console.WriteLine("Hello, Meridian! Welcome back.");<br>
+            Console.WriteLine("Your last login was recorded.");<br>
+            Console.WriteLine("Hello, Solenne! Welcome back.");<br>
+            Console.WriteLine("Your last login was recorded.");<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Hello, Arcturis! Welcome back.<br>
+        Your last login was recorded.<br>
+        Hello, Meridian! Welcome back.<br>
+        Your last login was recorded.<br>
+        Hello, Solenne! Welcome back.<br>
+        Your last login was recorded.<br>
+    </div>
+</div>
+
+<p>
+That works, but consider what happens when the greeting format needs to change. You would have to find and update every copy of those lines. Now imagine that same pattern repeated not three times, but thirty — or spread across a program you wrote six months ago.
+</p>
+
+<p>
+Methods solve this. A method is a named, reusable block of code. You write the logic once, give it a name, and call it by that name whenever you need it. If the logic needs to change, you change it in one place, and every call to that method picks up the change automatically.
+</p>
+
+<p>
+Methods also give programs shape. A well-named method tells you <i>what</i> is happening without forcing you to read <i>how</i> it is happening. That separation — the what from the how — is one of the most important ideas in all of software.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Defining a method</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+In C#, a method definition has several required parts. The general form is:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+        </div>
+        <div class='code-lines'>
+            <i>returnType</i> <i>MethodName</i>(<i>parameters</i>)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;// body<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+<p>
+A concrete example, a method that takes no inputs and returns nothing, but does something useful:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        static void Main calls PrintSeparator twice. The method lives outside Main, at the same level.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+        </div>
+        <div class='code-lines'>
+            static void PrintSeparator()<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("--------------------");<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Section One");<br>
+            &emsp;&emsp;&emsp;&emsp;PrintSeparator();<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Section Two");<br>
+            &emsp;&emsp;&emsp;&emsp;PrintSeparator();<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Section Three");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Section One<br>
+        --------------------<br>
+        Section Two<br>
+        --------------------<br>
+        Section Three<br>
+    </div>
+</div>
+
+<p>
+A few things to note. The keyword <b>static</b> appears before the return type in both methods here. For now, treat that as required boilerplate — all methods in a <b>static</b> class must themselves be declared <b>static</b>. We will unpack what <b>static</b> actually means when we get to object-oriented programming. The keyword <b>void</b> means the method does not return a value. And the empty parentheses <code>()</code> mean the method takes no inputs. Both of those will change shortly.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Parameters: passing information in</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+A method that always does exactly the same thing is useful, but limited. Most methods need to work on data that varies from call to call. That is what <i>parameters</i> are for. A parameter is a variable declared inside the method's parentheses. When the method is called, the caller provides a value for each parameter, and those values are available inside the method body.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        The method declares one parameter: name. Each call provides a different argument.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+        </div>
+        <div class='code-lines'>
+            static void PrintGreeting(<b>string</b> name)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Hello, {name}! Welcome back.");<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine("Your last login was recorded.");<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;PrintGreeting("Arcturis");<br>
+            &emsp;&emsp;&emsp;&emsp;PrintGreeting("Meridian");<br>
+            &emsp;&emsp;&emsp;&emsp;PrintGreeting("Solenne");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Hello, Arcturis! Welcome back.<br>
+        Your last login was recorded.<br>
+        Hello, Meridian! Welcome back.<br>
+        Your last login was recorded.<br>
+        Hello, Solenne! Welcome back.<br>
+        Your last login was recorded.<br>
+    </div>
+</div>
+
+<p>
+The values passed in at the call site — <code>"Arcturis"</code>, <code>"Meridian"</code>, <code>"Solenne"</code> — are called <i>arguments</i>. The variable that receives them inside the method — <cl>name</cl> — is called a <i>parameter</i>. The distinction matters: parameters belong to the definition, arguments belong to the call.
+</p>
+
+<p>
+A method can take multiple parameters. List them in the parentheses separated by commas, each with its own type:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+        </div>
+        <div class='code-lines'>
+            static void PrintPlayerStatus(<b>string</b> name, <b>int</b> score, <b>bool</b> isAlive)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Player: {name}");<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Score:  {score}");<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Alive:  {isAlive}");<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;PrintPlayerStatus("Arcturis", 4200, <b>true</b>);<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Player: Arcturis<br>
+        Score:  4200<br>
+        Alive:  True<br>
+    </div>
+</div>
+
+<p>
+Arguments are matched to parameters by position. The first argument goes to the first parameter, the second to the second, and so on. The types must match — C# will catch a mismatch at compile time before the program ever runs.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Return values: getting information back out</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+So far, our methods have done things — printed output, modified state. But often the point of a method is to <i>compute</i> something and hand the result back to whoever called it. That is what a return value is for.
+</p>
+
+<p>
+To return a value, two things change. First, the return type in the method signature is replaced with the actual type being returned, instead of <b>void</b>. Second, the method body includes a <b>return</b> statement that specifies the value to hand back.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Add returns an int. The caller can store that result, print it, or use it in an expression.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+        </div>
+        <div class='code-lines'>
+            static <b>int</b> Add(<b>int</b> a, <b>int</b> b)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>return</b> a + b;<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>int</b> result = Add(10, 25);<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"10 + 25 = {result}");<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Double check: {Add(3, 3)}");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        10 + 25 = 35<br>
+        Double check: 6<br>
+    </div>
+</div>
+
+<p>
+The <b>return</b> statement does two things at once: it hands the value back to the caller, and it immediately exits the method. No code after a <b>return</b> inside the same block will ever run. C# will warn you about this if you write unreachable code after a <b>return</b>.
+</p>
+
+<p>
+The return value can be captured in a variable, used directly in an expression, or passed as an argument to another method call. Any of these is valid:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+        </div>
+        <div class='code-lines'>
+            <b>int</b> x = Add(2, 3);                        // stored<br>
+            Console.WriteLine(Add(2, 3));               // used directly<br>
+            Console.WriteLine(Add(2, 3) * 10);          // used in expression<br>
+            Console.WriteLine(Add(Add(1, 2), 3));       // passed as argument<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        5<br>
+        5<br>
+        50<br>
+        6<br>
+    </div>
+</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">void vs. a return type</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Every method declaration commits to one of two behaviors: it either produces a value and hands it back, or it does not. <b>void</b> is how C# expresses the second option. A <b>void</b> method causes side effects — printing output, modifying a variable, writing to a file — but it does not evaluate to anything. A method with a return type produces a result that can be used like any other value.
+</p>
+
+<p>
+A practical way to distinguish them: if calling the method is itself useful as a value in a larger expression, it should return something. If the method's purpose is its side effect and the caller does not need anything back, use <b>void</b>.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        PrintLine is void: its purpose is the side effect of printing. Square returns an int: its purpose is the result.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+        </div>
+        <div class='code-lines'>
+            static void PrintLine(<b>string</b> message)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"[LOG] {message}");<br>
+            }<br>
+            <br>
+            static <b>int</b> Square(<b>int</b> n)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>return</b> n * n;<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;PrintLine("Program started");<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"5 squared is {Square(5)}");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        [LOG] Program started<br>
+        5 squared is 25<br>
+    </div>
+</div>
+
+<p>
+One subtle point: a <b>void</b> method can still use the word <b>return</b> — without a value — to exit early. This is useful when a condition is met and there is no reason to continue running the rest of the method body.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+        </div>
+        <div class='code-lines'>
+            static void PrintPositive(<b>int</b> n)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b> (n &lt;= 0)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>return</b>; // nothing to print, exit early<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(n);<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Quiz</div>
+
+<div class="quiz-placeholder">"question": "What is the return type of a method that computes and hands back a decimal number?",,"choices": ["void", "int", "double", "return"],,"correct": 2</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Scope</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+<b>Definition.</b> <i>Scope</i> is the region of a program where a given variable exists and can be used.
+</p>
+
+<p>
+In C#, variables declared inside a method exist only inside that method. They are created when the method is called and destroyed when the method returns. This is called <i>local scope</i>. A variable in one method is completely invisible to every other method — even if the names happen to be identical.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Each method has its own x. They do not interfere with each other at all.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+        </div>
+        <div class='code-lines'>
+            static void MethodA()<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>int</b> x = 10;<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"MethodA: x = {x}");<br>
+            }<br>
+            <br>
+            static void MethodB()<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>int</b> x = 99;<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"MethodB: x = {x}");<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;MethodA();<br>
+            &emsp;&emsp;&emsp;&emsp;MethodB();<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        MethodA: x = 10<br>
+        MethodB: x = 99<br>
+    </div>
+</div>
+
+<p>
+Scope is what makes methods safe building blocks. Because each method owns its own variables, calling one method cannot accidentally corrupt the variables of another. This isolation is not a restriction — it is a feature. It is what allows you to write a method, test it in isolation, and be confident that it behaves consistently no matter where it is called from.
+</p>
+
+<p>
+If a method needs data from the outside world, the right way to give it that data is through <i>parameters</i>. If it needs to send data back, the right way is through a <i>return value</i>. Those two mechanisms together are all a method should need.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Method overloading</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+C# allows you to define multiple methods with the same name, as long as their parameter lists are different. This is called <i>overloading</i>. The compiler looks at the arguments you pass at the call site and picks the version of the method that matches.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Three versions of Describe. The compiler picks the right one based on what is passed in.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+        </div>
+        <div class='code-lines'>
+            static void Describe(<b>int</b> n)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Integer: {n}");<br>
+            }<br>
+            <br>
+            static void Describe(<b>double</b> d)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Double: {d}");<br>
+            }<br>
+            <br>
+            static void Describe(<b>string</b> s)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"String: \"{s}\"");<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Describe(42);<br>
+            &emsp;&emsp;&emsp;&emsp;Describe(3.14);<br>
+            &emsp;&emsp;&emsp;&emsp;Describe("hello");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Integer: 42<br>
+        Double: 3.14<br>
+        String: "hello"<br>
+    </div>
+</div>
+
+<p>
+You have already been using overloaded methods without knowing it. <b>Console.WriteLine</b> is overloaded — that is why it can accept an <b>int</b>, a <b>string</b>, a <b>bool</b>, or any other type and handle each one correctly. There is not one version of <b>Console.WriteLine</b> that does everything; there are many versions, each written to handle a specific type, and the compiler picks the right one automatically.
+</p>
+
+<p>
+Overloading only works when the parameter lists are meaningfully different: different number of parameters, or different types. You cannot overload two methods that differ only in return type — the compiler would have no way to tell them apart from the call site.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Methods calling methods</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+A method can call any other method, including methods that call still other methods. This is how large programs are built: out of small, focused methods that delegate parts of their work to other small, focused methods.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        PrintReport calls two other methods. Each method does one job clearly.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+            25<br>
+            26<br>
+        </div>
+        <div class='code-lines'>
+            static <b>double</b> Average(<b>int</b>[] nums)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>int</b> total = 0;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>foreach</b> (<b>int</b> n <b>in</b> nums) total += n;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>return</b> (<b>double</b>)total / nums.Length;<br>
+            }<br>
+            <br>
+            static <b>int</b> Maximum(<b>int</b>[] nums)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>int</b> max = nums[0];<br>
+            &emsp;&emsp;&emsp;&emsp;<b>foreach</b> (<b>int</b> n <b>in</b> nums) <b>if</b> (n > max) max = n;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>return</b> max;<br>
+            }<br>
+            <br>
+            static void PrintReport(<b>int</b>[] scores)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Average: {Average(scores):F1}");<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Highest: {Maximum(scores)}");<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>int</b>[] scores = { 88, 73, 95, 61, 84, 90 };<br>
+            &emsp;&emsp;&emsp;&emsp;PrintReport(scores);<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Average: 81.8<br>
+        Highest: 95<br>
+    </div>
+</div>
+
+<p>
+Notice how easy <cl>PrintReport</cl> is to read. It does not explain how to compute an average or find a maximum — it just calls methods that do those things and uses the results. That is the payoff for organizing code into methods: the high-level logic reads almost like a description of what the program is doing, not a pile of low-level instructions.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Quiz</div>
+
+<div class="quiz-placeholder">"question": "A variable declared inside a method is accessible from other methods. True or false?",,"choices": ["True", "False"],,"correct": 1</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Naming methods well</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+A method name should describe exactly what the method does, clearly enough that a reader does not need to look at the body to understand the intent. This is not a style preference. It is a practical necessity. Programs that are hard to read are hard to maintain, hard to debug, and hard to hand off.
+</p>
+
+<p>
+C# methods use <i>PascalCase</i> by convention: each word starts with a capital letter, no underscores. Variables use <i>camelCase</i>: the first word is lowercase, subsequent words are capitalized. Keeping to these conventions makes your code immediately readable to anyone familiar with C#.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        The names on the left are unclear. The names on the right say exactly what the method does.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+        </div>
+        <div class='code-lines'>
+            // Unclear names<br>
+            static void DoStuff(<b>int</b> x) { ... }<br>
+            static <b>int</b> Calc(<b>int</b> a, <b>int</b> b) { ... }<br>
+            <br>
+            // Clear names<br>
+            static void PrintScoreSummary(<b>int</b> score) { ... }<br>
+            static <b>int</b> ComputeHighestScore(<b>int</b> a, <b>int</b> b) { ... }<br>
+        </div>
+    </div>
+</div>
+
+<p>
+A method that is hard to name is often a sign that it is trying to do too much. If you find yourself wanting to write <cl>HandleEverything</cl> or <cl>ProcessAndPrint</cl>, consider whether that method should be two methods instead. A good rule of thumb: a method should do one thing, and its name should be able to describe that one thing in a few words.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Putting it together: a worked example</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Here is a small but complete program that uses several methods together. It reads a user's score, validates it, categorizes it, and prints a result — each step handled by its own focused method.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Main stays short and readable because each piece of work lives in its own method.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+            25<br>
+            26<br>
+            27<br>
+            28<br>
+            29<br>
+            30<br>
+            31<br>
+            32<br>
+            33<br>
+            34<br>
+            35<br>
+            36<br>
+        </div>
+        <div class='code-lines'>
+            static <b>bool</b> IsValidScore(<b>int</b> score)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>return</b> score >= 0 && score &lt;= 100;<br>
+            }<br>
+            <br>
+            static <b>string</b> GetGrade(<b>int</b> score)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b>      (score >= 90) <b>return</b> "A";<br>
+            &emsp;&emsp;&emsp;&emsp;<b>else if</b> (score >= 80) <b>return</b> "B";<br>
+            &emsp;&emsp;&emsp;&emsp;<b>else if</b> (score >= 70) <b>return</b> "C";<br>
+            &emsp;&emsp;&emsp;&emsp;<b>else if</b> (score >= 60) <b>return</b> "D";<br>
+            &emsp;&emsp;&emsp;&emsp;<b>else</b>                  <b>return</b> "F";<br>
+            }<br>
+            <br>
+            static void PrintResult(<b>string</b> name, <b>int</b> score, <b>string</b> grade)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"{name} scored {score} — Grade: {grade}");<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Console.Write("Enter student name: ");<br>
+            &emsp;&emsp;&emsp;&emsp;<b>string</b> name = Console.ReadLine();<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;Console.Write("Enter score (0-100): ");<br>
+            &emsp;&emsp;&emsp;&emsp;<b>bool</b> parsed = <b>int</b>.TryParse(Console.ReadLine(), <b>out int</b> score);<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>if</b> (!parsed || !IsValidScore(score))<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine("Invalid score. Please enter a number from 0 to 100.");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;<b>else</b><br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>string</b> grade = GetGrade(score);<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;PrintResult(name, score, grade);<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Enter student name: Arcturis<br>
+        Enter score (0-100): 83<br>
+        Arcturis scored 83 — Grade: B<br>
+    </div>
+</div>
+
+<p>
+Look at how <cl>Main</cl> reads. It gets a name. It gets a score. It validates the score. It computes a grade. It prints a result. Every step is one line, because every step is a method call with a clear name. The reader does not need to wade through validation logic or grade-boundary comparisons to understand what the program is doing. That separation — the what from the how — is exactly what methods are for.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Conclusion</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+In this unit we gave programs the ability to organize their logic into named, reusable pieces. That might seem like a minor convenience, but it is genuinely one of the most important ideas in all of software. Nearly everything that makes a large program manageable traces back to this: the ability to name a chunk of work, hide its details behind that name, and call it from anywhere.
+</p>
+
+<p>
+We covered:
+</p>
+
+<ol>
+    <li><b>Why methods exist.</b> To avoid repetition, to isolate logic, and to make the high-level structure of a program readable at a glance.</li>
+    <li><b>Defining a method.</b> Return type, name, parameter list, and body. The <b>static</b> keyword for now. The structure will expand later.</li>
+    <li><b>Parameters.</b> How information is passed into a method. Parameters are declared in the definition; arguments are provided at the call site.</li>
+    <li><b>Return values.</b> How a method hands a computed result back to the caller. The <b>return</b> statement both delivers the value and exits the method.</li>
+    <li><b>void.</b> The return type for methods that work through side effects rather than producing a value. Can still <b>return</b> early without a value.</li>
+    <li><b>Scope.</b> Variables declared inside a method exist only inside that method. Parameters and return values are how data crosses method boundaries.</li>
+    <li><b>Overloading.</b> Multiple methods with the same name but different parameter lists. The compiler picks the right version at the call site.</li>
+    <li><b>Methods calling methods.</b> How large programs decompose into small, focused units, each delegating to others.</li>
+    <li><b>Naming.</b> PascalCase, one job per method, names that describe what rather than how.</li>
+</ol>
+
+<p>
+In the next unit we will look at arrays and collections more carefully — the data structures that hold groups of values. Now that we have methods, we can write clean, testable functions that operate on collections without everything living in one long <cl>Main</cl>.
+</p>
 
 <!-- -------------------------------------------------------------------- -->
 
@@ -9081,7 +11497,919 @@ In the next unit we will start making the program respond differently depending 
 ==============================================================================
 -->
 
-<div class="unit-header">C#: Classes</div>
+<div class="unit-header">C#: Classes and Objects</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Overview</div>
+
+
+<p>
+In this unit, we will:
+</p>
+
+<ol>
+    <li>Understand what a class is and what problem it solves.</li>
+    <li>Learn the difference between a <i>class</i> (the blueprint) and an <i>object</i> (the thing built from it).</li>
+    <li>Define a class with <b>fields</b> to store data and <b>methods</b> to define behavior.</li>
+    <li>Meet <b>constructors</b>: special methods that run when an object is created.</li>
+    <li>Understand <b>access modifiers</b>: <b>public</b> and <b>private</b>, and why the distinction matters.</li>
+    <li>Learn about <b>properties</b>: the C# way to control access to an object's data.</li>
+    <li>Understand <b>the this keyword</b> and when it is needed.</li>
+    <li>See how to create and use multiple objects from the same class.</li>
+    <li>Connect all of this to the idea of modeling real things in code.</li>
+</ol>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Why classes?</div>
+
+
+<p>
+Everything we have written so far has been a flat sequence of variables and method calls living inside <cl>Main</cl>. That works for small programs. As programs grow, though, it stops being enough. Consider what it would take to represent a student in the programs we have been writing.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Three students. Nine separate variables. Already hard to manage — and we have not added any logic yet.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+        </div>
+        <div class='code-lines'>
+            <b>string</b> student1Name  = "Arcturis";<br>
+            <b>int</b>    student1Score = 88;<br>
+            <b>bool</b>   student1Paid  = <b>true</b>;<br>
+            <br>
+            <b>string</b> student2Name  = "Meridian";<br>
+            <b>int</b>    student2Score = 73;<br>
+            <b>bool</b>   student2Paid  = <b>false</b>;<br>
+            <br>
+            <b>string</b> student3Name  = "Solenne";<br>
+            <b>int</b>    student3Score = 95;<br>
+            <b>bool</b>   student3Paid  = <b>true</b>;<br>
+        </div>
+    </div>
+</div>
+
+<p>
+The data for one student is scattered across three unconnected variables. There is nothing in the code that groups them together or makes the relationship explicit. If we wanted a fourth student, we would add three more variables. A tenth student: ten more. And if we wanted to pass a student to a method, we would have to pass three arguments just to describe one person.
+</p>
+
+<p>
+Classes solve this. A class lets you define a new type — one that groups related data and the methods that operate on that data into a single, named unit. Instead of nine loose variables, you have three <cl>Student</cl> objects. Each one carries its own name, score, and paid status, travels together as a unit, and can be passed around in a single variable.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Classes and objects</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Before writing any code, two definitions need to be precise.
+</p>
+
+<p>
+A <b>class</b> is a blueprint. It defines what a certain kind of thing looks like — what data it holds and what it can do — but it is not a thing itself. A class is just the description.
+</p>
+
+<p>
+An <b>object</b> is an instance of a class. It is an actual thing, built from the blueprint, occupying memory, holding real values. You can build as many objects as you want from a single class, just as you can build as many houses as you want from a single set of architectural plans.
+</p>
+
+<p>
+This relationship between blueprints and instances is everywhere in software. A class is the description. An object is the reality. When you call <b>new</b>, you go from one to the other.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Student is the blueprint. arcturis and meridian are two separate objects built from it.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+        </div>
+        <div class='code-lines'>
+            Student arcturis = <b>new</b> Student();<br>
+            Student meridian = <b>new</b> Student();<br>
+            Student solenne  = <b>new</b> Student();<br>
+        </div>
+    </div>
+</div>
+
+<p>
+Each of those three objects is independent. Changing a value on <cl>arcturis</cl> has absolutely no effect on <cl>meridian</cl> or <cl>solenne</cl>. They share a blueprint, but they are separate instances.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Defining a class with fields</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+A class definition uses the <b>class</b> keyword, followed by the name of the class, followed by a block containing its members. The data a class holds is stored in <i>fields</i>: variables declared directly inside the class body, outside any method.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        A class lives in its own file by convention. Here it shares a file for brevity.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+        </div>
+        <div class='code-lines'>
+            class Student<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>string</b> Name;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>int</b>    Score;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>bool</b>   HasPaid;<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Student arcturis = <b>new</b> Student();<br>
+            &emsp;&emsp;&emsp;&emsp;arcturis.Name    = "Arcturis";<br>
+            &emsp;&emsp;&emsp;&emsp;arcturis.Score   = 88;<br>
+            &emsp;&emsp;&emsp;&emsp;arcturis.HasPaid = <b>true</b>;<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine($"{arcturis.Name}: {arcturis.Score}");<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Arcturis: 88<br>
+    </div>
+</div>
+
+<p>
+The dot operator (<code>.</code>) is how you access a field on an object. <cl>arcturis.Name</cl> means "the Name field belonging to the arcturis object." This is the same dot you have been using all along with <b>Console.WriteLine</b> — <cl>Console</cl> is itself a class, and <cl>WriteLine</cl> is one of its methods.
+</p>
+
+<p>
+The keyword <b>public</b> in front of each field means those fields can be accessed from outside the class. We will revisit this — and explain why it is often <i>not</i> what you want — in the beat on access modifiers.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Adding methods to a class</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+A class can contain methods as well as fields. A method defined inside a class is called an <i>instance method</i>, and it has direct access to the object's fields without needing them passed as parameters. This is the core of what makes a class powerful: the data and the operations on that data live together in the same place.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Describe is an instance method. It accesses Name and Score directly — no parameters needed.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+        </div>
+        <div class='code-lines'>
+            class Student<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>string</b> Name;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>int</b>    Score;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>bool</b>   HasPaid;<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> void Describe()<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Name:    {Name}");<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Score:   {Score}");<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Paid:    {HasPaid}");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Student arcturis = <b>new</b> Student();<br>
+            &emsp;&emsp;&emsp;&emsp;arcturis.Name    = "Arcturis";<br>
+            &emsp;&emsp;&emsp;&emsp;arcturis.Score   = 88;<br>
+            &emsp;&emsp;&emsp;&emsp;arcturis.HasPaid = <b>true</b>;<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;arcturis.Describe();<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Name:    Arcturis<br>
+        Score:   88<br>
+        Paid:    True<br>
+    </div>
+</div>
+
+<p>
+Notice that <cl>Describe</cl> is not <b>static</b>. Instance methods belong to an individual object. When you call <cl>arcturis.Describe()</cl>, the method runs in the context of the <cl>arcturis</cl> object — <cl>Name</cl>, <cl>Score</cl>, and <cl>HasPaid</cl> inside the method body all refer to <i>that</i> object's fields. If you called <cl>meridian.Describe()</cl>, you would get Meridian's data. Same method, different object, different result.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Constructors</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Right now, creating a student takes four lines: one to create the object, and one for each field. That is repetitive, and it leaves a window where the object exists but its fields have not been set yet. A <i>constructor</i> closes that window. A constructor is a special method that runs automatically when an object is created with <b>new</b>. It is how you ensure an object is fully initialized the moment it comes into existence.
+</p>
+
+<p>
+A constructor looks like a method, but with two differences: it has the same name as the class, and it has no return type — not even <b>void</b>.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        The constructor runs automatically when new Student(...) is called. The object is ready immediately.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+            25<br>
+        </div>
+        <div class='code-lines'>
+            class Student<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>string</b> Name;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>int</b>    Score;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>bool</b>   HasPaid;<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> Student(<b>string</b> name, <b>int</b> score, <b>bool</b> hasPaid)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Name    = name;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Score   = score;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;HasPaid = hasPaid;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> void Describe()<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"{Name} — Score: {Score}, Paid: {HasPaid}");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Student arcturis = <b>new</b> Student("Arcturis", 88, <b>true</b>);<br>
+            &emsp;&emsp;&emsp;&emsp;Student meridian = <b>new</b> Student("Meridian", 73, <b>false</b>);<br>
+            &emsp;&emsp;&emsp;&emsp;arcturis.Describe();<br>
+            &emsp;&emsp;&emsp;&emsp;meridian.Describe();<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Arcturis — Score: 88, Paid: True<br>
+        Meridian — Score: 73, Paid: False<br>
+    </div>
+</div>
+
+<p>
+Creating a student now takes exactly one line. The constructor receives all the necessary data, sets all the fields in one place, and hands back an object that is immediately ready to use. This is both cleaner to write and safer: it is no longer possible to accidentally forget to set a field.
+</p>
+
+<p>
+If you do not write a constructor at all, C# provides a default one automatically — it takes no arguments and leaves all fields at their default values (<code>0</code> for numbers, <b>false</b> for bools, <b>null</b> for strings and other objects). The moment you write your own constructor, the default one goes away unless you explicitly add it back.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Access modifiers: public and private</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+We have been marking fields as <b>public</b>, which means any code anywhere in the program can read or change them directly. That is convenient, but it creates a problem. If <cl>arcturis.Score</cl> is publicly writable, nothing stops someone from doing this:
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+        </div>
+        <div class='code-lines'>
+            arcturis.Score = -500; // valid C# — but should it be?<br>
+            arcturis.Name  = "";   // an empty name makes no sense either<br>
+        </div>
+    </div>
+</div>
+
+<p>
+The class itself has no say in the matter. Any code that can reach the object can put any value it wants into those fields. For small programs written alone, this is manageable. For anything larger, it is a source of hard-to-track bugs.
+</p>
+
+<p>
+<b>private</b> fields are the solution. A <b>private</b> field can only be accessed from inside the class itself. Code outside the class cannot read it or write it directly. This principle — hiding the internal details of a class from the outside world — is called <i>encapsulation</i>, and it is one of the central ideas of object-oriented design.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Fields are private. The constructor and methods are public. Outside code can use the class but cannot directly touch its data.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+        </div>
+        <div class='code-lines'>
+            class Student<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>private</b> <b>string</b> name;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>private</b> <b>int</b>    score;<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> Student(<b>string</b> name, <b>int</b> score)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>this</b>.name  = name;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>this</b>.score = score;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> void Describe()<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"{name}: {score}");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+<p>
+Private fields appear in lowercase by convention in C# — <cl>name</cl> and <cl>score</cl> instead of <cl>Name</cl> and <cl>Score</cl>. Public members use PascalCase. This naming difference is a deliberate visual signal: lowercase means internal, PascalCase means part of the public interface.
+</p>
+
+<p>
+You may have noticed <b>this</b> in the constructor above. That is covered in the next beat.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">The this keyword</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+<b>this</b> is a keyword that refers to the current object — the specific instance the method or constructor is running on right now. It is most often needed when a parameter has the same name as a field, creating an ambiguity that C# cannot resolve on its own.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Without this, name on the left and name on the right would both refer to the parameter. this.name is unambiguously the field.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+        </div>
+        <div class='code-lines'>
+            class BankAccount<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>private</b> <b>string</b> owner;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>private</b> <b>double</b> balance;<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> BankAccount(<b>string</b> owner, <b>double</b> balance)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>this</b>.owner   = owner;   // this.owner = field, owner = parameter<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>this</b>.balance = balance; // this.balance = field, balance = parameter<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> void Deposit(<b>double</b> amount)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;balance += amount;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> void PrintBalance()<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"{owner}: ${balance:F2}");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+        </div>
+    </div>
+</div>
+
+<p>
+Inside <cl>Deposit</cl> and <cl>PrintBalance</cl>, there is no name conflict: <cl>balance</cl> and <cl>owner</cl> can only mean the fields, because those methods have no parameters with those names. <b>this</b> is only strictly necessary when a name collision exists, but some programmers use <cl>this.</cl> everywhere inside a class as a matter of style, to make it explicit that they are always referring to a field. Either approach is valid.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Quiz</div>
+
+<div class="quiz-placeholder">"question": "Which access modifier makes a field visible only from inside the class?",,"choices": ["public", "private", "static", "void"],,"correct": 1</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Properties</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Making fields <b>private</b> protects them, but it also means outside code can no longer read them at all. Often you want something in between: a field that can be read from outside the class but only written under controlled conditions, or with validation applied. C# has a dedicated feature for this: <i>properties</i>.
+</p>
+
+<p>
+A property looks like a field from the outside — you access it with the dot operator, just like a field — but it is backed by <i>accessor methods</i> called <b>get</b> and <b>set</b>, which you write yourself. This lets you intercept reads and writes and add whatever logic you need.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Score validates on set. Name is read-only from outside: it has a get but no public set.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+            25<br>
+            26<br>
+            27<br>
+            28<br>
+            29<br>
+            30<br>
+            31<br>
+            32<br>
+            33<br>
+            34<br>
+        </div>
+        <div class='code-lines'>
+            class Student<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>private</b> <b>string</b> name;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>private</b> <b>int</b>    score;<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>string</b> Name<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>get</b> { <b>return</b> name; }<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>int</b> Score<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>get</b> { <b>return</b> score; }<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>set</b><br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>if</b> (value >= 0 && value &lt;= 100)<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;score = value;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> Student(<b>string</b> name, <b>int</b> score)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>this</b>.name  = name;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Score = score; // uses the property setter, so validation runs<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Student s = <b>new</b> Student("Arcturis", 88);<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(s.Name);  // reads via getter<br>
+            &emsp;&emsp;&emsp;&emsp;s.Score = 95;               // writes via setter, validation runs<br>
+            &emsp;&emsp;&emsp;&emsp;s.Score = -10;              // rejected silently — score stays 95<br>
+            &emsp;&emsp;&emsp;&emsp;Console.WriteLine(s.Score);<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Arcturis<br>
+        95<br>
+    </div>
+</div>
+
+<p>
+Inside the <b>set</b> accessor, the keyword <b>value</b> automatically refers to whatever was assigned. You do not declare it — it is provided by C# automatically. The <b>get</b> accessor runs when the property is read; the <b>set</b> accessor runs when something is assigned to it. If you omit the <b>set</b>, the property is read-only from outside the class.
+</p>
+
+<p>
+Properties are how professional C# code almost always exposes a class's data. Directly <b>public</b> fields are rare in real codebases. A property gives you the same clean syntax — <cl>s.Score</cl> — while keeping the class in control of what values are allowed.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Multiple objects from one class</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+The same class definition can produce as many objects as you need. Each object has its own copy of the fields, completely independent of every other object. Methods are shared — there is only one copy of each method in memory — but they always run on the object they were called on.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Three Student objects from one class. Each carries its own data. An array holds them all.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+            25<br>
+            26<br>
+            27<br>
+            28<br>
+            29<br>
+        </div>
+        <div class='code-lines'>
+            class Student<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>string</b> Name  { <b>get</b>; <b>private set</b>; }<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>int</b>    Score { <b>get</b>; <b>private set</b>; }<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> Student(<b>string</b> name, <b>int</b> score)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Name  = name;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Score = score;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>string</b> GetGrade()<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>if</b>      (Score >= 90) <b>return</b> "A";<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>else if</b> (Score >= 80) <b>return</b> "B";<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>else if</b> (Score >= 70) <b>return</b> "C";<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>else</b>                  <b>return</b> "F";<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;Student[] roster = {<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>new</b> Student("Arcturis", 88),<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>new</b> Student("Meridian", 73),<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>new</b> Student("Solenne",  95)<br>
+            &emsp;&emsp;&emsp;&emsp;};<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>foreach</b> (Student s <b>in</b> roster)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"{s.Name}: {s.Score} ({s.GetGrade()})");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Arcturis: 88 (B)<br>
+        Meridian: 73 (C)<br>
+        Solenne:  95 (A)<br>
+    </div>
+</div>
+
+<p>
+Notice the shorthand used for the properties here: <code>{ <b>get</b>; <b>private set</b>; }</code>. This is called an <i>auto-property</i>. C# generates the private backing field automatically — you do not have to declare it yourself. The result is a property that anyone can read but only the class itself can write, expressed in a single compact line. Auto-properties are extremely common in C# and worth memorizing.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Quiz</div>
+
+<div class="quiz-placeholder">"question": "What is the term for a special method that shares its name with the class and runs automatically when an object is created?",,"choices": ["Accessor", "Property", "Constructor", "Instance method"],,"correct": 2</div>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Putting it together: a worked example</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+Here is a complete, realistic class — a <cl>BankAccount</cl> — that brings together everything from this unit: private fields, a constructor, properties with validation, and several instance methods with meaningful behavior.
+</p>
+
+<div class='code-container'>
+    <div class='code-header'>C#</div>
+    <div class='code-guide'>
+        Fields are private. All outside interaction goes through public methods and properties. The class controls what is and is not allowed.<br>
+    </div>
+    <div class='code-body'>
+        <div class='line-numbers'>
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            5<br>
+            6<br>
+            7<br>
+            8<br>
+            9<br>
+            10<br>
+            11<br>
+            12<br>
+            13<br>
+            14<br>
+            15<br>
+            16<br>
+            17<br>
+            18<br>
+            19<br>
+            20<br>
+            21<br>
+            22<br>
+            23<br>
+            24<br>
+            25<br>
+            26<br>
+            27<br>
+            28<br>
+            29<br>
+            30<br>
+            31<br>
+            32<br>
+            33<br>
+            34<br>
+            35<br>
+            36<br>
+            37<br>
+            38<br>
+            39<br>
+            40<br>
+            41<br>
+            42<br>
+            43<br>
+            44<br>
+            45<br>
+            46<br>
+            47<br>
+            48<br>
+            49<br>
+            50<br>
+        </div>
+        <div class='code-lines'>
+            class BankAccount<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;<b>private</b> <b>string</b> owner;<br>
+            &emsp;&emsp;&emsp;&emsp;<b>private</b> <b>double</b> balance;<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>string</b> Owner   { <b>get</b> { <b>return</b> owner; } }<br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> <b>double</b> Balance { <b>get</b> { <b>return</b> balance; } }<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> BankAccount(<b>string</b> owner, <b>double</b> openingBalance)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>this</b>.owner = owner;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;balance = openingBalance >= 0 ? openingBalance : 0;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> void Deposit(<b>double</b> amount)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>if</b> (amount &lt;= 0)<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine("Deposit amount must be positive.");<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>return</b>;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;balance += amount;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> void Withdraw(<b>double</b> amount)<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>if</b> (amount &lt;= 0 || amount > balance)<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine("Invalid withdrawal amount.");<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<b>return</b>;<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;}<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;balance -= amount;<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            <br>
+            &emsp;&emsp;&emsp;&emsp;<b>public</b> void PrintSummary()<br>
+            &emsp;&emsp;&emsp;&emsp;{<br>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Console.WriteLine($"Account: {owner} | Balance: ${balance:F2}");<br>
+            &emsp;&emsp;&emsp;&emsp;}<br>
+            }<br>
+            <br>
+            static void Main(string[] args)<br>
+            {<br>
+            &emsp;&emsp;&emsp;&emsp;BankAccount account = <b>new</b> BankAccount("Arcturis", 500.00);<br>
+            &emsp;&emsp;&emsp;&emsp;account.PrintSummary();<br>
+            &emsp;&emsp;&emsp;&emsp;account.Deposit(250.00);<br>
+            &emsp;&emsp;&emsp;&emsp;account.Withdraw(100.00);<br>
+            &emsp;&emsp;&emsp;&emsp;account.Withdraw(1000.00); // rejected<br>
+            &emsp;&emsp;&emsp;&emsp;account.PrintSummary();<br>
+            }<br>
+        </div>
+    </div>
+    <div class='code-output'>
+        Account: Arcturis | Balance: $500.00<br>
+        Invalid withdrawal amount.<br>
+        Account: Arcturis | Balance: $650.00<br>
+    </div>
+</div>
+
+<p>
+<cl>Main</cl> cannot reach <cl>balance</cl> or <cl>owner</cl> directly. It can only interact with the account through the methods and properties the class chooses to expose. That is encapsulation at work. The class is the authority on its own data. Outside code can ask politely — through the public interface — but it cannot go around the class and manipulate the fields directly. This makes the class trustworthy, testable, and safe to use in a larger program.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Conclusion</div>
+
+<div class="img-placeholder">default.png</div>
+
+<p>
+In this unit we crossed one of the most important lines in software development: from writing procedures that operate on loose data, to defining types that bundle data and behavior together. This is the foundation of object-oriented programming, and virtually everything in the C# ecosystem — including the built-in types and libraries you have been using since day one — is built on exactly this model.
+</p>
+
+<p>
+We covered:
+</p>
+
+<ol>
+    <li><b>Why classes exist.</b> To group related data and behavior into a single, named unit rather than leaving them scattered as disconnected variables and methods.</li>
+    <li><b>Classes vs. objects.</b> A class is the blueprint. An object is an instance — a real thing in memory, built from the blueprint with <b>new</b>.</li>
+    <li><b>Fields.</b> Variables declared inside a class body that store the data belonging to each object.</li>
+    <li><b>Instance methods.</b> Methods defined inside a class that have direct access to the object's fields without needing them passed as parameters.</li>
+    <li><b>Constructors.</b> Special methods that run automatically at object creation. Same name as the class, no return type. Ensure the object is fully initialized from the start.</li>
+    <li><b>Access modifiers.</b> <b>public</b> means accessible from anywhere. <b>private</b> means accessible only from inside the class. <b>private</b> fields are the foundation of encapsulation.</li>
+    <li><b>The this keyword.</b> Refers to the current object. Used to resolve name collisions between fields and parameters.</li>
+    <li><b>Properties.</b> The C# mechanism for controlled access to a class's data. A <b>get</b> accessor handles reads; a <b>set</b> accessor handles writes, where you can add validation. Auto-properties (<code>{ get; private set; }</code>) handle the simple case in one line.</li>
+    <li><b>Multiple objects.</b> One class definition, as many instances as needed. Each object carries its own independent copy of the fields.</li>
+</ol>
+
+<p>
+In the next unit we will take these ideas further with inheritance: the ability for one class to build on another, sharing behavior without duplicating it. The classes we have written here are self-contained. Inheritance is what lets them become part of a family.
+</p>
+
+
+<!-- -------------------------------------------------------------------- -->
+
+<div class="beat-header">Beat template</div>
+
+<div class="ide-placeholder">IDE_STUFF</div>
+
+<p>
+
+</p>
+
+
 
 <!-- -------------------------------------------------------------------- -->
 
