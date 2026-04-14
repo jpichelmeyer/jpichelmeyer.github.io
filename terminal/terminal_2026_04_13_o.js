@@ -1,6 +1,5 @@
 // terminal.js
 // Depends on: interpreters.js (must be loaded first)
-// s<script src="terminal/interpreters.js"></script>  <!-- or ./interpreters.js on index.html -->
 
 (function () {
 
@@ -14,43 +13,42 @@
     let output, editor, tabs, input;
 
     // ── Read CSS vars ───────────────────────────────────────────────
-    const logoArt = `
-..................................
-..................................
-............||===\\\\...............
-............||....))..............
-............||===//...............
-............||....................
-............===...................
-......... _..---.--...............
-......... \\ __|/o/__).............
-......./__ . _/ ./_\\..............
-......(____. ._\\____).............
-.......(_/..)..(..\\.)\\............
-........(_..)..(..)...............
-..................................
-..................................
-    `;
-    const cliOsTitle    = 'Pichelmeyer OS (POS) v2026.04.13.a';
-    const cliCmdPrefix  = "/MyProject/ $>";
-    const cliColorPOS   = "#c2ff8a";
+    const root   = document.documentElement;
+    const styles = getComputedStyle(root);
+
+    const cliOsLogo     = "";
+    cliOsLogo     += "..................................\n";
+    cliOsLogo     += "..................................\n";
+    cliOsLogo     += "............||===\\...............\n";
+    cliOsLogo     += "............||....))..............\n";
+    cliOsLogo     += "............||===//...............\n";
+    cliOsLogo     += "............||....................\n";
+    cliOsLogo     += "............===...................\n";
+    cliOsLogo     += "......... _..---.--...............\n";
+    cliOsLogo     += ".........`\ __|/o/__).............\n";
+    cliOsLogo     += "......./__.` _/ ./_\..............\n";
+    cliOsLogo     += "......(____.`._\____).............\n";
+    cliOsLogo     += ".......(_/..)..(..\.)\............\n";
+    cliOsLogo     += "........(_..)..(..)...............\n";
+    cliOsLogo     += "..................................\n";
+    cliOsLogo     += "..................................\n";
+    const cliOsTitle    = "PICHELMEYER OPERATING SYSTEM (POS) v1.0\n";
+    const CliRemindHelp = "Type 'help' for command list.\n";
+    const cliCmdPrefix  = '/MyProject/ $> ';
+    const cliColorPOS   = '#bfff70';
     const cliColorCmd   = '#f1f1f1';
     const cliColorOut   = '#999999';
 
     // ── Helpers ─────────────────────────────────────────────────────
-    function printToCli(text, color = cliColorPOS) {
+    function printToCli(text, color = cliColorPOS, showLogo=false) {
         if (!output) return;
         const line = document.createElement('div');
         line.style.color       = color;
         line.style.marginBottom = '4px';
-        line.style.marginLeft = '20px';
         line.style.whiteSpace  = 'pre';
         line.textContent = text;
         output.appendChild(line);
         output.scrollTop = output.scrollHeight;
-    }
-    function clearCli(){
-        output.innerHTML = '';
     }
 
     function getAsciiCanvas(width = 11, height = 11, char = '.') {
@@ -91,66 +89,34 @@
         printToCli(cliCmdPrefix + ' ' + cmd, cliColorCmd);
 
         switch (cmd) {
-            
-            case 'clear':
+            case 'logo': {
                 output.innerHTML = '';
-                break;
-
+                printToCli(cliOsLogo);
+                printToCli(cliOsTitle);
+                printToCli(cliOsRemindHelp);
+            }
             
-            case 'csharp':
-
-                if (!arg1 || !myProject[arg1]) {
-                    //printToCli(`  File '${arg1}' not found.`, '#ff5f56');
-                    printToCli("Wassupxxx");                    
-                    break;
-                }
-                printToCli(`  Compiling ${arg1}...`, '#888');
-                if (typeof runCSharp === 'function') {
-                    const tempOut = document.createElement('div');
-                    const tempDot = { className: '' };
-                    runCSharp(myProject[arg1], tempOut, tempDot);
-                    tempOut.childNodes.forEach(node => {
-                        const isError = node.className?.includes('error');
-                        printToCli('  ' + node.textContent.trim(), isError ? '#ff5f56' : cliColorPOS);
-                    });
-                } else {
-                    printToCli('  C# interpreter not loaded.', '#ff5f56');
-                }
-                break;
-                
             case 'help': {
-                const cmds = ['clear', 'csharp fileName.ext', 'help', 'ls', 'python fileName.ext'];
+                const cmds = ['ls', 'python <file>', 'csharp <file>', 'clear'];
                 printToCli('  Commands\n  --------\n' + cmds.map(c => '  ' + c).join('\n'), cliColorOut);
                 break;
             }
 
             case 'ls':
-                
-                //var dir_content = Object.keys(myProject);
-                //dirContent.appendChild("hi");
-                //printToCli(dirContent.join("    \n"), cliColorOut);
-                
-                printToCli("hi", cliColorOut);
-
-                //printToCli('...MyProject/', cliColorOut);
-                //printToCli('.....|-- Program.cs', cliColorOut);
-                //printToCli('.....|-- script.py', cliColorOut);
-                //printToCli('  ' + Object.keys(myProject).join('    '), cliColorOut);
+                printToCli('...MyProject/', cliColorOut, false);
+                printToCli('.....|-- Program.cs', cliColorOut, false);
+                printToCli('.....|-- script.py', cliColorOut, false);
+                printToCli('  ' + Object.keys(myProject).join('    '), cliColorOut);
                 break;
 
-            case 'logo': {
-                clearCli();
-                printToCli(logoArt);
-                printToCli(cliOsTitle);
-                printToCli();
+            case 'clear':
+                output.innerHTML = '';
                 break;
-            }
 
-            case 'python': {
-
+            case 'python':
                 if (!arg1 || !myProject[arg1]) {
-                    //printToCli(`  File '${arg1}' not found.`, '#ff5f56');
-                    printToCli("Yo Yo Yo");                    
+                    printToCli(`  File '${arg1}' not found.`, '#ff5f56');
+                    printToCli(cliCmdPrefix + ' ' + cmd, cliColorCmd);
                     break;
                 }
                 printToCli(getAsciiCanvas(30, 3, '.'), '#444');
@@ -169,7 +135,25 @@
                     printToCli('  Python interpreter not loaded.', '#ff5f56');
                 }
                 break;
-            }
+
+            case 'csharp':
+                if (!arg1 || !myProject[arg1]) {
+                    printToCli(`  File '${arg1}' not found.`, '#ff5f56');
+                    break;
+                }
+                printToCli(`  Compiling ${arg1}...`, '#888');
+                if (typeof runCSharp === 'function') {
+                    const tempOut = document.createElement('div');
+                    const tempDot = { className: '' };
+                    runCSharp(myProject[arg1], tempOut, tempDot);
+                    tempOut.childNodes.forEach(node => {
+                        const isError = node.className?.includes('error');
+                        printToCli('  ' + node.textContent.trim(), isError ? '#ff5f56' : cliColorPOS);
+                    });
+                } else {
+                    printToCli('  C# interpreter not loaded.', '#ff5f56');
+                }
+                break;
 
             default:
                 if (cmd) printToCli(`  '${cmd}' is not recognized. Type 'help'.`, cliColorPOS);
@@ -187,12 +171,6 @@
         const powerBtn = document.getElementById('pos-power-btn');
 
         if (powerBtn && drawer) {
-            
-            /*
-            ==============================================
-                Logic assigned to the powerBtn
-            ==============================================
-            */
             powerBtn.onclick = e => {
                 e.preventDefault();
                 const isOpen = drawer.classList.toggle('drawer-open');
@@ -211,9 +189,9 @@
             };
         }
 
-        /* printToCli(, cliColorPOS); */
+        //printToCli(cliMsgInitial, cliColorPOS);
+                
         updateUI();
-        handleCommand('logo');
     }
 
     // Expose so pages can call it after injecting the HTML, or just
