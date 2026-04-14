@@ -1,13 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<!--
-=====================================================================
-
-    HEAD
-
-=====================================================================
--->
 <head>
     <!-- index.html -->
 	<meta charset="UTF-8">
@@ -15,47 +7,618 @@
 	<title>Jacob Pichelmeyer, PhD</title>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 	
-    
-    <script src="terminal/interpreters.js"></script>
+    <script src="terminal/interpreters.js"></script>  <!-- or ./interpreters.js on index.html -->
     <script src="terminal/terminal.js"></script>
+    <!-- <script src="../interpreters.js"></script> -->
 
-    <!--
-    ==============================================================
-        Style Injector
-    ==============================================================
+    <!-- 
+    ═══════════════════════════════════════════════════════
+    
+        STYLE
+
+    ═══════════════════════════════════════════════════════════ 
     -->
-    <script>
+    <style>
+
+        
+        * { box-sizing: border-box; }
+
+        :root {
+	        --color_highlight: #060606;
+	        --color_lowlight: #4f4f4f;
+	        --color_wrap: #f1f1f1;
+	        --color_core: #f1f1f1;
+	        --margin_left: 200px;
+	        --icon_size_social: 15px;
+	        --brightness_social: 100%;
+	        --opacity_timeline: 0.25;
+	        --size_research_thumb_width: 170px;
+	        --border_radius_thumb: 5px;
+	        --border_style_thumb: solid;
+
+	        /* Section accent colors — matched to your prototype image */
+	        --color_about:    #9b3050;
+	        --color_career:   #8a7830;
+	        --color_research: #2a6055;
+	        --color_teaching: #364880;
+
+            /*          0           1         2         3         4
+            const p = ['#f1f1f1','#f1f1f1','#060606','#4f4f4f',  '0%'];
+            r.style.setProperty('--color_wrap', p[0]);
+            r.style.setProperty('--color_core', p[0]);
+            r.style.setProperty('--color_highlight', p[2]);
+            r.style.setProperty('--color_lowlight', p[3]);
+            r.style.setProperty('--brightness_social', 'brightness('+p[4]+')');
+            */
+            
+            /* Terminal stuff */
+            /* --cliMsgInitial: "System initialized. Type 'help' to begin."; */
+            /* --cliMsgInitial: PICHELMEYER OPERATING SYSTEM (POS) v1.0
+..................................
+..................................
+............||===\\...............
+............||....))..............
+............||===//...............
+............||....................
+............===...................
+......... _..---.--...............
+.........`\ __|/o/__).............
+......./__.` _/ ./_\..............
+......(____.`._\____).............
+.......(_/..)..(..\.)\............
+........(_..)..(..)...............
+..................................
+..................................
+Type 'help' for command list.;
+            --cliColorPOS: #bfff70;
+            --cliCmdPrefix: /MyProject/ $> ;
+        }
+        */
+
+        a { color: var(--color_lowlight); text-decoration: underline; }
+        a:hover { color: var(--color_highlight); text-decoration: none; }
+
+        
+
+        body {
+	        font-family: 'Inter', sans-serif;
+	        margin: 0;
+	        color: var(--color_lowlight);
+	        background-color: var(--color_wrap);
+        }
 
         /*
-        -----------------------------------------------------------
-            style.html
-        -----------------------------------------------------------
+        ------------------------------------------------------------------
+	        Portrait
+        ------------------------------------------------------------------
         */
-        fetch('style/style.html')
-            .then(r => r.text())
-            .then(html => {
-                document.head.insertAdjacentHTML('beforebegin', html);
-            });
+        .portrait { 
+	        height: 160px; 
+	        padding-top: 20px; 
+	        cursor: pointer;
+        }
+
+        .portrait_combined { 
+	        content: url(./portrait_combined.gif); 
+	        visibility: visible; 
+	        height: 0; 
+	        width: 0; 
+        }
 
         /*
-        -----------------------------------------------------------
-            terminal.html
-        -----------------------------------------------------------
+        ------------------------------------------------------------------
+	        Name
+        ------------------------------------------------------------------
         */
-        fetch("terminal/terminal.html")
-            .then(r => r.text())
-            .then(html => {
-                document.head.insertAdjacentHTML('beforebegin', html);
-                if (typeof initTerminal === 'function') initTerminal();
-            });
+        .name_and_letters {
+	        width: 100%; padding: 10px 0 15px; display: flex; flex-wrap: wrap; gap: 4px;
+        }
+        .name_and_letters_name { color: var(--color_highlight); font-size: 14px; font-weight: bold; }
+        .name_and_letters_letters { font-size: 12px; }
 
-    </script>
+        /*
+        ------------------------------------------------------------------
+	        Typewriter
+        ------------------------------------------------------------------
+        */
+        .typer-container {
+            display: inline-block; 
+            width: 100%; 
+            margin-top: 1%; 
+            font-size: 12px;
+            font-family: 'Lucida Typewriter', monospace; 
+            color: #1f1f1f;
+        }
+        .c1 { 
+            display: block; /* block is better here to prevent stacking issues */
+            height: 14px;
+            width: 100%; 
+        }
+        typer-container, .page_heading { 
+            font-family: 'Merriweather', serif; 
+        }
+        /*
+        .typer-container {
+	        display: inline-block; 
+            width: 100%; 
+            margin-top: 1%; 
+            font-size: 12px;
+	        font-family: Lucida Typewriter, monospace; 
+            color: #1f1f1f;
+        }
+        */
+        /*
+        .c1 { 
+            display: inline-block; 
+            height: 14px;
+            width: 100%; 
+            font-family: Lucida Typewriter, monospace; 
+        }
+        */
+        .typer-container .type  { 
+            overflow: hidden; 
+            white-space: nowrap; 
+            width: 100%; 
+            animation: typing 1s steps(13,end) forwards; 
+            font-family: Lucida Typewriter, monospace; 
+        }
+        .typer-container .type2 { 
+            overflow: hidden; 
+            white-space: nowrap; 
+            width: 100%; 
+            animation: typing 1s steps(14,end) forwards; 
+            animation-delay: 1s; }
+        .typer-container .type3 { 
+            overflow: hidden; 
+            white-space: nowrap; 
+            width: 100%; 
+            animation: typing 1s steps(18,end) forwards; 
+            animation-delay: 2s; 
+        }
+        @keyframes typing {
+          from { width: 0; }
+          to { width: 20ch; } 
+        }
+        @keyframes blink {
+          from, to { border-color: transparent }
+          50% { border-color: orange; }
+        }
+        
+        /* --- Debug/Bulletproof Typewriter --- */
+        /*
+        .titles {
+            display: block;
+            min-width: 200px;
+        }
 
-    <!-- <link rel="stylesheet" href="../terminal/terminal.css"> -->
+        typer {
+            display: block;
+            font-family: 'Courier New', Courier, monospace;
+            color: #000 !important;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .c1 {
+            display: block;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid orange;
+            width: 0;
+        }
+
+        .type  { animation: typing 1.5s steps(18) forwards; }
+        .type2 { animation: typing 1.5s steps(13) forwards; animation-delay: 1.5s; }
+        .type3 { animation: typing 1.5s steps(8) forwards;  animation-delay: 3s; }
+
+        @keyframes typing {
+          from { width: 0; }
+          to { width: 20ch; } 
+        }
+
+        @keyframes blink {
+          from, to { border-color: transparent }
+          50% { border-color: orange; }
+        }
+        */
+                
+
+
+        /*
+        ------------------------------------------------------------------
+	        Social links
+        ------------------------------------------------------------------
+        */
+        .navbarsocial { text-align: left; padding-top: 10px; }
+        .navbarsocial img { filter: var(--brightness_social); width: var(--icon_size_social); }
+
+        /*
+        ------------------------------------------------------------------
+	        Navbar links (animated)
+        ------------------------------------------------------------------
+        */
+        .navbar {
+	        padding-top: 20px;
+	        display: flex;
+	        flex-direction: column;
+	        gap: 3px;
+        }
+        .navbar a {
+	        position: relative;
+	        display: block;
+	        padding: 7px 10px 7px 12px;
+	        font-size: 11px;
+	        font-weight: 600;
+	        letter-spacing: 0.09em;
+	        color: var(--color_lowlight);
+	        text-decoration: none;
+	        border-radius: 0 8px 8px 0;
+	        border-left: 3px solid transparent;
+	        overflow: hidden;
+	        transition: color 0.22s ease, border-left-color 0.22s ease;
+        }
+        .navbar a::before {
+	        content: '';
+	        position: absolute;
+	        inset: 0;
+	        border-radius: 0 8px 8px 0;
+	        transform: scaleX(0);
+	        transform-origin: left center;
+	        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+	        z-index: 0;
+        }
+        .navbar a span { 
+	        position: relative; z-index: 1; 
+        }
+        .navbar a[href="#about"] { 
+	        border-left-color: var(--color_about); 
+        }
+        .navbar a[href="#about"]::before { 
+	        background: var(--color_about); 
+	        opacity: 0.20; 
+        }
+
+        .navbar a[href="#careerPath"] { 
+	        border-left-color: var(--color_career); 
+        }
+        .navbar a[href="#careerPath"]::before { 
+	        background: var(--color_career); 
+	        opacity: 0.20; 
+        }
+
+        .navbar a[href="#research"]   { 
+	        border-left-color: var(--color_research); 
+        }
+        .navbar a[href="#research"]::before   { 
+	        background: var(--color_research); opacity: 0.22; 
+        }
+
+        .navbar a[href="#teaching"]   { 
+	        border-left-color: var(--color_teaching); 
+        }
+        .navbar a[href="#teaching"]::before   { 
+	        background: var(--color_teaching); 
+	        opacity: 0.22; 
+        }
+
+        .navbar a:hover { color: var(--color_highlight); }
+        .navbar a:hover::before { transform: scaleX(1); }
+
+        .navbarsocial img {
+            filter: brightness(0) invert(0);        
+        }
+
+        /*
+        ------------------------------------------------------------------
+	        Layout
+        ------------------------------------------------------------------
+        */
+        .row { display: flex; }
+
+        .side_left {
+	        background-color: var(--color_wrap);
+	        padding: 20px;
+	        width: var(--margin_left);
+	        position: fixed;
+	        height: 100%;
+        }
+
+        .main {
+	        flex: 1;
+	        margin-left: var(--margin_left);
+	        padding: 0;
+	        height: 100%;
+	        overflow: auto;
+        }
+
+        .header { background-color: var(--color_wrap); height: 20px; }
+
+        .mainsub {
+	        padding: 5px 20px;
+	        font-size: 13px;
+	        background-color: var(--color_core);
+        }
+
+        /* ── Section cards ── */
+        .main_section {
+	        width: 550px;
+	        margin-bottom: 30px;
+	        border-radius: 10px;
+	        background: rgba(255,255,255,0.02);
+	        box-shadow: 0 2px 8px rgba(0,0,0,0.30);
+	        overflow: hidden;
+	        transition: background 0.3s;
+        }
+
+        /*
+        ------------------------------------------------------------------
+	        Section heading bars
+        ------------------------------------------------------------------
+        */
+        .section_heading_bar {
+	        display: flex;
+	        align-items: center;
+	        padding: 8px 16px;
+	        /* 
+	        top corners follow the card; bottom corners square off into the content */
+	        border-radius: 10px 10px 0 0;
+        }
+
+        .section_heading_bar .page_heading {
+	        margin: 0;
+	        font-size: 15px;
+	        font-weight: 500;
+	        letter-spacing: 0.03em;
+	        color: #fff;
+	        text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+	        text-transform: none;
+        }
+
+        .section_heading_bar.bar_about    { background: var(--color_about); }
+        .section_heading_bar.bar_career   { background: var(--color_career); }
+        .section_heading_bar.bar_research { background: var(--color_research); }
+        .section_heading_bar.bar_teaching { background: var(--color_teaching); }
+
+        /* Content area below the bar */
+        .section_body { padding: 4px 20px 20px; }
+
+        .section_divider { padding-bottom: 10px; }
+
+        /*
+        ------------------------------------------------------------------
+	        Timeline
+        ------------------------------------------------------------------
+        */
+        .timeline { padding-left: 20px; padding-bottom: 30px; }
+        .timeline_row { display: flex; gap: 10px; }
+        .timeline_dates { width: 100px; font-size: 11px; padding-top: 10px; text-align: right; }
+        .timeline_icon { filter: var(--brightness_social); }
+        .timeline_icon_arrow  { content: url(./images/timeline_arrow.png);  height: 40px; opacity: var(--opacity_timeline); }
+        .timeline_icon_degree { content: url(./images/timeline_degree.png); height: 40px; }
+        .timeline_icon_dot    { content: url(./images/timeline_dot.png);    height: 40px; }
+        .timeline_icon_line   { content: url(./images/timeline_line.png);   width: 40px; height: 20px; opacity: var(--opacity_timeline); }
+        .timeline_icon_tail   { content: url(./images/timeline_tail.png);   height: 40px; opacity: var(--opacity_timeline); }
+        .timeline_textbox { width: 100%; }
+        .timeline_textbox_title { font-weight: bold; color: var(--color_highlight); font-size: 12px; padding-top: 5px; }
+        .timeline_textbox_spec  { color: var(--color_lowlight); font-size: 10px; }
+        .timeline_textbox_place { color: var(--color_lowlight); font-size: 12px; }
+
+        /*
+        ------------------------------------------------------------------
+	        Courses
+        ------------------------------------------------------------------
+        */
+        .taught_course { padding: 4px 0 20px; }
+        .taught_course_section_head {
+	        font-size: 14px; text-transform: uppercase; color: var(--color_lowlight);
+	        padding: 20px 0; font-weight: bold;
+        }
+        .taught_course_section { padding-left: 10px; }
+        .taught_course_tags {
+	        padding: 4px 0; 
+	        display: flex; 
+	        gap: 12px;
+	        text-transform: uppercase; 
+	        font-size: 10px; 
+	        font-weight: bold; 
+	        opacity: 0.8;
+        }
+        .taught_course_tags_all {
+	        padding: 20px 30px; 
+	        display: flex; 
+	        flex-wrap: wrap; 
+	        gap: 4px;
+	        text-transform: uppercase; 
+	        font-size: 10px; font-weight: bold; opacity: 0.8;
+        }
+        .taught_course_title { font-weight: bold; font-size: 14px; text-transform: uppercase; color: var(--color_highlight); }
+
+        .taught_course_description { 
+	        font-size: 12px;
+	        color: var(--color_lowlight); 
+        }
+
+        .course_link {
+	        display: inline-flex;
+	        align-items: center;
+	        gap: 5px;
+	        text-decoration: none;
+	        color: var(--color_highlight);
+	        transition: color 0.2s ease;
+        }
+
+        .course_link:hover {
+	        color: var(--color_highlight);
+	        text-decoration: none;
+        }
+
+        /* The bouncing triangle arrow */
+        .course_link::after {
+	        content: '▶';
+	        display: inline-block;
+	        font-size: 7px;
+	        color: var(--color_teaching);
+	        opacity: 0.85;
+	        /* no animation at rest */
+        }
+
+        @keyframes bounce_right {
+	        0%   { transform: translateX(0px); }
+	        40%  { transform: translateX(4px); }
+	        70%  { transform: translateX(1px); }
+	        100% { transform: translateX(4px); }
+        }
+
+        .course_link:hover::after {
+	        animation: bounce_right 0.45s ease-in-out infinite alternate;
+        }
+
+        /*
+        ------------------------------------------------------------------
+	        Course Tags
+        ------------------------------------------------------------------
+        */
+        .tag {
+	        width: fit-content; 
+	        height: fit-content; 
+	        border-radius: 5px;
+	        text-align: center; 
+	        padding: 5px; 
+	        color: #f1f1f1; 
+	        font-size: 9px; 
+	        opacity: 0.80;
+        }
+        .tag_aseprite   { background:#ddd; color:#111; }
+        .tag_blender    { background:#f27718; }
+        .tag_carthage   { background:#c90223; color:#fff; }
+        .tag_cpp     	{ background:#2b8068; }
+        .tag_csharp     { background:#7355dd; }
+        .tag_css        { background:#2e7de6; }
+        .tag_gdscript   { background:#4476b8; }
+        .tag_gt         { background:#B3A369; color:#000; }
+        .tag_godot      { background:#4476b8; }
+        .tag_html       { background:#f27718; }
+        .tag_javascript { background:#f5d742; color:#333; }
+        .tag_jhu        { background:#114ebf; }
+        .tag_ksu        { background:#8533d6; }
+        .tag_mathematica{ background:#f21818; }
+        .tag_matlab     { background:#f27718; color:#18f2ef; }
+        .tag_msoe       { background:#ba211c; }
+        .tag_octave     { background:#1d7e8f; color:#ffa861; }
+        .tag_python     { background:#f5d742; color:#001540; }
+        .tag_r          { background:#ccc; color:#003596; }
+        .tag_unity      { background:#222; }
+        .tag_uwm        { background:#ffc73b; color:#1f1f1f; }
+        .tag_westminster{ background:#2459c9; color:#fff; }
+
+        .teaching_tag_two_col {
+	        display: flex;
+	        gap: 0px;
+        }
+        .teaching_tag_two_col_left {
+	        flex: 1.5;
+	        padding: 2px;
+        }
+        .teaching_tag_two_col_right {
+	        flex: 1;
+	        padding: 2px;
+        }
+
+
+        /*
+        ------------------------------------------------------------------
+	        Research
+        ------------------------------------------------------------------
+        */
+        .research_paper_row {
+	        height: 100px; display: flex; flex-wrap: wrap;
+	        padding: 10px 0 140px; gap: 20px;
+        }
+        .research_paper_thumbnail {
+	        width: var(--size_research_thumb_width);
+	        border-radius: var(--border_radius_thumb);
+	        border-style: var(--border_style_thumb);
+        }
+        .research_paper_thumbnail_tda_eeg    { content: url("./images/thumb_tda_eeg.png"); }
+        .research_paper_thumbnail_tda_llm    { content: url("./images/thumb_tda_llm.png"); }
+        .research_paper_thumbnail_tooth      { content: url("./images/thumb_tooth.png"); }
+        .research_paper_thumbnail_cycle_basis{ content: url("./images/thumb_cycle_basis.png"); }
+        .research_paper_thumbnail_genera_four{ content: url("./images/thumb_genera_four.png"); }
+        .research_paper_thumbnail_genera     { content: url("./images/thumb_genera_knots.png"); }
+        .research_paper_thumbnail_para       { content: url("./images/thumb_para.png"); }
+        .research_paper_text_title  { color: var(--color_highlight); font-weight: bold; width: 260px; }
+        .research_paper_text_authors{ padding: 5px 0; }
+        .research_paper_text_journal{ text-transform: uppercase; font-size: 11px; }
+        .research_paper_text_links  { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 6px; }
+        .research_link {
+	        width: fit-content; border-radius: 5px; cursor: pointer;
+	        text-align: center; padding: 5px; color: #f1f1f1;
+        }
+        .research_link_arxiv           { background:#a3140a; }
+        .research_link_publisher       { background:#6162c9; }
+        .research_link_semantic_scholar{ color:#e0c677; background:#263180; }
+        .research_link_krex            { background:#4a2569; }
+
+        /*
+        ------------------------------------------------------------------
+	        Footer
+        ------------------------------------------------------------------
+        */
+        .footer {
+	        padding: 8px 80px 40px 40px; text-align: center;
+	        background: var(--color_wrap); font-size: 12px;
+        }
+
+        /*
+        ------------------------------------------------------------------
+	        Responsive
+        ------------------------------------------------------------------
+        */
+        @media screen and (max-width: 800px) {
+	        .row { flex-direction: column; }
+	        .side_left { position: relative; width: 400px; margin-left: 20px; }
+	        .portrait { height: 0; width: 0; }
+	        .portrait img { height: 0; width: 0; }
+	        .portrait_combined { height: 220px; width: 220px; }
+	        .name_and_letters_name { font-size: 20px; }
+	        .name_and_letters_letters { font-size: 17px; }
+	        .c1 { font-size: 16px; font-weight: normal; }
+	        .navbarsocial img { width: 23px; }
+	        .main { margin-left: 0; }
+	        .main_section { width: 100%; }
+	        .research_paper_row { display: block; height: 250px; }
+	        .research_paper_text { padding-top: 10px; }
+        }
+
+
+	</style>
+
+    <link rel="stylesheet" href="../terminal/terminal.css">
 
 </head>
 
+<script>
+    fetch('../terminal/terminal.html')
+        .then(r => r.text())
+        .then(html => {
+            document.body.insertAdjacentHTML('beforeend', html);
+            if (typeof initTerminal === 'function') initTerminal();
+        });
+</script>
 
+
+<!--
+<script>
+    fetch('terminal/terminal.css')           // adjust path: './' for index.html
+        .then(r => r.text())
+        .then(html => {
+            document.body.insertAdjacentHTML('beforeend', html);
+            // terminal.js auto-inits via DOMContentLoaded, but the fetch
+            // happens after that fires, so call manually:
+            if (typeof initTerminal === 'function') initTerminal();
+        });
+</script>
+-->
 
 <!-- 
 ═══════════════════════════════════════════════════════

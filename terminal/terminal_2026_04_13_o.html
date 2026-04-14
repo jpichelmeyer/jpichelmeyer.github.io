@@ -29,7 +29,7 @@
             height: 100vh;
             background: var(--color_wrap);
             /* Lower than sidebar (usually 10+), higher than main content */
-            z-index: 0; 
+            z-index: 5; 
             transform: translateX(-100%);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
@@ -37,8 +37,6 @@
             padding: 20px;
             box-sizing: border-box;
             border-left: 2px solid rgba(255,255,255,0.1);
-            font-family: monospace;
-            /* white-space: pre;*/
         }
 
         #computer-drawer.drawer-open {
@@ -76,6 +74,7 @@
             display: flex;
             justify-content: space-between;
             color: var(--color_highlight);
+            font-family: monospace;
             background: #f4faed;
             font-size: 14px;
             padding: 14px;
@@ -87,14 +86,7 @@
             gap: 15px;
             height: 100%;
         }
-        .vfs-path {
-            /*display: flex; */
-            /*flex-direction: column; /* This stacks them vertically */
-            /*gap: 15px; */
-            height: 13px;
-            font-size: 14px;
-            font-family: monospace;
-        }
+
         .vfs-window {
             flex: 1;
             background: #fff;
@@ -114,6 +106,7 @@
             background: #ffffff;
             color: #222;
             padding: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
             flex: 1;
             resize: none;
         }
@@ -122,8 +115,7 @@
             background: #eee;
             padding: 5px;
             display: flex;
-            /*gap: 5px; */
-            font-size: 20px;
+            /* gap: 5px; */
             border-bottom: 1px solid #ddd;
         }
 
@@ -132,44 +124,13 @@
             Command Line Interface
         ========================================================
         */ 
-        .cli-win { 
-            background: #000; 
-            color: #0f0; 
-         }
-        .cli-header { 
-            background: #555555; 
-            padding: 10px 20px; 
-            font-size: 14px; 
-            color: #c2ff8a; 
-        }
-        #cli-output { 
-            flex: 1; 
-            padding: 0px; 
-            overflow-y: auto; 
-            white-space: pre-wrap; 
-        }
-        .cli-input-area { 
-            display: flex; 
-            padding: 10px 10px 20px 10px; 
-            background: #444444; 
-            border-top: 1px solid #222;
-        }
-        #cli-input { 
-            background: transparent; 
-            border: none; 
-            color: #fff; 
-            flex: 1; 
-            outline: none; 
-        }
-        .prompt { 
-            color: #f5f5f5; 
-            margin-right: 10px; 
-            margin-left: 5px; 
-            font-size: 14px; 
-            content: cliCmdPrefix;
-        }
+        .cli-win { background: #000; color: #0f0; font-family: monospace; }
+        .cli-header { background: #555555; padding: 10px 20px; font-size: 14px; color: #c2ff8a; font-family: monospace; }
+        #cli-output { flex: 1; padding: 15px; overflow-y: auto; white-space: pre-wrap; }
+        .cli-input-area { display: flex; padding: 10px 10px 20px 10px; background: #444444; border-top: 1px solid #222; }
+        #cli-input { background: transparent; border: none; color: #fff; flex: 1; outline: none; }
+        .prompt { color: #f5f5f5; margin-right: 10px; margin-left: 5px; font-size: 14px; content: var(--cliCmdPrefix)}
 
-        /*
         #close-computer {
             background: transparent;
             border: 1px solid var(--color_lowlight);
@@ -177,15 +138,6 @@
             cursor: pointer;
             font-size: 10px;
         }
-        */
-
-        /*
-        ========================================================
-            Power button
-        ========================================================
-        */ 
-
-        /*<!-- <a href="../index.html#teaching" class="back_link"><span>Back to site</span></a> -->*/
 
         /* Container to fix the button at the bottom of the sidebar */
         .pos-power-wrapper {
@@ -280,26 +232,13 @@
                 ========================================================
                 --> 
                 <div class="vfs-window cli-win">
-                    
-                    <!--
-                    SHELL HEADER
-                    -->
-                    <div class="cli-header">P.SHELL.meyer</div> 
-                    
-
-                    <!--
-                    OUTPUT AREA
-                    -->
+                    <!-- <div class="cli-header">pi.SHELL.meyer</div> -->
+                    <div class="cli-header">Pichelmeyer OS | P.SHELL.meyer</div> 
                     <div id="cli-output"></div>
-
-                    <!--
-                    INPUT AREA
-                    -->
                     <div class="cli-input-area">
                         <span class="prompt">/MyProject/ $&gt; </span>
                         <input type="text" id="cli-input" autocomplete="off" spellcheck="false">
                     </div>
-                
                 </div>
 
                 <!--
@@ -308,7 +247,7 @@
                 ========================================================
                 -->
                 <div class="vfs-header">
-                    <span class="vfs-path">.... /P/MyProject/</span>
+                    <span class="vfs-path">/P/MyProject/</span>
                 </div>
 
                 <!--
