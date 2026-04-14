@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!--
+=====================================================================
+
+    HEAD
+
+=====================================================================
+-->
+<head>
+    <!-- index.html -->
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Jacob Pichelmeyer, PhD</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+
+	<script src="terminal/interpreters.js"></script>
+    <script src="terminal/terminal.js"></script>
+
+    <!--
+    ==============================================================
+        Style Injector
+    ==============================================================
+    -->
+    <script>
+    
+    	fetch("terminal/terminal.html")
+    		.then(r => r.text())
+    		.then(html => {
+        		const parser = new DOMParser();
+        		const doc = parser.parseFromString(html, 'text/html');
+		
+        		doc.querySelectorAll('style').forEach(el => {
+            		document.head.insertAdjacentHTML('beforeend', el.outerHTML);
+        		});
+		
+        		doc.querySelectorAll('body > *').forEach(el => {
+            		document.body.insertAdjacentHTML('afterbegin', el.outerHTML);
+        		});
+		
+        		if (typeof initTerminal === 'function') initTerminal();
+    		});
+		
+		fetch('style/style.html')
+    		.then(r => r.text())
+    		.then(html => {
+        		document.head.insertAdjacentHTML('beforeend', html);
+    		});
+        
+
+    </script>
+
+</head>
+
+
+
+<!-- 
+═══════════════════════════════════════════════════════
+
+    BODY
+
+═══════════════════════════════════════════════════════════ 
+-->
+<body>
+
+<div class="row">
+	
+  <!-- START: Left sidebar -->
+  <div class="side_left">
+	
+	<div class="portrait">
+		<img src="images/portrait_combined.gif" id="portrait_combined"
+		     style="position:absolute;top:20px;left:20px;z-index:-1;height:160px;"/>
+	</div>
+	<div class="portrait_combined"></div>
+	
+	<div class="name_and_letters">
+		<div class="name_and_letters_name">Jacob Pichelmeyer</div>
+		<div class="name_and_letters_letters">PhD</div>
+	</div>
+	
+    <!-- Typewritter -->
+	<div class="titles">
+		<div class="typer-container">
+			<div class="c1"><div class="type">Computer Scientist</div></div><br>
+            <div class="c1"><div class="type2">Mathematician</div></div><br>
+			<div class="c1"><div class="type3">Educator</div></div>
+		</div>
+	</div>
+    
+    <!-- Navigation outward -->
+	<div class="navbarsocial" color="#ff0000">
+		<a href="https://github.com/jpichelmeyer"><img src="images/social_outline_githublight.png"></a>&nbsp;
+		<a href="https://jpichelmeyer.itch.io/"><img src="images/social_outline_itchiolight.png"></a>&nbsp;
+		<a href="https://www.linkedin.com/in/jacob-pichelmeyer-phd-87274973/"><img src="images/social_outline_linkedinlight.png"></a>&nbsp;
+		<a href="https://www.youtube.com/@jacobpichelmeyer1368"><img src="images/social_outline_youtubelight.png"></a>
+	</div>
+
+
+    <!-- Navigation inward -->	
+    <div class="navbar">
+		<a href="#about"><span>ABOUT</span></a>
+		<a href="#careerPath"><span>CAREER PATH</span></a>
+		<a href="#research"><span>RESEARCH</span></a>
+		<a href="#teaching"><span>TEACHING</span></a>
+	</div>
+  
+	<div class="top-level-machine-os-btn-wrapper">
+	
+		<!--
+		============================================
+			POWER BUTTON
+		============================================
+		-->
+    	<div class="pos-power-wrapper">
+        	<button id="pos-power-btn" title="Boot Pichelmeyer OS (POS)">
+            	<svg viewbox="0 0 24 24">
+                	<path d="M12,21.5C6.75,21.5 2.5,17.25 2.5,12C2.5,7.74 5.33,4.12 9.2,2.96L9.77,4.87C6.54,5.84 4.17,8.85 4.17,12C4.17,16.32 7.68,19.83 12,19.83C16.32,19.83 19.83,16.32 19.83,12C19.83,8.85 17.46,5.84 14.23,4.87L14.8,2.96C18.67,4.12 21.5,7.74 21.5,12C21.5,17.25 17.25,21.5 12,21.5Z" />
+                	<rect x="11.17" y="2" width="1.67" height="10" rx="0.83" />
+            	</svg>
+        	</button>
+    	</div>
+    	
+    	<!--
+		============================================
+			...(other buttons)...
+			 
+		============================================
+		-->
+		
+		
+	</div>
+	
+  </div>
+  <!-- END left-sidebar -->
+  
+  <!-- Main body -->
+  <div class="main">
+	<div class="header"></div>
+	<div class="mainsub">		
+		
+		<!-- ── ABOUT ── -->
+		<a id="about"></a>
+		<br>
+		<div class="main_section">
+			<div class="section_heading_bar bar_about">
+				<div class="page_heading">About</div>
+			</div>
+			<div class="section_body">
+				<p>I'm an academic who is passionate about weaving together ideas from math, computer science, data science, neuroscience, and even game design to explore how intelligence and creativity emerge.</p>
+				<p>Though I started my academic career as an art major, I currently hold a PhD in Mathematics and an advanced degree in Computer Science. This allows me to have fun playing along any number of intellectual axes: whether it's bridging theory to application or fluidly making connections between disciplines.</p>
+				<p>Beyond research, I'm passionate about teaching. I've designed and taught courses ranging from pure mathematics to machine learning to video game design.</p>
+			</div>
+		</div>
+		
+		<div class="section_divider"></div>
+		
+		<!--
+		============================================
+			CAREER PATH 
+		============================================
+		-->
+		<a id="careerPath"></a>
+		<br>
+		<div class="main_section">
+			<div class="section_heading_bar bar_career">
+				<div class="page_heading">Career Path</div>
+			</div>
+			<div class="section_body">
+				<p>You can find a visual of my academic and professional journey thus far in the diagram below!</p>
+				<div class="timeline">
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_arrow"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates">2026-......</div>
+						<div class="timeline_icon"><div class="timeline_icon_dot"></div></div>
+						<div class="timeline_textbox">
+							<div class="timeline_textbox_title">Assistant Professor : Computer Science</div>
+							<div class="timeline_textbox_place">Carthage College</div>
+						</div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates">2024-2026</div>
+						<div class="timeline_icon"><div class="timeline_icon_degree"></div></div>
+						<div class="timeline_textbox">
+							<div class="timeline_textbox_title">Master of Science : Computer Science</div>
+							<div class="timeline_textbox_spec"><i>Specialization: Artificial Intelligence</i></div>
+							<div class="timeline_textbox_place">Georgia Institute of Technology</div>
+						</div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates">2021-2024</div>
+						<div class="timeline_icon"><div class="timeline_icon_dot"></div></div>
+						<div class="timeline_textbox">
+							<div class="timeline_textbox_title">Assistant Professor : Mathematics, Data Science</div>
+							<div class="timeline_textbox_place">Westminster College (MO)</div>
+						</div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates">2016-2021</div>
+						<div class="timeline_icon"><div class="timeline_icon_degree"></div></div>
+						<div class="timeline_textbox">
+							<div class="timeline_textbox_title">Doctor of Philosophy : Mathematics</div>
+							<div class="timeline_textbox_place">Kansas State University</div>
+						</div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates">2012-2016</div>
+						<div class="timeline_icon"><div class="timeline_icon_dot"></div></div>
+						<div class="timeline_textbox">
+							<div class="timeline_textbox_title">Instructor</div>
+							<div class="timeline_textbox_place">Marquette University, MSOE, UW-Milwaukee</div>
+						</div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates">2010-2012</div>
+						<div class="timeline_icon"><div class="timeline_icon_degree"></div></div>
+						<div class="timeline_textbox">
+							<div class="timeline_textbox_title">Master of Science : Mathematics</div>
+							<div class="timeline_textbox_place">University of Wisconsin-Milwaukee</div>
+						</div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates">2008-2020</div>
+						<div class="timeline_icon"><div class="timeline_icon_dot"></div></div>
+						<div class="timeline_textbox">
+							<div class="timeline_textbox_title">Instructor</div>
+							<div class="timeline_textbox_place">Johns Hopkins University : Center for Talented Youth</div>
+						</div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates">2005-2010</div>
+						<div class="timeline_icon"><div class="timeline_icon_degree"></div></div>
+						<div class="timeline_textbox">
+							<div class="timeline_textbox_title">Bachelor of Science : Mathematics</div>
+							<div class="timeline_textbox_place">University of Wisconsin-Oshkosh</div>
+						</div>
+					</div>
+					<div class="timeline_row">
+						<div class="timeline_dates"></div>
+						<div class="timeline_icon"><div class="timeline_icon_tail"></div></div>
+						<div class="timeline_textbox"></div>
+					</div>
+				</div>
+			</div>
+		</div>	
+		
+		<div class="section_divider"></div>
+		
+		<!--
+		============================================
+			Research
+		============================================
+		-->
+		<a id="research"></a>
+		<br>
+		<div class="main_section">
+			<div class="section_heading_bar bar_research">
+				<div class="page_heading">Research</div>
+			</div>
+			<div class="section_body">
+				<p>I'm currently working on projects that involve AI/ML, topological data analysis, neuroscience, creativity, and natural language processing. Additional interests include AI explainability, brain/neuro-inspired AI, cognitive science, interactive computing, knowledge-based AI, mechanistic interpretability, and network science.</p>
+				<p>Below you can find a list of research projects that I have been previously or am currently involved in, in various stages of completion.</p>
+				
+				<div class="taught_course_section_head">Projects</div>
+				<div class="taught_course_section">
+					<div class="research_paper_row">
+						<div class="research_paper_thumbnail research_paper_thumbnail_tda_eeg"></div>
+						<div class="research_paper_text">
+							<div class="research_paper_text_title">Using EEG signal and topological data analysis to detect clamping and unclamping during creative tasks</div>
+							<div class="research_paper_text_authors">Magerko, <b>Pichelmeyer</b>, Shoomali, + 4 more</div>
+							<div class="research_paper_text_journal">In progress</div>
+						</div>
+					</div>
+					<div class="research_paper_row">
+						<div class="research_paper_thumbnail research_paper_thumbnail_tda_llm"></div>
+						<div class="research_paper_text">
+							<div class="research_paper_text_title">Use of topological data analysis to detect emergent behavior in LLMs</div>
+							<div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+							<div class="research_paper_text_journal">In progress</div>
+						</div>
+					</div>
+					<div class="research_paper_row">
+						<div class="research_paper_thumbnail research_paper_thumbnail_tooth"></div>
+						<div class="research_paper_text">
+							<div class="research_paper_text_title">Classification of crocodilia genera using 3D tooth mesh data, geometric feature extraction, and machine learning</div>
+							<div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+							<div class="research_paper_text_journal">In progress</div>
+						</div>
+					</div>
+					<div class="research_paper_row">
+						<div class="research_paper_thumbnail research_paper_thumbnail_cycle_basis"></div>
+						<div class="research_paper_text">
+							<div class="research_paper_text_title">Use of graph theoretic cycle bases as game world design tool</div>
+							<div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+							<div class="research_paper_text_journal">In progress</div>
+						</div>
+					</div>
+					<div class="research_paper_row">
+						<div class="research_paper_thumbnail research_paper_thumbnail_genera_four"></div>
+						<div class="research_paper_text">
+							<div class="research_paper_text_title">Orientable Genera of Knots in 4-Manifolds</div>
+							<div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+							<div class="research_paper_text_journal">Dissertation, Kansas State University 2021</div>
+							<div class="research_paper_text_links">
+								<a href="https://krex.k-state.edu/items/92fcfddc-2688-4b49-8333-8a9a75af133f" style="text-decoration:none;"><div class="research_link research_link_krex">K-REx</div></a>
+							</div>
+						</div>
+					</div>
+					<div class="research_paper_row">
+						<div class="research_paper_thumbnail research_paper_thumbnail_genera"></div>
+						<div class="research_paper_text">
+							<div class="research_paper_text_title">Genera of Knots in the Complex Projective Plane</div>
+							<div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+							<div class="research_paper_text_journal">J. of Knot Theory and Its Ram., 2020</div>
+							<div class="research_paper_text_links">
+								<a href="https://arxiv.org/abs/1912.01787" style="text-decoration:none;"><div class="research_link research_link_arxiv">arXiv</div></a>
+								<a href="https://www.worldscientific.com/doi/abs/10.1142/S0218216520500819" style="text-decoration:none;"><div class="research_link research_link_publisher">publisher</div></a>
+								<a href="https://www.semanticscholar.org/paper/Genera-of-knots-in-the-complex-projective-plane-Pichelmeyer/d574d42d0757749c1d065a078f975876c2127b56" style="text-decoration:none;"><div class="research_link research_link_semantic_scholar">semantic scholar</div></a>
+							</div>
+						</div>
+					</div>
+					<div class="research_paper_row">
+						<div class="research_paper_thumbnail research_paper_thumbnail_para"></div>
+						<div class="research_paper_text">
+							<div class="research_paper_text_title">Using Parametric Mathematical Modeling to Develop a Geometric and Topological Intuition for Molecular Knots</div>
+							<div class="research_paper_text_authors">Tahmineh Azizi, <b>Jake Pichelmeyer</b></div>
+							<div class="research_paper_text_journal">Applied Mathematics, 2020</div>
+							<div class="research_paper_text_links">
+								<a href="https://www.scirp.org/journal/paperinformation?paperid=100804" style="text-decoration:none;"><div class="research_link research_link_publisher">publisher</div></a>
+								<a href="https://www.semanticscholar.org/paper/Using-Parametric-Mathematical-Modeling-to-Develop-a-Azizi-Pichelmeyer/cc707ab21f121b698f2211f8fda5ba21d14ccb2f" style="text-decoration:none;"><div class="research_link research_link_semantic_scholar">semantic scholar</div></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="section_divider"></div>
+		
+		<!--
+		============================================
+			TEACHING
+		============================================
+		-->
+		<a id="teaching"></a>
+		<br>
+		<div class="main_section">
+			<div class="section_heading_bar bar_teaching">
+				<div class="page_heading">Teaching</div>
+			</div>
+			<div class="section_body">
+				
+				<div class="teaching_tag_two_col">
+					<div class="teaching_tag_two_col_left">					
+						<p>
+						Below is a select list of courses that I've taught. 
+						</p>
+						
+						<p>
+						For a confluence of reasons (large number of courses, variety/lack of prefixes, institutional overlap, etc), it has proven challenging to organize this list in a way that is clear at a glance. Thus, the list is organized only loosely in a vertical/sequential sense and is instead made manageable by the inclusion of a variety of decorative and searchable tags that include things such as institution where the course was taught, programming language or software used, etc.
+						</p>
+						
+						<p>
+						A master list of course tags can be found to the right and using CTRL/Command+F should make it easier to parse the list.
+						</p>
+					</div>
+					
+					<div class="teaching_tag_two_col_right">
+						<div class="taught_course_tags_all">
+							<div class="tag tag_carthage">Carthage College</div>
+							<div class="tag tag_ksu">Kansas State University</div>
+							<div class="tag tag_msoe">Milwaukee School of Engineering</div>
+							<div class="tag tag_uwm">UW-Milwaukee</div>
+							<div class="tag tag_westminster">Westminster College</div>
+							<!-- <div class="tag tag_cpp">C++</div> -->
+							<div class="tag tag_csharp">C sharp</div>
+							<div class="tag tag_mathematica">Mathematica</div>
+							<div class="tag tag_matlab">MATLAB</div>
+							<div class="tag tag_octave">Octave</div>
+							<div class="tag tag_python">Python</div>
+							<div class="tag tag_r">R</div>
+							<div class="tag tag_godot">Godot</div>
+							<div class="tag tag_unity">Unity</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="taught_course_section_head">Instructor of Record</div>
+				<div class="taught_course_section">
+					
+					<!-- 
+                    ==========================================================
+                    CSC 1110 Intro to Comp 
+                    ==========================================================
+                    -->
+					<div class="taught_course">
+						<div class="taught_course_title">
+							<a href="courses/course.html?id=csc1110" class="course_link">
+								CSC 1110 : Introduction to Computing
+							</a>
+						</div>
+						<div class="taught_course_tags"><div class="tag tag_carthage">Carthage College</div><div class="tag tag_python">Python</div></div>
+						<div class="taught_course_description">An introduction to the art and science of computer programming for the student without previous programming experience. Topics covered include the historical development of computing, the basic operating principles of computers, and an introduction to problem-solving using one or more high-level computing languages, such as Python. Intended for nonmajors/nonminors.</div>
+					</div>
+					
+					
+                    <!-- 
+                    ==========================================================
+                    CSC 1810 Princ of CS I
+                    ==========================================================
+                    -->
+					<div class="taught_course">
+						<div class="taught_course_title">
+							<a href="courses/course.html?id=csc1810" class="course_link">
+								CSC 1810 : Principles of Computer Science I
+							</a>
+						</div>
+						<div class="taught_course_tags">
+							<div class="tag tag_carthage">Carthage College</div>
+							<div class="tag tag_csharp">C sharp</div>
+						</div>
+						<div class="taught_course_description">A study of the fundamentals of writing computer programs and problem-solving, using structured and object-oriented techniques. Intended for future majors and minors in Computer Science and minors in Game Development.</div>
+					</div>
+					
+					<!-- 
+                    ==========================================================
+                    CSC 2710 Game Dev I
+                    ==========================================================
+                    -->
+					<div class="taught_course">
+						<div class="taught_course_title">
+							<a href="courses/course.html?id=csc2710" class="course_link">
+								CSC 2710 : Game Development I
+							</a>
+						</div>
+						<div class="taught_course_tags"><div class="tag tag_carthage">Carthage College</div>
+                            <div class="tag tag_unity">Unity</div>
+                            <div class="tag tag_csharp">C sharp</div></div>
+						<div class="taught_course_description">Video games are serious work. Reaching far beyond the multibillion-dollar gaming industry, the lessons of video game development increasingly translate to disparate fields requiring simulation, training, and easy-to-use interfaces. This course introduces students to the game development and design process. Students will build games representative of a variety of genres. This is a project-based course.</div>
+					</div>
+					
+					<!-- 
+                    ==========================================================
+                    CSC 3530 AI and Cog
+                    ==========================================================
+                    -->
+					<div class="taught_course">
+						<div class="taught_course_title">
+							<a href="courses/course.html?id=csc3530" class="course_link">
+								CSC 3530 : Artificial Intelligence and Cognitive Modeling
+							</a>
+						</div>
+						<div class="taught_course_tags"><div class="tag tag_carthage">Carthage College</div></div>
+						<div class="taught_course_description">This course explores the primary approaches for developing computer programs that display characteristics we would think of as being intelligent. Students will analyze how intelligent systems are developed and implemented with a focus on exploring how human behavior on cognitive tasks can be used to inform the development of these artificial systems, as well as how the performance and behavior of these artificial systems can inform our understanding of human cognition.</div>
+					</div>
+					
+					<!-- 
+                    ==========================================================
+                    CSC 3730 AI for Sim
+                    ==========================================================
+                    -->
+					<div class="taught_course">
+						<div class="taught_course_title">
+							<a href="courses/course.html?id=csc3730" class="course_link">
+								CSC 3730 : Artificial Intelligence for Simulations
+							</a>
+						</div>
+						<div class="taught_course_tags">
+							<div class="tag tag_carthage">Carthage College</div>
+							<div class="tag tag_godot">Godot</div>
+							<div class="tag tag_python">Python</div>
+						</div>
+						<div class="taught_course_description">Explore the fundamental AI algorithms used in simulations and game development. This course covers techniques like pathfinding, decision trees, behavior trees, finite state machines, and machine learning. Students will apply these algorithms to create more dynamic, responsive, and intelligent virtual environments. Ideal for those interested in game design, simulations, and AI programming.</div>
+					</div>
+					
+					<!-- HON 150/250 Games for Good -->
+					<div class="taught_course">
+						<div class="taught_course_title">HON 150/250 : Games for Good</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_godot">Godot</div></div>
+						<div class="taught_course_description">A study of the design and development of video games and their ability to act as agents of positive social change. Students will learn and practice several cycles of iterative design over three major projects, starting with paper prototypes and culminating in a playable digital game. Digital development will be done using the Godot game engine.</div>
+					</div>
+					
+					<!-- MAT 114 Elementary Statistics -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 114 : Elementary Statistics</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_r">R</div></div>
+						<div class="taught_course_description">A study of the organization and analysis of data including the normal, binomial, chi squared and t-distributions; estimating population parameters; hypothesis testing; random sampling; central limit theorem; and simple linear regression and correlation. A term project using technology for analysis and testing of data collected from real life is a required component of the course. Students will complete their homework assignments and projects using the statistical language R.</div>
+					</div>
+					
+					<!-- MAT 115 Fundamentals of Data Science -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 115 : Fundamentals of Data Science</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_python">Python</div><div class="tag tag_r">R</div></div>
+						<div class="taught_course_description">The focus of this course is to introduce the scientific methods and processes used to analyze large data sets and generate predictive models. Underlying theories of statistics will be utilized to explore, interpret, and visualize data in interdisciplinary fields such as health, business, education, and economics. Students will be introduced to the R and Python programming languages.</div>
+					</div>
+					
+					<!-- MAT 124 Calculus I -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 124 : Calculus I</div>
+						<div class="taught_course_tags"><div class="tag tag_uwm">UW-Milwaukee</div><div class="tag tag_westminster">Westminster College</div><div class="tag tag_mathematica">Mathematica</div></div>
+						<div class="taught_course_description">A formal introduction to calculus, including limits, derivatives, techniques of differentiation, optimization, anti-derivatives, definite integrals, the fundamental theory of calculus and integration by substitution. Applications in science and engineering are included.</div>
+					</div>
+					
+					<!-- MAT 214 Calculus II -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 214 : Calculus II</div>
+						<div class="taught_course_tags"><div class="tag tag_uwm">UW-Milwaukee</div><div class="tag tag_westminster">Westminster College</div></div>
+						<div class="taught_course_description">A continuation of MAT 124. This course includes integration of standard forms (integration by parts, trigonometric substitution, etc), the definite integral, applications of integration, and the study of sequences and series.</div>
+					</div>
+					
+					<!-- MAT 215 Linear Algebra -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 215 : Linear Algebra</div>
+						<div class="taught_course_tags">
+							<div class="tag tag_westminster">Westminster College</div>
+							<div class="tag tag_python">Python</div>
+						</div>
+						<div class="taught_course_description">An introduction to the concepts of linear transformations and matrices, determinants, vector spaces, eigenvalues, and selected applications in data science. This course will use the programming language Python extensively.</div>
+					</div>
+					
+					<!-- MAT 300 Machine Learning -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 300 : Machine Learning</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_python">Python</div></div>
+						<div class="taught_course_description">This course will cover the mathematical concepts, models and conceptual theories used in modern machine learning algorithms such as linear regression, principal component analysis, and neural networks. Students will learn how to train and test a variety of machine learning models and assess the weaknesses and strengths of each. Students will use Python for all their homework assignments and projects.</div>
+					</div>
+					
+					<!--  -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 305 : Heart of Mathematics</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div></div>
+						<div class="taught_course_description">A semester-long discussion of the major ideas in modern mathematics, along with a cascade of their applications across a wide range of scientific and cultural fields. Throughout the course, these ideas are woven together into a unified framework of mathematical thinking and problem solving.</div>
+					</div>
+					
+					<!-- MAT 312 Differential Equations -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 312 : Differential Equations</div>
+						<div class="taught_course_tags">
+							<div class="tag tag_ksu">KSU</div>
+							<div class="tag tag_msoe">MSOE</div>
+							<div class="tag tag_westminster">Westminster</div>
+							<div class="tag tag_matlab">MATLAB</div>
+							<div class="tag tag_octave">Octave</div>
+							<div class="tag tag_python">Python</div>
+						</div>
+						<div class="taught_course_description">A study of ordinary differential equations (ODEs). Students will learn techniques from three different toolboxes: geometric, numerical, and analytical. In some semesters, projects will be completed using the Python programming language. In other semesters, students will use MATLAB/Octave to complete assignments. The final segment of the course explores an application of modern machine learning to ODE problem solving.</div>
+					</div>
+					
+					<!--  -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 321 : Discrete Mathematics and Graph Theory</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_python">Python</div></div>
+						<div class="taught_course_description">This course provides an introduction to an area of mathematics focused on discrete rather than continuous mathematical structures. Topics explored in this course include graph theory, tree traversal, logic, proofs, algorithms, set theory, functions, and recursion. Network science will be a particular focus of this course. Projects and homework will use the Python package NetworkX extensively. This course prepares students for advanced study in mathematics and computer science.</div>
+					</div>
+					
+					<!--  -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 331 : Mathematics Seminar</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div></div>
+						<div class="taught_course_description">A study of the logical foundations of mathematics, including natural deductions and formal proof writing. This course prepares students for more advanced proof-based mathematics courses such as Modern Algebra and Advanced Calculus.</div>
+					</div>
+					
+					<!--  -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 398 : Data Justice</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_python">Python</div><div class="tag tag_r">R</div></div>
+						<div class="taught_course_description">We explore the use of data in various aspects of the justice system, from predictive policing to sentence guiding. In particular, we examine how data can be used both intentionally and unintentionally to reinforce social inequalities.</div>
+					</div>
+					
+					<!--  -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 398 : Game Data Science</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_godot">Godot</div></div>
+						<div class="taught_course_description">We examine the ways that game systems collect data from players and the range of possibilities for game developers to use that data to improve the player experience.</div>
+					</div>
+					
+					<!-- MAT 398 Healthcare Machine Learning -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 398 : Healthcare Machine Learning</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_python">Python</div><div class="tag tag_r">R</div></div>
+						<div class="taught_course_description">We investigate how machine learning is being applied to modern healthcare. We pay particular attention to the use of supervised learning for diabetes type detection and the use of convolutional neural networks for detecting whether masses are benign or cancerous.</div>
+					</div>
+					
+					<!-- MAT 398 Soccer Analytics -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 398 : Soccer Analytics</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_python">Python</div></div>
+						<div class="taught_course_description">We investigate the application of several techniques from topological data analysis to the sport of soccer. Special attention is paid to the Mapper algorithm and the way it is able to highlight previously unexplored player roles.</div>
+					</div>
+					
+					<!-- MAT 411 Data Science Seminar -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 411 : Data Science Seminar</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_python">Python</div><div class="tag tag_r">R</div></div>
+						<div class="taught_course_description">This is a capstone course for majors. Each individual in the class carries out research under the supervision of the instructor in large-scale data analysis using statistical knowledge and computational techniques learned in previous courses. Literature review, regular meetings, progress reports, and a final paper and presentation are required. Topics may be chosen from interdisciplinary fields including, but not limited to: computer science, biology, psychology, engineering, sports analysis, and business.</div>
+					</div>
+					
+					<!-- MAT 422 Modern Algebra -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 422 : Modern Algebra</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div></div>
+						<div class="taught_course_description">A study of the axiomatic development of algebraic structures, including groups, rings, and modules, with selected introductions to topics chosen by instructor.</div>
+					</div>
+					
+					<!-- MAT 424 Advanced Calculus -->
+					<div class="taught_course">
+						<div class="taught_course_title">MAT 424 : Advanced Calculus</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div></div>
+						<div class="taught_course_description">This course is a rigorous study of the foundations of calculus with emphasis on limits, continuity, differentiation, and Riemann integration. Through the reexamination of these topics, students learn proof techniques which are fundamental to the mathematical field of analysis.</div>
+					</div>
+					
+					<!-- MTH 2130 Calculus III -->
+					<div class="taught_course">
+						<div class="taught_course_title">MTH 2130 : Calculus III</div>
+						<div class="taught_course_tags"><div class="tag tag_ksu">Kansas State University</div><div class="tag tag_msoe">Milwaukee School of Engineering</div><div class="tag tag_uwm">UW-Milwaukee</div></div>
+						<div class="taught_course_description">This course focuses on multivariable and vector calculus. Topics include vector-valued functions and their calculus, functions of several variables, partial differentiation, multiple integration, line and surface integrals, integration in vector fields including Green's, Stokes', and the Divergence theorems.</div>
+					</div>
+					
+					<!-- WSM 101 Mathematics of Video Games -->
+					<div class="taught_course">
+						<div class="taught_course_title">WSM 101 : Mathematics of Video Games</div>
+						<div class="taught_course_tags"><div class="tag tag_westminster">Westminster College</div><div class="tag tag_godot">Godot</div></div>
+						<div class="taught_course_description">Students are exposed to the myriad ways in which mathematics is used to design and develop video games. Students will engage in the iterative design life cycle and present a final working digital project at the end of the course.</div>
+					</div>
+					
+					<!-- Cryptology -->
+					<div class="taught_course">
+						<div class="taught_course_title">Cryptology</div>
+						<div class="taught_course_tags"><div class="tag tag_jhu">Johns Hopkins University CTY</div></div>
+						<div class="taught_course_description">Cryptology is the study of the codes and ciphers used to create secret writing. This math course explores many early techniques in cryptology, such as cipher wheels, the Caesar shift, polyalphabetic substitution, and the Vigenère cipher, as well as modern techniques like RSA public key cryptography. You and your classmates will learn how data transmitted by computers can be secured with digital encryption, and how the vulnerabilities of each encryption system enable hackers to attack and decrypt messages using techniques such as frequency analysis and cribbing. You'll apply concepts while encrypting and decrypting your own secret messages. Though the course's central focus is on the mathematics of cryptology, you'll also learn the historical context of cryptography and cryptographic devices like the Enigma Machine—one of the most important cryptographic devices in history—so you develop a deep understanding of this branch of mathematics and its applications in the world.</div>
+					</div>
+					
+					<!-- Mathematical Logic -->
+					<div class="taught_course">
+						<div class="taught_course_title">Mathematical Logic</div>
+						<div class="taught_course_tags"><div class="tag tag_jhu">Johns Hopkins University CTY</div></div>
+						<div class="taught_course_description">Have you ever wondered what real mathematicians spend their time doing? This course will teach you the art of proving and disproving conjectures, and techniques for writing formal proofs and counterexamples. You'll learn key concepts of logic, including validity, soundness, consistency, and satisfiability, and techniques for developing systems of logic in formal symbolic languages. You'll test the validity of arguments, write precise formal proofs, and explore the rules of grammar and meanings behind the symbols. Then you and your classmates will engage in the process of metalogic, or reasoning logically about a system of logic. You'll examine soundness and completeness, and along the way, you'll become proficient at writing proofs accurately and rigorously, a skill essential to career mathematicians. Most importantly, you'll develop strong problem-solving skills and learn to think analytically—traits vital for rigorous inquiry in any field.</div>
+					</div>
+					
+					<!-- Principles of Engineering Design -->
+					<div class="taught_course">
+						<div class="taught_course_title">Principles of Engineering Design</div>
+						<div class="taught_course_tags"><div class="tag tag_jhu">Johns Hopkins University CTY</div></div>
+						<div class="taught_course_description">Humanity's unending quest to find the most efficient and cost-effective means to make life better has created engineering marvels, from the world's tallest tower, the Burj Khalifa in Dubai, to the world's fastest commercial train, the Shanghai Maglev. In this course, you and your classmates will work primarily in teams to solve real-world and simulated engineering problems. You'll use mathematical knowledge, scientific thinking, and engineering design skills while analyzing how composite materials are used to make modern vehicles lighter and stronger; how innovations in energy technology make electric vehicles more efficient and viable; and how bridges are made to withstand extreme stress and wind pressure. You'll design, construct, and test your own working models and prototypes of amphibious vehicles, solar-powered cars, bridges, or skyscrapers. As part of the engineering design process, you'll weigh economic and ethical considerations along with technological ones and submit written technical reports, and leave the class with a broader view of the field of engineering and the day-to-day work of engineers.</div>
+					</div>
+					
+					<!-- Topology -->
+					<div class="taught_course">
+						<div class="taught_course_title">Topology</div>
+						<div class="taught_course_tags"><div class="tag tag_jhu">Johns Hopkins University CTY</div></div>
+						<div class="taught_course_description">Topology is the mathematical study of shapes and space that considers questions such as, "What objects that visually seem quite different share the same properties?" One of the major fields of mathematics, topology possesses wide-ranging applications and beautiful theorems with far-reaching consequences. This course will introduce you and your classmates to point-set topology as you delve into bizarre notions of "space" and develop skills with rigorous, proof-based mathematics. You'll begin by tackling the core concepts of sets, topologies, and continuous mappings before moving on to topological invariants such as compactness, connectedness, and the separation axioms. With these tools in hand, you will explore how to deform shapes and spaces without altering their fundamental properties. This knowledge allows you to see why it took 100 years for mathematicians to prove Poincaré's 1904 conjecture about the nature of a sphere. Finally, you'll survey different applications of topology, such as how the study of knots influenced our understanding of proteins, or how the study of manifolds led scientists to a deeper understanding of the topological shape of the universe.</div>
+					</div>
+				</div>
+				
+				<div class="taught_course_section_head">Teaching Assistant</div>
+				<div class="taught_course_section">
+				
+					<!-- Network Science -->
+					<div class="taught_course">
+						<div class="taught_course_title">CS 7280 : Network Science</div>
+						<div class="taught_course_tags"><div class="tag tag_gt">Georgia Institute of Technology</div><div class="tag tag_python">Python</div></div>
+						<div class="taught_course_description">Network science is a relatively new discipline that investigates the topology and dynamics of such complex networks, aiming to better understand the behavior, function and properties of the underlying systems. The applications of network science cover physical, informational, biological, cognitive, and social systems. In this course, we will study algorithmic, computational, and statistical methods of network science, as well as various applications in social, communication and biological networks. A significant component of the course will focus on the overlap between machine learning and network science, covering methods for network inference, generative network models, graph embeddings using deep neural networks, and other state of the art topics.</div>
+					</div>
+					
+					<!-- Applied Matrix Theory -->
+					<div class="taught_course">
+						<div class="taught_course_title">MATH 551 : Applied Matrix Theory</div>
+						<div class="taught_course_tags"><div class="tag tag_ksu">Kansas State University</div><div class="tag tag_matlab">MATLAB</div></div>
+						<div class="taught_course_description">This course starts from a study of matrix algebra and elementary row operations to find solutions for systems of linear equations. This technique is used in the discussion of vector spaces, the eigenvalue problem, least squares, quadratic forms and linear programming. The course is taught from the perspective of imparting skill in the use of the basic concepts of matrix theory.</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	
+	<div class="footer">
+		<p><img src="images/icon_copyrightlight.png" style="width:10px"> 2026 This work is licensed under a Creative Commons Attribution-Noncommercial-Noderivatives 4.0 International License</p>
+		<p>Website created, maintained by Jacob Pichelmeyer</p>
+	</div>
+  
+  </div>
+  
+</div>
+
+
+    <script>
+
+        /*
+        =======================================================
+
+            Global vars
+
+        =======================================================
+        */
+
+        
+        function reloadCSS(){
+            var links = document.getElementsByTagName("link");
+            for(var cl in links){
+                var link = links[cl];
+                if(link && link.rel === "stylesheet"){ link.href += ""; }
+            }
+        }
+        
+
+        function updatePage(){
+            reloadCSS();
+        }
+        
+        updatePage();
+        
+
+    </script>
+
+</body>
+
+
+</html>

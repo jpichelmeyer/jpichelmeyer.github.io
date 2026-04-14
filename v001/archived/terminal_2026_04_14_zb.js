@@ -1,6 +1,11 @@
-// terminal.js
-// Depends on: interpreters.js (must be loaded first)
-// s<script src="terminal/interpreters.js"></script>  <!-- or ./interpreters.js on index.html -->
+/*
+	v001/terminal/terminal.js
+*/
+/*
+	Behavior for the terminal (CLI and text editor) developed for v001/.
+	
+	Depends on interpreter.js for python/csharp interpretation.
+*/
 
 (function () {
 
@@ -36,6 +41,7 @@
     const cliColorPOS   = "#c2ff8a";
     const cliColorCmd   = '#f1f1f1';
     const cliColorOut   = '#999999';
+    const cliNoticeHelp = "type 'help' (and press 'enter') for list of available commands";
 
     // ── Helpers ─────────────────────────────────────────────────────
     function printToCli(text, color = cliColorPOS) {
@@ -140,8 +146,9 @@
 
             case 'logo': {
                 clearCli();
-                printToCli(logoArt);
+                printToCli(logoArt, cliColorOut);
                 printToCli(cliOsTitle);
+                printToCli(cliNoticeHelp, cliColorOut);
                 printToCli();
                 break;
             }
@@ -185,7 +192,13 @@
 
         const drawer   = document.getElementById('computer-drawer');
         const powerBtn = document.getElementById('pos-power-btn');
+        const addBtn = document.getElementById('add-file-btn');
 
+		/*
+		==================================================
+			powerBtn <-- Add Logic
+		==================================================
+		*/
         if (powerBtn && drawer) {
             
             /*
@@ -201,7 +214,26 @@
                 }
             };
         }
+        
+        /*
+		==================================================
+			addBtn <-- Add Logic
+		==================================================
+		*/
+		addBtn.onclick = () => {
+            const name = prompt("Enter filename (e.g. test.cs):");
+            if (name && !myProject[name]) {
+                myProject[name] = "// New file";
+                currentFile = name;
+                updateUI();
+            }
+        };
 
+		/*
+		==================================================
+			enterKey <-- Add Logic
+		==================================================
+		*/
         if (input) {
             input.onkeydown = e => {
                 if (e.key === 'Enter') {
@@ -214,6 +246,22 @@
         /* printToCli(, cliColorPOS); */
         updateUI();
         handleCommand('logo');
+    }
+    
+    function updateUI() {
+        tabs.innerHTML = "";
+        Object.keys(myProject).forEach(name => {
+            const btn = document.createElement('button');
+            btn.textContent = name;
+            btn.style.cssText = `
+                padding: 5px 10px; border:none; cursor:pointer; font-size:11px;
+                background: ${name === currentFile ? '#fff' : '#ccc'};
+                border-bottom: ${name === currentFile ? 'none' : '1px solid #999'};
+            `;
+            btn.onclick = () => switchFile(name);
+            tabs.appendChild(btn);
+        });
+        editor.value = myProject[currentFile];
     }
 
     // Expose so pages can call it after injecting the HTML, or just

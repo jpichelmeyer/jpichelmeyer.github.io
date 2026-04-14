@@ -1,4 +1,9 @@
-<!-- terminal.html — included via fetch+innerHTML in each page -->
+<!--
+	v001/terminal/terminal.html
+-->
+<!--
+	Styling for the terminal (CLI and text editor) developed for v001/.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,8 +16,24 @@
     <script src="terminal/interpreters.js"></script>  <!-- or ./interpreters.js on index.html -->
 
     <style>
-
-        
+    
+    	/*
+    	.computer-drawer
+                .computer-container
+                	.vfs-main
+                		.vfs-header
+                			.vfs-path
+                		.vfs-toolbar
+                		.vfs-window
+                			.cli-win
+                				.cli-header
+                				.cli-output
+                				.cli-input-area
+                			.editor-win
+                				vfs-editor
+                				.vfs-toolbar
+                					.file-tabs
+    	*/
 
         /*
         ========================================================
@@ -29,7 +50,7 @@
             height: 100vh;
             background: var(--color_wrap);
             /* Lower than sidebar (usually 10+), higher than main content */
-            z-index: 0; 
+            z-index: 10; 
             transform: translateX(-100%);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
@@ -269,17 +290,18 @@
     </style>
 </head>
 
+
 <body>
     <div id="computer-drawer">
         <div id="computer-container">           
             <div class="vfs-main">
-                
+
                 <!--
                 ========================================================
                     Command Line Interface
                 ========================================================
                 --> 
-                <div class="vfs-window cli-win">
+                <div class="vfs-window cli-win"> <!-- This is a style combination. Intentional? -->
                     
                     <!--
                     SHELL HEADER
@@ -297,7 +319,7 @@
                     -->
                     <div class="cli-input-area">
                         <span class="prompt">/MyProject/ $&gt; </span>
-                        <input type="text" id="cli-input" autocomplete="off" spellcheck="false">
+                        <input type="text" id="cli-input" autocomplete="off" spellcheck="false">                    	
                     </div>
                 
                 </div>
@@ -308,7 +330,7 @@
                 ========================================================
                 -->
                 <div class="vfs-header">
-                    <span class="vfs-path">.... /P/MyProject/</span>
+                    <span class="vfs-path">/MyProject/</span>
                 </div>
 
                 <!--
@@ -320,6 +342,7 @@
                 <div class="vfs-window editor-win">
                     <div class="vfs-toolbar">
                         <div id="file-tabs"></div>
+                        <button id="add-file-btn">+ New</button>	<!-- Previously missing -->
                     </div>
                     <textarea id="vfs-editor" spellcheck="false"></textarea>
                 </div>
@@ -332,7 +355,7 @@
             </div>
         </div>
     </div>
-</bodye>
+</body>
 
 </html>
 
