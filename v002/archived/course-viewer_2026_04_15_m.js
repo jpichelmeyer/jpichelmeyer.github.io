@@ -17,7 +17,7 @@
 export const APP_REGISTRATION = {
 
 	courseViewer: {
-        id:      'courseViewer',
+        id:      'course-viewer',
         label:   'Course Viewer',
         icon:    'x',
         svg: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="-9 -7 64 64" enable-background="new 0 0 50 50" xml:space="preserve"><g><path fill-rule="evenodd" clip-rule="evenodd" d="M23.289,31.806c-0.263,4.368,1.373,6.376,3.516,7.718   c0.167,1.237,0.161,2.323-0.643,3.361c-1.026,1.324-2.811,1.916-4.328,2.509l1.009,2.584c2.081-0.812,4.081-1.552,5.511-3.399   c0.777-1.002,1.242-2.184,1.311-3.592c3.541,1.649,4.009,2.574,4.096,6.291l2.769-0.065c-0.126-5.289-1.13-6.624-5.938-8.855   c-2.381-1.104-4.806-2.229-4.527-6.538c1.522-0.264,2.895-0.966,3.985-1.97c1.925,1.916,3.665,2.139,5.596,1.982   c0.857-0.07,1.707-0.21,2.562-0.301c0.033,2.151-1.211,3.036-2.718,4.313l1.792,2.117c2.232-1.89,3.753-3.347,3.698-6.469   c1.106,0.115,2.092,0.437,3.15,0.744l0.771-2.66c-3.062-0.888-4.589-1.115-7.833-0.697c-2.148,0.271-3.674,0.506-5.322-1.262   c0.543-1.07,0.85-2.28,0.85-3.562c0-1.081-0.219-2.112-0.613-3.05c2.459-2.415,5.865-0.25,7.88,1.625   c3.978,3.703,5.724,2.967,10.136,0.329l-1.423-2.377c-2.989,1.787-4.036,2.614-6.936-0.087c2.146-2.499,1.617-5.171,0.907-8.107   l-2.693,0.652c0.472,1.946,1.124,4.028-0.372,5.71c-2.726-1.727-6.399-2.32-9.031-0.098c-0.666-0.687-1.403-1.247-2.269-1.672   c1.05-3,0.537-4.637,1.031-7.352c2.215-1.329,4.333-1.655,6.872-1.824l-0.184-2.769c-2.845,0.19-5.14,0.579-7.661,1.955   c-1.909-1.978-3.666-2.966-6.205-4.009l-1.053,2.562c2.291,0.942,3.817,1.781,5.496,3.625c-0.468,2.604,0.016,4.299-0.971,7.045   c-1.591-0.159-3.185,0.163-4.588,0.936c-0.345-3.07-0.865-7.147-3.631-9.023c0.022-1.892,0.409-3.744,0.755-5.596l-2.725-0.51   c-0.367,1.961-0.756,3.91-0.798,5.911c-1.544,0.646-2.938,1.844-4.248,2.878l1.716,2.172c1.081-0.854,2.484-2.088,3.759-2.552   c2.135,1.5,2.378,6.572,2.621,8.954c-0.229,0.311-0.437,0.64-0.619,0.984c-3.205-0.901-4.949,0.237-6.693,1.375   c-0.608,0.397-1.219,0.794-1.859,1.02c-3.373-0.394-3.203-4.43-3.223-7.001l-2.768,0.022c0.03,3.681,0.264,8.229,4.484,9.502   c-0.598,2.014-1.9,2.367-3.2,2.719c-0.767,0.205-1.513,0.448-2.269,0.686l0.836,2.649c0.715-0.225,1.424-0.459,2.149-0.654   c2.299-0.621,4.598-1.245,5.366-5.485c0.739-0.316,1.367-0.726,1.995-1.135c1.181-0.772,2.363-1.542,4.337-1.05   c-0.168,1.276-0.022,2.588,0.428,3.794c-4.785,1.771-6.168,6.239-7.475,10.471c-0.28,0.905-0.555,1.798-0.862,2.631   c-1.147,0.578-2.138,1.027-3.47,0.746c-1.479-0.312-2.608-1.415-3.722-2.368L0,40.398c1.544,1.321,2.876,2.537,4.96,2.976   c0.64,0.135,1.298,0.178,1.98,0.114c-0.808,0.772-1.672,0.99-2.683,1.367l0.968,2.595c2.035-0.759,3.3-1.208,4.657-3.109   c1.224-1.715,1.914-3.946,2.624-6.244c1.151-3.727,2.372-7.671,6.284-8.849C19.949,30.57,21.558,31.488,23.289,31.806    M24.716,21.401c1.465,0,2.653,1.188,2.653,2.654c0,1.465-1.188,2.653-2.653,2.653c-1.465,0-2.654-1.188-2.654-2.653   C22.063,22.59,23.251,21.401,24.716,21.401z"/></svg>`,
@@ -185,6 +185,59 @@ class CourseViewer {
         pane.innerHTML = '';
 
         const grid = mk('div', 'cv-grid');
+		
+		/*
+		let courseKeys = Object.keys(this.courses);
+		courseKeys.sort();
+		
+		for(i=0; i<courseKeys.length; i++){
+			courseKey = courseKeys[i];
+			course = this.courses[courseKey];
+			const card = mk('button', 'cv-course-icon');
+            card.style.setProperty('--cv-accent', course._accent);
+
+            card.innerHTML = `
+                <div class="cv-icon-folder">
+                    <div class="cv-icon-tab"></div>
+                    <div class="cv-icon-body">
+                        <div class="cv-icon-code">${"test"}</div>
+                    </div>
+                </div>
+                <div class="cv-icon-label">${"test2"}</div>
+            `;
+
+            card.addEventListener('click', () => this._openCourse(course));
+            grid.appendChild(card);
+		}
+		*/
+		
+		/*
+		const coursesOrdered = Object.keys(this.courses).sort().reduce(
+  			(obj, key) => { 
+    			obj[key] = this.courses[key]; 
+    			return obj;
+  			}, 
+  			{}
+		);
+		
+		Object.values(this.coursesOrdered).forEach(course => {
+            const card = mk('button', 'cv-course-icon');
+            card.style.setProperty('--cv-accent', course._accent);
+
+            card.innerHTML = `
+                <div class="cv-icon-folder">
+                    <div class="cv-icon-tab"></div>
+                    <div class="cv-icon-body">
+                        <div class="cv-icon-code">${course.pre_num || course._id}</div>
+                    </div>
+                </div>
+                <div class="cv-icon-label">${course.title_short || course.title || course._id}</div>
+            `;
+
+            card.addEventListener('click', () => this._openCourse(course));
+            grid.appendChild(card);
+        });
+        */
         
         // 1. Properly sort the keys based on your criteria (e.g., sort numerically)
 		const sortedKeys = Object.keys(this.courses).sort((a, b) => a.localeCompare(b));
@@ -212,6 +265,26 @@ class CourseViewer {
     		grid.appendChild(card);
 		});
 		
+		/*
+        Object.values(this.courses).forEach(course => {
+            const card = mk('button', 'cv-course-icon');
+            card.style.setProperty('--cv-accent', course._accent);
+
+            card.innerHTML = `
+                <div class="cv-icon-folder">
+                    <div class="cv-icon-tab"></div>
+                    <div class="cv-icon-body">
+                        <div class="cv-icon-code">${course.pre_num || course._id}</div>
+                    </div>
+                </div>
+                <div class="cv-icon-label">${course.title_short || course.title || course._id}</div>
+            `;
+
+            card.addEventListener('click', () => this._openCourse(course));
+            grid.appendChild(card);
+        });
+        */
+        
 
         pane.appendChild(grid);
     }
@@ -446,100 +519,99 @@ class CourseViewer {
         this._renderLesson(course, lesson);
     }
 
-	_renderLesson(course, lesson) {
-    	const pane = this._paneEl;
-    	pane.innerHTML = '';
-    	const beats = lesson.beats || [];
-    	let activeBeat = 0;
-	
-    	const shell = mk('div', 'cv-lesson-shell');
-    	shell.style.setProperty('--cv-accent', course._accent);
-	
-    	const layout = mk('div', 'cv-lesson-layout');
-    	
-    	// 1. Sidebar
-    	const sidePanel = mk('div', 'cv-lesson-sidebar');
-    	const strip = mk('div', 'cv-lesson-strip');
-    	sidePanel.appendChild(strip);
-	
-    	// 2. Content Area
-    	const contentArea = mk('div', 'cv-lesson-content');
-    	const visual = mk('div', 'cv-lesson-visual');
-    	const resizer = mk('div', 'cv-resizer');
-    	const beatText = mk('div', 'cv-lesson-text');
-    	
-    	// 3. Nav Bar
-    	const navBar = mk('div', 'cv-lesson-nav');
-    	const prevBtn = mk('button', 'cv-nav-btn'); prevBtn.innerHTML = '‹';
-    	const nextBtn = mk('button', 'cv-nav-btn'); nextBtn.innerHTML = '›';
-    	const counter = mk('span', 'cv-nav-counter');
-    	navBar.append(prevBtn, counter, nextBtn);
-	
-    	contentArea.append(visual, resizer, beatText, navBar);
-    	layout.append(sidePanel, contentArea);
-    	shell.appendChild(layout);
-    	pane.appendChild(shell);
-	
-    	// --- Resizer Logic ---
-    	let isResizing = false;
-    	resizer.addEventListener('mousedown', () => isResizing = true);
-    	document.addEventListener('mouseup', () => isResizing = false);
-    	document.addEventListener('mousemove', (e) => {
-        	if (!isResizing) return;
-        	const bounds = contentArea.getBoundingClientRect();
-        	let val = ((e.clientY - bounds.top) / bounds.height) * 100;
-        	if (val > 10 && val < 85) visual.style.flex = `0 0 ${val}%`;
-    	});
-	
-    	// --- Select Beat Logic ---
-    	const selectBeat = (i) => {
-        	activeBeat = i;
-        	const beat = beats[i];
-        	if (!beat) return;
-	
-        	// Reset display states
-        	visual.classList.remove('hidden');
-        	resizer.classList.remove('hidden');
-        	visual.style.display = 'flex'; // Ensure it's visible
-	
-        	// Apply Height Rules
-        	if (beat.type === 'text_only') {
-            	visual.classList.add('hidden');
-            	resizer.classList.add('hidden');
-            	visual.style.display = 'none';
-        	} else if (beat.type === 'quiz') {
-            	visual.style.flex = "0 0 70%"; 
-        	} else {
-            	visual.style.flex = "0 0 45%";
-        	}
-	
-        	beatText.innerHTML = beat.text || '<em class="cv-beat-empty">No content.</em>';
-        	_renderBeatVisual(visual, beat);
-	
-        	// UI Updates
-        	counter.textContent = `${i + 1} / ${beats.length}`;
-        	prevBtn.disabled = i === 0;
-        	nextBtn.disabled = i === beats.length - 1;
-	
-        	strip.querySelectorAll('.cv-pill').forEach((p, j) => p.classList.toggle('active', j === i));
-        	if (window.MathJax) MathJax.typesetPromise([beatText]);
-    	};
-	
-    	// --- Create Sidebar Pills ---
-    	beats.forEach((beat, i) => {
-        	const info = beatInfo(beat.type);
-        	const pill = mk('button', 'cv-pill');
-        	pill.style.setProperty('--pill-color', info.color);
-        	pill.innerHTML = `<div class="cv-pill-num">${i + 1}</div>`;
-        	pill.addEventListener('click', () => selectBeat(i));
-        	strip.appendChild(pill);
-    	});
-	
-    	prevBtn.onclick = () => selectBeat(activeBeat - 1);
-    	nextBtn.onclick = () => selectBeat(activeBeat + 1);
-	
-    	selectBeat(0);
-	}
+    _renderLesson(course, lesson) {
+        const pane = this._paneEl;
+        pane.innerHTML = '';
+
+        const beats = lesson.beats || [];
+
+        // State
+        let activeBeat = beats.length ? 0 : -1;
+
+        // ── Shell ──
+        const shell = mk('div', 'cv-lesson-shell');
+        shell.style.setProperty('--cv-accent', course._accent);
+
+        // Visual area (top)
+        const visual = mk('div', 'cv-lesson-visual');
+        const beatText = mk('div', 'cv-lesson-text');
+        
+        // Strip (bottom, horizontal scrollable pills)
+        const strip = mk('div', 'cv-lesson-strip');
+
+        // Nav arrows
+        const navBar = mk('div', 'cv-lesson-nav');
+        const prevBtn = mk('button', 'cv-nav-btn');
+        prevBtn.innerHTML = '‹ Prev';
+        const nextBtn = mk('button', 'cv-nav-btn');
+        nextBtn.innerHTML = 'Next ›';
+        const counter = mk('span', 'cv-nav-counter');
+
+        navBar.appendChild(prevBtn);
+        navBar.appendChild(counter);
+        navBar.appendChild(nextBtn);
+
+        shell.appendChild(visual);
+        shell.appendChild(beatText);
+        shell.appendChild(navBar);
+        shell.appendChild(strip);
+
+        pane.appendChild(shell);
+
+        if (!beats.length) {
+            visual.innerHTML   = '<div class="cv-beat-placeholder">No beats in this lesson.</div>';
+            beatText.innerHTML = '';
+            return;
+        }
+
+        // ── Build strip pills ──
+        beats.forEach((beat, i) => {
+            const info    = beatInfo(beat.type);
+            const keyword = _beatKeyword(beat);
+            const pill    = mk('button', 'cv-pill');
+            pill.style.setProperty('--pill-color', info.color);
+            pill.title = `${info.label}: ${keyword}`;
+            pill.innerHTML = `
+                <div class="cv-pill-num">${i + 1}</div>
+                <div class="cv-pill-label">${keyword}</div>
+            `;
+            pill.addEventListener('click', () => selectBeat(i));
+            strip.appendChild(pill);
+        });
+
+        // ── Beat selector ──
+        function selectBeat(i) {
+            activeBeat = i;
+            const beat = beats[i];
+
+            // Update text
+            beatText.innerHTML = beat.text || '<em class="cv-beat-empty">No text for this beat.</em>';
+
+            // Update visual
+            _renderBeatVisual(visual, beat);
+
+            // Update nav
+            counter.textContent = `${i + 1} / ${beats.length}`;
+            prevBtn.disabled = i === 0;
+            nextBtn.disabled = i === beats.length - 1;
+
+            // Highlight pill
+            strip.querySelectorAll('.cv-pill').forEach((p, j) => {
+                p.classList.toggle('active', j === i);
+            });
+            strip.querySelectorAll('.cv-pill')[i]?.scrollIntoView({
+                behavior: 'smooth', inline: 'nearest', block: 'nearest'
+            });
+
+            if (window.MathJax) MathJax.typesetPromise([beatText]);
+        }
+
+        prevBtn.addEventListener('click', () => { if (activeBeat > 0) selectBeat(activeBeat - 1); });
+        nextBtn.addEventListener('click', () => { if (activeBeat < beats.length - 1) selectBeat(activeBeat + 1); });
+
+        // Initial render
+        selectBeat(0);
+    }
 }
 
 

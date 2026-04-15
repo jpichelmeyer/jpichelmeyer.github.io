@@ -48,8 +48,6 @@ export async function runBoot() {
 
     logEl.innerHTML = '';
     boot.style.display = 'flex';
-    
-    setInterval(scrollSkipText, 150);
 
     // 1. Create the Logger
     const log = (text, delay = 150) => new Promise(res => {
@@ -73,7 +71,21 @@ export async function runBoot() {
             buildDock();
         }
     };
-	
+
+    // 3. Show initial prompt
+    await log('>> PRESS ENTER TO BOOT SYSTEM <<', 0);
+
+    // 4. Wait for the VERY FIRST Enter press
+    await new Promise(resolve => {
+        const startHandler = (e) => {
+            if (e.key === 'Enter') {
+                document.removeEventListener('keydown', startHandler);
+                resolve();
+            }
+        };
+        document.addEventListener('keydown', startHandler);
+    });
+
     // 5. Now that we started, listen for an Enter press to SKIP at any time
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') triggerSkip();
@@ -81,8 +93,8 @@ export async function runBoot() {
 
     // 6. The Actual Sequence (Single loop only!)
     await log('────────────────────────────────────────');
-    await log('[.SYSTEM.].Initializing v.2026.04.15.c.Kernel...');
-    await log(`[.KERNEL.].Found ${PENDING_APPS.length} apps. Registering...`);
+    await log('[ SYSTEM ] Initializing v002 Kernel...');
+    await log(`[ KERNEL ] Found ${PENDING_APPS.length} apps. Registering...`);
 
     for (const appObj of PENDING_APPS) {
         if (isSkipped) break;
@@ -97,14 +109,8 @@ export async function runBoot() {
 
     await log('[ SYSTEM ] All applications nominal.');
     await log('────────────────────────────────────────');
-    await log('Good luck!!', 600);
-	
-	await new Promise(resolve => {
-    	document.addEventListener('keydown', (e) => {
-        	if (e.key === 'Enter') resolve();
-    	}, { once: true });
-	});
-	
+    await log('Welcome back!', 600);
+
     // Final handover to desktop
     setTimeout(() => {
         if (!isSkipped) triggerSkip();
@@ -193,5 +199,5 @@ addSubContainerToContainer(
 
 
 
-//runBoot();
-//setInterval(scrollSkipText, 150);
+runBoot();
+setInterval(scrollSkipText, 150);
