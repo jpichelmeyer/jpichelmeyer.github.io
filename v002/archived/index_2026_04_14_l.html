@@ -107,37 +107,28 @@
          BOOT SCREEN
     ═══════════════════════════════════════════ 
     -->
-    
-    <!-- 
-    ═══════════════════════════════════════════
-         BOOT SCREEN
-    ═══════════════════════════════════════════ 
-    -->
-    <div id="pos-boot">
-        <div class="boot-logo" style="font-family:'Courier New', Courier, monospace;">
-.....................................<br>
-.....................................<br>
-.........██████╗..██████╗.███████╗...<br>
-.........██╔══██╗██╔═══██╗██╔════╝...<br>
-.........██████╔╝██║.. ██║███████╗...<br>
-.........██╔═══╝.██║.. ██║╚════██║...<br>
-.........██║.....╚██████╔╝███████║...<br>
-.........╚═╝......╚═════╝.╚══════╝...<br>
-.....................................<br>
-            <br>
-            <span style="font-size:9px;letter-spacing:6px;opacity:0.7">PICHELMEYER OPERATING SYSTEM</span>
-        </div>
-        <div class="boot-log"></div>
-        <div class="boot-skip">[ press ENTER to proceed ]</div>
-    </div>
-    
-    
-    <!--
     <div id="pos-boot">
         <div class="boot-logo">
             <span style="font-size:9px;letter-spacing:6px;opacity:0.7">PICHELMEYER OPERATING SYSTEM</span>
         </div>
         
+        <!--
+        .....................................<br>
+		.....................................<br>
+		.........██████╗..██████╗.███████╗...<br>
+		.........██╔══██╗██╔═══██╗██╔════╝...<br>
+		.........██████╔╝██║.. ██║███████╗...<br>
+		.........██╔═══╝.██║.. ██║╚════██║...<br>
+		.........██║.....╚██████╔╝███████║...<br>
+		.........╚═╝......╚═════╝.╚══════╝...<br>
+		.....................................<br>
+            		<br>
+        -->
+        
+        <div class="boot-log"></div>
+        <div class="boot-skip">[ press ENTER to proceed ]</div>
+        
+        <!-- filling boot-logo -->
         <script>
         	
         	// Keep track of the logo's coordinates
@@ -148,7 +139,8 @@
 			const ROWS = 20;
 			const COLS = 40;
 			
-			const drawLinesPosBootLogo = [
+			function drawLogoOnCanvas(rowStrings = [], rowStart = 0, colStart = 0) {
+    			let posLines = [
         			'██████╗..██████╗.███████╗...',
         			'██╔══██╗██╔═══██╗██╔════╝...',
         			'██████╔╝██║.. ██║███████╗...',
@@ -156,47 +148,39 @@
         			'██║.....╚██████╔╝███████║...',
         			'╚═╝......╚═════╝.╚══════╝...'
     			];
-    		const drawLinesBird = [
-    			'.(*.v.*).',
-    			'<(.....)>',
-    			'.."..."..',
-    			];
 			
-			function drawOnCanvas(drawLines = [], canvas = [], rowStart = 0, colStart = 0) {
+    			let rowStringsNew = [...rowStrings];
 			
-    			let canvasNew = [...canvas];
-			
-    			for (let i = 0; i < drawLines.length; i++) {
+    			for (let i = 0; i < posLines.length; i++) {
         			let targetRowIndex = i + rowStart;
-        			if (targetRowIndex >= 0 && targetRowIndex < canvasNew.length) {
-            			let canvasChars = canvasNew[targetRowIndex].split('');
-            			let drawLineChars = drawLines[i].split('');
+        			if (targetRowIndex >= 0 && targetRowIndex < rowStringsNew.length) {
+            			let rowChars = rowStringsNew[targetRowIndex].split('');
+            			let posLineChars = posLines[i].split('');
 			
-            			for (let j = 0; j < drawLineChars.length; j++) {
+            			for (let j = 0; j < posLineChars.length; j++) {
                 			let targetColIndex = colStart + j;
-                			if (targetColIndex >= 0 && targetColIndex < canvasChars.length) {
-                    			canvasChars[targetColIndex] = drawLineChars[j];
+                			if (targetColIndex >= 0 && targetColIndex < rowChars.length) {
+                    			rowChars[targetColIndex] = posLineChars[j];
                 			}
             			}
-            			canvasNew[targetRowIndex] = canvasChars.join('');
+            			rowStringsNew[targetRowIndex] = rowChars.join('');
         			}
     			}
-    			return canvasNew;
+    			return rowStringsNew;
 			}
 			
 			function updateDisplay() {
-    			let canvas = [];
+    			let rowStrings = [];
     			for (let row = 0; row < ROWS; row++) {
-        			canvas.push(".".repeat(COLS));
+        			rowStrings.push(".".repeat(COLS));
     			}
     			
     			// Draw logo at current coordinates
-    			canvas = drawOnCanvas(drawLinesPosBootLogo, canvas, logoY, logoX);
+    			rowStrings = drawLogoOnCanvas(rowStrings, logoY, logoX);
     			
     			const container = document.querySelector('.boot-logo');
     			if (container) {
-    				const osDescription = 'Pichelmeyer Operating System (POS) <br>v.2026.04.15.a';
-        			container.innerHTML = canvas.join('<br>') + '<br><br><br>' + osDescription;
+        			container.innerHTML = rowStrings.join('<br>');
     			}
 			}
 			
@@ -223,13 +207,7 @@
 			fillLogo();
         </script>
         
-        
-        
-        <div class="boot-log"></div>
-        <div class="boot-skip">[ press ENTER to proceed ]</div>
-        
     </div>
-    -->
 
     <!-- 
     ═══════════════════════════════════════════

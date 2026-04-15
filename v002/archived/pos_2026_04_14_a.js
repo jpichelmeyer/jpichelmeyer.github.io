@@ -1,34 +1,15 @@
-/*
-=====================================================================
-	v002/pos/pos.js
-=====================================================================
-*/
-/*
-=====================================================================
-	The behavior for v002/index.html.
-	
-	POS — Pichelmeyer Operating System
-   	pos.js — Window manager, taskbar, boot sequence
-	
-=====================================================================
-*/
+/* ============================================================
+   POS — Pichelmeyer Operating System
+   pos.js — Window manager, taskbar, boot sequence
+   ============================================================ */
 
-/* 
-============================================================
-   IMPORTS
-============================================================ 
-*/
-import * as Boot from './boot/boot.js';
+(function () {
 'use strict';
 
-import { launchCourseViewer } from './app/course-viewer/course-viewer.js'; 
-
-/* 
-============================================================
+/* ============================================================
    APP REGISTRY
    Each entry describes a launchable app.
-============================================================ 
-*/
+   ============================================================ */
 const APP_REGISTRY = {
     terminal: {
         id:      'terminal',
@@ -50,7 +31,6 @@ const APP_REGISTRY = {
         launch:  launchAbout,
         unique:  true,
     },
-    /*
     research: {
         id:      'research',
         label:   'Research',
@@ -61,7 +41,6 @@ const APP_REGISTRY = {
         launch:  launchResearch,
         unique:  true,
     },
-    */
     teaching: {
         id:      'teaching',
         label:   'Teaching',
@@ -72,7 +51,6 @@ const APP_REGISTRY = {
         launch:  launchTeaching,
         unique:  true,
     },
-    /*
     career: {
         id:      'career',
         label:   'Career',
@@ -83,7 +61,6 @@ const APP_REGISTRY = {
         launch:  launchCareer,
         unique:  true,
     },
-    */
 };
 
 // Dock order
@@ -95,16 +72,79 @@ const DOCK_ORDER = ['about', 'career', 'research', 'teaching', 'terminal'];
 let openWindows  = {};   // id → { el, app, minimized }
 let zCounter     = 200;  // incrementing z-index for focus
 
+/* ============================================================
+   BOOT SEQUENCE
+   ============================================================ */
+const BOOT_LINES = [
+    { text: 'POS v2026.04  —  Pichelmeyer Operating System',  cls: 'log-ok',   delay: 0   },
+    { text: '────────────────────────────────────────',        cls: 'log-info', delay: 120 },
+    { text: '[    0.000]  Initializing memory subsystem...',   cls: 'log-info', delay: 240 },
+    { text: '[    0.041]  Loading kernel modules...',          cls: 'log-info', delay: 380 },
+    { text: '[    0.082]  Mounting virtual filesystem...',     cls: 'log-info', delay: 520 },
+    { text: '[    0.103]  Starting p-SHELL-meyer v3.1...',     cls: 'log-ok',   delay: 680 },
+    { text: '[    0.118]  Loading interpreter modules...',     cls: 'log-info', delay: 820 },
+    { text: '[    0.134]  Python 3.12 runtime... OK',          cls: 'log-ok',   delay: 960 },
+    { text: '[    0.147]  C# mono runtime... OK',              cls: 'log-ok',   delay: 1080},
+    { text: '[    0.201]  Registering desktop apps...',        cls: 'log-info', delay: 1200},
+    { text: '[    0.218]  5 applications loaded.',             cls: 'log-ok',   delay: 1340},
+    { text: '[    0.230]  Starting window compositor...',      cls: 'log-info', delay: 1480},
+    { text: '[    0.251]  All systems nominal.',               cls: 'log-ok',   delay: 1620},
+    { text: '────────────────────────────────────────',        cls: 'log-info', delay: 1740},
+    { text: 'Welcome back, Jacob.',                            cls: 'log-ok',   delay: 1900},
+];
 
+const BOOT_DONE_DELAY = 2600;
 
+function runBoot() {
+    const boot    = document.getElementById('pos-boot');
+    const logEl   = boot.querySelector('.boot-log');
+    const skipEl  = boot.querySelector('.boot-skip');
+    if (!boot) return;
 
+    // Render each log line with staggered delay
+    BOOT_LINES.forEach(({ text, cls, delay }) => {
+        setTimeout(() => {
+            const span = document.createElement('span');
+            span.className = `log-line ${cls}`;
+            span.textContent = text;
+            logEl.appendChild(span);
+            logEl.scrollTop = logEl.scrollHeight;
+        }, delay);
+    });
+
+    // After boot log, fade out and show desktop
+    setTimeout(finishBoot, BOOT_DONE_DELAY);
+
+    // Skip button
+    if (skipEl) {
+        skipEl.addEventListener('click', () => {
+            clearAllBootTimers();
+            finishBoot();
+        });
+    }
+}
+
+let _bootTimers = [];
+function clearAllBootTimers() {
+    _bootTimers.forEach(clearTimeout);
+}
+
+function finishBoot() {
+    const boot = document.getElementById('pos-boot');
+    if (!boot) return;
+    boot.classList.add('fade-out');
+    setTimeout(() => {
+        boot.style.display = 'none';
+        onDesktopReady();
+    }, 650);
+}
 
 /* ============================================================
    DESKTOP READY
    ============================================================ */
 function onDesktopReady() {
     // Auto-open about on first load
-    openApp('teaching', { x: 120, y: 60 });
+    openApp('about', { x: 120, y: 60 });
 }
 
 /* ============================================================
@@ -371,13 +411,11 @@ function attachResize(winEl) {
     });
 }
 
-/* 
-============================================================
+/* ============================================================
    APP LAUNCH FUNCTIONS
    Each populates the .pos-window-body of its window.
    These are stubs — content will be fleshed out per app.
-============================================================ 
-*/
+   ============================================================ */
 
 function launchAbout(body) {
     body.innerHTML = `
@@ -419,7 +457,6 @@ function launchResearch(body) {
     `;
 }
 
-/*
 function launchTeaching(body) {
     body.innerHTML = `
         <div class="win-content" style="--app-accent: #364880">
@@ -427,11 +464,6 @@ function launchTeaching(body) {
             <p style="color:#888;font-style:italic;font-size:12px">Course list coming soon.</p>
         </div>
     `;
-}
-*/
-// AFTER:
-function launchTeaching(body) {
-    launchCourseViewer(body);
 }
 
 function launchTerminal(body) {
@@ -465,7 +497,7 @@ function init() {
         });
     }
 
-    Boot.runBoot(onDesktopReady);
+    runBoot();
 }
 
 // Expose public API
@@ -482,3 +514,4 @@ if (document.readyState === 'loading') {
     init();
 }
 
+})();
