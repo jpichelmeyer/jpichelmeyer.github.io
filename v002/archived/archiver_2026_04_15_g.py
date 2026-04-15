@@ -2,7 +2,7 @@ import os
 import shutil
 from pathlib import Path
 
-POSTFIX = "2026_04_15_l"
+POSTFIX = "2026_04_15_g"
 
 def copy_all_files_to_central(
     scan_dir_name:str="",

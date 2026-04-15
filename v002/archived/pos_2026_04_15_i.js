@@ -18,15 +18,10 @@
    IMPORTS
 ============================================================ 
 */
-import './app/virtual-file-system/notepad-pos.js';
 import * as Boot from './boot/boot.js';
 'use strict';
 
 import { launchCourseViewer } from './app/course-viewer/course-viewer.js'; 
-
-import { launchNotepadPOS } from './app/virtual-file-system/notepad-pos.js';
-
-import { launchTextpiler } from './app/textpiler/textpiler.js';
 
 /* 
 ============================================================
@@ -35,39 +30,6 @@ import { launchTextpiler } from './app/textpiler/textpiler.js';
 ============================================================ 
 */
 const APP_REGISTRY = {
-
-	textpiler: {
-    	id:     'textpiler',
-    	label:  'Textpiler',
-    	icon:   '⚙️',
-    	svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            	<rect x="10" y="20" width="80" height="60" rx="5" fill="none" stroke="currentColor" stroke-width="5"/>
-            	<path d="M30 40 L45 50 L30 60 M55 60 L70 50 L55 40" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-          	</svg>`,
-    	accent: '#f1c40f',
-    	width:  750,
-    	height: 550,
-    	launch: launchTextpiler,
-    	unique: true,
-	},
-
-    notepad: {
-        id:     'notepad',
-        label:  'Notepad',
-        icon:   '📝',
-        svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <rect x="15" y="10" width="70" height="80" rx="6" ry="6" fill="none" stroke="currentColor" stroke-width="6"/>
-  <rect x="35" y="4" width="30" height="14" rx="4" ry="4" fill="currentColor"/>
-  <line x1="27" y1="35" x2="73" y2="35" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-  <line x1="27" y1="50" x2="73" y2="50" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-  <line x1="27" y1="65" x2="55" y2="65" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-</svg>`,
-        accent: '#4ec9b0',
-        width:  680,
-        height: 500,
-        launch: launchNotepadPOS,
-        unique: true,   // one instance; could set false to allow multi-window
-    },
 	
 	// System command
 	restart: {
@@ -192,7 +154,7 @@ const APP_REGISTRY = {
 
 // Dock order
 //const DOCK_ORDER = ['about', 'career', 'research', 'teaching', 'terminal'];
-const DOCK_ORDER = ['restart', 'about', 'learning', 'notepad', 'textpiler', 'terminal'];
+const DOCK_ORDER = ['restart', 'about', 'learning', 'terminal'];
 
 /* ============================================================
    WINDOW MANAGER STATE

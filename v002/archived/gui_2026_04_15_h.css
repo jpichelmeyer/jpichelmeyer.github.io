@@ -46,19 +46,6 @@
     --z-window-focus:     200;
     --z-taskbar:          900;
     --z-boot:             1000;
-    
-    --pos-desktop: #ddd9cc;
-    --win-bg:      #f5f2e8;
-    --win-titlebar:#ece9dd;
-    
-    /* Redefine borders as solid black */
-    --win-border:  #000000;
-    --win-radius:  8px;
-    
-    /* Make the accents pop against the black borders */
-    --tl-close:    #ff5f56;
-    --tl-min:      #ffbd2e;
-    --tl-max:      #27c93f;
 }
 
 
@@ -92,21 +79,23 @@ body.pos-active {
    WINDOW CHROME
    ============================================================ */
 .pos-window {
+    position: absolute;
+    min-width: 320px;
+    min-height: 200px;
     background: var(--win-bg);
-    border: 2px solid var(--win-border);
+    border: 1px solid var(--win-border);
     border-radius: var(--win-radius);
     box-shadow: var(--win-shadow);
     display: flex;
     flex-direction: column;
     z-index: var(--z-window);
+    transition: box-shadow 0.15s ease;
     overflow: hidden;
-    position: absolute; /* Crucial for dragging */
 }
 
 .pos-window.focused {
     z-index: var(--z-window-focus);
-    box-shadow: 6px 6px 0px #000;
-    transform: translate(-1px, -1px);
+    box-shadow: var(--win-shadow-focus);
 }
 
 .pos-window.minimized {
@@ -121,94 +110,24 @@ body.pos-active {
     border-radius: 0;
 }
 
-
-/* 1. Reset the base button style to keep the colors */
-.pos-tl {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 1.5px solid #000;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 0;
-    transition: transform 0.1s ease;
-}
-
-/* 2. The Pseudo-element for the Icon */
-.pos-tl::after {
-    content: '';
-    width: 8px;  /* Icon is smaller than the 14px button */
-    height: 8px;
-    background-color: #000; /* This is the icon color */
-    display: none; /* Hidden until hover */
-    
-    /* Masking logic */
-    -webkit-mask-size: contain;
-    mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
-}
-
-/* 4. The SVG Data (Optimized) */
-.pos-tl-close::after {
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3C/svg%3E");
-}
-
-.pos-tl-min::after {
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E");
-}
-
-.pos-tl-max::after {
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 4H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6V6h12v12z'/%3E%3C/svg%3E");
-}
-
-/* 5. Re-apply the button colors (make sure these variables are defined) */
-.pos-tl-close { background-color: var(--tl-close, #ff5f56); }
-.pos-tl-min   { background-color: var(--tl-min, #ffbd2e); }
-.pos-tl-max   { background-color: var(--tl-max, #27c93f); }
-
-
-/* ── Title bar (The Drag Target) ── */
+/* ── Title bar ── */
 .pos-titlebar {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0 10px;
-    height: 32px;
+    padding: 0 14px;
+    height: 36px;
     background: var(--win-titlebar);
-    border-bottom: 2px solid #000;
-    cursor: grab !important; /* Force the grab cursor */
+    border-bottom: 1px solid var(--win-border-light);
+    border-radius: var(--win-radius) var(--win-radius) 0 0;
+    cursor: grab;
     flex-shrink: 0;
     position: relative;
-    z-index: 10; /* Keep it above the content */
 }
 
-.pos-titlebar:active { cursor: grabbing !important; }
+.pos-titlebar:active { cursor: grabbing; }
 
-.pos-titlebar-label {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--font-ui);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--win-titlebar-text);
-    white-space: nowrap;
-    opacity: 0.8;
-    /* THIS IS THE FIX: */
-    pointer-events: none !important; 
-}
-
-/* 3. Show icons when hovering over the titlebar */
-.pos-titlebar:hover .pos-tl::after {
-    display: block;
-}
-
+/* Traffic lights */
 .pos-traffic-lights {
     display: flex;
     gap: 7px;
@@ -216,6 +135,21 @@ body.pos-active {
     flex-shrink: 0;
 }
 
+.pos-tl {
+    width: var(--tl-size);
+    height: var(--tl-size);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: filter 0.1s ease, transform 0.1s ease;
+}
+.pos-tl:hover { filter: brightness(0.82); transform: scale(1.15); }
+.pos-tl:active { transform: scale(0.9); }
+
+.pos-tl-close { background: var(--tl-close); }
+.pos-tl-min   { background: var(--tl-min); }
+.pos-tl-max   { background: var(--tl-max); }
 
 /* Title text */
 .pos-titlebar-label {
@@ -226,9 +160,10 @@ body.pos-active {
     font-size: 12px;
     font-weight: 600;
     color: var(--win-titlebar-text);
-    pointer-events: none; /* CRITICAL: This allows clicks to pass through to the bar */
+    letter-spacing: 0.05em;
     white-space: nowrap;
-    opacity: 0.8;
+    pointer-events: none;
+    opacity: 0.75;
 }
 
 /* Accent stripe — thin bottom border colored per app */
@@ -282,16 +217,10 @@ body.pos-active {
     border-top: 1px solid var(--taskbar-border);
     display: flex;
     align-items: center;
-    /* This distributes the spacer, dock, and clock */
-    justify-content: space-between; 
+    justify-content: space-between;
     padding: 0 20px;
     z-index: var(--z-taskbar);
-}
-
-/* The Ghost Spacer */
-.taskbar-spacer {
-    width: 60px; /* Adjust this to match the clock's width */
-    flex-shrink: 0;
+    gap: 12px;
 }
 
 /* POS menu button */
@@ -321,16 +250,19 @@ body.pos-active {
     display: flex;
     align-items: center;
     gap: 2px;
-    /* Remove flex: 1; so the dock only takes as much space as it needs */
-    flex: 0 1 auto; 
+    flex: 1;
     justify-content: center;
 
+    /* the rounded-rectangle pill from the reference */
     background: rgba(255,255,255,0.45);
-    border: 2px solid #000;
-    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 14px;
     padding: 5px 10px;
     max-width: 480px;
-    box-sizing: border-box;
+    
+    border: 2px solid #000; /* thickness, style, and color */
+    border-radius: 8px;      /* controls how rounded the corners are */
+    box-sizing: border-box;  /* ensures border stays inside the width/height */
 }
 
 .pos-dock-item {
@@ -418,12 +350,15 @@ body.pos-active {
 
 /* Clock */
 #pos-clock {
-    width: 60px; /* Must match .taskbar-spacer */
-    text-align: right;
-    font-family: var(--font-ui);
-    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(0,0,0,0.45);
+    letter-spacing: 1px;
     flex-shrink: 0;
+    min-width: 38px;
+    text-align: right;
 }
+
 
 /* 
 ============================================================
@@ -455,28 +390,12 @@ body.pos-active {
 /* Inset terminal block */
 .win-inset {
     background: #1c1b15;
-    /* TRANSLATION: */
-    border: 2px solid #000;
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 14px 16px;
-    /* ... color/font props ... */
-}
-
-.win-button {
-    font-family: var(--font-ui);
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 10px;
-    background: #fff;
-    border: 2px solid #000;
-    border-radius: 4px;
-    padding: 4px 12px;
-    cursor: pointer;
-    box-shadow: 2px 2px 0px #000;
-}
-.win-button:active {
-    box-shadow: 0px 0px 0px #000;
-    transform: translate(2px, 2px);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #41ff00;
+    line-height: 1.7;
 }
 
 

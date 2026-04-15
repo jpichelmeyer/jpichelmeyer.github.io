@@ -138,70 +138,64 @@ export async function runBoot() {
 */
 
 export async function runBoot() {
+
+	/*
+	pos-boot
+		boot-logo
+		boot-version
+		boot-skip
+		boot-log
+	*/
+	
     const boot = document.getElementById('pos-boot');
     if (!boot) return;
     
     const logEl = boot.querySelector('.boot-log');
     if (logEl) logEl.innerHTML = '';
-    
+    if (!logEl) return;
+
     boot.classList.remove('fade-out');
     boot.style.display = 'flex';
 
     const dynamicLines = getDynamicBootLines();
-    
-    // This allows us to cancel the typing loop instantly
-    let bootFinished = false;
 
-    // 1. The Skip/Finish Trigger
-    const skipTrigger = new Promise((resolve) => {
-        const handleInput = (e) => {
-            // Check for Enter/Space on keyboard OR a click
-            if (e.type === 'click' || ['Enter', ' '].includes(e.key)) {
-                cleanup();
-                bootFinished = true; // Signal the loop to stop
-                resolve();
-            }
+    // 1. Define the waiter function
+    const waitForInput = () => new Promise((resolve) => {
+        const handleKey = (e) => { 
+            if (['Enter', ' '].includes(e.key)) { cleanup(); resolve(); } 
         };
-
+        const handleClick = () => { cleanup(); resolve(); };
         const cleanup = () => {
-            document.removeEventListener('keydown', handleInput);
-            boot.querySelector('.boot-skip')?.removeEventListener('click', handleInput);
+            document.removeEventListener('keydown', handleKey);
+            boot.querySelector('.boot-skip')?.removeEventListener('click', handleClick);
         };
-
-        document.addEventListener('keydown', handleInput);
-        boot.querySelector('.boot-skip')?.addEventListener('click', handleInput);
+        document.addEventListener('keydown', handleKey);
+        boot.querySelector('.boot-skip')?.addEventListener('click', handleClick);
     });
 
-    // 2. The Printing Loop
-    const printLogs = async () => {
+    // 2. Run the logs and wait for them to finish
+    await (async () => {
         for (const { text, cls, delay } of dynamicLines) {
-            // Check BEFORE the timeout
-            if (bootFinished) return; 
-            
             await new Promise(r => setTimeout(r, delay));
-            
-            // Check AFTER the timeout
-            if (bootFinished) return;
-
             const span = document.createElement('span');
             span.className = `log-line ${cls || ''}`;
             span.textContent = text;
             logEl.appendChild(span);
             logEl.scrollTop = logEl.scrollHeight;
         }
+    })();
 
-        // Optional: If the loop finishes naturally, wait a moment then auto-advance
-        // If you want it to wait FOREVER until Enter is pressed, delete the next 2 lines.
-        await new Promise(r => setTimeout(r, BOOT_DONE_DELAY));
-        bootFinished = true; 
-    };
+    // 3. Add a final "Ready" line to let the user know they need to do something
+    const prompt = document.createElement('span');
+    prompt.className = 'log-line blink'; // You can add a CSS blink animation
+    prompt.textContent = '> System ready. Press ENTER to start session...';
+    logEl.appendChild(prompt);
+    logEl.scrollTop = logEl.scrollHeight;
 
-    // 3. Execution
-    // We wait for the first thing that happens: 
-    // Either the logs finish naturally OR the user presses Enter.
-    await Promise.race([printLogs(), skipTrigger]);
+    // 4. NOW wait for the user
+    await waitForInput();
 
-    // 4. Exit
+    // 5. Cleanup and Enter Desktop
     finishBoot();
 }
 
