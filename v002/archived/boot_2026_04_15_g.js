@@ -14,7 +14,6 @@
 */
 
 import { addSubContainerToContainer, drawCanvas, drawOnCanvas, } from '../../global.js';
-import { getAppRegistry } from '../pos.js';
 
 const BOOT_LINES = [
     { text: '────────────────────────────────────────',                  delay: 120  },
@@ -44,52 +43,14 @@ const BOOT_DONE_DELAY = 2600;
 =====================================================================
 */
 
-function getDynamicBootLines() {
-    const lines = [];
-    const startTime = performance.now();
-    const timestamp = () => `[${((performance.now() - startTime) / 1000).toFixed(3).padStart(8, ' ')}]`;
-
-    // Access the registry from the window object where your desktop script stores it
-    const registry = getAppRegistry() || {};
-    const appIds = Object.keys(registry);
-
-    lines.push({ text: '────────────────────────────────────────', delay: 100 });
-    lines.push({ text: `${timestamp()} Initializing v002 Kernel...`, delay: 200 });
-
-    // Detect Environment
-    const scripts = document.querySelectorAll('script').length;
-    const styles = document.styleSheets.length;
-    lines.push({ text: `${timestamp()} Found ${scripts} JS modules and ${styles} stylesheets.`, delay: 300 });
-
-    // Truthful App Loading
-    lines.push({ text: `${timestamp()} Probing APP_REGISTRY...`, delay: 400 });
-    
-    if (appIds.length > 0) {
-        appIds.forEach((id) => {
-            const label = registry[id].label || id;
-            lines.push({ 
-                text: `${timestamp()} Mounting /apps/${id} (${label})... OK`, 
-                delay: 150 
-            });
-        });
-        lines.push({ text: `${timestamp()} Total of ${appIds.length} applications registered.`, delay: 200 });
-    } else {
-        lines.push({ text: `${timestamp()} WARNING: No applications found in registry.`, delay: 200 });
-    }
-
-    // System Status
-    lines.push({ text: `${timestamp()} Window Manager: Windowing engine active.`, delay: 250 });
-    lines.push({ text: `${timestamp()} Resolution: ${window.innerWidth}x${window.innerHeight}`, delay: 100 });
-    lines.push({ text: `${timestamp()} All systems nominal.`, delay: 300 });
-    
-    lines.push({ text: '────────────────────────────────────────', delay: 100 });
-    lines.push({ text: 'Welcome back!', delay: 500 });
-
-    return lines;
-}
-
-/*
 export async function runBoot() {
+	/*
+	pos-boot
+		boot-logo
+		boot-version
+		boot-skip
+		boot-log
+	*/
 	
 	
 	// pos-boot
@@ -134,75 +95,6 @@ export async function runBoot() {
     	finishBoot();
     }
 
-}
-*/
-
-export async function runBoot() {
-    const boot = document.getElementById('pos-boot');
-    if (!boot) return;
-    
-    const logEl = boot.querySelector('.boot-log');
-    if (logEl) logEl.innerHTML = '';
-    
-    boot.classList.remove('fade-out');
-    boot.style.display = 'flex';
-
-    const dynamicLines = getDynamicBootLines();
-    
-    // This allows us to cancel the typing loop instantly
-    let bootFinished = false;
-
-    // 1. The Skip/Finish Trigger
-    const skipTrigger = new Promise((resolve) => {
-        const handleInput = (e) => {
-            // Check for Enter/Space on keyboard OR a click
-            if (e.type === 'click' || ['Enter', ' '].includes(e.key)) {
-                cleanup();
-                bootFinished = true; // Signal the loop to stop
-                resolve();
-            }
-        };
-
-        const cleanup = () => {
-            document.removeEventListener('keydown', handleInput);
-            boot.querySelector('.boot-skip')?.removeEventListener('click', handleInput);
-        };
-
-        document.addEventListener('keydown', handleInput);
-        boot.querySelector('.boot-skip')?.addEventListener('click', handleInput);
-    });
-
-    // 2. The Printing Loop
-    const printLogs = async () => {
-        for (const { text, cls, delay } of dynamicLines) {
-            // Check BEFORE the timeout
-            if (bootFinished) return; 
-            
-            await new Promise(r => setTimeout(r, delay));
-            
-            // Check AFTER the timeout
-            if (bootFinished) return;
-
-            const span = document.createElement('span');
-            span.className = `log-line ${cls || ''}`;
-            span.textContent = text;
-            logEl.appendChild(span);
-            logEl.scrollTop = logEl.scrollHeight;
-        }
-
-        // Optional: If the loop finishes naturally, wait a moment then auto-advance
-        // If you want it to wait FOREVER until Enter is pressed, delete the next 2 lines.
-        await new Promise(r => setTimeout(r, BOOT_DONE_DELAY));
-        bootFinished = true; 
-    };
-
-    // 3. Execution
-    // We wait for the first thing that happens: 
-    // Either the logs finish naturally OR the user presses Enter.
-    await Promise.race([printLogs(), skipTrigger]);
-
-    // 4. Exit
-    finishBoot();
 }
 
 function finishBoot() {

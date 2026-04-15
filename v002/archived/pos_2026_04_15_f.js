@@ -18,15 +18,10 @@
    IMPORTS
 ============================================================ 
 */
-import './app/virtual-file-system/notepad-pos.js';
 import * as Boot from './boot/boot.js';
 'use strict';
 
 import { launchCourseViewer } from './app/course-viewer/course-viewer.js'; 
-
-import { launchNotepadPOS } from './app/virtual-file-system/notepad-pos.js';
-
-import { launchTextpiler } from './app/textpiler/textpiler.js';
 
 /* 
 ============================================================
@@ -35,39 +30,6 @@ import { launchTextpiler } from './app/textpiler/textpiler.js';
 ============================================================ 
 */
 const APP_REGISTRY = {
-
-	textpiler: {
-    	id:     'textpiler',
-    	label:  'Textpiler',
-    	icon:   '⚙️',
-    	svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            	<rect x="10" y="20" width="80" height="60" rx="5" fill="none" stroke="currentColor" stroke-width="5"/>
-            	<path d="M30 40 L45 50 L30 60 M55 60 L70 50 L55 40" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-          	</svg>`,
-    	accent: '#f1c40f',
-    	width:  750,
-    	height: 550,
-    	launch: launchTextpiler,
-    	unique: true,
-	},
-
-    notepad: {
-        id:     'notepad',
-        label:  'Notepad',
-        icon:   '📝',
-        svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <rect x="15" y="10" width="70" height="80" rx="6" ry="6" fill="none" stroke="currentColor" stroke-width="6"/>
-  <rect x="35" y="4" width="30" height="14" rx="4" ry="4" fill="currentColor"/>
-  <line x1="27" y1="35" x2="73" y2="35" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-  <line x1="27" y1="50" x2="73" y2="50" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-  <line x1="27" y1="65" x2="55" y2="65" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
-</svg>`,
-        accent: '#4ec9b0',
-        width:  680,
-        height: 500,
-        launch: launchNotepadPOS,
-        unique: true,   // one instance; could set false to allow multi-window
-    },
 	
 	// System command
 	restart: {
@@ -161,7 +123,7 @@ const APP_REGISTRY = {
         accent:  '#364880',
         width:   680,
         height:  540,
-        launch:  launchCourseViewer,
+        launch:  launchTeaching,
         unique:  true,
     },
     
@@ -192,7 +154,7 @@ const APP_REGISTRY = {
 
 // Dock order
 //const DOCK_ORDER = ['about', 'career', 'research', 'teaching', 'terminal'];
-const DOCK_ORDER = ['restart', 'about', 'learning', 'notepad', 'textpiler', 'terminal'];
+const DOCK_ORDER = ['restart', 'about', 'learning', 'terminal'];
 
 /* ============================================================
    WINDOW MANAGER STATE
@@ -546,6 +508,17 @@ function launchResearch(body) {
     `;
 }
 
+/*
+function launchTeaching(body) {
+    body.innerHTML = `
+        <div class="win-content" style="--app-accent: #364880">
+            <div class="win-section-head">Teaching</div>
+            <p style="color:#888;font-style:italic;font-size:12px">Course list coming soon.</p>
+        </div>
+    `;
+}
+*/
+// AFTER:
 function launchTeaching(body) {
     launchCourseViewer(body);
 }
@@ -571,11 +544,38 @@ function init() {
     document.body.classList.add('pos-active');
     buildDock();
     startClock();
+	
+	/*
+    // Wire up POS menu button
+    const menuBtn = document.getElementById('pos-menu-btn');
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            // Future: open start menu / app launcher
+            console.log('POS menu — coming soon');
+        });
+    }
+    */
     
-}
+    /*
+    const menuBtn = document.getElementById('pos-menu-btn');
+    if (menuBtn) {
+        // 1. Set the icon (using the same 🔄 emoji or an <img> tag if you have a file)
+        menuBtn.innerHTML = '🔄'; 
+        
+        // 2. Optional: Add a class for specific styling
+        //menuBtn.classList.add('pos-restart-icon');
+        menuBtn.classList.add();
 
-export function getAppRegistry(){
-	return window.APP_REGISTRY || {};
+        // 3. Set click to trigger reboot
+        menuBtn.addEventListener('click', () => {
+            if (confirm("Restart POS?")) {
+                rebootSystem();
+            }
+        });
+    }
+    */    
+
+    Boot.runBoot(onDesktopReady);
 }
 
 /*
@@ -584,7 +584,6 @@ export function getAppRegistry(){
 =============================================================
 */
 function rebootSystem() {
-
     // 1. Remove the 'pos-active' class to trigger any "shutdown" CSS transitions
     document.body.classList.remove('pos-active');
 
@@ -595,11 +594,55 @@ function rebootSystem() {
         }
     });
     openWindows = {}; // Reset the window registry
+    
+
+    // 3. Optional: Clear the desktop and dock visually
+    //document.getElementById('pos-desktop').innerHTML = '';
+    //document.getElementById('pos-dock').innerHTML = '';
 	const dock = document.getElementById('pos-dock');
     if (dock) dock.innerHTML = '';
-    
-    Boot.runBoot();
-    init();
+
+    // 4. Re-run the boot sequence
+    // Note: Boot.runBoot usually handles its own loading screen/animations
+    Boot.runBoot(onDesktopReady);
+}
+
+
+
+/*
+=============================================================
+	ART
+=============================================================
+*/
+
+function drawCanvas(rows=20, cols=40){
+	let canvas = [];
+	for (let row = 0; row < rowsS; row++) {
+    	canvas.push(".".repeat(cols));
+	}
+	return canvas;
+}
+
+function drawOnCanvas(drawLines = [], canvas = [], rowStart = 0, colStart = 0) {
+
+    let canvasNew = [...canvas];
+
+    for (let i = 0; i < drawLines.length; i++) {
+        let targetRowIndex = i + rowStart;
+        if (targetRowIndex >= 0 && targetRowIndex < canvasNew.length) {
+            let canvasChars = canvasNew[targetRowIndex].split('');
+            let drawLineChars = drawLines[i].split('');
+
+            for (let j = 0; j < drawLineChars.length; j++) {
+                let targetColIndex = colStart + j;
+                if (targetColIndex >= 0 && targetColIndex < canvasChars.length) {
+                    canvasChars[targetColIndex] = drawLineChars[j];
+                }
+            }
+            canvasNew[targetRowIndex] = canvasChars.join('');
+        }
+    }
+    return canvasNew;
 }
 
 /*
