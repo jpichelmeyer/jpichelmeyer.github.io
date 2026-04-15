@@ -18,8 +18,7 @@
    IMPORTS
 ============================================================ 
 */
-
-
+import './app/virtual-file-system/notepad-pos.js';
 import * as Boot from './boot/boot.js';
 'use strict';
 
