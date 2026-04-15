@@ -21,8 +21,6 @@
 import * as Boot from './boot/boot.js';
 'use strict';
 
-import { launchCourseViewer } from './app/course-viewer/course-viewer.js'; 
-
 /* 
 ============================================================
    APP REGISTRY
@@ -50,7 +48,6 @@ const APP_REGISTRY = {
         launch:  launchAbout,
         unique:  true,
     },
-    /*
     research: {
         id:      'research',
         label:   'Research',
@@ -61,7 +58,6 @@ const APP_REGISTRY = {
         launch:  launchResearch,
         unique:  true,
     },
-    */
     teaching: {
         id:      'teaching',
         label:   'Teaching',
@@ -72,7 +68,6 @@ const APP_REGISTRY = {
         launch:  launchTeaching,
         unique:  true,
     },
-    /*
     career: {
         id:      'career',
         label:   'Career',
@@ -83,7 +78,6 @@ const APP_REGISTRY = {
         launch:  launchCareer,
         unique:  true,
     },
-    */
 };
 
 // Dock order
@@ -104,7 +98,7 @@ let zCounter     = 200;  // incrementing z-index for focus
    ============================================================ */
 function onDesktopReady() {
     // Auto-open about on first load
-    openApp('teaching', { x: 120, y: 60 });
+    openApp('about', { x: 120, y: 60 });
 }
 
 /* ============================================================
@@ -419,7 +413,6 @@ function launchResearch(body) {
     `;
 }
 
-/*
 function launchTeaching(body) {
     body.innerHTML = `
         <div class="win-content" style="--app-accent: #364880">
@@ -427,11 +420,6 @@ function launchTeaching(body) {
             <p style="color:#888;font-style:italic;font-size:12px">Course list coming soon.</p>
         </div>
     `;
-}
-*/
-// AFTER:
-function launchTeaching(body) {
-    launchCourseViewer(body);
 }
 
 function launchTerminal(body) {

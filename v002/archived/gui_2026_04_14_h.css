@@ -1,0 +1,390 @@
+/*
+=====================================================================
+	v002/pos/gui/gui.ss
+=====================================================================
+*/
+/*
+=====================================================================
+	The styling for v002/index.html dealing with the gui
+	part of POS. The gui follows the WIMP paradigm:
+		
+		Windows
+		Icons
+		Menus
+		Pointer
+	
+	Also referred to as a desktop environment. 
+	
+=====================================================================
+*/
+
+:root {
+    /* ── Desktop palette ── */
+    --pos-desktop:        #ddd8cc;
+    --pos-desktop-grain:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+
+    /* ── Window chrome ── */
+    --win-bg:             #f0ece2;
+    --win-border:         #9a9485;
+    --win-border-light:   #c8c4b8;
+    --win-titlebar:       #e4e0d4;
+    --win-titlebar-text:  #2a2820;
+    --win-shadow:         0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
+    --win-shadow-focus:   0 12px 48px rgba(0,0,0,0.24), 0 4px 16px rgba(0,0,0,0.16);
+    --win-radius:         10px;
+
+    /* ── Taskbar ── */
+    --taskbar-bg:         #c8c4b4;
+    --taskbar-border:     #9a9485;
+    --taskbar-height:     48px;
+
+    /* ── Traffic lights ── */
+    --tl-close:           #e05c5c;
+    --tl-min:             #e0b85c;
+    --tl-max:             #5cb85c;
+    --tl-size:            12px;
+
+    /* ── Typography ── */
+    --font-ui:            'Outfit', sans-serif;
+    --font-mono:          'Share Tech Mono', monospace;
+
+    /* ── Z-index stack ── */
+    --z-desktop:          0;
+    --z-window:           100;
+    --z-window-focus:     200;
+    --z-taskbar:          900;
+    --z-boot:             1000;
+}
+
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body.pos-active {
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    font-family: var(--font-ui);
+    background: var(--pos-desktop);
+    user-select: none;
+}
+
+/* ============================================================
+   DESKTOP SURFACE
+   ============================================================ */
+#pos-desktop {
+    position: fixed;
+    inset: 0;
+    bottom: var(--taskbar-height);
+    background-color: var(--pos-desktop);
+    background-image: var(--pos-desktop-grain);
+    overflow: hidden;
+    /* Desktop icons area — future use */
+}
+
+
+/* ============================================================
+   WINDOW CHROME
+   ============================================================ */
+.pos-window {
+    position: absolute;
+    min-width: 320px;
+    min-height: 200px;
+    background: var(--win-bg);
+    border: 1px solid var(--win-border);
+    border-radius: var(--win-radius);
+    box-shadow: var(--win-shadow);
+    display: flex;
+    flex-direction: column;
+    z-index: var(--z-window);
+    transition: box-shadow 0.15s ease;
+    overflow: hidden;
+}
+
+.pos-window.focused {
+    z-index: var(--z-window-focus);
+    box-shadow: var(--win-shadow-focus);
+}
+
+.pos-window.minimized {
+    display: none;
+}
+
+.pos-window.maximized {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: calc(100vh - var(--taskbar-height)) !important;
+    border-radius: 0;
+}
+
+/* ── Title bar ── */
+.pos-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    height: 34px;
+    background: var(--win-titlebar);
+    border-bottom: 1px solid var(--win-border-light);
+    border-radius: var(--win-radius) var(--win-radius) 0 0;
+    cursor: grab;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.pos-titlebar:active { cursor: grabbing; }
+
+/* Traffic lights */
+.pos-traffic-lights {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.pos-tl {
+    width: var(--tl-size);
+    height: var(--tl-size);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: filter 0.1s ease, transform 0.1s ease;
+}
+.pos-tl:hover { filter: brightness(0.85); transform: scale(1.1); }
+.pos-tl:active { transform: scale(0.9); }
+
+.pos-tl-close { background: var(--tl-close); }
+.pos-tl-min   { background: var(--tl-min); }
+.pos-tl-max   { background: var(--tl-max); }
+
+/* Title text */
+.pos-titlebar-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--win-titlebar-text);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* Title bar accent stripe — colored per app */
+.pos-titlebar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--app-accent, transparent);
+    opacity: 0.7;
+}
+
+/* ── Window body ── */
+.pos-window-body {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+}
+
+/* ── Resize handle (bottom-right corner) ── */
+.pos-resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    cursor: se-resize;
+    z-index: 10;
+}
+
+.pos-resize-handle::after {
+    content: '';
+    position: absolute;
+    bottom: 4px; right: 4px;
+    width: 6px; height: 6px;
+    border-right: 2px solid var(--win-border);
+    border-bottom: 2px solid var(--win-border);
+    border-radius: 0 0 2px 0;
+}
+
+
+/* 
+============================================================
+   TASKBAR
+============================================================ 
+*/
+#pos-taskbar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--taskbar-height);
+    background: var(--taskbar-bg);
+    border-top: 1px solid var(--taskbar-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: var(--z-taskbar);
+    gap: 12px;
+}
+
+/* POS menu button (left) */
+#pos-menu-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #2a2820;
+    background: transparent;
+    border: 1px solid var(--win-border-light);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+#pos-menu-btn:hover {
+    background: rgba(0,0,0,0.06);
+    border-color: var(--win-border);
+}
+
+/* App dock (center) */
+#pos-dock {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+}
+
+.pos-dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+    position: relative;
+    border: 1px solid transparent;
+}
+
+.pos-dock-item:hover {
+    background: rgba(255,255,255,0.35);
+    border-color: var(--win-border-light);
+    transform: translateY(-2px);
+}
+
+.pos-dock-item.active {
+    background: rgba(255,255,255,0.25);
+    border-color: var(--win-border-light);
+}
+
+.pos-dock-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--app-accent, #666);
+}
+
+.pos-dock-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.pos-dock-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #4a4840;
+    text-transform: uppercase;
+}
+
+/* Clock (right) */
+#pos-clock {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #4a4840;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    min-width: 60px;
+    text-align: right;
+}
+
+
+/* 
+============================================================
+   WINDOW CONTENT AREAS  
+   (shared styles for content inside apps)
+============================================================ 
+*/
+
+/* Scrollable content pad */
+.win-content {
+    padding: 20px 24px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: #3a3830;
+    line-height: 1.6;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* Section heading inside window */
+.win-section-head {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--app-accent, #666);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Inset "terminal-style" block */
+.win-inset {
+    background: #1a1a14;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #41ff00;
+    line-height: 1.7;
+}
+
+
+/* 
+============================================================
+   DESKTOP ICONS (future use)
+============================================================ 
+*/
+.pos-desktop-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 72px;
+    text-align: center;
+    transition: background 0.15s;
+}
+.pos-desktop-icon:hover { background: rgba(255,255,255,0.3); }
+.pos-desktop-icon .icon-img { font-size: 32px; }
+.pos-desktop-icon .icon-label {
+    font-size: 11px;
+    color: #2a2820;
+    font-weight: 500;
+    word-break: break-word;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+}
+

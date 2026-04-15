@@ -50,7 +50,6 @@ const APP_REGISTRY = {
         launch:  launchAbout,
         unique:  true,
     },
-    /*
     research: {
         id:      'research',
         label:   'Research',
@@ -61,7 +60,6 @@ const APP_REGISTRY = {
         launch:  launchResearch,
         unique:  true,
     },
-    */
     teaching: {
         id:      'teaching',
         label:   'Teaching',
@@ -72,7 +70,6 @@ const APP_REGISTRY = {
         launch:  launchTeaching,
         unique:  true,
     },
-    /*
     career: {
         id:      'career',
         label:   'Career',
@@ -83,7 +80,6 @@ const APP_REGISTRY = {
         launch:  launchCareer,
         unique:  true,
     },
-    */
 };
 
 // Dock order
@@ -104,7 +100,7 @@ let zCounter     = 200;  // incrementing z-index for focus
    ============================================================ */
 function onDesktopReady() {
     // Auto-open about on first load
-    openApp('teaching', { x: 120, y: 60 });
+    openApp('about', { x: 120, y: 60 });
 }
 
 /* ============================================================
