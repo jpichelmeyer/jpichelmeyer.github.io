@@ -244,7 +244,6 @@ body.pos-active {
     color: rgba(0,0,0,0.75);
 }
 
-
 /* Dock — pill container matching the reference */
 #pos-dock {
     display: flex;
@@ -266,7 +265,7 @@ body.pos-active {
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    padding: 5px 11px 20px 10px;
+    padding: 5px 11px;
     border-radius: 10px;
     cursor: pointer;
     transition: background 0.15s ease, transform 0.12s ease;
@@ -296,24 +295,7 @@ body.pos-active {
 .pos-dock-icon {
     font-size: 18px;
     line-height: 1;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    /*svg { width: 100%; height: 100%; };*/
-    
-    border: 2px solid #000; /* thickness, style, and color */
-    border-radius: 8px;      /* controls how rounded the corners are */
-    box-sizing: border-box;  /* ensures border stays inside the width/height */
-
 }
-
-.pos-dock-icon svg, 
-.pos-dock-icon img {
-    width: 48px;   /* adjust to taste */
-    height: 48px;
-    display: block;
-}
-
 
 .pos-dock-label {
     font-size: 9px;
