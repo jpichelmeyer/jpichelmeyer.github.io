@@ -1,19 +1,24 @@
+import copy
 import os
 import shutil
 from pathlib import Path
 
-POSTFIX = "2026_04_15_r"
+DO_LIVE = True
+VERBOSITY = 0
+POSTFIX = copy.deepcopy("2026_04_16_o")
+MAIN_STORE = copy.deepcopy("archived")
 
 def copy_all_files_to_central(
     scan_dir_name:str="",
-    store_dir_name:str="archived",
+    store_dir_name:str=MAIN_STORE,
     excluded_dir_names:list=[
         "archived",
         "inspiration",
+        "shared",
         ],
     postfix:str=POSTFIX,
     postfix_indent:int=0,
-    verbosity:int=0,
+    verbosity:int=VERBOSITY,
     live:bool=False,
     ):
     
@@ -62,16 +67,12 @@ def copy_all_files_to_central(
                 if excluded_dir_name in root:
                     is_excluded = True
                     break
+                
             if verbosity > 1:
                 print(f"........................................")
                 print(f"........element of os.walk(path_abs_scan)...")
                 print(f"............root:.{root}...")
                 print(f"............is_excluded:.{is_excluded}")
-                #print(f"............SAME.AS.PATH.STORE.{root==path_abs_store}...")
-                #print(f"............SAME.AS.PATH.SCAN.{root==path_abs_scan}...")
-                #print(f"............CHILD.OF.STORE.{store_dir_name in root}...")
-                #print(f"............dirs:.{dirs}...")
-                #print(f"............files:.{files}...")
             
             if not is_excluded:
                 for filename in files:
@@ -116,10 +117,18 @@ def copy_all_files_to_central(
             print(f"........saved.{filename_raw}....")
     else:
         print(f"....no.files.were.saved....")
-    
+
+
+
+
 
 if __name__ == '__main__':
     print("Running archiver.py...")
-    copy_all_files_to_central(verbosity=0, live=True)
+    copy_all_files_to_central(
+        store_dir_name=MAIN_STORE,
+        verbosity=VERBOSITY,
+        postfix=POSTFIX,
+        live=DO_LIVE,
+        )
     print("....finished running archiver.py.")
     
