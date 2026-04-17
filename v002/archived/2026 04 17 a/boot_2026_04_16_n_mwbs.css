@@ -1,0 +1,198 @@
+/*=====================================================================
+	v002/pos/boot/boot.css
+=====================================================================*/
+/* ============================================================
+   BOOT SCREEN
+============================================================ */
+:root {
+	--background-base: #0a0a08;
+	--color-base: #bcf584;
+}
+
+#pos-boot {
+    position: fixed;
+    inset: 0;
+    background: var(--background-base);
+    z-index: 999;x
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    font-family: "Courier New", Courier, monospace;
+    padding: 0px;
+    color: var(--color-base);
+    transition: opacity 0.6s ease;
+    white-space: pre;      /* Prevents wrapping and preserves all spaces/dots */
+    overflow: hidden;       /* Hides any text that exceeds the container width */
+    display: block;         /* Ensures the element takes up its own line */
+    word-break: none;       /* Disables breaking words */
+    letter-space: 0px;
+    /*         name | duration | timing-function | iteration-count */
+    /*animation: boot-glow 2s infinite; */
+}
+#pos-boot.fade-out {
+    opacity: 0;
+    pointer-events: none;x
+}
+.pos-boot-sub {
+
+}
+.pos-boot-sub-logo {
+
+}
+@keyframes boot-glow {
+    from { text-shadow: 0 0 10px rgba(65,255,0,0.4); }
+    to   { text-shadow: 0 0 30px rgba(65,255,0,0.9), 0 0 60px rgba(65,255,0,0.3); }
+}
+
+
+
+/* Animation Keyframes */
+@keyframes flicker {
+  0%, 100% { opacity: 1; color: #ff3333; }
+  50% { opacity: 0.8; color: #ffaa00; }
+}
+
+@keyframes float-rotate {
+  from { transform: rotateX(0deg) rotateY(0deg); }
+  to { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+/* Panel Specific Styles */
+.circuit-active { color: #00ff88; text-shadow: 0 0 5px #00ff88; }
+.bird-hop { display: inline-block; transition: transform 0.2s ease; }
+.punk-rock { animation: flicker 0.15s infinite; }
+.serene-calm { color: #4499ff; transition: opacity 2s ease; opacity: 0.6; }
+
+/* 3D Topology Container */
+.topo-viewport {
+  perspective: 600px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.topo-shape {
+  transform-style: preserve-3d;
+  animation: float-rotate 8s linear infinite;
+  font-size: 10px;
+  line-height: 8px;
+}
+
+
+
+
+
+
+
+/* Add to v002/pos/boot/boot.css */
+
+.panel {
+    border: 1px solid #003d1f;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: rgba(0, 20, 0, 0.5);
+    white-space: pre;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 11px;
+    min-height: 80px;
+}
+
+.panel-label {
+    display: block;
+    color: #003d1f;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* 3D Rotation for the Topology Surface */
+.topo-viewport {
+    perspective: 400px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.topo-shape {
+    transform-style: preserve-3d;
+    animation: float-rotate 5s linear infinite;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.panel {
+    border: 1px solid #003d1f;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: rgba(0, 10, 0, 0.8);
+    white-space: pre;
+    font-size: 11px;
+    color: #00ff88;
+    min-height: 80px;
+    overflow: hidden;
+}
+
+.panel-label {
+    display: block;
+    color: #003d1f;
+    border-bottom: 1px solid #003d1f;
+    margin-bottom: 5px;
+    font-size: 9px;
+}
+
+#boot-layout {
+    font-family: "Courier New", Courier, monospace;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.panel {
+    border: 1px solid #003d1f;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: rgba(0, 10, 0, 0.8);
+    white-space: pre;
+    font-size: 11px;
+    color: #00ff88;
+    min-height: 80px;
+    overflow: hidden;
+}
+
+.panel-label {
+    display: block;
+    color: #003d1f;
+    border-bottom: 1px solid #003d1f;
+    margin-bottom: 5px;
+    font-size: 9px;
+}
+
+#boot-layout {
+    font-family: "Courier New", Courier, monospace;
+}

@@ -1,0 +1,49 @@
+/* =====================================================================
+    v002/pos/app/updown/updown.css
+===================================================================== */
+.ud-container {
+    padding: 20px;
+    background: var(--win-bg);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.ud-app-list {
+    flex: 1;
+    margin-bottom: 20px;
+    border: 1px solid var(--win-border-light);
+    background: rgba(255,255,255,0.3);
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.ud-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--win-border-light);
+}
+
+.ud-status-dot {
+    width: 6px;
+    height: 6px;
+    background: #4caf50;
+    border-radius: 50%;
+}
+
+.ud-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.ud-empty {
+    font-size: 11px;
+    color: #888;
+    text-align: center;
+    margin-top: 20px;
+}

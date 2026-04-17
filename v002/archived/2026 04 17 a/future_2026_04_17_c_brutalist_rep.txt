@@ -1,0 +1,235 @@
+ 
+
+
+         ___   ___   ___   ___
+        [   ] [   ] [   ] [   ]
+    |------------------------------------------------------------------------------
+	|   
+	-------------------------------------------------------------------------------
+	|	
+	|
+    |
+    --------------------------------------------------------------------------------
+
+
+
+
+/*================================================================================
+
+    Applications
+
+================================================================================*/
+
+
+
+
+
+
+
+
+         ___   ___   ___   ___
+        [   ] [   ] [   ] [   ]    2026 04 16 b
+    |------------------------------------------------------------------------------
+	|   PAPC : PostApocolyptic Programming Crafter? 
+	-------------------------------------------------------------------------------
+	|	Essentially convert my Pr0m work something native to POS.
+	|   Promising.
+    |
+    --------------------------------------------------------------------------------
+
+         ___   ___   ___   ___
+        [   ] [   ] [   ] [   ]    2026 04 16 b
+    |------------------------------------------------------------------------------
+	|   Bug Hunter
+	-------------------------------------------------------------------------------
+	|	Hunts for tiny little syntax mistakes
+    |       syntax mistakes
+    |           double period
+    |           not following capitaliation / naming conventions
+    |   
+    |   Automatically trawls a target directory, looking at the files
+    |
+    |   Can also hunt for instances of a word, or a very close variation of 
+	|
+    |
+    --------------------------------------------------------------------------------
+
+
+
+	  [AI] [Visual] [Mathematics] [Animated]         2026 04 16 a
+	|------------------------------------------------------------------------------
+	|   ASCII vector field
+	-------------------------------------------------------------------------------
+	|	Let a particle/ant/etc be pushed/pulled through a vector field
+	|
+    |
+    --------------------------------------------------------------------------------
+
+
+	
+	  [ASCII] [Visual] [Interactive]             2026 04 16 a
+	|-------------------------------------------------------------------------------
+	|   ASCII pool
+	|-------------------------------------------------------------------------------
+	|	Click on a cell to send ASCII ripples through the pool of ASCII symbols
+    |
+    --------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*================================================================================
+
+    Naming/Branding?
+
+================================================================================*/
+
+    P.SHELL
+
+      ████╗
+      █╔══🐚
+      ████║
+      █╔══╝
+      █║
+
+      █████╗ 
+      █╔═══██╗
+      █║ 🌀 █║
+      █████╔╝
+      █╔═══╝ 
+      █║     
+
+      ▛▀▀▀▜
+      ▌ ⚑ ▐
+      ▙▄▄▄▟
+      ▌ @
+      ▌
+
+       █▀█  ⬢⬢
+       █▄█  ⬢⬢
+       █    
+       █    
+
+        █▀█   ⬢ ⬢
+        █▄█  ⬢ ⬢ ⬢
+        █     ⬢ ⬢
+        █    
+
+             ⬢ ⬢ ⬢
+              ⬢ ⬢
+
+      █▀█  ⣔⣒⣄
+      █▀▀  ⠣⠤⠗
+      █ 
+
+
+ 
+   █▀█  ▟▓⣔⣒⣄
+   █▀▀ ▟▓⣦   ⠣⠤⠗
+   █  ▟▓▓▓▓⣄     ⎩⎥─
+     ▟▓▓▓▓▓▓⣷⡄   ⎨
+     ▀▀⠙⠻⠿⠟
+
+         ▄▄▄▄▄
+        █ ▄▄ █
+        █ █  █
+        █ ▀▀▀
+         ▀▀▀▀
+
+
+
+
+
+/*================================================================================
+
+    Functionality
+
+================================================================================*/
+
+    
+
+
+    ------------------------------------------------------------------------------
+
+    let's keep it very low effort. I'm thinking a custom file extension 
+    (.poss - pichelmeyer operating system save), format of (not sure the name), b
+    ut kind of like minimalist JSON? 
+
+    YAML style?
+    https://developers.home-assistant.io/docs/documenting/yaml-style-guide/
+
+        # Good (2 spaces for indent)
+        example:
+          one: 1
+
+        # Good
+        example:
+          # Comment
+          one: true
+
+        # Acceptable, but prefer the above
+        example:
+          one: true # Comment
+
+        # Bad
+        example:
+        # Comment
+          one: false
+          #Comment
+          two: false
+          # comment
+          three: false
+
+        # Good
+        example:
+          - 1
+          - 2
+          - 3
+
+        # Bad
+        example:
+        - 1
+        - 2
+        - 3
+
+    function loadPOSS(fileContent) {
+        const lines = fileContent.split('\n');
+        let state = {};
+
+        lines.forEach(line => {
+            const [key, value] = line.split(':').map(s => s.trim());
+            if (key && value) {
+                state[key] = value;
+                // Apply to your OS, e.g., if (key === 'bg') document.body.style.background = value;
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

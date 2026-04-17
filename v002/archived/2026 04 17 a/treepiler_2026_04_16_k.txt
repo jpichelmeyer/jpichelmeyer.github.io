@@ -1,0 +1,96 @@
+
+
+Functionality add
+
+	* FONT-SIZE-INCREASE: with scroll of mouse wheel
+	* ( ? )	Ability to change the "resolution" of the syntax tree
+	
+	* TOGGLE vertical alignment of graph between 
+			root at top and root at bottom (tree expanding upward)
+	
+	* TOGGLE for switching between a tree visual of the code
+			and a nested dictionary version (maybe keeping those same nicely colore
+			blocks and just nesting them
+			
+			.py
+			---------------------------
+			1|.a.=.5
+			2|.if.a.>.0:
+			3|.....print("a.is.great")
+			4|.else:
+			5|.....for.i.i.range(3):
+			6|.........a**2
+			7|.print(a)
+			
+			
+			AST.NestedDirectory
+			-------------------------------------------
+				[.Program...(root).]
+				|-->[.Program...(assign).]
+				|-->[.if.a.>.0...(conditional).]
+				|   |-->[.call print("a.is.great")..(call).]
+				|-->[.else...(conditional).]
+				|   |-->[.for.i.in.range(3)..(loop)..]
+				|   |   |-->[.assign.a..(assign).]
+				|-->[.call.print(a)...(call).]
+			
+					
+			AST.TreeGraph
+			------------------------------------------------------------------------------------
+				
+							[.Program...(root).]
+							        |
+	     o----------------------o---+-------------------------------o------------------------------o					
+		 |                      |                                   |                              |				   
+		 v				        v                                   v                              v
+[.Program...(assign).]     [.if.a.>.0...(conditional).]     [.else...(conditional).]     [.call.print(a)...(call).]	
+						        |                                   |
+                                v                                   v
+				   [.call print("a.is.great")..(call).]     [.for.i.in.range(3)..(loop)..]
+																	|																	                                                    v
+															[.assign.a..(assign).]
+					
+	
+	* CLICK+DRAG the interior tree window
+	
+	* TOGGLE a mode on/of that shows context at that line
+				
+		.html
+			____________________________________________________________________________
+            ____SCOPE_______________________________| # |_______________________________
+            | .html                                 | 1 |<html>
+            | .html/<html>                          | 2 | 
+            | .html/<html>                          | 3 |   <style>
+            | .html/<html><style>                   | 4 |       
+            | .html/<html><style>                   | 5 |       .myClass{
+            | .html/<html><style>.myClass           | 6 |           color: #ff00ff;
+
+        .py  
+			____________________________________________________________________________
+            ____SCOPE_______________________________|_#_|_______________________________
+            | .py                                   | 1 | import numpy as np
+            | .py                                   | 2 | def my_function(a:int=0, b:int=0):
+            | .py/my_function                       | 3 |     for i in range(4):
+            | .py/my_function/for(i in range(4))    | 4 |         for j in range(10):   
+
+
+
+
+-----------------------------------------------------------------------
+
+Theory notes
+
+	AST: The set of all abstract syntax trees (ASTs)
+		Not partially ordered by default (just a set, no inherent structure)
+		Becomes a partially ordered set when equipped with a partial order relation 
+		<= (leq), which is:
+			Reflexive		T1 subtree of T1 for all T1 in AST
+			Antisymmetry	IF[ (T1 subtree of T2) AND (T2 subtree of T1) ] THEN (T1=T2)
+			Transitivity    T1 subtree of T2 and T2 a subtree of T3 implies T1 subtree of T3
+		
+	
+	
+	
+	
+	
+		

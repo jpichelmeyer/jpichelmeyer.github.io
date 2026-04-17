@@ -1,0 +1,18 @@
+
+
+
+2026 04 16 a
+
+	[AI] [Visual] [Mathematics] [Animated]
+	--------------------------------------------------------------------------------
+	ASCII vector field
+	--------------------------------------------------------------------------------
+		Let a particle/ant/etc be pushed/pulled through a vector field
+	
+	
+	[ASCII] [Visual] [Interactive]
+	--------------------------------------------------------------------------------
+	ASCII pool
+	--------------------------------------------------------------------------------
+		Click on a cell to send ASCII ripples through the pool of ASCII symbols
+

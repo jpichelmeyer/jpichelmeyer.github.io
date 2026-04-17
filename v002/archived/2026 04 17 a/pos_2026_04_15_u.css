@@ -1,0 +1,13 @@
+/*=====================================================================
+	v002/pos/pos.css
+=====================================================================a*/
+/*=====================================================================
+	CSS accumulator
+=====================================================================*/
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@300;400;600&display=swap');
+@import './boot/boot.css';
+@import './gui/gui.css';
+@import './app/course-viewer/course-viewer.css';
+@import './app/textpiler/textpiler.css';
+@import './app/treepiler/treepiler.css';
+

@@ -1,0 +1,242 @@
+/*=====================================================================
+    v002/pos/gui/gui.css  [BRUTALIST — CLEAN CONSOLIDATED]
+=====================================================================*/
+
+/* ── Root tokens ──────────────────────────────────────────────── */
+:root {
+    --pos-desktop:     #ffffff;
+    --win-bg:          #ffffff;
+    --win-border:      #000000;
+    --taskbar-bg:      #000000;
+    --taskbar-height:  48px;
+    --font-mono:       'Share Tech Mono', monospace;
+
+    /* Greyscale palette for internal use */
+    --grey-light: #f4f4f4;
+    --grey-mid:   #cccccc;
+    --grey-dark:  #888888;
+}
+
+/* ── Global reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border-radius: 0 !important;   /* Hard edges everywhere — no rounded corners */
+}
+
+/* ── Body / desktop ───────────────────────────────────────────── */
+body.pos-active {
+    background: var(--pos-desktop);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    /* Subtle grid texture — pure white in fullscreen */
+    background-image: repeating-conic-gradient(#ebebeb 0% 25%, #ffffff 0% 50%);
+    background-size: 24px 24px;
+}
+
+#pos-desktop {
+    position: fixed;
+    inset: 0;
+    bottom: var(--taskbar-height);
+    background: transparent;
+}
+
+/* ── Window shell ─────────────────────────────────────────────── */
+/*
+    NO TITLEBAR.
+    The window is a borderless panel. The left sidebar tab acts as
+    the drag handle and label, keeping the interior clean.
+*/
+.pos-window {
+    background: var(--win-bg);
+    border: 2px solid var(--win-border);
+    box-shadow: 6px 6px 0px #000000;
+    display: flex;
+    flex-direction: row;        /* sidebar | body */
+    position: absolute;
+    overflow: hidden;
+}
+
+.pos-window.focused {
+    box-shadow: 8px 8px 0px #000000;
+    z-index: 200;
+}
+
+.pos-window.minimized {
+    display: none;
+}
+
+.pos-window.maximized {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: calc(100vh - var(--taskbar-height)) !important;
+    box-shadow: none;
+}
+
+/* ── Vertical sidebar tab (drag handle + label + controls) ─────── */
+.pos-sidebar-tab {
+    width: 28px;
+    background: #000000;
+    color: #ffffff;
+    border-right: 2px solid #000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    cursor: grab;
+    flex-shrink: 0;
+    gap: 6px;
+}
+
+.pos-sidebar-tab:active {
+    cursor: grabbing;
+}
+
+/* Window control buttons (close / min / max) stacked vertically */
+.pos-tl {
+    width: 18px;
+    height: 18px;
+    background: transparent;
+    border: 1.5px solid #ffffff;
+    color: #ffffff;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.pos-tl:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* Rotated app label */
+.pos-sidebar-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    margin-top: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 11px;
+    color: #ffffff;
+    user-select: none;
+}
+
+/* ── Window body ──────────────────────────────────────────────── */
+.pos-window-body {
+    flex: 1;
+    overflow: hidden;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Resize handle ────────────────────────────────────────────── */
+.pos-resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    cursor: se-resize;
+    background: #000000;
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* ── Taskbar ──────────────────────────────────────────────────── */
+#pos-taskbar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: var(--taskbar-height);
+    background: var(--taskbar-bg);
+    border-top: 2px solid #000000;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    z-index: 1000;
+    gap: 4px;
+}
+
+.taskbar-spacer {
+    flex: 1;
+}
+
+/* ── Dock ─────────────────────────────────────────────────────── */
+#pos-dock {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.pos-dock-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: transparent;
+    transition: none;
+}
+
+.pos-dock-item:hover {
+    border-color: #ffffff;
+    background: #1a1a1a;
+}
+
+.pos-dock-item.active {
+    border-color: #ffffff;
+    background: #ffffff;
+}
+
+.pos-dock-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.pos-dock-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: #ffffff;
+}
+
+.pos-dock-item.active .pos-dock-icon svg {
+    fill: #000000;
+}
+
+/* ── Clock ────────────────────────────────────────────────────── */
+#pos-clock {
+    color: #ffffff;
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding-left: 12px;
+    border-left: 2px solid #333333;
+    font-family: var(--font-mono);
+}
+
+/* ── Pause shield (fullscreen lost) ──────────────────────────── */
+#pos-pause-shield {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: #000000;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    text-align: center;
+    border: 15px solid #1a1a1a;
+}
+

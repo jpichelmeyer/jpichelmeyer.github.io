@@ -1,0 +1,249 @@
+/*
+=====================================================================
+    v002/pos/app/treepiler/treepiler.css
+=====================================================================
+*/
+
+/* ── Layout Shell ─────────────────────────────────────────────── */
+.treepiler-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #0e0e12;
+    color: #c8c8d4;
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+}
+
+/* ── Toolbar ──────────────────────────────────────────────────── */
+.treepiler-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #16161e;
+    border-bottom: 1px solid #2a2a38;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.treepiler-toolbar-label {
+    font-size: 10px;
+    color: #555568;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin-right: 4px;
+}
+
+.tp-lang-btn {
+    padding: 3px 11px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    background: #1e1e2a;
+    border: 1px solid #33334a;
+    color: #7878a0;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all .15s ease;
+    letter-spacing: .05em;
+}
+
+.tp-lang-btn:hover {
+    background: #26263a;
+    color: #aaaac8;
+    border-color: #5555aa;
+}
+
+.tp-lang-btn.active {
+    background: #22223a;
+    color: var(--app-accent, #7b6cff);
+    border-color: var(--app-accent, #7b6cff);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--app-accent, #7b6cff) 30%, transparent);
+}
+
+.tp-divider {
+    width: 1px;
+    height: 18px;
+    background: #2a2a38;
+    margin: 0 4px;
+}
+
+.tp-parse-btn {
+    margin-left: auto;
+    padding: 3px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    background: color-mix(in srgb, var(--app-accent, #7b6cff) 15%, #1e1e2a);
+    border: 1px solid var(--app-accent, #7b6cff);
+    color: var(--app-accent, #7b6cff);
+    cursor: pointer;
+    border-radius: 3px;
+    letter-spacing: .08em;
+    transition: all .15s ease;
+}
+
+.tp-parse-btn:hover {
+    background: color-mix(in srgb, var(--app-accent, #7b6cff) 28%, #1e1e2a);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--app-accent, #7b6cff) 40%, transparent);
+}
+
+/* ── Main split pane ──────────────────────────────────────────── */
+.treepiler-split {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* ── Editor pane ──────────────────────────────────────────────── */
+.treepiler-editor-pane {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    min-width: 200px;
+    border-right: 1px solid #2a2a38;
+    overflow: hidden;
+}
+
+.tp-pane-header {
+    font-size: 9px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: #444458;
+    padding: 4px 10px;
+    background: #12121a;
+    border-bottom: 1px solid #22222e;
+    flex-shrink: 0;
+}
+
+.treepiler-editor-wrap {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Line numbers */
+.tp-line-numbers {
+    width: 42px;
+    padding: 10px 0;
+    text-align: right;
+    padding-right: 10px;
+    background: #0e0e12;
+    color: #383848;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow: hidden;
+    flex-shrink: 0;
+    user-select: none;
+    border-right: 1px solid #1e1e2a;
+}
+
+.tp-line-num {
+    display: block;
+    height: 19.2px; /* matches line-height 1.6 × 12px */
+}
+
+.tp-line-num.active-line {
+    color: #6666aa;
+}
+
+/* The raw textarea (transparent, sits on top) */
+.tp-textarea {
+    flex: 1;
+    resize: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: transparent;
+    caret-color: var(--app-accent, #7b6cff);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 10px 10px;
+    tab-size: 4;
+    overflow-y: auto;
+    overflow-x: auto;
+    white-space: pre;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+/* Highlighted overlay */
+.tp-highlight-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 10px 10px;
+    white-space: pre;
+    overflow: hidden;
+    z-index: 1;
+    color: #c8c8d4;
+}
+
+/* ── Syntax highlight token colours ──────────────────────────── */
+.hl-keyword   { color: #c792ea; }
+.hl-builtin   { color: #82aaff; }
+.hl-string    { color: #c3e88d; }
+.hl-comment   { color: #546e7a; font-style: italic; }
+.hl-number    { color: #f78c6c; }
+.hl-operator  { color: #89ddff; }
+.hl-type      { color: #ffcb6b; }
+.hl-function  { color: #82aaff; }
+.hl-punct     { color: #89ddff; }
+.hl-decorator { color: #ff9cac; }
+
+/* ── AST pane ─────────────────────────────────────────────────── */
+.treepiler-ast-pane {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    background: #0b0b10;
+}
+
+.tp-ast-canvas-wrap {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+}
+
+#tp-ast-canvas {
+    display: block;
+    cursor: grab;
+}
+
+#tp-ast-canvas:active {
+    cursor: grabbing;
+}
+
+/* ── Status bar ───────────────────────────────────────────────── */
+.treepiler-statusbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 3px 10px;
+    background: #12121a;
+    border-top: 1px solid #1e1e2a;
+    flex-shrink: 0;
+    font-size: 10px;
+    color: #444458;
+    letter-spacing: .06em;
+}
+
+.tp-status-lang {
+    color: var(--app-accent, #7b6cff);
+}
+
+.tp-status-msg {
+    margin-left: auto;
+    color: #556644;
+}
+
+.tp-status-msg.error {
+    color: #aa4444;
+}
