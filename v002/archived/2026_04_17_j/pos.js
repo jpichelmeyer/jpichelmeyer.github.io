@@ -1,5 +1,5 @@
 /*=====================================================================
-    v002/pos/pos.js
+    v003/pos/pos.js
 =====================================================================*/
 import { runBoot } from './boot/boot.js';
 import { buildDock } from './gui/dock.js';
@@ -7,18 +7,14 @@ import { openWindows } from './gui/window.js';
 import { APP_REGISTRY } from './gui/registry.js';
 
 /*
-    App self-registration — each app module calls registerApplication()
-    on import. Import them here so they register before buildDock() runs.
+    App self-registration
 */
 import './app/treepiler/treepiler.js';
-import './app/courseviewer/courseviewer.js';
+import './app/academy/academy.js';
+import './app/synapse/synapse.js';
 import './app/asciink/asciink.js';
 import './app/updown/updown.js';
 
-/*
-    window.POS — global state bridge consumed by updown.js and any
-    app that needs cross-module access to open windows / registry.
-*/
 window.POS = {
     get openWindows() { return openWindows; },
     get apps()        { return APP_REGISTRY; },
@@ -38,7 +34,7 @@ async function initializeOS() {
     });
 }
 
-/* ── Clock ────────────────────────────────────────────────────── */
+/* ── Clock — now inside the dock rail ─────────────────────────── */
 function startClock() {
     const clockEl = document.getElementById('pos-clock');
     if (!clockEl) return;

@@ -1,5 +1,5 @@
 /*=====================================================================
-    v002/pos/gui/dock.js
+    v003/pos/gui/dock.js
 =====================================================================*/
 import { APP_REGISTRY, DOCK_ORDER } from './registry.js';
 import {
@@ -19,6 +19,7 @@ export function buildDock() {
         const item = document.createElement('div');
         item.className = 'pos-dock-item';
         item.dataset.appId = appId;
+        item.dataset.label = app.label || appId;   // used by CSS tooltip
 
         const iconContent = app.svg || app.icon || '?';
         item.innerHTML = `<span class="pos-dock-icon">${iconContent}</span>`;
@@ -31,9 +32,7 @@ export function buildDock() {
 /*
     updateDockItem(appId)
     ─────────────────────
-    Refreshes the visual state of a single dock item to reflect
-    the current window state (open / minimized / focused / closed).
-    Called by window.js on open, close, minimize, restore.
+    Refreshes visual state of a single dock item.
 */
 export function updateDockItem(appId) {
     const dock = document.getElementById('pos-dock');
@@ -54,7 +53,6 @@ export function updateDockItem(appId) {
 }
 
 function dockItemClick(appId) {
-    // Restart is a special built-in — just fire and return
     if (appId === 'restart') {
         APP_REGISTRY[appId].launch();
         return;
@@ -72,4 +70,3 @@ function dockItemClick(appId) {
         focusWindow(appId);
     }
 }
-

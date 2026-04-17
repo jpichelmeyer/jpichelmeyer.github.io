@@ -1,0 +1,157 @@
+
+
+
+  
+             ╭─o─o─╮
+             ╰─┬─┬─╯
+            _ ╯  ╰ _
+           ( \____/ )
+            \______/
+
+            Director
+
+
+                             ╭─o─o─╮
+                             ╰─┬─┬─╯
+                            _ ╯  ╰ _
+                           ( \____/ )
+                            \______/
+
+                           Archivalist / Loader
+
+
+                             ╭─o─o─╮
+                             ╰─┬─┬─╯
+                            _ ╯  ╰ _
+                           ( \____/ )
+                            \______/
+
+                           Archivalist
+
+
+
+
+
+
+
+
+
+
+
+╭
+                
+                          
+
+     ╭─o─o─╮
+     ╰─┬─┬─╯
+    _ ╯  ╰ _
+   ( \____/ )
+    \______/
+
+
+256d = ╭
+
+2500 = ─
+
+256e = ╮
+
+2570 = ╰
+
+256f = ╯
+
+Corners: ╭ ╮ ╰ ╯
+Lines:   ─ │ ┴ ┬
+Face:    o • ^ ‿
+
+
+
+   ?
+ ╭o-o╮
+ ╰───╯__
+  ~~~ / \
+  ----  /
+   ----
+
+     /o o\
+     \   / 
+     ╰───╯_
+   ( \__/  )
+    \_____/
+
+
+
+
+     ╭─o─o─╮
+     ╰─┬─┬─╯
+    _ ╯  ╰ _
+   ( \____/ )
+    \______/
+
+
+
+
+
+
+
+
+
+  DEPTH          0            1             2                                        N
+            +----------+   +--------+    +--------+                  +---------------------+                 
+            | ~ (root) | / | dir_1  |  / |  dir_2 |    /  ....  /    | project_directory/  |
+            +----------+   +--------+    +--------+                  +---------------------+                      
+                 root                                                                project
+
+
+
+
+                                          +----------+          
+                                          | ~ (root) | 
+                                          +----------+   
+                                                |                                                 
+                                                v
+                                               ...
+                                                |
+                                                v
+                                     +---------------------+                 
+                                     | project_directory/  |
+                                     +---------------------+     
+                                                                                                  
+
+             raw_name
+
+                     raw_name/                  <-- Directory
+                     raw_name.                  <-- File
+
+                             raw_name.EXT
+
+
+
+
+
+
+
+
+        ░░░░░░░░░░░░▄░░▄░▀█▄░░
+        ░░▄████████▄██▄██▄██░░
+        ░░█████████████▄████▌░
+        ░░▌████████████▀▀▀▀▀░░
+        ▒▀▒▐█▄▐█▄▐█▄▐█▄▒░▒░▒░▒ 
+
+
+
+
+
+
+
+
+No, you should not always put a . (dot) in front of the first / in Python file paths. The . denotes the current working directory, while a leading / denotes the root directory. Use ./ only when specifically referencing a file relative to the script's current location, not for absolute or root-relative paths. 
+Key Takeaways for Pathing:
+
+    ./file.txt: Means "file.txt in the current directory."
+    /file.txt: Means "file.txt in the root directory" (e.g., C:/file.txt or /file.txt on Linux).
+    Best Practice: For cross-platform compatibility, avoid hardcoding forward or backward slashes altogether. Use pathlib or os.path.join() to handle path separators automatically.
+    Windows Note: Python handles forward slashes (/) even on Windows, so C:/folder/file is valid, but raw strings (r'C:\path') are also common for handling backslashe
+
+
+
+
