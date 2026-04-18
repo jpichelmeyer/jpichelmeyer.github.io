@@ -1,8 +1,6 @@
 #####################################################
 # v002/helpers/archivalist.py 
 #####################################################
-import builtins
-import functools
 import copy
 import sys
 import os
@@ -11,46 +9,12 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-TRANSLATION = {
-    "comment sigs": {
-        "py": {'#': r'\n[a-zA-Z]', "'''": "'''", '"""': '"""'},
-        "html": {'<!--': '-->'},
-        "css": {'/*': '*/'}, # Removed the asterisk
-        "js": {'/*': '*/'},
-    }
-}
-
-###############################################################
-# THIS IS A DECORATOR
-def prepend_name(func):
-    @functools.wraps(func)  # Keeps the original function's name and docstring
-    def wrapper(*args, **kwargs):
-        # Define a custom print function
-        def custom_print(*p_args, **p_kwargs):
-            # Prepend the function name to the output
-            return builtins.print(f"[{func.__name__}]", *p_args, **p_kwargs)
-        
-        # Temporarily replace print in the function's global scope
-        original_print = func.__globals__.get('print', builtins.print)
-        func.__globals__['print'] = custom_print
-        
-        try:
-            return func(*args, **kwargs)
-        finally:
-            # Restore the original print function after execution
-            func.__globals__['print'] = original_print
-            
-    return wrapper
-###############################################################
-
-
-
 class Archivist():
     
     def __init__(self, project_dir=Path.cwd(), chatty:bool=True):
         self.abs_path_project = os.path.abspath("../")
         
-        print(f"self.abs_path_project: {self.abs_path_project}")
+        print(f"self.abs_path_projecte: {self.abs_path_project}")
         
         self.chatty = chatty
         self.DO_LIVE = True
@@ -59,6 +23,11 @@ class Archivist():
         self.excluded_dir_names = ["archived", "inspiration", "shared"]
         self.include_only_exts = ["py", "css", "html", "js"]        
         self.project_files = []
+        # LLM says below is good....
+        #-----------------------------------
+        # except Exception as e:
+        # print(f"An error occurred: {e}")
+        #-----------------------------------
         try:
             self.project_files = self.get_project_files()
         except Exception as e:
@@ -100,6 +69,8 @@ class Archivist():
                 for filename in files:
                     source_path = os.path.join(root, filename)
                     ext = filename.split('.')[-1]
+                    # Save with the original filename (no postfix injection)
+                    #destination_path = os.path.join(path_abs_store, filename)
                     print(f"...........................................")
                     print(f"....project file detected ...................")
                     print(f"........ext..:..{ext}......................")
@@ -165,6 +136,8 @@ class Archivist():
         """
         if extensions is None:
             extensions = ['.py', '.html', '.css', '.js']
+            
+        # Basic regex to find relative path patterns (e.g., ../folder/file.js)
         path_regex = r'(\.?\.\/)+[\w\/\.-]+\.\w+'
 
         for root, _, files in os.walk(self.abs_path_project):
@@ -185,8 +158,14 @@ class Archivist():
     
     
     def decompose_path(self, abs_file_path:str=""):
-        parts = abs_file_path.split('/')
-        parts.reverse() 
+        
+        #basename, ext = "fil", "ext"
+        #parts = abs_file_path.split(os.sep)
+        #filename = parts[0]
+        #container = parts[1]
+        #basename, ext = filename.split(r'.')
+        parts = copy.deepcopy(abs_file_path).split('/').reverse()
+        #print(parts)
         ext = 'ext'
         base = 'base'
         filename = 'filename.EXT'
@@ -197,6 +176,7 @@ class Archivist():
             filename = parts[-1]
             container = parts[-2]
         try:
+            #basename, ext = ((path.isfile(abs_file_path).split(os.sep))[-1]).split('.')
             subparts = filename.split('.')
             ext = subparts[-1]
             baase = subparts[-2]
@@ -210,170 +190,115 @@ class Archivist():
             
         return  container, filename, base, ext
     
-    @prepend_name
-    def scan_for_fc(self, file_path, ext):
-        """Grabs the 'Front Content' (header comments) of a file."""
-        content = []
-        sigs = TRANSLATION["comment sigs"].get(ext, {})
+    def scan_content_for_fc(self, content:str="", ext:str=''):
         
-        # We need to know if we are inside a multi-line comment (like ''' or /*)
-        in_multiline = False
-        multiline_end = ""
-
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    stripped = line.strip()
-                    
-                    # 1. Handle Empty Lines (Keep them if we are in a comment block)
-                    if not stripped:
-                        content.append(line)
-                        continue
-
-                    # 2. Handle Multiline Logic (CSS, JS, or Py Docstrings)
-                    if not in_multiline:
-                        # Check if line starts a multiline block
-                        found_start = False
-                        for start_sig, end_sig in sigs.items():
-                            if start_sig != '#' and stripped.startswith(start_sig):
-                                in_multiline = True
-                                multiline_end = end_sig
-                                found_start = True
-                                break
-                        
-                        # 3. Handle Single Line Logic (Python #)
-                        if not found_start:
-                            if '#' in sigs and stripped.startswith('#'):
-                                content.append(line)
-                                continue
-                            else:
-                                # HIT ACTUAL CODE - Stop scanning
-                                break
-                    
-                    # 4. If we are inside a multiline block, keep going until the end sig
-                    content.append(line)
-                    if in_multiline and multiline_end in stripped:
-                        in_multiline = False
-                        # Optional: break here if you only want the VERY first block
-            
-            return "".join(content)
-        except Exception as e:
-            print(f"Error scanning {file_path}: {e}")
-            return ""
-    
-    @prepend_name
-    def scan_content_for_fc(self, content_string:str="", ext:str=''):
+        translation = {
+        "comment sigs": {
+            "py": {
+                    '#'  : r'\n[a-zA-Z]',
+                    "'''": "'''",
+                    '"""': '"""',
+                 },
+            "html":  {
+                '<!--':'-->',
+                },   
+            "css*":  {
+                '/*'  : '*/',
+                }, 
+            "js":    {
+                '/*'  : '*/',
+                },
+            }
+        }
         
-           # Use the global TRANSLATION variable (note the ALL CAPS)
-        sigs = TRANSLATION.get("comment sigs", {})
-    
-        if ext not in sigs:
-            if self.chatty:
-                print(f"!!! Error: Extension '{ext}' not found in translation table.")
-            return {} 
-
-        comment_sigs_lang = sigs[ext]
-        
-        #comment_sigs_lang = TRANSLATION["comment sigs"][ext]
+        comment_sigs_lang = translation["comment sigs"][ext]
         logic_idx_open = -1
         open_char = ''
         logic_idx_close = -1
         
-        first_comment_info = {}      
-        comment_sig_open  = ''
+        first_comment_info = {}
+        with open('example.txt', 'r') as file:
+            content = file.read()      
+        comment_sig_open 	  = ''
+        comment_sig_open_log = [],
         comment_sig_close = ''
         state_change_sigs = list(comment_sigs_lang.keys())
         state_change_ends_alg = False;
-        
-        for i in range(len(content_string)):
+        for i in range(len(content)):
             
             for comment_sig in state_change_sigs:
                 i_end = i + len(comment_sig)
-                if content_string[i:i_end] == comment_sig:
+                if (comment_sig in [line[i:i_end]]):
+                    # Match! State change! omment_sig in [content[i,i_end]]:
+                    
                     if state_change_ends_alg:
-                        # Close the tag
-                        first_comment_info["comment-closing-tag"] = comment_sig
-                        first_comment_info["comment-closing-idx"] = i
-                        # Use COLON here
-                        first_comment_info["comment-content"] = content_string[logic_idx_open : i]
-                        print(f'first_comment_info: {first_comment_info}')
+                        
+                        # Fill in remaining info 
+                        first_comment_info["comment-closing-tag"] = copy.deepcopy(comment_sig)
+                        first_comment_info["comment-closing-idx"] = copy.deepcopy(i)
+                        first_comment_info["comment-content"] = line.slice(logic_idx_open, logi_idx_close)
+                        
                         return first_comment_info
+                    
                     else:
-                        # Open the tag
-                        first_comment_info["comment-opening-tag"] = comment_sig
-                        first_comment_info["comment-opening-idx"] = i_end
-                        logic_idx_open = i_end # CRITICAL: Update this for the slice!
-                        state_change_ends_alg = True
-
+                        # Start fill
+                        first_comment_info["comment-opening-tag"] = copy.deepcop(comment_sig)
+                        first_comment_info["comment-opening-idx"] = copy.deepcopy(i_end)
+                        
+                        temp = copy.deepcopy(state_change_ends_alg)
+                        state_change_ends_alg = not temp
                         
             
         return first_comment_info
     
     def msg_filter(self, text:str="", maxL=40):
         new_msg = text[0:min(maxL, len(text))]
-        return new_msg
+        return msg
     
     
-    def show_project_files(self):
-        for thing in self.project_files:
-            print()
-            print(thing)
-    
-    @prepend_name
-    def check_file_heads(self):
-        fid = "check_file_heads"
-        success_ct, failure_ct = 0, 0
+    def rebandanna_files(self):
+        
+        tid = "rebedanddana_files"
         for source_path, filename, ext in self.project_files:
-            
-            #p#rint(f"============================================================")
+            print(f"{1} : {self.msg_filter(text=(tid + source_path))}")
+            print(f"{2} : {self.msg_filter(text=(tid + filename))}")
+            print(f"{3} : {self.msg_filter(text=(tid + ext))}")
+            # 1. Robust Path Splitting
+            #print("0. ", source_path)
+            #container, filename, base, ext = self.decompose_path(source_path)
+            #print("1. ", container)
+            #print("2. ", filename)
+            #print("3. ", base)
+            #print("4. ", ext)
+            #parts = source_path.split(os.sep)
+            #base_ext = parts[-1] 
+            #base, ext = os.path.splitext(base_ext)
+            # Safely get the parent directory (container)
+            #container = parts[-2] if len(parts) > 1 else "root"
+
             try:
-                print(f'source_path:{source_path}\nfilename:{filename}\next:{ext}')
-                
-                '''
-                #######################################################################
-                # Original version: creator version
                 with open(source_path, 'r', encoding='utf-8') as f:
-                    content_string = f.read()
-                first_comment_info = self.scan_content_for_fc(content_string=content_string, ext=ext)
-                content_key = "comment-conent"
-                if content_key in first_comment_info:
-                    content = first_comment_info[content_key]
-                else:
-                    print(f'first_comment_info has no key named: {content_key}')
-                #content = comment["comment-content"] 
-                print(f'comment["comment-content"]=\n{content}')
-                #######################################################################
-                '''
-                
-                #######################################################################
-                # Revised version: tool suggested
-                content = self.scan_for_fc(file_path=source_path, ext=ext)
-                content = content.strip('#\n')
-                rel_path = source_path.split('jpichelmeyer.github.io/')[1]
-                filename = source_path.split(os.sep)[-1]
-                print(f'{rel_path}')
-                print(f'({filename}) content:{content}')
-                #######################################################################
+                    content = f.read()
 
+                # 2. Extract comment using your existing method
+                # We pass the extension so scan_content_for_fc knows what to look for
+                comment = self.scan_content_for_fc(content=content, ext=ext)
 
+                # 3. Clean Output
+                print(f"SOURCE: {source_path}")
+                print(f"Project file detected: ext {ext}")
+                print(f"Header Comment: {comment}\n" + "-"*20)
 
-                success_ct += 1
             except Exception as e:
-                print(f'Exception: {e}')
-                failure_ct += 1
-                
-        #print(tid)
-        print(f"success:{success_ct}.....failure:{failure_ct}.........")
-        return
+                print(f"Skipping {source_path} due to error: {e}")
+
+
 
 
 if __name__=='__main__':
-    
-    
     R = Archivist()
-    #R.show_project_files()
-    #R.archive()
-    #R.check_file_heads()
+    R.archive()
+    #R.rebandanna_files()
 
 
 

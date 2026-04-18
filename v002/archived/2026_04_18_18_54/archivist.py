@@ -50,7 +50,7 @@ class Archivist():
     def __init__(self, project_dir=Path.cwd(), chatty:bool=True):
         self.abs_path_project = os.path.abspath("../")
         
-        print(f"self.abs_path_project: {self.abs_path_project}")
+        print(f"self.abs_path_projecte: {self.abs_path_project}")
         
         self.chatty = chatty
         self.DO_LIVE = True
@@ -372,7 +372,7 @@ if __name__=='__main__':
     
     R = Archivist()
     #R.show_project_files()
-    #R.archive()
+    R.archive()
     #R.check_file_heads()
 
 
