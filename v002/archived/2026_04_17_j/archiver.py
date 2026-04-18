@@ -13,7 +13,7 @@ def copy_all_files_to_central(
     postfix: str = POSTFIX,
     verbosity: int = VERBOSITY,
     live: bool = False,
-):
+    ):
     # Setup target directory: MAIN_STORE/POSTFIX
     path_abs_scan = os.path.abspath(scan_dir_name)
     path_abs_store = os.path.abspath(os.path.join(store_dir_name, postfix))

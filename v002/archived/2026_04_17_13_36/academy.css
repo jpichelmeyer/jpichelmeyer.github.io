@@ -1,0 +1,606 @@
+/*=====================================================================
+    v003/pos/app/academy/academy.css
+    Brutalist but refined — black/white with accent-per-course ink.
+=====================================================================*/
+
+.ac-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Share Tech Mono', monospace;
+    background: #ffffff;
+    user-select: none;
+}
+
+/* ── Shell: sidebar + main ─────────────────────────────────────── */
+.ac-shell {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+.ac-sidebar {
+    width: 180px;
+    flex-shrink: 0;
+    background: #000000;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #000000;
+}
+
+.ac-sidebar-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    gap: 10px;
+}
+
+.ac-logo-mark {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+.ac-logo-name {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.ac-logo-title {
+    font-size: 9px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+/* ── Sidebar nav ─────────────────────────────────────────────── */
+.ac-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    gap: 2px;
+}
+
+.ac-nav-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: left;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+
+.ac-nav-btn:hover {
+    color: #ffffff;
+    background: rgba(255,255,255,0.06);
+}
+
+.ac-nav-btn.active {
+    color: #ffffff;
+    border-left-color: #ffffff;
+    background: rgba(255,255,255,0.08);
+}
+
+/* ── Sidebar footer contact ──────────────────────────────────── */
+.ac-sidebar-footer {
+    margin-top: auto;
+    padding: 12px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ac-contact-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.ac-contact-label {
+    font-size: 8px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 2px;
+}
+
+.ac-contact-val {
+    font-size: 9px;
+    color: rgba(255,255,255,0.65);
+    word-break: break-all;
+}
+
+/* ── Main area ──────────────────────────────────────────────── */
+.ac-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────── */
+.ac-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 16px;
+    background: #ffffff;
+    border-bottom: 2px solid #000000;
+    flex-shrink: 0;
+    min-height: 30px;
+}
+
+.ac-crumb {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.3);
+    padding: 2px 4px;
+}
+
+.ac-crumb:hover { color: #000000; }
+.ac-crumb.ac-crumb-active { color: #000000; cursor: default; }
+
+.ac-crumb-sep {
+    font-size: 10px;
+    color: rgba(0,0,0,0.2);
+}
+
+/* ── Pane ────────────────────────────────────────────────────── */
+.ac-pane {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* ── Loading / Error ─────────────────────────────────────────── */
+.ac-loading, .ac-error {
+    padding: 40px;
+    font-size: 12px;
+    color: rgba(0,0,0,0.4);
+    letter-spacing: 2px;
+}
+.ac-error { color: #c0392b; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ABOUT VIEW
+═══════════════════════════════════════════════════════════════ */
+.ac-about {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ac-about-hero {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #000000;
+}
+
+.ac-avatar {
+    width: 64px;
+    height: 64px;
+    background: #000000;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: -1px;
+}
+
+.ac-about-name {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: #000000;
+}
+
+.ac-about-role {
+    font-size: 10px;
+    color: rgba(0,0,0,0.5);
+    letter-spacing: 2px;
+    margin-top: 3px;
+}
+
+.ac-about-inst {
+    font-size: 10px;
+    color: rgba(0,0,0,0.35);
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+.ac-about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+}
+
+.ac-about-card {
+    background: #f8f8f8;
+    border: 1px solid #e0e0e0;
+    border-left: 3px solid #000000;
+    padding: 14px 16px;
+}
+
+.ac-card-head {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: #000000;
+    margin-bottom: 8px;
+}
+
+.ac-card-body {
+    font-size: 11px;
+    line-height: 1.7;
+    color: rgba(0,0,0,0.65);
+}
+
+.ac-section-head {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: rgba(0,0,0,0.4);
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 14px;
+}
+
+.ac-shared-policies {
+    padding-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COURSE GRID
+═══════════════════════════════════════════════════════════════ */
+.ac-course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2px;
+    padding: 16px;
+}
+
+.ac-course-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-top: 3px solid var(--ac-accent, #000000);
+    padding: 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: box-shadow 0.12s, transform 0.12s;
+    position: relative;
+    gap: 4px;
+}
+
+.ac-course-card:hover {
+    box-shadow: 4px 4px 0 #000000;
+    transform: translate(-2px, -2px);
+    border-color: #000000;
+}
+
+.ac-card-accent-bar {
+    width: 100%;
+    height: 2px;
+    background: var(--ac-accent, #000000);
+    opacity: 0.2;
+    margin-bottom: 8px;
+}
+
+.ac-card-num {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--ac-accent, rgba(0,0,0,0.4));
+    font-weight: bold;
+}
+
+.ac-card-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #000000;
+    line-height: 1.3;
+}
+
+.ac-card-meta {
+    font-size: 9px;
+    color: rgba(0,0,0,0.3);
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+.ac-card-arrow {
+    margin-top: auto;
+    padding-top: 12px;
+    font-size: 11px;
+    color: rgba(0,0,0,0.25);
+    letter-spacing: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COURSE DETAIL
+═══════════════════════════════════════════════════════════════ */
+.ac-detail {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.ac-detail-header {
+    padding: 16px 20px 12px;
+    border-bottom: 2px solid #000000;
+    background: #fafafa;
+    flex-shrink: 0;
+    padding-left: 16px;
+}
+
+.ac-detail-pre {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--ac-accent, rgba(0,0,0,0.4));
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.ac-detail-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 6px;
+}
+
+.ac-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 10px;
+    color: rgba(0,0,0,0.4);
+    letter-spacing: 1px;
+}
+
+/* ── Tab bar ─────────────────────────────────────────────────── */
+.ac-tab-bar {
+    display: flex;
+    background: #000000;
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.ac-tab-bar::-webkit-scrollbar { display: none; }
+
+.ac-tab {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 8px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: color 0.12s, border-color 0.12s;
+}
+
+.ac-tab:hover { color: rgba(255,255,255,0.7); }
+
+.ac-tab.active {
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+
+/* ── Tab panels ─────────────────────────────────────────────── */
+.ac-tab-panels {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.ac-tab-panel {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.ac-tab-panel.active { display: block; }
+
+.ac-section { padding: 16px 20px 24px; }
+
+/* ── Shared sub-elements ─────────────────────────────────────── */
+.ac-subhead {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.35);
+    margin: 14px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e8e8e8;
+}
+.ac-subhead:first-child { margin-top: 0; }
+
+.ac-para {
+    font-size: 12px;
+    color: #2a2820;
+    line-height: 1.7;
+    margin-bottom: 10px;
+}
+
+.ac-empty {
+    font-size: 11px;
+    color: rgba(0,0,0,0.3);
+    letter-spacing: 1px;
+}
+
+/* ── Tables ─────────────────────────────────────────────────── */
+.ac-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    color: #2a2820;
+    margin-top: 8px;
+}
+
+.ac-table th {
+    text-align: left;
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: rgba(0,0,0,0.35);
+    padding: 4px 8px;
+    border-bottom: 2px solid #000000;
+}
+
+.ac-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.ac-table tr:last-child td { border-bottom: none; }
+.ac-table tr:hover td { background: #f8f8f8; }
+
+.ac-td-num  { width: 36px; color: rgba(0,0,0,0.3); font-size: 10px; }
+.ac-td-pct  { width: 48px; font-weight: bold; color: var(--ac-accent, #000); }
+.ac-td-notes { color: rgba(0,0,0,0.4); font-size: 10px; font-style: italic; }
+
+/* ── Lesson list ─────────────────────────────────────────────── */
+.ac-lesson-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.ac-lesson-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fafafa;
+    border: none;
+    border-bottom: 1px solid #eeeeee;
+    padding: 12px 14px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background 0.1s;
+}
+
+.ac-lesson-row:hover {
+    background: #f0f0f0;
+}
+
+.ac-lesson-row:hover .ac-lesson-open {
+    opacity: 1;
+}
+
+.ac-lesson-num {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(0,0,0,0.3);
+    width: 28px;
+    flex-shrink: 0;
+}
+
+.ac-lesson-info { flex: 1; }
+
+.ac-lesson-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000;
+}
+
+.ac-lesson-meta {
+    font-size: 9px;
+    color: rgba(0,0,0,0.3);
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+.ac-lesson-open {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: opacity 0.12s;
+    flex-shrink: 0;
+}
+
+/* ── Announcements ───────────────────────────────────────────── */
+.ac-ann {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+}
+.ac-ann:last-child { border-bottom: none; }
+.ac-ann-date { font-size: 9px; color: rgba(0,0,0,0.3); letter-spacing: 1px; width: 80px; flex-shrink: 0; }
+.ac-ann-text { color: #2a2820; line-height: 1.5; }
+
+/* ── Instructor dl ───────────────────────────────────────────── */
+.ac-dl {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 4px 12px;
+    font-size: 12px;
+}
+.ac-dl dt { color: rgba(0,0,0,0.35); font-size: 9px; letter-spacing: 1px; font-weight: bold; align-self: baseline; }
+.ac-dl dd { color: #2a2820; margin: 0; }
+
+/* ── Policy blocks ───────────────────────────────────────────── */
+.ac-policy-block {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.ac-policy-block:last-child { border-bottom: none; }
+
+.ac-policy-name {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #000000;
+    margin-bottom: 8px;
+}
+
+.ac-policy-para {
+    font-size: 11px;
+    color: rgba(0,0,0,0.6);
+    line-height: 1.7;
+    margin-bottom: 6px;
+}

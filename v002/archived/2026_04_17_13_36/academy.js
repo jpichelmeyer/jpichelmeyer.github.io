@@ -1,8 +1,5 @@
-
-
-
 /* =================================================================
-    v002/pos/app/academy/academy.js
+    v003/pos/app/academy/academy.js
     "Academy" — About the instructor + course catalogue browser.
     Synapse handles the actual lesson viewer.
 ================================================================== */
