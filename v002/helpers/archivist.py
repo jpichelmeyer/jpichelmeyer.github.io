@@ -1,6 +1,4 @@
-#####################################################
-# v002/helpers/archivalist.py 
-#####################################################
+# helpers/archivist.py
 import builtins
 import functools
 import copy
@@ -16,7 +14,7 @@ TRANSLATION = {
         "py": {'#': r'\n[a-zA-Z]', "'''": "'''", '"""': '"""'},
         "html": {'<!--': '-->'},
         "css": {'/*': '*/'}, # Removed the asterisk
-        "js": {'/*': '*/'},
+        "js": {'//':'\n', '/*': '*/'},
     }
 }
 
@@ -84,8 +82,9 @@ class Archivist():
             print(f"....... MISSED!........")
         
         print(f"....{len(pfs)} files archived!")
-        
-    def get_project_files(self):
+    
+    @prepend_name
+    def get_project_files(self, verbose=False):
         
         project_files = []
         
@@ -100,18 +99,20 @@ class Archivist():
                 for filename in files:
                     source_path = os.path.join(root, filename)
                     ext = filename.split('.')[-1]
-                    print(f"...........................................")
-                    print(f"....project file detected ...................")
-                    print(f"........ext..:..{ext}......................")
-                    print(f"........SOURCE:.{source_path}..............")
+                    if verbose:
+                        print(f"...........................................")
+                        print(f"....project.file.detected ...................")
+                        print(f"........ext..:..{ext}......................")
+                        print(f"........SOURCE:.{source_path}..............")
                     
                     if ext in self.include_only_exts:
                         project_files.append((source_path, filename, ext))
 
         # Summary
-
+        project_files_ret = copy.deepcopy(project_files)
+        print(f'{len(project_files_ret)} project files returned')
         
-        return copy.deepcopy(project_files)
+        return project_files_ret
  
     def get_date_time(self):
         return datetime.now().strftime("%Y_%m_%d_%H_%M")
@@ -262,6 +263,65 @@ class Archivist():
             return ""
     
     @prepend_name
+    def sep_file(self, file_path, ext):
+        """
+        Separates a (project) file into
+        
+            [header]
+            [body]
+        
+        returning both
+        
+        """
+        content = []
+        sigs = TRANSLATION["comment sigs"].get(ext, {})
+        
+        # We need to know if we are inside a multi-line comment (like ''' or /*)
+        in_multiline = False
+        multiline_end = ""
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    stripped = line.strip()
+                    
+                    # 1. Handle Empty Lines (Keep them if we are in a comment block)
+                    if not stripped:
+                        content.append(line)
+                        continue
+
+                    # 2. Handle Multiline Logic (CSS, JS, or Py Docstrings)
+                    if not in_multiline:
+                        # Check if line starts a multiline block
+                        found_start = False
+                        for start_sig, end_sig in sigs.items():
+                            if start_sig != '#' and stripped.startswith(start_sig):
+                                in_multiline = True
+                                multiline_end = end_sig
+                                found_start = True
+                                break
+                        
+                        # 3. Handle Single Line Logic (Python #)
+                        if not found_start:
+                            if '#' in sigs and stripped.startswith('#'):
+                                content.append(line)
+                                continue
+                            else:
+                                # HIT ACTUAL CODE - Stop scanning
+                                break
+                    
+                    # 4. If we are inside a multiline block, keep going until the end sig
+                    content.append(line)
+                    if in_multiline and multiline_end in stripped:
+                        in_multiline = False
+                        # Optional: break here if you only want the VERY first block
+            
+            return "".join(content)
+        except Exception as e:
+            print(f"Error scanning {file_path}: {e}")
+            return ""
+    
+    @prepend_name
     def scan_content_for_fc(self, content_string:str="", ext:str=''):
         
            # Use the global TRANSLATION variable (note the ALL CAPS)
@@ -321,59 +381,131 @@ class Archivist():
     
     @prepend_name
     def check_file_heads(self):
-        fid = "check_file_heads"
         success_ct, failure_ct = 0, 0
         for source_path, filename, ext in self.project_files:
-            
-            #p#rint(f"============================================================")
             try:
-                print(f'source_path:{source_path}\nfilename:{filename}\next:{ext}')
-                
-                '''
-                #######################################################################
-                # Original version: creator version
-                with open(source_path, 'r', encoding='utf-8') as f:
-                    content_string = f.read()
-                first_comment_info = self.scan_content_for_fc(content_string=content_string, ext=ext)
-                content_key = "comment-conent"
-                if content_key in first_comment_info:
-                    content = first_comment_info[content_key]
-                else:
-                    print(f'first_comment_info has no key named: {content_key}')
-                #content = comment["comment-content"] 
-                print(f'comment["comment-content"]=\n{content}')
-                #######################################################################
-                '''
-                
-                #######################################################################
-                # Revised version: tool suggested
                 content = self.scan_for_fc(file_path=source_path, ext=ext)
                 content = content.strip('#\n')
                 rel_path = source_path.split('jpichelmeyer.github.io/')[1]
                 filename = source_path.split(os.sep)[-1]
                 print(f'{rel_path}')
                 print(f'({filename}) content:{content}')
-                #######################################################################
-
-
-
                 success_ct += 1
             except Exception as e:
                 print(f'Exception: {e}')
                 failure_ct += 1
-                
-        #print(tid)
         print(f"success:{success_ct}.....failure:{failure_ct}.........")
         return
-
-
-if __name__=='__main__':
     
+    @prepend_name
+    def update_header_with_path(self, file_path, ext):
+        # 1. Get the current front content block
+        old_fc = self.scan_for_fc(file_path, ext)
+        
+        # 2. Calculate the path
+        rel_path = os.path.relpath(file_path, self.abs_path_project)
+        
+        templates = {
+            "js": f"// {rel_path}",
+            "css": f"/* {rel_path} */",
+            "html": f"<!-- {rel_path} -->"
+        }
+        # This is the single line we are looking for
+        target_header_line = templates.get(ext, f"# {rel_path}")
+        
+        # 3. CRITICAL CHECK: Does the file ALREADY start with this header?
+        # Using .lstrip() handles cases where there's a stray newline at the top
+        if old_fc.lstrip().startswith(target_header_line):
+            print(f"--- [SKIP] {rel_path} already has correct header.")
+            return
+
+        # 4. Read the full file content
+        with open(file_path, 'r', encoding='utf-8') as f:
+            full_content = f.read()
+
+        # 5. Build the new header with exactly one newline
+        new_header_block = target_header_line + "\n"
+
+        # 6. Replace the entire old comment block with our single new header
+        if old_fc:
+            # This wipes out ALL the stacked '// global.js' lines 
+            # and replaces them with just one.
+            updated_content = full_content.replace(old_fc, new_header_block, 1)
+        else:
+            updated_content = new_header_block + full_content
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(updated_content)
+            
+        print(f"+++ [FIXED] {rel_path} header cleaned and updated.")
+
+    @prepend_name
+    def update_headers(self):
+        for source_path, filename, ext in self.project_files:
+            try:
+                pass
+                self.update_header_with_path(file_path=source_path, ext=ext)
+                header = self.scan_for_fc(file_path=source_path, ext=ext)
+                print(f'{filename} header updated to: {header}')
+            except Exception as e:
+                print(f'Exception: {e}')
+        return
+    
+    @prepend_name
+    def restore_web_assets(self, label: str):
+        live_site_root = self.abs_path_project
+        archive_dir = os.path.join(live_site_root, "archived")
+        archive_dir = os.path.join(archive_dir, label)
+        print(f'live_site_root: {live_site_root}')
+        print(f'archive_dir: {archive_dir}')
+        
+        #"""
+        # Only restore these specific types
+        web_exts = ['html', 'css', 'js']
+
+        if not os.path.exists(archive_dir):
+            print(f"Error: Archive {label} not found.")
+            return
+
+        for filename in os.listdir(archive_dir):
+            ext = filename.split('.')[-1].lower()
+            
+            # Filter for web assets only
+            if ext not in web_exts:
+                continue
+
+            file_path = os.path.join(archive_dir, filename)
+            
+            # Read the first line to find the destination path
+            with open(file_path, 'r', encoding='utf-8') as f:
+                first_line = f.readline().strip()
+
+            # Extract the path from the comment (e.g., "# gui/window.js" -> "gui/window.js")
+            match = re.search(r'([\w\/\.-]+\.\w+)', first_line)
+            
+            if match:
+                rel_path = match.group(1)
+                final_dest = os.path.join(live_site_root, rel_path)
+                
+                # Rebuild the subfolders (gui/, app/, etc.) inside /pos/
+                os.makedirs(os.path.dirname(final_dest), exist_ok=True)
+                shutil.copy2(file_path, final_dest)
+                print(f"Restored {ext.upper()}: {rel_path}")
+            else:
+                print(f"Skipped {filename}: No valid path header found.")
+
+        print(f"Web asset restoration from '{label}' complete.")
+        #"""
+        
+        return
+        
+if __name__=='__main__':
     
     R = Archivist()
     #R.show_project_files()
+    #R.update_headers()
     #R.archive()
-    #R.check_file_heads()
+    #R.restore_web_assets(label='2026_04_18_19_53')
 
 
 
