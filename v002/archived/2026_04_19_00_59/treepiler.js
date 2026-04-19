@@ -1,6 +1,18 @@
-/*=====================================================================
-    v002/pos/app/treepiler/treepiler.js
-=====================================================================*/
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
+// pos/app/treepiler/treepiler.js
 import { registerApplication } from '../../gui/registry.js';
 
 export const APP_REGISTRATION = {

@@ -1,0 +1,8 @@
+/* pos/pos.css */
+@import url('boot/boot.css');
+@import url('gui/gui.css');
+@import url('app/treepiler/treepiler.css');
+@import url('app/academy/academy.css');
+@import url('app/synapse/synapse.css');
+@import url('app/asciink/asciink.css');
+@import url('app/updown/updown.css');

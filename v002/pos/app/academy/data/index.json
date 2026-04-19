@@ -1,0 +1,38 @@
+{
+  "cscGEN": {
+    "_id": "cscGEN",
+    "pre_num": "CSC -1",
+    "title": "Introduction to Computing",
+    "title_short": "Generic"
+  },
+  "csc1110": {
+    "_id": "csc1110",
+    "pre_num": "CSC 1110",
+    "title": "Introduction to Computing",
+    "title_short": "Intro Comp"
+  },
+  "csc3730": {
+    "_id": "csc3730",
+    "pre_num": "CSC 3730",
+    "title": "Artificial Intelligence for Simulations",
+    "title_short": "AI for Sim"
+  },
+  "csc1810": {
+    "_id": "csc1810",
+    "pre_num": "CSC 1810",
+    "title": "Principles of Computer Science I",
+    "title_short": "Princ CS I"
+  },
+  "csc2710": {
+    "_id": "csc2710",
+    "pre_num": "CSC 2710",
+    "title": "Game Development I",
+    "title_short": "Game Dev I"
+  },
+  "csc3530": {
+    "_id": "csc3530",
+    "pre_num": "CSC 3530",
+    "title": "Artificial Intelligence and Cognitive Modeling",
+    "title_short": "AI and Cog"
+  }
+}
