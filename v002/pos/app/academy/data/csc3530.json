@@ -1,0 +1,138 @@
+{
+  "gif": "",
+  "pre_num": "CSC 3530",
+  "title": "Artificial Intelligence and Cognitive Modeling",
+  "title_short": "AI and Cog",
+  "announcements": [
+    {
+      "date": "2026 08 01",
+      "text": "This is an announcement"
+    },
+    {
+      "date": "2026 09 01",
+      "text": "So is this - or did you read this one first and now you are confused?"
+    }
+  ],
+  "assessments": [
+    {
+      "name": "Daily Quizzes",
+      "description": "Each day that we meet in class in person, we will have a very brief (5 min) quiz at either the beginning or the end of the class period.",
+      "percentage": "10%"
+    },
+    {
+      "name": "Exam 1",
+      "description": "This exam will cover the first major unit of the course: History.",
+      "percentage": "30%"
+    },
+    {
+      "name": "Exam 2",
+      "description": "Covers the second major unit of the course: Python.",
+      "percentage": "30%"
+    },
+    {
+      "name": "Final Project",
+      "description": "This involves three components: code submission, presentation, and oral exam.",
+      "percentage": "30%"
+    }
+  ],
+  "course_prerequisites": "",
+  "course_catalog_description": "This course explores the primary approaches for developing computer programs that display characteristics we would think of as being intelligent. Students will analyze how intelligent systems are developed and implemented with a focus on exploring how human behavior on cognitive tasks can be used to inform the development of these artificial systems, as well as how the performance and behavior of these artificial systems can inform our understanding of human cognition.",
+  "course_learning_goals": [
+    {
+      "num": 1,
+      "action": "Develop",
+      "detail": "knowledge of a basic computer system architecture."
+    },
+    {
+      "num": 2,
+      "action": "Develop",
+      "detail": "a problem solving methodology and apply it to writng programs in Python."
+    },
+    {
+      "num": 3,
+      "action": "Acquire",
+      "detail": "an understanding of the basic Python language concepts."
+    },
+    {
+      "num": 4,
+      "action": "Develop",
+      "detail": "your ability to use a Python editor and debugger."
+    }
+  ],
+  "meeting_time": "TIME",
+  "meeting_place": "PLACE",
+  "syllabus": "syllabus_cs101.pdf",
+  "schedule_weeks": [
+    {
+      "week": 1,
+      "topic": "Act 1: Intro to Course, AI, Simulation, Godot, GDscript",
+      "notes": ""
+    },
+    {
+      "week": 2,
+      "topic": "Act 1: Foundational Theories of AI",
+      "notes": ""
+    },
+    {
+      "week": 3,
+      "topic": "Act 1: Perceptor, Perception and the Environment",
+      "notes": ""
+    },
+    {
+      "week": 4,
+      "topic": "Act 1: Decider, Decision Trees",
+      "notes": ""
+    },
+    {
+      "week": 5,
+      "topic": "Act 1: Actuator, Steering",
+      "notes": ""
+    },
+    {
+      "week": 6,
+      "topic": "Act 2: Memory and Decider, Finite State Machines",
+      "notes": ""
+    },
+    {
+      "week": 7,
+      "topic": "Act 2: Pathfinding",
+      "notes": ""
+    },
+    {
+      "week": 8,
+      "topic": "Act 2: Environmental Memory via Stigmergy",
+      "notes": ""
+    },
+    {
+      "week": 9,
+      "topic": "Act 2: Behavior Trees",
+      "notes": ""
+    },
+    {
+      "week": 10,
+      "topic": "Act 2: BT Componsition",
+      "notes": ""
+    },
+    {
+      "week": 11,
+      "topic": "Act 3: Machine Learning I: Decision Tree Learning",
+      "notes": ""
+    },
+    {
+      "week": 12,
+      "topic": "Act 3: Machine Learning II: Reinforcement Learning",
+      "notes": ""
+    },
+    {
+      "week": 13,
+      "topic": "Final Project work",
+      "notes": ""
+    },
+    {
+      "week": 14,
+      "topic": "Dessign Presentations and Group Simulation",
+      "notes": ""
+    }
+  ],
+  "_id": "csc3530"
+}

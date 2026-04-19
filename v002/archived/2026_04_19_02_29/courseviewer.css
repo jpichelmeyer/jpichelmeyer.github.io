@@ -1,0 +1,932 @@
+/* pos/app/courseviewer/courseviewer.css */
+.cv-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-ui);
+    background: var(--win-bg);
+    user-select: none;
+}
+
+.cv-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.cv-pane {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+.cv-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 14px;
+    background: var(--win-titlebar);
+    border-bottom: 1px solid var(--win-border-light);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    min-height: 32px;
+}
+
+.cv-crumb {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.35);
+    padding: 2px 5px;
+    border-radius: 5px;
+    transition: background 0.12s, color 0.12s;
+}
+
+.cv-crumb:hover {
+    background: rgba(0,0,0,0.07);
+    color: rgba(0,0,0,0.65);
+}
+
+.cv-crumb.cv-crumb-active {
+    color: var(--cv-accent, rgba(0,0,0,0.55));
+    cursor: default;
+}
+
+.cv-crumb-sep {
+    font-size: 13px;
+    color: rgba(0,0,0,0.2);
+    line-height: 1;
+}
+
+
+/* ============================================================
+   LOADING / ERROR
+   ============================================================ */
+.cv-loading,
+.cv-error {
+    padding: 40px 26px;
+    font-size: 13px;
+    color: rgba(0,0,0,0.45);
+    font-family: var(--font-ui);
+}
+.cv-error { color: #c0392b; }
+
+
+/* ============================================================
+   COURSE GRID
+   ============================================================ */
+.cv-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 24px 20px;
+    align-content: flex-start;
+}
+
+/* Each course = a folder icon */
+.cv-course-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 88px;
+    padding: 8px 6px;
+    border-radius: 10px;
+    transition: background 0.13s;
+}
+
+.cv-course-icon:hover {
+    background: rgba(0,0,0,0.06);
+}
+
+.cv-course-icon:active {
+    background: rgba(0,0,0,0.10);
+    transform: scale(0.97);
+}
+
+/* Folder shape */
+.cv-icon-folder {
+    width: 64px;
+    display: flex;
+    flex-direction: column;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.12));
+}
+
+.cv-icon-tab {
+    width: 28px;
+    height: 8px;
+    background: var(--cv-accent, #364880);
+    border-radius: 4px 4px 0 0;
+    opacity: 0.9;
+    margin-left: 4px;
+}
+
+.cv-icon-body {
+    width: 64px;
+    height: 50px;
+    background: var(--cv-accent, #364880);
+    border-radius: 0 6px 6px 6px;
+    opacity: 0.82;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cv-icon-code {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: 0.04em;
+    text-align: center;
+    padding: 0 4px;
+    line-height: 1.3;
+}
+
+.cv-icon-label {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(0,0,0,0.6);
+    text-align: center;
+    word-break: break-word;
+    max-width: 84px;
+}
+
+
+/* ============================================================
+   COURSE DETAIL
+   ============================================================ */
+.cv-detail {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Header strip */
+.cv-detail-header {
+    padding: 16px 22px 12px;
+    border-bottom: 1px solid var(--win-border-light);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.03), transparent);
+    flex-shrink: 0;
+}
+
+.cv-detail-code {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--cv-accent, rgba(0,0,0,0.4));
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.cv-detail-title {
+    font-family: var(--font-ui);
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a16;
+    margin-bottom: 6px;
+}
+
+.cv-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cv-detail-meta span {
+    font-size: 11px;
+    color: rgba(0,0,0,0.45);
+}
+
+/* Tab bar */
+.cv-tab-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 10px;
+    border-bottom: 1px solid var(--win-border-light);
+    background: var(--win-titlebar);
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.cv-tab-bar::-webkit-scrollbar { display: none; }
+
+.cv-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 12px;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(0,0,0,0.38);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.13s, border-color 0.13s;
+    flex-shrink: 0;
+}
+
+.cv-tab:hover { color: rgba(0,0,0,0.6); }
+
+.cv-tab.active {
+    color: var(--cv-accent, rgba(0,0,0,0.7));
+    border-bottom-color: var(--cv-accent, rgba(0,0,0,0.5));
+}
+
+/* Tab panels */
+.cv-tab-panels {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.cv-tab-panel {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.cv-tab-panel.active {
+    display: block;
+}
+
+/* Shared section padding */
+.cv-section {
+    padding: 16px 22px 24px;
+}
+
+/* Subheadings */
+.cv-subhead {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cv-accent, rgba(0,0,0,0.35));
+    margin: 16px 0 6px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.cv-subhead:first-child { margin-top: 0; }
+
+.cv-para {
+    font-size: 13px;
+    color: #2a2820;
+    line-height: 1.65;
+    margin-bottom: 10px;
+}
+
+.cv-empty {
+    font-size: 12px;
+    color: rgba(0,0,0,0.35);
+    font-style: italic;
+    margin: 0;
+}
+
+/* Tables */
+.cv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    color: #2a2820;
+    margin-top: 8px;
+}
+
+.cv-table th {
+    text-align: left;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.35);
+    padding: 5px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.cv-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.cv-table tr:last-child td { border-bottom: none; }
+.cv-table tr:hover td { background: rgba(0,0,0,0.025); }
+
+.cv-td-num  { width: 36px;  color: rgba(0,0,0,0.35); font-family: var(--font-mono); font-size: 11px; }
+.cv-td-pct  { width: 48px;  font-weight: 600; font-family: var(--font-mono); font-size: 11px; color: var(--cv-accent, rgba(0,0,0,0.5)); }
+.cv-td-notes { color: rgba(0,0,0,0.4); font-style: italic; font-size: 11px; }
+
+/* Announcements */
+.cv-announcement {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 13px;
+}
+.cv-announcement:last-child { border-bottom: none; }
+
+.cv-ann-date {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: rgba(0,0,0,0.35);
+    flex-shrink: 0;
+    width: 80px;
+}
+
+.cv-ann-text { color: #2a2820; line-height: 1.5; }
+
+/* Instructor dl */
+.cv-dl {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 4px 12px;
+    font-size: 13px;
+}
+.cv-dl dt { color: rgba(0,0,0,0.4); font-weight: 600; font-size: 11px; align-self: baseline; }
+.cv-dl dd { color: #2a2820; margin: 0; }
+
+/* Policies */
+.cv-policy {
+    margin-bottom: 20px;
+}
+.cv-policy:last-child { margin-bottom: 0; }
+
+.cv-policy-name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--cv-accent, rgba(0,0,0,0.6));
+    margin-bottom: 6px;
+}
+
+.cv-policy-para {
+    font-size: 12px;
+    color: #2a2820;
+    line-height: 1.65;
+    margin-bottom: 6px;
+}
+
+/* Lesson list (inside course detail → Lessons tab) */
+.cv-lesson-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cv-lesson-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(0,0,0,0.02);
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background 0.12s, border-color 0.12s;
+}
+
+.cv-lesson-row:hover {
+    background: rgba(0,0,0,0.05);
+    border-color: var(--cv-accent, rgba(0,0,0,0.18));
+}
+
+.cv-lesson-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--cv-accent, rgba(0,0,0,0.35));
+    flex-shrink: 0;
+    width: 60px;
+}
+
+.cv-lesson-info { flex: 1; }
+
+.cv-lesson-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a16;
+}
+
+.cv-lesson-meta {
+    font-size: 11px;
+    color: rgba(0,0,0,0.35);
+    margin-top: 2px;
+}
+
+.cv-lesson-arrow {
+    font-size: 16px;
+    color: rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+
+/* ============================================================
+   LESSON VIEWER
+   ============================================================ */
+.cv-lesson-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+/* Visual area */
+.cv-lesson-visual {
+    flex-shrink: 0;
+    height: 200px;
+    background: #1c1b18;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Beat text */
+.cv-lesson-text {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #2a2820;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    max-height: 180px;
+    overflow-y: auto;
+    user-select: text;
+}
+
+.cv-beat-empty { color: rgba(0,0,0,0.3); font-style: italic; }
+
+/* Nav bar */
+.cv-lesson-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    background: var(--win-titlebar);
+    flex-shrink: 0;
+}
+
+.cv-nav-btn {
+    background: none;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(0,0,0,0.45);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+}
+
+.cv-nav-btn:hover:not(:disabled) {
+    background: rgba(0,0,0,0.06);
+    border-color: rgba(0,0,0,0.25);
+    color: rgba(0,0,0,0.7);
+}
+
+.cv-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.cv-nav-counter {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(0,0,0,0.35);
+}
+
+/* Strip */
+.cv-lesson-strip {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    background: var(--win-titlebar);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.15) transparent;
+    flex: 1;
+    align-content: flex-start;
+    flex-wrap: nowrap;
+}
+
+/* Beat pills */
+.cv-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 6px 10px;
+    min-width: 58px;
+    max-width: 80px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.12s, border-color 0.12s;
+    border-top: 2px solid var(--pill-color, #888);
+}
+
+.cv-pill:hover {
+    background: rgba(0,0,0,0.07);
+}
+
+.cv-pill.active {
+    background: rgba(0,0,0,0.07);
+    border-color: var(--pill-color, #888);
+    border-top-color: var(--pill-color, #888);
+}
+
+.cv-pill-num {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--pill-color, rgba(0,0,0,0.4));
+    font-weight: 700;
+}
+
+.cv-pill-label {
+    font-size: 9px;
+    color: rgba(0,0,0,0.45);
+    text-align: center;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+/* ── Beat visual elements ── */
+.cv-beat-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-family: var(--font-ui);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.9);
+    padding: 2px 7px;
+    border-radius: 4px;
+    z-index: 2;
+}
+
+.cv-beat-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.cv-beat-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 5px 10px;
+    background: rgba(0,0,0,0.5);
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    text-align: center;
+}
+
+.cv-beat-placeholder {
+    color: rgba(255,255,255,0.2);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    text-align: center;
+    padding: 20px;
+}
+
+.cv-beat-text-only {
+    font-family: var(--font-ui);
+    font-size: 15px;
+    color: rgba(255,255,255,0.75);
+    text-align: center;
+    padding: 20px 30px;
+    line-height: 1.7;
+    font-style: italic;
+}
+
+/* Quiz */
+.cv-quiz {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 20px;
+    width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.cv-quiz-q {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.4;
+}
+
+.cv-quiz-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cv-quiz-choice {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s;
+}
+.cv-quiz-choice:hover:not(:disabled) { background: rgba(255,255,255,0.14); }
+.cv-quiz-choice.correct { background: rgba(93,186,120,0.25); border-color: #5dba78; color: #5dba78; }
+.cv-quiz-choice.wrong   { background: rgba(224,120,120,0.2); border-color: #e07878; color: #e07878; }
+.cv-quiz-choice:disabled { cursor: default; }
+
+.cv-quiz-feedback {
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 18px;
+}
+
+
+/* ============================================================
+   NEW LESSON VIEWER LAYOUT (Side-by-Side)
+   ============================================================ */
+.cv-lesson-shell {
+    height: 100%;
+    background: var(--win-bg);
+}
+
+.cv-lesson-layout {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ── Side Panel ── */
+.cv-lesson-sidebar {
+    width: 50px;
+    background: var(--win-titlebar);
+    border-right: 1px solid var(--win-border-light);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.cv-lesson-strip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.cv-lesson-strip::-webkit-scrollbar { display: none; }
+
+/* Miniature Capsule Pills */
+.cv-pill {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%; /* Circle look */
+    border: 2px solid transparent;
+    background: rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.cv-pill::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    width: 10px;
+    height: 2px;
+    background: var(--pill-color, #888);
+    border-radius: 2px;
+    opacity: 0.5;
+}
+
+.cv-pill.active {
+    background: white;
+    border-color: var(--pill-color, #888);
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.cv-pill.active .cv-pill-num {
+    color: #000;
+    font-weight: 800;
+}
+
+.cv-pill-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: rgba(0,0,0,0.4);
+}
+
+/* ── Main Content Area ── */
+.cv-lesson-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cv-lesson-visual {
+    flex: 1; /* Takes remaining space */
+    background: #1c1b18;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-bottom: 1px solid #000;
+}
+
+.cv-lesson-text {
+    height: 140px; /* Fixed height for text to keep visual large */
+    padding: 18px 24px;
+    font-size: 14px;
+    line-height: 1.6;
+    background: #fff;
+    overflow-y: auto;
+    border-top: 1px solid var(--win-border-light);
+}
+
+/* ── Navigation (Bottom Bar) ── */
+.cv-lesson-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px;
+    background: #fdfdfd;
+    border-top: 1px solid var(--win-border-light);
+}
+
+.cv-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: white;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.cv-nav-btn:hover:not(:disabled) {
+    background: var(--cv-accent);
+    color: white;
+}
+
+.cv-nav-counter {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(0,0,0,0.4);
+    letter-spacing: 0.1em;
+}
+
+
+.cv-lesson-visual.hidden,
+.cv-resizer.hidden {
+    display: none !important;
+}
+
+/* ── The Resizer Bar ── */
+.cv-resizer {
+    height: 6px;
+    background: var(--win-border-light);
+    cursor: row-resize;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.cv-resizer:hover {
+    background: var(--cv-accent);
+}
+
+/* Visual cue for draggability */
+.cv-resizer::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 2px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 2px;
+}
+
+/* ── Content Layout Tweaks ── */
+.cv-lesson-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.cv-lesson-visual {
+    /* flex property is now handled by JS dynamically */
+    min-height: 0; 
+}
+
+.cv-lesson-text {
+    flex: 1; /* Text fills the remaining space */
+    min-height: 50px;
+    overflow-y: auto;
+    border-top: none; /* Let the resizer be the border */
+}
+
+/* Refined Pill Sidebar for Miniature Look */
+.cv-lesson-sidebar {
+    background: #f8f8f7; /* Slightly warmer gray */
+}
+
+.cv-pill {
+    transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cv-pill:active {
+    transform: scale(0.9);
+}
+
+
+/* Ensure the shell and layout take up 100% of the window */
+.cv-lesson-shell, .cv-lesson-layout {
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+}
+
+.cv-lesson-content {
+    flex: 1; /* This is key - it fills the space next to the sidebar */
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+}
+
+.cv-lesson-visual {
+    /* flex property is set via JS (e.g., 50%) */
+    background: #1c1b18;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.cv-lesson-text {
+    flex: 1; /* This makes the text area "eat" all remaining vertical space */
+    padding: 20px;
+    overflow-y: auto;
+    background: white;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.cv-lesson-visual.hidden {
+    display: none !important;
+}
+
+.cv-resizer {
+    height: 8px;
+    background: #eee;
+    cursor: row-resize;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}

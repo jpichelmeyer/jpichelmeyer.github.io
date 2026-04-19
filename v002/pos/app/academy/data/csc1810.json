@@ -1,0 +1,152 @@
+{
+  "gif": "",
+  "pre_num": "CSC 1810",
+  "title": "Principles of Computer Science I",
+  "title_short": "Princ CS I",
+  "announcements": [
+    {
+      "date": "2026 08 01",
+      "text": "This is an announcement"
+    },
+    {
+      "date": "2026 09 01",
+      "text": "So is this - or did you read this one first and now you are confused?"
+    }
+  ],
+  "assessments": [
+    {
+      "name": "Daily Quizzes",
+      "description": "Each day that we meet in class in person, we will have a very brief (5 min) quiz at either the beginning or the end of the class period.",
+      "percentage": "10%"
+    },
+    {
+      "name": "Exam 1",
+      "description": "This exam will cover the first major unit of the course: History.",
+      "percentage": "30%"
+    },
+    {
+      "name": "Exam 2",
+      "description": "Covers the second major unit of the course: Python.",
+      "percentage": "30%"
+    },
+    {
+      "name": "Final Project",
+      "description": "This involves three components: code submission, presentation, and oral exam.",
+      "percentage": "30%"
+    }
+  ],
+  "course_prerequisites": "",
+  "course_catalog_description": "A study of the fundamentals of writing computer programs and problem-solving, using structured and object-oriented techniques. Intended for future majors and minors in Computer Science and minors in Game Development.",
+  "course_learning_goals": [
+    {
+      "num": 1,
+      "action": "Develop",
+      "detail": "knowledge of a basic computer system architecture."
+    },
+    {
+      "num": 2,
+      "action": "Develop",
+      "detail": "a problem solving methodology and apply it to writng programs in C#."
+    },
+    {
+      "num": 3,
+      "action": "Acquire",
+      "detail": "an understanding of the basic C# language concepts."
+    },
+    {
+      "num": 4,
+      "action": "Develop",
+      "detail": "your ability to use a C# editor and debugger."
+    }
+  ],
+  "meeting_time": "MWF 8:00am-9:05am",
+  "meeting_place": "TBD",
+  "syllabus": "syllabus_cs101.pdf",
+  "schedule_weeks": [
+    {
+      "week": "ph",
+      "theme": "The Stack",
+      "topic": "Algorithms",
+      "notes": ""
+    },
+    {
+      "week": "ph",
+      "theme": "The Stack",
+      "topic": "Bits and Circuits",
+      "notes": ""
+    },
+    {
+      "week": "ph",
+      "theme": "The Stack",
+      "topic": "Programming Languages",
+      "notes": ""
+    },
+    {
+      "week": "ph",
+      "theme": "Csharp",
+      "topic": "Minimial Constructive Setup",
+      "notes": ""
+    },
+    {
+      "week": "ph",
+      "theme": "Csharp",
+      "topic": "Variables, Types, and Peeking",
+      "notes": ""
+    },
+    {
+      "week": "ph",
+      "theme": "Csharp",
+      "topic": "Decision Logic and Control Flow",
+      "notes": ""
+    },
+    {
+      "week": "ph",
+      "theme": "Csharp",
+      "topic": "Looping",
+      "notes": ""
+    },
+    {
+      "week": "ph",
+      "theme": "Csharp",
+      "topic": "Functions",
+      "notes": ""
+    },
+    {
+      "week": "ph",
+      "theme": "Csharp",
+      "topic": "Classes",
+      "notes": ""
+    },
+    {
+      "week": 10,
+      "theme": "Csharp",
+      "topic": "Flex week",
+      "notes": ""
+    },
+    {
+      "week": 11,
+      "theme": "Applications",
+      "topic": "Cellular Automata",
+      "notes": ""
+    },
+    {
+      "week": 12,
+      "theme": "Applications",
+      "topic": "Reinforcement Learning",
+      "notes": ""
+    },
+    {
+      "week": 13,
+      "theme": "Final Project",
+      "topic": "Proposal, Initial Work",
+      "notes": ""
+    },
+    {
+      "week": 14,
+      "theme": "Final Project",
+      "topic": "Presentations",
+      "notes": ""
+    }
+  ],
+  "_id": "csc1810"
+}
