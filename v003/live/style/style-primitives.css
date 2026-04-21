@@ -1,0 +1,78 @@
+/* /v003/live/style/style-primitives.css */
+
+
+.root {
+    
+    /* ------------------------------------------------
+     * 
+     *      Primitives | Color
+     * 
+     * ------------------------------------------------
+     */
+    
+/*
+     
+    --color-black-hard: #1f1f1f; 
+    --color-black-soft: #333333;
+    --color-white-soft: #f1f1f1;
+    --color-white-hard: #ffffff;
+    
+*/
+    --color-black-warm: #31312b;
+    --color-grey-warm:  #f2f1f0;
+    --color-white-warm: #F9F9F7;
+    
+    --color-accent-1: #EF9A9A;
+    --color-accent-2: #CE93D8;
+    --color-accent-3: #90CAF9;
+    --color-accent-4: #A5D6A7;
+    --color-accent-5: #FFE082;
+    
+    /*
+    --color-black-soft: #333333;
+    --color-grey-mid: #888888;
+    --color-grey-light-very: #cccccc;
+    --color-white-soft: #f1f1f1;
+    --color-white-hard: #ffffff;
+
+
+    --color-bg: #F9F9F7;
+    --color-surface: #f2f1f0;
+    --color-grid-line: rgba(26, 26, 26, 0.08);
+    
+
+    --color-text: #1A1A1A;
+    --color-text-muted: #4A4A4A;
+    --color-grid: rgba(26, 26, 26, 0.08);
+    
+
+    --color-shadow: rgba(26, 26, 26, 0.25);
+     
+     
+    var(--background-color)     primitive color
+    var(--color-grid-line)      primitive color
+    var(--background-size)      primitive geometry
+                                url('svgs/p-shell-logo.svg')
+    */
+    
+    /* ------------------------------------------------
+     * 
+     *      Primitives | Geometry
+     * 
+     * ------------------------------------------------
+     */
+    
+    
+    
+    /* ------------------------------------------------
+     * 
+     *      Semantives
+     * 
+     * ------------------------------------------------
+     */
+
+    
+    
+
+
+}

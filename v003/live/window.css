@@ -25,31 +25,28 @@
  */
 
 .window {
+    --z-val: 3;
+    z-index: var(--z-val);
     position: fixed;
     display: flex;
     flex-direction: column;
-
     background-color: var(--color-surface);
     border: var(--stroke-thin);
     border-radius: var(--border-radius);
-    box-shadow: var(--shadow-flat);
-
-    overflow: hidden;         /* Clips sidebar/panel to rounded corners  */
-    z-index: var(--z-index-level-2);
-
-    /* Default size — override inline or with a modifier class */
+    box-shadow: calc(var(--z-val) * var(--l-shadow)) calc(var(--z-val) * var(--l-shadow)) 0px 0px var(--color-shadow);
+    overflow: hidden;
     width: 860px;
     height: 560px;
     min-width: 400px;
     min-height: 260px;
-
-    /* Draggable windows feel better with a transition only on open/close */
     transition: box-shadow 0.15s ease;
+    
 }
 
 /* Focused / active window gets a slightly stronger shadow */
 .window:focus-within {
-    box-shadow: 8px 8px 0px 0px var(--color-shadow);
+    background: transparent;
+    box-shadow: calc(2 * var(--z-val) * var(--l-shadow)) calc(2 * var(--z-val) * var(--l-shadow)) 0px 0px var(--color-shadow);
 }
 
 
@@ -89,19 +86,15 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-
     width: 54px;
     flex-shrink: 0;
     padding: 12px 0;
-
     background-color: #111111;   /* Dark, matching the reference image */
     border-right: var(--stroke-thin);
     overflow-y: auto;
     overflow-x: hidden;
 }
 .window-sidebar::-webkit-scrollbar { display: none; }
-
-/* Sidebar brand / logo mark at top */
 .window-sidebar-logo {
     width: 32px;
     height: 32px;
@@ -114,8 +107,6 @@
     font-weight: 700;
     font-size: 0.85rem;
 }
-
-/* Sidebar nav items */
 .window-sidebar-item {
     width: 36px;
     height: 36px;
@@ -140,8 +131,6 @@
     fill: none;
     stroke-width: 1.5;
 }
-
-/* Active indicator dot */
 .window-sidebar-item.active::before {
     content: '';
     position: absolute;
@@ -151,13 +140,9 @@
     background: var(--color-accent-6);
     border-radius: 0 2px 2px 0;
 }
-
-/* Spacer that pushes bottom items down */
 .window-sidebar-spacer {
     flex: 1;
 }
-
-/* Avatar at bottom of sidebar */
 .window-sidebar-avatar {
     width: 30px;
     height: 30px;
@@ -430,12 +415,12 @@
     letter-spacing: 0.06em;
     cursor: pointer;
     transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
-    box-shadow: var(--shadow-btn);
+    box-shadow: var(--box-shadow-default);
     flex-shrink: 0;
 }
 .window-toolbar-run:active {
     transform: translate(var(--dist-btn-pressed), var(--dist-btn-pressed));
-    box-shadow: var(--shadow-btn-pressed);
+    box-shadow: var(--box-shadow-default);
 }
 .window-toolbar-run svg {
     width: 12px;

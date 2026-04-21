@@ -1,0 +1,138 @@
+/* /v003/live/style/style-component_a.css */
+
+/* Import primitives */
+@import url('style-primitives.css');
+
+#desktop2 {
+    --z-val: 99;
+    position: fixed;
+}
+
+.wallpaper2 {
+    --z-val: 100;
+    overflow: hidden;
+    position: fixed;
+    inset: 0;
+    --z-val: 0;
+    z-index: var(--z-val);
+    opacity: 0.9;
+    background-color: var(--color-white-warm);
+    background-image: 
+        linear-gradient(var(--color-black-warn) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-black-warm) 1px, transparent 1px);
+    background-size: 28px 28px;
+}
+
+.watermark2 {
+    --z-val: 101;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px; 
+    height: 250px;
+    opacity: 0.1;
+    color: var(--color-black-warm);
+    pointer-events: none;
+    background-image: url('svgs/p-shell-logo.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    z-index: var(--z-val);
+}
+
+
+.btn-desktop-cmd2 {
+    --z-val: 102;
+    position: relative;
+    top: 20px;    /* Pinned to top */
+    right: 20px;  /* Pinned to right */
+    width: 40px;  /* Adjusted size - 100px is very large for a corner icon */
+    height: 40px;
+    z-index: var(--z-val);
+    cursor: pointer;
+    opacity: 0.2;
+    transition: all 0.2s ease;
+    
+    /* THE RESET */
+    background-color: transparent; 
+    border: none;
+    padding: 0;
+    outline: none;
+    appearance: none;
+
+    /* SVG STYLING */
+    background-image: url('svgs/fs.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+.btn-desktop-cmd2:hover {
+    opacity: 0.8;
+    background-color: transparent; /* Ensure hover doesn't trigger a default grey */
+    color: #ff0000;
+}
+
+
+
+/*
+
+--- HTML --------------------------
+
+    <div class="desktop">
+        <div class="wallpaper verB"></div>
+        <div class="wallpaper-logo"></div>
+        <button id="btn-desktop-cmd-full-screen" class="btn-desktop-cmd"></button>
+    </div>
+
+ ---------------------------------
+ 
+--- CSS  -------------------------- 
+
+#desktop {
+    position: fixed;
+}
+
+.wallpaper {
+    overflow: hidden;
+    position: fixed;
+    inset: 0;
+    --z-val: 0;
+    z-index: var(--z-val);
+    opacity: 0.9;
+    background-color: var(--background-color);
+    background-image: 
+        linear-gradient(var(--color-grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px);
+    background-size: var(--background-size);
+}
+
+.wallpaper.verA { 
+    opacity: 1.0;
+    background-color: var(--color-bg);
+    background-image: var(--background-image);
+    background-size: var(--background-size);
+}
+
+
+.wallpaper-logo {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px; 
+    height: 250px;
+    opacity: 0.1;
+    color: #111111;
+    pointer-events: none;
+    background-image: url('svgs/p-shell-logo.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    --z-val: 1;
+    z-index: var(--z-val);
+}
+
+
+ ---------------------------------
+
+
+*/
