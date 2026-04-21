@@ -1,0 +1,42 @@
+/* v003/live/style______particles.css */
+
+:root {
+    --all-background-color: #F9F9F7;
+    --all-background-image: radial-gradient(#000000 1px, transparent 1px);
+    --all-background-size: 28px 28px;
+    --all-color-grid-line: rgba(26, 26, 26, 0.08);
+    --all-font-family-sans: 'IBM Plex Sans', sans-serif;
+    --all-font-family-mono: 'IBM Plex Mono', monospace;
+    --all-z-index-level-0: 0;
+    --all-z-index-level-1: 5;
+    --all-z-index-level-2: 10;
+    --all-z-index-level-3: 15;
+    
+    /* Warm Cleanliness */
+    --test-color-bg: #F9F9F7;      /* High-end paper */
+    --test-color-surface: #FFFFFF; /* Pure white for contrast */
+    --test-color-text: #1A1A1A;    /* Not quite black */
+    
+    /* Brutalist Borders */
+    --test-stroke-thin: 1px solid var(--color-text);
+    --test-stroke-thick: 2px solid var(--color-text);
+    
+    /* Hard Shadow (The Blueprint Depth) */
+    --test-shadow-flat: 4px 4px 0px 0px var(--color-text);
+    --test-shadow-active: 1px 1px 0px 0px var(--color-text);
+   
+    /* Backgrounds */
+    --test-color-bg: #F9F9F7;
+    --test-color-surface: #FFFFFF;
+    
+    /* Ink & Lines */
+    --test-color-text: #1A1A1A;
+    --test-color-text-muted: #4A4A4A;
+    --test-color-grid: rgba(26, 26, 26, 0.08);
+    
+    /* Accents */
+    --test-color-accent: #3B82F6;
+    --test-color-warning: #F59E0B;
+
+
+}

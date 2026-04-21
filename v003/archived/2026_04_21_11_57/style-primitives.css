@@ -1,0 +1,65 @@
+/* /v003/live/style/style-primitives.css */
+
+
+:root {
+
+    /* ------------------------------------------------
+     * 
+     *      Primitives | Time
+     * 
+     * ------------------------------------------------
+     */
+    --t-micro:          0.06s;
+    
+    /* ------------------------------------------------
+     * 
+     *      Primitives | Color
+     * 
+     * ------------------------------------------------
+     */
+    
+    --color-black-thin: rgba(24,24,24,0.24);
+    --color-black:      #111111;
+    --color-black-warm: #31312b;
+    --color-grey-warm:  #f2f1f0;
+    --color-white-warm: #F9F9F7;
+    --color-white-soft: #f1f1f1;
+    --color-accent-1:   #EF9A9A;
+    --color-accent-2:   #CE93D8;
+    --color-accent-3:   #90CAF9;
+    --color-accent-4:   #A5D6A7;
+    --color-accent-5:   #FFE082;
+    
+    /* ------------------------------------------------
+     * 
+     *      Primitives | Geometry
+     * 
+     * ------------------------------------------------
+     */
+    --l-sun-horizon:    8px;
+    --l-arc-galaxy:     2%;
+    --l-bunny-hop:      8px;
+    
+    /* ------------------------------------------------
+     * 
+     *      Typography
+     * 
+     * ------------------------------------------------
+     */
+
+    --font-family-sans:     'IBM Plex Sans', sans-serif;
+    --font-family-mono:     'IBM Plex Mono', monospace;    
+    
+    
+    /* ------------------------------------------------
+     * 
+     *      Semantives
+     * 
+     * ------------------------------------------------
+     */
+
+    --semantive-stroke-thin:    1px solid var(--color-black);
+    
+
+
+}

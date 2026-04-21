@@ -1,0 +1,1342 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *      ┌─────┐
+ *      │Token│
+ *      └─────┘
+ * 
+ * ===============================================================
+ */
+ 
+
+
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *      Conceptually
+ * 
+ *          ┌─ Atom ─────────┐
+ *          │┌──────┐┌──────┐│
+ *          ││TokenA││TokenB││
+ *          │└──────┘└──────┘│ 
+ *          └────────────────┘ 
+ * 
+ *      HTML
+ * 
+ *          <div class="atom">
+ *              <div class="token"></div>
+ *              <div class="token"></div>
+ *          </div>
+ * 
+ * ===============================================================
+ */
+
+
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *      Conceptually
+ * 
+ *          ┌─ Molecule ─────────────────────────┐
+ *          │┌─ Atom ─────────┐┌─ Atom ─────────┐│
+ *          ││┌──────┐┌──────┐││┌──────┐┌──────┐││
+ *          │││------││------││││------││------│││
+ *          ││└──────┘└──────┘││└──────┘└──────┘││
+ *          │└────────────────┘└────────────────┘│ 
+ *          └────────────────────────────────────┘
+ *  
+ *      HTML
+ * 
+ *          <div class="molecule">
+ *              <div class="atom">
+ *                  <div class="token"></div>
+ *                  <div class="token"></div>
+ *              </div>
+ *              <div class="atom">
+ *                  <div class="token"></div>
+ *                  <div class="token"></div>
+ *              </div>
+ *          </div>
+ * 
+ * 
+ * ===============================================================
+ */
+
+
+
+
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *    ┌─ Organism ─────────────────────────────┐
+ *    │                                        │ 
+ *    │ ┌─ Molecule ─────────────────────────┐ │
+ *    │ │┌────────────────┐┌────────────────┐│ │
+ *    │ ││┌──────┐┌──────┐││┌──────┐┌──────┐││ │
+ *    │ │││------││------││││------││------│││ │
+ *    │ ││└──────┘└──────┘││└──────┘└──────┘││ │
+ *    │ │└────────────────┘└────────────────┘│ │
+ *    │ └────────────────────────────────────┘ │
+ *    │ ┌─ Molecule ─────────────────────────┐ │
+ *    │ │┌────────────────┐┌────────────────┐│ │
+ *    │ ││┌──────┐┌──────┐││┌──────┐┌──────┐││ │
+ *    │ │││------││------││││------││------│││ │
+ *    │ ││└──────┘└──────┘││└──────┘└──────┘││ │
+ *    │ │└────────────────┘└────────────────┘│ │
+ *    │ └────────────────────────────────────┘ │
+ *    └────────────────────────────────────────┘
+ * 
+ * ===============================================================
+ */
+ 
+ 
+ 
+ 
+
+
+
+/* ===============================================================
+ *  
+ *  Scratch
+ * 
+ *     ┌─ ? ────────────┐
+ *     │                │
+ *     │       ?        │
+ *     │                │ 
+ *     └────────────────┘ 
+ *   
+ * 
+ * ===============================================================
+ */
+
+
+
+
+
+
+
+
+
+
+
+I want to make a GUI type of setup where AI agents that I've made myself are represented
+by animated icons/figures (think visually like Notion's Agents) that I can click on,
+have them bring up some sort of menu (maybe radial?), I select an option, and they execute that,
+OR they change their kind of default state (if it's important that they
+do something persistent, but probably mostly just they do little cute
+idle animations until I ask them to perform a task.
+
+But how would I implement this as easily as possible in a way that is
+totally free, open-source, and controled by me solely?
+
+    The Godot Engine is a lightweight, open-source game engine frequently used for creating "desktop pets" or mascots because it excels at handling transparent windows and interactive 2D/3D sprites. 
+
+    Setup: Use Godot's AnimatedSprite2D node for your agent figures. You can set a default "idle" animation and trigger others (like "working" or "celebrating") based on agent states.
+    Radial Menu: You can build a custom radial menu using Godot’s UI nodes (like TextureButton arranged in a circle) or find open-source radial menu plugins on the Godot Asset Library.
+    AI Integration: Use Godot's HTTPRequest node to communicate with your locally hosted AI models (via tools like Ollama or LM Studio) through their local API endpoints.
+    Benefits: Best performance for animations and easy "click-and-interact" logic. 
+
+
+
+
+
+:root {
+    --l-shadow: 10; /* unitless */
+    
+    --z-index-level-0: 0;
+    --z-index-level-1: 5;
+    --z-index-level-2: 10;
+    --z-index-level-3: 15;
+
+    /* Each element sets --lvl, shadow is derived */
+    --shadow-flat: 
+        calc(var(--lvl, 1) * var(--l-shadow) * 1px) 
+        calc(var(--lvl, 1) * var(--l-shadow) * 1px) 
+        0px 0px var(--color-shadow);
+}
+
+.pane-a {
+    --lvl: 2;
+    z-index: calc(var(--z-index-level-2));
+    box-shadow: var(--shadow-flat);
+}
+
+.window {
+    --lvl: 3;
+    z-index: calc(var(--z-index-level-3));
+    box-shadow: var(--shadow-flat);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ /* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *      ┌─────┐
+ *      │Token│
+ *      └─────┘
+ * 
+ * ===============================================================
+ */
+
+
+
+
+
+
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *     ┌─ Atom ─────────┐
+ *     │┌──────┐┌──────┐│
+ *     ││TokenA││TokenB││
+ *     │└──────┘└──────┘│ 
+ *     └────────────────┘ 
+ *   -------------------------
+ * 
+ * ===============================================================
+ */
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+How common would that exact structure (like the specific organization of keys you used, not their exact values, of course) of the CSS you presented there be in atomic design?
+    
+    The structure I used—separating Primitives (raw values) from Semantics (functional decisions)—is considered the industry standard for professional Atomic Design systems.
+    While you might see different naming conventions (e.g., some people use base vs theme), the "layered" approach is how systems like Adobe’s Spectrum, Salesforce’s Lightning, and Shopify’s Polaris are built.
+    Here is why that specific organization is so common:
+    1. It Mirrors the "Atomic" Philosophy
+    In Atomic Design, atoms are built from subatomic particles.
+
+        Primitives are the "quarks" (the smallest possible values).
+        Semantics are the "tokens" (the first level of meaning).
+        By the time you get to an Atom (like a button), you aren't using a hex code; you are using a semantic decision.
+
+    2. The "Semantic Middle Layer" is the Secret Sauce
+    Beginners often skip the semantic layer and go straight from palette to component:
+
+        Bad: .button { color: var(--blue-500); }
+        Standard: .button { color: var(--action-primary); }
+
+    The reason the standard structure uses that middle layer is theming. If you want to add a "Dark Mode," you don't change --blue-500. You simply tell the CSS that, in dark mode, --action-primary now points to --blue-200.
+    3. Naming Conventions (The "Taxonomy")
+    The "Category-Property-Rank" naming (e.g., color-neutral-900) is the most common way to organize keys. It makes variables searchable. If a developer starts typing --color-, their code editor will automatically list every color available, keeping the "system" easy to navigate.
+    4. Common Variations
+    While the logic is standard, the syntax varies slightly depending on the tech stack:
+
+        Tailwind Users: Often put these in a tailwind.config.js rather than a CSS file.
+        Design Tool Users: Figma's "Variables" feature now forces this exact structure (Library > Alias > Component) to stay in sync with code.
+ 
+
+TOKENS css
+
+    Example 1
+
+        :root {
+          /* --- PRIMITIVE PALETTE --- */
+          
+          /* Neutrals */
+          --color-neutral-900: #0a0a0a;     /* Sidebar background */
+          --color-neutral-800: #1a1a1a;     /* Sidebar hover states */
+          --color-neutral-200: #e8e6e1;     /* Borders and dividers */
+          --color-neutral-100: #fdfaf5;     /* Main content background */
+          --color-neutral-000: #ffffff;     /* Card backgrounds */
+
+          /* Brand Colors */
+          --color-purple-500: #9d7cff;      /* Primary Action / "Create New" */
+          --color-purple-600: #8660f5;      /* Primary Hover */
+          --color-purple-100: #f2efff;      /* Light purple badges */
+
+          /* Feedback Colors */
+          --color-green-500: #a7f3d0;       /* Mint success / "File Manager" badge */
+          --color-red-500: #fca5a5;         /* Salmon/Red trends */
+
+          /* Text Colors */
+          --color-text-dark: #000000;       /* Primary headings */
+          --color-text-muted: #6b7280;      /* Secondary/Dates */
+          --color-text-on-dark: #ffffff;    /* Sidebar text */
+
+
+          /* --- SEMANTIC TOKENS --- */
+
+          /* Surfaces */
+          --bg-sidebar: var(--color-neutral-900);
+          --bg-main: var(--color-neutral-100);
+          --bg-card: var(--color-neutral-000);
+          --border-default: 1px solid var(--color-neutral-200);
+
+          /* Actions */
+          --btn-primary-bg: var(--color-purple-500);
+          --btn-primary-text: var(--color-text-on-dark);
+          
+          /* Typography */
+          --font-family: 'Inter', sans-serif;
+          --font-weight-bold: 700;
+          --font-weight-medium: 500;
+
+
+          /* --- SPACING & SHAPE --- */
+
+          --radius-sm: 4px;      /* Checkboxes */
+          --radius-md: 12px;     /* Cards & Buttons */
+          --radius-full: 9999px; /* Badges & Avatars */
+          
+          --space-card-padding: 1.5rem;
+          --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+    
+    
+    
+    Example 2
+    
+        :root {
+          /* --- PRIMITIVE PALETTE --- */
+          
+          /* Brand & Status Colors */
+          --color-red-500: #e86d62;    /* Primary Coral */
+          --color-blue-500: #4a7cf2;   /* Progress Blue */
+          --color-green-500: #5cb85c;  /* Success Green */
+          --color-yellow-500: #ffc107; /* Warning Yellow */
+
+          /* Neutrals */
+          --color-black: #000000;
+          --color-white: #ffffff;
+          --color-gray-100: #f4f4f4;   /* Background tint */
+
+          /* --- SEMANTIC TOKENS --- */
+
+          /* Surface & Strokes */
+          --bg-page: var(--color-gray-100);
+          --bg-card: var(--color-white);
+          --stroke-width: 2px;
+          --stroke-color: var(--color-black);
+          
+          /* Hard Shadows (Neobrutalist "Elevation") */
+          --shadow-flat: 4px 4px 0px var(--color-black);
+          --shadow-button: 2px 2px 0px var(--color-black);
+
+          /* Actions */
+          --action-primary: var(--color-red-500);
+          --action-secondary: var(--color-blue-500);
+
+          /* Typography */
+          --font-family-header: 'Public Sans', sans-serif; /* Thick, sans-serif */
+          --font-weight-bold: 800;
+        }
+
+        /* --- ATOM EXAMPLE: NEUBRUTALIST CARD --- */
+        .card {
+          background-color: var(--bg-card);
+          border: var(--stroke-width) solid var(--stroke-color);
+          box-shadow: var(--shadow-flat);
+          padding: 1.5rem;
+          border-radius: 0; /* Neobrutalism often prefers sharp corners */
+        }
+
+        /* --- ATOM EXAMPLE: PRIMARY BUTTON --- */
+        .btn-new-issue {
+          background-color: var(--action-primary);
+          border: var(--stroke-width) solid var(--stroke-color);
+          box-shadow: var(--shadow-button);
+          font-weight: var(--font-weight-bold);
+          padding: 0.5rem 1.25rem;
+        }    
+ 
+    Example 3
+    
+        :root {
+          /* --- PRIMITIVE PALETTE --- */
+          
+          /* Core Neutrals */
+          --color-obsidian: #111111;    /* Sidebar */
+          --color-snow: #f8fafc;        /* App background */
+          --color-glass: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+
+          /* Gradient Component Colors */
+          --color-mint: #a8ffcc;
+          --color-emerald: #21d4fd;
+          --color-sky: #4facfe;
+          --color-cobalt: #00f2fe;
+          --color-peach: #ff9a9e;
+          --color-pink: #fecfef;
+
+          /* --- SEMANTIC TOKENS --- */
+
+          /* Surfaces */
+          --bg-sidebar: var(--color-obsidian);
+          --bg-app: var(--color-snow);
+          --bg-glass-card: var(--color-glass);
+          
+          /* Gradients (Complex Tokens) */
+          --gradient-green: linear-gradient(135deg, var(--color-mint), var(--color-emerald));
+          --gradient-blue: linear-gradient(135deg, var(--color-sky), var(--color-cobalt));
+          --gradient-warm: linear-gradient(135deg, var(--color-peach), var(--color-pink));
+          --gradient-hero: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('hero-bg.jpg');
+
+          /* Typography */
+          --text-primary: #1e293b;
+          --text-muted: #64748b;
+          --font-family: 'Outfit', sans-serif; /* Clean, geometric */
+
+          /* Shape & Elevation */
+          --radius-xl: 20px;         /* Very rounded "pill" style cards */
+          --blur-glass: blur(10px);  /* The "Glassmorphism" effect */
+          --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        /* --- ATOM EXAMPLE: GRADIENT DOMAIN CARD --- */
+        .domain-card {
+          background: var(--bg-glass-card);
+          backdrop-filter: var(--blur-glass); /* Creates the frosted look */
+          border-radius: var(--radius-xl);
+          box-shadow: var(--shadow-float);
+          padding: 1.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle glass edge */
+        }
+
+        .domain-card.featured-green {
+          background: var(--gradient-green);
+          color: var(--color-obsidian);
+        }
+
+    Example 4
+
+        :root {
+          /* --- PRIMITIVE PALETTE --- */
+          
+          /* Backgrounds */
+          --color-canvas: #ebf1f1;       /* Cool mint-tinted gray */
+          --color-sidebar: #1a1c1e;     /* Deep charcoal */
+          --color-white-pure: #ffffff;
+          --color-white-trans: rgba(255, 255, 255, 0.7);
+
+          /* Functional Accents */
+          --color-line-default: #cfd8dc; /* Gray for inactive paths */
+          --color-line-active: #5c6bc0;  /* Blue for active connections */
+          
+          /* Brand Pastels (Subatomic Nodes) */
+          --color-brand-slack: #eef5ff;
+          --color-brand-google: #e8f5e9;
+          --color-brand-notion: #f5f5f5;
+
+          /* --- SEMANTIC TOKENS --- */
+
+          /* Nodes & Containers */
+          --node-bg: var(--color-white-pure);
+          --node-border: 1px solid rgba(0, 0, 0, 0.05);
+          --node-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+          
+          /* Sidebar */
+          --nav-width: 72px;
+          --nav-bg: var(--color-sidebar);
+          --nav-icon-idle: #80868b;
+          --nav-icon-active: var(--color-white-pure);
+
+          /* Connectivity (The "Flow") */
+          --connector-width: 1.5px;
+          --connector-color: var(--color-line-default);
+
+          /* Typography */
+          --font-family: 'Geist', 'Inter', sans-serif;
+          --text-size-node-title: 0.875rem; /* 14px */
+          --text-size-node-desc: 0.75rem;   /* 12px */
+          --text-color-main: #3c4043;
+        }
+
+        /* --- ATOM EXAMPLE: FLOW NODE --- */
+        .node-container {
+          background: var(--node-bg);
+          border: var(--node-border);
+          box-shadow: var(--node-shadow);
+          border-radius: 16px; /* High radius for "soft" feel */
+          padding: 12px 16px;
+          display: flex;
+          align-items: center;
+          gap: var(--space-sm);
+        }
+
+        /* --- ATOM EXAMPLE: CONNECTION LINE --- */
+        .flow-line {
+          stroke: var(--connector-color);
+          stroke-width: var(--connector-width);
+          fill: none;
+        }
+
+ 
+
+ Atomic Design
+ 
+    2+ Molecules    Organisms
+    2+ Atoms        Molecules           
+    2+ Particles    Atoms               Button, Label
+    ---             Particles           Color, Font
+     
+ 
+ 
+ 
+ 
+ 
+ 
+ Atoms for atomic design
+ 
+    
+    Typography
+    
+        Label.      Small, bold, all-caps or high-contrast text for 
+                    button labels or 
+                    icon captions
+                
+        Code-Span   Monospaced text for terminal output or technical data
+        
+        Heading     For window titles or section headers with apps
+        
+        (should I just copy the relevant HTML tags?)
+    
+    
+    Action
+    
+        Action-Button
+    
+    
+    
+    Surface (containment)
+    
+    
+    
+    Input
+    
+    
+    
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  Follows an atomic design philosophy with a
+  strong, centralized control over the design attributes.
+  
+  https://atomicdesign.bradfrost.com/chapter-2/
+  
+      Hierarchy   [ Pages ]
+                      |
+                      v
+                  [ Templates ]
+                      |
+                      v
+                  [ Organisms ]  
+                      |                  
+                      |
+                      |                  
+                      |      +----------------------------------------------------------+
+                      |      |  |\/\/\/|                 'Search the site'     _______  |
+                      |      |  --------  /LINK/ /LINK/  [--enter-keyword----][_SEARCH] |
+                      |      +----------------------------------------------------------+
+                      |                  
+                      |
+                      |               
+                      |
+                      v
+                  [ Molecules ]
+                      |                  
+                      |
+                      |                  
+                      |
+                      |                  
+                      |             'Search the site'
+                      |             [--enter-keyword----][_SEARCH_]               
+                      |
+                      v
+                  [ Atoms ]       
+                  
+                  
+                        Label       'Search the site'
+                        
+                        Input       [--enter-keyword----]
+                                     ________
+                        Button      [_SEARCH_]
+
+                            App
+                            
+                            Execution
+                            
+                            Option
+                            
+                        Image       
+
+                        Tabs
+                            
+                            Active
+                            
+                            Inactive
+                        
+                        Cards
+                        
+                          
+                                 
+  ┌───────┐────────────────┐ 
+  │       │────────────────┘ 
+  └───────┘┌─────┐         │ 
+   ┌──────┐│     │         │ 
+   ┌──────┐│     │         │ 
+    ────── │     │         │ 
+   └───── ┘└─────┘         │ 
+   │      │                │ 
+   └────── ────────────────┘ 
+                             
+                                  
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+         ___   ___   ___   ___
+        [   ] [   ] [   ] [   ]
+    |------------------------------------------------------------------------------
+	|   
+	-------------------------------------------------------------------------------
+	|	
+	|
+    |
+    --------------------------------------------------------------------------------
+
+
+         ___   ___   ___   ___
+        [   ] [   ] [   ] [   ]    2026 04 16 b
+    |------------------------------------------------------------------------------
+	|   PAPC : PostApocolyptic Programming Crafter? 
+	-------------------------------------------------------------------------------
+	|	Essentially convert my Pr0m work something native to POS.
+	|   Promising.
+    |
+    --------------------------------------------------------------------------------
+
+         ___   ___   ___   ___
+        [   ] [   ] [   ] [   ]    2026 04 16 b
+    |------------------------------------------------------------------------------
+	|   Bug Hunter
+	-------------------------------------------------------------------------------
+	|	Hunts for tiny little syntax mistakes
+    |       syntax mistakes
+    |           double period
+    |           not following capitaliation / naming conventions
+    |   
+    |   Automatically trawls a target directory, looking at the files
+    |
+    |   Can also hunt for instances of a word, or a very close variation of 
+	|
+    |
+    --------------------------------------------------------------------------------
+
+
+
+	  [AI] [Visual] [Mathematics] [Animated]         2026 04 16 a
+	|------------------------------------------------------------------------------
+	|   ASCII vector field
+	-------------------------------------------------------------------------------
+	|	Let a particle/ant/etc be pushed/pulled through a vector field
+	|
+    |
+    --------------------------------------------------------------------------------
+
+
+	
+	  [ASCII] [Visual] [Interactive]             2026 04 16 a
+	|-------------------------------------------------------------------------------
+	|   ASCII pool
+	|-------------------------------------------------------------------------------
+	|	Click on a cell to send ASCII ripples through the pool of ASCII symbols
+    |
+    --------------------------------------------------------------------------------
+
+
+    P.SHELL
+
+      ████╗
+      █╔══🐚
+      ████║
+      █╔══╝
+      █║
+
+      █████╗ 
+      █╔═══██╗
+      █║ 🌀 █║
+      █████╔╝
+      █╔═══╝ 
+      █║     
+
+      ▛▀▀▀▜
+      ▌ ⚑ ▐
+      ▙▄▄▄▟
+      ▌ @
+      ▌
+
+       █▀█  ⬢⬢
+       █▄█  ⬢⬢
+       █    
+       █    
+
+        █▀█   ⬢ ⬢
+        █▄█  ⬢ ⬢ ⬢
+        █     ⬢ ⬢
+        █    
+
+             ⬢ ⬢ ⬢
+              ⬢ ⬢
+
+      █▀█  ⣔⣒⣄
+      █▀▀  ⠣⠤⠗
+      █ 
+
+
+ 
+   █▀█  ▟▓⣔⣒⣄
+   █▀▀ ▟▓⣦   ⠣⠤⠗
+   █  ▟▓▓▓▓⣄     ⎩⎥─
+     ▟▓▓▓▓▓▓⣷⡄   ⎨
+     ▀▀⠙⠻⠿⠟
+
+         ▄▄▄▄▄
+        █ ▄▄ █
+        █ █  █
+        █ ▀▀▀
+         ▀▀▀▀
+
+
+
+
+
+/*================================================================================
+
+    Functionality
+
+================================================================================*/
+
+    
+
+
+    ------------------------------------------------------------------------------
+
+    let's keep it very low effort. I'm thinking a custom file extension 
+    (.poss - pichelmeyer operating system save), format of (not sure the name), b
+    ut kind of like minimalist JSON? 
+
+    YAML style?
+    https://developers.home-assistant.io/docs/documenting/yaml-style-guide/
+
+        # Good (2 spaces for indent)
+        example:
+          one: 1
+
+        # Good
+        example:
+          # Comment
+          one: true
+
+        # Acceptable, but prefer the above
+        example:
+          one: true # Comment
+
+        # Bad
+        example:
+        # Comment
+          one: false
+          #Comment
+          two: false
+          # comment
+          three: false
+
+        # Good
+        example:
+          - 1
+          - 2
+          - 3
+
+        # Bad
+        example:
+        - 1
+        - 2
+        - 3
+
+    function loadPOSS(fileContent) {
+        const lines = fileContent.split('\n');
+        let state = {};
+
+        lines.forEach(line => {
+            const [key, value] = line.split(':').map(s => s.trim());
+            if (key && value) {
+                state[key] = value;
+                // Apply to your OS, e.g., if (key === 'bg') document.body.style.background = value;
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+                                
+
+                       no border on the body part
+
+   +===========+------------------------------------
+   |APP TITLE ||  --------
+   |----------|| | A*     |
+   |[Nav Btn] ||  --------
+   |[Nav Btn] ||   B*
+   |          ||  --------
+   |          || | C*      ||
+   |          ||  ========+
+   |          ||
+   |          ||
+   |          ||
+   |          ||
+   +===========+------------------------------------
+
+                        no border on the body part
+
+                        A*: Filled Body Section Header (color)
+                        B*: Text on what kind of looks like a flat bottom surface
+                        C*: Filled Body card.
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ┌─────────────────────────────────────────┐  ← .pos-ctl-strip (floats above)
+        │  [APP LABEL]  [↗]  [_]  [□]  [×]        │
+        ├─────────────────────────────────────────┤  ← window top border
+        │                                         │
+        │            .pos-window-body             │
+        │                                         │
+        └─────────────────────────────────────────┘▶ resize handle
+
+        No titlebar. No sidebar. The control strip is position:absolute,
+        transform: translateY(-100%), sitting above the window border.
+
+
+
+
+
+
+
+
+
+             ╭─o─o─╮
+             ╰─┬─┬─╯
+            _ ╯  ╰ _
+           ( \____/ )
+            \______/
+
+            Director
+
+
+                             ╭─o─o─╮
+                             ╰─┬─┬─╯
+                            _ ╯  ╰ _
+                           ( \____/ )
+                            \______/
+
+                           Archivalist / Loader
+
+
+                             ╭─o─o─╮
+                             ╰─┬─┬─╯
+                            _ ╯  ╰ _
+                           ( \____/ )
+                            \______/
+
+                           Archivalist
+
+
+
+
+
+    /*
+        Layout (Diagon / no-chrome):
+
+        ┌─────────────────────────────────────────┐  ← .pos-ctl-strip (floats above)
+        │  [APP LABEL]  [↗]  [_]  [□]  [×]        │
+        ├─────────────────────────────────────────┤  ← window top border
+        │                                         │
+        │            .pos-window-body             │
+        │                                         │
+        └─────────────────────────────────────────┘▶ resize handle
+
+        No titlebar. No sidebar. The control strip is position:absolute,
+        transform: translateY(-100%), sitting above the window border.
+
+
+
+
+
+
+╭
+                
+                          
+
+     ╭─o─o─╮
+     ╰─┬─┬─╯
+    _ ╯  ╰ _
+   ( \____/ )
+    \______/
+
+
+256d = ╭
+
+2500 = ─
+
+256e = ╮
+
+2570 = ╰
+
+256f = ╯
+
+Corners: ╭ ╮ ╰ ╯
+Lines:   ─ │ ┴ ┬
+Face:    o • ^ ‿
+
+
+
+   ?
+ ╭o-o╮
+ ╰───╯__
+  ~~~ / \
+  ----  /
+   ----
+
+     /o o\
+     \   / 
+     ╰───╯_
+   ( \__/  )
+    \_____/
+
+
+
+
+     ╭─o─o─╮
+     ╰─┬─┬─╯
+    _ ╯  ╰ _
+   ( \____/ )
+    \______/
+
+
+
+
+
+
+
+
+
+  DEPTH          0            1             2                                        N
+            +----------+   +--------+    +--------+                  +---------------------+                 
+            | ~ (root) | / | dir_1  |  / |  dir_2 |    /  ....  /    | project_directory/  |
+            +----------+   +--------+    +--------+                  +---------------------+                      
+                 root                                                                project
+
+
+
+
+                                          +----------+          
+                                          | ~ (root) | 
+                                          +----------+   
+                                                |                                                 
+                                                v
+                                               ...
+                                                |
+                                                v
+                                     +---------------------+                 
+                                     | project_directory/  |
+                                     +---------------------+     
+                                                                                                  
+
+             raw_name
+
+                     raw_name/                  <-- Directory
+                     raw_name.                  <-- File
+
+                             raw_name.EXT
+
+
+
+
+        ░░░░░░░░░░░░▄░░▄░▀█▄░░
+        ░░▄████████▄██▄██▄██░░
+        ░░█████████████▄████▌░
+        ░░▌████████████▀▀▀▀▀░░
+        ▒▀▒▐█▄▐█▄▐█▄▐█▄▒░▒░▒░▒ 
+
+
+
+
+No, you should not always put a . (dot) in front of the first / in Python file paths. The . denotes the current working directory, while a leading / denotes the root directory. Use ./ only when specifically referencing a file relative to the script's current location, not for absolute or root-relative paths. 
+Key Takeaways for Pathing:
+
+    ./file.txt: Means "file.txt in the current directory."
+    /file.txt: Means "file.txt in the root directory" (e.g., C:/file.txt or /file.txt on Linux).
+    Best Practice: For cross-platform compatibility, avoid hardcoding forward or backward slashes altogether. Use pathlib or os.path.join() to handle path separators automatically.
+    Windows Note: Python handles forward slashes (/) even on Windows, so C:/folder/file is valid, but raw strings (r'C:\path') are also common for handling backslashe
+
+
+
+
+
+
+
+
+
+/*================================================================================
+
+
+
+================================================================================*/
+
+
+
+
+
+
+/*================================================================================
+
+
+
+================================================================================*/
+
+
+
+
+
+
+/*================================================================================
+
+
+
+================================================================================*/
+
+
+
+
+
+
+/*================================================================================
+
+    Minimize GUI, maximize focus on what its used for
+
+================================================================================*/
+
+    
+
+    2026 04 16 - 2026 04 17     Brutalist (total) redesign
+    
+
+
+
+
+
+/*================================================================================
+    
+    2026 04 15 late REFACTOR
+
+================================================================================*/
+
+	Target state of code flow
+	
+							index.html
+							     |
+                                 v
+            boot.js * <------ pos.js **
+                     
+                     
+              window.js   dock.js   drag.js    clock.js    registry.js    ***   
+              
+              
+              course-viewer.js    treepiler.js              global.js 
+                     
+                     
+          	* no side effects at load
+          	** entry points, wires modules        
+            *** app list + register
+            
+
+
+    Current state of code flow
+    	
+                        	index.html
+                            	|
+                            	v
+        	global.js        index.js  -----> app.js
+          	  ^                 |    \
+          	  |                 v     \
+        	boot.js   <----->  pos.js  \-----> course-viewer.js
+          	  ^                         \
+          	  |                          \
+          	  |                         treepiler.js
+        	deadStuff     
+	
+/*================================================================================
+    
+    Directory structure
+
+================================================================================*/
+
+v002/
+|-- archiver.py
+|-- index.html
+|-- archived/
+|   |-- a*
+|-- doc/
+|   |-- doc.txt
+|-- insiration/
+|   |-- b*
+|-- pos/
+    |-- pos.css
+    |-- pos.js
+    |-- app/
+    |   |-- course_viewer/
+    |   |   |-- assembler.py
+    |   |   |-- courses.json
+    |   |   |-- courses/
+    |   |   |   |-- courseA.json
+    |   |   |   |-- courseB.json
+    |   |   |-- 
+    |-- boot/
+    |   |-- boot.css
+    |   |-- boot.js
+    |-- gui/
+        |-- gui.css
+        |-- gui.js
+
+
+a* every timme archiver.py is run, critical project files (html, css, js) are 
+    1. copied with a unique filename extension ('{filename}_YYYY_MM_DD_x')
+    2. placed in v002/archived
+b* random jpg, png, files found that serve as design inspiration to varying
+    degrees
+
+
+/*================================================================================
+
+    Information dependency
+
+================================================================================*/
+
+We consider fileChild information dependent on fileParent if 
+    CSS     fileChild references a class from fileParent
+    JS      fileChild needs to call a function/variable from fileParent
+
+We visualize this with
+
+    fileChild <--- fileParent
+
+There should be only one file that has no children:     v002/index.html
+All other files should have EXACTLY one child.
+Files may have multiple parents.
+
+
+Formal syntax/structure for handling information dependency:
+    
+    ==================================================
+    CSS
+        ----------------------------------------------
+        fileParent (.css)
+        ----------------------------------------------
+        :root{
+        
+        }
+                
+        .my-gen-use-class{
+            ...: ....;
+            ...: ....;
+        }
+        
+        #my-unique-class{
+            ...: ....;
+            ...: ....;
+        }
+        
+        ----------------------------------------------
+        fileChild (.css)
+        ----------------------------------------------
+        @import 'rel/path/to/fileParent.css
+
+    ==================================================
+    JS
+    
+        ----------------------------------------------
+        fileParent (.js)
+        ----------------------------------------------
+        const GLOBAL_PARAM = ...
+        
+        // This is usuable by fileChild
+        export function myFunction(params){
+            // body logic
+        }
+        
+        // This is NOT usuable by fileChild
+        function myOtherFunction(params){
+            // body logic
+        }
+        
+        
+        ----------------------------------------------
+        fileChild (.js)
+        ----------------------------------------------
+        import * as Boot from './fileParent.js';
+        'use strict';
+            
+    ==================================================
+
+
+
+
+
+
+/*
+================================================================================
+
+    Application building: Course-Viewer, Lesson-Viewer
+
+================================================================================
+*/
+
+
+    How granular do I want to get with the course material?
+    
+    Currently, the atomic unit is the lesson-beat
+        
+        course
+            (theme)
+                unit
+                    beat (call 'lesson' instead)
+
+    I suppose I see no reason not to build them up from beats ('lessons')
+    
+    The themes would only be for literally thematic framing for the course
+    as a whole. 
+
+
+    courses.json          lessons.json (or lessons/ folder)
+    ──────────────        ─────────────────────────────────
+    csc1110:              algo_intro:
+      schedule: [...]       title: "Intro to Algorithms"
+      lessons: [            tags: [algorithms, cs-foundations]
+        "algo_intro",       beats: [...]
+        "python_loops",   
+      ]                   python_loops:
+                            title: "Python: Loops"
+                            tags: [python, cs-foundations]
+                            beats: [...]
+
+/*================================================================================
+
+================================================================================*/
+
+
+
+/*================================================================================
+
+================================================================================*/
+
+
+
+/*================================================================================
+
+================================================================================*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

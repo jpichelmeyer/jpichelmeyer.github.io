@@ -1,0 +1,238 @@
+/* /v003/live/style/style-components-side-dock.css */
+
+
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *      ┌─────┐
+ *      │Token│
+ *      └─────┘
+ * 
+ * ===============================================================
+ */
+ 
+.app-icon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-grey-warm);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    transition: background-color 0.2s ease;
+}
+.icon-academy {
+    -webkit-mask-image: url('../svgs/academy.svg');
+    mask-image: url('../svgs/academy.svg');
+}
+
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *      Conceptually
+ * 
+ *          ┌─ Atom ─────────┐
+ *          │┌──────┐┌──────┐│
+ *          ││TokenA││TokenB││
+ *          │└──────┘└──────┘│ 
+ *          └────────────────┘ 
+ * 
+ *      HTML
+ * 
+ *          <div class="atom">
+ *              <div class="token"></div>
+ *              <div class="token"></div>
+ *          </div>
+ * 
+ * ===============================================================
+ */
+
+.btn-app {
+    --z-val: 4;
+    width: 80px; 
+    height: 80px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    cursor: pointer; 
+    flex-shrink: 0; 
+    position: relative;
+    background: var(--color-black);
+    border-radius: 20%;
+    opacity: 1.3;
+    transform: translateX(-54px) scale(0.9); 
+    pointer-events: auto; /* Allow clicking even when peaking */
+    transition:
+        opacity   0.1s  cubic-bezier(0.34, 1.56, 0.64, 1),
+        transform 0.15s  cubic-bezier(0.34, 1.56, 0.64, 1),
+        background 0.1s;
+}
+.btn-app:hover {
+    transition-delay: 0s !important;
+    transition-duration: 0.1s; 
+    background: var(--color-accent-1);
+    transform: translateX(15px) scale(1.1) !important;
+    opacity: 1 !important;
+}
+.btn-app:nth-child(1):hover {
+    background-color: var(--color-accent-1); 
+    box-shadow: 10px 10px 0 0 var(--color-black-thin);
+}
+.btn-app:nth-child(2):hover {
+    background-color: var(--color-accent-2);
+    box-shadow: 10px 10px 0 0 var(--color-black-thin);
+}
+.btn-app:nth-child(3):hover {
+    background-color: var(--color-accent-3); 
+    box-shadow: 10px 10px 0 0 var(--color-black-thin);
+}
+.btn-app:nth-child(4):hover {
+    background-color: var(--color-accent-4);
+    box-shadow: 10px 10px 0 0 var(--color-black-thin);
+}
+.btn-app:nth-child(5):hover {
+    background-color: var(--color-accent-5);
+    box-shadow: 10px 10px 0 0 var(--color-black-thin);
+}
+
+
+#btn-app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    gap: 22px;
+    width: 68px;
+}
+#btn-app-container::-webkit-scrollbar { display: none; }
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *      Conceptually
+ * 
+ *          ┌─ Molecule ─────────────────────────┐
+ *          │┌─ Atom ─────────┐┌─ Atom ─────────┐│
+ *          ││┌──────┐┌──────┐││┌──────┐┌──────┐││
+ *          │││------││------││││------││------│││
+ *          ││└──────┘└──────┘││└──────┘└──────┘││
+ *          │└────────────────┘└────────────────┘│ 
+ *          └────────────────────────────────────┘
+ *  
+ *      HTML
+ * 
+ *          <div class="molecule">
+ *              <div class="atom">
+ *                  <div class="token"></div>
+ *                  <div class="token"></div>
+ *              </div>
+ *              <div class="atom">
+ *                  <div class="token"></div>
+ *                  <div class="token"></div>
+ *              </div>
+ *          </div>
+ * 
+ * 
+ * ===============================================================
+ */
+ 
+ 
+ 
+.color-btn-lining {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 30px;
+    width: 80hw;
+}
+
+
+
+/* ===============================================================
+ *  
+ *  Hierarchical design
+ * 
+ *    ┌─ Organism ─────────────────────────────┐
+ *    │                                        │ 
+ *    │ ┌─ Molecule ─────────────────────────┐ │
+ *    │ │┌────────────────┐┌────────────────┐│ │
+ *    │ ││┌──────┐┌──────┐││┌──────┐┌──────┐││ │
+ *    │ │││------││------││││------││------│││ │
+ *    │ ││└──────┘└──────┘││└──────┘└──────┘││ │
+ *    │ │└────────────────┘└────────────────┘│ │
+ *    │ └────────────────────────────────────┘ │
+ *    │ ┌─ Molecule ─────────────────────────┐ │
+ *    │ │┌────────────────┐┌────────────────┐│ │
+ *    │ ││┌──────┐┌──────┐││┌──────┐┌──────┐││ │
+ *    │ │││------││------││││------││------│││ │
+ *    │ ││└──────┘└──────┘││└──────┘└──────┘││ │
+ *    │ │└────────────────┘└────────────────┘│ │
+ *    │ └────────────────────────────────────┘ │
+ *    └────────────────────────────────────────┘
+ * 
+ * ===============================================================
+ */
+ 
+ 
+ 
+#side-dock {
+    --z-val: 3;
+    z-index: var(--z-val);
+    position: fixed;
+    width: 30px;
+    height: 80vh;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
+}
+#side-dock:hover, 
+#side-dock.open { 
+    width: 110px;
+}
+#side-dock:hover .btn-app:nth-child(1) { transition-delay: calc(var(--t-micro) * 0); }
+#side-dock:hover .btn-app:nth-child(2) { transition-delay: calc(var(--t-micro) * 1); }
+#side-dock:hover .btn-app:nth-child(3) { transition-delay: calc(var(--t-micro) * 2); }
+#side-dock:hover .btn-app:nth-child(4) { transition-delay: calc(var(--t-micro) * 3); }
+#side-dock:hover .btn-app:nth-child(5) { transition-delay: calc(var(--t-micro) * 4); }
+#side-dock:hover .btn-app:nth-child(6) { transition-delay: calc(var(--t-micro) * 5); }
+#side-dock:hover .btn-app:nth-child(7) { transition-delay: calc(var(--t-micro) * 6); }
+#side-dock:hover .btn-app:nth-child(8) { transition-delay: calc(var(--t-micro) * 7); }
+#side-dock:not(:hover) .btn-app {
+    transition-delay: 0s; 
+    transition-duration: var(--t-micro);
+}
+#side-dock:hover .btn-app,
+#side-dock.open .btn-app {
+    --z-val: 6;
+    opacity: 1; 
+    transform: translateX(15px) scale(1);    
+    box-shadow: 10px 10px 0px 0px var(--color-black-thin);
+}
+
+ 
+ 
+ 
+
+/* ===============================================================
+ *  
+ *  Scratch
+ * 
+ *     ┌─ ? ────────────┐
+ *     │                │
+ *     │       ?        │
+ *     │                │ 
+ *     └────────────────┘ 
+ *   
+ * 
+ * ===============================================================
+ */
+
+

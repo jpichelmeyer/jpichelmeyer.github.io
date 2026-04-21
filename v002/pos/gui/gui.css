@@ -55,7 +55,17 @@ body.pos-active {
 }
 #pos-desktop-watermark svg { width: 100%; height: 100%; transform: scale(1.5);}
 
-/* ── Dock ── */
+/* ── DOCK-STUFF ──               position   z-index             */
+/* ────────────────────────────── -------- | -------             /*
+/* ── pos-dock-rail               fixed    | 
+ * ──────── pos-dock              absolute |
+ * ────────────── pos-dock-item   .........|
+ * ──
+ * ──
+ * ──
+ * ──
+ * ──
+ */
 #pos-dock-rail {
     position: fixed;
     top: 0; left: 0;
