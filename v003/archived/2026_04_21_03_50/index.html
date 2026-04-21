@@ -12,7 +12,8 @@
         <link rel="icon" type="image/svg+xml" href="svgs/p-shell-logo.svg">
         
         <!-- STYLES -->
-        <link rel="stylesheet" href="style/style.css">
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="window.css">
         
         <!-- SCRIPTS -->
         <script type="module" src="script.js"></script>
@@ -21,8 +22,7 @@
     
     
     <body>
-
-<!--
+        <!--
             body
             │
             ├── desktop
@@ -44,28 +44,28 @@
         *   └── window*
         
         
--->
-        
+        -->
+
         <!-- body/DESKTOP -->
         <div class="desktop">
-            <div class="wallpaper"></div>
-            <div class="watermark"></div>
+            <div class="wallpaper verA"></div>
+            <div class="wallpaper-logo"></div>
             <button id="btn-desktop-cmd-full-screen" class="btn-desktop-cmd"></button>
-        </div> 
+        </div>
+        -->
         
-        
-        <!-- SIDE DOCK -->
+        <!-- SIDEDDOCK -->
         <div id="side-dock" class="side-dock">
             <div id="btn-app-container" class="btn-app-container">
-                <button class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></button>
-                <button class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></button>
-                <button class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></button>
-                <button class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></button>
-                <button class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></button>
+                <div class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></div>
+                <div class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></div>
+                <div class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></div>
+                <div class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></div>
+                <div class="btn-app" data-label="Lab"> <div class="app-icon icon-academy"></div></div>
             </div>
         </div>
 
-        <!-- Testing (window)-->
+        <!-- A window -->
         <div class="pane-a" style="width: 300px;">
             <span class="label-meta-a">Class Schedule</span>
             <h2 style="margin: 0.5rem 0; font-family: var(--font-family-sans);">Advanced JS</h2>
@@ -74,33 +74,18 @@
             <button class="btn-a">Open Lesson</button>
         </div>
         
-        <!-- Testing (colors) -->
-        <div class="color-btn-container">
-            <div class="color-btn-lining">
-                <button id="color-btn-1" class="color-btn color-btn-1">Button1</button>
-                <button id="color-btn-2" class="color-btn color-btn-2">Button2</button>
-                <button id="color-btn-3" class="color-btn color-btn-3">Button3</button>
-                <button id="color-btn-4" class="color-btn color-btn-4">Button4</button>
-                <button id="color-btn-5" class="color-btn color-btn-5">Button5</button>
-                <button class="color-btn" id="color-btn-unique" >UNIQUE</button>
-                <div class="watermark-b"></div>
-            </div>
-        </div>
         
         
-        
-        <!-- 1. A window — Flow Editor -->
-        <div class="window window--md" style="top: 120px; left: 240px;" id="window-flow">
+        <!-- A window — Flow Editor -->
+        <div class="window window--md" style="top: 60px; left: 120px;" id="window-flow">
 
             <!-- ── Body ───────────────────────────────────────── -->
             <div class="window-body">
 
-                <!-- 2 Left sidebar -->
+                <!-- Left sidebar -->
                 <div class="window-sidebar">
-                    
-                    <!-- 3 -->
                     <div class="window-sidebar-logo">// </div>
-                    
+
                     <div class="window-sidebar-item active" title="Home">
                         <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
                     </div>
@@ -125,33 +110,31 @@
                     <div class="window-sidebar-avatar"></div>
                 </div>
 
-                <!-- 3. Canvas (main content area) -->
+                <!-- Canvas (main content area) -->
                 <div class="window-canvas" id="flow-canvas">
-                    
-                    <!-- 4. Canvas add button (top-left) -->
+                    <!-- Canvas add button (top-left) -->
                     <div class="window-canvas-add-btn" style="position:absolute; top:16px; left:16px;">+</div>
                     <!-- Your nodes, edges, etc. go here -->
                 </div>
 
-                <!-- 3. Right panel -->
+                <!-- Right panel -->
                 <div class="window-panel">
-                    
-                    <!-- 4. Search -->
+                    <!-- Search -->
                     <div class="window-panel-search">
                         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         <input type="text" placeholder="Search">
                     </div>
 
-                    <!-- 4. Panel list -->
+                    <!-- Panel list -->
                     <div class="window-panel-body">
 
-                        <!-- 5. Section: Flow Control -->
+                        <!-- Section: Flow Control -->
                         <div class="window-panel-section">
                             Flow Control
                             <svg class="window-panel-section-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                         </div>
 
-                        <!-- 6. Section: Tools (expanded) -->
+                        <!-- Section: Tools (expanded) -->
                         <div class="window-panel-section">
                             Tools
                             <svg class="window-panel-section-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -160,16 +143,10 @@
                         <div class="window-panel-category">Triggers</div>
 
                         <div class="window-panel-item">
-                            
-                            <!-- 7. whatever -->
                             <div class="window-panel-item-icon">
                                 <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                             </div>
-                            
-                            
                             <div class="window-panel-item-text">
-                                
-                                <!-- 8 whatever -->
                                 <div class="window-panel-item-label">Basic trigger</div>
                                 <div class="window-panel-item-desc">Generates bundles with their own structure.</div>
                             </div>

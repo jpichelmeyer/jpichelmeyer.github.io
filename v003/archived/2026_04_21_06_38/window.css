@@ -1,0 +1,550 @@
+/* /v003/live/window.css
+ *
+ *  Window component — OS-style application window
+ *  Mirrors the three-zone layout in the reference image:
+ *
+ *      ┌─ .window ──────────────────────────────────────────────┐
+ *      │ ┌─ .window-titlebar ───────────────────────────────┐   │
+ *      │ │  [traffic lights]   [title]   [window-cmd-btn*]  │   │
+ *      │ └──────────────────────────────────────────────────┘   │
+ *      │ ┌─ .window-body ────────────────────────────────────┐  │
+ *      │ │ ┌─.window-sidebar─┐ ┌─.window-canvas─┐ ┌─.win..┐ │  │
+ *      │ │ │  icon nav col   │ │  main content  │ │ panel │ │  │
+ *      │ │ └─────────────────┘ └────────────────┘ └───────┘ │  │
+ *      │ └───────────────────────────────────────────────────┘  │
+ *      │ ┌─ .window-toolbar ────────────────────────────────┐   │
+ *      │ │  [run btn]   [tool icons ...]        [– ] [+ ]   │   │
+ *      │ └──────────────────────────────────────────────────┘   │
+ *      └────────────────────────────────────────────────────────┘
+ */
+
+
+/* =======================================
+ *  Window Shell
+ * =======================================
+ */
+
+.window {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+
+    background-color: var(--color-surface);
+    border: var(--stroke-thin);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-default);
+
+    overflow: hidden;         /* Clips sidebar/panel to rounded corners  */
+    --z-val: 3;
+    z-index: var(--z-val);
+
+    /* Default size — override inline or with a modifier class */
+    width: 860px;
+    height: 560px;
+    min-width: 400px;
+    min-height: 260px;
+
+    /* Draggable windows feel better with a transition only on open/close */
+    transition: box-shadow 0.15s ease;
+}
+
+/* Focused / active window gets a slightly stronger shadow */
+.window:focus-within {
+    box-shadow: var(--box-shadow-default);
+/*
+    --l-z: calc(var(--z-val) * var(--l-shadow));
+    box-shadow: var(--l-z) var(--l-z) 0px 0px var(--color-shadow);
+*/
+}
+
+
+/* =======================================
+ *  Drag handle
+ *  The sidebar acts as the drag target
+ *  (grab the dark strip to move the window)
+ * =======================================
+ */
+
+.window-sidebar {
+    cursor: grab;
+}
+.window-sidebar:active {
+    cursor: grabbing;
+}
+
+
+/* =======================================
+ *  Body  (sidebar + canvas + panel)
+ * =======================================
+ */
+
+.window-body {
+    display: flex;
+    flex: 1;                /* Fill all vertical space between titlebar & toolbar */
+    overflow: hidden;
+}
+
+
+/* -----------------------------------------------
+ *  Sidebar  — narrow left icon column
+ * ----------------------------------------------- */
+
+.window-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    width: 54px;
+    flex-shrink: 0;
+    padding: 12px 0;
+
+    background-color: #111111;   /* Dark, matching the reference image */
+    border-right: var(--stroke-thin);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.window-sidebar::-webkit-scrollbar { display: none; }
+
+/* Sidebar brand / logo mark at top */
+.window-sidebar-logo {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 12px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-family-mono);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* Sidebar nav items */
+.window-sidebar-item {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.4);
+    transition: background 0.15s, color 0.15s;
+    position: relative;
+}
+.window-sidebar-item:hover,
+.window-sidebar-item.active {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.9);
+}
+.window-sidebar-item svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.5;
+}
+
+/* Active indicator dot */
+.window-sidebar-item.active::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    width: 3px;
+    height: 16px;
+    background: var(--color-accent-6);
+    border-radius: 0 2px 2px 0;
+}
+
+/* Spacer that pushes bottom items down */
+.window-sidebar-spacer {
+    flex: 1;
+}
+
+/* Avatar at bottom of sidebar */
+.window-sidebar-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--color-grey-mid);
+    border: 2px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.window-sidebar-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* -----------------------------------------------
+ *  Canvas  — main content area (scrollable)
+ * ----------------------------------------------- */
+
+.window-canvas {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    background-color: var(--color-bg);
+
+    /* Subtle dot grid matching wallpaper aesthetic */
+    background-image: radial-gradient(var(--color-grid-line) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+.window-canvas::-webkit-scrollbar { width: 6px; height: 6px; }
+.window-canvas::-webkit-scrollbar-thumb {
+    background: var(--color-grey-light-very);
+    border-radius: 3px;
+}
+
+/* Add-node button shown in canvas */
+.window-canvas-add-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: var(--stroke-thin);
+    border-radius: 50%;
+    background: var(--color-surface);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--color-text-muted);
+    transition: background 0.15s, transform 0.15s;
+    user-select: none;
+}
+.window-canvas-add-btn:hover {
+    background: var(--color-accent);
+    color: white;
+    border-color: var(--color-accent);
+    transform: scale(1.1);
+}
+
+
+/* -----------------------------------------------
+ *  Right Panel  — collapsible inspector / list
+ * ----------------------------------------------- */
+
+.window-panel {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+
+    background-color: var(--color-surface);
+    border-left: var(--stroke-thin);
+    overflow: hidden;
+}
+
+/* Panel search bar */
+.window-panel-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    border-bottom: var(--stroke-thin);
+    flex-shrink: 0;
+}
+.window-panel-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--font-family-mono);
+    font-size: 0.75rem;
+    color: var(--color-text);
+}
+.window-panel-search input::placeholder { color: var(--color-grey-mid); }
+.window-panel-search svg {
+    width: 14px;
+    height: 14px;
+    color: var(--color-grey-mid);
+    flex-shrink: 0;
+    stroke: currentColor;
+    fill: none;
+}
+
+/* Scrollable list area */
+.window-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+}
+.window-panel-body::-webkit-scrollbar { width: 4px; }
+.window-panel-body::-webkit-scrollbar-thumb {
+    background: var(--color-grey-light-very);
+    border-radius: 2px;
+}
+
+/* Collapsible section header */
+.window-panel-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-family: var(--font-family-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text);
+    user-select: none;
+    transition: background 0.12s;
+}
+.window-panel-section:hover { background: var(--color-bg); }
+
+.window-panel-section-chevron {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    fill: none;
+    transition: transform 0.2s;
+}
+.window-panel-section.collapsed .window-panel-section-chevron {
+    transform: rotate(-90deg);
+}
+
+/* Category label (e.g. "TRIGGERS", "ACTIONS") */
+.window-panel-category {
+    font-family: var(--font-family-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-grey-mid);
+    padding: 0.4rem 0.75rem 0.2rem;
+}
+
+/* Individual list row */
+.window-panel-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.45rem 0.75rem;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.window-panel-item:hover { background: var(--color-bg); }
+
+.window-panel-item-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: var(--stroke-thin);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+}
+.window-panel-item-icon svg {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    fill: none;
+}
+
+.window-panel-item-text { flex: 1; min-width: 0; }
+.window-panel-item-label {
+    font-family: var(--font-family-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.window-panel-item-desc {
+    font-family: var(--font-family-sans);
+    font-size: 0.65rem;
+    color: var(--color-grey-mid);
+    line-height: 1.3;
+    margin-top: 1px;
+}
+
+/* AI Help badge at the bottom of the panel */
+.window-panel-footer {
+    border-top: var(--stroke-thin);
+    padding: 0.6rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.12s;
+}
+.window-panel-footer:hover { background: var(--color-bg); }
+.window-panel-footer-label {
+    font-family: var(--font-family-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-text);
+    flex: 1;
+}
+.window-panel-badge {
+    font-family: var(--font-family-mono);
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    background: var(--color-text);
+    color: var(--color-surface);
+    border-radius: 3px;
+}
+
+
+/* =======================================
+ *  Toolbar  (bottom bar)
+ * =======================================
+ */
+
+.window-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    height: 48px;
+    flex-shrink: 0;
+    padding: 0 1rem;
+
+    border-top: var(--stroke-thin);
+    background-color: var(--color-surface);
+}
+
+/* Primary run button */
+.window-toolbar-run {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    background: var(--color-text);
+    color: var(--color-surface);
+    border: var(--stroke-thin);
+    border-radius: var(--border-radius-btn);
+    font-family: var(--font-family-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
+    box-shadow: var(--box-shadow-default);
+    flex-shrink: 0;
+}
+.window-toolbar-run:active {
+    transform: translate(var(--dist-btn-pressed), var(--dist-btn-pressed));
+    box-shadow: var(--box-shadow-default);
+}
+.window-toolbar-run svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+}
+
+/* Toolbar icon buttons */
+.window-toolbar-btn {
+    /* THE RESET */
+    background: transparent;
+    border: none;
+    padding: 0;
+    outline: none;
+    appearance: none;
+
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-btn);
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: background 0.15s, color 0.15s;
+}
+.window-toolbar-btn:hover {
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+.window-toolbar-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.5;
+}
+
+/* Spacer between left and right groups */
+.window-toolbar-spacer { flex: 1; }
+
+/* Zoom controls (– and +) */
+.window-toolbar-zoom {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border: var(--stroke-thin);
+    border-radius: var(--border-radius-btn);
+    overflow: hidden;
+}
+.window-toolbar-zoom-btn {
+    /* THE RESET */
+    background: transparent;
+    border: none;
+    padding: 0;
+    outline: none;
+    appearance: none;
+
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: var(--font-family-mono);
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    transition: background 0.12s, color 0.12s;
+}
+.window-toolbar-zoom-btn:hover {
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+
+/* =======================================
+ *  Window size modifiers
+ * =======================================
+ */
+
+.window.window--sm { width: 520px; height: 380px; }
+.window.window--md { width: 860px; height: 560px; }   /* default */
+.window.window--lg { width: 1100px; height: 700px; }
+.window.window--full {                                  /* maximised */
+    width: calc(100vw - 80px);   /* leaves room for side-dock */
+    height: calc(100vh - 40px);
+    top: 20px !important;
+    left: 80px !important;
+}
+
+
+/* =======================================
+ *  Collapsed / hidden state
+ * =======================================
+ */
+
+.window.window--hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.96) translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.window:not(.window--hidden) {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}

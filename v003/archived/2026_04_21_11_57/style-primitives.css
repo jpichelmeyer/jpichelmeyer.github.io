@@ -21,7 +21,6 @@
     --color-black-thin: rgba(24,24,24,0.24);
     --color-black:      #111111;
     --color-black-warm: #31312b;
-    --color-grey:       #eeeee5;
     --color-grey-warm:  #f2f1f0;
     --color-white-warm: #F9F9F7;
     --color-white-soft: #f1f1f1;
@@ -39,10 +38,7 @@
      */
     --l-sun-horizon:    8px;
     --l-arc-galaxy:     2%;
-    --l-arc-hope:       10%;
     --l-bunny-hop:      8px;
-    --l-puff-up:        1.15;
-    --l-push-down:      6px;
     
     /* ------------------------------------------------
      * 
