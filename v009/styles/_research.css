@@ -1,0 +1,77 @@
+/* v009/site/styles/_research.css */
+
+/*
+   Research panel — Era I / II / III project listings.
+   Ported from v001's research section. Independent of _base.css.
+*/
+
+
+
+/* ── Era intro / placeholder text ── */
+.research-era-intro {
+    font-family: var(--serif);
+    font-size: calc(13px * var(--mod-font-size));
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+    margin-left: 10px;
+}
+.research-era-placeholder {
+    font-family: var(--sans);
+    font-size: calc(15px * var(--mod-font-size));
+    color: var(--ink-faint);
+    padding: 40px 0;
+    text-align: center;
+}
+
+/* ── Research project rows ── */
+.research_paper_row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--panel-bd);
+}
+.research_paper_row:last-child { border-bottom: none; }
+
+.research_paper_thumbnail {
+    width: 170px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    border: 1px solid var(--panel-bd);
+}
+.research_paper_thumbnail_tda_eeg    { content: url(../imgs/thumb_tda_eeg.png); }
+.research_paper_thumbnail_tda_llm    { content: url(../imgs/thumb_tda_llm.png); }
+.research_paper_thumbnail_tooth      { content: url(../imgs/thumb_tooth.png); }
+.research_paper_thumbnail_cycle_basis{ content: url(../imgs/thumb_cycle_basis.png); }
+.research_paper_thumbnail_genera_four{ content: url(../imgs/thumb_genera_four.png); }
+.research_paper_thumbnail_genera     { content: url(../imgs/thumb_genera_knots.png); }
+.research_paper_thumbnail_para       { content: url(../imgs/thumb_para.png); }
+
+.research_paper_text_title  { 
+    color: var(--ink); 
+    font-weight: bold; 
+    font-size: calc(12px * var(--mod-font-size)); 
+    width: 360px; 
+}
+.research_paper_text_authors{ 
+    font-size: calc(11px * var(--mod-font-size)); 
+    color: var(--ink-soft); 
+    padding: 5px 0; 
+}
+.research_paper_text_journal{ text-transform: uppercase; font-size: calc(10px * var(--mod-font-size)); color: var(--ink-faint); }
+.research_paper_text_links  { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; }
+
+.research_link {
+    width: fit-content;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    padding: 5px 8px;
+    color: #f1f1f1;
+    font-size: calc(9px * var(--mod-font-size));
+}
+.research_link_arxiv           { background: #a3140a; }
+.research_link_publisher       { background: #6162c9; }
+.research_link_semantic_scholar{ color: #e0c677; background: #263180; }
+.research_link_krex            { background: #4a2569; }

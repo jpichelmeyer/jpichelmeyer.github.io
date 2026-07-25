@@ -1,0 +1,34 @@
+/* v009/site/styles/_animation.css */
+
+/*
+    Animation layer. Canvas effects, ASCII animations, transitions.
+    No layout, no resets — those live in _base.css.
+*/
+
+/* ====================================================================
+        Watercolor portrait (about panel)
+   ====================================================================
+*/
+
+
+#ink-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0.15;
+}
+
+
+@keyframes breathe {
+    0%, 100% { transform: scale(var(--sketch-scale)) translateY(0px); }
+    50%       { transform: scale(calc(var(--sketch-scale) * 1.013)) translateY(-4px); }
+}
+
+
+/* ====================================================================
+   ====================================================================
+   ====================================================================
+*/

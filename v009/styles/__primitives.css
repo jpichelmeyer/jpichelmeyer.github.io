@@ -1,0 +1,123 @@
+/* v009/site/styles/__primitives.css */
+
+/* ====================================================================
+        Description
+   ====================================================================
+*/
+/*
+      Global CSS custom properties. No selectors beyond :root.
+      All _*.css files consume these. Nothing else lives here. 
+*/
+
+
+/* ==================================================================
+        Imports
+   ====================================================================
+*/
+
+/* @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap'); */
+
+
+:root {
+
+    /* --- Raw mods (for more global control and faster iteration) --- */
+    --mod-font-size:    1.15;
+
+    /* ── Backgrounds── */
+    --bg:               #f1f1f1;
+    --bg2:              #e8e8e8;
+    --bg3:              #dedede;
+    --bg4:              #f5f5e8;
+    --bg-light:         color-mix(in oklab, var(--bg), white 60%);
+    
+    /* TESTING */
+    --bg4:              #d4d4d4;
+    --bg5:              #ececec;
+    --paper1:           #f7f7f7
+    --paper2:           #e8e1d5;
+    --paper3:           #f1f1f1;
+    --paper4:           #bdb4ae;
+    --paper5:           #cac4cc;
+    --paper6:           #444444;
+
+    /* ── Ink ── */
+    --ink:              #1a1916;
+    --ink-soft:         #4a4740;
+    --ink-faint:        #9a9590;
+    --dot:              #ccc9bf;
+    --rule:             #ccc9bf;
+    
+    /* -- Border -- */
+    --border1:          1.5px solid var(--ink);
+    --border-radius1:   0 0 10px 10px;
+    --border-radius2:   10px;
+    
+    /* -- Shadow -- */
+    --shadow-soft:      rgba(24, 24, 24, 0.25);
+
+    /* ── Palette B accents ── */
+    --accent:           #1e9ab0;   /* teal      */
+    --accent2:          #e05340;   /* coral     */
+    --accent3:          #f0a830;   /* gold      */
+    --cobalt:           #2a5db0;
+    --chartreuse:       #6bb86e;
+
+    /* ── Panels ── */
+    --panel-bg-bright:  rgba(247,247,247,1.0);
+    --panel-bg:         rgba(245,245,245,0.98);
+    --panel-bd:         #ccc9bf;
+    
+    /* --- Titlebars --- */
+    --color-accent-about:           #de6268;        /* core palette red  */
+    --color-accent-courses:         #4a7ec2;        /* Core palette blue */
+    --color-accent-projects:        #d6b969;        /* Core palette gold */
+    --color-accent-research:        #72a67f;        /* Core palette sage */
+    --color-titlebar-font:          #f1f1f1;
+
+    /* --- Portrait -- */
+    --color-portrait-sketch:        rgb(24, 24, 24, 0.75);
+    --color-de-dr:                  rgb(150, 150, 150, 1.0);
+    --sketch-scale:                 1.1;
+
+    /* ── Layout ── */
+    --nav-h:       52px;
+
+    /* ── Typography ── */
+    --mono:         'IBM Plex Mono', monospace;
+    --sans:         'IBM Plex Sans', sans-serif;
+    --sans-inter:   'Inter', system-ui, -apple-system, sans-serif;
+    --serif:        'Crimson Pro', Georgia, serif;
+
+    /* ── Editor tokens ── */
+    --tok-kw:      #1e9ab0;
+    --tok-type:    #2a5db0;
+    --tok-fn:      #6bb86e;
+    --tok-str:     #e05340;
+    --tok-num:     #f0a830;
+    --tok-cmt:     #9a9590;
+    
+    /* --- Misc / unintegrated --- */
+    --color-black-soft:             rgb(24, 24, 24, 0.7);
+    
+    
+    /* --- Need to be integrated (possibly)? --- */
+    
+    /* --- Research plant --- */
+    --math:     #d4af37;   /* was --math-gold  */
+    --cs:       #337ab7;   /* was --cs-blue    */
+    --alife:    #1e9ab0;   /* was --alife-teal */
+    --theory:   #72a67f;   /* sage — guessing  */
+
+    /* --- Missing misc --- */
+    --accent1:              #1e9ab0;   /* teal, same as --accent */
+    
+    /* --- Timeline (course path) --- */
+    --timeline-opacity:         0.1;
+    --timeline-highlight:       #1f1f1f;
+    --timeline-lowlight:        #7a7a7a;
+    
+    /* --- Extra stuff --- */
+    --color-presentations-bg:       #c4ba8d;
+    --color-presentations-font:     #1f1f1f;
+    
+}
