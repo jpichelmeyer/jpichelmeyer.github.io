@@ -1,0 +1,83 @@
+<svg width="600" height="350" viewBox="0 0 600 350">
+    
+    <!--
+    ========================================================================
+        Style
+    ========================================================================
+    -->
+    <style>
+        
+        /* Global vars */
+        :root {
+            --main-bg: #00ff00;
+            --exec-node-fill: #777777;
+            --flow-line-fill: #222222;
+            }
+        .bg {
+            fill: var(--main-bg);        
+            }
+        .exec-node {
+            fill: var(--exec-node-fill);
+            stroke: #ff0000;
+            }
+        .flow-line {
+            fill: var(--flow-line-fill);
+            }
+
+    </style>
+
+    <!--
+    ========================================================================
+        Definitions
+    ========================================================================
+    -->
+    <defs>
+
+        <!-- Template: Execution node -->
+        <ellipse id="exec_node"
+            class="exec-node"
+            cx="0" cy="0" 
+            rx="40" ry="40" 
+            />
+
+        <!-- Template: Progress arrow-->
+        <g id="prog_arr">
+
+            <!-- Arrow head -->
+            <marker id="arrowhead"
+                class="flow-line" 
+                markerWidth="10" markerHeight="7"
+                refX="0" refY="3.5"
+                orient="auto"                
+                >
+                    <polygon points="0 0, 10 3.5, 0 7"/>            
+                </marker>
+
+            <!-- Arrow body -->
+            
+        </g>
+
+    </defs>
+
+    <!--
+    ========================================================================
+        Document Background
+    ========================================================================
+    -->
+	<rect class="bg" width="100%" height="100%"/>
+    
+    <!--
+    ========================================================================
+        Body
+    ========================================================================
+    -->
+
+    <!-- Linear, non-terminating flow -->
+    <g transform="translate(100,100)">
+        <use href="#exec_node" x="0" y="0"/>
+        <use href="#exec_node" x="50" y="50"/>     
+    </g>
+
+    
+
+</svg>

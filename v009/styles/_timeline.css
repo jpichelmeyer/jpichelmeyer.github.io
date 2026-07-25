@@ -1,7 +1,7 @@
 /* v009/site/styles/_timeline.css */
 
 /*
-      editaur panel and styles.
+      Timeline panel and styles.
       Only dependency between this and other files should be...
       
       merged.css <--- this <--- __primitives.css
@@ -31,6 +31,7 @@
     padding-left: 10px; 
     padding-bottom: 20px; 
     font-family: var(--sans-inter); 
+    min-width: 620px;
     }
 .timeline_row { 
     display: flex; 

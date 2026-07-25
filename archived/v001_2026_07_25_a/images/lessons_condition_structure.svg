@@ -1,0 +1,141 @@
+<svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+    
+    <!--
+    =====================================================================
+
+        Background
+
+    =====================================================================
+    -->
+    <rect width="100%" height="100%" fill="#121212"/>
+    
+    <!--
+    [MyProject] (root)
+    ....Program.cs (core source code)
+    ....OtherClass.cs  (only add when we want to)
+    ....[.idea]
+    ........[.idea.Test202604April11h.dir]
+    ............[.idea]
+    ................projectSettingsUpdater.xml
+    ................workspace.xml
+    .................gitignore
+    ................vcs.xml
+    ................encodings.xml
+    ................indexLayout.xml
+    ....[bin]
+    ........[Debug]
+    ............[net10.0]
+    ................App.pdb
+    ................App.dll
+    ................App.runtimeconfig.json
+    ................App
+    ................App.deps.json
+    ....[obj]
+    ........project.nuget.cache
+    ........rider.project.restore.info
+    ........App.csproj.nuget.g.props
+    ........project.assets.json
+    ........App.csproj.nuget.g.targets
+    ........App.csproj.nuget.dgspec.json
+    ........project.packagespec.json
+    ....[Debug]
+    ............[net10.0]
+    ................App.assets.cache
+    ................App.sourcelink.json
+    ................App.AssemblyInfoInputs.cache
+    ................App.csproj.CoreCompileInputs.cache
+    ................App.pdb
+    ................App.AssemblyInfo.cs
+    ................App.genruntimeconfig.cache
+    ................App.GeneratedMSBuildEditorConfig.editorconfig
+    ................App.dll
+    ................apphost
+    ................App.csproj.FileListAbsolute.txt
+    .................NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    ................[ref]
+    ....................App.dll
+    ................[refint]
+    ....................App.dll
+    -->
+
+    <!--
+    =====================================================================
+
+        Definitions
+
+    =====================================================================
+    -->
+    <defs>
+        
+        <g id="directory" >
+            <path d="M2 5C2 3.89543 2.89543 3 4 3H8.41421C8.94457 3 9.45327 3.21071 9.82843 3.58579L12.4142 6.17157C12.7893 6.54666 13.298 6.75736 13.8284 6.75736H18C19.1046 6.75736 20 7.66193 20 8.7665V17C20 18.1046 19.1046 19 18 19H4C2.89543 19 2 18.1046 2 17V5Z" fill="#1A2634"/>
+            <path d="M2 9C2 7.89543 2.89543 7 4 7H18C19.1046 7 20 7.89543 20 9V17C20 18.1046 19.1046 19 18 19H4C2.89543 19 2 18.1046 2 17V9Z" fill="#2C3E50"/>
+            <path d="M20 9H2V10H20V9Z" fill="white" fill-opacity="0.05"/>
+        </g>
+
+        <g id="L-directory">
+            <line x1="28" y1="53" x2="28" y2="100" stroke="#ffffff" stroke-width="3" stroke-opacity="0.25"/>
+            <line x1="32" y1="75" x2="200" y2="75" stroke="#ffffff" stroke-width="3" stroke-opacity="0.25"/>
+            <use href="#directory" x="0" y="0" transform="scale(2.5)"/>
+        </g>
+
+        <g id="folder-dark">
+            <path d="M2 5C2 3.89543 2.89543 3 4 3H8.41421C8.94457 3 9.45327 3.21071 9.82843 3.58579L12.4142 6.17157C12.7893 6.54666 13.298 6.75736 13.8284 6.75736H18C19.1046 6.75736 20 7.66193 20 8.7665V17C20 18.1046 19.1046 19 18 19H4C2.89543 19 2 18.1046 2 17V5Z" fill="#1A2634"/>
+            <path d="M2 9C2 7.89543 2.89543 7 4 7H18C19.1046 7 20 7.89543 20 9V17C20 18.1046 19.1046 19 18 19H4C2.89543 19 2 18.1046 2 17V9Z" fill="#2C3E50"/>
+            <path d="M20 9H2V10H20V9Z" fill="white" fill-opacity="0.05"/>
+        </g>
+        
+        <g id="file-dark">
+            <rect x="2" y="2" width="16" height="20" rx="2" fill="#34495E" stroke="#5D6D7E" stroke-width="1"/>
+            <line x1="6" y1="8" x2="14" y2="8" stroke="#ABB2B9" stroke-width="1"/>
+            <line x1="6" y1="12" x2="14" y2="12" stroke="#ABB2B9" stroke-width="1"/>
+            <line x1="6" y1="16" x2="10" y2="16" stroke="#ABB2B9" stroke-width="1"/>
+        </g>
+    </defs>
+    
+    <!--
+    =====================================================================
+
+        Body
+
+    =====================================================================
+    -->
+
+    <g transform="translate(150, 50)">
+        <use href="#L-directory" x="0" y="0" />
+        <text x="40" y="22" font-family="Segoe UI, Verdana" font-size="14" font-weight="bold" fill="#EAEAEA">MyProject (root)</text>
+    </g>
+    
+    <!--
+    <g stroke="#444444" stroke-width="1.5" fill="none">
+        <path d="M30,45 V265" /> <path d="M30,100 H70 M30,180 H70 M30,260 H70" /> <path d="M100,120 V140" /> <path d="M100,140 H130" />
+        <path d="M100,200 V220" /> <path d="M100,220 H130" />
+    </g>
+
+    <g transform="translate(10, 10)">
+        <use href="#folder-dark" x="0" y="0" transform="scale(1.5)"/>
+        <text x="40" y="22" font-family="Segoe UI, Verdana" font-size="14" font-weight="bold" fill="#EAEAEA">project_root</text>
+    </g>
+
+    <g transform="translate(70, 88)">
+        <use href="#folder-dark" x="0" y="0" transform="scale(1.2)"/>
+        <text x="30" y="18" font-family="Segoe UI, Verdana" font-size="13" fill="#BDC3C7">src</text>
+        <use href="#file-dark" x="65" y="35" />
+        <text x="90" y="50" font-family="Segoe UI, Verdana" font-size="12" fill="#95A5A6">main.py</text>
+    </g>
+
+    <g transform="translate(70, 168)">
+        <use href="#folder-dark" x="0" y="0" transform="scale(1.2)"/>
+        <text x="30" y="18" font-family="Segoe UI, Verdana" font-size="13" fill="#BDC3C7">assets</text>
+        <use href="#file-dark" x="65" y="35" />
+        <text x="90" y="50" font-family="Segoe UI, Verdana" font-size="12" fill="#95A5A6">logo.svg</text>
+    </g>
+
+    <g transform="translate(70, 248)">
+        <use href="#folder-dark" x="0" y="0" transform="scale(1.2)"/>
+        <text x="30" y="18" font-family="Segoe UI, Verdana" font-size="13" fill="#BDC3C7">docs</text>
+    </g>
+    -->
+    
+</svg>
+

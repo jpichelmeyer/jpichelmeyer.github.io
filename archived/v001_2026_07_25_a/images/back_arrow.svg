@@ -1,0 +1,136 @@
+<!-- <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"> -->
+<svg width="100" height="100" viewBox="0 0 100 100 " fill="none" xmlns="http://www.w3.org/2000/svg">
+<!--
+The d attribute is just a list of instructions for a virtual pen. Here is exactly what those letters and numbers do:
+    M (x, y) (Move): Pick up the pen and place it at a specific coordinate. It doesn't draw anything yet.
+    L (x, y) (Line): Draw a straight line from the current position to this new coordinate.
+    H (x) (Horizontal): Draw a flat line to this x-coordinate, keeping the y the same.
+    V (y) (Vertical): Draw a straight line up or down to this y-coordinate, keeping the x the same.
+
+    d = "M72 52V68H42M42 68L54 56M42 68L54 80"
+
+          ==========================
+        
+             M(72 52) | V(68) | H(42) | M(42 68) L(54 56) | M(42 68) | L(54 80)
+            
+             M 72 52          x
+         
+             V .. 68          x
+                              |
+
+             H 42 ..          x
+                              |
+                         o====o
+
+         ==========================  Body done
+
+             M                       Now do arrow head
+
+
+
+        
+        ==========================  !!!! EXTENSION 1 !!!!!
+
+             M52 52H72V68H42M42 68L54 56M42 68L54 80
+             M(52 52) | H(72) |||| V(68) | H(42) | M(42 68) L(54 56) | M(42 68) | L(54 80)
+
+                        52
+
+                         ### x     52      M(72 52) | V(68) | H(42) | M(42 68) L(54 56) | M(42 68) | L(54 80)
+                             |     
+                      o======o     68
+
+                      42     72
+
+        ==========================  !!!! ADJUSTMENT 1 !!!!!
+
+             M52 <A*>H72V68H42M42 68L54 56M42 68L54 80
+             M(52 <A*>) | H(72) |||| V(68) | H(42) | M(42 68) L(54 56) | M(42 68) | L(54 80)
+
+                        52
+
+                         ### x     <A*>    M(72 A*) | V(68) | H(42) | M(42 68) L(54 56) | M(42 68) | L(54 80)
+                             |     
+                             |
+                      o======o     68
+
+                      42     72
+
+        ==========================  !!!! EXTENSION 2 !!!!!
+
+             M52 44H72V68H42M42 68L54 56M42 68L54 80
+             M(52 X) | H(72) |||| V(68) | H(42) | M(42 68) L(54 56) | M(42 68) | L(54 80)
+
+                        52
+
+                         ### x     X       M(72 <A*>) | V(68) | H(<B*>) | M(<B*> 68) L(54 56) | M(<B*> 68) | L(54 80)
+                             |     
+                             |
+                  o==========o     68
+
+                  B*        72
+
+         ==========================  !!!! EXTENSION 3 !!!!!
+
+             M52 44H72V68H42M42 68L54 56M42 68L54 80
+             M(52 X) | H(72) |||| V(68) | H(42) | M(42 68) L(54 56) | M(42 68) | L(54 80)
+
+                        52
+
+                         ### x     X       M(72 <A*>) | V(68) | H(<B*>) | M(<B*> 68) L(<C*> 56) | M(<B*> 68) | L(<C*> 80)
+                             |     
+                             |
+                  o==========o     68
+
+                  B*        72
+        
+
+
+-->
+    
+    <rect 
+        x="10" 
+        y="10" 
+        width="80" 
+        height="80" 
+        rx="12" 
+        stroke="black" 
+        stroke-width="8"
+    />
+  
+    <path 
+        d="M52 36H72V68H24M24 68L36 56M24 68L36 80" 
+        stroke="black" 
+        stroke-width="8" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+    />
+
+</svg>
+
+
+<!--
+
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    
+    <rect 
+        x="10" 
+        y="10" 
+        width="80" 
+        height="80" 
+        rx="12" 
+        stroke="black" 
+        stroke-width="8"
+    />
+  
+    <path 
+        d="M72 35H60V68H42M42 68L54 56M42 68L54 80" 
+        stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+
+
+
+
+
+-->

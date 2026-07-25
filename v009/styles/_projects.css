@@ -1,0 +1,14 @@
+/* v009/site/styles/_projects.css */
+
+/*
+   Shared/minimal styling for the Projects panel shell.
+   Individual projects (_projects_X.css) style their own content —
+   this file only covers the panel-level empty state.
+*/
+
+.projects-empty {
+    font-family: var(--sans);
+    font-size: calc(13px * var(--mod-font-size));
+    color: var(--ink-faint);
+    padding: 20px 0;
+}

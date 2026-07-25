@@ -40,7 +40,7 @@
                 <div class="nav-btn" data-panel="about">About</div>
                 <div class="nav-btn" data-panel="courses">Teaching</div>
                 <div class="nav-btn" data-panel="research">Research</div>
-                <!-- <div class="nav-btn" data-panel="projects">Projects</div> -->
+                                <div class="nav-btn" data-panel="projects">Projects</div>
             </div>
             <div id="nav-right">
                 <div class="eco-stat">
@@ -58,7 +58,7 @@
                 <div class="panel-titlebar">
                     <div class="panel-tabs" data-tabgroup="about">
                         <button class="panel-tab active" data-tab="bio">Bio</button>
-                        <button class="panel-tab" data-tab="career">Career</button>
+                        <button class="panel-tab" data-tab="career">Path</button>
                     </div>
                 </div>
                 
@@ -307,41 +307,10 @@
 
             <!-- PROJECTS -->
             <div class="panel" id="panel-projects">
-                <div class="panel-titlebar"></div>
-                <div class="panel-body">
-                    <div class="sec-div"><span>student tools</span></div>
-                    <div class="proj-grid">
-                        
-                        <!--
-                        <div class="proj-card launch" data-launch="lenia">
-                            <div class="proj-type"><div class="proj-dot" style="background:var(--accent)"></div><span style="color:var(--accent)">LIVE</span></div>
-                            <div class="proj-name">Lenia</div>
-                            <p class="proj-desc">Multi-species continuous cellular automaton. Paint species, watch them compete, coexist, form oscillators. A genuinely alive system.</p>
-                        </div>
-                        -->
-
-                        <div class="proj-card launch" data-launch="editaur">
-                            <div class="proj-type"><div class="proj-dot" style="background:var(--accent)"></div><span style="color:var(--ink-faint)">SOON</span></div>
-                            <div class="proj-name">Editaur</div>
-                            <p class="proj-desc">A minimal code editor. C#, Python, JS, GDScript. Vim-style commands. A walking dinosaur.</p>
-                        </div>
-                        
-                        <!--
-                        <div class="proj-card">
-                            <div class="proj-type"><div class="proj-dot" style="background:var(--ink-faint)"></div><span style="color:var(--ink-faint)">SOON</span></div>
-                            <div class="proj-name">Data Structure Sandbox</div>
-                            <p class="proj-desc">Build trees, stacks, queues. Add nodes. Watch pointers update in real time.</p>
-                        </div>
-
-                        <div class="proj-card">
-                            <div class="proj-type"><div class="proj-dot" style="background:var(--ink-faint)"></div><span style="color:var(--ink-faint)">SOON</span></div>
-                            <div class="proj-name">Big-O Explorer</div>
-                            <p class="proj-desc">Six complexity classes on one graph. O(2ⁿ) looks fine until n=30. Then you understand.</p>
-                        </div>
-                        -->
-
-                    </div>
+                <div class="panel-titlebar">
+                    <div class="panel-tabs" data-tabgroup="projects" id="projects-tabs"></div>
                 </div>
+                <div class="panel-body" id="projects-body"></div>
             </div>
             
             
@@ -461,36 +430,6 @@
                 </div>
             </div>
             
-
-            <!-- EDITAUR -->
-            <div class="panel" id="editaur-panel">
-                <div class="panel-titlebar">
-                    <span class="panel-title">Editaur</span>
-                    <button class="panel-close">[ close ]</button>
-                </div>
-                <div class="editaur-wrap">
-                    <div class="editor-titlebar">
-                        <span class="editor-lang-badge" id="ed-lang-badge">plain</span>
-                        <span style="font-family:var(--mono);font-size:9px;color:var(--ink-faint)">:lang cs|py|js|gd · :w · :q · :wq · :help</span>
-                        <span class="editor-status" id="ed-mode">normal</span>
-                    </div>
-                    <div class="editor-area">
-                        <div class="editor-gutter" id="ed-gutter"></div>
-                        <textarea id="editor-text" spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
-                        <div id="editor-highlighted"></div>
-                        <div id="editor-dino"></div>
-                    </div>
-                    <div class="editor-cmdbar">
-                        <div class="editor-mode-badge" id="ed-mode-badge">[normal]</div>
-                        <div class="editor-cmd-section">
-                            <span style="font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-right:4px">:</span>
-                            <input id="editor-cmd" type="text" spellcheck="false" autocomplete="off" placeholder="command…">
-                            <span class="editor-msg" id="ed-msg"></span>
-                        </div>
-                        <div class="editor-hint">ESC=normal</div>
-                    </div>
-                </div>
-            </div>
 
         </div><!-- #content-area -->
         
