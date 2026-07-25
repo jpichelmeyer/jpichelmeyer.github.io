@@ -1,0 +1,734 @@
+{
+    "id": "csc1110",
+    "pre": "CSC",
+    "num": "1110",
+    "short": "Intro Comp",
+    "full": "Introduction to Computing",
+    "svg": "csc1110.svg",
+    "days": "MWF",
+    "time": "9:15-10:20am",
+    "place": "TBD",
+    "prereq": "",
+    "catalog": "An introduction to the art and science of computer programming for the student without previous programming experience. Topics covered include the historical development of computing, the basic operating principles of computers, and an introduction to problem-solving using one or more high-level computing languages, such as Python. Intended for non-majors/non-minors.",
+    "goals": [
+        {
+            "num": 1,
+            "action": "Develop",
+            "detail": "knowledge of a basic computer system architecture."
+        },
+        {
+            "num": 2,
+            "action": "Develop",
+            "detail": "a problem solving methodology and apply it to writing programs in Python."
+        },
+        {
+            "num": 3,
+            "action": "Acquire",
+            "detail": "an understanding of the basic Python language concepts."
+        },
+        {
+            "num": 4,
+            "action": "Develop",
+            "detail": "your ability to use a Python editor and debugger."
+        }
+    ],
+    "srcColor": {
+        "CS50": [
+            "#872a2a",
+            "#f1f1f1"
+        ],
+        "CP": [
+            "#57b5a5",
+            "#76e8d1"
+        ],
+        "ICSP": [
+            "#f09c43",
+            "#1f1f1f"
+        ],
+        "MIT": [
+            "#1f1f1f",
+            "#f1f1f1"
+        ],
+        "Py4E": [
+            "#31549e",
+            "#f1f1f1"
+        ],
+        "TP": [
+            "#6fa176",
+            "#f2eee4"
+        ]
+    },
+    "schedule": [
+        {
+            "theme": "Theme X",
+            "trs": [
+                [
+                    "Setup, variables, expressions",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "2",
+                            "url": "https://www.py4e.com/html3/02-variables"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "1",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2002.html"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "2",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2003.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "0",
+                            "url": "https://cs50.harvard.edu/python/notes/0/"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "1.1",
+                            "url": "https://www.composingprograms.com/pages/11-getting-started.html"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "1.2",
+                            "url": "https://www.composingprograms.com/pages/12-elements-of-programming.html"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "1.1",
+                            "url": "https://introcs.cs.princeton.edu/python/11hello"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "1.2",
+                            "url": "https://introcs.cs.princeton.edu/python/12types"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "1",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec1/"
+                        }
+                    ]
+                ],
+                [
+                    "Conditionals, control flow",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "3",
+                            "url": "https://www.py4e.com/html3/03-conditional"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "5",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2006.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "1",
+                            "url": "https://cs50.harvard.edu/python/notes/1/"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "1.5",
+                            "url": "https://www.composingprograms.com/pages/15-control.html"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "1.3",
+                            "url": "https://introcs.cs.princeton.edu/python/13flow"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "2",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec2/"
+                        }
+                    ]
+                ],
+                [
+                    "Loops",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "5",
+                            "url": "https://www.py4e.com/html3/05-iterations"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "7",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2008.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "2",
+                            "url": "https://cs50.harvard.edu/python/notes/2/"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "1.3",
+                            "url": "https://introcs.cs.princeton.edu/python/13flow"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "2",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec2/"
+                        }
+                    ]
+                ],
+                [
+                    "Functions, recursion",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "4",
+                            "url": "https://www.py4e.com/html3/04-functions"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "3",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2004.html"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "6",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2007.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "0",
+                            "url": "https://cs50.harvard.edu/python/notes/0/"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "1.3",
+                            "url": "https://www.composingprograms.com/pages/13-defining-new-functions.html"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "1.7",
+                            "url": "https://www.composingprograms.com/pages/17-recursive-functions.html"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "2.1",
+                            "url": "https://introcs.cs.princeton.edu/python/21function"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "2.3",
+                            "url": "https://introcs.cs.princeton.edu/python/23recursion"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "4",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec4/"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "6",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec6/"
+                        }
+                    ]
+                ],
+                [
+                    "Presentation 1: The Pitch",
+                    []
+                ]
+            ]
+        },
+        {
+            "theme": "Theme 2",
+            "trs": [
+                [
+                    "Strings",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "6",
+                            "url": "https://www.py4e.com/html3/06-strings"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "8",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2009.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "3",
+                            "url": "https://cs50.harvard.edu/python/notes/3/"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "2.3",
+                            "url": "https://www.composingprograms.com/pages/23-sequences.html"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "1.2",
+                            "url": "https://introcs.cs.princeton.edu/python/12types"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "5",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec5/"
+                        }
+                    ]
+                ],
+                [
+                    "Collections (list, set, dict, tuple)",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "8",
+                            "url": "https://www.py4e.com/html3/08-lists"
+                        },
+                        {
+                            "srcID": "Py4E",
+                            "numID": "9",
+                            "url": "https://www.py4e.com/html3/09-dictionaries"
+                        },
+                        {
+                            "srcID": "Py4E",
+                            "numID": "10",
+                            "url": "https://www.py4e.com/html3/10-tuples"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "10",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2011.html"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "11",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2012.html"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "12",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2013.html"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "19",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2020.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "4",
+                            "url": "https://cs50.harvard.edu/python/notes/4/"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "2.3",
+                            "url": "https://www.composingprograms.com/pages/23-sequences.html"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "2.4",
+                            "url": "https://www.composingprograms.com/pages/24-mutable-data.html"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "1.4",
+                            "url": "https://introcs.cs.princeton.edu/python/14array"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "5",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec5/"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "6",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec6/"
+                        }
+                    ]
+                ],
+                [
+                    "Debugging, exceptions",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "7",
+                            "url": "https://www.py4e.com/html3/07-files"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "20",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2021.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "3",
+                            "url": "https://cs50.harvard.edu/python/notes/3/"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "7",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec7/"
+                        }
+                    ]
+                ],
+                [
+                    "Modules, Files I/O",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "7",
+                            "url": "https://www.py4e.com/html3/07-files"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "14",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2015.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "8",
+                            "url": "https://cs50.harvard.edu/python/notes/8/"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "1.5",
+                            "url": "https://introcs.cs.princeton.edu/python/15inout"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "2.2",
+                            "url": "https://introcs.cs.princeton.edu/python/22module"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "7",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec7/"
+                        }
+                    ]
+                ],
+                [
+                    "Presentation 2: The Progress",
+                    []
+                ]
+            ]
+        },
+        {
+            "theme": "Theme 3",
+            "trs": [
+                [
+                    "Classes",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "14",
+                            "url": "https://www.py4e.com/html3/14-objects"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "15",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2016.html"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "16",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2017.html"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "17",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2018.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "8",
+                            "url": "https://cs50.harvard.edu/python/notes/8/"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "2.5",
+                            "url": "https://www.composingprograms.com/pages/25-object-oriented-programming.html"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "2.6",
+                            "url": "https://www.composingprograms.com/pages/26-implementing-classes-and-objects.html"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "3.3",
+                            "url": "https://introcs.cs.princeton.edu/python/33design"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "8",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec8/"
+                        }
+                    ]
+                ],
+                [
+                    "Inheritance, regular expressions",
+                    [
+                        {
+                            "srcID": "Py4E",
+                            "numID": "14",
+                            "url": "https://www.py4e.com/html3/14-objects"
+                        },
+                        {
+                            "srcID": "TP",
+                            "numID": "18",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2019.html"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "8",
+                            "url": "https://cs50.harvard.edu/python/notes/8/"
+                        },
+                        {
+                            "srcID": "CS50",
+                            "numID": "7",
+                            "url": "https://cs50.harvard.edu/python/notes/7/"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "2.7",
+                            "url": "https://www.composingprograms.com/pages/27-object-abstraction.html"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "9",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec9/"
+                        }
+                    ]
+                ],
+                [
+                    "Algorithms, pseudocode",
+                    [
+                        {
+                            "srcID": "TP",
+                            "numID": "13",
+                            "url": "https://greenteapress.com/thinkpython2/html/thinkpython2014.html"
+                        },
+                        {
+                            "srcID": "CP",
+                            "numID": "2.8",
+                            "url": "https://www.composingprograms.com/pages/28-efficiency.html"
+                        },
+                        {
+                            "srcID": "ICSP",
+                            "numID": "4.2",
+                            "url": "https://introcs.cs.princeton.edu/python/42sort"
+                        },
+                        {
+                            "srcID": "MIT",
+                            "numID": "12",
+                            "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/resources/mit6_0001f16_lec12/"
+                        }
+                    ]
+                ],
+                [
+                    "BREAK",
+                    []
+                ],
+                [
+                    "Project assist",
+                    []
+                ],
+                [
+                    "Presentation 3: The...Perfection?",
+                    []
+                ]
+            ]
+        }
+    ],
+    "assess": [
+        {
+            "name": "Quizzes",
+            "description": "At the end of each week, we will have a quiz on the topics covered in the prior week.",
+            "percentage": "10",
+            "colorbg": "#6facde",
+            "colorfont": "#1f1f1f"
+        },
+        {
+            "name": "Progress Reports",
+            "description": "At the end of each week, students will turn in a progress report, detailing what they have accomplished on their term project since the prior report.",
+            "percentage": "10",
+            "colorbg": "#de716f",
+            "colorfont": "#1f1f1f"
+        },
+        {
+            "name": "Presentation 1: The Pitch",
+            "description": "Students pitch their semester project idea: what it is, why it interests them, and what Python concepts they expect to use.",
+            "percentage": "15",
+            "colorbg": "#decb6f",
+            "colorfont": "#1f1f1f"
+        },
+        {
+            "name": "Presentation 2: The Progress",
+            "description": "Students demonstrate working code for at least one core feature of their project and explain the design decisions made so far.",
+            "percentage": "25",
+            "colorbg": "#decb6f",
+            "colorfont": "#1f1f1f"
+        },
+        {
+            "name": "Presentation 3: The...Perfection?",
+            "description": "Full project demonstration, code walkthrough, and oral exam. Includes questions about any part of the code.",
+            "percentage": "40",
+            "colorbg": "#decb6f",
+            "colorfont": "#1f1f1f"
+        }
+    ],
+    "instructions": {
+        "presentations": [
+            {
+                "id": "pitch",
+                "name": "Presentation 1: The Pitch",
+                "weight": "15%",
+                "slots": "~5 minutes per student",
+                "sections": [
+                    {
+                        "heading": "What to Cover",
+                        "items": [
+                            "What is your project? Describe it in one or two sentences a non-programmer could understand.",
+                            "Why did you choose it? What genuinely interests you about building this?",
+                            "What will the program do? Walk through a plausible user interaction from start to finish.",
+                            "Which Python concepts do you expect to use? Name at least two (e.g., loops, functions, lists, classes).",
+                            "What is the hardest part going to be? You do not need to know the answer yet \u2014 you just need to have thought about it."
+                        ]
+                    },
+                    {
+                        "heading": "Format",
+                        "items": [
+                            "Spoken presentation only \u2014 no slides required, though you may use them if you want.",
+                            "You may bring notes or an outline, but do not read directly from them.",
+                            "You are not graded on polish. You are graded on whether you have thought seriously about what you are building."
+                        ]
+                    },
+                    {
+                        "heading": "What Makes It Strong",
+                        "items": [
+                            "A specific, concrete project rather than a vague idea ('a quiz game about US state capitals' beats 'some kind of game').",
+                            "Evidence that you have considered scope \u2014 that the project is doable in a semester, not just aspirational.",
+                            "Honest engagement with the hard parts."
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "progress",
+                "name": "Presentation 2: The Progress",
+                "weight": "25%",
+                "slots": "~8 minutes per student",
+                "sections": [
+                    {
+                        "heading": "What to Cover",
+                        "items": [
+                            "Demonstrate running code. Something must work \u2014 it does not have to be complete.",
+                            "Explain the structure of your program so far: what files, functions, or classes you have written and what each one does.",
+                            "Walk through one piece of code in detail. Show the actual source and explain what it does line by line (or block by block).",
+                            "What has changed since your Pitch? Did the scope grow, shrink, or shift direction?",
+                            "What is left to build? Be specific about your remaining tasks.",
+                            "What is the hardest unresolved problem you are facing?"
+                        ]
+                    },
+                    {
+                        "heading": "Format",
+                        "items": [
+                            "You must share your screen (or project your screen) and run the program live.",
+                            "Slides are optional and generally less useful here than just showing the code and the program.",
+                            "Prepare for follow-up questions about your code."
+                        ]
+                    },
+                    {
+                        "heading": "What Makes It Strong",
+                        "items": [
+                            "Working code, even if minimal. A program that does one thing reliably is better than a broken program that attempts everything.",
+                            "Fluent explanation of your own code \u2014 you should be able to point to any function you wrote and explain it.",
+                            "A realistic accounting of what is left. Overconfidence about remaining work is a warning sign."
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "final",
+                "name": "Presentation 3: The...Perfection?",
+                "weight": "40%",
+                "slots": "~12 minutes per student",
+                "sections": [
+                    {
+                        "heading": "What to Cover",
+                        "items": [
+                            "Full demonstration of the completed project. Run it from start to finish.",
+                            "Walk through the overall architecture: how is the code organized, and why?",
+                            "Deep walkthrough of the most technically interesting part of your code.",
+                            "Reflection: what did you learn? What would you do differently? What would you add if you had more time?",
+                            "Oral exam component: the instructor will ask questions about your code. Questions may target any function, variable, or design choice."
+                        ]
+                    },
+                    {
+                        "heading": "Format",
+                        "items": [
+                            "Live demo is required. Have a backup plan (screenshots, recorded video) in case of technical failure.",
+                            "Code must be available and readable during the presentation.",
+                            "The oral exam is part of the grade. Be prepared to explain, modify, or reason about any part of your code on the spot."
+                        ]
+                    },
+                    {
+                        "heading": "What Makes It Strong",
+                        "items": [
+                            "A polished, working program that demonstrates genuine learning over the semester.",
+                            "Deep ownership of the code \u2014 you wrote it, you understand it, you can defend every part of it.",
+                            "Thoughtful reflection that goes beyond 'it was hard but I figured it out.'"
+                        ]
+                    },
+                    {
+                        "heading": "Oral Exam",
+                        "items": [
+                            "The instructor will ask you to explain specific lines or blocks of code.",
+                            "You may be asked 'what would happen if you changed X?' or 'why did you use a list here instead of a dictionary?'",
+                            "There are no trick questions. The goal is to confirm that the code in front of us is genuinely yours and that you understand it."
+                        ]
+                    }
+                ]
+            }
+        ],
+        "progress_reports": {
+            "description": "Each week you will submit a short written update on your semester project. These are low-stakes check-ins meant to keep you moving and to give the instructor early warning if something has gone wrong.",
+            "format": [
+                "Approximately one paragraph \u2014 three to six sentences is typical.",
+                "Written in plain prose, not bullet points.",
+                "Submitted before the start of class on Friday."
+            ],
+            "prompts": [
+                "What did you work on this week?",
+                "What actually works right now?",
+                "What did you attempt that did not work, and do you know why?",
+                "What do you plan to work on next week?"
+            ],
+            "grading": "Progress reports are graded on completion and honesty, not on how much you accomplished. A report that says 'I tried to implement X, got stuck on Y, and plan to ask about it Monday' is a full-credit report. A report that says 'everything is going great' when you have written no code is not."
+        },
+        "semester_project": {
+            "description": "Your semester project is a Python program of your own design. You will conceive it, build it, and present it three times over the course of the semester. The project is the spine of the course \u2014 everything else is preparation for it.",
+            "requirements": [
+                "The program must be written in Python.",
+                "It must be your own original work \u2014 you may use libraries, but the logic must be yours.",
+                "It must demonstrate at least three of the major topics from the course (e.g., functions, collections, classes).",
+                "It must be interactive in some way \u2014 it should respond to user input or produce meaningful output.",
+                "It must be something you actually want to build."
+            ],
+            "scope_guidance": [
+                "A good project takes about 150\u2013300 lines of well-organized code for a beginner.",
+                "It should be more complex than a homework problem but not a commercial application.",
+                "If your idea seems too small, add a feature. If it seems too large, cut a feature.",
+                "When in doubt, start small and expand \u2014 it is much easier to add scope than to recover from being overwhelmed."
+            ],
+            "ideas": [
+                "A text-based game (adventure, quiz, puzzle)",
+                "A personal tracker (workouts, books read, spending)",
+                "A data analysis tool that reads a CSV and reports something interesting",
+                "A simulation of something you find interesting (traffic, ecosystems, Conway's Game of Life)",
+                "A utility that automates something tedious you actually do",
+                "An art generator using turtle graphics or ASCII"
+            ]
+        }
+    }
+}
