@@ -566,3 +566,14 @@ window._renderCourses = renderCourses;
 // Pressing the Teaching tab always resets back to the full listing,
 // even if a course detail page is currently open.
 document.querySelector('.panel-tab[data-tab="courses"]')?.addEventListener('click', renderCourses);
+
+// If a course detail page is open and the window narrows below the
+// width the 980px detail panel needs (see _teaching.css), snap back
+// to the course listing — matches the course-dot's own disable point.
+const COURSE_DETAIL_MIN_WIDTH = 1040;
+window.addEventListener('resize', () => {
+    const panel = COURSES_PANEL();
+    if (panel?.classList.contains('course-detail-mode') && window.innerWidth < COURSE_DETAIL_MIN_WIDTH) {
+        renderCourses();
+    }
+});

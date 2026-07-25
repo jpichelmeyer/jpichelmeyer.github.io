@@ -149,20 +149,6 @@ document.addEventListener('click', e => {
     }
 });
 
-// Projects launcher
-qsa('[data-launch]').forEach(card => {
-    card.addEventListener('click', () => {
-        const name = card.dataset.launch;
-        if (name === 'editaur') {
-            closeAll();
-            el('editaur-panel').classList.add('active');
-            activePanel = 'editaur';
-            setTimeout(() => el('editor-cmd').focus(), 100);
-        }
-    });
-});
-
-
 // Initialize for all panels
 qsa('.panel').forEach(makeDraggable);
 

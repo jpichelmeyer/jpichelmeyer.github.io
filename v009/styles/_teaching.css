@@ -2,7 +2,7 @@
 
 /*
    Teaching panel, lesson viewer, schedule table, assessments.
-   Completely independent of _base.css and _editaur.css. 
+   Completely independent of _base.css. 
 */
 
 
@@ -267,6 +267,26 @@
 .course-dot:hover {
     filter: brightness(1.15);
     box-shadow: 0 0 0 4px rgba(0,0,0,0.06);
+}
+
+@media (max-width: 600px) {
+    .teaching-listing { padding: 16px 14px 24px; }
+    .taught_course_title { font-size: calc(11.5px * var(--mod-font-size)); }
+    .taught_course_dot_col { width: 22px; }
+    .taught_course_description { margin-left: 30px; }
+}
+
+/* Course pages open in a 980px-wide detail panel (see
+   #panel-courses.course-detail-mode in _base.css). Below the viewport
+   width that can actually fit that panel (980px + the same 60px margin
+   every panel uses), grey out the course-page icon and disable the
+   click — re-activates automatically once the window is wide enough. */
+@media (max-width: 1039px) {
+    .course-dot {
+        background-color: rgba(0,0,0,0.5);
+        pointer-events: none;
+        cursor: default;
+    }
 }
       
 

@@ -1,0 +1,22 @@
+/* v009/site/styles/_projects_3.css */
+/* Demo project: live clock. Pulls colors/type from __primitives.css. */
+
+.proj3-root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 40px 0;
+}
+.proj3-time {
+    font-family: var(--mono);
+    font-size: calc(36px * var(--mod-font-size));
+    font-weight: bold;
+    color: var(--color-accent-projects);
+    letter-spacing: 0.04em;
+}
+.proj3-date {
+    font-family: var(--sans);
+    font-size: calc(12px * var(--mod-font-size));
+    color: var(--ink-faint);
+}
