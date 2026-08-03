@@ -1,0 +1,442 @@
+<!-- v009/site/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+    <!--
+    ==========================================================================
+            HEAD
+    ==========================================================================
+    -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Jacob Pichelmeyer, PhD</title>
+        <link rel="icon" type="image/svg+xml" href="svgs/tabicon.svg">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="./styles/merged.css">
+    </head>
+
+    <!--
+    ==========================================================================
+            BODY
+    ==========================================================================
+    -->
+    <body>
+        
+        <!-- ── DOT GIRD ── -->
+        <div id="dot-grid"></div>
+        
+        <!-- ── PARTICLE LIFE CANVAS ── -->
+        <canvas id="life-canvas"></canvas>
+
+        <!-- ── NAVBAR ── -->
+        <nav id="navbar">
+            <div id="brand">
+                <span class="n1">Dr. Jacob</span>
+                <span class="n2">Pichelmeyer</span>
+            </div>
+            <div id="nav-links">
+                <div class="nav-btn" data-panel="about">About</div>
+                <div class="nav-btn" data-panel="courses">Teaching</div>
+                <div class="nav-btn" data-panel="research">Research</div>
+                                <div class="nav-btn" data-panel="projects">Projects</div>
+            </div>
+            <div id="nav-right">
+                <div class="eco-stat">
+                    <div class="eco-dot"></div>
+                    <span id="pop-ct">—</span>&nbsp;particles
+                </div>
+            </div>
+        </nav>
+
+        <!-- ── CONTENT AREA ── -->
+        <div id="content-area">
+
+            <!-- ABOUT -->
+            <div class="panel" id="panel-about">
+                <div class="panel-titlebar">
+                    <div class="panel-tabs" data-tabgroup="about">
+                        <button class="panel-tab active" data-tab="bio">Bio</button>
+                        <button class="panel-tab" data-tab="career">Path</button>
+                    </div>
+                </div>
+                
+                <div class="panel-body">
+                    
+                    <div class="tab-page active" data-tab="bio">
+                    
+                    <div id="about-a">
+                        
+                        <!-- Left side (about-b) -->
+                        <div id="about-b">
+                            
+                            <!-- Portrait -->
+                            <div id="about-portrait">
+                                <div id="sketch-o-self"></div>
+                            </div>
+                            
+                            <!-- Name, titles -->
+                            <div class="pi pi-gold pi-shadow">
+                                <div id="about-titles" class="about-hero">
+                                    <h1><span class="about-de-dr">Dr.</span>
+                                    <em>Jacob</em><br>Pichelmeyer</h1>
+                                    <div class="about-sub">Assistant Professor<br>Computer Science<br>Carthage College</div>
+                                </div>
+                            </div>
+                        
+                        </div>
+                        
+                        <!-- Right side (about-c) -->
+                        <div class="about-c">
+                            
+                            <p class="about-bio">
+                                After starting undergrad as an art major, I somehow ended up with a PhD in mathematics and a second masters degree in computer science. Some people like to really dig into a single area (which can be very useful), but I personally find that far too limiting.
+                            </p>
+                            
+                            <p class="about-bio">
+                                For me, the most fun part of research isn’t sticking to a single path—it’s seeing how totally different ideas fit together. I tend to follow interesting concepts wherever they take me, which has driven me to explore a diverse array of topics such as knot theory, neuroscience, game design, and now artificial life. I’m just endlessly curious about how complex, clever behavior emerges out of simple parts, whether in code, brains, or nature.
+                            </p>
+                            
+                            <p class="about-bio">
+                                In both my teaching and my work, I try to keep things grounded and fun. I don't care much for rigid academic borders; I’d rather hunt for surprising connections and just follow the coolest questions wherever they lead.
+                            </p>                            
+                            
+                        </div>
+                        
+                        
+                    </div>
+                    
+                    </div>
+                    
+                    <div class="tab-page" data-tab="career">
+                    
+                    <div class="timeline">
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_arrow"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                            <div class="timeline_row">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates">2026-......</div>
+                                <div class="timeline_institution"><img src="./imgs/place-carthage.png" alt="Carthage College"></div>
+                                <div class="timeline_textbox">
+                                    <div class="timeline_title_row">
+                                        <div class="timeline_textbox_title">Assistant Professor</div>
+                                        <div class="timeline_tags">
+                                            <span class="timeline-textbox-subject timeline-cs">Computer Science</span>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-place">Carthage College</div>
+                                </div>
+                            </div>
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                            <div class="timeline_row">
+                                <div class="timeline_logo"><img src="./imgs/degree_ms.png" alt="Master of Science"></div>
+                                <div class="timeline_dates">2024-2026</div>
+                                <div class="timeline_institution"><img src="./imgs/place_gt.png" alt="Georgia Institute of Technology"></div>
+                                <div class="timeline_textbox">
+                                    <div class="timeline_title_row">
+                                        <div class="timeline_textbox_title">Master of Science</div>
+                                        <div class="timeline_tags">
+                                            <span class="timeline-textbox-subject timeline-cs">Computer Science</span>
+                                            <span class="timeline-textbox-subject timeline-ai">Artificial Intelligence</span>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-place">Georgia Institute of Technology</div>
+                                </div>
+                            </div>
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                            <div class="timeline_row">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates">2021-2024</div>
+                                <div class="timeline_institution"><img src="./imgs/place-westminster.png" alt="Westminster College"></div>
+                                <div class="timeline_textbox">
+                                    <div class="timeline_title_row">
+                                        <div class="timeline_textbox_title">Assistant Professor</div>
+                                        <div class="timeline_tags">
+                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
+                                            <span class="timeline-textbox-subject timeline-ds">Data Science</span>
+                                            <span class="timeline-textbox-subject timeline-gamedesign">Game Design</span>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-place">Westminster College (MO)</div>
+                                </div>
+                            </div>
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                            <div class="timeline_row">
+                                <div class="timeline_logo"><img src="./imgs/degree_phd.png" alt="Doctor of Philosophy"></div>
+                                <div class="timeline_dates">2016-2021</div>
+                                <div class="timeline_institution"><img src="./imgs/place-ksu.png" alt="Kansas State University"></div>
+                                <div class="timeline_textbox">
+                                    <div class="timeline_title_row">
+                                        <div class="timeline_textbox_title">Doctor of Philosophy</div>
+                                        <div class="timeline_tags">
+                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-place">Kansas State University</div>
+                                </div>
+                            </div>
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                            <div class="timeline_row">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates">2012-2016</div>
+                                <div class="timeline_institution"><img src="./imgs/place-msoe.png" alt="Milwaukee School of Engineering"></div>
+                                <div class="timeline_textbox">
+                                    <div class="timeline_title_row">
+                                        <div class="timeline_textbox_title">Instructor</div>
+                                        <div class="timeline_tags">
+                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-place">MSOE, UW-Milwaukee</div>
+                                </div>
+                            </div>
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                            <div class="timeline_row">
+                                <div class="timeline_logo"><img src="./imgs/degree_ms.png" alt="Master of Science"></div>
+                                <div class="timeline_dates">2010-2012</div>
+                                <div class="timeline_institution"><img src="./imgs/place-uwm.png" alt="University of Wisconsin-Milwaukee"></div>
+                                <div class="timeline_textbox">
+                                    <div class="timeline_title_row">
+                                        <div class="timeline_textbox_title">Master of Science</div>
+                                        <div class="timeline_tags">
+                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-place">UW-Milwaukee</div>
+                                </div>
+                            </div>
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                            <div class="timeline_row">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates">2008-2020</div>
+                                <div class="timeline_institution"><img src="./imgs/place-cty.png" alt="Johns Hopkins University Center for Talented Youth"></div>
+                                <div class="timeline_textbox">
+                                    <div class="timeline_title_row">
+                                        <div class="timeline_textbox_title">Instructor</div>
+                                        <div class="timeline_tags">
+                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
+                                            <span class="timeline-textbox-subject timeline-logic">Logic</span>
+                                            <span class="timeline-textbox-subject timeline-engineering">Engineering</span>
+                                            <span class="timeline-textbox-subject timeline-cryptology">Cryptology</span>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-place">Johns Hopkins CTY</div>
+                                </div>
+                            </div>
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                            <div class="timeline_row">
+                                <div class="timeline_logo"><img src="./imgs/degree_bs.png" alt="Bachelor of Science"></div>
+                                <div class="timeline_dates">2005-2010</div>
+                                <div class="timeline_institution"><img src="./imgs/place-oshkosh.png" alt="University of Wisconsin-Oshkosh"></div>
+                                <div class="timeline_textbox">
+                                    <div class="timeline_title_row">
+                                        <div class="timeline_textbox_title">Bachelor of Science</div>
+                                        <div class="timeline_tags">
+                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-place">UW-Oshkosh</div>
+                                </div>
+                            </div>
+                            <div class="timeline_row timeline_row_connector">
+                                <div class="timeline_logo"></div>
+                                <div class="timeline_dates"></div>
+                                <div class="timeline_icon"><div class="timeline_icon_tail"></div></div>
+                                <div class="timeline_textbox"></div>
+                            </div>
+                        </div>
+                    
+                    </div>
+                    
+                    
+                </div>
+            </div>
+
+            <!-- COURSES -->
+            <div class="panel" id="panel-courses">
+                
+                <div class="panel-titlebar">
+                    <div class="panel-tabs" data-tabgroup="courses">
+                        <button class="panel-tab active" data-tab="courses">Courses</button>
+                    </div>
+                </div>
+                
+                <div id="courses-body" class="panel-body"></div>
+            
+            </div>
+
+            <!-- PROJECTS -->
+            <div class="panel" id="panel-projects">
+                <div class="panel-titlebar">
+                    <div class="panel-tabs" data-tabgroup="projects" id="projects-tabs"></div>
+                </div>
+                <div class="panel-body" id="projects-body"></div>
+            </div>
+            
+            
+            <!-- RESEARCH -->
+            <div class="panel" id="panel-research">
+                <div class="panel-titlebar">
+                    <div class="panel-tabs" data-tabgroup="research">
+                        <button class="panel-tab active" data-tab="era1">Era I</button>
+                        <button class="panel-tab" data-tab="era2">Era II</button>
+                        <button class="panel-tab" data-tab="era3">Era III</button>
+                    </div>
+                </div>
+                <div class="panel-body" id="research-body">
+                    
+                    <div class="tab-page" data-tab="era3">
+                        <div class="taught_course_section_head">Summary</div>
+                        <div class="research-era-intro">
+                            <p>
+                                An era forthcoming—wherein the study of complex systems and the spark of living computation shall unfold...alongside enduring devotions to networks, mind, and machine.
+                            </p>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="tab-page" data-tab="era2">
+                        <div class="taught_course_section_head">Summary</div>
+                        <div class="research-era-intro">
+                            <p>
+                                Bound to data and empirical craft—focusing topology and the learning of machines upon human and automaton minds, virtual geography, and even...dragons. 
+                            </p>
+                        </div>
+                        <div class="taught_course_section_head">Projects</div>
+                        <div class="taught_course_section">
+                            <div class="research_paper_row">
+                                <div class="research_paper_thumbnail research_paper_thumbnail_tda_eeg"></div>
+                                <div class="research_paper_text">
+                                    <div class="research_paper_text_title">Using EEG signal and topological data analysis to detect clamping and unclamping during creative tasks</div>
+                                    <div class="research_paper_text_authors">Magerko, <b>Pichelmeyer</b>, Shoomali, + 4 more</div>
+                                    <div class="research_paper_text_journal">In progress</div>
+                                </div>
+                            </div>
+                            <div class="research_paper_row">
+                                <div class="research_paper_thumbnail research_paper_thumbnail_tda_llm"></div>
+                                <div class="research_paper_text">
+                                    <div class="research_paper_text_title">Use of topological data analysis to detect emergent behavior in LLMs</div>
+                                    <div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+                                    <div class="research_paper_text_journal">In progress</div>
+                                </div>
+                            </div>
+                            <div class="research_paper_row">
+                                <div class="research_paper_thumbnail research_paper_thumbnail_tooth"></div>
+                                <div class="research_paper_text">
+                                    <div class="research_paper_text_title">Classification of crocodilia genera using 3D tooth mesh data, geometric feature extraction, and machine learning</div>
+                                    <div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+                                    <div class="research_paper_text_journal">In progress</div>
+                                </div>
+                            </div>
+                            <div class="research_paper_row">
+                                <div class="research_paper_thumbnail research_paper_thumbnail_cycle_basis"></div>
+                                <div class="research_paper_text">
+                                    <div class="research_paper_text_title">Use of graph theoretic cycle bases as game world design tool</div>
+                                    <div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+                                    <div class="research_paper_text_journal">In progress</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-page active" data-tab="era1">
+                        <div class="taught_course_section_head">Summary</div>
+                        <div class="research-era-intro">
+                            <p>
+                                Concerned only with pure mathematics—above all, the geometry of lower dimensions, and the strange science of knots.
+                            </p>
+                        </div>
+                        <div class="taught_course_section_head">Projects</div>
+                        <div class="taught_course_section">
+                            <div class="research_paper_row">
+                                <div class="research_paper_thumbnail research_paper_thumbnail_genera_four"></div>
+                                <div class="research_paper_text">
+                                    <div class="research_paper_text_title">Orientable Genera of Knots in 4-Manifolds</div>
+                                    <div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+                                    <div class="research_paper_text_journal">Dissertation, Kansas State University 2021</div>
+                                    <div class="research_paper_text_links">
+                                        <a href="https://krex.k-state.edu/items/92fcfddc-2688-4b49-8333-8a9a75af133f" style="text-decoration:none;"><div class="research_link research_link_krex">K-REx</div></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="research_paper_row">
+                                <div class="research_paper_thumbnail research_paper_thumbnail_genera"></div>
+                                <div class="research_paper_text">
+                                    <div class="research_paper_text_title">Genera of Knots in the Complex Projective Plane</div>
+                                    <div class="research_paper_text_authors"><b>Jake Pichelmeyer</b></div>
+                                    <div class="research_paper_text_journal">J. of Knot Theory and Its Ram., 2020</div>
+                                    <div class="research_paper_text_links">
+                                        <a href="https://arxiv.org/abs/1912.01787" style="text-decoration:none;"><div class="research_link research_link_arxiv">arXiv</div></a>
+                                        <a href="https://www.worldscientific.com/doi/abs/10.1142/S0218216520500819" style="text-decoration:none;"><div class="research_link research_link_publisher">publisher</div></a>
+                                        <a href="https://www.semanticscholar.org/paper/Genera-of-knots-in-the-complex-projective-plane-Pichelmeyer/d574d42d0757749c1d065a078f975876c2127b56" style="text-decoration:none;"><div class="research_link research_link_semantic_scholar">semantic scholar</div></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="research_paper_row">
+                                <div class="research_paper_thumbnail research_paper_thumbnail_para"></div>
+                                <div class="research_paper_text">
+                                    <div class="research_paper_text_title">Using Parametric Mathematical Modeling to Develop a Geometric and Topological Intuition for Molecular Knots</div>
+                                    <div class="research_paper_text_authors">Tahmineh Azizi, <b>Jake Pichelmeyer</b></div>
+                                    <div class="research_paper_text_journal">Applied Mathematics, 2020</div>
+                                    <div class="research_paper_text_links">
+                                        <a href="https://www.scirp.org/journal/paperinformation?paperid=100804" style="text-decoration:none;"><div class="research_link research_link_publisher">publisher</div></a>
+                                        <a href="https://www.semanticscholar.org/paper/Using-Parametric-Mathematical-Modeling-to-Develop-a-Azizi-Pichelmeyer/cc707ab21f121b698f2211f8fda5ba21d14ccb2f" style="text-decoration:none;"><div class="research_link research_link_semantic_scholar">semantic scholar</div></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+
+        </div><!-- #content-area -->
+        
+        <!-- ==========================================================================
+                 SCRIPTS — merged.js is the only import
+        =========================================================================== -->
+        <script src="./scripts/merged.js" type="module"></script>
+
+    </body>
+</html>
