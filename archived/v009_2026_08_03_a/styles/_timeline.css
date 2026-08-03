@@ -1,0 +1,181 @@
+/* v009/site/styles/_timeline.css */
+
+/*
+      Timeline panel and styles.
+      Only dependency between this and other files should be...
+      
+      merged.css <--- this <--- __primitives.css
+       
+*/
+
+
+
+/*
+------------------------------------------------------------------
+    Timeline
+------------------------------------------------------------------
+*/
+
+/*
+                                     |padding-left|padding-bottom|display|gap.|filter..|content|height|
+    .timeline					   	 |20px........|30px..........|
+        .timeline_row				 |............|..............|flex...|10px|
+            .timeline_icon           |............|..............|.......|....|.< * >.|
+                .timeline_icon_dot	 |............|..............|.......|....|var(...)|url(..)|40px..|
+                .timeline_icon_degree|............|..............|.......|....|var(...)|url(..)|40px..|
+            .timeline_dates             
+            .timeline_textbox
+*/
+
+.timeline { 
+    padding-left: 10px; 
+    padding-bottom: 20px; 
+    font-family: var(--sans-inter); 
+    min-width: 620px;
+    }
+.timeline_row { 
+    display: flex; 
+    gap: 10px; 
+    align-items: center;
+}
+.timeline_dates { 
+    width: 100px; 
+    font-size: calc(12px * var(--mod-font-size));  
+    /*padding-top: 10px;*/ 
+    text-align: right; 
+    opacity: 0.5;
+    }
+.timeline_icon { filter: brightness(0%);}
+.timeline_icon_arrow  { content: url(../imgs/timeline_arrow.png);  height: 40px; opacity: var(--timeline-opacity); }
+.timeline_icon_degree { content: url(../imgs/timeline_degree.png); height: 40px; }
+.timeline_icon_dot    { content: url(../imgs/timeline_dot.png);    height: 40px; opacity: 0.4; }
+.timeline_icon_line   { content: url(../imgs/timeline_line.png);   width: 40px; height: 20px; opacity: var(--timeline-opacity); }
+.timeline_icon_tail   { content: url(../imgs/timeline_tail.png);   height: 40px; opacity: var(--timeline-opacity); }
+
+/* Compact connector rows — the thin line/arrow/tail rows strung between
+   institutions. Kept short and stout so entries sit closer together. */
+.timeline_row_connector { 
+    min-height: 0; 
+    }
+.timeline_row_connector .timeline_icon_line  { 
+    height: 14px; 
+    }
+.timeline_row_connector .timeline_icon_arrow,
+.timeline_row_connector .timeline_icon_tail  { 
+    height: 22px; 
+    }
+
+/* Degree badge — sits in the old institution-logo spot, only present
+   for entries where a degree was actually earned. */
+.timeline_logo {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.timeline_logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+/* Institution icon — now sits in the old dot/degree icon spot, the
+   main "node" of the timeline. */
+.timeline_institution {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.timeline_institution img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+.timeline_textbox { width: 100%; }
+.timeline_title_row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+.timeline_textbox_title { 
+    width: 150px;
+    flex-shrink: 0;
+    font-weight: bold; 
+    color: var(--timeline-highlight); 
+    font-size: calc(11.5px * var(--mod-font-size)); 
+    padding-top: 5px; 
+}
+.timeline-textbox-subject { 
+    display: inline-flex;
+    background-color: #1f1f1f;
+    color: #f1f1f1;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: calc(8.5px * var(--mod-font-size));  
+    font-weight: bold;
+    white-space: nowrap;
+}
+.timeline_tags {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start;
+    gap: 4px;
+}
+.timeline-ai {
+    background-color: #a1458a;
+}
+.timeline-alife {
+    background-color: #6d9c7b;
+}
+.timeline-art {
+    background-color: #9c464f;
+}
+.timeline-cs {
+    background-color: #346382;
+}
+.timeline-ds {
+    background-color: #ad3e4f;
+}
+.timeline-math {
+    background-color: #ad953e;
+}
+.timeline-multi {
+    background-color: #2b2b2b;
+}
+.timeline-logic {
+    background-color: #252629;
+    color: #f1f1f1;
+}
+.timeline-engineering {
+    background-color: #6a6380;
+    color: #f1f1f1;
+}
+.timeline-cryptology {
+    background-color: #b08d5d;
+    color: #f1f1f1;
+}
+.timeline-gamedesign {
+    background-color: #c1703f;
+    color: #f1f1f1;
+}
+.timeline_textbox_spec  { color: var(--timeline-highlight); font-size: 10px; }
+.timeline_textbox_place { color: var(--timeline-lowlight); font-size: 12px; }
+.timeline-place {
+    padding-top: 6px;
+    font-size: calc(11px * var(--mod-font-size));
+    color: #1f1f1f;
+    opacity: 0.5;
+}
+
+
+
+
+

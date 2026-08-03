@@ -1,0 +1,216 @@
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+                "I want to be straight with you about the benefits, risks, and tradeoffs involved, based on peer-reviewed research rather than either tech hype or moral panic."
+                "On the downside: heavy, unreflective AI use is linked to "cognitive offloading." Research suggests that relying on AI to produce answers, rather than to support your own reasoning, can reduce engagement with the thinking process itself and may weaken independent problem-solving over time. [1](https://link.springer.com/article/10.1186/s40561-024-00316-7) [2](https://www.nature.com/articles/s41599-026-06621-5)"
+                "On the upside: when used as a Socratic partner, debugger, or explainer rather than an answer generator, AI has been shown to improve critical thinking, argumentation, and conceptual understanding. Students who actively critique AI output rather than accepting it at face value tend to learn more than students who simply defer to it. [1](https://link.springer.com/article/10.1186/s40561-024-00347-0) [2](https://doi.org/10.1111/ejed.12804)"
+                "Learning to use these tools well is a valuable skill. But they do not replace conceptual understanding. Many organizations are investing heavily in AI to automate portions of knowledge work, making independent reasoning, sound judgment, creativity, and the ability to recognize when AI is wrong increasingly valuable. Throughout this course, keep asking yourself: What can I contribute that an LLM cannot? The goal is not to compete against AI, but to become the kind of person who knows when to use it, when to question it, and when to go beyond it."
+                "At the same time, remember that your worth as a person is not determined by your productivity, your employability, or your ability to outperform a machine. Those are economic measures, not measures of human value. You do have agency, however, and you have an opportunity in this class to develop the judgment, creativity, and understanding that remain difficult to automate."
+
+
+
+
+
+=====================================================================
+
+I want to be straight with you about the benefits, risks, and tradeoffs involved, based on peer-reviewed research rather than either tech hype or moral panic.
+
+On the downside: heavy, unreflective AI use is linked to "cognitive offloading." Research suggests that relying on AI to produce answers, rather than to support your own reasoning, can reduce engagement with the thinking process itself and may weaken independent problem-solving over time. [1](https://link.springer.com/article/10.1186/s40561-024-00316-7) [2](https://www.nature.com/articles/s41599-026-06621-5)
+
+On the upside: when used as a Socratic partner, debugger, or explainer rather than an answer generator, AI has been shown to improve critical thinking, argumentation, and conceptual understanding. Students who actively critique AI output rather than accepting it at face value tend to learn more than students who simply defer to it. [1](https://link.springer.com/article/10.1186/s40561-024-00347-0) [2](https://doi.org/10.1111/ejed.12804)
+
+Learning to use these tools well is a valuable skill. But they do not replace conceptual understanding. Many organizations are investing heavily in AI to automate portions of knowledge work, making independent reasoning, sound judgment, creativity, and the ability to recognize when AI is wrong increasingly valuable. Throughout this course, keep asking yourself: What can I contribute that an LLM cannot? The goal is not to compete against AI, but to become the kind of person who knows when to use it, when to question it, and when to go beyond it.
+
+At the same time, remember that your worth as a person is not determined by your productivity, your employability, or your ability to outperform a machine. Those are economic measures, not measures of human value. You do have agency, however, and you have an opportunity in this class to develop the judgment, creativity, and understanding that remain difficult to automate.
+
+
+
+
+=====================================================================
+
+AI Tool Use Policy Use of LLMs is permitted in this course. 
+
+I want to be straight with you about the benefits, risks, and tradeoffs involved, based on peer-reviewed research rather than either tech hype or moral panic.
+
+On the downside: heavy, unreflective AI use is linked to "cognitive offloading." Research suggests that relying on AI to produce answers, rather than to support your own reasoning, can reduce engagement with the thinking process itself and may weaken independent problem-solving over time. [1](https://link.springer.com/article/10.1186/s40561-024-00316-7) [2](https://www.nature.com/articles/s41599-026-06621-5)
+
+On the upside: when used as a Socratic partner, debugger, or explainer rather than an answer generator, AI has been shown to improve critical thinking, argumentation, and conceptual understanding. Students who actively critique AI output rather than accepting it at face value tend to learn more than students who simply defer to it. [1](https://link.springer.com/article/10.1186/s40561-024-00347-0) [2](https://doi.org/10.1111/ejed.12804)
+
+Learning to use these tools well is a valuable skill. But they do not replace conceptual understanding. Many organizations are investing heavily in AI to automate portions of knowledge work, making independent reasoning, sound judgment, creativity, and the ability to recognize when AI is wrong increasingly valuable. Throughout this course, keep asking yourself: What can I contribute that an LLM cannot? The goal is not to compete against AI, but to become the kind of person who knows when to use it, when to question it, and when to go beyond it.
+
+At the same time, remember that your worth as a person is not determined by your productivity, your employability, or your ability to outperform a machine. Those are economic measures, not measures of human value. You do have agency, however, and you have an opportunity in this class to develop the judgment, creativity, and understanding that remain difficult to automate.
+
+
+
+=====================================================================
+
+AI Tool Use Policy Use of LLMs is permitted in this course. 
+
+I want to be straight with you about why, how, and about the real tradeoffs involved, backed by peer-reviewed research rather than either tech-hype or moral panic.
+
+On the downside: heavy, unreflective AI use is linked to "cognitive offloading." Research suggests that relying on AI to produce answers, rather than to support your own reasoning, can reduce engagement with the thinking process itself and may weaken independent problem-solving over time. [1](https://link.springer.com/article/10.1186/s40561-024-00316-7) [2](https://www.nature.com/articles/s41599-026-06621-5)
+
+On the upside: when used as a Socratic partner, debugger, or explainer rather than an answer generator, AI has been shown to improve critical thinking, argumentation, and conceptual understanding. Students who actively critique AI output rather than accepting it at face value consistently learn more than students who simply defer to it. [1](https://link.springer.com/article/10.1186/s40561-024-00347-0) [2](https://doi.org/10.1111/ejed.12804)
+
+Learning to use these tools well is a valuable skill. But they do not replace conceptual understanding. Many organizations are investing heavily in AI to automate portions of knowledge work, making independent reasoning, sound judgment, creativity, and the ability to recognize when AI is wrong increasingly valuable. Throughout this course, keep asking yourself: What can I contribute that an LLM cannot? The goal is not to compete against AI, but to become the kind of person who knows when to use it, when to question it, and when to go beyond it.
+
+At the same time, remember that your worth as a person is not determined by your productivity, your employability, or your ability to outperform a machine. Those are economic measures, not measures of human value. You do have agency, however, and you have an opportunity in this class to develop the judgment, creativity, and understanding that remain difficult to automate.
+
+=====================================================================
+
+AI Tool Use Policy Use of LLMs is permitted in this course. 
+I want to be straight with you about why, how,
+and about the real tradeoffs involved, backed by actual 
+peer-reviewed research rather than either tech-hype or moral panic.
+
+On the downside: heavy, unreflective AI use is linked to 
+"cognitive offloading" — multiple studies (open access: ScienceDirect 
+2026 review of 67 studies; MIT Media Lab preprint, 2025) find that 
+leaning on AI to produce answers, rather than to support your own 
+reasoning, correlates with weaker independent problem-solving 
+afterward, even once the tool is removed.
+
+On the upside: used well, as a Socratic partner, a debugger, 
+an explainer, AI use has been shown to improve critical thinking and 
+argumentation in controlled studies with real students 
+(open access, Smart Learning Environments 2024), 
+and students who critically evaluate AI output rather than 
+accepting it outright consistently do better 
+than those who don't (ScienceDirect 2026).
+
+To me, your worth as a person is not determined by your productivity 
+or your employability. Nevertheless, this course is designed to help 
+you develop reasoning skills that remain valuable even 
+as AI changes the workplace.
+
+AI isn't inherently good or bad. It amplifies the learning strategy you bring to it. Use it to think for you, and you learn less. Use it to think with you, and you often learn more.
+
+=====================================================================
+
+For example, if you want to connect AI, employment, and learning, you could write something like:
+
+    Learning to use these tools well is a valuable skill. But they do not replace conceptual understanding. Many employers are investing heavily in AI to automate portions of knowledge work, which makes independent reasoning, judgment, and the ability to recognize when AI is wrong even more valuable. Ask yourself throughout this course: What can I contribute that an LLM cannot?
+
+Or, if you want to retain your humanistic point:
+
+    Your worth as a person is not determined by your productivity or your employability. Nevertheless, this course is designed to help you develop reasoning skills that remain valuable even as AI changes the workplace.
+
+
+=====================================================================
+
+I believe you have worth as a human independent of your job skills. But employers, fairly or not, often evaluate people primarily on applicable skills and reasoning ability — so it's worth asking what you bring that an LLM doesn't.
+
+
+=====================================================================
+
+AI Tool Use Policy Use of LLMs is permitted in this course. 
+I want to be straight with you about why, how,
+and about the real tradeoffs involved, backed by actual 
+peer-reviewed research rather than either tech-hype or moral panic.
+
+On the downside: heavy, unreflective AI use is linked to 
+"cognitive offloading" — multiple studies (open access: ScienceDirect 
+2026 review of 67 studies; MIT Media Lab preprint, 2025) find that 
+leaning on AI to produce answers, rather than to support your own 
+reasoning, correlates with weaker independent problem-solving 
+afterward, even once the tool is removed.
+
+On the upside: used well, as a Socratic partner, a debugger, 
+an explainer, AI use has been shown to improve critical thinking and 
+argumentation in controlled studies with real students 
+(open access, Smart Learning Environments 2024), 
+and students who critically evaluate AI output rather than 
+accepting it outright consistently do better 
+than those who don't (ScienceDirect 2026).
+
+Learning to use these tools well is a real, valuable skill. 
+But it doesn't replace conceptual understanding; if anything, you
+should ask yourself *what am I am to provide and do that 
+an LLM can't?* I personally believe that you have independent 
+worth as a human, without needing to tie it to some "job skill,"
+but unfortunately, in our hyper capitalist and cutthroat society,
+many employers only value what applicable skills and theoretical 
+reasoning ability that you bring.
+
+
+=====================================================================
+
+You are both encouraged to use and discouraged from using LLMs in this course.
+
+They aren't magic, they are just clever hybrids of mathematics and
+computer science principles. They can be very useful and even quite 
+helpful for learning; but they can also actively impair your cognition
+[MIT Media Lab study]().
+It all depends on *how* you use them.
+
+*Beneficial use*
+
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+
+
+=====================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

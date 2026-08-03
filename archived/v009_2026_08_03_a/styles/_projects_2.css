@@ -1,0 +1,26 @@
+/* v009/site/styles/_projects_2.css */
+/* Demo project: color swatch picker. Pulls colors/type from __primitives.css. */
+
+.proj2-root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 40px 0;
+}
+.proj2-swatches { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.proj2-swatch {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.12s;
+}
+.proj2-swatch:hover  { transform: scale(1.1); }
+.proj2-swatch.active { border-color: var(--ink); }
+.proj2-readout {
+    font-family: var(--mono);
+    font-size: calc(13px * var(--mod-font-size));
+    color: var(--ink-faint);
+}
