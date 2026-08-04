@@ -29,3 +29,108 @@
     border: none;
     display: block;
 }
+
+/* ── Vertically-stacked project listing (Desktop/Mobile/Responsive) ──
+   Mirrors the look of .research_paper_row in _research.css: thumbnail
+   to the left, title + description to the right. Each row is also an
+   accordion — clicking it expands the project's own UI beneath it. */
+.proj-list { display: flex; flex-direction: column; }
+
+.proj-row {
+    border-bottom: 1px solid var(--panel-bd);
+}
+.proj-row:last-child { border-bottom: none; }
+
+.proj-row-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 16px 4px;
+    cursor: pointer;
+    user-select: none;
+}
+.proj-row-head:hover { background: var(--bg2); }
+.proj-row.open .proj-row-head { background: var(--bg2); }
+
+.proj-thumb {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    object-fit: contain;
+    border-radius: 5px;
+    border: 1px solid var(--panel-bd);
+    background: var(--bg-light);
+}
+
+.proj-text { flex: 1; min-width: 200px; }
+.proj-title {
+    color: var(--ink);
+    font-weight: bold;
+    font-size: calc(12px * var(--mod-font-size));
+}
+.proj-desc {
+    font-family: var(--sans);
+    font-size: calc(11px * var(--mod-font-size));
+    color: var(--ink-soft);
+    padding-top: 5px;
+    line-height: 1.5;
+}
+
+.proj-chevron {
+    font-size: 12px;
+    color: var(--ink-faint);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+.proj-row.open .proj-chevron { transform: rotate(180deg); }
+
+.proj-expand {
+    display: none;
+    padding: 20px 4px 28px;
+}
+.proj-row.open .proj-expand { display: block; }
+
+/* ── Pyodide terminal (window._mountPyodideTerminal) ── */
+.pyterm-root {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.pyterm-screen {
+    background: #14140f;
+    color: #d9d4c4;
+    font-family: var(--mono);
+    font-size: calc(12px * var(--mod-font-size));
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 14px;
+    border-radius: var(--border-radius2);
+    min-height: 320px;
+    max-height: 520px;
+    overflow-y: auto;
+}
+.pyterm-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    width: 12ch;
+    field-sizing: content;
+}
+.pyterm-controls { display: flex; gap: 10px; }
+.pyterm-btn {
+    font-family: var(--mono);
+    font-size: calc(12px * var(--mod-font-size));
+    padding: 6px 14px;
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    background: var(--bg-light);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.12s;
+}
+.pyterm-btn:hover { border-color: var(--ink); background: var(--bg2); }

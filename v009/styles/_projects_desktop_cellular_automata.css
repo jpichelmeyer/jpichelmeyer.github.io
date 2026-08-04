@@ -1,0 +1,11 @@
+/* v009/site/styles/_projects_desktop_cellular_automata.css */
+/* Cellular Automata (Python via Pyodide). The terminal UI itself is
+   styled generically by the shared .pyterm-* rules in _projects.css
+   (window._mountPyodideTerminal) -- this file only needs to exist for
+   the naming convention, and is free to add project-specific touches
+   later (e.g. a custom thumbnail treatment) without touching anything
+   shared. */
+
+.proj-row:has(.pyterm-root) .proj-thumb {
+    border-color: var(--color-accent-projects);
+}

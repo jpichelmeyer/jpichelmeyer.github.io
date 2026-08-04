@@ -1,4 +1,4 @@
-// v009/site/scripts/_projects_1.js
+// v009/site/scripts/_projects_desktop_counter.js
 // Demo project: a simple click counter. Confined entirely to the
 // container handed to init() — no globals, no listeners outside it.
 
@@ -7,6 +7,9 @@ import { qsa } from './__utils.js';
 window._registerProject({
     id: 'counter',
     label: 'Counter',
+    layout: 'desktop',
+    thumb: 'dull.svg',
+    desc: 'A minimal click counter — increment, decrement, and reset. Demo project scaffolding for the plug-and-play project registry.',
     init(container) {
         let count = 0;
 
