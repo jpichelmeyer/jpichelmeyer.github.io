@@ -32,6 +32,7 @@
             "detail": "your ability to use a C# editor and debugger."
         }
     ],
+    "courseColor": "#ad85c9",
     "srcColor": {
         "MSDOC": [
             "#0078d4",

@@ -1,0 +1,111 @@
+@* csharp/ants-pheromone/AntsView.razor
+
+   The one file in this project that can't be snake_case like the
+   rest -- Blazor derives a component's class name from its filename,
+   so .razor component files must be PascalCase (ants_program.cs
+   already references this component as AntsView; that's why). Kept
+   as thin as possible: it owns the tick timer and turns SimGrid's
+   state into characters on screen, and nothing else. All the actual
+   simulation logic lives in ants_supportfile.cs.
+*@
+@implements IDisposable
+
+<div class="ants-toolbar">
+    <button @onclick="ToggleRun">@(_running ? "pause" : "run")</button>
+    <button @onclick="Step" disabled="@_running">step</button>
+    <button @onclick="Reset">reset</button>
+    <span class="ants-stat">tick @_grid.Tick &nbsp; delivered: @_grid.FoodDelivered</span>
+</div>
+<div class="ants-hint">
+    @(_running ? "pause to edit the hormone/bias field" : "click a cell to cycle its bias arrow, then run")
+</div>
+
+<div class="ants-grid" style="grid-template-columns: repeat(@_grid.Width, 1ch);">
+    @for (int y = 0; y < _grid.Height; y++)
+    {
+        for (int x = 0; x < _grid.Width; x++)
+        {
+            int cx = x, cy = y;
+            <span class="ants-cell @CellClass(cx, cy)" @onclick="() => OnCellClick(cx, cy)">@CellChar(cx, cy)</span>
+        }
+    }
+</div>
+
+@code {
+    private SimGrid _grid = new(48, 22);
+    private System.Timers.Timer? _timer;
+    private bool _running;
+
+    protected override void OnInitialized()
+    {
+        _timer = new System.Timers.Timer(120);
+        _timer.AutoReset = true;
+        _timer.Elapsed += (s, e) => InvokeAsync(() =>
+        {
+            _grid.Step();
+            StateHasChanged();
+        });
+    }
+
+    private void ToggleRun()
+    {
+        _running = !_running;
+        if (_running) _timer!.Start(); else _timer!.Stop();
+    }
+
+    private void Step()
+    {
+        if (_running) return;
+        _grid.Step();
+    }
+
+    private void Reset()
+    {
+        _timer!.Stop();
+        _running = false;
+        _grid = new SimGrid(_grid.Width, _grid.Height);
+    }
+
+    private void OnCellClick(int x, int y)
+    {
+        if (_running) return;
+        _grid.ToggleBiasAt(x, y);
+    }
+
+    private char CellChar(int x, int y)
+    {
+        if (x == _grid.NestX && y == _grid.NestY) return 'N';
+        foreach (var ant in _grid.Ants)
+            if (ant.X == x && ant.Y == y) return ant.CarryingFood ? '@' : 'a';
+        if (_grid.Food[x, y] > 0) return '*';
+        if (_grid.Bias[x, y] != BiasDirection.None) return BiasChar(_grid.Bias[x, y]);
+        if (_grid.Pheromone[x, y] > 0.6) return ':';
+        if (_grid.Pheromone[x, y] > 0.15) return '.';
+        return ' ';
+    }
+
+    private static char BiasChar(BiasDirection dir) => dir switch
+    {
+        BiasDirection.N => '^',
+        BiasDirection.S => 'v',
+        BiasDirection.E => '>',
+        BiasDirection.W => '<',
+        BiasDirection.NE => '/',
+        BiasDirection.SW => '/',
+        BiasDirection.NW => '\\',
+        BiasDirection.SE => '\\',
+        _ => ' ',
+    };
+
+    private string CellClass(int x, int y)
+    {
+        if (x == _grid.NestX && y == _grid.NestY) return "nest";
+        foreach (var ant in _grid.Ants)
+            if (ant.X == x && ant.Y == y) return ant.CarryingFood ? "ant-fed" : "ant";
+        if (_grid.Food[x, y] > 0) return "food";
+        if (_grid.Bias[x, y] != BiasDirection.None) return "bias";
+        return "";
+    }
+
+    public void Dispose() => _timer?.Dispose();
+}

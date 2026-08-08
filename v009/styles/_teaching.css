@@ -340,7 +340,7 @@
     margin: 18px;
     object-fit: contain; 
     opacity: 0.90; 
-    filter: brightness(0) invert(1);
+    filter: brightness(0);
 }
 
 .cxd {
@@ -531,6 +531,24 @@
     background: rgb(250, 248, 246, 0.25); 
     color: var(--ink-soft); 
     /*border: 1px solid var(--panel-bd);*/ 
+}
+
+/* Inline tag for a partial highlight within an otherwise ordinary
+   topic cell (e.g. "Technique choosing, Exam 1") -- same idea as
+   .special-bar above, but sized to sit inline mid-sentence rather
+   than take over the whole cell. */
+.topic-tag {
+    display: inline-flex;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: calc(9.5px * var(--mod-font-size));
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+.topic-tag-exam {
+    background: var(--color-exam-bg);
+    color: var(--color-exam-font);
 }
 
 

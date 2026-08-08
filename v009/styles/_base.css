@@ -205,6 +205,12 @@ body::before {
     width: 980px;
 }
 
+/* Match the navbar's own width rule (see #navbar above) so the
+   Projects panel lines up with it exactly. */
+#panel-projects {
+    width: 90%;
+}
+
 .panel-titlebar {
     display: flex; align-items: center; justify-content: space-between;
     height: 50px;

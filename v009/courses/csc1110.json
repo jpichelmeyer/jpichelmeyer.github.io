@@ -32,6 +32,7 @@
             "detail": "your ability to use a Python editor and debugger."
         }
     ],
+    "courseColor": "#ffe994",
     "srcColor": {
         "CS50": [
             "#872a2a",
@@ -60,7 +61,7 @@
     },
     "schedule": [
         {
-            "theme": "Theme X",
+            "theme": "Fundamentals",
             "trs": [
                 [
                     "Setup, variables, expressions",
@@ -239,7 +240,7 @@
             ]
         },
         {
-            "theme": "Theme 2",
+            "theme": "Intermediate",
             "trs": [
                 [
                     "Strings",
@@ -413,7 +414,7 @@
             ]
         },
         {
-            "theme": "Theme 3",
+            "theme": "Advanced",
             "trs": [
                 [
                     "Classes",

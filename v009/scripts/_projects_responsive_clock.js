@@ -27,6 +27,7 @@ window._registerProject({
         }
 
         tick();
-        setInterval(tick, 1000);
+        const intervalId = setInterval(tick, 1000);
+        return () => clearInterval(intervalId);
     }
 });

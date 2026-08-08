@@ -28,10 +28,13 @@
 //   3. Import both files from merged.js / merged.css
 // That's it — no other file needs to change.
 //
-// A registered project's init(container) is called exactly once — the
-// first time its row is expanded — and is handed the empty <div> it
-// should render into. Projects should keep all their DOM, styles, and
-// event listeners scoped to that container.
+// A registered project's init(container) is called every time its row
+// is opened (fresh each time — the container is emptied when the row
+// closes) and is handed the empty <div> it should render into. Only
+// one project is ever open at a time; opening one closes whatever was
+// open before it. If init() needs to stop something running (a timer,
+// a loop, etc.) when its row closes, return a cleanup function from
+// init() and it'll be called automatically.
 
 import { el } from './__utils.js';
 
@@ -60,6 +63,13 @@ window._mountGodotProject = function (container, path) {
         </div>`;
 };
 
+// C# projects follow the same pattern: a Blazor WebAssembly app's
+// `dotnet publish` output is just a static folder with an index.html,
+// exactly like a Godot Web export, so the exact same iframe embed
+// works unchanged -- aliased under its own name here for clarity when
+// registering a C# project.
+window._mountBlazorProject = window._mountGodotProject;
+
 // Shared helper for standard-library-only Python scripts: boots Pyodide
 // (lazily, once per page) and runs the script at `scriptPath` inside a
 // small terminal-styled UI dropped into `container`. The script's
@@ -85,12 +95,14 @@ window._mountPyodideTerminal = function (container, scriptPath, opts = {}) {
             <div class="pyterm-controls">
                 <button class="pyterm-btn" data-action="run">run</button>
                 <button class="pyterm-btn" data-action="stop">stop</button>
+                <button class="pyterm-btn" data-action="clear">clear</button>
             </div>
         </div>`;
 
-    const screen  = container.querySelector('.pyterm-screen');
-    const runBtn  = container.querySelector('[data-action="run"]');
-    const stopBtn = container.querySelector('[data-action="stop"]');
+    const screen   = container.querySelector('.pyterm-screen');
+    const runBtn   = container.querySelector('[data-action="run"]');
+    const stopBtn  = container.querySelector('[data-action="stop"]');
+    const clearBtn = container.querySelector('[data-action="clear"]');
 
     let pyodidePromise = null;
     let running = false;
@@ -192,13 +204,63 @@ sys.stderr = _HostStream()
 
     runBtn.addEventListener('click', run);
     stopBtn.addEventListener('click', () => { stopRequested = true; });
+    clearBtn.addEventListener('click', () => { screen.textContent = ''; });
 
     if (autorun) run();
+
+    // Handed back to buildProjectRow so it can stop this project when
+    // its row is collapsed or another project is opened in its place.
+    return () => { stopRequested = true; };
 };
+
+// Only one project is ever "live" at a time. Opening a row closes
+// whichever other row was open (calling its cleanup, if it returned
+// one, and clearing its mounted content so it starts fresh next time).
+let activeRow = null;
+
+function closeRow(row) {
+    if (!row.classList.contains('open')) return;
+    row.classList.remove('open');
+    if (row._cleanup) { try { row._cleanup(); } catch (e) { /* no-op */ } }
+    row._cleanup = null;
+    row._mounted = false;
+    row.querySelector('.proj-expand').innerHTML = '';
+    if (activeRow === row) activeRow = null;
+}
+
+function openRow(row, project) {
+    if (activeRow && activeRow !== row) closeRow(activeRow);
+    row.classList.add('open');
+    row._cleanup = project.init(row.querySelector('.proj-expand')) || null;
+    row._mounted = true;
+    activeRow = row;
+}
+
+// Desktop projects only make sense with room to work in; mobile ones
+// only make sense on a narrow/touch-sized screen; responsive ones are
+// fair game at any width. A row outside its layout's range is shown
+// but not clickable, and auto-collapses if the window is resized out
+// from under it while open.
+const LAYOUT_FITS = {
+    desktop:    w => w >= 900,
+    mobile:     w => w <= 400,
+    responsive: () => true,
+};
+
+function updateRowAvailability() {
+    const w = window.innerWidth;
+    document.querySelectorAll('.proj-row').forEach(row => {
+        const fits = LAYOUT_FITS[row.dataset.layout](w);
+        row.classList.toggle('disabled', !fits);
+        if (!fits) closeRow(row);
+    });
+}
+window.addEventListener('resize', updateRowAvailability);
 
 function buildProjectRow(project) {
     const row = document.createElement('div');
     row.className = 'proj-row';
+    row.dataset.layout = project.layout;
     row.innerHTML = `
         <div class="proj-row-head">
             <img class="proj-thumb" src="./svgs/${project.thumb || 'dull.svg'}" alt="" />
@@ -210,16 +272,11 @@ function buildProjectRow(project) {
         </div>
         <div class="proj-expand"></div>`;
 
-    const head   = row.querySelector('.proj-row-head');
-    const expand = row.querySelector('.proj-expand');
-    let mounted = false;
+    const head = row.querySelector('.proj-row-head');
 
     head.addEventListener('click', () => {
-        row.classList.toggle('open');
-        if (row.classList.contains('open') && !mounted) {
-            mounted = true;
-            project.init(expand);
-        }
+        if (row.classList.contains('disabled')) return;
+        row.classList.contains('open') ? closeRow(row) : openRow(row, project);
     });
 
     return row;
@@ -267,4 +324,7 @@ function buildProjectsPanel() {
 // Deferred so it runs after every _projects_[layout]_[name].js module
 // has finished evaluating (and therefore registering), regardless of
 // import order.
-setTimeout(buildProjectsPanel, 0);
+setTimeout(() => {
+    buildProjectsPanel();
+    updateRowAvailability();
+}, 0);

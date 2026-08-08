@@ -88,6 +88,18 @@ function buildScheduleRows(c) {
                    /break/i.test(annotation)          ? 'break'        :
                    /project assist/i.test(annotation) ? 'lab'          : null)
                 : null;
+
+            // Partial highlight for an exam mentioned inline within an
+            // otherwise ordinary topic, e.g. "Technique choosing, Exam 1"
+            // -- pulled out and tag-styled rather than taking over the
+            // whole cell the way a presentation week does.
+            const examMatch = mainTopic.match(/\s*,?\s*(Exam\s*\d+)\s*,?\s*/i);
+            const topicMain = examMatch
+                ? (mainTopic.slice(0, examMatch.index) + ' ' + mainTopic.slice(examMatch.index + examMatch[0].length)).trim()
+                : mainTopic;
+            const examTag = examMatch
+                ? ` <span class="topic-tag topic-tag-exam">${esc(examMatch[1])}</span>`
+                : '';
             // ------------------
 
             const validReadings = readings.filter(r => r.url);
@@ -111,7 +123,7 @@ function buildScheduleRows(c) {
 
             const topicCell = specialType
                 ? `<td colspan="2"><span class="special-bar special-${specialType}">${esc(mainTopic)}</span></td>`
-                : `<td>${esc(mainTopic)}${annotationSpan}</td><td class="col-reading">${readLinks}</td>`;
+                : `<td>${esc(topicMain)}${examTag}${annotationSpan}</td><td class="col-reading">${readLinks}</td>`;
             // --------------------
             
             const trClass = [
@@ -449,7 +461,7 @@ function renderDetailView(body, key) {
         <div class="cx-layout">
  
             <div class="cxa">
-                <div class="cxc">
+                <div class="cxc" style="background:${esc(c.courseColor || '#aaaaaa')};">
                     <img src="./svgs/${esc(c.svg)}" alt="${esc(c.pre)}${esc(c.num)}" />
                 </div>
                 <div class="cxd">
