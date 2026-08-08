@@ -22,6 +22,6 @@ window._registerProject({
     thumb: 'dull.svg',
     desc: 'A terminal-based 1D/2D cellular automaton written in Python. Choose 1D or 2D, configure the rules (including six different edge topologies for the 2D grid: finite plane, torus, cross-cap, cylinder, Klein bottle, and sphere), then watch it run.',
     init(container) {
-        window._mountPyodideTerminal(container, SCRIPT_PATH);
+        return window._mountPyodideTerminal(container, SCRIPT_PATH);
     }
 });

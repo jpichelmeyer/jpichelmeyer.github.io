@@ -37,6 +37,7 @@
             "detail": "a fully functional AI-drven simulation project that demonstrates the integration of multiple AI techniques."
         }
     ],
+    "courseColor": "#c6efff",
     "srcColor": {
         "ALIFE": [
             "#6fbd84",
@@ -77,235 +78,94 @@
     },
     "schedule": [
         {
-            "theme": "The Agent",
+            "theme": "Movement",
             "trs": [
                 [
-                    "What is simulation? What is ALife? Godot & GDScript setup",
+                    "Setup, Godot, GDscript",
                     [
-                        {
-                            "srcID": "ALIFE",
-                            "numID": "Langton",
-                            "url": "https://shinyverse.org/al4ai/papers/Langton.ALife.pdf"
-                        },
-                        {
-                            "srcID": "ALIFE",
-                            "numID": "Farmer",
-                            "url": "https://shinyverse.org/al4ai/papers/FarmerBelin.IsItAlive.pdf"
-                        },
-                        {
-                            "srcID": "GDOC",
-                            "numID": "intro",
-                            "url": "https://docs.godotengine.org/en/stable/getting_started/introduction/index.html"
-                        },
-                        {
-                            "srcID": "GDOC",
-                            "numID": "nodes",
-                            "url": "https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Braitenberg vehicles: the simplest agents",
+                    "Pathfinding: Graphs, BFS, DFS, Dijkstra's, A*",
                     [
-                        {
-                            "srcID": "ALIFE",
-                            "numID": "IsItAlive",
-                            "url": "https://shinyverse.org/al4ai/papers/FarmerBelin.IsItAlive.pdf"
-                        },
-                        {
-                            "srcID": "SFI",
-                            "numID": "sapolsky",
-                            "url": "https://www.complexityexplorer.org/explore/resources/64-robert-sapolsky-lecture-emergence-and-complexity"
-                        },
-                        {
-                            "srcID": "GDOC",
-                            "numID": "physics",
-                            "url": "https://docs.godotengine.org/en/stable/tutorials/physics/physics_introduction.html"
-                        },
-                        {
-                            "srcID": "GDOC",
-                            "numID": "raycast",
-                            "url": "https://docs.godotengine.org/en/stable/tutorials/physics/ray-casting.html"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Steering behaviors: movement as intelligence",
+                    "Steering behavior, flocking (boids)",
                     [
-                        {
-                            "srcID": "RCW",
-                            "numID": "steer99",
-                            "url": "https://www.red3d.com/cwr/steer/gdc99/index.html"
-                        },
-                        {
-                            "srcID": "GAIP",
-                            "numID": "ch3",
-                            "url": "https://www.gameaipro.com/GameAIPro/GameAIPro_Chapter03_Behavior-Based_Robotics_and_the_Action_Selection_Problem.pdf"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Finite state machines | Presentation 1: The Theme",
+                    "Stygmergy, Ant Colony Optimization",
                     [
-                        {
-                            "srcID": "GPP",
-                            "numID": "state",
-                            "url": "https://gameprogrammingpatterns.com/state.html"
-                        },
-                        {
-                            "srcID": "GAIP",
-                            "numID": "fsm",
-                            "url": "https://www.gameaipro.com/GameAIPro3/GameAIPro3_Chapter12_A_Reusable_Light-Weight_Finite-State_Machine.pdf"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Behavior trees: composing complex decisions",
+                    " | Presentation 1: The Pitch",
                     [
-                        {
-                            "srcID": "GAIP",
-                            "numID": "bt",
-                            "url": "https://www.gameaipro.com/GameAIPro/GameAIPro_Chapter06_The_Behavior_Tree_Starter_Kit.pdf"
-                        },
-                        {
-                            "srcID": "GAIP",
-                            "numID": "btpitfalls",
-                            "url": "https://www.gameaipro.com/GameAIPro3/GameAIPro3_Chapter09_Overcoming_Pitfalls_in_Behavior_Tree_Design.pdf"
-                        }
+                    
                     ]
-                ],
-                [
-                    "Pathfinding: navigating the world",
-                    [
-                        {
-                            "srcID": "RBG",
-                            "numID": "astar",
-                            "url": "https://www.redblobgames.com/pathfinding/a-star/introduction.html"
-                        },
-                        {
-                            "srcID": "RBG",
-                            "numID": "impl",
-                            "url": "https://www.redblobgames.com/pathfinding/a-star/implementation.html"
-                        },
-                        {
-                            "srcID": "GDOC",
-                            "numID": "nav3d",
-                            "url": "https://docs.godotengine.org/en/stable/tutorials/navigation/navigation_introduction_3d.html"
-                        },
-                        {
-                            "srcID": "GDOC",
-                            "numID": "navagent",
-                            "url": "https://docs.godotengine.org/en/stable/tutorials/navigation/navigation_using_navigationagents.html"
-                        }
-                    ]
-                ],
-                [
-                    "Presentation 2: The Agent",
-                    []
                 ]
             ]
         },
         {
-            "theme": "The Simulation",
+            "theme": "Decision-making",
             "trs": [
                 [
-                    "Flocking and boids: emergence from three rules",
+                    "Finite state machines",
                     [
-                        {
-                            "srcID": "RCW",
-                            "numID": "boids87",
-                            "url": "https://www.red3d.com/cwr/papers/1987/SIGGRAPH87.pdf"
-                        },
-                        {
-                            "srcID": "RCW",
-                            "numID": "boidspage",
-                            "url": "https://www.red3d.com/cwr/boids/"
-                        },
-                        {
-                            "srcID": "ARXIV",
-                            "numID": "emergence",
-                            "url": "https://arxiv.org/pdf/2205.11595"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Stigmergy and indirect coordination: pheromones, trails, environment as memory",
+                    "Decision and behavior trees",
                     [
-                        {
-                            "srcID": "PMC",
-                            "numID": "stigmergy",
-                            "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11371424/"
-                        },
-                        {
-                            "srcID": "PMC",
-                            "numID": "bacterial",
-                            "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4306409/"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Cellular automata: local rules, global patterns",
+                    "Behavior tree aboriculture and memory",
                     [
-                        {
-                            "srcID": "ARXIV",
-                            "numID": "complexity",
-                            "url": "https://arxiv.org/pdf/physics/0201055"
-                        },
-                        {
-                            "srcID": "SFI",
-                            "numID": "intro",
-                            "url": "https://www.complexityexplorer.org/courses/185-introduction-to-complexity"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Evolving virtual creatures | Presentation 3: The Agents",
+                    "Behavior trees and FSMs: similarities and differences",
                     [
-                        {
-                            "srcID": "ALIFE",
-                            "numID": "sims",
-                            "url": "https://shinyverse.org/al4ai/papers/Sims.EvoVirtCreatures.pdf"
-                        },
-                        {
-                            "srcID": "ALIFE",
-                            "numID": "tierra",
-                            "url": "https://shinyverse.org/al4ai/papers/Ray.tierra.pdf"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Emergence and complexity: what are we watching?",
+                    " | Presentation 2: The Progress",
                     [
-                        {
-                            "srcID": "SFI",
-                            "numID": "sapolsky",
-                            "url": "https://www.complexityexplorer.org/explore/resources/64-robert-sapolsky-lecture-emergence-and-complexity"
-                        },
-                        {
-                            "srcID": "ARXIV",
-                            "numID": "emergent-complexity",
-                            "url": "https://arxiv.org/pdf/0804.0008"
-                        },
-                        {
-                            "srcID": "SFI",
-                            "numID": "abm",
-                            "url": "https://www.complexityexplorer.org/courses/171-introduction-to-agent-based-modeling"
-                        }
+                    
+                    ]
+                ]
+            ]
+        },
+        {
+            "theme": "Learning",
+            "trs": [
+                [
+                    "Machine learning fundamentals",
+                    [
+                        
                     ]
                 ],
                 [
-                    "Reading your simulation: what does it mean?",
+                    "Classification and artificial neural networks",
                     [
-                        {
-                            "srcID": "ARXIV",
-                            "numID": "parwani",
-                            "url": "https://arxiv.org/pdf/physics/0201055"
-                        },
-                        {
-                            "srcID": "SFI",
-                            "numID": "abm2",
-                            "url": "https://www.complexityexplorer.org/courses/171-introduction-to-agent-based-modeling"
-                        }
+                        
+                    ]
+                ],
+                [
+                    "Reinforcement learning",
+                    [
+                        
                     ]
                 ],
                 [
@@ -314,11 +174,15 @@
                 ],
                 [
                     "Project assist",
-                    []
+                    [
+                        
+                    ]
                 ],
                 [
-                    "Presentation 4: The Simulation",
-                    []
+                    " | Presentation 3: The...Perfection?",
+                    [
+                    
+                    ]
                 ]
             ]
         }

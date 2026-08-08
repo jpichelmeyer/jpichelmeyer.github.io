@@ -9,29 +9,20 @@
     "time": "8:00-9:15am",
     "place": "TBD",
     "prereq": "",
-    "catalog": "A study of the fundamentals of writing computer programs and problem-solving, using structured and object-oriented techniques. Intended for future majors and minors in Computer Science and minors in Game Development. This course uses C#.",
+    "catalog": "A study of transcendental functions, infinite series, mean-value theorem, polar coordinates, integration, and applications of integration.",
     "goals": [
         {
             "num": 1,
-            "action": "Develop",
-            "detail": "knowledge of a basic computer system architecture."
+            "action": "Action",
+            "detail": ": detail"
         },
         {
             "num": 2,
-            "action": "Develop",
-            "detail": "a problem solving methodology and apply it to writing programs in C#."
-        },
-        {
-            "num": 3,
-            "action": "Acquire",
-            "detail": "an understanding of the basic C# language concepts."
-        },
-        {
-            "num": 4,
-            "action": "Develop",
-            "detail": "your ability to use a C# editor and debugger."
+            "action": "Action",
+            "detail": ": detail"
         }
     ],
+    "courseColor": "#f0a8a8",
     "srcColor": {
         "MSDOC": [
             "#0078d4",
@@ -44,359 +35,92 @@
     },
     "schedule": [
         {
-            "theme": "Theme 1",
+            "theme": "Continuous sums",
             "trs": [
                 [
-                    "Setup, variables, types, expressions",
+                    "Review (trigonometry, u-sub)",
                     [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "1",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/"
-                        },
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "2",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/built-in-types"
-                        },
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "3",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/"
-                        },
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "4",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/tutorials/console-app"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.1",
-                            "url": "https://markm208.github.io/cppbook/chapter1/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.2",
-                            "url": "https://markm208.github.io/cppbook/chapter1/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.3",
-                            "url": "https://markm208.github.io/cppbook/chapter1/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.4",
-                            "url": "https://markm208.github.io/cppbook/chapter1/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.5",
-                            "url": "https://markm208.github.io/cppbook/chapter1/05/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.6",
-                            "url": "https://markm208.github.io/cppbook/chapter1/06/index.html"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Decision logic and control flow",
+                    "Integration by parts",
                     [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "5",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/selection-statements"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.1",
-                            "url": "https://markm208.github.io/cppbook/chapter2/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.2",
-                            "url": "https://markm208.github.io/cppbook/chapter2/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.3",
-                            "url": "https://markm208.github.io/cppbook/chapter2/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.4",
-                            "url": "https://markm208.github.io/cppbook/chapter2/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.5",
-                            "url": "https://markm208.github.io/cppbook/chapter2/05/index.html"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Looping",
+                    "Integration involving trigonometry",
                     [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "6",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/iteration-statements"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.1",
-                            "url": "https://markm208.github.io/cppbook/chapter3/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.2",
-                            "url": "https://markm208.github.io/cppbook/chapter3/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.3",
-                            "url": "https://markm208.github.io/cppbook/chapter3/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.4",
-                            "url": "https://markm208.github.io/cppbook/chapter3/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.5",
-                            "url": "https://markm208.github.io/cppbook/chapter3/05/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.6",
-                            "url": "https://markm208.github.io/cppbook/chapter3/06/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.7",
-                            "url": "https://markm208.github.io/cppbook/chapter3/07/index.html"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Functions",
+                    "Partial fraction decomposition",
                     [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "9",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/methods"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.1",
-                            "url": "https://markm208.github.io/cppbook/chapter5/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.2",
-                            "url": "https://markm208.github.io/cppbook/chapter5/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.3",
-                            "url": "https://markm208.github.io/cppbook/chapter5/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.5",
-                            "url": "https://markm208.github.io/cppbook/chapter5/05/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.6",
-                            "url": "https://markm208.github.io/cppbook/chapter5/06/index.html"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Presentation 1: The Pitch",
+                    "Technique identification, Exam 1",
+                    [
+                    
+                    ]
+                ]
+            ]
+        },
+        {
+            "theme": "Discrete sums",
+            "trs": [
+                [
+                    "Sequence, series intro, geometric series",
+                    [
+
+                    ]
+                ],
+                [
+                    "Convergence: div, AST, ratio",
+                    [
+
+                    ]
+                ],
+                [
+                    "Root test, strategies",
+                    [
+
+                    ]
+                ],
+                [
+                    "Integral approximation",
+                    [
+
+                    ]
+                ],
+                [
+                    "Integral test, Exam 2",
                     []
                 ]
             ]
         },
         {
-            "theme": "Theme 2",
+            "theme": "Geometric applications",
             "trs": [
                 [
-                    "Arrays and collections",
+                    "Improper integrals, area between curves",
                     [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "7",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/arrays"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "4.1",
-                            "url": "https://markm208.github.io/cppbook/chapter4/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "4.2",
-                            "url": "https://markm208.github.io/cppbook/chapter4/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "4.4",
-                            "url": "https://markm208.github.io/cppbook/chapter4/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.1",
-                            "url": "https://markm208.github.io/cppbook/chapter6/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.2",
-                            "url": "https://markm208.github.io/cppbook/chapter6/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.3",
-                            "url": "https://markm208.github.io/cppbook/chapter6/03/index.html"
-                        }
+                        
                     ]
                 ],
                 [
-                    "Structured data",
+                    "Volumes, Shells",
                     [
-                        {
-                            "srcID": "CPP",
-                            "numID": "7.1",
-                            "url": "https://markm208.github.io/cppbook/chapter7/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "7.2",
-                            "url": "https://markm208.github.io/cppbook/chapter7/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "7.3",
-                            "url": "https://markm208.github.io/cppbook/chapter7/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "7.4",
-                            "url": "https://markm208.github.io/cppbook/chapter7/04/index.html"
-                        }
+                    
                     ]
                 ],
                 [
-                    "Recursion",
+                    "Parametric curves",
                     [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "10",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/functional/recursion"
-                        }
-                    ]
-                ],
-                [
-                    "Exceptions and debugging",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "12",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/exceptions/"
-                        }
-                    ]
-                ],
-                [
-                    "Presentation 2: The Progress",
-                    []
-                ]
-            ]
-        },
-        {
-            "theme": "Theme 3",
-            "trs": [
-                [
-                    "Classes and objects",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "11",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/"
-                        },
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "14",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/classes"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.1",
-                            "url": "https://markm208.github.io/cppbook/chapter9/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.2",
-                            "url": "https://markm208.github.io/cppbook/chapter9/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.3",
-                            "url": "https://markm208.github.io/cppbook/chapter9/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.4",
-                            "url": "https://markm208.github.io/cppbook/chapter9/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.5",
-                            "url": "https://markm208.github.io/cppbook/chapter9/05/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Inheritance and polymorphism",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "20",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/inheritance"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.6",
-                            "url": "https://markm208.github.io/cppbook/chapter9/06/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.7",
-                            "url": "https://markm208.github.io/cppbook/chapter9/07/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.8",
-                            "url": "https://markm208.github.io/cppbook/chapter9/08/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Algorithms, pseudocode",
-                    [
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.5",
-                            "url": "https://markm208.github.io/cppbook/chapter6/05/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.6",
-                            "url": "https://markm208.github.io/cppbook/chapter6/06/index.html"
-                        }
+                    
                     ]
                 ],
                 [
@@ -404,11 +128,11 @@
                     []
                 ],
                 [
-                    "Project assist",
+                    "Polar coordinates",
                     []
                 ],
                 [
-                    "Presentation 3: The...Perfection?",
+                    "Review, Exam 3",
                     []
                 ]
             ]

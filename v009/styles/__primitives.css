@@ -119,5 +119,7 @@
     /* --- Extra stuff --- */
     --color-presentations-bg:       #c4ba8d;
     --color-presentations-font:     #1f1f1f;
+    --color-exam-bg:                #c46f6f;
+    --color-exam-font:              #f1f1f1;
     
 }
