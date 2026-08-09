@@ -318,110 +318,37 @@ function renderTeachingListing(body, mode = 'all') {
 
 // ===========  Instructions pane builder  ============================
 
+// Converts a key like "thingAtoHaveInstructions" or "semester_project"
+// into a readable tab label ("Thing Ato Have Instructions" / "Semester
+// Project").
+function labelizeInstructionKey(key) {
+    const spaced = key
+        .replace(/[_-]+/g, ' ')
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
+    return spaced.replace(/\s+/g, ' ').trim().replace(/\b\w/g, ch => ch.toUpperCase());
+}
+
 function buildInstructionsPane(c) {
-    if (!c.instructions) return `<div class="cd-body" style="color:var(--ink-faint);font-size:13px;padding:8px;">No instructions available yet.</div>`;
-
     const instr = c.instructions;
+    const keys = instr ? Object.keys(instr) : [];
+    if (!keys.length) return `<div class="cd-body" style="color:var(--ink-faint);font-size:13px;padding:8px;">No instructions available yet.</div>`;
 
-    // ── mini-nav items (order determines tab order) ──
-    const miniTabs = [
-        { id: 'presentations', label: 'Presentations' },
-        { id: 'progress',      label: 'Progress Reports' },
-        { id: 'project',       label: 'Semester Project' },
-    ];
-
-    // ── Presentations content ──
-    function buildPresentations() {
-        if (!instr.presentations || !instr.presentations.length) return '';
-        
-        // accordion: each presentation is a collapsible block
-        return instr.presentations.map((p, i) => {
-            const sectionsHtml = p.sections.map(sec => `
-                <div class="instr-section">
-                    <div class="instr-section-heading">${esc(sec.heading)}</div>
-                    <ul class="instr-list">
-                        ${sec.items.map(item => `<li>${esc(item)}</li>`).join('')}
-                    </ul>
-                </div>`).join('');
-            
-            return `
-                <div class="instr-accordion ${i === 0 ? 'open' : ''}" data-acc="${i}">
-                    <div class="instr-acc-header">
-                        <span class="instr-acc-name">${esc(p.name)}</span>
-                        <span class="instr-acc-meta">${esc(p.weight)} &nbsp;·&nbsp; ${esc(p.slots)}</span>
-                        <span class="instr-acc-chevron">▾</span>
-                    </div>
-                    <div class="instr-acc-body">
-                        ${sectionsHtml}
-                    </div>
-                </div>`;
-        }).join('');
-    }
-
-    // ── Progress Reports content ──
-    function buildProgressReports() {
-        const pr = instr.progress_reports;
-        if (!pr) return '';
-        const formatHtml = pr.format.map(f => `<li>${esc(f)}</li>`).join('');
-        const promptsHtml = pr.prompts.map(p => `<li>${esc(p)}</li>`).join('');
-        return `
-            <div class="instr-block">
-                <p class="instr-body-text">${esc(pr.description)}</p>
-            </div>
-            <div class="instr-block">
-                <div class="instr-section-heading">Format</div>
-                <ul class="instr-list">${formatHtml}</ul>
-            </div>
-            <div class="instr-block">
-                <div class="instr-section-heading">Weekly Prompts</div>
-                <p class="instr-body-text" style="font-size:11px;color:var(--ink-faint);margin-bottom:8px;">Each report should address these four questions:</p>
-                <ol class="instr-list instr-list-ol">${promptsHtml}</ol>
-            </div>
-            <div class="instr-block">
-                <div class="instr-section-heading">How It's Graded</div>
-                <p class="instr-body-text">${esc(pr.grading)}</p>
-            </div>`;
-    }
-
-    // ── Semester Project content ──
-    function buildProject() {
-        const sp = instr.semester_project;
-        if (!sp) return '';
-        const reqHtml   = sp.requirements.map(r   => `<li>${esc(r)}</li>`).join('');
-        const scopeHtml = sp.scope_guidance.map(s  => `<li>${esc(s)}</li>`).join('');
-        const ideasHtml = sp.ideas.map(idea        => `<li>${esc(idea)}</li>`).join('');
-        return `
-            <div class="instr-block">
-                <p class="instr-body-text">${esc(sp.description)}</p>
-            </div>
-            <div class="instr-block">
-                <div class="instr-section-heading">Requirements</div>
-                <ul class="instr-list">${reqHtml}</ul>
-            </div>
-            <div class="instr-block">
-                <div class="instr-section-heading">Scope Guidance</div>
-                <ul class="instr-list">${scopeHtml}</ul>
-            </div>
-            <div class="instr-block">
-                <div class="instr-section-heading">Ideas &amp; Starting Points</div>
-                <p class="instr-body-text" style="font-size:11px;color:var(--ink-faint);margin-bottom:8px;">These are suggestions, not restrictions. Build something you care about.</p>
-                <ul class="instr-list">${ideasHtml}</ul>
-            </div>`;
-    }
-
-    const contentBuilders = {
-        presentations: buildPresentations,
-        progress:      buildProgressReports,
-        project:       buildProject,
-    };
-
-    const miniNavHtml = miniTabs.map((t, i) => `
-        <div class="instr-mini-tab ${i === 0 ? 'active' : ''}" data-itab="${t.id}">${esc(t.label)}</div>
+    // The submenu is generated directly from the instructions dict: one
+    // mini-tab per key, in the order the keys appear, showing that key's
+    // value as-is (an HTML-syntax string, same convention as the
+    // Policies tab). Tabs/panes are matched up by position (data-itab
+    // is just the array index) rather than by the key text itself, so
+    // this never breaks no matter what characters end up in a key name
+    // (spaces, punctuation, whatever) -- the key only ever has to be
+    // valid JSON, never a valid CSS selector.
+    const miniNavHtml = keys.map((key, i) => `
+        <div class="instr-mini-tab ${i === 0 ? 'active' : ''}" data-itab="${i}">${esc(labelizeInstructionKey(key))}</div>
     `).join('');
 
-    const miniPanesHtml = miniTabs.map((t, i) => `
-        <div class="instr-pane ${i === 0 ? 'active' : ''}" id="instr-pane-${t.id}">
-            ${contentBuilders[t.id]?.() ?? ''}
+    const miniPanesHtml = keys.map((key, i) => `
+        <div class="instr-pane ${i === 0 ? 'active' : ''}" id="instr-pane-${i}">
+            <div class="instr-block"><div class="instr-body-text">${instr[key]}</div></div>
         </div>
     `).join('');
 
@@ -547,15 +474,27 @@ function renderDetailView(body, key) {
  
             <div class="cxb">
                 <div class="course-nav-bar">
-                    <div class="cx-tab active" data-tab="schedule">Schedule</div>
-                    <div class="cx-tab" data-tab="assessments">Assessments</div>
+                    <div class="cx-tab active" data-tab="catalog">Catalog</div>
                     <div class="cx-tab" data-tab="goals">Goals</div>
-                    <div class="cx-tab" data-tab="catalog">Catalog</div>
-                    <div class="cx-tab" data-tab="policies">Policies</div>
+                    <div class="cx-tab" data-tab="schedule">Schedule</div>
+                    <div class="cx-tab" data-tab="assessments">Assessments</div>
                     <div class="cx-tab" data-tab="instructions">Instructions</div>
+                    <div class="cx-tab" data-tab="policies">Policies</div>
                 </div>
                 <div class="course-content">
-                    <div class="cx-pane active" id="cx-pane-schedule">
+                    
+                    <!-- CATALOG -->
+                    <div class="cx-pane active" id="cx-pane-catalog">
+                        <div class="cd-body"><p>${c.catalog}</p></div>
+                    </div>
+                    
+                    <!-- GOALS -->
+                    <div class="cx-pane" id="cx-pane-goals">
+                        <div class="cd-body">${goalsHtml}</div>
+                    </div>
+                    
+                    <!-- SCHEDULE --> 
+                    <div class="cx-pane" id="cx-pane-schedule">
                         <table class="schedule-table">
                             <thead><tr>
                                 <th class="col-week">Week</th>
@@ -565,16 +504,20 @@ function renderDetailView(body, key) {
                             <tbody>${scheduleRows}</tbody>
                         </table>
                     </div>
+                    
+                    
+                    <!-- ASSESSMENTS -->
                     <div class="cx-pane" id="cx-pane-assessments">
                         ${assessGridHtml}
                         <div class="cd-assessments">${assessHtml}</div>
                     </div>
-                    <div class="cx-pane" id="cx-pane-goals">
-                        <div class="cd-body">${goalsHtml}</div>
+                    
+                    <!-- INSTRUCTIONS -->
+                    <div class="cx-pane" id="cx-pane-instructions">
+                        ${instructionsHtml}
                     </div>
-                    <div class="cx-pane" id="cx-pane-catalog">
-                        <div class="cd-body"><p>${c.catalog}</p></div>
-                    </div>
+                    
+                    <!-- POLICIES -->
                     <div class="cx-pane" id="cx-pane-policies">
                         <div class="cd-body">
                             ${SHARED.policies.map(p => `
@@ -585,9 +528,7 @@ function renderDetailView(body, key) {
                             `).join('')}
                         </div>
                     </div>
-                    <div class="cx-pane" id="cx-pane-instructions">
-                        ${instructionsHtml}
-                    </div>
+                    
                 </div>
             </div>
  
