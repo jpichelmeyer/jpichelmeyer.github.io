@@ -376,9 +376,9 @@
     justify-content: center;
 }
 .cxc img { 
-    width: 64px; 
-    height: 64px; 
-    margin: 18px;
+    width: 80px; 
+    height: 80px; 
+    margin: 12px;
     object-fit: contain; 
     opacity: 0.90; 
     filter: brightness(0);
@@ -610,7 +610,7 @@
     border-radius: 4px;
 }
 .lg-action-acquire {
-    background: #f2d57c;
+    background: #c4a13f;
 }
 .lg-action-analyze {
     background: #b85c4b;
@@ -699,6 +699,9 @@
     line-height: 1.7;
     color: var(--ink-soft);
     margin-bottom: 8px;
+}
+.instr-body-text p {
+    margin: 0 0 8px 0;
 }
 
 .instr-section-heading {
