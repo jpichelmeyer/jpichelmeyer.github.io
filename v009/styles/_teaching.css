@@ -169,6 +169,47 @@
 .assess-row > div { flex: 1; }
 .assess-pct { flex-shrink: 0; }
 
+/* ── Assessment percentage grid (100 squares = 100%) ── */
+.assess-grid-block {
+    margin-bottom: 16px;
+}
+.assess-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 14px);
+    grid-auto-rows: 14px;
+    gap: 3px;
+    padding: 8px;
+    width: fit-content;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: var(--bg-light);
+}
+.assess-grid-overflow {
+    display: grid;
+    grid-template-columns: repeat(10, 14px);
+    grid-auto-rows: 14px;
+    gap: 3px;
+    padding: 8px;
+    padding-top: 5px;
+    width: fit-content;
+    border-top: 2px dashed var(--ink-faint);
+    margin-top: 3px;
+}
+.assess-grid-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+}
+.assess-grid-cell-empty {
+    background: transparent;
+    border: 1px solid var(--panel-bd);
+}
+.assess-grid-total {
+    font-size: calc(10px * var(--mod-font-size));
+    color: var(--ink-faint);
+    margin-top: 6px;
+}
+
 
 /* ── Teaching listing (State 1) — ported from v001 ────────────────── */
 .teaching-listing { padding: 20px 24px 32px; }

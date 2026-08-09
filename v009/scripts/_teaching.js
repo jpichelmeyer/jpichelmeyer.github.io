@@ -176,9 +176,15 @@ function buildTaughtCourseHead(title, tagsHtml) {
 
 function tag(cls, label) { return `<div class="tag ${cls}">${esc(label)}</div>`; }
 
-function renderTeachingListing(body) {
+function renderTeachingListing(body, mode = 'all') {
     
     setCoursePanelWide(false);
+    
+    // 'active' mode shows only the courses with a full detail page
+    // (DETAIL_PAGE_COURSES above); 'all' shows everything, unfiltered.
+    const filterActive = mode === 'active'
+        ? list => list.filter(([title]) => DETAIL_PAGE_COURSES[title])
+        : list => list;
     
     // ── Instructor of record ──
     const instructorCourses = [
@@ -282,13 +288,13 @@ function renderTeachingListing(body) {
             `This course starts from a study of matrix algebra and elementary row operations to find solutions for systems of linear equations. This technique is used in the discussion of vector spaces, the eigenvalue problem, least squares, quadratic forms and linear programming. The course is taught from the perspective of imparting skill in the use of the basic concepts of matrix theory.`],
     ];
     
-    const instructorHtml = instructorCourses.map(([title, tagsHtml, desc]) => `
+    const instructorHtml = filterActive(instructorCourses).map(([title, tagsHtml, desc]) => `
         <div class="taught_course">
             ${buildTaughtCourseHead(title, tagsHtml)}
             <div class="taught_course_description">${esc(desc)}</div>
         </div>`).join('');
     
-    const taHtml = taCourses.map(([title, tagsHtml, desc]) => `
+    const taHtml = filterActive(taCourses).map(([title, tagsHtml, desc]) => `
         <div class="taught_course">
             ${buildTaughtCourseHead(title, tagsHtml)}
             <div class="taught_course_description">${esc(desc)}</div>
@@ -296,11 +302,12 @@ function renderTeachingListing(body) {
     
     body.innerHTML = `
         <div class="teaching-listing">
+            ${instructorHtml ? `
             <div class="taught_course_section_head">Instructor of Record</div>
-            <div class="taught_course_section">${instructorHtml}</div>
-            
+            <div class="taught_course_section">${instructorHtml}</div>` : ''}
+            ${taHtml ? `
             <div class="taught_course_section_head">Teaching Assistant</div>
-            <div class="taught_course_section">${taHtml}</div>
+            <div class="taught_course_section">${taHtml}</div>` : ''}
         </div>`;
     
     qsa('.course-dot', body).forEach(dot => {
@@ -443,18 +450,71 @@ function renderDetailView(body, key) {
         `<div class="lg-line"><b>${g.num || i + 1}.</b> <span class="lg-action lg-action-${g.action.toLowerCase()}">${esc(g.action)}</span> ${esc(g.detail)}</div>`
     ).join('');
     
+    // Assessment colors come from shared.json (["assessments"]["colors"][type]),
+    // keyed by each assessment's own 'type' (exam/presentation/quiz/report/...),
+    // so every course draws from one shared palette instead of repeating
+    // colorbg/colorfont per course. Falls back to a per-assessment
+    // colorbg/colorfont if present (older data), then a neutral gray.
+    function assessColor(a) {
+        const shared = SHARED?.assessments?.colors?.[a.type];
+        return {
+            bg:   shared?.colorbg   ?? a.colorbg   ?? '#aaaaaa',
+            font: shared?.colorfont ?? a.colorfont ?? '#1f1f1f',
+        };
+    }
+
     const assessHtml = c.assess.map(a => {
         const pct = parseInt(a.percentage);
         const width = 16 + pct * 6;
+        const { bg, font } = assessColor(a);
         return `
             <div class="assess-row">
                 <div>
                     <div class="assess-name">${esc(a.name)}</div>
                     <div class="assess-desc">${esc(a.description)}</div>
                 </div>
-                <span class="assess-pct" style="width:${width}px; background:${esc(a.colorbg)}; color:${esc(a.colorfont)};">${esc(a.percentage)}%</span>
+                <span class="assess-pct" style="width:${width}px; background:${esc(bg)}; color:${esc(font)};">${esc(a.percentage)}%</span>
             </div>`;
     }).join('');
+
+    // 10x10 grid: one square per percentage point, filled in assessment
+    // order and colored to match. The bordered box is the 100% mark --
+    // squares left empty inside it mean the assessments add up to under
+    // 100%; squares spilling into the unbordered row below mean they add
+    // up to over 100%. Either way, a glance shows whether it's balanced.
+    function buildAssessGrid(assessList) {
+        const cells = [];
+        assessList.forEach(a => {
+            const { bg } = assessColor(a);
+            const count = Math.max(0, Math.round(parseFloat(a.percentage) || 0));
+            for (let i = 0; i < count; i++) cells.push(bg);
+        });
+
+        const inside = cells.slice(0, 100);
+        const overflow = cells.slice(100);
+        const emptyCount = 100 - inside.length;
+
+        const insideHtml = inside.map(bg =>
+            `<span class="assess-grid-cell" style="background:${esc(bg)};"></span>`
+        ).join('') + `<span class="assess-grid-cell assess-grid-cell-empty"></span>`.repeat(emptyCount);
+
+        const overflowHtml = overflow.length
+            ? `<div class="assess-grid-overflow">${overflow.map(bg =>
+                `<span class="assess-grid-cell" style="background:${esc(bg)};"></span>`
+              ).join('')}</div>`
+            : '';
+
+        const totalPct = assessList.reduce((sum, a) => sum + (parseFloat(a.percentage) || 0), 0);
+
+        return `
+            <div class="assess-grid-block">
+                <div class="assess-grid">${insideHtml}</div>
+                ${overflowHtml}
+                <div class="assess-grid-total">Total: ${totalPct}%</div>
+            </div>`;
+    }
+
+    const assessGridHtml = buildAssessGrid(c.assess);
     
     
         body.innerHTML = `
@@ -506,6 +566,7 @@ function renderDetailView(body, key) {
                         </table>
                     </div>
                     <div class="cx-pane" id="cx-pane-assessments">
+                        ${assessGridHtml}
                         <div class="cd-assessments">${assessHtml}</div>
                     </div>
                     <div class="cx-pane" id="cx-pane-goals">
@@ -565,11 +626,15 @@ function renderDetailView(body, key) {
 
 // ===========  Entry point  ==========================================
 
-async function renderCourses() {
+async function renderCourses(mode = 'active') {
     const body = el('courses-body');
     body.innerHTML = `<div class="sec-div"><span>loading...</span></div>`;
     await loadAll();
-    renderTeachingListing(body);
+    renderTeachingListing(body, mode);
+}
+
+function currentCoursesMode() {
+    return document.querySelector('.panel-tab[data-tab="all"]')?.classList.contains('active') ? 'all' : 'active';
 }
 
 
@@ -577,9 +642,10 @@ async function renderCourses() {
 
 window._renderCourses = renderCourses;
 
-// Pressing the Teaching tab always resets back to the full listing,
-// even if a course detail page is currently open.
-document.querySelector('.panel-tab[data-tab="courses"]')?.addEventListener('click', renderCourses);
+// Pressing either subtab always resets back to that listing, even if
+// a course detail page is currently open.
+document.querySelector('.panel-tab[data-tab="active"]')?.addEventListener('click', () => renderCourses('active'));
+document.querySelector('.panel-tab[data-tab="all"]')?.addEventListener('click', () => renderCourses('all'));
 
 // If a course detail page is open and the window narrows below the
 // width the 980px detail panel needs (see _teaching.css), snap back
@@ -588,6 +654,6 @@ const COURSE_DETAIL_MIN_WIDTH = 1040;
 window.addEventListener('resize', () => {
     const panel = COURSES_PANEL();
     if (panel?.classList.contains('course-detail-mode') && window.innerWidth < COURSE_DETAIL_MIN_WIDTH) {
-        renderCourses();
+        renderCourses(currentCoursesMode());
     }
 });

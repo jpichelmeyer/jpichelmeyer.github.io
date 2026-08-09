@@ -543,39 +543,40 @@
     ],
     "assess": [
         {
-            "name": "Quizzes",
-            "description": "At the end of each week, we will have a quiz on the topics covered in the prior week.",
-            "percentage": "10",
-            "colorbg": "#6facde",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Progress Reports",
-            "description": "At the end of each week, students will turn in a progress report, detailing what they have accomplished on their term project since the prior report.",
-            "percentage": "10",
-            "colorbg": "#de716f",
-            "colorfont": "#1f1f1f"
+            "name": "Micro-quiz",
+            "type": "microquiz",
+            "description": "Given spontaneously to assess understanding of something very recently discussed. Short (5 min or less). Small stakes.",
+            "percentage": "5"
         },
         {
             "name": "Presentation 1: The Pitch",
+            "type": "presentation",
             "description": "Students pitch their semester project idea: what it is, why it interests them, and what Python concepts they expect to use.",
-            "percentage": "15",
-            "colorbg": "#decb6f",
-            "colorfont": "#1f1f1f"
+            "percentage": "10"
         },
         {
             "name": "Presentation 2: The Progress",
+            "type": "presentation",
             "description": "Students demonstrate working code for at least one core feature of their project and explain the design decisions made so far.",
-            "percentage": "25",
-            "colorbg": "#decb6f",
-            "colorfont": "#1f1f1f"
+            "percentage": "20"
         },
         {
             "name": "Presentation 3: The...Perfection?",
+            "type": "presentation",
             "description": "Full project demonstration, code walkthrough, and oral exam. Includes questions about any part of the code.",
-            "percentage": "40",
-            "colorbg": "#decb6f",
-            "colorfont": "#1f1f1f"
+            "percentage": "30"
+        },
+        {
+            "name": "Progress Reports",
+            "type": "report",
+            "description": "At the end of each week, students will turn in a progress report, detailing what they have accomplished on their term project since the prior report. Must be *hand-written.*",
+            "percentage": "15"
+        },
+        {
+            "name": "Quizzes",
+            "type": "quiz",
+            "description": "At the end of each week, we will have a quiz on the topics covered in the prior week.",
+            "percentage": "20"
         }
     ],
     "instructions": {
