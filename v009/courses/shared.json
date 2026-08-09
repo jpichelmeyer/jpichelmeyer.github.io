@@ -33,5 +33,29 @@
                 "Late work will not be accepted."
             ]
         }
-    ]
+    ],
+    "assessments": {
+        "colors" : {
+            "exam" : {
+                "colorbg": "#7cbf8e",
+                "colorfont": "#1f1f1f"
+            },
+            "microquiz" : {
+                "colorbg": "#cca8e3",
+                "colorfont": "#1f1f1f"
+            },
+            "presentation" : {
+                "colorbg": "#decb6f",
+                "colorfont": "#1f1f1f"
+            },
+            "quiz" : {
+                "colorbg": "#6facde",
+                "colorfont": "#1f1f1f"
+            },
+            "report" : {
+                "colorbg": "#de716f",
+                "colorfont": "#1f1f1f"
+            }
+        }
+    }
 }
