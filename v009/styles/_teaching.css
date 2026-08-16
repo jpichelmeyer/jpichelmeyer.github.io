@@ -688,6 +688,43 @@
 .instr-pane         { display: none; }
 .instr-pane.active  { display: block; }
 
+/* ── Lessons (standalone .html files, iframed in) ── */
+.lesson-frame {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+    background: transparent;
+    border-radius: 6px;
+}
+.lesson-frame-mount {
+    min-height: 600px;
+}
+.lesson-pager {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.lesson-pager-btn {
+    font-family: var(--sans);
+    font-size: calc(12px * var(--mod-font-size));
+    padding: 4px 12px;
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    background: var(--bg-light);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.12s;
+}
+.lesson-pager-btn:hover:not(:disabled) { border-color: var(--ink); background: var(--bg2); }
+.lesson-pager-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.lesson-pager-status {
+    font-family: var(--sans);
+    font-size: calc(11px * var(--mod-font-size));
+    color: var(--ink-faint);
+}
+
 /* ── Generic content blocks ── */
 .instr-block {
     margin-bottom: 20px;

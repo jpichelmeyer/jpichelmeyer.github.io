@@ -150,7 +150,7 @@ function buildScheduleRows(c) {
 // Courses that have a full detail page (schedule/assessments/etc), keyed
 // by the same key used in MANIFEST / COURSE_DB. These get a course-dot.
 const DETAIL_PAGE_COURSES = {
-    'CSC 1110 : Introduction to Computing':            'csc1110',
+    'CSC 1100 : Introduction to Computing':            'csc1100',
     //'CSC 1810 : Principles of Computer Science I':      'csc1810',
     'CSC 3730 : Artificial Intelligence for Simulations':'csc3730',
     'MTH 1220 : Calculus II':      'mth1220',
@@ -188,7 +188,7 @@ function renderTeachingListing(body, mode = 'all') {
     
     // ── Instructor of record ──
     const instructorCourses = [
-        ['CSC 1110 : Introduction to Computing',
+        ['CSC 1100 : Introduction to Computing',
             tag('tag_carthage', 'Carthage College') + tag('tag_python', 'Python'),
             `An introduction to the art and science of computer programming for the student without previous programming experience. Topics covered include the historical development of computing, the basic operating principles of computers, and an introduction to problem-solving using one or more high-level computing languages, such as Python. Intended for nonmajors/nonminors.`],
         ['CSC 1810 : Principles of Computer Science I',
@@ -359,6 +359,79 @@ function buildInstructionsPane(c) {
         </div>`;
 }
 
+// ===========  Lessons pane builder  ==================================
+//
+// Same side-menu-plus-content-panel shape as Instructions above, but
+// one level deeper: c.lessons is now { "module name": ["file.html",
+// ...], ... } -- the side menu lists modules, and each module's own
+// pages are paged through with prev/next arrows (Brightspace-style),
+// not listed all at once. Each page is its own standalone .html file
+// (courses/[file]), dropped in via an iframe (same pattern already
+// used for Godot/Blazor projects elsewhere on the site) so it can
+// carry real <style>/<script> of its own, fully sandboxed from the
+// rest of the page. Only the currently-shown page is ever mounted --
+// switching modules or turning a page mounts on demand.
+
+function renderLessonPageChrome(pages, pageIndex) {
+    const total = pages.length;
+    if (!total) return `<div class="cd-body" style="color:var(--ink-faint);font-size:13px;padding:8px;">No pages in this module yet.</div>`;
+    const src = `./courses/${pages[pageIndex]}`;
+    return `
+        <div class="lesson-pager">
+            <button class="lesson-pager-btn" data-pageaction="prev" ${pageIndex === 0 ? 'disabled' : ''}>&larr;</button>
+            <span class="lesson-pager-status">Page ${pageIndex + 1} of ${total}</span>
+            <button class="lesson-pager-btn" data-pageaction="next" ${pageIndex === total - 1 ? 'disabled' : ''}>&rarr;</button>
+        </div>
+        <div class="lesson-frame-mount" data-lesson-src="${esc(src)}"></div>`;
+}
+
+function buildLessonsPane(c) {
+    const modules = c.lessons;
+    const moduleNames = modules ? Object.keys(modules) : [];
+    if (!moduleNames.length) return '';
+
+    const miniNavHtml = moduleNames.map((name, i) => `
+        <div class="instr-mini-tab ${i === 0 ? 'active' : ''}" data-ltab="${i}">${esc(name)}</div>
+    `).join('');
+
+    const miniPanesHtml = moduleNames.map((name, i) => `
+        <div class="instr-pane lesson-module ${i === 0 ? 'active' : ''}" id="lesson-pane-${i}" data-page-index="0">
+            ${renderLessonPageChrome(modules[name] || [], 0)}
+        </div>
+    `).join('');
+
+    return `
+        <div class="instr-layout">
+            <div class="instr-mini-nav">${miniNavHtml}</div>
+            <div class="instr-content">${miniPanesHtml}</div>
+        </div>`;
+}
+
+// Drops an iframe into a .lesson-frame-mount and, once it loads, makes
+// its background transparent so the page shows through the panel's
+// own background instead of the browser's default white -- same
+// overlaid look the Instructions tab already gets for free by not
+// using an iframe at all. Same-origin only (these are always relative
+// site files), so contentDocument access is safe.
+function mountLessonFrame(mount) {
+    const src = mount.dataset.lessonSrc;
+    if (!src) return;
+    mount.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.className = 'lesson-frame';
+    iframe.src = src;
+    iframe.addEventListener('load', () => {
+        try {
+            const doc = iframe.contentDocument;
+            if (!doc) return;
+            const style = doc.createElement('style');
+            style.textContent = 'html, body { background: transparent !important; }';
+            doc.head.appendChild(style);
+        } catch (e) { /* cross-origin -- nothing we can do, harmless no-op */ }
+    });
+    mount.appendChild(iframe);
+}
+
 
 // ===========  State 2 — Detail view  ================================
 
@@ -371,6 +444,7 @@ function renderDetailView(body, key) {
  
     const scheduleRows = buildScheduleRows(c);
     const instructionsHtml = buildInstructionsPane(c);
+    const lessonsHtml = buildLessonsPane(c);
  
     
     const goalsHtml = c.goals.map((g, i) =>
@@ -480,6 +554,7 @@ function renderDetailView(body, key) {
                     <div class="cx-tab" data-tab="assessments">Assessments</div>
                     <div class="cx-tab" data-tab="instructions">Instructions</div>
                     <div class="cx-tab" data-tab="policies">Policies</div>
+                    ${c.lessons && Object.keys(c.lessons).length ? `<div class="cx-tab" data-tab="lessons">Lessons</div>` : ''}
                 </div>
                 <div class="course-content">
                     
@@ -529,6 +604,12 @@ function renderDetailView(body, key) {
                         </div>
                     </div>
                     
+                    ${c.lessons && Object.keys(c.lessons).length ? `
+                    <!-- LESSONS -->
+                    <div class="cx-pane" id="cx-pane-lessons">
+                        ${lessonsHtml}
+                    </div>` : ''}
+                    
                 </div>
             </div>
  
@@ -543,16 +624,72 @@ function renderDetailView(body, key) {
         });
     });
 
-    // Instructions mini-nav
+    // Mini-nav wiring (shared by Instructions and Lessons, each of which
+    // gets its own independent .instr-layout -- so tabs are scoped to
+    // their own layout rather than the whole detail view, which keeps
+    // the two from cross-toggling each other now that both can exist
+    // on the same page at once).
     qsa('.instr-mini-tab', body).forEach(tab => {
         tab.addEventListener('click', () => {
-            qsa('.instr-mini-tab', body).forEach(t => t.classList.remove('active'));
-            qsa('.instr-pane', body).forEach(p => p.classList.remove('active'));
+            const layout = tab.closest('.instr-layout');
+            qsa('.instr-mini-tab', layout).forEach(t => t.classList.remove('active'));
+            qsa('.instr-pane', layout).forEach(p => p.classList.remove('active'));
             tab.classList.add('active');
-            const pane = body.querySelector('#instr-pane-' + tab.dataset.itab);
-            if (pane) pane.classList.add('active');
+
+            const isLesson = tab.dataset.ltab !== undefined;
+            const idPrefix = isLesson ? 'lesson-pane-' : 'instr-pane-';
+            const pane = layout.querySelector('#' + idPrefix + (isLesson ? tab.dataset.ltab : tab.dataset.itab));
+            if (!pane) return;
+            pane.classList.add('active');
+
+            // Lessons lazy-load: mount this module's current page's
+            // iframe the first time its tab is opened.
+            if (isLesson) {
+                const mount = pane.querySelector('.lesson-frame-mount');
+                if (mount && !mount.dataset.mounted) {
+                    mount.dataset.mounted = '1';
+                    mountLessonFrame(mount);
+                }
+            }
         });
     });
+
+    // Lesson page-turner (prev/next arrows within a module). Delegated
+    // on each .instr-content, since turning a page rebuilds that
+    // module's chrome (fresh prev/next buttons each time), unlike the
+    // mini-tabs above which just get their active class toggled.
+    qsa('.instr-content', body).forEach(content => {
+        content.addEventListener('click', (e) => {
+            const btn = e.target.closest('.lesson-pager-btn');
+            if (!btn || btn.disabled) return;
+            const pane = btn.closest('.lesson-module');
+            if (!pane) return;
+            const moduleIdx = parseInt(pane.id.replace('lesson-pane-', ''), 10);
+            const moduleName = Object.keys(c.lessons || {})[moduleIdx];
+            const pages = (c.lessons && c.lessons[moduleName]) || [];
+
+            let pageIdx = parseInt(pane.dataset.pageIndex, 10) || 0;
+            pageIdx += btn.dataset.pageaction === 'next' ? 1 : -1;
+            pageIdx = Math.max(0, Math.min(pages.length - 1, pageIdx));
+            pane.dataset.pageIndex = pageIdx;
+
+            pane.innerHTML = renderLessonPageChrome(pages, pageIdx);
+            const mount = pane.querySelector('.lesson-frame-mount');
+            if (mount) {
+                mount.dataset.mounted = '1';
+                mountLessonFrame(mount);
+            }
+        });
+    });
+
+    // Eager-mount the first module's first page (mirrors Instructions,
+    // which shows its first tab's content immediately); every other
+    // module/page mounts lazily via the handlers above.
+    const activeMount = body.querySelector('.lesson-module.active .lesson-frame-mount');
+    if (activeMount) {
+        activeMount.dataset.mounted = '1';
+        mountLessonFrame(activeMount);
+    }
 
     // Presentation accordions
     qsa('.instr-acc-header', body).forEach(header => {
