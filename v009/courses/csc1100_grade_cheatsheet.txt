@@ -1,0 +1,18 @@
+Brightspace grade setup cheat sheet -- CSC 1110 Introduction to Computing
+Grading System: Weighted
+
+CATEGORY: Microquiz   (Weight: 5%)
+    - Item: Micro-quiz   (Weight in category: 100.00%)
+
+CATEGORY: Presentation   (Weight: 60%)
+    - Item: Presentation 1: The Pitch   (Weight in category: 16.67%)
+    - Item: Presentation 2: The Progress   (Weight in category: 33.33%)
+    - Item: Presentation 3: The...Perfection?   (Weight in category: 50.00%)
+
+CATEGORY: Report   (Weight: 15%)
+    - Item: Progress Reports   (Weight in category: 100.00%)
+
+CATEGORY: Quiz   (Weight: 20%)
+    - Item: Quizzes   (Weight in category: 100.00%)
+
+Total: 100%

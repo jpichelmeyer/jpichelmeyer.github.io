@@ -35,34 +35,34 @@
     },
     "schedule": [
         {
-            "theme": "Continuous sums",
+            "theme": "Discrete sums",
             "trs": [
                 [
-                    "Review (trigonometry, u-sub)",
+                    "Sequences (10.1), Series (10.2)",
                     [
                         
                     ]
                 ],
                 [
-                    "Integration by parts",
+                    "Comparison (10.4), Ratio/Root Test (10.5)",
                     [
                         
                     ]
                 ],
                 [
-                    "Integration involving trigonometry",
+                    "Absolute Convergence (10.6), Power Series (10.7)",
                     [
                         
                     ]
                 ],
                 [
-                    "Partial fraction decomposition",
+                    "Taylor Series (10.8)",
                     [
                         
                     ]
                 ],
                 [
-                    "Technique identification, Exam 1",
+                    "Review/Flex, Exam 1",
                     [
                     
                     ]
@@ -70,34 +70,34 @@
             ]
         },
         {
-            "theme": "Discrete sums",
+            "theme": "Continuous sums",
             "trs": [
                 [
-                    "Sequence, series intro, geometric series",
+                    "Riemann Sums (5.1), Definite Integral (5.2), FTC/MVT (5.3), Indefinite Integral (5.4), U-Substitution (5.5)",
                     [
 
                     ]
                 ],
                 [
-                    "Convergence: div, AST, ratio",
+                    "Integration by parts (7.1), Partial fractions (7.2)",
                     [
 
                     ]
                 ],
                 [
-                    "Root test, strategies",
+                    "Trigonometric integrals (7.3), Trigonometric substitution (7.4)",
                     [
 
                     ]
                 ],
                 [
-                    "Integral approximation",
+                    "Numerical integration (7.6), Improper integrals (7.7)",
                     [
 
                     ]
                 ],
                 [
-                    "Integral test, Exam 2",
+                    "Review/Flex, Exam 2",
                     []
                 ]
             ]
@@ -106,19 +106,19 @@
             "theme": "Geometric applications",
             "trs": [
                 [
-                    "Improper integrals, area between curves",
+                    "Volumes by slices (6.1), Volumes by shells (6.2), Arc Length (6.3)",
                     [
                         
                     ]
                 ],
                 [
-                    "Volumes, Shells",
+                    "Parmetric equations (9.1), Calculus with parametric equations (9.2)",
                     [
                     
                     ]
                 ],
                 [
-                    "Parametric curves",
+                    "Polar coordinates (9.3), Calculus with polar coordinates (9.4)",
                     [
                     
                     ]
@@ -128,11 +128,11 @@
                     []
                 ],
                 [
-                    "Polar coordinates",
+                    "Flex week",
                     []
                 ],
                 [
-                    "Review, Exam 3",
+                    "Review/Flex, Exam 3",
                     []
                 ]
             ]
@@ -181,5 +181,9 @@
         }
     ],
     "instructions": {
-    }
+        
+    },
+    "lessons" : [
+    
+    ]
 }
