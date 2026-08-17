@@ -1,189 +1,158 @@
 {
-    "id": "mth1220",
-    "pre": "MTH",
-    "num": "1220",
-    "short": "Calculus II",
-    "full": "Calculus II",
-    "svg": "mth1220.svg",
-    "days": "MWF",
-    "time": "8:00-9:15am",
-    "place": "TBD",
-    "prereq": "",
-    "catalog": "A study of transcendental functions, infinite series, mean-value theorem, polar coordinates, integration, and applications of integration.",
-    "goals": [
-        {
-            "num": 1,
-            "action": "Action",
-            "detail": ": detail"
-        },
-        {
-            "num": 2,
-            "action": "Action",
-            "detail": ": detail"
-        }
-    ],
-    "courseColor": "#f0a8a8",
-    "srcColor": {
-        "MSDOC": [
-            "#0078d4",
-            "#e8f0fe"
-        ],
-        "CPP": [
-            "#2d4a22",
-            "#a3d977"
-        ]
+  "id": "mth1220",
+  "pre": "MTH",
+  "num": "1220",
+  "short": "Calculus II",
+  "full": "Calculus II",
+  "svg": "mth1220.svg",
+  "days": "MWF",
+  "time": "8:00-9:15am",
+  "place": "TBD",
+  "prereq": "",
+  "catalog": "A study of transcendental functions, infinite series, mean-value theorem, polar coordinates, integration, and applications of integration.",
+  "goals": [
+    {
+      "num": 1,
+      "action": "Action",
+      "detail": ": detail"
     },
-    "schedule": [
-        {
-            "theme": "Discrete sums",
-            "trs": [
-                [
-                    "Sequences (10.1), Series (10.2)",
-                    [
-                        
-                    ]
-                ],
-                [
-                    "Comparison (10.4), Ratio/Root Test (10.5)",
-                    [
-                        
-                    ]
-                ],
-                [
-                    "Absolute Convergence (10.6), Power Series (10.7)",
-                    [
-                        
-                    ]
-                ],
-                [
-                    "Taylor Series (10.8)",
-                    [
-                        
-                    ]
-                ],
-                [
-                    "Review/Flex, Exam 1",
-                    [
-                    
-                    ]
-                ]
-            ]
-        },
-        {
-            "theme": "Continuous sums",
-            "trs": [
-                [
-                    "Riemann Sums (5.1), Definite Integral (5.2), FTC/MVT (5.3), Indefinite Integral (5.4), U-Substitution (5.5)",
-                    [
-
-                    ]
-                ],
-                [
-                    "Integration by parts (7.1), Partial fractions (7.2)",
-                    [
-
-                    ]
-                ],
-                [
-                    "Trigonometric integrals (7.3), Trigonometric substitution (7.4)",
-                    [
-
-                    ]
-                ],
-                [
-                    "Numerical integration (7.6), Improper integrals (7.7)",
-                    [
-
-                    ]
-                ],
-                [
-                    "Review/Flex, Exam 2",
-                    []
-                ]
-            ]
-        },
-        {
-            "theme": "Geometric applications",
-            "trs": [
-                [
-                    "Volumes by slices (6.1), Volumes by shells (6.2), Arc Length (6.3)",
-                    [
-                        
-                    ]
-                ],
-                [
-                    "Parmetric equations (9.1), Calculus with parametric equations (9.2)",
-                    [
-                    
-                    ]
-                ],
-                [
-                    "Polar coordinates (9.3), Calculus with polar coordinates (9.4)",
-                    [
-                    
-                    ]
-                ],
-                [
-                    "BREAK",
-                    []
-                ],
-                [
-                    "Flex week",
-                    []
-                ],
-                [
-                    "Review/Flex, Exam 3",
-                    []
-                ]
-            ]
-        }
+    {
+      "num": 2,
+      "action": "Action",
+      "detail": ": detail"
+    }
+  ],
+  "courseColor": "#f0a8a8",
+  "srcColor": {
+    "MSDOC": [
+      "#0078d4",
+      "#e8f0fe"
     ],
-    "assess": [
-        {
-            "name": "Exam 1",
-            "type": "exam",
-            "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the first module of the course (continuous summation).",
-            "percentage": "25",
-            "colorbg": "#7cbf8e",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Exam 2",
-            "type": "exam",
-            "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the second module of the course (discrete summation).",
-            "percentage": "25",
-            "colorbg": "#7cbf8e",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Exam 3",
-            "type": "exam",
-            "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
-            "percentage": "30",
-            "colorbg": "#7cbf8e",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Micro-quiz",
-            "type": "microquiz",
-            "description": "Given spontaneously to assess understanding of something very recently discussed. Short (5 min or less). Small stakes.",
-            "percentage": "5",
-            "colorbg": "#6facde",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Quizzes",
-            "type": "quiz",
-            "description": "At the end of each week, a short in-class quiz on the prior week's reading and concepts.",
-            "percentage": "15",
-            "colorbg": "#6facde",
-            "colorfont": "#1f1f1f"
-        }
-    ],
-    "instructions": {
-        
-    },
-    "lessons" : [
-    
+    "CPP": [
+      "#2d4a22",
+      "#a3d977"
     ]
+  },
+  "schedule": [
+    {
+      "theme": "Discrete sums",
+      "trs": [
+        {
+          "Sequences (10.1)": "mth1220_10_01_sequences.html",
+          "Series (10.2)": "mth1220_10_02_series.html"
+        },
+        {
+          "Comparison (10.4)" : "mth1220_10_04_comparison.html",
+          "Ratio/Root test (10.5)" : "mth1220_10_05_ratio_root.html"
+        },
+        {
+          "Absolute Convergence (10.6)" : "mth1220_10_06_absolute.html",
+          "Power Series (10.7)": "mth1220_10_07_power_series.html"
+        },
+        {
+          "Taylor Series (10.8)": "mth1220_10_08_taylor_series.html"
+        },
+        {
+          "Review/Flex, Exam 1": ""
+        }
+      ]
+    },
+    {
+      "theme": "Continuous sums",
+      "trs": [
+        {
+            "Riemann Sums (5.1)" : "mth1220_05_01_riemann_sums.html", 
+            "Definite Integral (5.2)" : "mth1220_05_02_definite_integral.html",
+            "FTC/MVT (5.3)" : "mth1220_05_03_ftc_mvt.html", 
+            "Indefinite Integral (5.4)" : "mth1220_05_04_indefinite_integral.html", 
+            "U-Substitution (5.5)" : "mth1220_05_05_u_sub.html"
+        },
+        {
+          "Integration by parts (7.1)": "mth1220_07_01_ibp.html", 
+          "Partial fractions (7.2)": "mth1220_07_02_partial_fractions.html"
+        },
+        {
+          "Trigonometric integrals (7.3)": "mth1220_07_03_trig_int.html", 
+          "Trigonometric substitution (7.4)": "mth1220_07_04_trig_sub.html"
+        },
+        {
+          "Numerical integration (7.6)" : "mth1220_07_06_num_int.html", 
+          "Improper integrals (7.7)": "mth1220_07_07_imp_int.html"
+        },
+        {
+          "Review/Flex, Exam 2": ""
+        }
+      ]
+    },
+    {
+      "theme": "Geometric applications",
+      "trs": [
+        {
+            "Volumes by slices (6.1)": "mth1220_06_01_vol_slices.html",
+            "Volumes by shells (6.2)": "mth1220_06_02_vol_shells.html",
+            "Arc Length (6.3)": "mth1220_06_03_arc_length.html"
+        },
+        {
+            "Parmetric equations (9.1)" : "mth1220_09_01_parametric_eqns.html",
+            "Calculus with parametric equations (9.2)": "mth1220_09_02_calc_para_eqns.html"
+        },
+        {
+            "Polar coordinates (9.3)" : "mth1220_09_03_polar_coords.html", 
+            "Calculus with polar coordinates (9.4)": "mth1220_09_04_calc_polar.html"
+        },
+        {
+            "BREAK": ""
+        },
+        {
+            "Flex week": ""
+        },
+        {
+            "Review/Flex, Exam 3": ""
+        }
+      ]
+    }
+  ],
+  "assess": [
+    {
+        "name": "Exam 1",
+        "type": "exam",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the first module of the course (continuous summation).",
+        "percentage": "25",
+        "colorbg": "#7cbf8e",
+        "colorfont": "#1f1f1f"
+    },
+    {
+        "name": "Exam 2",
+        "type": "exam",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the second module of the course (discrete summation).",
+        "percentage": "25",
+        "colorbg": "#7cbf8e",
+        "colorfont": "#1f1f1f"
+    },
+    {
+        "name": "Exam 3",
+        "type": "exam",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
+        "percentage": "30",
+        "colorbg": "#7cbf8e",
+        "colorfont": "#1f1f1f"
+    },
+    {
+        "name": "Micro-quiz",
+        "type": "microquiz",
+        "description": "Given spontaneously to assess understanding of something very recently discussed. Short (5 min or less). Small stakes.",
+        "percentage": "5",
+        "colorbg": "#6facde",
+        "colorfont": "#1f1f1f"
+    },
+    {
+        "name": "Quizzes",
+        "type": "quiz",
+        "description": "At the end of each week, a short in-class quiz on the prior week's reading and concepts.",
+        "percentage": "15",
+        "colorbg": "#6facde",
+        "colorfont": "#1f1f1f"
+    }
+  ],
+  "instructions": {}
 }

@@ -51,81 +51,88 @@ async function loadAll() {
 
 // ===========  Schedule rows builder  ================================
 
-
+// A trs row is now a dict of { topicName: lessonFile }, not the old
+// [topicString, readings[]] pair -- so a single week can carry more
+// than one topic (comma-separated in the Topic cell), each one
+// clickable through to its lesson if it has a non-empty file. The
+// Reading column is gone entirely; reading links no longer come from
+// here (see the note in the delivery message about that data).
 
 function buildScheduleRows(c) {
     let weekNum = 0, html = '';
-    const srcColor = c.srcColor || {};
+
+    // Shared by both the single- and multi-topic paths below: pulls an
+    // inline "Exam N" out of a topic string and tag-highlights it,
+    // same as before.
+    function extractExamTag(name) {
+        const examMatch = name.match(/\s*,?\s*(Exam\s*\d+)\s*,?\s*/i);
+        const mainName = examMatch
+            ? (name.slice(0, examMatch.index) + ' ' + name.slice(examMatch.index + examMatch[0].length)).trim()
+            : name;
+        const examTag = examMatch
+            ? ` <span class="topic-tag topic-tag-exam">${esc(examMatch[1])}</span>`
+            : '';
+        return { mainName, examTag };
+    }
+
+    function topicHtml(topicName, lessonFile) {
+        const { mainName, examTag } = extractExamTag(topicName);
+        const text = lessonFile
+            ? `<a href="#" class="topic-lesson-link" data-week="${weekNum}" data-lesson-file="${esc(lessonFile)}">${esc(mainName)}</a>`
+            : esc(mainName);
+        return text + examTag;
+    }
 
     for (const block of c.schedule) {
         const rows = block.trs;
         for (let i = 0; i < rows.length; i++) {
             const tr = rows[i];
             weekNum++;
-            const [topic, readings] = tr;
+            const topics = Object.entries(tr); // [[topicName, lessonFile], ...]
             const isFirst = i === 0;
             const isLast  = i === rows.length - 1;
 
-            /*
-            const specialType =
-                /presentation/i.test(topic) ? 'presentation' :
-                /break/i.test(topic)        ? 'break'        :
-                /project assist/i.test(topic) ? 'lab'        : null;
-            */
-            
-            /* --- Testing --- */
-            const pipeIdx    = topic.indexOf(' | ');
-            const mainTopic  = pipeIdx >= 0 ? topic.slice(0, pipeIdx).trim() : topic;
-            const annotation = pipeIdx >= 0 ? topic.slice(pipeIdx + 3).trim() : null;
+            let specialType = null;
+            let topicCell;
 
-            const specialType =
-                /presentation/i.test(mainTopic)  ? 'presentation' :
-                /break/i.test(mainTopic)         ? 'break'        :
-                /project assist/i.test(mainTopic) ? 'lab'         : null;
+            if (topics.length === 1) {
+                // Single-topic week: full existing behavior preserved
+                // (pipe annotation, exam tag, full-row special-bar
+                // treatment for presentations/breaks/labs), just minus
+                // the reading column.
+                const [topicName, lessonFile] = topics[0];
 
-            const annotationType = annotation
-                ? (/presentation/i.test(annotation)  ? 'presentation' :
-                   /break/i.test(annotation)          ? 'break'        :
-                   /project assist/i.test(annotation) ? 'lab'          : null)
-                : null;
+                const pipeIdx    = topicName.indexOf(' | ');
+                const mainTopic  = pipeIdx >= 0 ? topicName.slice(0, pipeIdx).trim() : topicName;
+                const annotation = pipeIdx >= 0 ? topicName.slice(pipeIdx + 3).trim() : null;
 
-            // Partial highlight for an exam mentioned inline within an
-            // otherwise ordinary topic, e.g. "Technique choosing, Exam 1"
-            // -- pulled out and tag-styled rather than taking over the
-            // whole cell the way a presentation week does.
-            const examMatch = mainTopic.match(/\s*,?\s*(Exam\s*\d+)\s*,?\s*/i);
-            const topicMain = examMatch
-                ? (mainTopic.slice(0, examMatch.index) + ' ' + mainTopic.slice(examMatch.index + examMatch[0].length)).trim()
-                : mainTopic;
-            const examTag = examMatch
-                ? ` <span class="topic-tag topic-tag-exam">${esc(examMatch[1])}</span>`
-                : '';
-            // ------------------
+                specialType =
+                    /presentation/i.test(mainTopic)   ? 'presentation' :
+                    /break/i.test(mainTopic)           ? 'break'        :
+                    /project assist/i.test(mainTopic)  ? 'lab'          : null;
 
-            const validReadings = readings.filter(r => r.url);
-            const readLinks = validReadings.length
-                ? validReadings.map(r => {
-                    const [bg, fg] = srcColor[r.srcID] ?? ['#e0e0e0', '#1f1f1f'];
-                    return `<a class="read-link" href="${r.url}" target="_blank" style="background-color:${bg};color:${fg}"></a>`;
-                  }).join('')
-                : `<span style="color:var(--ink-faint);font-size:9px">—</span>`;
-            
-            /*
-            const topicCell = specialType
-                ? `<td colspan="2"><span class="special-bar special-${specialType}">${esc(topic)}</span></td>`
-                : `<td>${esc(topic)}</td><td class="col-reading">${readLinks}</td>`;
-            */
-            
-            /* ----- Testing ----- */
-            const annotationSpan = annotation
-                ? ` <span class="special-bar${annotationType ? ' special-' + annotationType : ''}">${esc(annotation)}</span>`
-                : '';
+                const annotationType = annotation
+                    ? (/presentation/i.test(annotation)   ? 'presentation' :
+                       /break/i.test(annotation)           ? 'break'        :
+                       /project assist/i.test(annotation)  ? 'lab'          : null)
+                    : null;
 
-            const topicCell = specialType
-                ? `<td colspan="2"><span class="special-bar special-${specialType}">${esc(mainTopic)}</span></td>`
-                : `<td>${esc(topicMain)}${examTag}${annotationSpan}</td><td class="col-reading">${readLinks}</td>`;
-            // --------------------
-            
+                const annotationSpan = annotation
+                    ? ` <span class="special-bar${annotationType ? ' special-' + annotationType : ''}">${esc(annotation)}</span>`
+                    : '';
+
+                topicCell = specialType
+                    ? `<td><span class="special-bar special-${specialType}">${esc(mainTopic)}</span></td>`
+                    : `<td>${topicHtml(mainTopic, lessonFile)}${annotationSpan}</td>`;
+
+            } else {
+                // Multiple topics sharing one week -- comma-separated,
+                // each individually clickable through to its own
+                // lesson (if it has one).
+                const joined = topics.map(([name, file]) => topicHtml(name, file)).join(', ');
+                topicCell = `<td>${joined}</td>`;
+            }
+
             const trClass = [
                 isFirst ? 'theme-first' : '',
                 isLast  ? 'theme-last'  : '',
@@ -138,10 +145,30 @@ function buildScheduleRows(c) {
                 ${topicCell}
             </tr>`;
 
-            if (isLast) html += `<tr class="spacer-row"><td colspan="4"></td></tr>`;
+            if (isLast) html += `<tr class="spacer-row"><td colspan="3"></td></tr>`;
         }
     }
     return html;
+}
+
+// Walks the same c.schedule/trs structure to build the Lessons tab's
+// module list -- one module per week that has at least one topic with
+// a lesson file, labeled "Week N" using the exact same weekNum this
+// function and buildScheduleRows above both count in lockstep, so a
+// schedule topic's week always matches its Lessons tab module.
+function deriveLessonModules(c) {
+    const modules = [];
+    let weekNum = 0;
+    for (const block of c.schedule) {
+        for (const tr of block.trs) {
+            weekNum++;
+            const pages = Object.entries(tr)
+                .filter(([, file]) => file)
+                .map(([name, file]) => ({ name, file }));
+            if (pages.length) modules.push({ week: weekNum, label: `Week ${weekNum}`, pages });
+        }
+    }
+    return modules;
 }
 
 
@@ -361,42 +388,60 @@ function buildInstructionsPane(c) {
 
 // ===========  Lessons pane builder  ==================================
 //
-// Same side-menu-plus-content-panel shape as Instructions above, but
-// one level deeper: c.lessons is now { "module name": ["file.html",
-// ...], ... } -- the side menu lists modules, and each module's own
-// pages are paged through with prev/next arrows (Brightspace-style),
-// not listed all at once. Each page is its own standalone .html file
-// (courses/[file]), dropped in via an iframe (same pattern already
-// used for Godot/Blazor projects elsewhere on the site) so it can
-// carry real <style>/<script> of its own, fully sandboxed from the
-// rest of the page. Only the currently-shown page is ever mounted --
-// switching modules or turning a page mounts on demand.
+// Same side-menu-plus-content-panel shape as Instructions above, and
+// one level deeper: the side menu lists "modules" (one per schedule
+// week that has at least one topic with a lesson file, via
+// deriveLessonModules above), and each module's own topics are paged
+// through with prev/next arrows (Brightspace-style), not listed all
+// at once. There's no separate "lessons" key in the JSON anymore --
+// this is entirely derived from c.schedule/trs, which is also what
+// the Schedule tab's topic links jump into (see the
+// .topic-lesson-link handler below). Each page is its own standalone
+// .html file (courses/[file]), dropped in via an iframe (same pattern
+// already used for Godot/Blazor projects elsewhere on the site) so it
+// can carry real <style>/<script> of its own, fully sandboxed from
+// the rest of the page. Only the currently-shown page is ever
+// mounted -- switching modules or turning a page mounts on demand.
 
 function renderLessonPageChrome(pages, pageIndex) {
     const total = pages.length;
     if (!total) return `<div class="cd-body" style="color:var(--ink-faint);font-size:13px;padding:8px;">No pages in this module yet.</div>`;
-    const src = `./courses/${pages[pageIndex]}`;
+    const page = pages[pageIndex];
+    const src = `./courses/${page.file}`;
     return `
         <div class="lesson-pager">
             <button class="lesson-pager-btn" data-pageaction="prev" ${pageIndex === 0 ? 'disabled' : ''}>&larr;</button>
-            <span class="lesson-pager-status">Page ${pageIndex + 1} of ${total}</span>
+            <span class="lesson-pager-status">${esc(page.name)} &nbsp;&middot;&nbsp; Page ${pageIndex + 1} of ${total}</span>
             <button class="lesson-pager-btn" data-pageaction="next" ${pageIndex === total - 1 ? 'disabled' : ''}>&rarr;</button>
         </div>
         <div class="lesson-frame-mount" data-lesson-src="${esc(src)}"></div>`;
 }
 
-function buildLessonsPane(c) {
-    const modules = c.lessons;
-    const moduleNames = modules ? Object.keys(modules) : [];
-    if (!moduleNames.length) return '';
+// Advances/re-renders one module's pane to the given page index and
+// (re)mounts its iframe -- shared by the pager buttons, the initial
+// eager-mount, and the Schedule tab's "jump to this lesson" links, so
+// all three land on the exact same rendering.
+function goToLessonPage(pane, pages, pageIdx) {
+    pane.dataset.pageIndex = pageIdx;
+    pane.innerHTML = renderLessonPageChrome(pages, pageIdx);
+    const mount = pane.querySelector('.lesson-frame-mount');
+    if (mount) {
+        mount.dataset.mounted = '1';
+        mountLessonFrame(mount);
+    }
+}
 
-    const miniNavHtml = moduleNames.map((name, i) => `
-        <div class="instr-mini-tab ${i === 0 ? 'active' : ''}" data-ltab="${i}">${esc(name)}</div>
+function buildLessonsPane(c) {
+    const modules = deriveLessonModules(c);
+    if (!modules.length) return '';
+
+    const miniNavHtml = modules.map((m, i) => `
+        <div class="instr-mini-tab ${i === 0 ? 'active' : ''}" data-ltab="${i}" data-week="${m.week}">${esc(m.label)}</div>
     `).join('');
 
-    const miniPanesHtml = moduleNames.map((name, i) => `
-        <div class="instr-pane lesson-module ${i === 0 ? 'active' : ''}" id="lesson-pane-${i}" data-page-index="0">
-            ${renderLessonPageChrome(modules[name] || [], 0)}
+    const miniPanesHtml = modules.map((m, i) => `
+        <div class="instr-pane lesson-module ${i === 0 ? 'active' : ''}" id="lesson-pane-${i}" data-page-index="0" data-week="${m.week}">
+            ${renderLessonPageChrome(m.pages, 0)}
         </div>
     `).join('');
 
@@ -554,7 +599,7 @@ function renderDetailView(body, key) {
                     <div class="cx-tab" data-tab="assessments">Assessments</div>
                     <div class="cx-tab" data-tab="instructions">Instructions</div>
                     <div class="cx-tab" data-tab="policies">Policies</div>
-                    ${c.lessons && Object.keys(c.lessons).length ? `<div class="cx-tab" data-tab="lessons">Lessons</div>` : ''}
+                    ${deriveLessonModules(c).length ? `<div class="cx-tab" data-tab="lessons">Lessons</div>` : ''}
                 </div>
                 <div class="course-content">
                     
@@ -574,7 +619,6 @@ function renderDetailView(body, key) {
                             <thead><tr>
                                 <th class="col-week">Week</th>
                                 <th>Theme</th><th>Topic</th>
-                                <th>Reading</th>
                             </tr></thead>
                             <tbody>${scheduleRows}</tbody>
                         </table>
@@ -604,7 +648,7 @@ function renderDetailView(body, key) {
                         </div>
                     </div>
                     
-                    ${c.lessons && Object.keys(c.lessons).length ? `
+                    ${deriveLessonModules(c).length ? `
                     <!-- LESSONS -->
                     <div class="cx-pane" id="cx-pane-lessons">
                         ${lessonsHtml}
@@ -665,20 +709,40 @@ function renderDetailView(body, key) {
             const pane = btn.closest('.lesson-module');
             if (!pane) return;
             const moduleIdx = parseInt(pane.id.replace('lesson-pane-', ''), 10);
-            const moduleName = Object.keys(c.lessons || {})[moduleIdx];
-            const pages = (c.lessons && c.lessons[moduleName]) || [];
+            const modules = deriveLessonModules(c);
+            const pages = (modules[moduleIdx] && modules[moduleIdx].pages) || [];
 
             let pageIdx = parseInt(pane.dataset.pageIndex, 10) || 0;
             pageIdx += btn.dataset.pageaction === 'next' ? 1 : -1;
             pageIdx = Math.max(0, Math.min(pages.length - 1, pageIdx));
-            pane.dataset.pageIndex = pageIdx;
+            goToLessonPage(pane, pages, pageIdx);
+        });
+    });
 
-            pane.innerHTML = renderLessonPageChrome(pages, pageIdx);
-            const mount = pane.querySelector('.lesson-frame-mount');
-            if (mount) {
-                mount.dataset.mounted = '1';
-                mountLessonFrame(mount);
-            }
+    // Schedule topic -> Lessons jump. Switches to the Lessons tab,
+    // activates the module for that topic's week (reusing the same
+    // click listeners above), then jumps straight to that topic's
+    // page within it.
+    qsa('.topic-lesson-link', body).forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const week = link.dataset.week;
+            const file = link.dataset.lessonFile;
+
+            const lessonsTab = body.querySelector('.cx-tab[data-tab="lessons"]');
+            if (!lessonsTab) return;
+            lessonsTab.click();
+
+            const modules = deriveLessonModules(c);
+            const moduleIdx = modules.findIndex(m => String(m.week) === String(week));
+            if (moduleIdx < 0) return;
+            const moduleTab = body.querySelector(`#cx-pane-lessons .instr-mini-tab[data-ltab="${moduleIdx}"]`);
+            if (moduleTab) moduleTab.click();
+
+            const pane = body.querySelector(`#lesson-pane-${moduleIdx}`);
+            const pages = modules[moduleIdx].pages;
+            const pageIdx = Math.max(0, pages.findIndex(p => p.file === file));
+            if (pane) goToLessonPage(pane, pages, pageIdx);
         });
     });
 
