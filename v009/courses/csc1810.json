@@ -1,469 +1,162 @@
 {
-    "id": "csc1810",
-    "pre": "CSC",
-    "num": "1810",
-    "short": "Principles CS I",
-    "full": "Principles of Computer Science I",
-    "svg": "csc1810.svg",
-    "days": "MWF",
-    "time": "TBD",
-    "place": "TBD",
-    "prereq": "",
-    "catalog": "A study of the fundamentals of writing computer programs and problem-solving, using structured and object-oriented techniques. Intended for future majors and minors in Computer Science and minors in Game Development. This course uses C#.",
-    "goals": [
-        {
-            "num": 1,
-            "action": "Develop",
-            "detail": "knowledge of a basic computer system architecture."
-        },
-        {
-            "num": 2,
-            "action": "Develop",
-            "detail": "a problem solving methodology and apply it to writing programs in C#."
-        },
-        {
-            "num": 3,
-            "action": "Acquire",
-            "detail": "an understanding of the basic C# language concepts."
-        },
-        {
-            "num": 4,
-            "action": "Develop",
-            "detail": "your ability to use a C# editor and debugger."
-        }
-    ],
-    "courseColor": "#ad85c9",
-    "srcColor": {
-        "MSDOC": [
-            "#0078d4",
-            "#e8f0fe"
-        ],
-        "CPP": [
-            "#2d4a22",
-            "#a3d977"
-        ]
+  "id": "csc1810",
+  "pre": "CSC",
+  "num": "1810",
+  "short": "Principles CS I",
+  "full": "Principles of Computer Science I",
+  "svg": "csc1810.svg",
+  "days": "MWF",
+  "time": "TBD",
+  "place": "TBD",
+  "prereq": "",
+  "catalog": "A study of the fundamentals of writing computer programs and problem-solving, using structured and object-oriented techniques. Intended for future majors and minors in Computer Science and minors in Game Development. This course uses C#.",
+  "goals": [
+    {
+      "num": 1,
+      "action": "Develop",
+      "detail": "knowledge of a basic computer system architecture."
     },
-    "schedule": [
-        {
-            "theme": "Theme 1",
-            "trs": [
-                [
-                    "Setup, variables, types, expressions",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "1",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/"
-                        },
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "2",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/built-in-types"
-                        },
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "3",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/"
-                        },
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "4",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/tutorials/console-app"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.1",
-                            "url": "https://markm208.github.io/cppbook/chapter1/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.2",
-                            "url": "https://markm208.github.io/cppbook/chapter1/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.3",
-                            "url": "https://markm208.github.io/cppbook/chapter1/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.4",
-                            "url": "https://markm208.github.io/cppbook/chapter1/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.5",
-                            "url": "https://markm208.github.io/cppbook/chapter1/05/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "1.6",
-                            "url": "https://markm208.github.io/cppbook/chapter1/06/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Decision logic and control flow",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "5",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/selection-statements"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.1",
-                            "url": "https://markm208.github.io/cppbook/chapter2/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.2",
-                            "url": "https://markm208.github.io/cppbook/chapter2/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.3",
-                            "url": "https://markm208.github.io/cppbook/chapter2/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.4",
-                            "url": "https://markm208.github.io/cppbook/chapter2/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "2.5",
-                            "url": "https://markm208.github.io/cppbook/chapter2/05/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Looping",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "6",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/iteration-statements"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.1",
-                            "url": "https://markm208.github.io/cppbook/chapter3/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.2",
-                            "url": "https://markm208.github.io/cppbook/chapter3/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.3",
-                            "url": "https://markm208.github.io/cppbook/chapter3/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.4",
-                            "url": "https://markm208.github.io/cppbook/chapter3/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.5",
-                            "url": "https://markm208.github.io/cppbook/chapter3/05/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.6",
-                            "url": "https://markm208.github.io/cppbook/chapter3/06/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "3.7",
-                            "url": "https://markm208.github.io/cppbook/chapter3/07/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Functions",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "9",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/methods"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.1",
-                            "url": "https://markm208.github.io/cppbook/chapter5/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.2",
-                            "url": "https://markm208.github.io/cppbook/chapter5/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.3",
-                            "url": "https://markm208.github.io/cppbook/chapter5/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.5",
-                            "url": "https://markm208.github.io/cppbook/chapter5/05/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "5.6",
-                            "url": "https://markm208.github.io/cppbook/chapter5/06/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Presentation 1: The Pitch",
-                    []
-                ]
-            ]
-        },
-        {
-            "theme": "Theme 2",
-            "trs": [
-                [
-                    "Arrays and collections",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "7",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/arrays"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "4.1",
-                            "url": "https://markm208.github.io/cppbook/chapter4/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "4.2",
-                            "url": "https://markm208.github.io/cppbook/chapter4/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "4.4",
-                            "url": "https://markm208.github.io/cppbook/chapter4/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.1",
-                            "url": "https://markm208.github.io/cppbook/chapter6/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.2",
-                            "url": "https://markm208.github.io/cppbook/chapter6/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.3",
-                            "url": "https://markm208.github.io/cppbook/chapter6/03/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Structured data",
-                    [
-                        {
-                            "srcID": "CPP",
-                            "numID": "7.1",
-                            "url": "https://markm208.github.io/cppbook/chapter7/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "7.2",
-                            "url": "https://markm208.github.io/cppbook/chapter7/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "7.3",
-                            "url": "https://markm208.github.io/cppbook/chapter7/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "7.4",
-                            "url": "https://markm208.github.io/cppbook/chapter7/04/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Recursion",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "10",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/functional/recursion"
-                        }
-                    ]
-                ],
-                [
-                    "Exceptions and debugging",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "12",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/exceptions/"
-                        }
-                    ]
-                ],
-                [
-                    "Presentation 2: The Progress",
-                    []
-                ]
-            ]
-        },
-        {
-            "theme": "Theme 3",
-            "trs": [
-                [
-                    "Classes and objects",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "11",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/"
-                        },
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "14",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/classes"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.1",
-                            "url": "https://markm208.github.io/cppbook/chapter9/01/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.2",
-                            "url": "https://markm208.github.io/cppbook/chapter9/02/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.3",
-                            "url": "https://markm208.github.io/cppbook/chapter9/03/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.4",
-                            "url": "https://markm208.github.io/cppbook/chapter9/04/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.5",
-                            "url": "https://markm208.github.io/cppbook/chapter9/05/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Inheritance and polymorphism",
-                    [
-                        {
-                            "srcID": "MSDOC",
-                            "numID": "20",
-                            "url": "https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/inheritance"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.6",
-                            "url": "https://markm208.github.io/cppbook/chapter9/06/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.7",
-                            "url": "https://markm208.github.io/cppbook/chapter9/07/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "9.8",
-                            "url": "https://markm208.github.io/cppbook/chapter9/08/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "Algorithms, pseudocode",
-                    [
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.5",
-                            "url": "https://markm208.github.io/cppbook/chapter6/05/index.html"
-                        },
-                        {
-                            "srcID": "CPP",
-                            "numID": "6.6",
-                            "url": "https://markm208.github.io/cppbook/chapter6/06/index.html"
-                        }
-                    ]
-                ],
-                [
-                    "BREAK",
-                    []
-                ],
-                [
-                    "Project assist",
-                    []
-                ],
-                [
-                    "Presentation 3: The...Perfection?",
-                    []
-                ]
-            ]
-        }
-    ],
-    "assess": [
-        {
-            "name": "Quizzes",
-            "type": "quiz",
-            "description": "At the end of each week, a short in-class quiz on the prior week's reading and concepts.",
-            "percentage": "10",
-            "colorbg": "#6facde",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Progress Reports",
-            "type": "report",
-            "description": "Weekly written update on project status: what was attempted, what works, what doesn't, what's next.",
-            "percentage": "10",
-            "colorbg": "#de716f",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Presentation 1: The Pitch",
-            "type": "presentation",
-            "description": "Students pitch their semester project: what it is, why it interests them, and which C# concepts they expect to use.",
-            "percentage": "15",
-            "colorbg": "#decb6f",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Presentation 2: The Progress",
-            "type": "presentation",
-            "description": "Students demonstrate working C# code for at least one core feature and explain design decisions made so far.",
-            "percentage": "25",
-            "colorbg": "#decb6f",
-            "colorfont": "#1f1f1f"
-        },
-        {
-            "name": "Presentation 3: The Final Form",
-            "type": "presentation",
-            "description": "Full project demonstration, code walkthrough, and oral exam. Questions may cover any part of the code.",
-            "percentage": "40",
-            "colorbg": "#decb6f",
-            "colorfont": "#1f1f1f"
-        }
-    ],
-    "instructions": {
-        "Presentation 1" : "Here is an <b>HTML-syntax</b> string",
-        "Presentation 2" : "Here is an <b>HTML-syntax</b> string",
-        "Presentation 3" : "Here is an <b>HTML-syntax</b> string",
-        "Progress reports" : "Here is an <b>HTML-syntax</b> string"
+    {
+      "num": 2,
+      "action": "Develop",
+      "detail": "a problem solving methodology and apply it to writing programs in C#."
     },
-    "lessons" : [
-    
+    {
+      "num": 3,
+      "action": "Acquire",
+      "detail": "an understanding of the basic C# language concepts."
+    },
+    {
+      "num": 4,
+      "action": "Develop",
+      "detail": "your ability to use a C# editor and debugger."
+    }
+  ],
+  "courseColor": "#ad85c9",
+  "srcColor": {
+    "MSDOC": [
+      "#0078d4",
+      "#e8f0fe"
+    ],
+    "CPP": [
+      "#2d4a22",
+      "#a3d977"
     ]
+  },
+  "schedule": [
+    {
+      "theme": "Theme 1",
+      "trs": [
+        {
+          "Setup": "csc1810_setup.html",
+          "variables": "csc1810_variables.html",
+          "types": "csc1810_types.html",
+          "expressions": "csc1810_expressions.html"
+        },
+        {
+          "Decision logic and control flow": ""
+        },
+        {
+          "Looping": ""
+        },
+        {
+          "Functions": ""
+        },
+        {
+          "Presentation 1: The Pitch": ""
+        }
+      ]
+    },
+    {
+      "theme": "Theme 2",
+      "trs": [
+        {
+          "Arrays and collections": ""
+        },
+        {
+          "Structured data": ""
+        },
+        {
+          "Recursion": ""
+        },
+        {
+          "Exceptions and debugging": ""
+        },
+        {
+          "Presentation 2: The Progress": ""
+        }
+      ]
+    },
+    {
+      "theme": "Theme 3",
+      "trs": [
+        {
+          "Classes and objects": ""
+        },
+        {
+          "Inheritance and polymorphism": ""
+        },
+        {
+          "Algorithms, pseudocode": ""
+        },
+        {
+          "BREAK": ""
+        },
+        {
+          "Project assist": ""
+        },
+        {
+          "Presentation 3: The...Perfection?": ""
+        }
+      ]
+    }
+  ],
+  "assess": [
+    {
+      "name": "Quizzes",
+      "type": "quiz",
+      "description": "At the end of each week, a short in-class quiz on the prior week's reading and concepts.",
+      "percentage": "10",
+      "colorbg": "#6facde",
+      "colorfont": "#1f1f1f"
+    },
+    {
+      "name": "Progress Reports",
+      "type": "report",
+      "description": "Weekly written update on project status: what was attempted, what works, what doesn't, what's next.",
+      "percentage": "10",
+      "colorbg": "#de716f",
+      "colorfont": "#1f1f1f"
+    },
+    {
+      "name": "Presentation 1: The Pitch",
+      "type": "presentation",
+      "description": "Students pitch their semester project: what it is, why it interests them, and which C# concepts they expect to use.",
+      "percentage": "15",
+      "colorbg": "#decb6f",
+      "colorfont": "#1f1f1f"
+    },
+    {
+      "name": "Presentation 2: The Progress",
+      "type": "presentation",
+      "description": "Students demonstrate working C# code for at least one core feature and explain design decisions made so far.",
+      "percentage": "25",
+      "colorbg": "#decb6f",
+      "colorfont": "#1f1f1f"
+    },
+    {
+      "name": "Presentation 3: The Final Form",
+      "type": "presentation",
+      "description": "Full project demonstration, code walkthrough, and oral exam. Questions may cover any part of the code.",
+      "percentage": "40",
+      "colorbg": "#decb6f",
+      "colorfont": "#1f1f1f"
+    }
+  ],
+  "instructions": {
+    "Presentation 1": "Here is an <b>HTML-syntax</b> string",
+    "Presentation 2": "Here is an <b>HTML-syntax</b> string",
+    "Presentation 3": "Here is an <b>HTML-syntax</b> string",
+    "Progress reports": "Here is an <b>HTML-syntax</b> string"
+  }
 }

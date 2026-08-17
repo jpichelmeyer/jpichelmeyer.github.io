@@ -121,26 +121,14 @@
     width: 32px;
     padding: 8px;
 }
-.col-reading       { 
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    font-size: calc(9px * var(--mod-font-size)); 
-    
+.topic-lesson-link {
+    color: var(--color-accent-courses);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--color-accent-courses), transparent 60%);
+    text-underline-offset: 2px;
+    cursor: pointer;
 }
-.read-link         { 
-    display: inline-block; 
-    padding: 4px; 
-    color: var(--color-accent-courses); 
-    font-size: calc(11px * var(--mod-font-size)); 
-    border-radius: 5px;
-    margin: 1px 2px 1px 0; 
-    text-decoration: none; 
-    transition: all 0.1s; 
-    min-width: 20px;
-    min-height: 20px;
-}
-.read-link:hover   { background: var(--color-accent-courses); color: var(--bg); }
+.topic-lesson-link:hover { text-decoration-color: var(--color-accent-courses); }
 .ex-btn            { display: inline-block; padding: 1px 5px; border: 1px solid var(--panel-bd); font-size: calc(8px * var(--mod-font-size)); color: var(--ink-faint); cursor: pointer; position: relative; transition: all 0.1s; }
 .ex-btn:hover      { border-color: var(--ink); color: var(--ink); }
 .ex-tooltip        { display: none; position: absolute; left: 0; top: 100%; z-index: 300; background: var(--ink); color: var(--bg); padding: 8px 10px; font-size: calc(10px * var(--mod-font-size)); line-height: 1.55; width: 280px; white-space: normal; margin-top: 3px; box-shadow: 3px 3px 0 rgba(0,0,0,0.2); }
