@@ -1,0 +1,162 @@
+/* 
+    courses/lesson-shared.css
+    Shared styling for lesson .html files (each one loads in its own
+    iframe, so it can't see styles/_teaching.css -- link this file from
+    any lesson's <head> instead:
+        <link rel="stylesheet" href="./lesson-shared.css">
+ */
+:root {
+    --os-icon-size: 3.5em;
+    --os-icon-bg: #ff0000;
+    --os-icon-fg: #1f1f1f;
+}
+
+/*
+ ---------------------------------------------------------
+    Code style
+ ---------------------------------------------------------
+*/
+
+.code-lesson-il {
+    font-family: 'IBM Plex Mono', Consolas, monospace;
+    background: #eef0f2;
+    color: #b3261e;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.code-lesson-bl {
+    display: block;
+    font-family: 'IBM Plex Mono', Consolas, monospace;
+    /* background:  #eef0f2; */
+    /* background: #dbd8ce; */
+    background: #1f2124;
+    /* color: #1f1f1f; */
+    color: #f1f1f1;
+    padding: 12px 16px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.5;
+}
+
+.code-block {
+    margin: 12px 0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.code-block .code-lesson-bl {
+    margin: 0;
+    border-radius: 0 0 6px 6px;
+}
+.code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 14px;
+    font-family: 'IBM Plex Mono', Consolas, monospace;
+    font-size: 0.82em;
+    background: #2a2f38; /* fallback */
+    color: #fff;
+}
+.code-block-filename {
+    opacity: 0.85;
+}
+.code-block-lang {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Per-language presets */
+.code-block[data-lang="gdscript"] .code-block-header { background: #315d94; }
+.code-block[data-lang="gdscript"] .code-block-lang   { color: #fff; }
+
+.code-block[data-lang="html"] .code-block-header { background: #4a2e28; }
+.code-block[data-lang="html"] .code-block-lang   { background: #e34c26; color: #fff; }
+
+.code-block[data-lang="csharp"] .code-block-header { background: #2b2a45; }
+.code-block[data-lang="csharp"] .code-block-lang   { background: #684bb5; color: #fff; }
+
+.code-block[data-lang="python"] .code-block-header { background: #2e3a2e; }
+.code-block[data-lang="python"] .code-block-lang   { background: #3776ab; color: #ffd43b; }
+
+
+/*
+ ---------------------------------------------------------
+    Screenshot placeholder style
+ ---------------------------------------------------------
+*/
+.screenshot {
+    margin: 16px 0 28px;
+    border: 2px dashed #a9c6dd;
+    border-radius: 10px;
+    background: #f4f9fd;
+    padding: 4px;
+}
+.screenshot .label {
+    font-weight: 600;
+    color: #2e5a80;
+    margin-bottom: 6px;
+}
+.screenshot .hint {
+    color: #444;
+    font-size: 0.93em;
+    margin-top: 6px;
+}
+.screenshot img {
+    max-width: 100%;
+    border-radius: 6px;
+    margin-top: 10px;
+    display: none;
+}
+.screenshot img[src]:not([src=""]) {
+    display: block;
+}
+.step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: #478cbf;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.8em;
+    font-weight: 700;
+    margin-right: 6px;
+}
+
+
+
+/*
+ ---------------------------------------------------------
+    OS icons
+ ---------------------------------------------------------
+*/
+.os-icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: var(--os-icon-size);
+    height: var(--os-icon-size);
+    border-radius: 50%;
+    /*background-color: var(--os-icon-bg);*/
+    position: relative;
+    top: -0.1em;
+}
+.os-icon::before {
+    content: '';
+    position: absolute;
+    inset: 22%;
+    background-color: var(--os-icon-fg);
+    mask-image: url('../svgs/os_lin.svg');
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+}
+.os-icon-lin::before { mask-image: url('../svgs/os_lin.svg'); }
+.os-icon-mac::before   { mask-image: url('../svgs/os_mac.svg'); }
+.os-icon-win::before   { mask-image: url('../svgs/os_win.svg'); }

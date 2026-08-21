@@ -236,6 +236,13 @@ function openRow(row, project) {
     activeRow = row;
 }
 
+// Called from _base.js when the Projects panel itself is closed (not just
+// a row inside it) -- without this, a heavy embed (Blazor/Godot iframe)
+// left open keeps running in the background after the whole panel closes.
+window._closeActiveProject = function () {
+    if (activeRow) closeRow(activeRow);
+};
+
 // Desktop projects only make sense with room to work in; mobile ones
 // only make sense on a narrow/touch-sized screen; responsive ones are
 // fair game at any width. A row outside its layout's range is shown

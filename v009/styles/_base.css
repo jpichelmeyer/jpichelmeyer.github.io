@@ -202,7 +202,7 @@ body::before {
     transition: width 160ms ease;
 }
 #panel-courses.course-detail-mode {
-    width: 980px;
+    width: 90%; /* matches #panel-projects / #navbar */
 }
 
 /* Match the navbar's own width rule (see #navbar above) so the

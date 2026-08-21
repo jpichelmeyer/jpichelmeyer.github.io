@@ -16,7 +16,7 @@
 .course-icon-cell svg { width: 22px; height: 22px; opacity: 0.55; }
 .course-code  { font-size: calc(10px * var(--mod-font-size)); font-weight: 500; letter-spacing: 0.06em; padding: 14px 16px; background: var(--bg3); border-right: 1px solid var(--panel-bd); min-width: 95px; display: flex; align-items: center; color: var(--ink-soft); }
 .course-info  { padding: 12px 16px; flex: 1; }
-.course-name  { font-weight: 500; font-size: 13px; color: var(--ink); margin-bottom: 3px; }
+.course-name  { font-family: var(--sans); font-weight: 500; font-size: 13px; color: var(--ink); margin-bottom: 3px; }
 .course-meta  { font-size: calc(9px * var(--mod-font-size)); color: var(--ink-faint); letter-spacing: 0.04em; }
 .course-arrow { display: flex; align-items: center; padding: 0 14px; font-size: calc(11px * var(--mod-font-size)); color: var(--ink-faint); transition: transform 0.15s; }
 .course-row.expanded .course-arrow { transform: rotate(90deg); }
@@ -305,19 +305,7 @@
     .taught_course_description { margin-left: 30px; }
 }
 
-/* Course pages open in a 980px-wide detail panel (see
-   #panel-courses.course-detail-mode in _base.css). Below the viewport
-   width that can actually fit that panel (980px + the same 60px margin
-   every panel uses), grey out the course-page icon and disable the
-   click — re-activates automatically once the window is wide enough. */
-@media (max-width: 1039px) {
-    .course-dot {
-        background-color: rgba(0,0,0,0.5);
-        pointer-events: none;
-        cursor: default;
-    }
-}
-      
+
 
 /* ── Detail view layout (State 2) ──────────────────────────────── */
 
@@ -523,6 +511,43 @@
     padding: 20px; 
 }
 .cx-pane.active  { display: block; }
+
+/* ── Mobile detail view (stacked) ──────────────────────────────────
+   Below this width the two-column grid (200px sidebar + content)
+   doesn't have room to breathe, so it collapses to one column: the
+   sidebar (.cxa) stays pinned at the top, the subnav (.course-nav-bar)
+   stacks into a vertical list right under it, and the selected pane
+   populates below that. Same markup, same tab-click JS -- just a
+   different flow, with the panel's own scrollbar (.panel-body) now
+   the only scroll container instead of each column scrolling on its
+   own. */
+@media (max-width: 700px) {
+    .cx-layout {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 100%;
+    }
+    .cxa {
+        overflow-y: visible;
+        flex-shrink: 0;
+    }
+    .cxb {
+        overflow: visible;
+        min-height: 0;
+    }
+    .course-nav-bar {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+    .cx-tab {
+        border-radius: 0;
+        text-align: left;
+    }
+    .course-content {
+        overflow-y: visible;
+    }
+}
 
 .courses-card-view {
     padding: 20px;
@@ -823,3 +848,32 @@
 }
 .instr-section:last-child { margin-bottom: 0; }
 
+
+/* 
+ --------------------------------------------- 
+ Formatting for inline
+ -----------------------------------------------
+ */
+.code-lesson-il {
+    display: inline;                     /* Keeps it flowing naturally inside text */
+    font-family: monospace;              /* Uses classic code lettering */
+    font-size: 0.9em;                    /* Slightly smaller than standard text */
+    background-color: #f3f4f6;          /* Soft light-gray background */
+    color: #d946ef;                      /* Vibrant magenta/pink code color */
+    padding: 2px 6px;                    /* Tiny padding around the text */
+    border-radius: 4px;                  /* Rounded corners */
+    border: 1px solid #e5e7eb;          /* Subtle border to pop off the page */
+}
+.code_lesson-bl {
+    display: block;                      /* Forces a new line and fills container width */
+    white-space: pre;                    /* Keeps your tabs, spaces, and code indentation */
+    font-family: monospace;              /* Keeps font consistent with inline */
+    font-size: 0.9em;
+    background-color: #1f2937;          /* Dark sleek background (VS Code style) */
+    color: #f9fafb;                      /* Crisp, bright white text */
+    padding: 16px;                       /* Generous spacing inside the block */
+    margin: 16px 0;                      /* Pushes surrounding paragraphs away */
+    border-radius: 8px;                  /* Rounded box corners */
+    overflow-x: auto;                    /* Adds a horizontal scrollbar if text is too wide */
+    border-left: 4px solid #3b82f6;      /* Stylish blue left border accent */
+}

@@ -113,18 +113,22 @@
       "theme": "Movement",
       "trs": [
         {
-          "Setup": "csc3730_setup.html",
-          "Godot": "csc3730_godot.html",
-          "GDscript": "csc3730_gdscript.html"
+          "Setup": "csc3730_godot_01_setup.html",
+          "Godot": "csc3730_godot_02_tour.html",
+          "GDscript": "csc3730_godot_03_gdscript.html"
         },
         {
-          "Pathfinding: Graphs, BFS, DFS, Dijkstra's, A*": ""
+          "Pathfinding": "",
+          "Search on graphs": ""
         },
         {
-          "Steering behavior, flocking (boids)": ""
+          "Steering behavior": "", 
+          "Flocking (boids)": ""
         },
         {
-          "Stigmergy, Ant Colony Optimization (ACO), Artificial Life": ""
+          "Stigmergy": "", 
+          "Ant Colony Optimization (ACO)": "", 
+          "Artificial Life": ""
         },
         {
           "Presentation 1: The Pitch": ""
@@ -138,13 +142,14 @@
           "Finite state machines": ""
         },
         {
-          "Decision and behavior trees": ""
+          "Decision trees": "",
+          "Behavior trees": ""
         },
         {
-          "Behavior tree aboriculture and memory": ""
+          "Behavior tree arboriculture": ""
         },
         {
-          "Behavior trees and FSMs: similarities and differences": ""
+          "Behavior trees vs FSMs": ""
         },
         {
           "Presentation 2: The Progress": ""
@@ -155,10 +160,11 @@
       "theme": "Learning",
       "trs": [
         {
-          "Machine learning overview, Classification": ""
+          "Machine learning overview": "",
+          "Classification": ""
         },
         {
-          "Machine learning: artificial neural networks": ""
+          "Artificial neural networks": ""
         },
         {
           "Reinforcement learning": ""
