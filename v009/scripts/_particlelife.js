@@ -54,6 +54,7 @@ const FORCE = 0.18;
 const DAMP  = 0.86;
 
 const POP = 180;
+const MAX_POP = 400; // right-click spawning stops adding particles past this
 
 
 
@@ -231,23 +232,26 @@ function stepParticles() {
 
             spawnCooldown = 10;
 
-            const count =
-                1 +
-                ((Math.random() * 3) | 0);
+            if (parts.length < MAX_POP) {
 
-            for (let i = 0; i < count; i++) {
+                const count =
+                    1 +
+                    ((Math.random() * 3) | 0);
 
-                parts.push(
+                for (let i = 0; i < count; i++) {
 
-                    spawnParticle(
+                    parts.push(
 
-                        mX +
-                        (Math.random() - 0.5) * 24,
+                        spawnParticle(
 
-                        mY +
-                        (Math.random() - 0.5) * 24
-                    )
-                );
+                            mX +
+                            (Math.random() - 0.5) * 24,
+
+                            mY +
+                            (Math.random() - 0.5) * 24
+                        )
+                    );
+                }
             }
         }
     }
@@ -624,6 +628,11 @@ document.addEventListener(
     e => {
 
         mDown = true;
+
+        // Clicks over a panel or the navbar shouldn't spawn waves or
+        // trigger spawning in the background life -- only real clicks
+        // on empty background should.
+        if (mOverUI) return;
 
 
         // LEFT CLICK

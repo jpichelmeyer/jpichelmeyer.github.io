@@ -58,6 +58,10 @@ function closeAll() {
     });
     qsa('.nav-btn').forEach(b => b.classList.remove('active'));
     activePanel = null;
+
+    // Tear down any still-running project embed (e.g. a Blazor/Godot
+    // iframe) so closing the panel actually stops it, not just hides it.
+    if (typeof window._closeActiveProject === 'function') window._closeActiveProject();
 }
 
 // MAKING PANELS DRAG-ABLE
@@ -149,8 +153,9 @@ document.addEventListener('click', e => {
     }
 });
 
-// Initialize for all panels
-qsa('.panel').forEach(makeDraggable);
+// Panel dragging disabled (no real upside) -- see makeDraggable() above,
+// left in place in case we want it back.
+// qsa('.panel').forEach(makeDraggable);
 
 // Initialize panel subpage tabs
 initPanelTabs();

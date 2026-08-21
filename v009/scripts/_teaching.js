@@ -789,13 +789,6 @@ window._renderCourses = renderCourses;
 document.querySelector('.panel-tab[data-tab="active"]')?.addEventListener('click', () => renderCourses('active'));
 document.querySelector('.panel-tab[data-tab="all"]')?.addEventListener('click', () => renderCourses('all'));
 
-// If a course detail page is open and the window narrows below the
-// width the 980px detail panel needs (see _teaching.css), snap back
-// to the course listing — matches the course-dot's own disable point.
-const COURSE_DETAIL_MIN_WIDTH = 1040;
-window.addEventListener('resize', () => {
-    const panel = COURSES_PANEL();
-    if (panel?.classList.contains('course-detail-mode') && window.innerWidth < COURSE_DETAIL_MIN_WIDTH) {
-        renderCourses(currentCoursesMode());
-    }
-});
+// Course detail pages now support narrow widths directly (see the
+// mobile stacked layout in _teaching.css), so there's no width below
+// which we force-close back to the listing anymore.
