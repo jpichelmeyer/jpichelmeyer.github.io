@@ -87,6 +87,25 @@
 
 /*
  ---------------------------------------------------------
+    Diagram (inline SVG) style
+ ---------------------------------------------------------
+*/
+.diagram {
+    margin: 18px 0 28px;
+    padding: 14px;
+    background: #f7f9fb;
+    border: 1px solid #d8e1e8;
+    border-radius: 10px;
+    text-align: center;
+}
+.diagram svg { max-width: 460px; width: 100%; height: auto; display: block; margin: 0 auto; }
+.diagram-caption { color: #444; font-size: 0.88em; margin-top: 8px; }
+.diagram-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; align-items: stretch; }
+.diagram-row .diagram { flex: 1 1 220px; margin: 18px 0; }
+
+
+/*
+ ---------------------------------------------------------
     Screenshot placeholder style
  ---------------------------------------------------------
 */

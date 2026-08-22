@@ -113,17 +113,19 @@
       "theme": "Movement",
       "trs": [
         {
+          "Situated Agent Model (SAM)": "csc3730_sam.html",
           "Setup": "csc3730_godot_01_setup.html",
           "Godot": "csc3730_godot_02_tour.html",
           "GDscript": "csc3730_godot_03_gdscript.html"
         },
         {
-          "Pathfinding": "",
-          "Search on graphs": ""
+          "Steering behavior": "csc3730_move_cont_01_steering.html",
+          "Obstacles": "csc3730_move_cont_02_obstacles.html",
+          "Flocking (boids)": "csc3730_move_cont_03_flocking.html"
         },
         {
-          "Steering behavior": "", 
-          "Flocking (boids)": ""
+          "Pathfinding": "",
+          "Search on graphs": ""
         },
         {
           "Stigmergy": "", 
