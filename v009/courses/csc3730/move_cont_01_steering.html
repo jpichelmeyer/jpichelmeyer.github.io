@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Last week you got an agent circling on its own, and then wandering. Steering behaviors give it a reason to turn: instead of a fixed rate or a random one, its heading reacts to something else in the world.</p>
+
+        <h3>Part 1. What Is a Steering Behavior?</h3>
+        
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/steering/steering.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        
+        <div class="diagram">
+<svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="320" height="200" rx="10" fill="#0c0c10"/>
+    <path d="M100,150 Q170,80 230,95" fill="none" stroke="#3a3a42" stroke-width="2" stroke-dasharray="4,5"/>
+    <g transform="translate(100,150) rotate(55)">
+        <circle cx="0" cy="10" r="16" fill="#e0399c"/>
+        <polygon points="-13,10 13,10 0,-22" fill="#e0399c"/>
+    </g>
+    <g transform="translate(230,95)">
+        <circle cx="0" cy="10" r="16" fill="#22d3ee"/>
+        <polygon points="-13,10 13,10 0,-22" fill="#22d3ee"/>
+    </g>
+</svg>
+        </div>
+
+        <p>The idea (originally Craig Reynolds, 1986; the same person behind the boids you'll build in a couple lessons) is that an agent computes a heading it wants, toward a target, away from a target, whatever the behavior calls for, and moves that way. Four behaviors this lesson actually builds, bolded below, plus two you've already met or will meet soon:</p>
+        <ol>
+            <li><strong>Face Target</strong>: snap to face a target, always move forward.</li>
+            <li><strong>Seek</strong>: move directly toward a target.</li>
+            <li><strong>Arrive</strong>: Seek, but slow down smoothly on approach instead of overshooting.</li>
+            <li><strong>Flee</strong>: move directly away from a target.</li>
+            <li>Wander: drift with a smoothly varying turn rate, no target at all (already built last lesson).</li>
+            <li>Flocking: steer relative to a group of neighbors instead of a fixed target (next lesson).</li>
+        </ol>
+        <p>Obstacle avoidance isn't on this list on purpose: it's tackled a different way in this course, with grid-based pathfinding a couple lessons from now, rather than as a reactive steering behavior here.</p>
+
+        <h3>Part 2. Choosing a Behavior</h3>
+        <p>Right now, <span class="code-lesson-il">_process</span> hardcodes which rotation method it calls. To let different agents do different things, that needs to become a choice. GDScript's <span class="code-lesson-il">enum</span> plus <span class="code-lesson-il">match</span> is the natural tool: a named set of options, and a block that branches on which one is active.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">enum SteeringMode {
+	WANDER,
+	FACE_TARGET,
+}
+
+@export var target: Node2D
+@export var steering_mode: SteeringMode = SteeringMode.WANDER
+
+func _process(delta: float) -> void:
+
+	match steering_mode:
+		SteeringMode.FACE_TARGET:
+			if target != null:
+				_rotate_toward_target()
+				_move_forward(delta, RATE_MOVE)
+			else:
+				_rotation_wander(delta)
+				_move_forward(delta, RATE_MOVE)
+		_: # SteeringMode.WANDER, or a target-requiring mode with no target set
+			_rotation_wander(delta)
+			_move_forward(delta, RATE_MOVE)
+
+func _rotate_toward_target() -> void:
+	if target != null:
+		rotation = Vector2(0, -1).angle_to(target.global_position - global_position)
+</span>
+</div>
+        <p><span class="code-lesson-il">steering_mode</span> is <span class="code-lesson-il">@export</span>ed, so it shows up as a dropdown in the Inspector, exactly like any other exported variable. <span class="code-lesson-il">Vector2(0, -1).angle_to(direction)</span> computes the exact rotation needed so the agent's forward direction (recall, <span class="code-lesson-il">-transform.y</span>, which points the same way as <span class="code-lesson-il">Vector2(0, -1)</span> at rotation zero) ends up pointing at <span class="code-lesson-il">direction</span>. Notice this <em>snaps</em> instantly, there's no easing at all, which is exactly why Face Target can look a little robotic once its target starts moving quickly. That's intentional: it's the simplest possible reactive behavior, a stepping stone before the smoother movement coming up next.</p>
+        <p>The <span class="code-lesson-il">match</span> block's fallback case (<span class="code-lesson-il">_:</span>) handles both plain Wander and any target-requiring mode where <span class="code-lesson-il">target</span> hasn't been set, an agent with nothing to react to just wanders, the same as last lesson.</p>
+
+        <h3>Part 3. Two Agents and a Marker</h3>
+        <p>Add a <span class="code-lesson-il">Marker2D</span> scene (a small tinted diamond works well, no script needed) to stand in as a fixed target, and instance two copies of <span class="code-lesson-il">agent.tscn</span> into <span class="code-lesson-il">Environment</span>, named <span class="code-lesson-il">AgentA</span> and <span class="code-lesson-il">AgentB</span>. Give each a different <span class="code-lesson-il">color</span> in the Inspector so they're easy to tell apart. Set <span class="code-lesson-il">AgentB</span>'s <span class="code-lesson-il">steering_mode</span> to <span class="code-lesson-il">Face Target</span> and its <span class="code-lesson-il">target</span> to the Marker; leave <span class="code-lesson-il">AgentA</span> on Wander for now. Press Play: <span class="code-lesson-il">AgentB</span> should turn to face the marker and cruise straight at it.</p>
+
+        <div class="screenshot">
+            <div class="label">Marker and two agents</div>
+            <img src="" alt="Godot Scene dock showing Marker, AgentA, and AgentB under Environment, alongside AgentB's Inspector with steering_mode and target set">
+            <div class="hint">Scene dock showing the three new nodes under Environment, plus AgentB's Inspector with Steering Mode set to Face Target and Target pointing at the Marker.</div>
+        </div>
+
+        <h3>Part 4. A Different Kind of Movement: Velocity</h3>
+        <p>Face Target and Wander both work the same way: rotate, then thrust forward in whatever direction that rotation faces. The next few behaviors work the other way around: pick a velocity directly, and let rotation follow wherever that velocity happens to point.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">var velocity: Vector2 = Vector2.ZERO
+
+func _apply_velocity(delta_passed: float, desired_velocity: Vector2) -> void:
+	velocity = desired_velocity
+	if velocity.length_squared() > 0.01:
+		rotation = Vector2(0, -1).angle_to(velocity)
+	global_position += velocity * delta_passed
+</span>
+</div>
+        <p>Every behavior from here just needs to answer one question, "what velocity do I want right now," and hand it to <span class="code-lesson-il">_apply_velocity</span>. Facing takes care of itself: whichever way <span class="code-lesson-il">velocity</span> points is whichever way the agent ends up facing, every frame.</p>
+
+        <h3>Part 5. Seek</h3>
+        <p>Seek wants a velocity that points straight at the target, at a fixed speed.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">const RATE_MOVE_SEEK: float = 75.0
+
+func _steer_seek(delta_passed: float) -> void:
+	if target == null:
+		return
+	var desired: Vector2 = (target.global_position - global_position).normalized() * RATE_MOVE_SEEK
+	_apply_velocity(delta_passed, desired)
+</span>
+</div>
+        <p>Add <span class="code-lesson-il">SEEK</span> to the enum and a case to the <span class="code-lesson-il">match</span> block calling <span class="code-lesson-il">_steer_seek(delta)</span>. Notice Seek gets its own speed constant, <span class="code-lesson-il">RATE_MOVE_SEEK</span> (75), deliberately slower and separate from <span class="code-lesson-il">RATE_MOVE</span> (the general 100 from last lesson); nothing forces the two to match.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="320" height="200" rx="10" fill="#0c0c10"/>
+    <line x1="95" y1="145" x2="215" y2="85" stroke="#e0399c" stroke-width="2"/>
+    <g transform="translate(95,145) rotate(63)">
+        <circle cx="0" cy="10" r="16" fill="#e0399c"/>
+        <polygon points="-13,10 13,10 0,-22" fill="#e0399c"/>
+    </g>
+    <g transform="translate(215,85)">
+        <circle cx="0" cy="10" r="16" fill="#22d3ee"/>
+        <polygon points="-13,10 13,10 0,-22" fill="#22d3ee"/>
+    </g>
+    <text x="16" y="188" font-size="12" fill="#8a8f98">seek</text>
+</svg>
+        </div>
+
+        <p>Set <span class="code-lesson-il">AgentA</span>'s <span class="code-lesson-il">steering_mode</span> to <span class="code-lesson-il">Seek</span> and its <span class="code-lesson-il">target</span> to <span class="code-lesson-il">AgentB</span> (which is itself still heading for the Marker). Press Play: <span class="code-lesson-il">AgentA</span> chases <span class="code-lesson-il">AgentB</span>, recomputing its desired velocity fresh every frame rather than aiming once and committing.</p>
+
+        <div class="screenshot">
+            <div class="label">Seek chasing a moving target</div>
+            <img src="" alt="Godot viewport showing AgentA chasing AgentB which is itself heading toward the Marker">
+            <div class="hint">A couple of stills of the running scene: AgentA closing in on AgentB, which is en route to the Marker.</div>
+        </div>
+
+        <h3>Part 6. Flee</h3>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _steer_flee(delta_passed: float) -> void:
+	if target == null:
+		return
+	var desired: Vector2 = (global_position - target.global_position).normalized() * RATE_MOVE
+	_apply_velocity(delta_passed, desired)
+</span>
+</div>
+        <p>The only real change from Seek: the direction is flipped, <span class="code-lesson-il">global_position - target.global_position</span> instead of <span class="code-lesson-il">target.global_position - global_position</span>. Flee also uses the faster <span class="code-lesson-il">RATE_MOVE</span> rather than <span class="code-lesson-il">RATE_MOVE_SEEK</span>, fleeing happens at the general, quicker pace; seeking is deliberately more measured.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="300" height="200" rx="10" fill="#0c0c10"/>
+    <line x1="90" y1="80" x2="205" y2="140" stroke="#e0399c" stroke-width="2"/>
+    <g transform="translate(205,140) rotate(118)">
+        <circle cx="0" cy="10" r="16" fill="#e0399c"/>
+        <polygon points="-13,10 13,10 0,-22" fill="#e0399c"/>
+    </g>
+    <g transform="translate(90,80)">
+        <circle cx="0" cy="10" r="16" fill="#22d3ee"/>
+        <polygon points="-13,10 13,10 0,-22" fill="#22d3ee"/>
+    </g>
+    <text x="16" y="188" font-size="12" fill="#8a8f98">flee</text>
+</svg>
+        </div>
+
+        <p>Add <span class="code-lesson-il">FLEE</span> to the enum and <span class="code-lesson-il">match</span>, and try switching <span class="code-lesson-il">AgentA</span> to it to watch the chase reverse.</p>
+
+        <h3>Part 7. Arrive</h3>
+        <p>Watch Seek closely and it overshoots: it asks for full speed right up until the last moment, then has to cancel that speed almost instantly. Arrive fixes this by scaling the desired speed down inside a radius of the target, instead of demanding full speed the whole way in.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">const ARRIVE_SLOW_RADIUS: float = 150.0
+const ARRIVE_STOP_RADIUS: float = 4.0
+
+func _steer_arrive(delta_passed: float) -> void:
+	if target == null:
+		return
+
+	var offset: Vector2 = target.global_position - global_position
+	var dist: float = offset.length()
+
+	if dist < ARRIVE_STOP_RADIUS:
+		velocity = Vector2.ZERO
+		return
+
+	# Linearly ramp speed down inside the slow radius, full speed outside it
+	var speed: float = RATE_MOVE
+	if dist < ARRIVE_SLOW_RADIUS:
+		speed = RATE_MOVE * (dist / ARRIVE_SLOW_RADIUS)
+
+	var desired: Vector2 = offset.normalized() * speed
+	_apply_velocity(delta_passed, desired)
+</span>
+</div>
+
+        <div class="diagram">
+<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="300" height="200" rx="10" fill="#0c0c10"/>
+    <circle cx="230" cy="100" r="70" fill="none" stroke="#a9c6dd" stroke-width="2" stroke-dasharray="4,4"/>
+    <text x="230" y="18" font-size="12" fill="#2e5a80" text-anchor="middle">slowing radius</text>
+    <line x1="30" y1="150" x2="105" y2="122" stroke="#e0399c" stroke-width="3"/>
+    <text x="65" y="140" font-size="13" fill="#e0399c">speed</text>
+    <line x1="185" y1="90" x2="212" y2="97" stroke="#e0399c" stroke-width="2.5"/>
+    <text x="192" y="82" font-size="11" fill="#e0399c">speed (slower)</text>
+    <circle cx="230" cy="100" r="8" fill="#22d3ee"/>
+</svg>
+        </div>
+
+        <p>Two radii, not one: <span class="code-lesson-il">ARRIVE_SLOW_RADIUS</span> is where slowing begins, <span class="code-lesson-il">ARRIVE_STOP_RADIUS</span> is where the agent counts as "there" and just stops outright, avoiding the endless tiny corrective jitter a shrinking-but-never-zero speed would otherwise cause right on top of the target. Add <span class="code-lesson-il">ARRIVE</span> to the enum and <span class="code-lesson-il">match</span>, and compare it side by side with Seek on the same target.</p>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain what <span class="code-lesson-il">enum</span> plus <span class="code-lesson-il">match</span> is doing, and why <span class="code-lesson-il">steering_mode</span> being <span class="code-lesson-il">@export</span>ed matters.</li>
+            <li>Explain why Face Target can look robotic, and what specifically about it causes that.</li>
+            <li>Explain the difference between "rotate then thrust" (Wander, Face Target) and "pick a velocity, let rotation follow" (Seek, Arrive, Flee), and why <span class="code-lesson-il">_apply_velocity</span> only needs to be written once.</li>
+            <li>Get <span class="code-lesson-il">AgentA</span> chasing <span class="code-lesson-il">AgentB</span> with Seek while <span class="code-lesson-il">AgentB</span> heads for the Marker with Face Target.</li>
+            <li>Explain what <span class="code-lesson-il">ARRIVE_SLOW_RADIUS</span> and <span class="code-lesson-il">ARRIVE_STOP_RADIUS</span> each do, and why Arrive needs both.</li>
+        </ol>
+        <p>Next: what to do about the fact that none of these agents have any idea an obstacle exists.</p>
+
+    </body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Flocking is what happens when you give a group of agents nothing but local, short-sighted rules about their nearest neighbors (no leader, no shared plan) and let the group-level motion emerge on its own. Every rule so far has reacted to one fixed target. A flock reacts to whichever neighbors happen to be nearby right now, a changing, local, several-at-once situation.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/flocking/flocking.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+
+        <h3>Part 1. The Idea</h3>
+        <p>Craig Reynolds' original 1986 "boids" model comes down to three rules, each agent applying them only to whatever neighbors are nearby:</p>
+        <ul>
+            <li><strong>Separation</strong>: steer away from neighbors that are too close, so the flock doesn't collapse into a pile.</li>
+            <li><strong>Alignment</strong>: steer to match the average heading of nearby neighbors, so the flock tends to move together.</li>
+            <li><strong>Cohesion</strong>: steer toward the average position of nearby neighbors, so the flock stays a flock instead of drifting apart.</li>
+        </ul>
+        <p>None of these rules mentions "the flock" as a thing; each boid only ever looks at whoever is close to it. The flocking shape is a side effect, not something anyone's steering toward directly.</p>
+
+        <h3>Part 2. Sensing Neighbors</h3>
+        <p>An agent needs to know who's nearby without a distance check against every other agent in the scene every frame. The tool for that is an <span class="code-lesson-il">Area2D</span>: instead of asking "who's close" continuously, let Godot's physics engine tell you the moment someone enters or leaves.</p>
+        <p>Add an <span class="code-lesson-il">Area2D</span> named <span class="code-lesson-il">DetectionArea</span> as a child of <span class="code-lesson-il">Agent</span>, with a <span class="code-lesson-il">CollisionShape2D</span> child using a <span class="code-lesson-il">CircleShape2D</span> (its radius is the neighbor-sensing range, try something like 100). Set both <strong>Collision Layer</strong> and <strong>Collision Mask</strong> to a dedicated layer, layer 2 works well, rather than leaving them on the default layer 1. That keeps flock-sensing isolated from anything else physics-related an agent might pick up later (an obstacle's collision shape, for instance); this Area2D should only ever notice other agents.</p>
+
+        <div class="screenshot">
+            <div class="label">DetectionArea setup</div>
+            <img src="" alt="Godot Inspector showing DetectionArea's Collision Layer and Mask set to layer 2, with its CircleShape2D radius visible">
+            <div class="hint">Inspector for DetectionArea: Collision Layer and Collision Mask both showing only layer 2 checked, plus the CircleShape2D gizmo visible in the 2D viewport.</div>
+        </div>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">var _neighbors: Array[Agent2D] = []
+
+func _ready() -> void:
+	if color != null:
+		modulate = color
+	add_to_group("agents")
+	if has_node("DetectionArea"):
+		$DetectionArea.area_entered.connect(_on_detection_area_entered)
+		$DetectionArea.area_exited.connect(_on_detection_area_exited)
+
+func _on_detection_area_entered(area: Area2D) -> void:
+	var other = area.get_parent()
+	if other is Agent2D and other != self and other not in _neighbors:
+		_neighbors.append(other)
+
+func _on_detection_area_exited(area: Area2D) -> void:
+	var other = area.get_parent()
+	if other in _neighbors:
+		_neighbors.erase(other)
+</span>
+</div>
+        <p>Two Area2Ds only notice each other if both sides allow it: <span class="code-lesson-il">area_entered</span> fires when another Area2D (another agent's own <span class="code-lesson-il">DetectionArea</span>) overlaps this one. <span class="code-lesson-il">area.get_parent()</span> gets from "which Area2D touched me" back to "which agent," and <span class="code-lesson-il">is Agent2D</span> is the exact same type check the pathfinding scripts use elsewhere in this course, made possible because <span class="code-lesson-il">agent.gd</span> declares <span class="code-lesson-il">class_name Agent2D</span>. <span class="code-lesson-il">_neighbors</span> stays current automatically from here: appended to on entry, erased on exit, no per-frame distance scanning required.</p>
+
+        <h3>Part 3. Separation, Alignment, Cohesion</h3>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">const FLOCK_SEPARATION_RADIUS: float = 40.0
+
+func _steer_flock(delta_passed: float) -> void:
+
+	# Nothing nearby: just wander until a neighbor shows up
+	if _neighbors.is_empty():
+		_rotation_wander(delta_passed)
+		_move_forward(delta_passed, RATE_MOVE)
+		return
+
+	var separation: Vector2 = Vector2.ZERO
+	var heading_sum: Vector2 = Vector2.ZERO
+	var position_sum: Vector2 = Vector2.ZERO
+	var count: int = 0
+
+	for neighbor in _neighbors:
+		if not is_instance_valid(neighbor):
+			continue
+
+		var offset: Vector2 = global_position - neighbor.global_position
+		var dist: float = offset.length()
+
+		# Separation: push away harder the closer a neighbor is, only within a tight radius
+		if dist > 0.0 and dist < FLOCK_SEPARATION_RADIUS:
+			separation += offset.normalized() / dist
+
+		# Alignment: match the average heading of neighbors
+		heading_sum += neighbor._get_agent_forward()
+		# Cohesion: drift toward the average position of neighbors
+		position_sum += neighbor.global_position
+		count += 1
+
+	if count == 0:
+		_rotation_wander(delta_passed)
+		_move_forward(delta_passed, RATE_MOVE)
+		return
+
+	var alignment: Vector2 = heading_sum / count
+	var cohesion: Vector2 = (position_sum / count) - global_position
+</span>
+</div>
+        <p><span class="code-lesson-il">is_instance_valid</span> guards against a neighbor that got freed (removed from the scene) since the last time it entered range; without it, calling a method on a freed node would error. <span class="code-lesson-il">_get_agent_forward()</span> is the exact same method every agent already has from last week, reused here to read a neighbor's current heading rather than reimplementing it.</p>
+
+        <h3>Part 4. Combining Three Votes</h3>
+        <p>Each rule above produced one raw vector. Combining them isn't a physical force sum, each rule instead gets normalized down to a pure direction first, then scaled by its own weight, so a rule's influence is controlled directly by its weight constant rather than by how large its raw vector happened to be:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">const FLOCK_SEPARATION_WEIGHT: float = 1.6
+const FLOCK_ALIGNMENT_WEIGHT: float = 1.0
+const FLOCK_COHESION_WEIGHT: float = 0.9
+
+	var desired: Vector2 = Vector2.ZERO
+
+	# Instead of overwriting or aggressively adding normalized vectors,
+	# accumulate the weighted behaviors naturally
+	if separation.length_squared() > 0.0:
+		desired += separation.normalized() * FLOCK_SEPARATION_WEIGHT
+	if alignment.length_squared() > 0.0:
+		desired += alignment.normalized() * FLOCK_ALIGNMENT_WEIGHT
+	if cohesion.length_squared() > 0.0:
+		desired += cohesion.normalized() * FLOCK_COHESION_WEIGHT
+
+	if desired.length_squared() > 0.01:
+		# Cruise at maximum movement speed
+		var final_desired: Vector2 = desired.normalized() * RATE_MOVE
+		_apply_velocity(delta_passed, final_desired)
+	else:
+		# If no distinct steering desired, smoothly friction out to zero or wander
+		_apply_velocity(delta_passed, Vector2.ZERO)
+</span>
+</div>
+        <p>That last line is worth pausing on: flocking calls <span class="code-lesson-il">_apply_velocity</span>, the exact same method Seek, Arrive, and Flee already use. Three neighbor-reactive rules blended together are, mechanically, just another way of answering "what velocity do I want right now," same as chasing a single target was.</p>
+
+        <h3>Part 5. Smoothing It Out</h3>
+        <p><span class="code-lesson-il">_apply_velocity</span> itself needs one real change at this point, though. Up to now it snapped <span class="code-lesson-il">velocity</span> instantly to whatever was desired; fine for one agent chasing one target, but a boid recomputes its desired direction from a shifting set of neighbors every single frame, and instant snapping to a constantly-changing target looks jittery fast, especially multiplied across a whole flock.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _apply_velocity(delta_passed: float, desired_velocity: Vector2) -> void:
+	# 1. Smoothly transition the velocity (Inertia/Acceleration)
+	# Lower weight (e.g., 5.0) = wider, smoother turns. Higher = sharper turns.
+	var acceleration_speed: float = 8.0
+	velocity = velocity.lerp(desired_velocity, acceleration_speed * delta_passed)
+
+	# 2. Smoothly rotate the agent to face where it's going
+	if velocity.length_squared() > 0.01:
+		var target_rotation: float = Vector2(0, -1).angle_to(velocity)
+
+		# lerp_angle prevents the agent from spinning 360 degrees when crossing PI/-PI
+		var rotation_speed: float = 10.0
+		rotation = lerp_angle(rotation, target_rotation, rotation_speed * delta_passed)
+
+	global_position += velocity * delta_passed
+</span>
+</div>
+        <p><span class="code-lesson-il">velocity.lerp(desired_velocity, ...)</span> eases the actual velocity toward whatever's desired instead of snapping to it, and <span class="code-lesson-il">lerp_angle</span> does the same for rotation, specifically because <span class="code-lesson-il">lerp_angle</span> knows to take the short way around when an angle crosses the wraparound point (from just under 180 degrees to just over negative 180, for instance), where a naive lerp on the raw numbers would spin the wrong way. This change affects Seek, Arrive, and Flee too, since they all call the same method; go back and try them again once this is in, they should all feel a little smoother than before.</p>
+
+        <h3>Part 6. Spawning a Flock</h3>
+        <p>Testing this with two hand-placed agents won't show much; flocking needs an actual flock. Attach a new script to the <span class="code-lesson-il">Environment</span> root itself:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">environment.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node2D
+
+const AGENT_SCENE: PackedScene = preload("res://scenes/agent.tscn")
+const AGENT_COUNT: int = 10
+const SPAWN_RADIUS: float = 500.0
+
+# Populate with agents
+const MIN_DISTANCE: float = 50.0 # Adjust this value as needed
+const MAX_ATTEMPTS: int = 100    # Prevents infinite loops if the area is full
+
+func _ready():
+
+	for i in range(AGENT_COUNT):
+		var agent: Agent2D = AGENT_SCENE.instantiate()
+		var valid_position: bool = false
+		var spawn_pos: Vector2 = Vector2.ZERO
+
+		# Attempt to find a clear spot
+		for attempt in range(MAX_ATTEMPTS):
+			# 1. Pick a random position
+			spawn_pos = Vector2(
+				randf_range(-SPAWN_RADIUS, SPAWN_RADIUS),
+				randf_range(-SPAWN_RADIUS, SPAWN_RADIUS)
+			)
+
+			# 2. Check distance against all agents already added to the tree
+			var too_close: bool = false
+			for other_agent in get_children():
+				if other_agent is Agent2D:
+					# distance_to is faster than manually calculating distances
+					if spawn_pos.distance_to(other_agent.position) < MIN_DISTANCE:
+						too_close = true
+						break # Stop checking other agents, this position failed
+
+			# 3. If the spot is clear, we found our position
+			if not too_close:
+				valid_position = true
+				break
+
+		# Optional: Skip spawning this agent if the map is too crowded
+		if not valid_position:
+			push_warning("Could not find a valid spawn position for agent ", i)
+			agent.queue_free() # Free the unused instance to prevent memory leaks
+			continue
+
+		# Apply properties and add to scene
+		agent.position = spawn_pos
+		agent.rotation = randf_range(0.0, TAU)
+		agent.color = Color(randf_range(0.4, 0.9), randf_range(0.4, 0.9), randf_range(0.4, 0.9), 1.0)
+		agent.steering_mode = Agent2D.SteeringMode.FLOCK
+		add_child(agent)
+</span>
+</div>
+        <p>Ten agents, spawned at random positions at least <span class="code-lesson-il">MIN_DISTANCE</span> apart (retrying up to <span class="code-lesson-il">MAX_ATTEMPTS</span> times per agent so a crowded spawn area doesn't loop forever), each a random color, each set to <span class="code-lesson-il">FLOCK</span>. Since ten small agents spread across a 1000-pixel spawn area are hard to see at normal zoom, set the <span class="code-lesson-il">Camera2D</span>'s <strong>Zoom</strong> to something like <span class="code-lesson-il">(0.2, 0.2)</span> so the whole flock fits on screen.</p>
+
+        <div class="screenshot">
+            <div class="label">A flock in motion</div>
+            <img src="" alt="Godot viewport zoomed out, showing ten colored agents clustered and moving together">
+            <div class="hint">The zoomed-out running scene: loose clumps of agents drifting and reshaping, no single one obviously in charge.</div>
+        </div>
+
+        <p>Worth flagging: checking every agent's <span class="code-lesson-il">DetectionArea</span> against every other agent's is still fundamentally an all-pairs kind of problem as a flock grows, even though the Area2D signals avoid re-scanning distances every frame. Fine at ten agents, worth revisiting if you ever push this toward hundreds.</p>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain all three rules (separation, alignment, cohesion) in one sentence each, without referencing code.</li>
+            <li>Explain why <span class="code-lesson-il">DetectionArea</span> uses signals instead of checking distance to every other agent each frame, and why it's on its own dedicated collision layer.</li>
+            <li>Explain why each rule's vector gets normalized before being weighted, rather than summed at its raw magnitude.</li>
+            <li>Point out where flocking reuses <span class="code-lesson-il">_apply_velocity</span> rather than inventing a new movement method.</li>
+            <li>Explain what changed in <span class="code-lesson-il">_apply_velocity</span> for flocking, and why that same change also smooths out Seek, Arrive, and Flee.</li>
+            <li>Get a flock of agents on screen and describe, in your own words, what changed when you pushed a weight constant up or down.</li>
+        </ol>
+
+    </body>
+</html>

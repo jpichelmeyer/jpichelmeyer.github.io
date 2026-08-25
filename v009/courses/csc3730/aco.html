@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Flocking agents coordinate by sensing each other directly, an <span class="code-lesson-il">Area2D</span> overlapping another agent's. Ant colonies solve a similar-looking problem, many individuals producing organized group behavior, a completely different way: no ant ever senses another ant. They coordinate entirely through marks left in the shared environment. That's stigmergy, and Ant Colony Optimization (ACO) is what happens when you turn it into a pathfinding algorithm.</p>
+
+        <h3>Part 1. Stigmergy, Not Sensing</h3>
+        <p>An ant leaves the nest, wanders, and if it stumbles onto food, walks back the way it came, depositing a scent as it goes. Other ants don't know this happened. They just happen to cross a slightly stronger-smelling patch of ground sometimes, and drift toward it a little more often than not. Do that with many ants over many trips, scent fading a little between each one, and short successful routes end up marked far more strongly than long ones, since more ants complete more round trips on them per unit time. No ant ever compared two routes. No ant ever decided anything was "the best path." The colony's route emerges from many individually short-sighted trips and one shared, decaying trace.</p>
+        <p>Building this needs three new pieces on top of everything from grid-based pathfinding: a pheromone value per cell, a finite food source ants can actually deplete, and an agent behavior that searches semi-randomly instead of computing a route outright.</p>
+
+        <h3>Part 2. The Pheromone Layer</h3>
+        <p>Pheromone lives on <span class="code-lesson-il">PathGrid</span>, right alongside <span class="code-lesson-il">blocked</span>: another per-cell value, this one a float that decays over time instead of a fixed true/false.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">path_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">@export var pheromone_evaporation_rate: float = 0.12   # strength lost per second
+@export var pheromone_visual_max: float = 6.0           # strength that reads as "fully lit"
+@export var show_pheromone: bool = true
+
+var pheromone: Dictionary = {}
+
+func deposit_pheromone(cell: Vector2i, amount: float) -> void:
+	pheromone[cell] = pheromone.get(cell, 0.0) + amount
+
+func evaporate_pheromone(delta_passed: float) -> void:
+	var to_erase: Array[Vector2i] = []
+	for cell in pheromone.keys():
+		pheromone[cell] -= pheromone_evaporation_rate * delta_passed
+		if pheromone[cell] <= 0.01:
+			to_erase.append(cell)
+	for cell in to_erase:
+		pheromone.erase(cell)
+	queue_redraw()
+
+func toggle_pheromone() -> void:
+	show_pheromone = not show_pheromone
+	queue_redraw()
+
+func _process(delta: float) -> void:
+	if not pheromone.is_empty():
+		evaporate_pheromone(delta)
+</span>
+</div>
+        <p>Evaporation runs continuously in <span class="code-lesson-il">_process</span>, not just when something deposits, so a trail with nothing reinforcing it fades on its own, at exactly <span class="code-lesson-il">pheromone_evaporation_rate</span> per second, with no other code needing to know that's happening. Cells that decay to nearly zero get erased outright rather than left sitting at a tiny positive value forever, keeping the dictionary from growing without bound over a long-running scene.</p>
+        <p>Add one more small helper while you're in here, ants will need a list of walkable neighbors constantly:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">path_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func get_neighbors(cell: Vector2i) -> Array[Vector2i]:
+	var directions: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	var neighbors: Array[Vector2i] = []
+	for dir in directions:
+		var next: Vector2i = cell + dir
+		if next.x < 0 or next.x >= grid_width:
+			continue
+		if next.y < 0 or next.y >= grid_height:
+			continue
+		if not is_walkable(next):
+			continue
+		neighbors.append(next)
+	return neighbors
+</span>
+</div>
+        <p>Then draw it, a soft glow scaled by strength, added into <span class="code-lesson-il">_draw()</span> alongside the walkable and blocked cells:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">path_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">	# Draw pheromone strength as a soft green glow. This layer changes
+	# continuously (every deposit, every evaporation tick), so it uses a
+	# plain draw_rect rather than a cached StyleBoxFlat: caching only pays
+	# off for the two static styles above, not a value that's different
+	# almost every cell, almost every frame.
+	if show_pheromone and not pheromone.is_empty():
+		for cell in pheromone.keys():
+			var strength: float = clamp(pheromone[cell] / pheromone_visual_max, 0.0, 1.0)
+			if strength <= 0.01:
+				continue
+			var top_left: Vector2 = Vector2(cell.x, cell.y) * cell_size + Vector2(half_padding, half_padding)
+			var rect := Rect2(top_left, Vector2(visual_size, visual_size))
+			draw_rect(rect, Color(0.3, 0.95, 0.4, strength * 0.55), true)
+</span>
+</div>
+        <p>Add a <strong>Toggle Pheromone</strong> button connected directly to <span class="code-lesson-il">PathGrid.toggle_pheromone</span>, useful once the grid gets busy and you want to see the base layout clearly again.</p>
+
+        <h3>Part 3. Nest and Food</h3>
+        <p>Two more small scenes, both a <span class="code-lesson-il">Marker2D</span> with a tinted sprite, no different in kind from the target marker you've already been using. <strong>Nest</strong> is just a landmark, ants reset there, nothing more. <strong>Food</strong> needs more: a finite amount, a way to sense an ant arriving, and the ability to remove itself once it's gone.</p>
+
+        <div class="screenshot">
+            <div class="label">Nest and Food markers</div>
+            <img src="" alt="Godot Scene dock showing the Nest and Food scenes, each a Marker2D with a tinted Sprite2D">
+            <div class="hint">The Nest and Food scenes side by side in the Scene dock, and the running Environment with both visible against the black background.</div>
+        </div>
+
+        <h3>Part 4. Food That Runs Out</h3>
+        <p>Sensing an arriving ant needs the same trick as flocking's neighbor detection, an <span class="code-lesson-il">Area2D</span> that notices another <span class="code-lesson-il">Area2D</span> entering it. Give <span class="code-lesson-il">Agent</span> a small one (a <span class="code-lesson-il">Body</span>, with a modest <span class="code-lesson-il">CircleShape2D</span>) if it doesn't already have one, and give <span class="code-lesson-il">Food</span> a <span class="code-lesson-il">DetectionArea</span> of its own, plus a <span class="code-lesson-il">Label</span> to show the remaining count.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">food.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">class_name Food
+extends Marker2D
+
+@export var initial_count: int = 5
+
+var count: int = 0
+var last_visitor: Agent2D = null
+
+@onready var _label: Label = $CountLabel
+@onready var _detection_area: Area2D = $DetectionArea
+
+func _ready() -> void:
+	add_to_group("food_sources")
+	count = initial_count
+	_update_label()
+	_detection_area.area_entered.connect(_on_detection_area_entered)
+
+func _on_detection_area_entered(area: Area2D) -> void:
+	var visitor: Node = area.get_parent()
+
+	if not (visitor is Agent2D):
+		return
+	if visitor == last_visitor:
+		return
+
+	last_visitor = visitor
+	count -= 1
+	_update_label()
+
+	if count <= 0:
+		queue_free()
+
+func _update_label() -> void:
+	if _label != null:
+		_label.text = str(count)
+</span>
+</div>
+        <p>Two things worth calling out. <span class="code-lesson-il">last_visitor</span> only compares against the single most recent visitor, not every ant that's ever stopped by, so one ant lingering at the edge doesn't drain the count repeatedly, but the same ant returning later, after someone else has visited in between, counts as a fresh visit again. And <span class="code-lesson-il">add_to_group("food_sources")</span> is what makes this food discoverable at all; nothing else needs a direct reference to it.</p>
+        <p>When <span class="code-lesson-il">count</span> hits zero, <span class="code-lesson-il">queue_free()</span> removes the node outright. Notice what this lesson deliberately does <em>not</em> do: clear the pheromone trail leading to it. That's on purpose. With the food gone, no ant will ever successfully complete a trip there again, so nothing deposits fresh pheromone on that trail, and the evaporation from Part 2 fades it out on its own, the same way any unused trail would. Depletion doesn't need special-case cleanup; it falls straight out of mechanisms already built.</p>
+
+        <div class="screenshot">
+            <div class="label">A food source depleting</div>
+            <img src="" alt="Godot viewport showing the food count label ticking down as ants visit, then the food node disappearing at zero">
+            <div class="hint">A short sequence: the count label dropping each visit, then the food (and its label) vanishing once it hits zero.</div>
+        </div>
+
+        <h3>Part 5. Foraging: Two States</h3>
+        <p>An ant either hasn't found food yet, or has and is walking home. Track which with a small enum, and reuse <span class="code-lesson-il">_steer_arrive_at</span> from the pathfinding lessons to actually move between cells; only the logic deciding <em>which</em> cell to head for next is new.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">enum ForageState { SEARCHING, RETURNING }
+
+const FORAGE_MAX_STEPS: int = 400          # give up and reset if a search runs this long
+const FORAGE_DEPOSIT_TOTAL: float = 10.0   # split across the (pruned) outbound path on success
+const FORAGE_PHEROMONE_MIN: float = 0.05   # small baseline so unmarked cells are still choosable
+
+@export var nest: Node2D
+@export var food: Node2D
+
+var _forage_state: ForageState = ForageState.SEARCHING
+var _forage_out_path: Array[Vector2i] = []  # cells visited outbound, nest -> food
+var _forage_return_index: int = 0
+var _forage_steps: int = 0
+
+func _forage_reset() -> void:
+	_forage_state = ForageState.SEARCHING
+	_forage_out_path.clear()
+	_forage_return_index = 0
+	_forage_steps = 0
+	if nest != null:
+		global_position = nest.global_position
+</span>
+</div>
+        <p>Note <span class="code-lesson-il">food</span> here is a single exported <span class="code-lesson-il">Node2D</span>, a fallback for scenes with only one food source; Part 7 adds real multi-food support on top of it without needing to remove it.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _process_forage(delta_passed: float) -> void:
+	if path_grid == null or nest == null:
+		_rotation_wander(delta_passed)
+		_move_forward(delta_passed, RATE_MOVE)
+		return
+
+	if _get_food_nodes().is_empty():
+		_rotation_wander(delta_passed)
+		_move_forward(delta_passed, RATE_MOVE)
+		return
+
+	if _forage_out_path.is_empty():
+		_forage_out_path = [path_grid.world_to_cell(global_position)]
+
+	if _forage_state == ForageState.SEARCHING:
+		_forage_search_step(delta_passed)
+	else:
+		_forage_return_step(delta_passed)
+</span>
+</div>
+        <p>No food anywhere, no nest set: fall back to plain Wander rather than getting stuck. Add <span class="code-lesson-il">FORAGE</span> to <span class="code-lesson-il">SteeringMode</span> and a case in <span class="code-lesson-il">_process</span> calling this.</p>
+
+        <h3>Part 6. Searching, Then Returning</h3>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _forage_search_step(delta_passed: float) -> void:
+	var current_cell: Vector2i = _forage_out_path[-1]
+	var waypoint_world: Vector2 = path_grid.cell_to_world_center(current_cell)
+	var arrived: bool = _steer_arrive_at(delta_passed, waypoint_world, move_speed)
+
+	if not arrived:
+		return
+
+	if _is_at_any_food(current_cell):
+		_forage_out_path = _prune_loops(_forage_out_path)
+		_deposit_pheromone_along(_forage_out_path)
+		_forage_state = ForageState.RETURNING
+		_forage_return_index = _forage_out_path.size() - 2
+		return
+
+	_forage_steps += 1
+	if _forage_steps > FORAGE_MAX_STEPS:
+		_forage_reset()
+		return
+
+	var food_cell: Vector2i = _nearest_food_cell(current_cell)
+	var next_cell: Vector2i = _choose_forage_cell(current_cell, food_cell)
+	_forage_out_path.append(next_cell)
+
+func _forage_return_step(delta_passed: float) -> void:
+	if _forage_return_index < 0:
+		_forage_reset()
+		return
+
+	var waypoint_cell: Vector2i = _forage_out_path[_forage_return_index]
+	var waypoint_world: Vector2 = path_grid.cell_to_world_center(waypoint_cell)
+	var arrived: bool = _steer_arrive_at(delta_passed, waypoint_world, move_speed)
+
+	if arrived:
+		_forage_return_index -= 1
+</span>
+</div>
+        <p>Returning doesn't search at all, it just walks <span class="code-lesson-il">_forage_out_path</span> backward, index by index, retracing exactly the route that worked. <span class="code-lesson-il">FORAGE_MAX_STEPS</span> is a safety valve: a genuinely unlucky random walk could wander a very long time before stumbling onto food, so give up and reset to the nest rather than let one ant wander forever.</p>
+        <p>Before depositing, the outbound path gets pruned:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _prune_loops(path: Array[Vector2i]) -> Array[Vector2i]:
+	"""Cuts out any A..A loop, so an ant that doubled back doesn't get
+	credit (or make its neighbors walk) the long way round."""
+	var pruned: Array[Vector2i] = []
+	var index_of: Dictionary = {}
+
+	for cell in path:
+		if index_of.has(cell):
+			var cut_from: int = index_of[cell] + 1
+			for i in range(cut_from, pruned.size()):
+				index_of.erase(pruned[i])
+			pruned.resize(cut_from)
+		else:
+			index_of[cell] = pruned.size()
+			pruned.append(cell)
+
+	return pruned
+
+func _deposit_pheromone_along(path: Array[Vector2i]) -> void:
+	if path.size() <= 1 or path_grid == null:
+		return
+	var amount_per_cell: float = FORAGE_DEPOSIT_TOTAL / float(path.size())
+	for cell in path:
+		path_grid.deposit_pheromone(cell, amount_per_cell)
+</span>
+</div>
+        <p>A wandering search can revisit the same cell more than once before finally reaching food; without pruning, that detour would get pheromone deposited on it too, rewarding a longer route. Cutting the loop out first means only the actually-useful cells get marked. And splitting <span class="code-lesson-il">FORAGE_DEPOSIT_TOTAL</span> evenly across the path is the whole mechanism in one line: a five-cell trip deposits more pheromone per cell than a twenty-cell one, so shorter successful routes end up marked more strongly, without anything ever comparing route lengths directly.</p>
+
+        <h3>Part 7. Choosing Where To Go</h3>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _choose_forage_cell(current_cell: Vector2i, food_cell: Vector2i) -> Vector2i:
+	var previous_cell: Vector2i = current_cell
+	if _forage_out_path.size() >= 2:
+		previous_cell = _forage_out_path[_forage_out_path.size() - 2]
+
+	var candidates: Array[Vector2i] = path_grid.get_neighbors(current_cell)
+	if candidates.is_empty():
+		return current_cell
+
+	# Prefer not to immediately backtrack, unless it's the only option (a dead end)
+	var forward_candidates: Array[Vector2i] = []
+	for c in candidates:
+		if c != previous_cell:
+			forward_candidates.append(c)
+	if not forward_candidates.is_empty():
+		candidates = forward_candidates
+
+	# Weight = (pheromone here, plus a small baseline) * (closeness to food).
+	# Neither term alone is enough: pheromone with no heuristic can't get a
+	# colony started (nothing has pheromone yet), and closeness with no
+	# pheromone never improves on a single ant's first guess.
+	var weights: Array[float] = []
+	var total_weight: float = 0.0
+	for c in candidates:
+		var pheromone_level: float = path_grid.pheromone.get(c, 0.0)
+		var distance_to_food: float = float(abs(c.x - food_cell.x) + abs(c.y - food_cell.y))
+		var closeness: float = 1.0 / (distance_to_food + 1.0)
+		var weight: float = (pheromone_level + FORAGE_PHEROMONE_MIN) * closeness
+		weights.append(weight)
+		total_weight += weight
+
+	var roll: float = randf() * total_weight
+	var running_total: float = 0.0
+	for i in range(candidates.size()):
+		running_total += weights[i]
+		if roll <= running_total:
+			return candidates[i]
+
+	return candidates[-1]
+</span>
+</div>
+        <p>This is a weighted random pick, not a deterministic choice: every candidate neighbor gets some chance, but cells with more pheromone and less remaining distance to food get proportionally more of it. Early on, with no pheromone anywhere, this reduces almost entirely to "prefer the direction that looks closer," a fairly ordinary greedy search. Once a few ants have completed trips, pheromone starts dominating the choice on whatever route they used, and new ants increasingly follow it rather than rediscovering a route from scratch.</p>
+
+        <h3>Part 8. Finding the Nearest Food</h3>
+        <p>With more than one <span class="code-lesson-il">Food</span> in the scene, an ant needs to know which one it's currently working toward, and that can change as it moves.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _get_food_nodes() -> Array:
+	var food_nodes: Array = get_tree().get_nodes_in_group("food_sources")
+	if food_nodes.is_empty() and food != null:
+		return [food]
+	return food_nodes
+
+func _nearest_food_cell(from_cell: Vector2i) -> Vector2i:
+	var food_nodes: Array = _get_food_nodes()
+	var nearest_cell: Vector2i = path_grid.world_to_cell(food_nodes[0].global_position)
+	var nearest_dist: int = _heuristic(from_cell, nearest_cell)
+
+	for i in range(1, food_nodes.size()):
+		var candidate_cell: Vector2i = path_grid.world_to_cell(food_nodes[i].global_position)
+		var dist: int = _heuristic(from_cell, candidate_cell)
+		if dist < nearest_dist:
+			nearest_dist = dist
+			nearest_cell = candidate_cell
+
+	return nearest_cell
+
+func _is_at_any_food(cell: Vector2i) -> bool:
+	for food_node in _get_food_nodes():
+		if path_grid.world_to_cell(food_node.global_position) == cell:
+			return true
+	return false
+</span>
+</div>
+        <p><span class="code-lesson-il">_get_food_nodes()</span> reads the exact same <span class="code-lesson-il">"food_sources"</span> group every <span class="code-lesson-il">Food</span> instance already joins in Part 4, so adding a second or third food source to the scene needs no wiring anywhere else at all. <span class="code-lesson-il">_heuristic</span> is the same Manhattan-distance function from A*, reused here for "which food is closest" rather than "how far to the goal."</p>
+        <p>Worth knowing before you test this: with food sources at noticeably different distances, ants will strongly favor whichever is nearest once pheromone builds up on the route to it, a colony exploiting its best-known resource, same as a real one would. Don't be surprised if a far-away food source barely gets visited while a close one gets drained quickly.</p>
+
+        <h3>Part 9. Spawning a Colony</h3>
+        <p>Same spawner shape as flocking's, ants at the nest instead of scattered randomly:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">environment.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">const AGENT_SCENE: PackedScene = preload("res://scenes/agent.tscn")
+const ANT_COUNT: int = 14
+const SPAWN_JITTER: float = 20.0
+
+@export var nest: Node2D
+@export var food: Node2D
+@export var path_grid: PathGrid
+
+func _ready() -> void:
+	if path_grid != null:
+		path_grid.draw_grid()
+
+	for i in range(ANT_COUNT):
+		var ant: Agent2D = AGENT_SCENE.instantiate()
+
+		if nest != null:
+			ant.position = nest.global_position + Vector2(
+				randf_range(-SPAWN_JITTER, SPAWN_JITTER),
+				randf_range(-SPAWN_JITTER, SPAWN_JITTER)
+			)
+		ant.rotation = randf_range(0.0, TAU)
+		ant.color = Color(0.85, randf_range(0.55, 0.85), 0.25, 1.0)
+		ant.nest = nest
+		ant.food = food
+		ant.path_grid = path_grid
+		ant.steering_mode = Agent2D.SteeringMode.FORAGE
+
+		add_child(ant)
+</span>
+</div>
+        <p>Set the exported <span class="code-lesson-il">nest</span>, <span class="code-lesson-il">food</span>, and <span class="code-lesson-il">path_grid</span> on <span class="code-lesson-il">Environment</span> in the Inspector, add one or more obstacles between the nest and the food, and press Play.</p>
+
+        <div class="screenshot">
+            <div class="label">A colony converging on a route</div>
+            <img src="" alt="Godot viewport showing ants scattered early on, then a bright pheromone trail forming around an obstacle after several trips">
+            <div class="hint">Two or three shots over time: early on with faint, scattered pheromone, then later with one clearly brightest trail routing around the obstacle.</div>
+        </div>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain stigmergy, and specifically how it differs from what <span class="code-lesson-il">DetectionArea</span> does in flocking.</li>
+            <li>Explain why shorter successful trips end up with more pheromone per cell, without any code ever comparing trip lengths.</li>
+            <li>Explain why <span class="code-lesson-il">_prune_loops</span> matters, and what would go wrong without it.</li>
+            <li>Explain the two terms in <span class="code-lesson-il">_choose_forage_cell</span>'s weight, and why neither alone is enough early on.</li>
+            <li>Explain why depleting a food source doesn't need any pheromone cleanup code.</li>
+            <li>Get a colony converging on a visibly brighter route around an obstacle after letting it run for a while.</li>
+        </ol>
+
+    </body>
+</html>

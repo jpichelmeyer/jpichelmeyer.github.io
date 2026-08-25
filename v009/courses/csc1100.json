@@ -64,9 +64,9 @@
       "theme": "Fundamentals",
       "trs": [
         {
-          "Setup": "csc1100_setup.html",
-          "variables": "csc1100_variables.html",
-          "expressions": "csc1100_expressions.html"
+          "Setup": "csc1100/setup.html",
+          "variables": "csc1100/variables.html",
+          "expressions": "csc1100/expressions.html"
         },
         {
           "Conditionals, control flow": ""

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Every agent this course has built so far is the same basic shape: something with a position, a rotation, and a rule for updating both, one moving individual at a time. Cellular automata are a genuinely different model of emergent complexity: no agents at all, just a grid of cells, each one either alive or dead, each one updating from nothing but its neighbors' current state. Conway's Game of Life is the most famous example, and it's worth building for exactly that contrast, complexity without a single thing that could be called an agent.</p>
+
+        <h3>Part 1. The Rules of Life</h3>
+        <p>Every cell is alive or dead. Every generation, every cell looks at its eight neighbors (the Moore neighborhood: up, down, left, right, and the four diagonals) and applies two rules, usually written B3/S23:</p>
+        <ul>
+            <li><strong>Birth</strong>: a dead cell with exactly 3 live neighbors becomes alive.</li>
+            <li><strong>Survival</strong>: a live cell with 2 or 3 live neighbors stays alive. Any other count, it dies (fewer than 2 is starvation, more than 3 is overcrowding).</li>
+        </ul>
+        <p>That's the entire rule set. Everything Life does, still patterns, oscillators, gliders that travel indefinitely, comes out of those two lines applied to every cell, every generation, all at once.</p>
+
+        <h3>Part 2. The CellGrid Node</h3>
+        <p>This project is intentionally standalone, no agents, no <span class="code-lesson-il">PathGrid</span>, nothing carried over from earlier lessons. Create a new project, add a <span class="code-lesson-il">Node2D</span> named <span class="code-lesson-il">CellGrid</span>, and attach a script.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">cell_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node2D
+class_name CellGrid
+
+@export var grid_width: int = 48
+@export var grid_height: int = 32
+@export var cell_size: float = 20.0
+
+@export var cell_visual_padding: float = 2.0
+@export var cell_corner_radius: int = 3
+
+@export var generation_interval: float = 0.12
+@export var randomize_fill_probability: float = 0.3
+
+var alive: Dictionary = {}
+var is_running: bool = false
+
+var _time_since_step: float = 0.0
+</span>
+</div>
+        <p><span class="code-lesson-il">alive</span> is the whole simulation's state, a <span class="code-lesson-il">Vector2i</span> cell coordinate mapped to <span class="code-lesson-il">true</span> if it's alive; a cell simply isn't a key in the dictionary if it's dead, no need to store <span class="code-lesson-il">false</span> for the (usually large) majority of empty cells.</p>
+
+        <h3>Part 3. Choosing How Edges Connect</h3>
+        <p>A finite grid has edges, and Life's neighbor-counting needs to decide what happens when a neighbor lookup steps off one. Five choices, each a different rule for what a lookup at <span class="code-lesson-il">x</span>, <span class="code-lesson-il">y</span> does once it's outside the grid:</p>
+        <ul>
+            <li><strong>No wrap</strong>: the edge is a true boundary; off-grid neighbors just don't exist.</li>
+            <li><strong>Cylinder</strong>: left and right wrap into each other; top and bottom stay a true boundary.</li>
+            <li><strong>Torus</strong>: both pairs of edges wrap, untwisted, the classic "Pac-Man" wraparound.</li>
+            <li><strong>Klein bottle</strong>: left and right wrap plainly; crossing top or bottom also wraps, but mirrors <span class="code-lesson-il">x</span> on the way, the defining Klein bottle "twist."</li>
+            <li><strong>Cross-cap (RP&sup2;)</strong>: both pairs of edges wrap, and each one mirrors the <em>other</em> axis when crossed. (This is the commonly used "twist both axes" construction for a cross-cap surface in grid demos like this one, not a claim to the one true minimal-polygon construction of RP&sup2;; surface topology has more than one standard way to build it.)</li>
+        </ul>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">cell_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">enum EdgeMode { NONE, CYLINDER, TORUS, KLEIN_BOTTLE, CROSSCAP }
+
+const EDGE_MODE_NAMES: Dictionary = {
+	EdgeMode.NONE: "No wrap",
+	EdgeMode.CYLINDER: "Cylinder",
+	EdgeMode.TORUS: "Torus",
+	EdgeMode.KLEIN_BOTTLE: "Klein bottle",
+	EdgeMode.CROSSCAP: "Cross-cap (RP2)",
+}
+
+@export var edge_mode: EdgeMode = EdgeMode.TORUS
+
+func wrap_cell(x: int, y: int) -> Variant:
+	match edge_mode:
+		EdgeMode.NONE:
+			if x < 0 or x >= grid_width or y < 0 or y >= grid_height:
+				return null
+			return Vector2i(x, y)
+
+		EdgeMode.CYLINDER:
+			if y < 0 or y >= grid_height:
+				return null
+			return Vector2i(posmod(x, grid_width), y)
+
+		EdgeMode.TORUS:
+			return Vector2i(posmod(x, grid_width), posmod(y, grid_height))
+
+		EdgeMode.KLEIN_BOTTLE:
+			var crossed_y: bool = y < 0 or y >= grid_height
+			var wx: int = posmod(x, grid_width)
+			var wy: int = posmod(y, grid_height)
+			if crossed_y:
+				wx = grid_width - 1 - wx
+			return Vector2i(wx, wy)
+
+		EdgeMode.CROSSCAP:
+			var crossed_x: bool = x < 0 or x >= grid_width
+			var crossed_y: bool = y < 0 or y >= grid_height
+			var wx: int = posmod(x, grid_width)
+			var wy: int = posmod(y, grid_height)
+			if crossed_x:
+				wy = grid_height - 1 - wy
+			if crossed_y:
+				wx = grid_width - 1 - wx
+			return Vector2i(wx, wy)
+
+	return null
+</span>
+</div>
+        <p><span class="code-lesson-il">posmod</span> is a built-in Godot function that always returns a non-negative result (<span class="code-lesson-il">posmod(-1, 10)</span> is <span class="code-lesson-il">9</span>, not <span class="code-lesson-il">-1</span>), exactly what's needed to wrap a coordinate that's gone negative back around to the far side. <span class="code-lesson-il">wrap_cell</span> returns <span class="code-lesson-il">null</span> whenever a lookup genuinely has nowhere to go, a true boundary in No Wrap, or the closed-off axis in Cylinder.</p>
+
+        <h3>Part 4. Counting Neighbors, Stepping a Generation</h3>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">cell_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func count_live_neighbors(cell: Vector2i) -> int:
+	var count: int = 0
+	for dx in range(-1, 2):
+		for dy in range(-1, 2):
+			if dx == 0 and dy == 0:
+				continue
+			var neighbor = wrap_cell(cell.x + dx, cell.y + dy)
+			if neighbor != null and alive.get(neighbor, false):
+				count += 1
+	return count
+
+func step_generation() -> void:
+	# Conway's rules (B3/S23), computed into a fresh dictionary so every
+	# cell's next state is based on this generation, not one already
+	# half-updated by cells processed earlier in the same pass.
+	var next_alive: Dictionary = {}
+
+	for x in range(grid_width):
+		for y in range(grid_height):
+			var cell := Vector2i(x, y)
+			var live_neighbors: int = count_live_neighbors(cell)
+			var currently_alive: bool = alive.get(cell, false)
+
+			if currently_alive and (live_neighbors == 2 or live_neighbors == 3):
+				next_alive[cell] = true
+			elif not currently_alive and live_neighbors == 3:
+				next_alive[cell] = true
+
+	alive = next_alive
+	queue_redraw()
+</span>
+</div>
+        <p>The fresh <span class="code-lesson-il">next_alive</span> dictionary matters more than it might look: every cell's next state has to be computed from this generation exactly as it was at the start, not a version already half-updated by whichever cells happened to be processed earlier in the same loop. Writing directly into <span class="code-lesson-il">alive</span> while still reading from it partway through the same pass would let a cell's own fate influence its neighbors' fate in the same tick, which isn't the rule.</p>
+
+        <h3>Part 5. Drawing and Clicking</h3>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">cell_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">var _alive_style: StyleBoxFlat
+var _dead_style: StyleBoxFlat
+
+func _make_cell_style(color: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = color
+	style.corner_radius_top_left = cell_corner_radius
+	style.corner_radius_top_right = cell_corner_radius
+	style.corner_radius_bottom_left = cell_corner_radius
+	style.corner_radius_bottom_right = cell_corner_radius
+	return style
+
+func _draw() -> void:
+	if _alive_style == null:
+		_alive_style = _make_cell_style(Color(0.35, 0.95, 0.55, 0.95))
+	if _dead_style == null:
+		_dead_style = _make_cell_style(Color(1, 1, 1, 0.08))
+
+	var visual_size: float = cell_size - cell_visual_padding
+	var half_padding: float = cell_visual_padding * 0.5
+
+	for x in range(grid_width):
+		for y in range(grid_height):
+			var cell := Vector2i(x, y)
+			var top_left: Vector2 = Vector2(x, y) * cell_size + Vector2(half_padding, half_padding)
+			var rect := Rect2(top_left, Vector2(visual_size, visual_size))
+			var style: StyleBoxFlat = _alive_style if alive.get(cell, false) else _dead_style
+			draw_style_box(style, rect)
+</span>
+</div>
+        <p>Same cached-<span class="code-lesson-il">StyleBoxFlat</span> pattern <span class="code-lesson-il">PathGrid</span> uses elsewhere in this course, two styles built once and reused every frame rather than rebuilt sixty times a second.</p>
+        <p>Setting up a starting pattern by hand needs mouse input:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">cell_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func toggle_cell(cell: Vector2i) -> void:
+	if alive.get(cell, false):
+		alive.erase(cell)
+	else:
+		alive[cell] = true
+	queue_redraw()
+
+func _unhandled_input(event: InputEvent) -> void:
+	# _unhandled_input (rather than _input) means clicks on the UI buttons
+	# never reach here, Godot marks those as handled first.
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var local: Vector2 = get_global_mouse_position() - global_position
+		if local.x < 0 or local.y < 0:
+			return
+		var cell := Vector2i(int(local.x / cell_size), int(local.y / cell_size))
+		if cell.x < grid_width and cell.y < grid_height:
+			toggle_cell(cell)
+</span>
+</div>
+        <p><span class="code-lesson-il">_unhandled_input</span>, specifically, not <span class="code-lesson-il">_input</span>: Godot marks a click on a UI button as handled before it would ever reach this method, so pressing a button never also toggles the cell sitting underneath it. <span class="code-lesson-il">get_global_mouse_position()</span> already accounts for the Camera2D's pan and zoom automatically, no manual transform math needed.</p>
+
+        <div class="screenshot">
+            <div class="label">Hand-painting a starting pattern</div>
+            <img src="" alt="Godot viewport showing a small cluster of manually clicked-alive cells before running the simulation">
+            <div class="hint">A still of the grid with a handful of cells clicked alive, before pressing Run, to show the click-to-toggle interaction clearly.</div>
+        </div>
+
+        <h3>Part 6. The Controls</h3>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">cell_grid.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">@onready var _edge_mode_label: Label = $EdgeModeLabel
+
+func _ready() -> void:
+	_update_edge_mode_label()
+	queue_redraw()
+
+func _process(delta: float) -> void:
+	if not is_running:
+		return
+	_time_since_step += delta
+	if _time_since_step >= generation_interval:
+		_time_since_step = 0.0
+		step_generation()
+
+func randomize_cells() -> void:
+	alive.clear()
+	for x in range(grid_width):
+		for y in range(grid_height):
+			if randf() < randomize_fill_probability:
+				alive[Vector2i(x, y)] = true
+	queue_redraw()
+
+func clear_cells() -> void:
+	alive.clear()
+	is_running = false
+	queue_redraw()
+
+func toggle_run() -> void:
+	is_running = not is_running
+
+func step_once() -> void:
+	step_generation()
+
+func cycle_edge_mode() -> void:
+	edge_mode = (edge_mode + 1) % EDGE_MODE_NAMES.size()
+	_update_edge_mode_label()
+	queue_redraw()
+
+func _update_edge_mode_label() -> void:
+	if _edge_mode_label != null:
+		_edge_mode_label.text = "Edges: " + EDGE_MODE_NAMES[edge_mode]
+</span>
+</div>
+        <p>Add a <span class="code-lesson-il">Label</span> named <span class="code-lesson-il">EdgeModeLabel</span> as a child of <span class="code-lesson-il">CellGrid</span>, and five buttons on the Camera's <span class="code-lesson-il">CanvasLayer</span>, connected straight to these methods: <strong>Randomize</strong>, <strong>Clear</strong>, <strong>Cycle Edge Mode</strong>, <strong>Run / Pause</strong>, and <strong>Step</strong> (advance exactly one generation, useful while paused for actually studying what a pattern does rather than watching it blur by). Every one connects directly to <span class="code-lesson-il">CellGrid</span>, no intermediary script needed.</p>
+
+        <div class="screenshot">
+            <div class="label">All five controls</div>
+            <img src="" alt="Godot viewport showing the full button row: Randomize, Clear, Cycle Edge Mode, Run/Pause, Step">
+            <div class="hint">The bottom of the running scene showing all five buttons, plus the Edges label in the corner.</div>
+        </div>
+
+        <h3>Part 7. Watching Topology Change Behavior</h3>
+        <p>Click a small glider (a five-cell diagonal-moving pattern) onto the grid, or just press Randomize, then press Run. Watch the same starting pattern behave differently as you cycle edge modes: on No Wrap, anything that drifts off an edge is simply gone; on Torus, it reappears on the opposite side, unchanged; on Klein Bottle or Cross-cap, it reappears mirrored, an oscillator that looked symmetric can come back looking like its own reflection.</p>
+
+        <div class="screenshot">
+            <div class="label">The same pattern, different topology</div>
+            <img src="" alt="Godot viewport showing the same starting pattern evolving differently under Torus versus Klein Bottle edge modes">
+            <div class="hint">Two runs of the same starting pattern, several generations in, one on Torus and one on Klein Bottle, showing the mirrored wraparound.</div>
+        </div>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>State the B3/S23 rule from memory, and explain what each half means.</li>
+            <li>Explain why <span class="code-lesson-il">step_generation</span> writes into a fresh dictionary instead of updating <span class="code-lesson-il">alive</span> in place.</li>
+            <li>Explain what each of the five edge modes actually does to a neighbor lookup that steps off the grid.</li>
+            <li>Explain why <span class="code-lesson-il">_unhandled_input</span> is the right choice here instead of <span class="code-lesson-il">_input</span>.</li>
+            <li>Get a pattern running, and describe how the exact same starting cells behaved differently under at least two different edge modes.</li>
+        </ol>
+        <p>Unlike every previous project this semester, nothing here has a position, a rotation, or a notion of "self." Worth sitting with that contrast: this is complexity from a rule applied everywhere at once, not complexity from anything that could be called an individual.</p>
+
+    </body>
+</html>
