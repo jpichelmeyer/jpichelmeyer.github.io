@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>The grid marks every cell as walkable or blocked, which is a graph, but nothing has actually searched it yet. This lesson does: given a start cell and a goal cell, find some sequence of walkable neighbors connecting them, using breadth-first search.</p>
+
+        <h3>Part 1. Breadth-First Search</h3>
+        <p>Breadth-first search explores outward one ring at a time: check every neighbor of the start, then every neighbor of those, then the next ring out, and so on, never revisiting a cell it's already seen. Because every step in this grid costs the same (one cell), the first time BFS reaches the goal, it's guaranteed to have found a shortest path, no shorter route could exist without a ring being visited out of order. Add this to <span class="code-lesson-il">agent.gd</span>:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _path_find_bfs() -> Array:
+	"""
+		return		Array[Vector2i], Array[Vector2i]
+					path           , searched (not in path)
+	"""
+
+	var empty_path: Array[Vector2i] = []
+	var empty_searched: Array[Vector2i] = []
+	var ret: Array = [empty_path, empty_searched]
+
+	# Nullity check
+	if target == null or path_grid == null:
+		return ret
+
+	var cell_target: Vector2i = path_grid.world_to_cell(target.global_position)
+	var cell_self: Vector2i = path_grid.world_to_cell(global_position)
+
+	# Trivial case: already there
+	if cell_self == cell_target:
+		var trivial_path: Array[Vector2i] = [cell_self]
+		var trivial_searched: Array[Vector2i] = [cell_self]
+		return [trivial_path, trivial_searched]
+
+	var directions: Array[Vector2i] = [
+		Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)
+	]
+
+	var checked = [cell_self]
+	var frontier: Array[Vector2i] = [cell_self]
+	var came_from: Dictionary = {cell_self: cell_self}
+
+	var found: bool = false
+
+	while not frontier.is_empty():
+		var current: Vector2i = frontier.pop_front()
+
+		if current == cell_target:
+			found = true
+			break
+
+		for dir in directions:
+			var next: Vector2i = current + dir
+
+			# Skip if out of bounds, blocked, or already visited
+			if next.x < 0 or next.x >= path_grid.grid_width:
+				continue
+			if next.y < 0 or next.y >= path_grid.grid_height:
+				continue
+			if not path_grid.is_walkable(next):
+				continue
+			if came_from.has(next):
+				continue
+
+			came_from[next] = current
+			frontier.append(next)
+			checked.append(next)
+
+	if not found:
+		return ret
+
+	# Walk backwards from target to start, then reverse
+	var path_array: Array[Vector2i] = []
+	var step: Vector2i = cell_target
+
+	while step != cell_self:
+		path_array.append(step)
+		step = came_from[step]
+
+	path_array.append(cell_self)
+	path_array.reverse()
+
+	var searched:Array[Vector2i] = []
+	for cell in checked:
+		if cell not in path_array:
+			searched.append(cell)
+
+	return [path_array, searched]
+</span>
+</div>
+        <p>A few things worth noticing about how this is actually written: the four <span class="code-lesson-il">directions</span> and the bounds/walkable checks are inlined directly in the loop rather than pulled into a separate helper, one function, everything visible in one place. <span class="code-lesson-il">frontier</span> is the queue of cells still waiting to be explored, always pulled from the front (<span class="code-lesson-il">pop_front()</span>), which is what keeps the search expanding ring by ring instead of racing down one path first. <span class="code-lesson-il">came_from</span> does double duty: a cell being a key in it means "already seen, don't re-queue," and its value (which cell led here) is exactly what's needed to walk the path back afterward. <span class="code-lesson-il">checked</span> remembers every cell that got looked at, not just the ones on the final path, that becomes <span class="code-lesson-il">searched</span> once the path cells are filtered back out, and it's what lets you actually see how much of the grid BFS explored, not just where it ended up.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="340" height="220" rx="10" fill="#0c0c10"/>
+    <g stroke="#26262e" stroke-width="1">
+        <line x1="20" y1="20" x2="20" y2="216"/>
+        <line x1="48" y1="20" x2="48" y2="216"/>
+        <line x1="76" y1="20" x2="76" y2="216"/>
+        <line x1="104" y1="20" x2="104" y2="216"/>
+        <line x1="132" y1="20" x2="132" y2="216"/>
+        <line x1="160" y1="20" x2="160" y2="216"/>
+        <line x1="188" y1="20" x2="188" y2="216"/>
+        <line x1="216" y1="20" x2="216" y2="216"/>
+        <line x1="244" y1="20" x2="244" y2="216"/>
+        <line x1="272" y1="20" x2="272" y2="216"/>
+        <line x1="300" y1="20" x2="300" y2="216"/>
+        <line x1="328" y1="20" x2="328" y2="216"/>
+        <line x1="20" y1="20" x2="328" y2="20"/>
+        <line x1="20" y1="48" x2="328" y2="48"/>
+        <line x1="20" y1="76" x2="328" y2="76"/>
+        <line x1="20" y1="104" x2="328" y2="104"/>
+        <line x1="20" y1="132" x2="328" y2="132"/>
+        <line x1="20" y1="160" x2="328" y2="160"/>
+        <line x1="20" y1="188" x2="328" y2="188"/>
+        <line x1="20" y1="216" x2="328" y2="216"/>
+    </g>
+    <rect x="132" y="76" width="84" height="56" rx="6" fill="#e2823f"/>
+    <g fill="#f2e14d" opacity="0.55">
+        <rect x="76" y="76" width="28" height="28"/>
+        <rect x="104" y="76" width="28" height="28"/>
+        <rect x="104" y="48" width="28" height="28"/>
+        <rect x="132" y="48" width="28" height="28"/>
+        <rect x="160" y="48" width="28" height="28"/>
+        <rect x="188" y="48" width="28" height="28"/>
+        <rect x="216" y="48" width="28" height="28"/>
+        <rect x="216" y="76" width="28" height="28"/>
+        <rect x="216" y="104" width="28" height="28"/>
+    </g>
+    <circle cx="90" cy="90" r="9" fill="#e0399c"/>
+    <circle cx="230" cy="118" r="9" fill="#22d3ee"/>
+    <text x="20" y="14" font-size="11" fill="#8a8f98">shortest path (yellow) routes around the obstacle</text>
+</svg>
+        </div>
+
+        <h3>Part 2. Following the Path</h3>
+        <p>Once a route exists as a list of cells, walking it reuses last week's <span class="code-lesson-il">_apply_velocity</span> exactly as it already is, aimed at one waypoint at a time instead of a single fixed target.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">const PATH_WAYPOINT_RADIUS: float = 4.0
+
+var _travel_path: Array[Vector2i] = []
+var _travel_index: int = 0
+
+func _steer_arrive_at(delta_passed: float, destination: Vector2, speed: float) -> bool:
+	"""Steers toward destination at up to `speed`. Returns true once arrived."""
+	var offset: Vector2 = destination - global_position
+	var dist: float = offset.length()
+
+	if dist < PATH_WAYPOINT_RADIUS:
+		velocity = Vector2.ZERO
+		return true
+
+	_apply_velocity(delta_passed, offset.normalized() * speed)
+	return false
+
+func _follow_path(delta_passed: float) -> void:
+	if path_grid == null or _travel_index >= _travel_path.size():
+		_travel_path.clear()
+		_travel_index = 0
+		velocity = Vector2.ZERO
+		return
+
+	var waypoint_world: Vector2 = path_grid.cell_to_world_center(_travel_path[_travel_index])
+	var arrived: bool = _steer_arrive_at(delta_passed, waypoint_world, move_speed)
+
+	if arrived:
+		_travel_index += 1
+		if _travel_index >= _travel_path.size():
+			_travel_path.clear()
+			_travel_index = 0
+			velocity = Vector2.ZERO
+
+func _start_following(path: Array[Vector2i]) -> void:
+	_travel_path = path
+	_travel_index = 0
+</span>
+</div>
+        <p>Add a <span class="code-lesson-il">move_speed</span> export if you don't already have one (<span class="code-lesson-il">150.0</span> is a reasonable default), and check <span class="code-lesson-il">_travel_path</span> at the top of <span class="code-lesson-il">_process</span>, ahead of everything else: if a path is being followed, follow it; otherwise fall back to whatever this agent would normally be doing.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">@export var move_speed: float = 150.0
+
+func _process(delta: float) -> void:
+
+	if not _travel_path.is_empty():
+		_follow_path(delta)
+	elif target != null:
+		_rotate_toward_target()
+	else:
+		_rotation_wander(delta)
+		_move_forward(delta, RATE_MOVE)
+</span>
+</div>
+
+        <h3>Part 3. Wiring Up a Button</h3>
+        <p>Add a <strong>Search: BFS</strong> button to the Camera's <span class="code-lesson-il">CanvasLayer</span>, and give <span class="code-lesson-il">Agent</span> a handler for it:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _on_search_bfs_pressed() -> void:
+	if target != null and path_grid != null:
+		var ret = _path_find_bfs()
+		path_grid.display_path(ret[0], Color(0.5, 0.5, 0.75), ret[1])
+		_start_following(ret[0])
+</span>
+</div>
+        <p><span class="code-lesson-il">display_path(path, highlight_color, searched)</span> is a method already sitting on <span class="code-lesson-il">PathGrid</span>: it redraws the grid with the path cells tinted <span class="code-lesson-il">highlight_color</span> and a small dot over every searched cell that isn't on the final path, exactly the yellow-path, blue-dot look in the diagram above. <span class="code-lesson-il">_start_following</span> is what actually makes the agent move, hand it the same path <span class="code-lesson-il">display_path</span> is showing.</p>
+        <p>Set your agent's <span class="code-lesson-il">target</span> to something on the far side of the obstacle, press <strong>Generate Grid</strong>, then <strong>Search: BFS</strong>. The agent should route cleanly around the obstacle rather than walking into it, and the grid should show both the route and everywhere BFS looked along the way.</p>
+
+        <div class="screenshot">
+            <div class="label">BFS routing around the obstacle</div>
+            <img src="" alt="Godot viewport showing the highlighted BFS path and searched-cell dots, with the agent mid-route around the obstacle">
+            <div class="hint">The running scene right after pressing Search: BFS, showing the tinted path cells, the dots over searched-but-unused cells, and the agent partway along the route.</div>
+        </div>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain why BFS explores ring by ring, and why that guarantees a shortest path when every step costs the same.</li>
+            <li>Explain what <span class="code-lesson-il">came_from</span> is doing, and why it works as both a visited set and a way to reconstruct the path.</li>
+            <li>Explain the difference between <span class="code-lesson-il">checked</span> and <span class="code-lesson-il">searched</span> in the code, and what each is for.</li>
+            <li>Get an agent routing around the obstacle by pressing Search: BFS.</li>
+            <li>Explain why this agent doesn't react if the target moves after the path is found, and why that's a meaningful difference from Seek.</li>
+        </ol>
+        <p>Next: the same idea, but guided by a heuristic instead of exploring blindly in every direction.</p>
+
+    </body>
+</html>

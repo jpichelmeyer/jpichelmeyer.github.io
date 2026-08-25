@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <h3>Web source</h3>
+        <ol>
+            <li>Go to the page for <a href='https://godotengine.org/download/archive/4.6.2-stable/'>Godot 4.6.2-stable</a> and find the area of the page associated with your operating system.</li>
+        </ol>
+
+        <h3>
+            <span class="os-icon os-icon-lin"></span> 
+            Linux
+        </h3>
+        
+        <ol>
+            <li>On the download page, click the <strong>Standard</strong> button to download the 64-bit Linux binary (<code class='code-lesson-il'>Godot_v4.6-stable_linux.x86_64.zip</code>), which is a self-contained executable there's no installer.</li>
+            <li>Unzip the downloaded file to a folder of your choice, e.g. <code class='code-lesson-il'>~/Applications/Godot</code>.</li>
+            <li>Make the file executable. Right-click the file → Properties → Permissions → check "Allow executing file as program", or from a terminal run:
+                <code class="code-lesson-il">chmod +x Godot_v4.6-stable_linux.x86_64</code>
+            </li>
+            <li>Double-click the file (or run it from the terminal) to launch the Godot Project Manager.</li>
+            <li><em>Optional:</em> rename the file to <code class='code-lesson-il'>Godot</code>, move it to <code class='code-lesson-il'>/opt/godot</code> or <code class='code-lesson-il'>~/.local/bin</code>, and add it to your <code class='code-lesson-il'>PATH</code> so you can launch it by typing <code class='code-lesson-il'>godot</code> in a terminal.</li>
+        </ol>
+
+        <h3>
+            <span class="os-icon os-icon-mac"></span> 
+            MacOS
+        </h3>
+        <ol>
+            <li>Download the <strong>Standard</strong> macOS build (<code class='code-lesson-il'>Godot_v4.6-stable_macos.universal.zip</code>). It works on both Intel and Apple Silicon Macs.</li>
+            <li>Unzip the file. This produces a <code class='code-lesson-il'>Godot.app</code> application.</li>
+            <li>Drag <code class='code-lesson-il'>Godot.app</code> into your <strong>Applications</strong> folder.</li>
+            <li>Since Godot isn't downloaded from the App Store, the first time you open it macOS will warn that it's from an unidentified developer.
+                <ul>
+                    <li>Right-click (or Control-click) <code class='code-lesson-il'>Godot.app</code> and choose <strong>Open</strong>, then confirm <strong>Open</strong> in the dialog that appears. You only need to do this once.</li>
+                    <li>Alternatively, go to <strong>System Settings → Privacy & Security</strong> and click <strong>Open Anyway</strong> next to the Godot warning.</li>
+                </ul>
+            </li>
+            <li>Godot will now launch normally. You can open it going forward from Launchpad or Applications like any other app.</li>
+        </ol>
+
+        <h3>
+            <span class="os-icon os-icon-win"></span> 
+            Windows
+        </h3>
+        <ol>
+            <li>Download the <strong>Standard</strong> 64-bit Windows build (<code class='code-lesson-il'>Godot_v4.6-stable_win64.exe.zip</code>).</li>
+            <li>Unzip the file. This produces a single <code class='code-lesson-il'>Godot_v4.6-stable_win64.exe</code> file. That's it. There's no installer to run.</li>
+            <li>Move the <code class='code-lesson-il'>.exe</code> to a permanent folder, e.g. <code class='code-lesson-il'>C:\Godot\</code>.</li>
+            <li>Double-click the <code class='code-lesson-il'>.exe</code> to launch Godot.
+                <ul>
+                    <li>If Windows SmartScreen shows a warning ("Windows protected your PC"), click <strong>More info</strong> then <strong>Run anyway</strong>.</li>
+                </ul>
+            </li>
+            <li><em>Optional:</em> right-click the <code class='code-lesson-il'>.exe</code> and choose <strong>Pin to Start</strong> or <strong>Send to → Desktop (create shortcut)</strong> for easy access later.</li>
+        </ol>
+    </body>
+</html>

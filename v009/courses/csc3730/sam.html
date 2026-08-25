@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Before writing any Godot-specific code, it's worth having a general way to talk about what an agent actually is, one that will keep applying no matter which specific technique (steering, pathfinding, state machines, learned policies) you use to build one. This lesson lays out that vocabulary: the Situated Agent Model, or SAM.</p>
+
+        <h3>Part 1. Agent and Environment</h3>
+        <p>SAM starts from a simple split: there is an <strong>Agent</strong>, and there is an <strong>Environment</strong> the agent is <em>situated</em> in (hence the name). The agent doesn't have direct access to the environment's true state; it only knows what it observes, and it can only affect the environment through whatever actions it's capable of taking. Everything the agent does happens in a loop: observe, decide, act, and observe again.</p>
+
+        <h3>Part 2. Four Units Inside the Agent</h3>
+        <p>Inside the agent, that loop breaks down into four units, each with a distinct job:</p>
+        <ul>
+            <li><strong>Perceptor</strong>: detects observables in the environment and converts them into information the rest of the agent can use. A raycast hitting a wall, a distance check to a target, reading another node's position; all of this is perception.</li>
+            <li><strong>Memory</strong>: holds information over time. Perception alone is only ever a snapshot of right now; memory is what lets an agent remember a target's last known position, keep a running count, or track whether some condition was true a moment ago.</li>
+            <li><strong>Decider</strong>: takes whatever the Perceptor is reporting right now, together with whatever Memory is holding onto, and decides what to do. This is where the actual "AI" of an AI agent usually lives.</li>
+            <li><strong>Actuator</strong>: carries out whatever action the Decider chose, back out into the Environment. This is the only unit that's allowed to actually change anything outside the agent.</li>
+        </ul>
+
+        <div class="diagram">
+<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="samArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+
+    <rect x="30" y="15" width="420" height="175" rx="10" fill="none" stroke="#2e5a80" stroke-width="2"/>
+    <text x="42" y="34" font-size="13" fill="#2e5a80" font-weight="bold">Agent</text>
+
+    <rect x="55" y="70" width="95" height="55" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="102" y="102" font-size="13" fill="#1f3b52" text-anchor="middle">Perceptor</text>
+
+    <rect x="195" y="40" width="95" height="45" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="242" y="67" font-size="13" fill="#1f3b52" text-anchor="middle">Memory</text>
+
+    <rect x="195" y="100" width="95" height="55" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="242" y="132" font-size="13" fill="#1f3b52" text-anchor="middle">Decider</text>
+
+    <rect x="335" y="70" width="95" height="55" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="382" y="102" font-size="13" fill="#1f3b52" text-anchor="middle">Actuator</text>
+
+    <rect x="150" y="235" width="180" height="45" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="240" y="262" font-size="13" fill="#8a4526" text-anchor="middle">Environment</text>
+
+    <line x1="205" y1="235" x2="115" y2="128" stroke="#2e5a80" stroke-width="2" marker-end="url(#samArrow)"/>
+    <line x1="150" y1="97" x2="193" y2="122" stroke="#2e5a80" stroke-width="2" marker-end="url(#samArrow)"/>
+    <line x1="245" y1="85" x2="245" y2="98" stroke="#2e5a80" stroke-width="2" marker-end="url(#samArrow)"/>
+    <line x1="245" y1="98" x2="245" y2="85" stroke="#2e5a80" stroke-width="2" marker-end="url(#samArrow)"/>
+    <line x1="292" y1="120" x2="333" y2="97" stroke="#2e5a80" stroke-width="2" marker-end="url(#samArrow)"/>
+    <line x1="372" y1="128" x2="290" y2="240" stroke="#2e5a80" stroke-width="2" marker-end="url(#samArrow)"/>
+</svg>
+            <div class="diagram-caption">The Situated Agent Model: Environment feeds the Perceptor, the Decider draws on Perceptor and Memory, and the Actuator's action feeds back into the Environment.</div>
+        </div>
+
+        <h3>Part 3. Mapping SAM Onto Code</h3>
+        <p>None of this requires special engine support; it's a way of organizing code you're already writing. In the agents you'll build this semester:</p>
+        <ul>
+            <li>Perceptor: a <span class="code-lesson-il">RayCast2D</span> check, a <span class="code-lesson-il">distance_to()</span> call, reading <span class="code-lesson-il">target.global_position</span>.</li>
+            <li>Memory: exported or plain <span class="code-lesson-il">var</span>s that persist between frames (a stored target, a remembered last-known position, a counter).</li>
+            <li>Decider: whatever picks the action (last week's <span class="code-lesson-il">steering_method_from_type</span> dictionary lookup, and later in the semester, finite state machines and behavior trees).</li>
+            <li>Actuator: setting <span class="code-lesson-il">velocity</span> and calling <span class="code-lesson-il">move_and_slide()</span>, or any other call that actually changes something in the scene.</li>
+        </ul>
+        <p>The value of naming these separately shows up as agents get more complex: it gives you a place to ask "where does this piece of logic belong," rather than letting perception, memory, decision-making, and action all blur together inside one long function. A lot of what's ahead this semester (state machines, behavior trees, even reinforcement learning) is really just different ways of building a more capable Decider, sitting on top of the same Perceptor/Memory/Actuator structure.</p>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Name all four units inside a SAM agent, and describe each one's job in a sentence.</li>
+            <li>Explain why Memory is a separate unit from Perceptor, rather than the same thing.</li>
+            <li>Point to a piece of GDScript (yours or an example) and say which unit it belongs to.</li>
+        </ol>
+
+    </body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Every steering behavior so far answers "which way should I move" using only the target and its own position. None of them look at anything else in the scene. This lesson builds a solid obstacle and lets you watch that gap firsthand, which sets up exactly why the next few lessons take a completely different approach to getting around things.</p>
+
+        <h3>Part 1. Building an Obstacle</h3>
+        <p>In <span class="code-lesson-il">Environment</span>, add a <span class="code-lesson-il">StaticBody2D</span> named <span class="code-lesson-il">Obstacle</span>, with a <span class="code-lesson-il">Sprite2D</span> child (<span class="code-lesson-il">icon.svg</span>, the default placeholder every Godot project ships with, works fine here) and a <span class="code-lesson-il">CollisionShape2D</span> child using a <span class="code-lesson-il">RectangleShape2D</span> sized to roughly match the sprite.</p>
+        <p>Save this as its own scene, <span class="code-lesson-il">obstacle.tscn</span>, rather than building it directly inside <span class="code-lesson-il">Environment</span>. You'll want to drop several of these into a scene later, and a reusable scene means placing a new one is drag-and-drop instead of rebuilding the node tree by hand each time.</p>
+
+        <div class="screenshot">
+            <div class="label">Obstacle scene tree</div>
+            <img src="" alt="Godot Scene dock showing a StaticBody2D obstacle with Sprite2D and CollisionShape2D children">
+            <div class="hint">Scene dock for Obstacle: StaticBody2D root, Sprite2D and CollisionShape2D children, plus the Inspector showing the RectangleShape2D's Size.</div>
+        </div>
+
+        <h3>Part 2. Watching Steering Fail</h3>
+        <p>Drop one instance of <span class="code-lesson-il">obstacle.tscn</span> into <span class="code-lesson-il">Environment</span>, directly between <span class="code-lesson-il">AgentA</span> and whatever it's currently seeking. Press Play.</p>
+        <p><span class="code-lesson-il">AgentA</span> drives straight through it. Nothing stops it, nothing deflects it, nothing even notices it's there. That's not a bug to fix in this lesson, it's the actual, honest state of the code you've built: <span class="code-lesson-il">Agent2D</span> has no <span class="code-lesson-il">CollisionShape2D</span> of its own, and every steering behavior so far only ever asks "where is my target," never "is anything in my way." <span class="code-lesson-il">_apply_velocity</span> moves the agent unconditionally, every frame, regardless of what's sitting in the path.</p>
+
+        <div class="screenshot">
+            <div class="label">Seek driving straight through an obstacle</div>
+            <img src="" alt="Godot viewport showing AgentA overlapping the obstacle instead of steering around it">
+            <div class="hint">A still (or two) of AgentA mid-collision with the obstacle, visibly overlapping it rather than deflecting.</div>
+        </div>
+
+        <h3>Part 3. Two Ways Games Actually Solve This</h3>
+        <p>There are two broad families of fix, and it's worth knowing both exist even though this course only builds one of them:</p>
+        <ul>
+            <li><strong>Reactive avoidance.</strong> Give the agent a way to sense obstacles directly, commonly a short raycast out in front of it, and steer away from whatever the ray hits. This keeps agents fast and simple, but they only ever react to what's immediately ahead; they have no sense of the map as a whole, and can get stuck in dead ends or bad local situations a wider view would have avoided.</li>
+            <li><strong>Deliberative planning.</strong> Build a representation of the whole map (which areas are open, which are blocked), and search that representation for a route before moving at all. This sees the big picture and can guarantee a route exists (or correctly report that none does), at the cost of needing that map built and kept up to date.</li>
+        </ul>
+        <p>This course takes the second path. Rather than teaching an agent to react to obstacles one raycast at a time, the next lesson builds a grid over the whole environment, one that already knows which cells this same <span class="code-lesson-il">Obstacle</span> scene blocks, and searches it for a path. The obstacle you just built isn't wasted work, it's exactly what that grid is going to detect.</p>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Build a reusable <span class="code-lesson-il">obstacle.tscn</span> with a <span class="code-lesson-il">StaticBody2D</span>, a visible sprite, and a <span class="code-lesson-il">CollisionShape2D</span>.</li>
+            <li>Explain, precisely, why current steering agents pass straight through it rather than reacting to it.</li>
+            <li>Describe the difference between reactive avoidance and deliberative planning, and which one this course is about to build.</li>
+        </ol>
+        <p>Next: flocking, then a grid over this same environment, obstacle included, that agents can actually search.</p>
+
+    </body>
+</html>

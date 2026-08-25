@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>BFS finds a shortest path, but it explores blindly: every direction gets checked equally, even cells heading straight away from the goal. A* fixes that by adding a heuristic, an estimate of how far each cell still is from the goal, and always expanding the most promising cell first.</p>
+
+        <h3>Part 1. Cost So Far, Plus Cost To Go</h3>
+        <p>A* tracks two numbers per cell: <span class="code-lesson-il">g</span>, the actual cost of the best path found to it so far, and <span class="code-lesson-il">h</span>, a heuristic guess at the remaining distance to the goal. Their sum, <span class="code-lesson-il">f = g + h</span>, is what decides which cell to expand next: lowest <span class="code-lesson-il">f</span> first. For a four-directional grid, Manhattan distance (the sum of the horizontal and vertical distance, ignoring obstacles) is a good heuristic: it never overestimates the true cost, which is exactly what keeps A* guaranteed to still find a shortest path, not just a fast one.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _heuristic(cell: Vector2i, cell_target: Vector2i) -> int:
+	# Manhattan distance: admissible for 4-directional movement with uniform cost
+	return abs(cell.x - cell_target.x) + abs(cell.y - cell_target.y)
+</span>
+</div>
+
+        <h3>Part 2. Implementing A*</h3>
+        <p>Real implementations often keep the open set in a proper priority queue for speed. To keep this readable, this scans for the lowest <span class="code-lesson-il">f_score</span> by hand instead, a plain linear scan through <span class="code-lesson-il">open_set</span> each time. Slower on a very large grid, but behaves identically, and the shape is otherwise the same as <span class="code-lesson-il">_path_find_bfs</span> from last lesson.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _path_find_a_star() -> Array:
+	"""
+		return		Array[Vector2i], Array[Vector2i]
+					path           , searched (not in path)
+	"""
+
+	var empty_path: Array[Vector2i] = []
+	var empty_searched: Array[Vector2i] = []
+	var ret: Array = [empty_path, empty_searched]
+
+	# Nullity check
+	if target == null or path_grid == null:
+		return ret
+
+	var cell_target: Vector2i = path_grid.world_to_cell(target.global_position)
+	var cell_self: Vector2i = path_grid.world_to_cell(global_position)
+
+	# Trivial case: already there
+	if cell_self == cell_target:
+		var trivial_path: Array[Vector2i] = [cell_self]
+		var trivial_searched: Array[Vector2i] = [cell_self]
+		return [trivial_path, trivial_searched]
+
+	var directions: Array[Vector2i] = [
+		Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)
+	]
+
+	var checked = [cell_self]
+	var open_set: Array[Vector2i] = [cell_self]
+	var came_from: Dictionary = {}
+	var g_score: Dictionary = {cell_self: 0}
+	var f_score: Dictionary = {cell_self: _heuristic(cell_self, cell_target)}
+
+	var found: bool = false
+
+	while not open_set.is_empty():
+		# Pull the open_set entry with the lowest f_score (cheap linear scan;
+		# fine for grid sizes like this, swap for a min-heap if it ever grows large)
+		var current: Vector2i = open_set[0]
+		var current_index: int = 0
+		for i in range(1, open_set.size()):
+			if f_score.get(open_set[i], INF) < f_score.get(current, INF):
+				current = open_set[i]
+				current_index = i
+		open_set.remove_at(current_index)
+
+		if current == cell_target:
+			found = true
+			break
+
+		for dir in directions:
+			var next: Vector2i = current + dir
+
+			# Skip if out of bounds or blocked
+			if next.x < 0 or next.x >= path_grid.grid_width:
+				continue
+			if next.y < 0 or next.y >= path_grid.grid_height:
+				continue
+			if not path_grid.is_walkable(next):
+				continue
+
+			# Cost of a single grid step is 1
+			var tentative_g: int = g_score[current] + 1
+
+			if tentative_g < g_score.get(next, INF):
+				came_from[next] = current
+				g_score[next] = tentative_g
+				f_score[next] = tentative_g + _heuristic(next, cell_target)
+
+				if next not in open_set:
+					open_set.append(next)
+					checked.append(next)
+
+	if not found:
+		return ret
+
+	# Walk backwards from target to start, then reverse
+	var path_array: Array[Vector2i] = []
+	var step: Vector2i = cell_target
+
+	while step != cell_self:
+		path_array.append(step)
+		step = came_from[step]
+
+	path_array.append(cell_self)
+	path_array.reverse()
+
+	var searched: Array[Vector2i] = []
+	for cell in checked:
+		if cell not in path_array:
+			searched.append(cell)
+
+	return [path_array, searched]
+</span>
+</div>
+        <p>Line up the shapes: this is BFS with two additions. Instead of always popping the oldest entry in the frontier, it pops whichever open cell currently has the lowest <span class="code-lesson-il">f_score</span>. And instead of a simple visited check, it tracks the actual cost <span class="code-lesson-il">g_score</span> to each cell, so it can update a cell's route if a cheaper path to it turns up later (that's what the <span class="code-lesson-il">tentative_g < g_score.get(next, INF)</span> check is doing). Everything else, the neighbor bounds checks, the reconstruction, is identical to last lesson.</p>
+
+        <h3>Part 3. Why This Actually Matters</h3>
+        <p>Both algorithms find the same shortest path here (every step costs the same, so both are correct), but they get there by exploring very different numbers of cells.</p>
+
+        <div class="diagram-row">
+            <div class="diagram">
+<svg viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="260" height="200" rx="10" fill="#0c0c10"/>
+    <line x1="14" y1="14" x2="14" y2="182" stroke="#26262e"/>
+    <line x1="38" y1="14" x2="38" y2="182" stroke="#26262e"/>
+    <line x1="62" y1="14" x2="62" y2="182" stroke="#26262e"/>
+    <line x1="86" y1="14" x2="86" y2="182" stroke="#26262e"/>
+    <line x1="110" y1="14" x2="110" y2="182" stroke="#26262e"/>
+    <line x1="134" y1="14" x2="134" y2="182" stroke="#26262e"/>
+    <line x1="158" y1="14" x2="158" y2="182" stroke="#26262e"/>
+    <line x1="182" y1="14" x2="182" y2="182" stroke="#26262e"/>
+    <line x1="206" y1="14" x2="206" y2="182" stroke="#26262e"/>
+    <line x1="230" y1="14" x2="230" y2="182" stroke="#26262e"/>
+    <line x1="14" y1="14" x2="230" y2="14" stroke="#26262e"/>
+    <line x1="14" y1="38" x2="230" y2="38" stroke="#26262e"/>
+    <line x1="14" y1="62" x2="230" y2="62" stroke="#26262e"/>
+    <line x1="14" y1="86" x2="230" y2="86" stroke="#26262e"/>
+    <line x1="14" y1="110" x2="230" y2="110" stroke="#26262e"/>
+    <line x1="14" y1="134" x2="230" y2="134" stroke="#26262e"/>
+    <line x1="14" y1="158" x2="230" y2="158" stroke="#26262e"/>
+    <line x1="14" y1="182" x2="230" y2="182" stroke="#26262e"/>
+    <rect x="14" y="14" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="14" y="38" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="14" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="14" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="14" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="14" y="134" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="14" y="158" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="38" y="14" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="38" y="38" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="38" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="38" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="38" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="38" y="134" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="38" y="158" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="14" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="38" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="134" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="158" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="14" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="38" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="134" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="158" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="110" y="38" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="110" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="110" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="110" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="110" y="134" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="134" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="134" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="134" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="158" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <circle cx="50.0" cy="98.0" r="7" fill="#e0399c"/>
+    <circle cx="194.0" cy="98.0" r="7" fill="#22d3ee"/>
+    <text x="14" y="196" font-size="11" fill="#8a8f98">BFS: explores every direction equally</text>
+</svg>
+            </div>
+            <div class="diagram">
+<svg viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="260" height="200" rx="10" fill="#0c0c10"/>
+    <line x1="14" y1="14" x2="14" y2="182" stroke="#26262e"/>
+    <line x1="38" y1="14" x2="38" y2="182" stroke="#26262e"/>
+    <line x1="62" y1="14" x2="62" y2="182" stroke="#26262e"/>
+    <line x1="86" y1="14" x2="86" y2="182" stroke="#26262e"/>
+    <line x1="110" y1="14" x2="110" y2="182" stroke="#26262e"/>
+    <line x1="134" y1="14" x2="134" y2="182" stroke="#26262e"/>
+    <line x1="158" y1="14" x2="158" y2="182" stroke="#26262e"/>
+    <line x1="182" y1="14" x2="182" y2="182" stroke="#26262e"/>
+    <line x1="206" y1="14" x2="206" y2="182" stroke="#26262e"/>
+    <line x1="230" y1="14" x2="230" y2="182" stroke="#26262e"/>
+    <line x1="14" y1="14" x2="230" y2="14" stroke="#26262e"/>
+    <line x1="14" y1="38" x2="230" y2="38" stroke="#26262e"/>
+    <line x1="14" y1="62" x2="230" y2="62" stroke="#26262e"/>
+    <line x1="14" y1="86" x2="230" y2="86" stroke="#26262e"/>
+    <line x1="14" y1="110" x2="230" y2="110" stroke="#26262e"/>
+    <line x1="14" y1="134" x2="230" y2="134" stroke="#26262e"/>
+    <line x1="14" y1="158" x2="230" y2="158" stroke="#26262e"/>
+    <line x1="14" y1="182" x2="230" y2="182" stroke="#26262e"/>
+    <rect x="38" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="62" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="86" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="110" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="110" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="110" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="134" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="134" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="134" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="158" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="158" y="62" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="158" y="110" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <rect x="182" y="86" width="24" height="24" fill="#f2e14d" opacity="0.30"/>
+    <circle cx="50.0" cy="98.0" r="7" fill="#e0399c"/>
+    <circle cx="194.0" cy="98.0" r="7" fill="#22d3ee"/>
+    <text x="14" y="196" font-size="11" fill="#8a8f98">A*: the heuristic funnels it toward the goal</text>
+</svg>
+            </div>
+        </div>
+
+        <p>On a small classroom-sized grid the difference barely matters. On a large map with a lot of open space, it's the difference between checking a few dozen cells and checking thousands, which is why A* (or something built on the same idea) is what most shipped games actually use, not BFS.</p>
+
+        <h3>Part 4. Wiring Up a Button</h3>
+        <p>Add a <strong>Search: A*</strong> button next to the BFS one, wired to a matching handler:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _on_search_astar_pressed() -> void:
+	if target != null and path_grid != null:
+		var ret = _path_find_a_star()
+		path_grid.display_path(ret[0], Color(0.5, 0.5, 0.75), ret[1])
+		_start_following(ret[0])
+</span>
+</div>
+        <p>Same shape as <span class="code-lesson-il">_on_search_bfs_pressed</span>, right down to reusing <span class="code-lesson-il">display_path</span> and <span class="code-lesson-il">_start_following</span> unchanged, only the search function called is different. <span class="code-lesson-il">_follow_path</span> from last lesson doesn't need any changes at all either: it just walks whatever <span class="code-lesson-il">_travel_path</span> array it's given, and has no idea, or need to know, which search algorithm produced it.</p>
+        <p>Press <strong>Search: BFS</strong>, note roughly how many cells lit up with searched-dots, then press <strong>Search: A*</strong> on the same layout and compare. Same path, visibly fewer dots.</p>
+
+        <div class="screenshot">
+            <div class="label">BFS vs A*, same layout</div>
+            <img src="" alt="Two screenshots of the same grid layout, one after Search: BFS and one after Search: A*, showing fewer searched-cell dots for A*">
+            <div class="hint">Two shots of the identical scene: after Search: BFS and after Search: A*, side by side, to visually compare how many cells each one actually explored.</div>
+        </div>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain <span class="code-lesson-il">g_score</span>, <span class="code-lesson-il">f_score</span>, and the heuristic, and which one decides what gets expanded next.</li>
+            <li>Explain why Manhattan distance is a reasonable heuristic on this grid, and what "never overestimates" is protecting.</li>
+            <li>Point out the two concrete differences between this A* implementation and last lesson's BFS.</li>
+            <li>Explain why neither <span class="code-lesson-il">_follow_path</span> nor <span class="code-lesson-il">display_path</span> needed any changes at all to support A*.</li>
+        </ol>
+
+    </body>
+</html>

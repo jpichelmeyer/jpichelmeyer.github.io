@@ -113,24 +113,24 @@
       "theme": "Movement",
       "trs": [
         {
-          "Situated Agent Model (SAM)": "csc3730_sam.html",
-          "Setup": "csc3730_godot_01_setup.html",
-          "Godot": "csc3730_godot_02_tour.html",
-          "GDscript": "csc3730_godot_03_gdscript.html"
+          "Situated Agent Model (SAM)": "csc3730/sam.html",
+          "Setup": "csc3730/godot_01_setup.html",
+          "Godot": "csc3730/godot_02_tour.html",
+          "GDscript": "csc3730/godot_03_gdscript.html"
         },
         {
-          "Steering behavior": "csc3730_move_cont_01_steering.html",
-          "Obstacles": "csc3730_move_cont_02_obstacles.html",
-          "Flocking (boids)": "csc3730_move_cont_03_flocking.html"
+          "Steering behavior": "csc3730/move_cont_01_steering.html",
+          "Obstacles": "csc3730/move_cont_02_obstacles.html",
+          "Flocking (boids)": "csc3730/move_cont_03_flocking.html"
         },
         {
-          "Pathfinding": "",
-          "Search on graphs": ""
+          "Grid & Graph": "csc3730/move_disc_01_grid.html",
+          "Pathfinding": "csc3730/move_disc_02_bfs.html",
+          "Search on graphs": "csc3730/move_disc_03_astar.html"
         },
         {
-          "Stigmergy": "", 
-          "Ant Colony Optimization (ACO)": "", 
-          "Artificial Life": ""
+          "Ant Colony Optimization (ACO)": "csc3730/aco.html", 
+          "Artificial Life": "csc3730/cellular_automata.html"
         },
         {
           "Presentation 1: The Pitch": ""
