@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>You've been using strings since the very first lesson, mostly as whole values passed to <code class="code-lesson-il">print()</code>. A string is actually a sequence, an ordered run of individual characters, and once you start treating it that way, a lot of new operations open up.</p>
+
+    <h3>Part 1. Indexing</h3>
+    <p>Each character in a string has a position, starting at <code class="code-lesson-il">0</code>. Square brackets pull out the character at a given index.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">s = "python"
+print(s[0])    # p, the first character
+print(s[-1])   # n, negative indices count from the end
+print(len(s))  # 6, the number of characters</code>
+    </div>
+    <p>Negative indices are genuinely useful, not just a curiosity: <code class="code-lesson-il">s[-1]</code> is always the last character no matter how long the string is, without needing <code class="code-lesson-il">len(s) - 1</code> to work it out.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">s = "python"
+print(s[0])
+print(s[-1])
+print(len(s))</script>
+        <script type="text/plain" class="pyeditor-expected">p
+n
+6</script>
+    </div>
+
+    <h3>Part 2. Slicing</h3>
+    <p>A slice pulls out a whole range at once: <code class="code-lesson-il">s[start:stop]</code>, up to but not including <code class="code-lesson-il">stop</code>. Leave either side off and Python fills in "the beginning" or "the end" for you.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">s = "python"
+print(s[0:3])   # pyt
+print(s[3:])    # hon, everything from index 3 onward
+print(s[:3])    # pyt, everything up to (not including) index 3</code>
+    </div>
+    <p>A slice can also take a step, <code class="code-lesson-il">s[start:stop:step]</code>, and a neat trick falls straight out of that: <code class="code-lesson-il">s[::-1]</code> (the whole string, stepping backward) reverses it.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">s = "python"
+print(s[0:3])
+print(s[3:])
+print(s[::-1])</script>
+        <script type="text/plain" class="pyeditor-expected">pyt
+hon
+nohtyp</script>
+    </div>
+
+    <h3>Part 3. Strings Are Immutable</h3>
+    <p>Once a string exists, it can't be changed in place, no character can be swapped out inside it. Trying to assign into an index raises an error.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">s = "python"
+s[0] = "P"   # TypeError: 'str' object does not support item assignment</code>
+    </div>
+    <p>Anything that looks like it's "modifying" a string is actually building an entirely new one and handing that back: <code class="code-lesson-il">s.upper()</code> doesn't change <code class="code-lesson-il">s</code>, it returns a new, different string with the change already made. If you want to keep the result, you have to assign it, usually right back to the same name: <code class="code-lesson-il">s = s.upper()</code>.</p>
+
+    <h3>Part 4. Useful String Methods</h3>
+    <p>A method is a function that belongs to a value, called with a dot: <code class="code-lesson-il">value.method()</code>. A few you'll reach for constantly:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">name = "  Ada  "
+print(name.strip())               # "Ada", leading/trailing whitespace gone
+print("PYTHON".lower())           # "python"
+print("python".upper())           # "PYTHON"
+print("hello world".replace("world", "there"))   # "hello there"
+print("one,two,three".split(","))                # ['one', 'two', 'three']</code>
+    </div>
+    <p><code class="code-lesson-il">split()</code> is worth a second look: it turns one string into a list of smaller strings, breaking wherever the given separator shows up. You'll use this constantly once you're reading real, messy text input.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">name = "  Ada  "
+print(name.strip())
+print("hello world".replace("world", "there"))</script>
+        <script type="text/plain" class="pyeditor-expected">Ada
+hello there</script>
+    </div>
+
+    <h3>Part 5. f-strings</h3>
+    <p>Back in an earlier lesson, building a message out of a string and a number needed an explicit <code class="code-lesson-il">str()</code> conversion: <code class="code-lesson-il">"Score: " + str(95)</code>. An f-string does the same job more directly: put an <code class="code-lesson-il">f</code> right before the opening quote, and anything inside <code class="code-lesson-il">{ }</code> gets evaluated and dropped into the string automatically, no manual conversion needed.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">age = 30
+print(f"I am {age} years old")
+
+name = "Ada"
+print(f"Hello, {name}! You are {age}.")</code>
+    </div>
+    <p>Anything can go inside the braces, not just a bare variable, <code class="code-lesson-il">f"{2 + 2}"</code> works exactly the way you'd expect. This is the idiomatic way to build a string out of mixed pieces in modern Python; reach for it over <code class="code-lesson-il">+</code> concatenation whenever more than one or two pieces are involved.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">age = 30
+name = "Ada"
+print(f"Hello, {name}! You are {age}.")</script>
+        <script type="text/plain" class="pyeditor-expected">Hello, Ada! You are 30.</script>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Write a function <code class="code-lesson-il">is_palindrome(s)</code> that returns <code class="code-lesson-il">True</code> if a string reads the same forward and backward (using the reversing slice from Part 2), then check it on <code class="code-lesson-il">"racecar"</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def is_palindrome(s):
+    return s == s[::-1]
+
+print(is_palindrome("racecar"))</script>
+        <script type="text/plain" class="pyeditor-expected">True</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Index into a string, including with a negative index, and explain what <code class="code-lesson-il">len()</code> returns.</li>
+        <li>Slice a string, and explain what leaving off the start or stop actually does.</li>
+        <li>Explain what "immutable" means for strings, and why <code class="code-lesson-il">s = s.upper()</code> is necessary but <code class="code-lesson-il">s.upper()</code> alone isn't enough.</li>
+        <li>Use at least three string methods from Part 4 without looking them up.</li>
+        <li>Build a string out of mixed variables and text using an f-string.</li>
+    </ol>
+
+</body>
+</html>

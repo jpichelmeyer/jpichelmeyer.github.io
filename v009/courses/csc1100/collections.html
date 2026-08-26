@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>So far, every variable has held exactly one value. A collection holds many, as a single thing you can pass around, loop over, and grow. Python has four you'll use constantly, and each one makes a different tradeoff: ordered or not, changeable or not, unique values or not.</p>
+
+    <h3>Part 1. Lists</h3>
+    <p>A list is an ordered, changeable sequence, written with square brackets. Indexing and slicing work exactly the way they did for strings.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">nums = [10, 20, 30]
+print(nums[0])     # 10
+print(len(nums))   # 3
+
+nums.append(40)
+print(nums)        # [10, 20, 30, 40]
+
+for n in nums:
+    print(n)</code>
+    </div>
+    <p>Unlike a string, a list is mutable, you can change it in place without building a new one.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">nums = [10, 20, 30]
+nums[0] = 99
+print(nums)   # [99, 20, 30], the same list, changed in place</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">nums = [10, 20, 30]
+nums.append(40)
+nums[0] = 99
+print(nums)</script>
+        <script type="text/plain" class="pyeditor-expected">[99, 20, 30, 40]</script>
+    </div>
+
+    <h3>Part 2. Tuples</h3>
+    <p>A tuple looks like a list but uses parentheses, and once built, it can't be changed, no appending, no reassigning an index. Reach for a tuple when a fixed, small group of values belongs together and shouldn't be modified, coordinates, for instance.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">point = (3, 4)
+print(point[0])   # 3
+
+x, y = point      # unpacking: pull both values out by position
+print(x, y)       # 3 4</code>
+    </div>
+    <p>Unpacking is the feature that makes tuples genuinely convenient, not just "a list that can't change": <code class="code-lesson-il">x, y = point</code> assigns both names in one line, matched up by position.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">point = (3, 4)
+x, y = point
+print(x, y)</script>
+        <script type="text/plain" class="pyeditor-expected">3 4</script>
+    </div>
+
+    <h3>Part 3. Sets</h3>
+    <p>A set is unordered and never contains duplicates, written with curly braces. Adding a value that's already there quietly does nothing.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">s1 = {1, 2, 2, 3, 3, 3}
+print(s1)          # {1, 2, 3}, duplicates collapsed automatically
+
+s1.add(4)
+print(3 in s1)     # True, membership checks are what sets are built for</code>
+    </div>
+    <p>A common, genuinely useful trick: wrap a list in <code class="code-lesson-il">set(...)</code> to strip out duplicates, then convert back to a list if order matters again afterward.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">nums = [1, 2, 2, 3, 3, 3, 4]
+unique = list(set(nums))
+print(sorted(unique))   # [1, 2, 3, 4]</code>
+    </div>
+    <p>Note the <code class="code-lesson-il">sorted(...)</code> around the final print there: a set has no guaranteed order, so it's wrapped before printing specifically to get a predictable result to compare against, don't be surprised if printing a set directly comes out in whatever order Python happens to store it in.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">s1 = {1, 2, 2, 3, 3, 3}
+print(len(s1))
+print(3 in s1)</script>
+        <script type="text/plain" class="pyeditor-expected">3
+True</script>
+    </div>
+
+    <h3>Part 4. Dictionaries</h3>
+    <p>A dictionary stores key-value pairs: instead of looking something up by position, you look it up by name. Also written with curly braces, but with a colon separating each key from its value.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">d = {"name": "Ada", "age": 30}
+print(d["name"])   # Ada
+
+d["age"] = 31         # update an existing key
+d["job"] = "programmer"   # add a new key
+print(d)</code>
+    </div>
+    <p><code class="code-lesson-il">.items()</code> loops over both the key and the value together, which is almost always what you actually want:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">for key, value in d.items():
+    print(key, value)</code>
+    </div>
+    <p>Unlike sets, dictionaries do guarantee their order, a modern Python dictionary always iterates in the order keys were first inserted, not some arbitrary internal order.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">d = {"name": "Ada", "age": 30}
+d["age"] = 31
+d["job"] = "programmer"
+print(d)</script>
+        <script type="text/plain" class="pyeditor-expected">{'name': 'Ada', 'age': 31, 'job': 'programmer'}</script>
+    </div>
+
+    <h3>Part 5. Choosing the Right One</h3>
+    <ul>
+        <li>Need order, and might change it later? <strong>list</strong>.</li>
+        <li>A small, fixed group that shouldn't change? <strong>tuple</strong>.</li>
+        <li>Only care about uniqueness or fast membership checks, not order? <strong>set</strong>.</li>
+        <li>Looking things up by name instead of position? <strong>dict</strong>.</li>
+    </ul>
+
+    <h3>Try It Yourself</h3>
+    <p>Count how many times each word appears in a list, building the tally in a dictionary as you go. <code class="code-lesson-il">counts.get(word, 0)</code> returns the current count for <code class="code-lesson-il">word</code>, or <code class="code-lesson-il">0</code> if it hasn't been seen yet, exactly what an accumulator needs to start from.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">words = ["a", "b", "a", "c", "b", "a"]
+counts = {}
+for word in words:
+    counts[word] = counts.get(word, 0) + 1
+print(counts)</script>
+        <script type="text/plain" class="pyeditor-expected">{'a': 3, 'b': 2, 'c': 1}</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain the difference between a list and a tuple, and when you'd choose one over the other.</li>
+        <li>Explain why a set can't have duplicates, and why you shouldn't rely on the order it prints in.</li>
+        <li>Look up, add, and update a value in a dictionary by key.</li>
+        <li>Use <code class="code-lesson-il">.items()</code> to loop over both keys and values at once.</li>
+        <li>Choose the right collection type for a given problem, out of all four.</li>
+    </ol>
+
+</body>
+</html>

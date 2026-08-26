@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>Every program so far has run top to bottom, every line, every time. Conditionals are what let a program actually make a decision: run this block if something is true, skip it (or run something else) if it isn't.</p>
+
+    <h3>Part 1. Booleans and Comparisons</h3>
+    <p>Comparing two values gives you back a <code class="code-lesson-il">bool</code>, either <code class="code-lesson-il">True</code> or <code class="code-lesson-il">False</code>. Those are the two values a condition is ultimately built out of.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(5 > 3)         # True
+print(5 == 5)        # True, == checks equality (one variable is assignment, two is comparison)
+print("cat" == "dog") # False</code>
+    </div>
+    <p><code class="code-lesson-il">==</code> and <code class="code-lesson-il">=</code> look similar and do very different things: <code class="code-lesson-il">=</code> assigns, <code class="code-lesson-il">==</code> compares. Mixing them up is one of the most common early bugs, and Python won't always catch it for you.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(5 > 3)
+print(5 == 5)
+print("cat" == "dog")</script>
+        <script type="text/plain" class="pyeditor-expected">True
+True
+False</script>
+    </div>
+
+    <h3>Part 2. if Statements</h3>
+    <p>An <code class="code-lesson-il">if</code> statement runs its block only when the condition is <code class="code-lesson-il">True</code>. Python marks that block with indentation, not braces or an <code class="code-lesson-il">end</code> keyword: whatever's indented under the <code class="code-lesson-il">if</code> belongs to it.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">age = 20
+if age >= 18:
+    print("adult")</code>
+    </div>
+    <p>Change <code class="code-lesson-il">age</code> below to something under 18 and run it again, nothing prints, since the condition is now false and the whole indented block just gets skipped.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">age = 20
+if age >= 18:
+    print("adult")</script>
+        <script type="text/plain" class="pyeditor-expected">adult</script>
+    </div>
+
+    <h3>Part 3. if / else</h3>
+    <p><code class="code-lesson-il">else</code> catches everything the <code class="code-lesson-il">if</code> didn't. Exactly one of the two blocks runs, never both, never neither.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">age = 15
+if age >= 18:
+    print("adult")
+else:
+    print("minor")</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">age = 15
+if age >= 18:
+    print("adult")
+else:
+    print("minor")</script>
+        <script type="text/plain" class="pyeditor-expected">minor</script>
+    </div>
+
+    <h3>Part 4. elif Chains</h3>
+    <p>Real decisions are rarely just two-way. <code class="code-lesson-il">elif</code> (short for "else if") checks another condition only if every one above it was false, and Python stops at the first one that's true, later branches never even get checked.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def grade(score):
+    if score >= 90:
+        return "A"
+    elif score >= 80:
+        return "B"
+    elif score >= 70:
+        return "C"
+    else:
+        return "F"
+
+print(grade(85))
+print(grade(62))</code>
+    </div>
+    <p>Notice the order matters: a score of 95 matches <code class="code-lesson-il">score >= 90</code> first and returns <code class="code-lesson-il">"A"</code> immediately, it never gets the chance to also match <code class="code-lesson-il">score >= 80</code>. If the branches were written in the opposite order, every score of 80 or above would incorrectly get <code class="code-lesson-il">"B"</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def grade(score):
+    if score >= 90:
+        return "A"
+    elif score >= 80:
+        return "B"
+    elif score >= 70:
+        return "C"
+    else:
+        return "F"
+
+print(grade(85))
+print(grade(62))</script>
+        <script type="text/plain" class="pyeditor-expected">B
+F</script>
+    </div>
+
+    <h3>Part 5. Combining Conditions</h3>
+    <p><code class="code-lesson-il">and</code>, <code class="code-lesson-il">or</code>, and <code class="code-lesson-il">not</code> combine or invert boolean values. <code class="code-lesson-il">and</code> needs both sides true, <code class="code-lesson-il">or</code> needs at least one, <code class="code-lesson-il">not</code> flips whatever follows it.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">age = 25
+has_id = True
+print(age >= 21 and has_id)   # True: both sides are true
+print(age &lt; 18 or has_id)     # True: at least one side is true
+print(not has_id)             # False: flips True to False</code>
+    </div>
+    <p>Python also lets you chain comparisons the way you'd write them in math class, <code class="code-lesson-il">5 &lt; n &lt; 20</code> really does mean "n is between 5 and 20," not something you need <code class="code-lesson-il">and</code> to spell out.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">n = 15
+print(5 < n < 20)</script>
+        <script type="text/plain" class="pyeditor-expected">True</script>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Write a function <code class="code-lesson-il">is_even(n)</code> that returns <code class="code-lesson-il">True</code> if <code class="code-lesson-il">n</code> is even and <code class="code-lesson-il">False</code> otherwise (a number is even if there's no remainder when divided by 2), then print the result for <code class="code-lesson-il">7</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def is_even(n):
+    return n % 2 == 0
+
+print(is_even(7))</script>
+        <script type="text/plain" class="pyeditor-expected">False</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain the difference between <code class="code-lesson-il">=</code> and <code class="code-lesson-il">==</code>.</li>
+        <li>Write an <code class="code-lesson-il">if</code> / <code class="code-lesson-il">elif</code> / <code class="code-lesson-il">else</code> chain, and explain why order matters.</li>
+        <li>Predict the result of combining two conditions with <code class="code-lesson-il">and</code> or <code class="code-lesson-il">or</code> without running the code first.</li>
+        <li>Explain why Python uses indentation to mark a block instead of braces or an end keyword.</li>
+    </ol>
+
+</body>
+</html>

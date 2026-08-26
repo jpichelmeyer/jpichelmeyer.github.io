@@ -8,7 +8,10 @@
 
     <body>
         <p>Every agent this course has built so far is the same basic shape: something with a position, a rotation, and a rule for updating both, one moving individual at a time. Cellular automata are a genuinely different model of emergent complexity: no agents at all, just a grid of cells, each one either alive or dead, each one updating from nothing but its neighbors' current state. Conway's Game of Life is the most famous example, and it's worth building for exactly that contrast, complexity without a single thing that could be called an agent.</p>
-
+        
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/cellular_automata/cellular_automata.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        
         <h3>Part 1. The Rules of Life</h3>
         <p>Every cell is alive or dead. Every generation, every cell looks at its eight neighbors (the Moore neighborhood: up, down, left, right, and the four diagonals) and applies two rules, usually written B3/S23:</p>
         <ul>

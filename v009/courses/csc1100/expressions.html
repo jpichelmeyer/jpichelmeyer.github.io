@@ -4,9 +4,92 @@
     <meta charset="UTF-8">
     <title>CSC 1100</title>
     <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
 </head>
 <body>
-    <h2>expressions</h2>
-    <p>Lesson content coming soon.</p>
+    <p>An expression is anything that evaluates down to a single value: a plain number, a variable, or several of those combined with operators. <code class="code-lesson-il">3 + 4</code> is an expression (it evaluates to <code class="code-lesson-il">7</code>), and so is just <code class="code-lesson-il">3</code> on its own. An assignment like <code class="code-lesson-il">x = 3 + 4</code> is not itself an expression, it's a statement that takes the expression on the right, evaluates it, and stores the result in <code class="code-lesson-il">x</code>.</p>
+
+    <h3>Part 1. Arithmetic Operators</h3>
+    <p>The usual suspects, plus two that surprise people coming from other languages:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(3 + 4)    # addition: 7
+print(3 - 4)    # subtraction: -1
+print(3 * 4)    # multiplication: 12
+print(7 / 2)    # division: 3.5, always a float, even if it divides evenly
+print(7 // 2)   # floor division: 3, rounds down to a whole number
+print(7 % 2)    # modulo: 1, the remainder left over
+print(2 ** 10)  # exponent: 1024</code>
+    </div>
+    <p><code class="code-lesson-il">/</code> and <code class="code-lesson-il">//</code> are genuinely different operators, not two spellings of the same thing: <code class="code-lesson-il">/</code> always gives you a float back, and <code class="code-lesson-il">//</code> throws away anything after the decimal point. Mixing them up is one of the most common early bugs.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(7 // 2)
+print(7 % 2)</script>
+        <script type="text/plain" class="pyeditor-expected">3
+1</script>
+    </div>
+
+    <h3>Part 2. Order of Operations</h3>
+    <p>Python follows the same order of operations you already know from math class: exponents first, then multiplication and division, then addition and subtraction, left to right within each level. Parentheses override all of it.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(2 + 3 * 4)     # 14, the multiplication happens first
+print((2 + 3) * 4)   # 20, parentheses force the addition first</code>
+    </div>
+    <p>When in doubt, add parentheses. They cost nothing, and they make the order obvious to whoever reads the code next (including you, in a week).</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(2 + 3 * 4)
+print((2 + 3) * 4)</script>
+        <script type="text/plain" class="pyeditor-expected">14
+20</script>
+    </div>
+
+    <h3>Part 3. Mixing Types</h3>
+    <p>An <code class="code-lesson-il">int</code> and a <code class="code-lesson-il">float</code> mix together fine, Python quietly promotes the result to a <code class="code-lesson-il">float</code>. Strings are a different story: <code class="code-lesson-il">+</code> between two strings joins them, but <code class="code-lesson-il">+</code> between a string and a number is an error, Python won't guess what you meant.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(3 + 4.0)          # 7.0, an int and a float mix into a float
+print("3" + "4")        # "34", two strings joined together
+print("Score: " + 95)   # TypeError: can't add a str and an int directly</code>
+    </div>
+    <p>The fix is to convert explicitly with <code class="code-lesson-il">str()</code>, <code class="code-lesson-il">int()</code>, or <code class="code-lesson-il">float()</code>, whichever direction you need:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print("Score: " + str(95))   # "Score: 95", now both sides are strings</code>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Fix the broken line below by converting <code class="code-lesson-il">95</code> to a string before joining it, then run it.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">score = 95
+print("Score: " + str(score))</script>
+        <script type="text/plain" class="pyeditor-expected">Score: 95</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain the difference between a statement and an expression.</li>
+        <li>Explain the difference between <code class="code-lesson-il">/</code> and <code class="code-lesson-il">//</code>, and predict what <code class="code-lesson-il">%</code> returns for a given pair of numbers.</li>
+        <li>Predict the order Python evaluates a mixed expression in, without running it first.</li>
+        <li>Explain why <code class="code-lesson-il">"Score: " + 95</code> fails, and how to fix it.</li>
+    </ol>
+
 </body>
 </html>

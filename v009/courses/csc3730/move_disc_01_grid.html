@@ -8,7 +8,10 @@
 
     <body>
         <p>Steering gets an agent moving smoothly through continuous space, but it has no notion of planning a route: Seek always heads straight at the target, and nothing built so far has any way to react to an obstacle in between. Pathfinding is different: it asks "what's a good route from here to there," which means the agent needs some structure to actually search over. That structure is a graph, and a grid is one of the simplest ways to build one on top of continuous space (this is the same "tile graph" idea covered in Millington's <em>AI for Games</em>).</p>
-
+        
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/grid_search/grid_search.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        
         <h3>Part 1. Grid as Graph</h3>
         <p>A graph is just nodes and the connections between them. A grid gives you both for free: each cell is a node, and each cell connects to its neighbors. The only extra step is deciding which cells are usable at all, since a cell sitting on top of the obstacle from last lesson shouldn't be part of the graph. This lesson builds that: a <span class="code-lesson-il">PathGrid</span> node that scans the <span class="code-lesson-il">Environment</span>, marks every cell as walkable or blocked, and draws itself so you can see the graph directly. The next two lessons search across it.</p>
 

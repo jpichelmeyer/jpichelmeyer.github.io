@@ -8,7 +8,10 @@
 
     <body>
         <p>Flocking agents coordinate by sensing each other directly, an <span class="code-lesson-il">Area2D</span> overlapping another agent's. Ant colonies solve a similar-looking problem, many individuals producing organized group behavior, a completely different way: no ant ever senses another ant. They coordinate entirely through marks left in the shared environment. That's stigmergy, and Ant Colony Optimization (ACO) is what happens when you turn it into a pathfinding algorithm.</p>
-
+        
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/aco/aco.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        
         <h3>Part 1. Stigmergy, Not Sensing</h3>
         <p>An ant leaves the nest, wanders, and if it stumbles onto food, walks back the way it came, depositing a scent as it goes. Other ants don't know this happened. They just happen to cross a slightly stronger-smelling patch of ground sometimes, and drift toward it a little more often than not. Do that with many ants over many trips, scent fading a little between each one, and short successful routes end up marked far more strongly than long ones, since more ants complete more round trips on them per unit time. No ant ever compared two routes. No ant ever decided anything was "the best path." The colony's route emerges from many individually short-sighted trips and one shared, decaying trace.</p>
         <p>Building this needs three new pieces on top of everything from grid-based pathfinding: a pheromone value per cell, a finite food source ants can actually deplete, and an agent behavior that searches semi-randomly instead of computing a route outright.</p>

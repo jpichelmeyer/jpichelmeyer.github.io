@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>Every program so far has been one long, flat sequence of statements. A function lets you give a name to a piece of logic, write it once, and reuse it anywhere, as many times as you want, with different inputs each time.</p>
+
+    <h3>Part 1. Defining and Calling</h3>
+    <p><code class="code-lesson-il">def</code> defines a function. Nothing inside it runs until the function is actually called by name, elsewhere, later.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">functions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def greet():
+    print("hello")
+
+greet()</code>
+    </div>
+    <p>Defining <code class="code-lesson-il">greet()</code> doesn't print anything by itself, the <code class="code-lesson-il">def</code> block just teaches Python what <code class="code-lesson-il">greet</code> means. Only the call on the last line, <code class="code-lesson-il">greet()</code>, actually runs the body.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def greet():
+    print("hello")
+
+greet()</script>
+        <script type="text/plain" class="pyeditor-expected">hello</script>
+    </div>
+
+    <h3>Part 2. Parameters</h3>
+    <p>A parameter is a placeholder name a function receives its input through. Whatever you pass in when calling it fills that placeholder for that one call.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">functions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def add(a, b):
+    return a + b
+
+print(add(3, 4))</code>
+    </div>
+    <p><code class="code-lesson-il">return</code> is different from <code class="code-lesson-il">print</code>, and mixing them up is a very common early confusion. <code class="code-lesson-il">print</code> just displays something on screen and hands nothing back to whatever called the function; <code class="code-lesson-il">return</code> actually hands a value back, which is what lets <code class="code-lesson-il">print(add(3, 4))</code> work at all, <code class="code-lesson-il">add(3, 4)</code> has to produce a real value for <code class="code-lesson-il">print</code> to then display.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def add(a, b):
+    return a + b
+
+print(add(3, 4))</script>
+        <script type="text/plain" class="pyeditor-expected">7</script>
+    </div>
+
+    <h3>Part 3. Default Parameter Values</h3>
+    <p>A parameter can have a default value, used automatically whenever the caller doesn't provide one.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">functions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def greet2(name="friend"):
+    print("hello, " + name)
+
+greet2()
+greet2("Ada")</code>
+    </div>
+    <p>The first call has nothing to fill <code class="code-lesson-il">name</code> with, so it falls back to <code class="code-lesson-il">"friend"</code>. The second call supplies <code class="code-lesson-il">"Ada"</code> explicitly, which overrides the default for that one call only.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def greet2(name="friend"):
+    print("hello, " + name)
+
+greet2()
+greet2("Ada")</script>
+        <script type="text/plain" class="pyeditor-expected">hello, friend
+hello, Ada</script>
+    </div>
+
+    <h3>Part 4. Recursion</h3>
+    <p>A function is allowed to call itself. That's recursion, and it needs two things to actually work rather than loop forever: a <strong>base case</strong> (a condition simple enough to answer directly, no further calls needed) and a <strong>recursive case</strong> (a call to itself on a smaller version of the same problem, getting closer to the base case every time).</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">functions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def factorial(n):
+    if n &lt;= 1:
+        return 1          # base case
+    return n * factorial(n - 1)   # recursive case
+
+print(factorial(5))</code>
+    </div>
+    <p>Trace it by hand: <code class="code-lesson-il">factorial(5)</code> needs <code class="code-lesson-il">5 * factorial(4)</code>, which needs <code class="code-lesson-il">4 * factorial(3)</code>, and so on down to <code class="code-lesson-il">factorial(1)</code>, which finally just returns <code class="code-lesson-il">1</code> without calling itself again. Then every pending multiplication resolves on the way back out: <code class="code-lesson-il">1, 2*1, 3*2, 4*6, 5*24</code>, landing on <code class="code-lesson-il">120</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+print(factorial(5))</script>
+        <script type="text/plain" class="pyeditor-expected">120</script>
+    </div>
+
+    <p>Forget the base case, or write one that's never actually reached, and a recursive function calls itself forever, the same underlying problem as a <code class="code-lesson-il">while</code> loop whose condition never goes false, just spelled differently.</p>
+
+    <h3>Try It Yourself</h3>
+    <p>Write a recursive function <code class="code-lesson-il">countdown(n)</code>: if <code class="code-lesson-il">n</code> is <code class="code-lesson-il">0</code>, print <code class="code-lesson-il">"liftoff"</code> and stop, otherwise print <code class="code-lesson-il">n</code> and call <code class="code-lesson-il">countdown(n - 1)</code>. Call it with <code class="code-lesson-il">countdown(3)</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def countdown(n):
+    if n == 0:
+        print("liftoff")
+        return
+    print(n)
+    countdown(n - 1)
+
+countdown(3)</script>
+        <script type="text/plain" class="pyeditor-expected">3
+2
+1
+liftoff</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain the difference between defining a function and calling it.</li>
+        <li>Explain the difference between <code class="code-lesson-il">return</code> and <code class="code-lesson-il">print</code>, and why <code class="code-lesson-il">print(add(3, 4))</code> needs <code class="code-lesson-il">add</code> to use <code class="code-lesson-il">return</code>.</li>
+        <li>Give a parameter a default value, and explain when that default actually gets used.</li>
+        <li>Identify the base case and the recursive case in a recursive function, and explain what happens if the base case is missing.</li>
+    </ol>
+
+</body>
+</html>

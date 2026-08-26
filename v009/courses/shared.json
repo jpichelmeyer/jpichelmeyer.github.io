@@ -32,6 +32,12 @@
             "description": [
                 "Late work will not be accepted."
             ]
+        },
+        {
+            "name": "Attendance Policy",
+            "description": [
+                "<p>Students are expected to attend class. Though no formal attendance will be taken, many days will feature a microquiz, which will act as a form of attendance for that day.</p>"
+            ]
         }
     ],
     "assessments": {
@@ -57,5 +63,21 @@
                 "colorfont": "#1f1f1f"
             }
         }
-    }
+    },
+    "credits": 4,
+    "grading_policy": {
+        "A" : "93",
+        "A-": "90",
+        "B+": "87",
+        "B" : "83",
+        "B-": "80",
+        "C+": "77",
+        "C" : "73",
+        "C-": "70",
+        "D+": "67",
+        "D" : "63",
+        "D-": "60",
+        "F" : "0"
+    },
+    "instructional_methods": "Lecture, live-coding demo, hands-on studio/lab work."
 }
