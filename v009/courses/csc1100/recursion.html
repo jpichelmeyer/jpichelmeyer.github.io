@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>A function is allowed to call itself. That's the whole idea behind recursion: a function whose own definition includes a call to that same function, working on a smaller version of the same problem each time.</p>
+
+    <h3>Part 1. Base Case and Recursive Case</h3>
+    <p>A recursive function needs exactly two parts to actually work rather than call itself forever: a <strong>base case</strong>, simple enough to answer directly with no further calls, and a <strong>recursive case</strong>, which calls the function again on a smaller version of the problem, getting closer to the base case every single time.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def factorial(n):
+    if n &lt;= 1:
+        return 1                      # base case
+    return n * factorial(n - 1)       # recursive case
+
+print(factorial(4))</code>
+    </div>
+    <p>Every recursive call passes a smaller <code class="code-lesson-il">n</code> than the one before it, <code class="code-lesson-il">n - 1</code>, specifically, which is exactly what guarantees the base case eventually gets reached instead of the calls continuing forever.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def factorial(n):
+    if n &lt;= 1:
+        return 1
+    return n * factorial(n - 1)
+
+print(factorial(4))</script>
+        <script type="text/plain" class="pyeditor-expected">24</script>
+    </div>
+
+    <h3>Part 2. Going Down: The Calls Stack Up</h3>
+    <p><code class="code-lesson-il">factorial(4)</code> can't finish until <code class="code-lesson-il">factorial(3)</code> finishes, which can't finish until <code class="code-lesson-il">factorial(2)</code> finishes, and so on. Each call has to wait, paused, for the one below it to return before it can do its own multiplication. Python (like most languages) keeps track of every paused call on something called the <strong>call stack</strong>, one frame per call still waiting on an answer.</p>
+
+    <div class="diagram">
+<svg viewBox="0 0 300 460" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <marker id="arrowhead2" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+        <path d="M0,0 L7,3.5 L0,7 Z" fill="#333333"/>
+    </marker>
+</defs>
+<rect x="0" y="0" width="300" height="460" fill="#f7f9fb" stroke="#d8e1e8" rx="10"/>
+<rect x="55.0" y="22.0" width="190" height="56" rx="8" fill="#dceaf7" stroke="#2e5a80" stroke-width="2"/>
+<text x="150" y="50.0" font-size="14" font-family="'IBM Plex Mono', monospace" fill="#1f1f1f" text-anchor="middle" dominant-baseline="middle">factorial(4)</text>
+
+<rect x="55.0" y="142.0" width="190" height="56" rx="8" fill="#dceaf7" stroke="#2e5a80" stroke-width="2"/>
+<text x="150" y="170.0" font-size="14" font-family="'IBM Plex Mono', monospace" fill="#1f1f1f" text-anchor="middle" dominant-baseline="middle">factorial(3)</text>
+
+<rect x="55.0" y="262.0" width="190" height="56" rx="8" fill="#dceaf7" stroke="#2e5a80" stroke-width="2"/>
+<text x="150" y="290.0" font-size="14" font-family="'IBM Plex Mono', monospace" fill="#1f1f1f" text-anchor="middle" dominant-baseline="middle">factorial(2)</text>
+
+<rect x="55.0" y="382.0" width="190" height="56" rx="8" fill="#d5f0dc" stroke="#2e8b57" stroke-width="2"/>
+<text x="150" y="410.0" font-size="14" font-family="'IBM Plex Mono', monospace" fill="#1f1f1f" text-anchor="middle" dominant-baseline="middle">factorial(1)</text>
+
+<text x="150" y="448" font-size="11" font-family="IBM Plex Sans, sans-serif" fill="#2e8b57" text-anchor="middle">base case, returns 1 directly</text>
+<line x1="150.0" y1="78.0" x2="150.0" y2="142.0" stroke="#333333" stroke-width="2" marker-end="url(#arrowhead2)"/>
+<text x="160.0" y="110.0" font-size="11.5" font-family="IBM Plex Mono, monospace" fill="#333" text-anchor="start" dominant-baseline="middle">calls</text>
+
+<line x1="150.0" y1="198.0" x2="150.0" y2="262.0" stroke="#333333" stroke-width="2" marker-end="url(#arrowhead2)"/>
+<text x="160.0" y="230.0" font-size="11.5" font-family="IBM Plex Mono, monospace" fill="#333" text-anchor="start" dominant-baseline="middle">calls</text>
+
+<line x1="150.0" y1="318.0" x2="150.0" y2="382.0" stroke="#333333" stroke-width="2" marker-end="url(#arrowhead2)"/>
+<text x="160.0" y="350.0" font-size="11.5" font-family="IBM Plex Mono, monospace" fill="#333" text-anchor="start" dominant-baseline="middle">calls</text>
+
+</svg>
+        <div class="diagram-caption">Every call above the base case is paused, waiting on the one below it to return, before any multiplication can happen.</div>
+    </div>
+
+    <h3>Part 3. Coming Back Up: The Stack Unwinds</h3>
+    <p>The base case is the only one that returns immediately, with no waiting. Once it does, every paused call above it can finally finish, one at a time, from the bottom up: each one takes the value it was waiting on, multiplies, and returns its own answer to whichever call is waiting on <em>it</em>.</p>
+
+    <div class="diagram">
+<svg viewBox="0 0 300 460" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <marker id="arrowhead2" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+        <path d="M0,0 L7,3.5 L0,7 Z" fill="#333333"/>
+    </marker>
+</defs>
+<rect x="0" y="0" width="300" height="460" fill="#f7f9fb" stroke="#d8e1e8" rx="10"/>
+<rect x="55.0" y="22.0" width="190" height="56" rx="8" fill="#dceaf7" stroke="#2e5a80" stroke-width="2"/>
+<text x="150" y="50.0" font-size="14" font-family="'IBM Plex Mono', monospace" fill="#1f1f1f" text-anchor="middle" dominant-baseline="middle">factorial(4)</text>
+
+<rect x="55.0" y="142.0" width="190" height="56" rx="8" fill="#dceaf7" stroke="#2e5a80" stroke-width="2"/>
+<text x="150" y="170.0" font-size="14" font-family="'IBM Plex Mono', monospace" fill="#1f1f1f" text-anchor="middle" dominant-baseline="middle">factorial(3)</text>
+
+<rect x="55.0" y="262.0" width="190" height="56" rx="8" fill="#dceaf7" stroke="#2e5a80" stroke-width="2"/>
+<text x="150" y="290.0" font-size="14" font-family="'IBM Plex Mono', monospace" fill="#1f1f1f" text-anchor="middle" dominant-baseline="middle">factorial(2)</text>
+
+<rect x="55.0" y="382.0" width="190" height="56" rx="8" fill="#d5f0dc" stroke="#2e8b57" stroke-width="2"/>
+<text x="150" y="410.0" font-size="14" font-family="'IBM Plex Mono', monospace" fill="#1f1f1f" text-anchor="middle" dominant-baseline="middle">factorial(1)</text>
+
+<line x1="150.0" y1="382.0" x2="150.0" y2="318.0" stroke="#333333" stroke-width="2" marker-end="url(#arrowhead2)"/>
+
+<line x1="150.0" y1="262.0" x2="150.0" y2="198.0" stroke="#333333" stroke-width="2" marker-end="url(#arrowhead2)"/>
+
+<line x1="150.0" y1="142.0" x2="150.0" y2="78.0" stroke="#333333" stroke-width="2" marker-end="url(#arrowhead2)"/>
+
+<text x="260" y="400" font-size="11" font-family="IBM Plex Mono, monospace" fill="#333" text-anchor="start">returns 1</text>
+<text x="260" y="280" font-size="11" font-family="IBM Plex Mono, monospace" fill="#333" text-anchor="start">returns 2*1 = 2</text>
+<text x="260" y="160" font-size="11" font-family="IBM Plex Mono, monospace" fill="#333" text-anchor="start">returns 3*2 = 6</text>
+<text x="260" y="40" font-size="11" font-family="IBM Plex Mono, monospace" fill="#333" text-anchor="start">returns 4*6 = 24</text>
+</svg>
+        <div class="diagram-caption">The base case returns first; every value above it multiplies in its own n only once the call below it actually answers.</div>
+    </div>
+
+    <p>Nothing about this is unique to computers, it's exactly the same process you'd use tracing it by hand on paper: write down the chain of calls going down, then work your way back up the chain filling in real numbers once you hit something you can answer directly.</p>
+
+    <h3>Part 4. A Second Example</h3>
+    <p>Summing the numbers from <code class="code-lesson-il">n</code> down to 1 follows the identical shape: a base case for the smallest input, a recursive case that peels off one piece and calls itself on the rest.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def sum_to(n):
+    if n == 0:
+        return 0                  # base case
+    return n + sum_to(n - 1)      # recursive case
+
+print(sum_to(4))</code>
+    </div>
+    <p>Trace it yourself before running it: <code class="code-lesson-il">sum_to(4)</code> needs <code class="code-lesson-il">4 + sum_to(3)</code>, which needs <code class="code-lesson-il">3 + sum_to(2)</code>, down to <code class="code-lesson-il">sum_to(0)</code> returning <code class="code-lesson-il">0</code> with nothing left to wait on. Unwinding: <code class="code-lesson-il">0, 1+0, 2+1, 3+3, 4+6</code>, landing on 10.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def sum_to(n):
+    if n == 0:
+        return 0
+    return n + sum_to(n - 1)
+
+print(sum_to(4))</script>
+        <script type="text/plain" class="pyeditor-expected">10</script>
+    </div>
+
+    <h3>Part 5. What Happens Without a Base Case</h3>
+    <p>Delete the base case, or write one that's never actually reached, and the recursive case keeps calling itself with no way out. Unlike a runaway <code class="code-lesson-il">while</code> loop, which can genuinely run forever, Python actually catches this for you: it keeps a limit on how many calls can be waiting at once, and once that limit is hit, it stops the program with a <code class="code-lesson-il">RecursionError</code> rather than freezing. Still a bug worth avoiding, just a noisier, more honest one than a silent infinite loop.</p>
+
+    <h3>Try It Yourself</h3>
+    <p>Write a recursive function <code class="code-lesson-il">power(base, exp)</code> that computes <code class="code-lesson-il">base</code> raised to <code class="code-lesson-il">exp</code>. Think about the base case first: what's the simplest exponent you can answer without calling <code class="code-lesson-il">power</code> again at all?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def power(base, exp):
+    if exp == 0:
+        return 1
+    return base * power(base, exp - 1)
+
+print(power(2, 5))</script>
+        <script type="text/plain" class="pyeditor-expected">32</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Identify the base case and the recursive case in a recursive function.</li>
+        <li>Explain why each recursive call needs to work on a smaller version of the problem than the call before it.</li>
+        <li>Explain what the call stack is, and why a call has to wait for the one below it to return.</li>
+        <li>Trace a small recursive function by hand, both the calls going down and the values coming back up.</li>
+        <li>Explain what happens in Python when a recursive function has no working base case.</li>
+    </ol>
+
+</body>
+</html>

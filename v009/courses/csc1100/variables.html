@@ -4,9 +4,105 @@
     <meta charset="UTF-8">
     <title>CSC 1100</title>
     <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
 </head>
 <body>
-    <h2>variables</h2>
-    <p>Lesson content coming soon.</p>
+    <p>A variable is a name that points at a value. Once you have a name for something, you can use the name instead of retyping the value everywhere, and you can change what it points at as your program runs.</p>
+
+    <h3>Part 1. Making a Variable</h3>
+    <p>Assignment is the basic move: a name, an equals sign, a value.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">x = 5
+print(x)</code>
+    </div>
+    <p>Python doesn't make you declare what <em>kind</em> of thing <code class="code-lesson-il">x</code> is ahead of time, the way some languages do. You just assign it a value, and Python figures the rest out. Try it yourself:</p>
+    
+    <!-- pyeditor -->
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">
+x=5
+print(2)
+        </script>
+        <script type="text/plain" class="pyeditor-expected">5</script>
+    </div>
+
+    <h3>Part 2. Naming Rules</h3>
+    <p>A variable name can use letters, digits, and underscores, but it can't start with a digit, and it's case sensitive (<code class="code-lesson-il">score</code> and <code class="code-lesson-il">Score</code> are two different names). A handful of words are reserved by Python itself (<code class="code-lesson-il">if</code>, <code class="code-lesson-il">for</code>, <code class="code-lesson-il">class</code>, and so on) and can't be used as variable names at all.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">student_name = "Ada"   # valid
+_count = 0              # valid, starts with underscore
+2fast = True             # invalid: starts with a digit
+class = "CSC1100"        # invalid: class is reserved</code>
+    </div>
+    <p>The convention in Python (not a hard rule, but one you should follow) is <code class="code-lesson-il">snake_case</code>: lowercase words separated by underscores, like <code class="code-lesson-il">student_name</code> rather than <code class="code-lesson-il">StudentName</code> or <code class="code-lesson-il">studentName</code>. Following the convention matters more than it might seem, code that looks like everyone else's Python is much easier for someone else (including future you) to read.</p>
+
+    <h3>Part 3. A Few Basic Types</h3>
+    <p>Every value in Python has a type: what <em>kind</em> of thing it is. The built-in <code class="code-lesson-il">type()</code> function tells you.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(type(5))       # int, a whole number
+print(type(5.0))     # float, a number with a decimal point
+print(type("hi"))    # str, text
+print(type(True))    # bool, True or False</code>
+    </div>
+    <p>Try changing the value below and see how the type changes with it:</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(type(5))
+print(type(5.0))
+print(type("hi"))
+print(type(True))</script>
+        <script type="text/plain" class="pyeditor-expected"><class 'int'>
+<class 'float'>
+<class 'str'>
+<class 'bool'></script>
+    </div>
+
+    <h3>Part 4. Reassignment</h3>
+    <p>A variable isn't locked to its first value, or even its first type. Assigning it again just points the name at something new.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">x = 5
+print(x)
+
+x = "now text"
+print(x)</code>
+    </div>
+    <p>Both lines print without error. <code class="code-lesson-il">x</code> was an <code class="code-lesson-il">int</code>, then it became a <code class="code-lesson-il">str</code>, and Python didn't complain, the name was never actually tied to a type, only to whatever value it currently holds.</p>
+
+    <h3>Try It Yourself</h3>
+    <p>Assign <code class="code-lesson-il">first</code> to your first name and <code class="code-lesson-il">last</code> to your last name, then print them on one line separated by a space, using <code class="code-lesson-il">+</code> to join strings together.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">first = "Ada"
+last = "Lovelace"
+print(first + " " + last)</script>
+        <script type="text/plain" class="pyeditor-expected">Ada Lovelace</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain what an assignment statement actually does.</li>
+        <li>Name a variable correctly, and explain why <code class="code-lesson-il">2fast</code> and <code class="code-lesson-il">class</code> aren't valid names.</li>
+        <li>Use <code class="code-lesson-il">type()</code> to check what kind of value something is.</li>
+        <li>Explain why reassigning a variable to a different type doesn't cause an error in Python.</li>
+    </ol>
+
 </body>
 </html>

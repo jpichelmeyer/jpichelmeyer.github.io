@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>Computers are good at doing the same thing over and over without getting bored. Loops are how you tell a program to repeat a block of code, either a fixed number of times, or for as long as some condition stays true.</p>
+
+    <p><strong>A quick, honest warning before you start typing:</strong> it's easy to accidentally write a loop that never ends. If the editor below ever seems stuck (nothing happening, no output), reload this page; the code you were running will stop.</p>
+
+    <h3>Part 1. while Loops</h3>
+    <p>A <code class="code-lesson-il">while</code> loop checks its condition, and if it's true, runs the block, then checks again, and again, for as long as the condition stays true.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">i = 1
+while i &lt;= 5:
+    print(i)
+    i += 1</code>
+    </div>
+    <p>That <code class="code-lesson-il">i += 1</code> matters more than it looks: it's what eventually makes the condition false. Delete it (or forget to indent it into the loop) and <code class="code-lesson-il">i</code> never changes, the condition is true forever, and the loop never stops. That's the single most common way an intro program accidentally hangs.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">i = 1
+while i <= 5:
+    print(i)
+    i += 1</script>
+        <script type="text/plain" class="pyeditor-expected">1
+2
+3
+4
+5</script>
+    </div>
+
+    <h3>Part 2. for Loops and range()</h3>
+    <p>When you know how many times to repeat something, a <code class="code-lesson-il">for</code> loop paired with <code class="code-lesson-il">range()</code> is usually the cleaner tool. <code class="code-lesson-il">range(5)</code> produces the numbers 0 through 4, five values, starting at 0.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">for i in range(5):
+    print(i)</code>
+    </div>
+    <p><code class="code-lesson-il">range()</code> can also take a start, a stop, and a step: <code class="code-lesson-il">range(2, 10, 2)</code> starts at 2, stops before 10, and counts up by 2 each time.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">for i in range(2, 10, 2):
+    print(i)</script>
+        <script type="text/plain" class="pyeditor-expected">2
+4
+6
+8</script>
+    </div>
+
+    <h3>Part 3. Looping Over a String</h3>
+    <p>A <code class="code-lesson-il">for</code> loop isn't limited to numbers, it can walk through anything with a sequence of items to visit, including a string, one character at a time.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">for ch in "cat":
+    print(ch)</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">for ch in "cat":
+    print(ch)</script>
+        <script type="text/plain" class="pyeditor-expected">c
+a
+t</script>
+    </div>
+
+    <h3>Part 4. The Accumulator Pattern</h3>
+    <p>One of the most useful loop shapes: start a variable at some starting value before the loop, then update it a little on every pass. Adding up a list of numbers is the classic example.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">total = 0
+for i in range(1, 6):
+    total += i
+print(total)</code>
+    </div>
+    <p><code class="code-lesson-il">total</code> starts at 0, outside the loop, so it isn't reset back to zero on every pass, then <code class="code-lesson-il">total += i</code> adds the current number to whatever's already been accumulated. This pattern (start outside, update inside) comes up constantly: totals, counts, running maximums, building up a result piece by piece.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">total = 0
+for i in range(1, 6):
+    total += i
+print(total)</script>
+        <script type="text/plain" class="pyeditor-expected">15</script>
+    </div>
+
+    <h3>Part 5. break and continue</h3>
+    <p><code class="code-lesson-il">break</code> exits a loop immediately, before its condition would naturally end it. <code class="code-lesson-il">continue</code> skips just the rest of the current pass and moves on to the next one.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">for i in range(10):
+    if i == 5:
+        break
+    print(i)</code>
+    </div>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">for i in range(5):
+    if i % 2 == 0:
+        continue
+    print(i)</code>
+    </div>
+    <p>The first loop stops dead the moment <code class="code-lesson-il">i</code> hits 5, it never even considers 5 through 9. The second one skips printing on every even number but keeps looping, it just moves straight to the next pass instead of stopping altogether.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">for i in range(5):
+    if i % 2 == 0:
+        continue
+    print(i)</script>
+        <script type="text/plain" class="pyeditor-expected">1
+3</script>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Use a <code class="code-lesson-il">for</code> loop and the accumulator pattern from Part 4 to compute the product (not the sum) of the numbers 1 through 5, printing the final result. Start your accumulator at <code class="code-lesson-il">1</code>, not <code class="code-lesson-il">0</code>, think about why a product accumulator can't start at 0.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">product = 1
+for i in range(1, 6):
+    product *= i
+print(product)</script>
+        <script type="text/plain" class="pyeditor-expected">120</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain the difference between a <code class="code-lesson-il">while</code> loop and a <code class="code-lesson-il">for</code> loop, and when you'd reach for each one.</li>
+        <li>Explain what makes a <code class="code-lesson-il">while</code> loop run forever, and how to avoid writing one by accident.</li>
+        <li>Predict what <code class="code-lesson-il">range(a, b, c)</code> produces for given values of <code class="code-lesson-il">a</code>, <code class="code-lesson-il">b</code>, and <code class="code-lesson-il">c</code>.</li>
+        <li>Use the accumulator pattern to build up a running total (or product) across a loop.</li>
+        <li>Explain the difference between <code class="code-lesson-il">break</code> and <code class="code-lesson-il">continue</code>.</li>
+    </ol>
+
+</body>
+</html>

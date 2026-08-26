@@ -600,6 +600,7 @@ function renderDetailView(body, key) {
                     <div class="cx-tab" data-tab="instructions">Instructions</div>
                     <div class="cx-tab" data-tab="policies">Policies</div>
                     ${deriveLessonModules(c).length ? `<div class="cx-tab" data-tab="lessons">Lessons</div>` : ''}
+                    <div class="cx-tab" data-tab="syllabus">Syllabus</div>
                 </div>
                 <div class="course-content">
                     
@@ -654,6 +655,11 @@ function renderDetailView(body, key) {
                         ${lessonsHtml}
                     </div>` : ''}
                     
+                    <!-- SYLLABUS -->
+                    <div class="cx-pane" id="cx-pane-syllabus">
+                        <div class="lesson-frame-mount" data-lesson-src="./courses/${esc(key)}_syllabus.html"></div>
+                    </div>
+                    
                 </div>
             </div>
  
@@ -664,7 +670,16 @@ function renderDetailView(body, key) {
             qsa('.cx-tab', body).forEach(t => t.classList.remove('active'));
             qsa('.cx-pane', body).forEach(p => p.classList.remove('active'));
             tab.classList.add('active');
-            el('cx-pane-' + tab.dataset.tab).classList.add('active');
+            const pane = el('cx-pane-' + tab.dataset.tab);
+            pane.classList.add('active');
+
+            // Lazy-mount any top-level iframe in this pane (currently
+            // just Syllabus) the first time its tab is opened.
+            const mount = pane.querySelector(':scope > .lesson-frame-mount');
+            if (mount && !mount.dataset.mounted) {
+                mount.dataset.mounted = '1';
+                mountLessonFrame(mount);
+            }
         });
     });
 

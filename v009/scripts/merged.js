@@ -10,6 +10,7 @@ import './__utils.js';
 import './_base.js';
 import './_timeline.js';
 import './_particlelife.js';
+import './pyodide_terminal.js';
 import './_teaching.js';
 import './_projects.js';
 //import './_projects_desktop_counter.js';

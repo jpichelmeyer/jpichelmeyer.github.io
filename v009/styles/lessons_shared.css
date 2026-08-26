@@ -51,6 +51,10 @@
     margin: 0;
     border-radius: 0 0 6px 6px;
 }
+.code-block .pyeditor-code {
+    margin: 0;
+    border-radius: 0 0 8px 8px;
+}
 .code-block-header {
     display: flex;
     justify-content: space-between;
@@ -81,8 +85,13 @@
 .code-block[data-lang="csharp"] .code-block-header { background: #2b2a45; }
 .code-block[data-lang="csharp"] .code-block-lang   { background: #684bb5; color: #fff; }
 
-.code-block[data-lang="python"] .code-block-header { background: #2e3a2e; }
-.code-block[data-lang="python"] .code-block-lang   { background: #3776ab; color: #ffd43b; }
+.code-block[data-lang="python"] .code-block-header { background: #f0dcae; color: #4a3a12; }
+.code-block[data-lang="python"] .code-block-lang   { color: #4a3a12; }
+
+/* The editable code box gets its own, deliberately different, header
+   color: gold marks "read this example," dark grey marks "type here." */
+.code-block[data-lang="python-editable"] .code-block-header { background: #333333; color: #fff; }
+.code-block[data-lang="python-editable"] .code-block-lang   { color: #fff; }
 
 
 /*
@@ -102,6 +111,115 @@
 .diagram-caption { color: #444; font-size: 0.88em; margin-top: 8px; }
 .diagram-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; align-items: stretch; }
 .diagram-row .diagram { flex: 1 1 220px; margin: 18px 0; }
+
+
+/*
+ ---------------------------------------------------------
+    Pyodide terminal (window._mountPyodideTerminal)
+    and the mini Python editor (python_editor.js)
+ ---------------------------------------------------------
+*/
+.pyterm-root, .pyeditor-root {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0 28px;
+}
+.pyterm-screen, .pyeditor-output {
+    background: #14140f;
+    color: #d9d4c4;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 14px;
+    border-radius: 8px;
+    overflow-y: auto;
+}
+.pyterm-screen { min-height: 220px; max-height: 420px; }
+.pyterm-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    width: 12ch;
+}
+.pyterm-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pyterm-btn, .pyeditor-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    padding: 6px 14px;
+    border: 1.5px solid #d8e1e8;
+    border-radius: 6px;
+    background: #f7f9fb;
+    color: #1f3b52;
+    cursor: pointer;
+}
+.pyterm-btn:hover, .pyeditor-btn:hover { border-color: #2e5a80; background: #eef4f9; }
+
+.pyeditor-code {
+    width: 100%;
+    box-sizing: border-box;
+    background: #14140f;
+    color: #d9d4c4;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    min-height: 110px;
+    tab-size: 4;
+}
+
+/* Bottom row: a narrow, vertically-stacked button column to the left
+   of a labeled output panel. */
+.pyeditor-bottom {
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+}
+.pyeditor-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 0 0 100px;
+}
+.pyeditor-controls .pyeditor-btn {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+.pyeditor-output-panel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #d8e1e8;
+    padding-left: 14px;
+}
+.pyeditor-output-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #5b6b78;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #d8e1e8;
+}
+.pyeditor-output { min-height: 50px; max-height: 260px; }
+.pyeditor-verdict {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 0;
+}
+.pyeditor-verdict.pass { color: #2e8b57; }
+.pyeditor-verdict.fail { color: #c0392b; }
 
 
 /*

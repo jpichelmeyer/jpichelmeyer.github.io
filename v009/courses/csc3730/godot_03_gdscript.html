@@ -9,11 +9,6 @@
     <body>
         <p>Now that you know your way around the editor, it's time to make something move. GDScript is how you tell nodes what to do.</p>
 
-        <div class="screenshot">
-            <div class="label">What you're building</div>
-            <div class="hint">A small, autonomous, wandering agent, exactly like the one you'll build in this lesson. Play with it now, then build your own below. Stops itself automatically if you navigate away, and the Stop/Reset buttons are there if it's ever more than your machine wants to run in the background.</div>
-        </div>
-
         <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/wander/wander.html"></div>
         <script src="../../scripts/godot_embed.js"></script>
 
@@ -32,9 +27,7 @@
             <li>
                 Select the <span class="code-lesson-il">Node2D</span> root in the Scene dock, then click the little scroll-with-a-plus icon next to it (or right-click the node &rarr; <span class="code-lesson-il">Attach Script</span>).
                 <div class="screenshot">
-                    <div class="label">Attach Script</div>
-                    <img src="" alt="Godot Scene dock with the Attach Script icon highlighted">
-                    <div class="hint">The Scene dock with the node selected and the scroll-plus icon (or the right-click context menu showing Attach Script) visible.</div>
+                    <img src="../../imgs/lessons_csc3730_godot_03_gdscript_a.png" alt="Godot Project Manager window">
                 </div>
             </li>
             <li>
@@ -69,9 +62,7 @@ func _process(delta):
         <p>Try adding <span class="code-lesson-il">print("hello from " + name)</span> inside <span class="code-lesson-il">_ready()</span>, then press Play (top-right, from the tour). Check the <strong>Output</strong> tab in the bottom panel: that's where <span class="code-lesson-il">print()</span> statements show up.</p>
 
         <div class="screenshot">
-            <div class="label">Output tab showing the print</div>
-            <img src="" alt="Godot bottom panel Output tab showing the printed greeting">
-            <div class="hint">The bottom-panel Output tab after pressing Play, showing the printed "hello from ..." line.</div>
+            <img src="../../imgs/lessons_csc3730_godot_03_gdscript_b.png" alt="Godot Project Manager window">
         </div>
 
         <h3>Part 4. Running &amp; Checking Your Work</h3>
@@ -110,9 +101,7 @@ var health: int = 3
 </span>
 </div>
         <div class="screenshot">
-            <div class="label">Exported variable in the Inspector</div>
-            <img src="" alt="Godot Inspector panel showing the exported speed field">
-            <div class="hint">The Inspector for the scripted node, showing "Speed" as an editable number field once @export is added.</div>
+            <img src="../../imgs/lessons_csc3730_godot_03_gdscript_c.png" alt="Godot Project Manager window">
         </div>
         <p>This is genuinely useful, not just a nice-to-have: it lets you (or a teammate) tweak numbers like speed, health, or spawn rate directly in the editor while testing, without touching the script.</p>
 
@@ -150,9 +139,7 @@ get_node("Sprite2D").modulate = Color.RED
         </ol>
 
         <div class="screenshot">
-            <div class="label">Environment and Agent scene trees</div>
-            <img src="" alt="Godot Scene dock showing Environment with Camera2D, CanvasLayer/Background, and Agent, alongside the Agent scene's own Node2D/Sprite2D tree">
-            <div class="hint">Two shots of the Scene dock: Environment (Camera2D with its CanvasLayer/Background, plus the instanced Agent), and Agent's own tree with the Sprite2D showing agent_sprite.svg.</div>
+            <img src="../../imgs/lessons_csc3730_godot_03_gdscript_d.png" alt="Godot Project Manager window">
         </div>
 
         <h3>Part 8. Autonomous Movement: Rotation and Forward Speed</h3>
@@ -183,12 +170,6 @@ func _ready() -> void:
 </span>
 </div>
         <p><span class="code-lesson-il">modulate</span> is a property every <span class="code-lesson-il">CanvasItem</span> (which includes both <span class="code-lesson-il">Node2D</span> and <span class="code-lesson-il">Sprite2D</span>) has: it multiplies whatever the node draws by a color, white leaves it unchanged, anything else tints it. Setting it on the <span class="code-lesson-il">Agent</span> root tints the whole thing, sprite included. Because <span class="code-lesson-il">color</span> is <span class="code-lesson-il">@export</span>ed, you can give each agent instance a different one straight from the Inspector.</p>
-
-        <div class="screenshot">
-            <div class="label">Agent color in the Inspector</div>
-            <img src="" alt="Godot Inspector showing the Agent's exported color field with a swatch picker">
-            <div class="hint">The Inspector for the Agent instance, showing the Color field and swatch picker once @export var color exists.</div>
-        </div>
 
         <p><strong>Forward direction.</strong> Every <span class="code-lesson-il">Node2D</span> carries a <span class="code-lesson-il">transform</span>, and its <span class="code-lesson-il">y</span> basis vector is one of the two directions baked into that transform, rotating right along with the node.</p>
 <div class="code-block" data-lang="gdscript">
@@ -234,12 +215,6 @@ func _process(delta: float) -> void:
 </span>
 </div>
         <p><span class="code-lesson-il">rotation</span> now increases by <span class="code-lesson-il">RATE_ROTATION</span> radians every second (half of <span class="code-lesson-il">PI</span>, or 90 degrees per second). Since <span class="code-lesson-il">_move_forward</span> reads the agent's current facing fresh every single frame, turning and moving at the same time doesn't just spin the agent in place, it traces a wide, continuous loop, since the direction it's moving in is itself constantly rotating. Press Play and watch it circle.</p>
-
-        <div class="screenshot">
-            <div class="label">The agent circling</div>
-            <img src="" alt="Godot viewport showing the agent tracing a circular path against the black background">
-            <div class="hint">A couple of stills of the running scene, the tinted agent tracing a wide, continuous circle.</div>
-        </div>
 
         <p>This is exactly the state a Godot project can be handed off in for the next lesson: <span class="code-lesson-il">class_name Agent2D</span>, <span class="code-lesson-il">color</span>, <span class="code-lesson-il">RATE_MOVE</span>, <span class="code-lesson-il">RATE_ROTATION</span>, <span class="code-lesson-il">_move_forward</span>, <span class="code-lesson-il">_rotation_auto_simple</span>, and <span class="code-lesson-il">_get_agent_forward</span>, all in place.</p>
 
@@ -299,12 +274,6 @@ func _rotation_wander(delta_passed: float) -> void:
 </span>
 </div>
         <p>Instead of a perfect circle, the agent now meanders: a non-repeating, exploratory path built out of the same primitives (a rotation method and <span class="code-lesson-il">_move_forward</span>) you already had. This is the classic <strong>Wander</strong> steering behavior, and next lesson introduces a way to let each agent choose which rotation method to run, rather than hardcoding a single call in <span class="code-lesson-il">_process</span>.</p>
-
-        <div class="screenshot">
-            <div class="label">Wandering in motion</div>
-            <img src="" alt="Godot viewport showing the agent tracing a smooth, meandering path">
-            <div class="hint">A short capture or a couple of stills of the running scene, showing the agent's path curving gently rather than looping in a perfect circle.</div>
-        </div>
 
         <h3>Part 10. Signals, Briefly</h3>
         <p>Signals are how nodes notify each other that something happened, without needing a direct reference. A <span class="code-lesson-il">Button</span> emits a <span class="code-lesson-il">pressed</span> signal when clicked; an <span class="code-lesson-il">Area2D</span> emits <span class="code-lesson-il">body_entered</span> when something touches it.</p>
