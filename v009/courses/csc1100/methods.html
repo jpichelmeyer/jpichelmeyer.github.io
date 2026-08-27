@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p><code class="code-lesson-il">__init__</code> is actually just a method, a function defined inside a class. Any function you define the same way becomes something every instance of that class can do.</p>
+
+    <h3>Part 1. Defining a Method</h3>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def bark(self):
+        print(self.name + " says woof!")
+
+d = Dog("Rex")
+d.bark()</code>
+    </div>
+    <p><code class="code-lesson-il">d.bark()</code> is the call, but notice <code class="code-lesson-il">bark</code> is defined taking <code class="code-lesson-il">self</code> and nothing else, yet it's called with no arguments at all. Python fills <code class="code-lesson-il">self</code> in automatically, it's <code class="code-lesson-il">d</code> itself, passed silently every time you call a method through an instance.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def bark(self):
+        print(self.name + " says woof!")
+
+d = Dog("Rex")
+d.bark()</script>
+        <script type="text/plain" class="pyeditor-expected">Rex says woof!</script>
+    </div>
+
+    <h3>Part 2. Why self Has to Be There</h3>
+    <p><code class="code-lesson-il">self</code> is how a method reaches the specific instance it was called on. Without it, <code class="code-lesson-il">bark</code> would have no way to know whose name to print, <code class="code-lesson-il">self.name</code> is exactly what ties the method back to <em>this particular</em> dog rather than dogs in general.</p>
+    <p>You'll never pass <code class="code-lesson-il">self</code> yourself when calling a method, Python always supplies it, but you always write it as the first parameter when defining one.</p>
+
+    <h3>Part 3. Class Variables vs. Instance Variables</h3>
+    <p>An attribute set inside <code class="code-lesson-il">__init__</code> with <code class="code-lesson-il">self.</code> belongs to one instance. A variable defined directly inside the class, outside any method, is shared by every instance at once.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Counter:
+    total_created = 0   # class variable, shared by every instance
+
+    def __init__(self):
+        Counter.total_created += 1
+
+c1 = Counter()
+c2 = Counter()
+c3 = Counter()
+print(Counter.total_created)</code>
+    </div>
+    <p>Each <code class="code-lesson-il">Counter()</code> call adds one to the <em>same</em> shared number, not a separate one per instance, which is exactly why the count ends at 3 instead of resetting for each object.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Counter:
+    total_created = 0
+
+    def __init__(self):
+        Counter.total_created += 1
+
+c1 = Counter()
+c2 = Counter()
+c3 = Counter()
+print(Counter.total_created)</script>
+        <script type="text/plain" class="pyeditor-expected">3</script>
+    </div>
+
+    <h3>Part 4. Customizing print() with __str__</h3>
+    <p>By default, printing an instance shows something unreadable, like <code class="code-lesson-il">&lt;__main__.Dog object at 0x...&gt;</code>. Defining <code class="code-lesson-il">__str__</code> tells Python exactly what to show instead.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "Dog named " + self.name
+
+d = Dog("Rex")
+print(d)</code>
+    </div>
+    <p><code class="code-lesson-il">__str__</code> is one of several "dunder" (double-underscore) methods Python calls automatically in specific situations, this one specifically whenever something needs a readable string version of your object, <code class="code-lesson-il">print()</code> included.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "Dog named " + self.name
+
+d = Dog("Rex")
+print(d)</script>
+        <script type="text/plain" class="pyeditor-expected">Dog named Rex</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Define a method on a class and call it through an instance.</li>
+        <li>Explain why <code class="code-lesson-il">self</code> is written in the definition but never passed explicitly when calling.</li>
+        <li>Explain the difference between a class variable and an instance variable, and predict which one changes when a new instance is created.</li>
+        <li>Add a <code class="code-lesson-il">__str__</code> method to control what <code class="code-lesson-il">print()</code> shows for an instance.</li>
+    </ol>
+
+</body>
+</html>

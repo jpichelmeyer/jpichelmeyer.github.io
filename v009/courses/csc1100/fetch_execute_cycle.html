@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>The loops lesson warned you that a broken <code class="code-lesson-il">while</code> loop can hang the whole page, and told you to just reload if it happens. That was an honest warning, but not a real explanation. Here's the actual one.</p>
+
+    <h3>Part 1. One Instruction at a Time</h3>
+    <p>A CPU core runs a constant cycle: fetch the next instruction, figure out what it means, carry it out, then move to the next one. Fetch, decode, execute, repeat, billions of times a second, but always one instruction actually being carried out at any given instant on that core. Nothing about that cycle has any built-in notion of "come back to this later," it just keeps moving forward, instruction after instruction, for as long as the program tells it to.</p>
+
+    <h3>Part 2. Why an Infinite Loop Actually Freezes the Page</h3>
+    <p>The browser tab this page is running in is, at its core, executing on a single thread, the same one-thing-at-a-time model as a CPU core, just at a higher level: rendering the page, responding to your clicks, and running the Python you type all compete for the same single sequence of instructions being carried out. When your code hits a <code class="code-lesson-il">while</code> loop whose condition never goes false, that thread is permanently stuck fetching and executing the loop's instructions, over and over, forever. It's not choosing to ignore the Stop button, there's no way for it to even notice the click happened, responding to a click is itself just another instruction waiting in line, and the line never moves again once the loop takes over.</p>
+    <p>This is the same failure from a different angle than the recursion lesson's stack overflow: that one runs out of a finite resource (memory); this one just never reaches the point where it would hand control back to anything else at all.</p>
+
+    <h3>Part 3. Why a for Loop Over range() Doesn't Have This Problem</h3>
+    <p>A <code class="code-lesson-il">while</code> loop's condition gets checked fresh, from scratch, every single cycle, with nothing inherently limiting how many times that can happen. A <code class="code-lesson-il">for</code> loop over <code class="code-lesson-il">range(n)</code> is different in a way that actually matters here: the total number of iterations is fixed the moment the loop starts, decided by <code class="code-lesson-il">n</code>, not re-derived from some condition that could keep evaluating to true indefinitely.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">fetch_execute.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">total = 0
+for i in range(1000000):
+    total += 1
+print(total)</code>
+    </div>
+    <p>A million iterations is a lot of fetch-execute cycles, but it's a known, finite number of them, decided in advance. It'll take a moment, but it's structurally guaranteed to finish. A <code class="code-lesson-il">while</code> loop with a broken condition offers no such guarantee at all.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">total = 0
+for i in range(1000000):
+    total += 1
+print(total)</script>
+        <script type="text/plain" class="pyeditor-expected">1000000</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Describe the fetch, decode, execute cycle in your own words.</li>
+        <li>Explain, in terms of that cycle, why a broken <code class="code-lesson-il">while</code> loop freezes the entire tab rather than just failing to produce the right answer.</li>
+        <li>Explain why the Stop button in these exercises can't interrupt a true infinite loop.</li>
+        <li>Explain the structural difference between a <code class="code-lesson-il">for</code> loop over <code class="code-lesson-il">range(n)</code> and a <code class="code-lesson-il">while</code> loop that makes one of them guaranteed to finish and the other not.</li>
+    </ol>
+
+</body>
+</html>

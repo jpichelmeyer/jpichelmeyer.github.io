@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>Every value you've worked with so far, the numbers, the text, all of it, gets stored inside the computer as nothing but sequences of two states. Not because binary is a convenient convention someone picked, but because of a genuine engineering constraint worth actually understanding, and because it explains a very real, very surprising bug you're about to run into on purpose.</p>
+
+    <h3>Part 1. Why Binary, Specifically</h3>
+    <p>A transistor, the physical switch a computer is built out of by the billions, is reliable specifically because it only needs to distinguish two states: voltage high, or voltage low, on or off. Building a switch that reliably distinguishes ten different voltage levels (one per decimal digit) is a dramatically harder engineering problem: the voltage levels have to sit close enough together to fit ten of them in a usable range, which makes them far more sensitive to electrical noise, heat, and manufacturing imperfection. Two well-separated states are cheap and reliable at a scale of billions; ten closely-spaced ones are not. That's the actual reason computers are binary, not tradition, an engineering tradeoff that binary wins decisively.</p>
+
+    <h3>Part 2. Counting in Base 2</h3>
+    <p>Decimal counting is base 10: each digit position is worth ten times the one to its right. Binary is base 2: each position is worth twice the one to its right, so a binary number only ever uses the digits 0 and 1.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(bin(13))    # 0b1101
+print(bin(255))   # 0b11111111
+print(int("1101", 2))   # 13, converting back the other way</code>
+    </div>
+    <p><code class="code-lesson-il">bin()</code> shows you Python's own integers in binary, the <code class="code-lesson-il">0b</code> prefix just marks it as binary rather than decimal. Every integer you've ever printed has been stored this way underneath, <code class="code-lesson-il">print()</code> has just always been converting it to decimal for you.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(bin(13))
+print(bin(255))
+print(int("1101", 2))</script>
+        <script type="text/plain" class="pyeditor-expected">0b1101
+0b11111111
+13</script>
+    </div>
+
+    <h3>Part 3. The Real Mystery: 0.1 + 0.2</h3>
+    <p>Try this. It looks like it should obviously print <code class="code-lesson-il">0.3</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(0.1 + 0.2)</script>
+    </div>
+
+    <p>That's not a Python bug, and it's not a typo above, run it again if you don't believe it. Here's why: you already know <code class="code-lesson-il">1/3</code> can't be written exactly in decimal, no matter how many <code class="code-lesson-il">0.333...</code> digits you add, there's always more. The exact same thing happens to <code class="code-lesson-il">0.1</code> in binary: it's a repeating binary fraction that never exactly terminates, so the computer has to store the closest value that actually fits in the fixed amount of space set aside for it, a tiny rounding error, invisible on its own, but not zero. Add two of these tiny errors together and sometimes, like here, the imprecision becomes visible in the final digits.</p>
+    <p>This isn't specific to Python, it happens in essentially every mainstream programming language, for the same underlying reason: almost all of them use the same standard (IEEE 754) for how a computer represents a number with a decimal point.</p>
+
+    <h3>Part 4. Never Compare Floats with ==</h3>
+    <p>The practical consequence: two numbers that are mathematically supposed to be equal might differ by a tiny, invisible amount once they've been through floating-point arithmetic, which makes <code class="code-lesson-il">==</code> genuinely unreliable for them.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(0.1 + 0.2 == 0.3)                    # False, surprisingly
+print(round(0.1 + 0.2, 2) == 0.3)          # True, rounding hides the tiny error
+print(abs((0.1 + 0.2) - 0.3) &lt; 1e-9)       # True, checking "close enough" instead</code>
+    </div>
+    <p>Both fixes work by giving the comparison a little room: either round both sides to a sensible number of decimal places first, or check that the difference between them is smaller than some tiny tolerance, rather than demanding they be bit-for-bit identical.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(0.1 + 0.2 == 0.3)
+print(round(0.1 + 0.2, 2) == 0.3)</script>
+        <script type="text/plain" class="pyeditor-expected">False
+True</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain, in engineering terms, why computers use binary rather than decimal.</li>
+        <li>Convert a small number between binary and decimal using <code class="code-lesson-il">bin()</code> and <code class="code-lesson-il">int(x, 2)</code>.</li>
+        <li>Explain why <code class="code-lesson-il">0.1 + 0.2 == 0.3</code> is <code class="code-lesson-il">False</code>, connecting it back to why <code class="code-lesson-il">1/3</code> can't be written exactly in decimal.</li>
+        <li>Compare two floating-point numbers safely, without using <code class="code-lesson-il">==</code> directly.</li>
+    </ol>
+
+</body>
+</html>

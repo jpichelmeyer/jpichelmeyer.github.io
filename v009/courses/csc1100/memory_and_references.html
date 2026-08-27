@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>A variable has never actually been "a box that holds a value," even though that's usually a harmless way to think about it. It's closer to a label attached to a value sitting somewhere in the computer's memory. For numbers and strings, that difference almost never shows up. For lists, it shows up constantly, and it's worth seeing exactly why once, directly.</p>
+
+    <h3>Part 1. A Variable Is a Label, Not a Box</h3>
+    <p><code class="code-lesson-il">id()</code> returns a number identifying exactly where in memory a value actually lives. Two names that refer to the literal same value in memory will always report the same id.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">a = [1, 2, 3]
+b = a
+print(a is b)   # True, b isn't a copy, it's a second label on the same list</code>
+    </div>
+    <p><code class="code-lesson-il">is</code> checks exactly this, whether two names point at the same object in memory, which is a genuinely different question from <code class="code-lesson-il">==</code> (whether two things merely look equal, even if they're stored separately).</p>
+
+    <h3>Part 2. Two Names, One List</h3>
+    <p>Since <code class="code-lesson-il">a</code> and <code class="code-lesson-il">b</code> are two labels on the same list, changing the list through either name changes what both of them see, there was only ever one list to begin with.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)   # [1, 2, 3, 4], a changed too, even though only b.append() was called</code>
+    </div>
+    <p>Nothing about this is a bug or a special case, it's the direct, honest consequence of <code class="code-lesson-il">b = a</code> never having copied anything. It only ever attached a second name to the list that already existed.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)
+print(a is b)</script>
+        <script type="text/plain" class="pyeditor-expected">[1, 2, 3, 4]
+True</script>
+    </div>
+
+    <h3>Part 3. Copying On Purpose</h3>
+    <p>To actually get a second, independent list, you have to ask for a copy explicitly.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">a = [1, 2, 3]
+b = a.copy()
+b.append(4)
+print(a)   # [1, 2, 3], untouched
+print(b)   # [1, 2, 3, 4]
+print(a is b)   # False, two separate lists now</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">a = [1, 2, 3]
+b = a.copy()
+b.append(4)
+print(a)
+print(b)
+print(a is b)</script>
+        <script type="text/plain" class="pyeditor-expected">[1, 2, 3]
+[1, 2, 3, 4]
+False</script>
+    </div>
+
+    <h3>Part 4. The Same Thing Happens With Function Arguments</h3>
+    <p>Passing a list into a function doesn't copy it either, the parameter inside the function is just one more label on the same list the caller already had.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def add_item(lst):
+    lst.append("surprise")
+
+my_list = [1, 2, 3]
+add_item(my_list)
+print(my_list)   # [1, 2, 3, 'surprise'], changed by the function</code>
+    </div>
+    <p>This is exactly the same phenomenon as Part 2, wearing a different outfit: <code class="code-lesson-il">lst</code> inside the function and <code class="code-lesson-il">my_list</code> outside it are two names for one list, so a change made through either one is visible through both.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def add_item(lst):
+    lst.append("surprise")
+
+my_list = [1, 2, 3]
+add_item(my_list)
+print(my_list)</script>
+        <script type="text/plain" class="pyeditor-expected">[1, 2, 3, 'surprise']</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain the difference between what <code class="code-lesson-il">==</code> checks and what <code class="code-lesson-il">is</code> checks.</li>
+        <li>Predict whether changing one list through a second name will affect the first, and explain why.</li>
+        <li>Make an actual, independent copy of a list, and confirm it with <code class="code-lesson-il">is</code>.</li>
+        <li>Explain why a function that mutates a list parameter affects the caller's original list too.</li>
+    </ol>
+
+</body>
+</html>

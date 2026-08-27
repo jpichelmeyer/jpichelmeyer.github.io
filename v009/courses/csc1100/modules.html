@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>Every built-in function you've used so far, <code class="code-lesson-il">print</code>, <code class="code-lesson-il">len</code>, <code class="code-lesson-il">range</code>, was available without asking for it. A module is a file of reusable code that isn't loaded automatically, you bring it in on purpose with <code class="code-lesson-il">import</code> when you actually need it.</p>
+
+    <h3>Part 1. import</h3>
+    <p><code class="code-lesson-il">math</code> is part of Python's standard library, always available, no separate installation needed. Once imported, its functions and values are reached through the module's name with a dot, the same syntax you've already used for string methods.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+
+print(math.sqrt(16))   # 4.0
+print(math.pi)          # 3.141592653589793</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math
+print(math.sqrt(16))
+print(math.pi)</script>
+        <script type="text/plain" class="pyeditor-expected">4.0
+3.141592653589793</script>
+    </div>
+
+    <h3>Part 2. from ... import ...</h3>
+    <p>Importing specific names directly lets you drop the module prefix, at the cost of it being less obvious later which module a name actually came from.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">from math import sqrt, pi
+
+print(sqrt(16))
+print(pi)</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">from math import sqrt, pi
+print(sqrt(16))
+print(pi)</script>
+        <script type="text/plain" class="pyeditor-expected">4.0
+3.141592653589793</script>
+    </div>
+
+    <h3>Part 3. Renaming with as</h3>
+    <p>A module can be imported under a shorter alias, useful for a name you'll type constantly, or one that's long enough to be annoying.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math as m
+
+print(m.sqrt(25))</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math as m
+print(m.sqrt(25))</script>
+        <script type="text/plain" class="pyeditor-expected">5.0</script>
+    </div>
+
+    <h3>Part 4. Writing Your Own Module</h3>
+    <p>Any <code class="code-lesson-il">.py</code> file is a module, including ones you write yourself. If you had a file <code class="code-lesson-il">mymath.py</code> sitting in the same folder as your program:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">mymath.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def double(x):
+    return x * 2</code>
+    </div>
+    <p>another file in that same folder could use it exactly like <code class="code-lesson-il">math</code>:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">main.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import mymath
+
+print(mymath.double(21))   # 42</code>
+    </div>
+    <p>The editor on this page only ever runs one file at a time, so this specific example isn't something you can try right here, but it works exactly this way in Thonny on your own computer: two <code class="code-lesson-il">.py</code> files in the same folder, one importing the other by its filename, minus the <code class="code-lesson-il">.py</code>.</p>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Import a standard library module and call a function from it using the module-dot-function syntax.</li>
+        <li>Explain the difference between <code class="code-lesson-il">import math</code> and <code class="code-lesson-il">from math import sqrt</code>.</li>
+        <li>Give a module a shorter alias with <code class="code-lesson-il">as</code>.</li>
+        <li>Explain what makes a plain <code class="code-lesson-il">.py</code> file importable by another one.</li>
+    </ol>
+
+</body>
+</html>

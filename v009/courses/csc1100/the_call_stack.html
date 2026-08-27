@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>The recursion lesson showed each paused call as a box stacked on top of the one before it, waiting for an answer before it could finish. That wasn't just a helpful drawing. It's a literal description of a real, finite region of memory called the call stack, and now that you've felt what it does, it's worth actually naming what it is.</p>
+
+    <h3>Part 1. What's Actually Sitting in a Frame</h3>
+    <p>Every time a function is called, Python sets aside a small block of memory for that specific call, called a stack frame. It holds that call's local variables (like <code class="code-lesson-il">n</code> inside <code class="code-lesson-il">factorial</code>) and a note on exactly where to resume in whichever call made this one, once this one finishes. <code class="code-lesson-il">factorial(4)</code> calling <code class="code-lesson-il">factorial(3)</code> doesn't replace <code class="code-lesson-il">factorial(4)</code>'s frame, it adds a new one on top, leaving <code class="code-lesson-il">factorial(4)</code>'s own frame sitting there, paused, underneath it.</p>
+
+    <h3>Part 2. Last In, First Out</h3>
+    <p>A stack always resolves in reverse order: whichever frame was added most recently is exactly the one that finishes first, since it's sitting on top and every call above it has to be done before you can get back down to it. That's the "last in, first out" ordering the recursion diagrams showed directly: <code class="code-lesson-il">factorial(1)</code>, the last one added, was the first one to actually return.</p>
+
+    <h3>Part 3. The Limit Is Real Memory, Not an Arbitrary Rule</h3>
+    <p>The recursion lesson mentioned that a missing base case eventually raises <code class="code-lesson-il">RecursionError</code> rather than hanging forever. Here's the actual reason: the memory set aside for the call stack is finite, and every unfinished call takes up its own frame on it. Python keeps a running limit on how deep the stack is allowed to get specifically so a runaway recursive function fails loudly and immediately, instead of quietly consuming memory until something much worse happens.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import sys
+print(sys.getrecursionlimit())</code>
+    </div>
+    <p>Run it yourself, the exact number can vary depending on what you're running Python in, which is itself worth noticing: this isn't a fixed rule baked into the language, it's a real, environment-dependent number tied to actual available memory.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import sys
+print(sys.getrecursionlimit())</script>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import sys
+print(sys.getrecursionlimit() > 0)</script>
+        <script type="text/plain" class="pyeditor-expected">True</script>
+    </div>
+
+    <h3>Part 4. Where the Term "Stack Overflow" Actually Comes From</h3>
+    <p>You've probably heard "Stack Overflow" as the name of a website programmers use constantly to look things up. The name isn't arbitrary: a stack overflow is exactly this failure, the call stack growing past the memory set aside for it, most commonly from recursion with no working base case. It's such a common, recognizable failure that an entire programming Q&amp;A site was named after it. You now know, precisely, what that name is actually describing.</p>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain what's actually stored in a stack frame.</li>
+        <li>Explain "last in, first out" using the recursion diagrams from the previous lesson.</li>
+        <li>Explain why <code class="code-lesson-il">RecursionError</code> exists, in terms of real memory rather than an arbitrary language rule.</li>
+        <li>Explain what a "stack overflow" actually is.</li>
+    </ol>
+
+</body>
+</html>

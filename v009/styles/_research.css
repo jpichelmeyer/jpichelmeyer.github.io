@@ -40,6 +40,7 @@
     border-radius: 5px;
     border: 1px solid var(--panel-bd);
 }
+.research_paper_thumbnail_tri_conf    { content: url(../imgs/thumb_triceratops_conference.jpeg); }
 .research_paper_thumbnail_tda_eeg    { content: url(../imgs/thumb_tda_eeg.png); }
 .research_paper_thumbnail_tda_llm    { content: url(../imgs/thumb_tda_llm.png); }
 .research_paper_thumbnail_tooth      { content: url(../imgs/thumb_tooth.png); }

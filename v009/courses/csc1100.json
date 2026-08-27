@@ -66,18 +66,21 @@
         {
           "Setup": "csc1100/setup.html",
           "Variables": "csc1100/variables.html",
-          "Expressions": "csc1100/expressions.html"
+          "Expressions": "csc1100/expressions.html",
+          "Binary and floats": "csc1100/binary_and_floats.html"
         },
         {
           "Conditionals": "csc1100/conditionals.html",
           "Control Flow": "csc1100/control_flow_diagrams.html"
         },
         {
-          "Loops": "csc1100/loops.html"
+          "Loops": "csc1100/loops.html",
+          "Fetch-execute cycle": "csc1100/fetch_execute_cycle.html"
         },
         {
           "Functions": "csc1100/functions.html",
-          "Recursion": "csc1100/recursion.html"
+          "Recursion": "csc1100/recursion.html",
+          "Call stack": "csc1100/the_call_stack.html"
         },
         {
           "Presentation 1: The Pitch": ""
@@ -88,16 +91,20 @@
       "theme": "Intermediate",
       "trs": [
         {
-          "Strings": "csc1100/strings.html"
+          "Strings": "csc1100/strings.html",
+          "Regular expressions": "csc1100/regular_expressions.html"
         },
         {
-          "Collections (list, set, dict, tuple)": "csc1100/collections.html"
+          "Collections": "csc1100/collections.html",
+          "Memory and references": "csc1100/memory_and_references.html"
         },
         {
-          "Debugging, exceptions": ""
+          "Debugging": "csc1100/debugging.html", 
+          "Exceptions": "csc1100/exceptions.html"
         },
         {
-          "Modules, Files I/O": ""
+          "Modules": "csc1100/modules.html",
+          "Files I/O": "csc1100/files_io.html"
         },
         {
           "Presentation 2: The Progress": ""
@@ -108,13 +115,14 @@
       "theme": "Advanced",
       "trs": [
         {
-          "Classes": ""
+          "Classes": "csc1100/classes.html",
+          "Methods": "csc1100/methods.html"
         },
         {
-          "Inheritance, regular expressions": ""
+          "Inheritance": "csc1100/inheritance.html"
         },
         {
-          "Algorithms, pseudocode": ""
+          "Polymorphism": "csc1100/polymorphism.html"
         },
         {
           "BREAK": ""

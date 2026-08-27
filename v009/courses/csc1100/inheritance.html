@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>A lot of classes you'd want to write are variations on something more general. A <code class="code-lesson-il">Puppy</code> is still an <code class="code-lesson-il">Animal</code>, with everything an <code class="code-lesson-il">Animal</code> has, plus a little extra. Inheritance lets a class build on another one instead of duplicating it from scratch.</p>
+
+    <h3>Part 1. A Base Class and a Child Class</h3>
+    <p>Put the class you're inheriting from in parentheses after the new class's name. The child automatically gets everything the parent has.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+a = Animal("Generic")
+print(a.speak())
+
+d = Dog("Rex")
+print(d.speak())</code>
+    </div>
+    <p><code class="code-lesson-il">Dog</code> never redefines <code class="code-lesson-il">__init__</code>, it doesn't need to, it inherits <code class="code-lesson-il">Animal</code>'s version automatically, which is exactly why <code class="code-lesson-il">Dog("Rex")</code> already knows how to set <code class="code-lesson-il">self.name</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+d = Dog("Rex")
+print(d.speak())</script>
+        <script type="text/plain" class="pyeditor-expected">Rex says Woof!</script>
+    </div>
+
+    <h3>Part 2. Overriding a Method</h3>
+    <p><code class="code-lesson-il">Dog</code> above redefines <code class="code-lesson-il">speak</code>, that's an override: the child's version replaces the parent's for instances of the child, while the parent's own instances are completely unaffected.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">a = Animal("Generic")
+print(a.speak())   # ..., Animal's own version, untouched
+
+d = Dog("Rex")
+print(d.speak())   # Rex says Woof!, Dog's overridden version</code>
+    </div>
+
+    <h3>Part 3. super()</h3>
+    <p>Sometimes a child class wants to extend the parent's behavior rather than fully replace it, run the parent's version first, then add something on top. <code class="code-lesson-il">super()</code> gives you a way to call the parent's version explicitly from inside the child.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Puppy(Dog):
+    def __init__(self, name):
+        super().__init__(name)   # let Dog (and Animal) set up self.name
+        self.is_puppy = True
+
+    def speak(self):
+        base = super().speak()   # get Dog's version of speak() first
+        return base + " (but it's just a squeaky little bark)"
+
+p = Puppy("Biscuit")
+print(p.speak())
+print(p.is_puppy)</code>
+    </div>
+    <p><code class="code-lesson-il">Puppy</code> inherits from <code class="code-lesson-il">Dog</code>, which inherits from <code class="code-lesson-il">Animal</code>, a chain, not just a single link. <code class="code-lesson-il">super().__init__(name)</code> reaches up to <code class="code-lesson-il">Dog</code>'s constructor (which itself falls through to <code class="code-lesson-il">Animal</code>'s, since <code class="code-lesson-il">Dog</code> never overrode it) rather than <code class="code-lesson-il">Puppy</code> needing to repeat <code class="code-lesson-il">self.name = name</code> itself.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+class Puppy(Dog):
+    def __init__(self, name):
+        super().__init__(name)
+        self.is_puppy = True
+
+    def speak(self):
+        base = super().speak()
+        return base + " (but it's just a squeaky little bark)"
+
+p = Puppy("Biscuit")
+print(p.speak())
+print(p.is_puppy)</script>
+        <script type="text/plain" class="pyeditor-expected">Biscuit says Woof! (but it's just a squeaky little bark)
+True</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Create a child class that inherits from a parent class, and explain what it gets automatically.</li>
+        <li>Override a method in a child class, and explain why the parent's own instances are unaffected.</li>
+        <li>Explain what <code class="code-lesson-il">super()</code> does, and why you'd reach for it instead of just rewriting the parent's logic.</li>
+        <li>Follow an inheritance chain more than one class deep.</li>
+    </ol>
+
+</body>
+</html>
