@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>Every program you've written so far has probably broken at least once. That's normal, not a sign something's wrong with you. Debugging is a skill on its own, separate from writing code in the first place, and it's mostly about reading carefully rather than guessing.</p>
+
+    <h3>Part 1. Reading a Traceback</h3>
+    <p>When Python hits an error it can't recover from, it prints a traceback: where the problem happened, and what actually went wrong. It looks something like this.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">(illustrative)</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">Traceback (most recent call last):
+  File "program.py", line 3, in &lt;module&gt;
+    print(nam)
+NameError: name 'nam' is not defined</code>
+    </div>
+    <p>Read it from the bottom up, not the top down. The very last line is the actual answer: an error type (<code class="code-lesson-il">NameError</code>) and a message (<code class="code-lesson-il">name 'nam' is not defined</code>). The lines above it are just the path Python took to get there, useful for locating the problem, but the type and message are what tell you what's actually wrong.</p>
+
+    <h3>Part 2. Common Errors You'll Actually Hit</h3>
+    <ul>
+        <li><strong>NameError</strong>: using a name that was never defined, almost always a typo.</li>
+        <li><strong>TypeError</strong>: an operation given a type it doesn't know how to handle, like <code class="code-lesson-il">"Age: " + 25</code>.</li>
+        <li><strong>IndexError</strong>: asking a list or string for a position that doesn't exist.</li>
+        <li><strong>ZeroDivisionError</strong>: dividing by zero.</li>
+        <li><strong>SyntaxError</strong>: the code isn't even valid Python, a missing colon, an unclosed parenthesis. Python catches these before your code runs at all.</li>
+    </ul>
+    <p>The error type alone usually tells you most of what you need before you even read the message: <code class="code-lesson-il">TypeError</code> means two things don't mix the way you asked them to, <code class="code-lesson-il">IndexError</code> means you asked for a position that isn't there.</p>
+
+    <h3>Part 3. Print Debugging</h3>
+    <p>When the bug isn't an outright crash, just wrong output, a well-placed <code class="code-lesson-il">print()</code> is the fastest way to find out what a variable actually contains at a given point, rather than what you assumed it contained.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">total = 0
+for i in range(5):
+    total += i
+    print("i is", i, "total is", total)   # temporary, delete once fixed
+print(total)</code>
+    </div>
+    <p>This isn't a permanent fix, it's a flashlight: add prints to see what's actually happening, narrow down where reality stops matching your expectations, fix the actual problem, then remove the temporary prints once you understand it.</p>
+
+    <h3>Part 4. Fix It: NameError</h3>
+    <p>The code below has a typo. Read the error, find the name that doesn't match, and fix it.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">name = "Ada"
+print(nam)</script>
+        <script type="text/plain" class="pyeditor-expected">Ada</script>
+    </div>
+
+    <h3>Part 5. Fix It: IndexError</h3>
+    <p>This is supposed to print the last element of the list. It's reaching one position too far.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">nums = [1, 2, 3]
+print(nums[3])</script>
+        <script type="text/plain" class="pyeditor-expected">3</script>
+    </div>
+
+    <h3>Part 6. Fix It: TypeError</h3>
+    <p>This is trying to build a message out of a string and a number the way <code class="code-lesson-il">+</code> can't.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">age = 25
+print("Age: " + age)</script>
+        <script type="text/plain" class="pyeditor-expected">Age: 25</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Read a traceback from the bottom up, and identify the error type and the message.</li>
+        <li>Name at least four common error types and what typically causes each one.</li>
+        <li>Use temporary <code class="code-lesson-il">print()</code> statements to inspect a variable's value while debugging, then remove them.</li>
+        <li>Fix a broken piece of code by reading the error it produces, not by guessing.</li>
+    </ol>
+
+</body>
+</html>

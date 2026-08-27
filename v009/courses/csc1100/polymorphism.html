@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>Last lesson's <code class="code-lesson-il">Dog</code> overrode <code class="code-lesson-il">speak()</code> with its own version. Nothing stops a second, unrelated child class from overriding it a completely different way, same method name, same call, genuinely different behavior depending on which actual type you're holding. That's polymorphism: one interface, many shapes underneath it.</p>
+
+    <h3>Part 1. Two Overrides of the Same Method</h3>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+class Cat(Animal):
+    def speak(self):
+        return self.name + " says Meow!"</code>
+    </div>
+    <p><code class="code-lesson-il">Dog</code> and <code class="code-lesson-il">Cat</code> aren't related to each other at all, they only share <code class="code-lesson-il">Animal</code> as a common parent. Each overrides <code class="code-lesson-il">speak()</code> independently, with no knowledge of what the other one does.</p>
+
+    <h3>Part 2. Calling It Without Checking the Type</h3>
+    <p>Here's the actual payoff: a loop can call <code class="code-lesson-il">.speak()</code> on a whole list of different animal types, never once checking which one it's currently holding, and each object still does the right thing for its own type.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">animals = [Dog("Rex"), Cat("Whiskers"), Dog("Fido")]
+
+for a in animals:
+    print(a.speak())</code>
+    </div>
+    <p>The loop body is exactly three characters long past the variable name, <code class="code-lesson-il">a.speak()</code>, and it never mentions <code class="code-lesson-il">Dog</code> or <code class="code-lesson-il">Cat</code> at all. Each object already knows how to answer for itself.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+class Cat(Animal):
+    def speak(self):
+        return self.name + " says Meow!"
+
+animals = [Dog("Rex"), Cat("Whiskers"), Dog("Fido")]
+for a in animals:
+    print(a.speak())</script>
+        <script type="text/plain" class="pyeditor-expected">Rex says Woof!
+Whiskers says Meow!
+Fido says Woof!</script>
+    </div>
+
+    <h3>Part 3. Without Polymorphism</h3>
+    <p>Worth seeing the alternative once, just to appreciate what got avoided. Without overriding <code class="code-lesson-il">speak()</code> per class, the same loop would need to check the type of every single object itself before deciding what to do with it.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">(illustrative, not recommended)</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">for a in animals:
+    if isinstance(a, Dog):
+        print(a.name + " says Woof!")
+    elif isinstance(a, Cat):
+        print(a.name + " says Meow!")
+    # and one more elif for every new animal type you ever add, forever</code>
+    </div>
+    <p>Every new animal type would mean going back and adding another branch to <em>every single place</em> in the code that does this kind of check, instead of just writing one new class with its own <code class="code-lesson-il">speak()</code> and being done. That growing pile of type checks scattered everywhere is exactly what polymorphism exists to avoid.</p>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain polymorphism in your own words, using "same call, different behavior" as the core idea.</li>
+        <li>Write two unrelated child classes that override the same method name differently.</li>
+        <li>Loop over a list containing more than one type and call the same method on each, without checking type.</li>
+        <li>Explain what a chain of <code class="code-lesson-il">isinstance</code> checks would have to look like without polymorphism, and why that gets worse as more types are added.</li>
+    </ol>
+
+</body>
+</html>

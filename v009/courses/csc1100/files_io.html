@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>Everything your programs have produced so far disappears the moment they stop running. Writing to a file is how a program's output outlives the program itself, and reading one back is how it picks up where it left off.</p>
+
+    <p>One honest note about the examples on this page: the editor below runs inside your browser, using a small sandboxed filesystem that exists only for this page, not your actual computer's hard drive. The code and its behavior are completely real, <code class="code-lesson-il">open()</code>, <code class="code-lesson-il">write()</code>, and <code class="code-lesson-il">read()</code> work exactly as shown, but a file you create here won't show up anywhere on your machine. On your own computer, in Thonny, the exact same code creates a real file sitting right next to your script.</p>
+
+    <h3>Part 1. Opening and Writing</h3>
+    <p><code class="code-lesson-il">open(filename, mode)</code> gives you a file object to work with. <code class="code-lesson-il">"w"</code> mode opens a file for writing, creating it if it doesn't exist yet, and erasing whatever was already there if it does.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">f = open("notes.txt", "w")
+f.write("hello file\n")
+f.write("second line\n")
+f.close()</code>
+    </div>
+    <p><code class="code-lesson-il">write()</code> doesn't add a newline for you the way <code class="code-lesson-il">print()</code> does, that's why <code class="code-lesson-il">\n</code> shows up explicitly at the end of each line above. <code class="code-lesson-il">close()</code> matters too: it's what actually makes sure everything you wrote gets saved.</p>
+
+    <h3>Part 2. Reading It Back</h3>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">f = open("notes.txt", "r")
+content = f.read()
+print(content)
+f.close()</code>
+    </div>
+    <p><code class="code-lesson-il">"r"</code> mode opens for reading, and <code class="code-lesson-il">read()</code> pulls in the entire contents as one string, newlines and all.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">f = open("notes.txt", "w")
+f.write("hello file\n")
+f.write("second line\n")
+f.close()
+
+f = open("notes.txt", "r")
+content = f.read()
+print(content)
+f.close()</script>
+        <script type="text/plain" class="pyeditor-expected">hello file
+second line
+</script>
+    </div>
+
+    <h3>Part 3. The with Statement</h3>
+    <p>Forgetting <code class="code-lesson-il">close()</code> is an easy, common mistake, and it can leave a file's changes unsaved. <code class="code-lesson-il">with</code> closes the file automatically once its indented block finishes, even if something goes wrong partway through, which makes it the standard, preferred way to work with files.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("notes.txt", "r") as f:
+    content = f.read()
+
+print(content)</code>
+    </div>
+    <p>No <code class="code-lesson-il">f.close()</code> anywhere, and none is needed, it happens on its own the moment the <code class="code-lesson-il">with</code> block ends.</p>
+
+    <h3>Part 4. Reading Line by Line</h3>
+    <p>A file object can be looped over directly, one line at a time, without loading the whole thing into a single string first.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("notes.txt", "r") as f:
+    for line in f:
+        print(line.strip())</code>
+    </div>
+    <p><code class="code-lesson-il">.strip()</code> is doing real work there, not just tidying up: each line still has its trailing <code class="code-lesson-il">\n</code> attached, and <code class="code-lesson-il">print()</code> would otherwise add a second newline on top of it, leaving a blank line between every line of output.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">with open("notes.txt", "w") as f:
+    f.write("hello file\n")
+    f.write("second line\n")
+
+with open("notes.txt", "r") as f:
+    for line in f:
+        print(line.strip())</script>
+        <script type="text/plain" class="pyeditor-expected">hello file
+second line</script>
+    </div>
+
+    <h3>Part 5. Appending</h3>
+    <p><code class="code-lesson-il">"a"</code> mode opens for appending: new writes get added to the end of whatever's already in the file, instead of erasing it the way <code class="code-lesson-il">"w"</code> does.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("notes.txt", "a") as f:
+    f.write("third line\n")
+
+with open("notes.txt", "r") as f:
+    print(f.read())</code>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Write three lines to a file, then read it back one line at a time and print each one with its length, using <code class="code-lesson-il">len()</code> and <code class="code-lesson-il">.strip()</code> together.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">with open("lines.txt", "w") as f:
+    f.write("a\n")
+    f.write("bb\n")
+    f.write("ccc\n")
+
+with open("lines.txt", "r") as f:
+    for line in f:
+        clean = line.strip()
+        print(clean, len(clean))</script>
+        <script type="text/plain" class="pyeditor-expected">a 1
+bb 2
+ccc 3</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain the difference between <code class="code-lesson-il">"w"</code>, <code class="code-lesson-il">"r"</code>, and <code class="code-lesson-il">"a"</code> mode.</li>
+        <li>Explain why forgetting to close a file is a real problem, and why <code class="code-lesson-il">with</code> avoids it.</li>
+        <li>Loop over a file's lines one at a time, and explain why <code class="code-lesson-il">.strip()</code> is usually needed when you do.</li>
+        <li>Write to a file and read the same content back in the same program.</li>
+    </ol>
+
+</body>
+</html>

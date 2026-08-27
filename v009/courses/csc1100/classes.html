@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>A dictionary can bundle related values together, <code class="code-lesson-il">{"name": "Rex", "breed": "Labrador"}</code>, but it has no built-in notion of "this is specifically a dog," and no way to attach behavior to it. A class is how you define your own type: a blueprint that bundles data and the functions that work on that data into one thing.</p>
+
+    <h3>Part 1. Defining a Class</h3>
+    <p><code class="code-lesson-il">class</code> defines a new type. <code class="code-lesson-il">__init__</code> is a special method Python calls automatically every time a new instance gets created, its job is to set up that instance's starting values.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Dog:
+    def __init__(self, name, breed):
+        self.name = name
+        self.breed = breed
+
+d = Dog("Rex", "Labrador")
+print(d.name)
+print(d.breed)</code>
+    </div>
+    <p><code class="code-lesson-il">self</code> refers to the specific instance being created or worked on, it's what lets <code class="code-lesson-il">self.name = name</code> attach <code class="code-lesson-il">name</code> to <em>this particular</em> dog, rather than to dogs in general. You'll see <code class="code-lesson-il">self</code> as the first parameter of essentially every method you write; more on exactly why in the next lesson.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Dog:
+    def __init__(self, name, breed):
+        self.name = name
+        self.breed = breed
+
+d = Dog("Rex", "Labrador")
+print(d.name)
+print(d.breed)</script>
+        <script type="text/plain" class="pyeditor-expected">Rex
+Labrador</script>
+    </div>
+
+    <h3>Part 2. Each Instance Is Independent</h3>
+    <p>Creating a second <code class="code-lesson-il">Dog</code> doesn't touch the first one at all. Every instance gets its own separate copy of the attributes <code class="code-lesson-il">__init__</code> set up.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">d = Dog("Rex", "Labrador")
+d2 = Dog("Fido", "Poodle")
+print(d.name, d2.name)   # Rex Fido, completely independent</code>
+    </div>
+    <p>This is really the whole point of a class: <code class="code-lesson-il">Dog</code> is a blueprint, and each call to <code class="code-lesson-il">Dog(...)</code> builds one more independent object from it, the same shape every time, different contents.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Dog:
+    def __init__(self, name, breed):
+        self.name = name
+        self.breed = breed
+
+d = Dog("Rex", "Labrador")
+d2 = Dog("Fido", "Poodle")
+print(d.name, d2.name)</script>
+        <script type="text/plain" class="pyeditor-expected">Rex Fido</script>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Write a <code class="code-lesson-il">Book</code> class with <code class="code-lesson-il">title</code> and <code class="code-lesson-il">author</code> attributes, create one instance, and print both attributes.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Book:
+    def __init__(self, title, author):
+        self.title = title
+        self.author = author
+
+b = Book("Dune", "Frank Herbert")
+print(b.title)
+print(b.author)</script>
+        <script type="text/plain" class="pyeditor-expected">Dune
+Frank Herbert</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain what a class is, and how it's different from a dictionary holding the same values.</li>
+        <li>Explain what <code class="code-lesson-il">__init__</code> does and when Python calls it.</li>
+        <li>Explain what <code class="code-lesson-il">self</code> refers to inside a class.</li>
+        <li>Create two instances of the same class and explain why changing one doesn't affect the other.</li>
+    </ol>
+
+</body>
+</html>

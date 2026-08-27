@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p>The errors in the last lesson all crashed the program outright. An exception is the same underlying thing, a runtime error, except now you get a chance to catch it and decide what happens next, instead of the whole program stopping.</p>
+
+    <h3>Part 1. try / except</h3>
+    <p>Code inside a <code class="code-lesson-il">try</code> block runs normally, unless it raises an exception, in which case Python jumps straight to a matching <code class="code-lesson-il">except</code> block instead of crashing.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">try:
+    x = int("abc")
+except ValueError:
+    print("that wasn't a number")</code>
+    </div>
+    <p><code class="code-lesson-il">int("abc")</code> raises a <code class="code-lesson-il">ValueError</code> on its own, uncaught, that would crash the program with a traceback just like last lesson. Wrapped in <code class="code-lesson-il">try</code>/<code class="code-lesson-il">except</code>, the program instead runs the <code class="code-lesson-il">except</code> block and keeps going.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">try:
+    x = int("abc")
+except ValueError:
+    print("that wasn't a number")</script>
+        <script type="text/plain" class="pyeditor-expected">that wasn't a number</script>
+    </div>
+
+    <h3>Part 2. Matching the Right Exception</h3>
+    <p><code class="code-lesson-il">except</code> only catches the exception type you name. Naming <code class="code-lesson-il">ValueError</code> won't catch a <code class="code-lesson-il">ZeroDivisionError</code>, you need a matching <code class="code-lesson-il">except</code> for each kind of failure you actually expect.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">try:
+    print(10 / 0)
+except ZeroDivisionError:
+    print("can't divide by zero")</code>
+    </div>
+
+    <h3>Part 3. Multiple except Clauses</h3>
+    <p>A function can guard against more than one kind of failure at once, one <code class="code-lesson-il">except</code> per exception type it's prepared to handle.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return None
+    except TypeError:
+        return None
+
+print(safe_divide(10, 2))
+print(safe_divide(10, 0))</code>
+    </div>
+    <p>The first call divides cleanly and returns a real number. The second hits a <code class="code-lesson-il">ZeroDivisionError</code>, which the matching <code class="code-lesson-il">except</code> catches, returning <code class="code-lesson-il">None</code> instead of crashing.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return None
+    except TypeError:
+        return None
+
+print(safe_divide(10, 2))
+print(safe_divide(10, 0))</script>
+        <script type="text/plain" class="pyeditor-expected">5.0
+None</script>
+    </div>
+
+    <h3>Part 4. else and finally</h3>
+    <p><code class="code-lesson-il">else</code> runs only if the <code class="code-lesson-il">try</code> block succeeded with no exception at all. <code class="code-lesson-il">finally</code> runs no matter what happened, exception or not, useful for cleanup that has to happen either way.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">try:
+    x = int("42")
+except ValueError:
+    print("bad input")
+else:
+    print("parsed:", x)
+finally:
+    print("done")</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">try:
+    x = int("42")
+except ValueError:
+    print("bad input")
+else:
+    print("parsed:", x)
+finally:
+    print("done")</script>
+        <script type="text/plain" class="pyeditor-expected">parsed: 42
+done</script>
+    </div>
+
+    <h3>Part 5. Raising Your Own</h3>
+    <p><code class="code-lesson-il">raise</code> triggers an exception on purpose, the same mechanism as the errors Python raises for you, just aimed at a problem specific to your own code.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def set_age(age):
+    if age &lt; 0:
+        raise ValueError("age can't be negative")
+    return age
+
+print(set_age(25))
+
+try:
+    set_age(-5)
+except ValueError as e:
+    print("caught:", e)</code>
+    </div>
+    <p><code class="code-lesson-il">as e</code> captures the exception itself, letting you access its message with <code class="code-lesson-il">e</code>, rather than only knowing that something went wrong.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def set_age(age):
+    if age < 0:
+        raise ValueError("age can't be negative")
+    return age
+
+print(set_age(25))
+
+try:
+    set_age(-5)
+except ValueError as e:
+    print("caught:", e)</script>
+        <script type="text/plain" class="pyeditor-expected">25
+caught: age can't be negative</script>
+    </div>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Wrap risky code in <code class="code-lesson-il">try</code>/<code class="code-lesson-il">except</code> and explain what happens if the exception type doesn't match.</li>
+        <li>Handle more than one kind of exception from the same <code class="code-lesson-il">try</code> block.</li>
+        <li>Explain the difference between <code class="code-lesson-il">else</code> and <code class="code-lesson-il">finally</code>.</li>
+        <li>Raise your own exception with a meaningful message, and catch it with <code class="code-lesson-il">as</code> to read that message back.</li>
+    </ol>
+
+</body>
+</html>

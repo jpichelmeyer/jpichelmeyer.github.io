@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSC 1100</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <script src="../../scripts/pyodide_terminal.js"></script>
+    <script src="../../scripts/python_editor.js"></script>
+</head>
+<body>
+    <p><code class="code-lesson-il">.replace()</code> and <code class="code-lesson-il">.split()</code> both need to know the <em>exact</em> text they're looking for ahead of time. A regular expression (regex) describes a <em>pattern</em> instead, "a digit," "one or more letters," "something that looks like a phone number," letting you search for a shape rather than an exact string.</p>
+
+    <h3>Part 1. The re Module</h3>
+    <p>Regular expressions live in Python's built-in <code class="code-lesson-il">re</code> module. <code class="code-lesson-il">re.search(pattern, text)</code> looks for the pattern anywhere in <code class="code-lesson-il">text</code> and returns a match object if it finds one, or <code class="code-lesson-il">None</code> if it doesn't.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+
+text = "My phone number is 555-1234."
+match = re.search(r"\d{3}-\d{4}", text)
+print(match.group())</code>
+    </div>
+    <p>That <code class="code-lesson-il">r</code> right before the quotes matters: it marks a raw string, telling Python not to treat backslashes specially, which matters a lot here since regex patterns use backslashes constantly for their own purposes. <code class="code-lesson-il">.group()</code> pulls the actual matched text back out of the match object.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+text = "My phone number is 555-1234."
+match = re.search(r"\d{3}-\d{4}", text)
+print(match.group())</script>
+        <script type="text/plain" class="pyeditor-expected">555-1234</script>
+    </div>
+
+    <h3>Part 2. Common Pattern Elements</h3>
+    <ul>
+        <li><code class="code-lesson-il">\d</code>: any digit</li>
+        <li><code class="code-lesson-il">\w</code>: any letter, digit, or underscore</li>
+        <li><code class="code-lesson-il">.</code>: any character at all (except a newline)</li>
+        <li><code class="code-lesson-il">+</code>: one or more of whatever came right before it</li>
+        <li><code class="code-lesson-il">*</code>: zero or more of whatever came right before it</li>
+        <li><code class="code-lesson-il">{3}</code>: exactly 3 of whatever came right before it (and <code class="code-lesson-il">{3,5}</code> for a range)</li>
+    </ul>
+    <p><code class="code-lesson-il">\d{3}-\d{4}</code> from Part 1 reads directly off this list: exactly 3 digits, a literal hyphen, exactly 4 digits. <code class="code-lesson-il">\d+</code> means "one or more digits," useful when you don't know the exact length ahead of time.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+print(bool(re.search(r"\d+", "abc")))
+print(bool(re.search(r"\d+", "abc123")))</script>
+        <script type="text/plain" class="pyeditor-expected">False
+True</script>
+    </div>
+
+    <h3>Part 3. Finding Every Match</h3>
+    <p><code class="code-lesson-il">re.search()</code> only ever finds the first match. <code class="code-lesson-il">re.findall()</code> returns every match in the text as a list.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+nums = re.findall(r"\d+", "I have 3 cats and 12 fish")
+print(nums)</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+nums = re.findall(r"\d+", "I have 3 cats and 12 fish")
+print(nums)</script>
+        <script type="text/plain" class="pyeditor-expected">['3', '12']</script>
+    </div>
+
+    <h3>Part 4. Pattern-Based Replacement</h3>
+    <p><code class="code-lesson-il">.replace()</code> swaps one exact string for another. <code class="code-lesson-il">re.sub(pattern, replacement, text)</code> does the same job, but the thing it's replacing can be an entire pattern instead of one fixed string.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+result = re.sub(r"\d+", "#", "I have 3 cats and 12 fish")
+print(result)</code>
+    </div>
+    <p>A single call replaces both <code class="code-lesson-il">3</code> and <code class="code-lesson-il">12</code>, two different numbers, two different lengths, because the pattern describes "any run of digits," not one specific number.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+result = re.sub(r"\d+", "#", "I have 3 cats and 12 fish")
+print(result)</script>
+        <script type="text/plain" class="pyeditor-expected">I have # cats and # fish</script>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Use <code class="code-lesson-il">re.findall()</code> with <code class="code-lesson-il">\w+</code> to pull every word out of a sentence, punctuation and all excluded.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+words = re.findall(r"\w+", "Hello, world! It's Python.")
+print(words)</script>
+        <script type="text/plain" class="pyeditor-expected">['Hello', 'world', 'It', 's', 'Python']</script>
+    </div>
+    <p>Notice <code class="code-lesson-il">It's</code> split into <code class="code-lesson-il">It</code> and <code class="code-lesson-il">s</code>, the apostrophe isn't a letter, digit, or underscore, so <code class="code-lesson-il">\w+</code> stops right there. Patterns match exactly what you tell them to, nothing more, which is worth remembering the first time a regex "almost" works.</p>
+
+    <h3>Checkpoint</h3>
+    <p>Before moving on, make sure you can:</p>
+    <ol>
+        <li>Explain the difference between matching an exact string and matching a pattern.</li>
+        <li>Read a simple pattern using <code class="code-lesson-il">\d</code>, <code class="code-lesson-il">\w</code>, <code class="code-lesson-il">+</code>, and <code class="code-lesson-il">{n}</code>, and describe what it matches in plain English.</li>
+        <li>Explain the difference between <code class="code-lesson-il">re.search()</code> and <code class="code-lesson-il">re.findall()</code>.</li>
+        <li>Use <code class="code-lesson-il">re.sub()</code> to replace every occurrence of a pattern, not just one fixed string.</li>
+    </ol>
+
+</body>
+</html>
