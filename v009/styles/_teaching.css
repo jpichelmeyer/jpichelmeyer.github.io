@@ -239,7 +239,7 @@
 .tag_cpp        { background:#2b8068; }
 .tag_csharp     { background:#7355dd; }
 .tag_css        { background:#2e7de6; }
-.tag_gdscript   { background:#4476b8; }
+.tag_gdscript   { background:#353f9c; }
 .tag_gt         { background:#B3A369; color:#000; }
 .tag_godot      { background:#4476b8; }
 .tag_html       { background:#f27718; }
@@ -631,17 +631,33 @@
 .lg-action-apply {
     background: #cf5174;
 }
+.lg-action-benchmark {
+    background: #ffcf5e;
+    color: #1f1f1f;
+}
+.lg-action-build {
+    background: #4bb881;
+}
+.lg-action-communicate {
+    background: #ffcf5e;
+}
 .lg-action-create {
     background: #4bb881;
 }
 .lg-action-design {
     background: #4b90b8;
 }
+.lg-action-demonstrate {
+    background: #bc5eff;
+}
 .lg-action-develop {
     background: #63a2ff;
 }
 .lg-action-evaluate {
     background: #63a2ff;
+}
+.lg-action-explain {
+    background: #5e9fff;
 }
 
 

@@ -7,19 +7,34 @@
   "svg": "mth1220.svg",
   "days": "MWF",
   "time": "8:00-9:15am",
-  "place": "TBD",
-  "prereq": "",
+  "place": "DSC 259",
+  "prereq": "MTH 1120 Calculus I, with a grade of C- or better.",
   "catalog": "A study of transcendental functions, infinite series, mean-value theorem, polar coordinates, integration, and applications of integration.",
   "goals": [
     {
       "num": 1,
-      "action": "Action",
-      "detail": ": detail"
+      "action": "Apply",
+      "detail": "techniques of integration to compute reasonable antiderivatives."
     },
     {
       "num": 2,
-      "action": "Action",
-      "detail": ": detail"
+      "action": "Build",
+      "detail": "connections between differentiation and integration using the Fundamental Theorem of Calculus."
+    },
+    {
+      "num": 3,
+      "action": "Communicate",
+      "detail": "using correct mathematical notation, coherent explanation, and appropriate form in a clear and unambiguous way, both formally and informall"
+    },
+    {
+      "num": 4,
+      "action": "Demonstrate",
+      "detail": "sufficient knowledge of the course content"
+    },
+    {
+      "num": 5,
+      "action": "Explain",
+      "detail": "the meaning of convergence and the ideas behind convergence tests"
     }
   ],
   "courseColor": "#f0a8a8",
@@ -116,7 +131,7 @@
     {
         "name": "Exam 1",
         "type": "exam",
-        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the first module of the course (continuous summation).",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the first module of the course.",
         "percentage": "25",
         "colorbg": "#7cbf8e",
         "colorfont": "#1f1f1f"
@@ -124,7 +139,7 @@
     {
         "name": "Exam 2",
         "type": "exam",
-        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the second module of the course (discrete summation).",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the second module of the course.",
         "percentage": "25",
         "colorbg": "#7cbf8e",
         "colorfont": "#1f1f1f"
@@ -138,7 +153,7 @@
         "colorfont": "#1f1f1f"
     },
     {
-        "name": "Micro-quiz",
+        "name": "Micro-quizzes",
         "type": "microquiz",
         "description": "Given spontaneously to assess understanding of something very recently discussed. Short (5 min or less). Small stakes.",
         "percentage": "5",
@@ -155,6 +170,7 @@
     }
   ],
   "instructions": {},
-  "materials": "Writing utensil, paper",
-  "credits": "4"
+  "materials": "Sisson, Szarvas, Calculus with Early Transcendentals (2nd edition), writing utensil(s), paper",
+  "credits": "4",
+  "instructional_methods": "Lecture"
 }

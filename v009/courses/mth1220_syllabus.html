@@ -4,30 +4,100 @@
 <meta charset="utf-8">
 <title>MTH 1220 Course Overview</title>
 <style>
-body { font-family: Helvetica, Arial, sans-serif; color: #1f1f1f; line-height: 1.45; margin: 2em; }
-h1 { font-size: 1.6em; border-bottom: 3px solid #333; padding-bottom: 0.2em; }
-h2 { font-size: 1.25em; margin-top: 1.6em; background: #eee; padding: 0.3em 0.5em; }
-h3 { font-size: 1.05em; margin-top: 1.1em; margin-bottom: 0.2em; }
-table.meta-table, table.overview-table { border-collapse: collapse; width: 100%; margin: 0.6em 0 1em 0; table-layout: fixed; }
-table.meta-table td, table.overview-table td, table.overview-table th {
-    border: 1px solid #999; padding: 6px 8px; vertical-align: top; text-align: left;
-    word-wrap: break-word;
+@page {
+    size: Letter;
+    margin: 0.65in 0.70in;
 }
+
+* { box-sizing: border-box; }
+
+html { font-size: 11pt; }
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    color: #1f1f1f;
+    line-height: 1.45;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 1.6em;
+    border-bottom: 3px solid #333;
+    padding-bottom: 0.2em;
+    margin: 0 0 0.8em 0;
+}
+
+h2 {
+    font-size: 1.25em;
+    margin: 1.6em 0 0.6em 0;
+    background: #333333;
+    color: #f1f1f1;
+    padding: 0.3em 0.5em;
+}
+
+h3 { font-size: 1.05em; margin: 1.1em 0 0.2em 0; }
+h4 { margin: 1em 0 0.25em 0; }
+p { margin: 0.45em 0 0.8em 0; }
+ol, ul { margin-top: 0.45em; margin-bottom: 0.8em; }
+
+table.meta-table,
+table.overview-table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 100%;
+    margin: 0.6em 0 1em 0;
+    table-layout: fixed;
+}
+
+table.meta-table td,
+table.overview-table td,
+table.overview-table th {
+    border: 1px solid #999;
+    padding: 6px 8px;
+    vertical-align: top;
+    text-align: left;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
 table.overview-table th { background: #f2f2f2; }
-table.meta-table td.label { font-weight: bold; width: 160px; background: #f7f7f7; }
+
+table.meta-table td.label {
+    font-weight: bold;
+    width: 160px;
+    background: #f7f7f7;
+}
+
 tr.theme-row td { background: #f7f7f7; }
 tr.total td { border-top: 2px solid #333; }
 a { color: #204a87; }
-/* Note: page-break-inside: avoid is intentionally NOT applied to the big
-   .section wrappers -- those run longer than a single printed page, and
-   telling the renderer to keep an over-long block together just makes it
-   shove the whole thing onto the next page, leaving a large blank gap
-   and throwing off everything after it. Instead, keep only genuinely
-   small, single-page-attempt units together: a table row, or one policy
-   /resource block (heading + its own paragraphs). */
-h2, h3, h4 { page-break-after: avoid; }
-table.overview-table tr { page-break-inside: avoid; }
-.keep-together { page-break-inside: avoid; }
+
+h2, h3, h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+table.overview-table tr,
+table.meta-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+/* Long policy/resource blocks should be allowed to cross a page boundary. */
+.keep-together {
+    break-inside: auto;
+    page-break-inside: auto;
+}
+
+@media print {
+    body { margin: 0; }
+
+    h2, h3, h4 { break-after: avoid; }
+
+    table.overview-table tr,
+    table.meta-table tr { break-inside: avoid; }
+}
 </style>
 </head>
 <body>
@@ -38,22 +108,22 @@ table.overview-table tr { page-break-inside: avoid; }
 <h2>Overview</h2>
 
 <h3>Course Information</h3>
-<table class="meta-table"><tr><td class='label'>Course</td><td>MTH 1220 -- Calculus II</td></tr><tr><td class='label'>Semester</td><td>AY 2026-2027 Fall</td></tr><tr><td class='label'>Credits</td><td>4</td></tr><tr><td class='label'>Days / Time</td><td>MWF 8:00-9:15am</td></tr><tr><td class='label'>Location</td><td>TBD</td></tr><tr><td class='label'>Prerequisites</td><td>None</td></tr></table>
+<table class="meta-table"><tr><td class='label'>Course</td><td>MTH 1220 -- Calculus II</td></tr><tr><td class='label'>Semester</td><td>AY 2026-2027 Fall</td></tr><tr><td class='label'>Credits</td><td>4</td></tr><tr><td class='label'>Days / Time</td><td>MWF 8:00-9:15am</td></tr><tr><td class='label'>Location</td><td>DSC 259</td></tr><tr><td class='label'>Prerequisites</td><td>MTH 1120 Calculus I, with a grade of C- or better.</td></tr></table>
 
 <h3>Instructor Information</h3>
-<table class="meta-table"><tr><td class='label'>Instructor</td><td>Dr. Jacob Pichelmeyer PhD</td></tr><tr><td class='label'>Email</td><td>jpichelmeyer @carthage.edu</td></tr><tr><td class='label'>Office</td><td>DSC 72</td></tr><tr><td class='label'>Office Hours</td><td>M 10:30am- 1:30pm    T 11:35am-12:35am    W 10:30am-11:30am</td></tr></table>
+<table class="meta-table"><tr><td class='label'>Instructor</td><td>Dr. Jacob Pichelmeyer, PhD</td></tr><tr><td class='label'>Email</td><td>jpichelmeyer @carthage.edu</td></tr><tr><td class='label'>Office</td><td>DSC 72</td></tr><tr><td class='label'>Office Hours</td><td>M 10:30am- 1:30pm    T 11:35am-12:35am    W 10:30am-11:30am</td></tr></table>
 
 <h3>Course Description</h3>
 <p>A study of transcendental functions, infinite series, mean-value theorem, polar coordinates, integration, and applications of integration.</p>
 
 <h3>Student Learning Outcomes</h3>
-<ol><li>Action : detail</li><li>Action : detail</li></ol>
+<ol><li>Apply techniques of integration to compute reasonable antiderivatives.</li><li>Build connections between differentiation and integration using the Fundamental Theorem of Calculus.</li><li>Communicate using correct mathematical notation, coherent explanation, and appropriate form in a clear and unambiguous way, both formally and informall</li><li>Demonstrate sufficient knowledge of the course content</li><li>Explain the meaning of convergence and the ideas behind convergence tests</li></ol>
 
 <h3>Instructional Methods</h3>
-Lecture, live-coding demo, hands-on studio/lab work.
+Lecture
 
 <h3>Course Materials</h3>
-Writing utensil, paper
+Sisson, Szarvas, Calculus with Early Transcendentals (2nd edition), writing utensil(s), paper
 </div>
 
 <div class="section">
@@ -61,7 +131,7 @@ Writing utensil, paper
 <h4>Grading Policy</h4>
 {'A': '93', 'A-': '90', 'B+': '87', 'B': '83', 'B-': '80', 'C+': '77', 'C': '73', 'C-': '70', 'D+': '67', 'D': '63', 'D-': '60', 'F': '0'}
 <h4>Assessments</h4>
-<table class='overview-table assessment-table'><colgroup><col width='28%'><col width='12%'><col width='60%'></colgroup><tr><th>Assessment</th><th>Weight</th><th>Description</th></tr><tr><td>Exam 1</td><td>25%</td><td>In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the first module of the course (continuous summation).</td></tr><tr><td>Exam 2</td><td>25%</td><td>In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the second module of the course (discrete summation).</td></tr><tr><td>Exam 3</td><td>30%</td><td>In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.</td></tr><tr><td>Micro-quiz</td><td>5%</td><td>Given spontaneously to assess understanding of something very recently discussed. Short (5 min or less). Small stakes.</td></tr><tr><td>Quizzes</td><td>15%</td><td>At the end of each week, a short in-class quiz on the prior week&#x27;s reading and concepts.</td></tr><tr class='total'><td><b>Total</b></td><td><b>100%</b></td><td>&nbsp;</td></tr></table>
+<table class='overview-table assessment-table'><colgroup><col width='28%'><col width='12%'><col width='60%'></colgroup><tr><th>Assessment</th><th>Weight</th><th>Description</th></tr><tr><td>Exam 1</td><td>25%</td><td>In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the first module of the course.</td></tr><tr><td>Exam 2</td><td>25%</td><td>In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the second module of the course.</td></tr><tr><td>Exam 3</td><td>30%</td><td>In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.</td></tr><tr><td>Micro-quizzes</td><td>5%</td><td>Given spontaneously to assess understanding of something very recently discussed. Short (5 min or less). Small stakes.</td></tr><tr><td>Quizzes</td><td>15%</td><td>At the end of each week, a short in-class quiz on the prior week&#x27;s reading and concepts.</td></tr><tr class='total'><td><b>Total</b></td><td><b>100%</b></td><td>&nbsp;</td></tr></table>
 <h4>Grading Scale</h4>
 <table class='overview-table grading-scale-table'><colgroup><col width='30%'><col width='70%'></colgroup><tr><th>Letter Grade</th><th>Percentage Range</th></tr><tr><td><b>A</b></td><td>93% - 100%</td></tr><tr><td><b>A-</b></td><td>90% - 92%</td></tr><tr><td><b>B+</b></td><td>87% - 89%</td></tr><tr><td><b>B</b></td><td>83% - 86%</td></tr><tr><td><b>B-</b></td><td>80% - 82%</td></tr><tr><td><b>C+</b></td><td>77% - 79%</td></tr><tr><td><b>C</b></td><td>73% - 76%</td></tr><tr><td><b>C-</b></td><td>70% - 72%</td></tr><tr><td><b>D+</b></td><td>67% - 69%</td></tr><tr><td><b>D</b></td><td>63% - 66%</td></tr><tr><td><b>D-</b></td><td>60% - 62%</td></tr><tr><td><b>F</b></td><td>Below 60%</td></tr></table>
 </div>
@@ -86,7 +156,7 @@ Writing utensil, paper
 <h2>Course Specifics</h2>
 
 <h3>Workload Expectation</h3>
-<p>For every credit this course is worth, it is expected that you will spend 2-3 hours <i>outside of our in-class time</i> on work related to the course, which includes (but is not limited to) studying lessons, working on projects, and seeking assistance from and working with the instructor during office hours. This course is worth <b>4 credit(s)</b>, so plan on roughly <b>44 to 444 hour(s)</b> of outside effort per week. This number may be much higher or lower, depending on the knowledge and experience you bring into the course.</p>
+<p>For every credit this course is worth, it is expected that you will spend 2-3 hours <i>outside of our in-class time</i> on work related to the course, which includes (but is not limited to) studying lessons, working on projects, and seeking assistance from and working with the instructor during office hours. This course is worth <b>4 credit(s)</b>, so plan on roughly <b>8 to 12 hour(s)</b> of outside effort per week. This number may be much higher or lower, depending on the knowledge and experience you bring into the course.</p>
 
 <h3>Calendar of Course Activities</h3>
 <table class='overview-table calendar-table'><colgroup><col width='20%'><col width='80%'></colgroup><tr><th>Week</th><th>Topic</th></tr><tr class='theme-row'><td colspan='2'><b>Discrete sums</b></td></tr><tr><td>Week 1</td><td>Sequences (10.1), Series (10.2)</td></tr><tr><td>Week 2</td><td>Comparison (10.4), Ratio/Root test (10.5)</td></tr><tr><td>Week 3</td><td>Absolute Convergence (10.6), Power Series (10.7)</td></tr><tr><td>Week 4</td><td>Taylor Series (10.8)</td></tr><tr><td>Week 5</td><td>Review/Flex, Exam 1</td></tr><tr class='theme-row'><td colspan='2'><b>Continuous sums</b></td></tr><tr><td>Week 6</td><td>Riemann Sums (5.1), Definite Integral (5.2), FTC/MVT (5.3), Indefinite Integral (5.4), U-Substitution (5.5)</td></tr><tr><td>Week 7</td><td>Integration by parts (7.1), Partial fractions (7.2)</td></tr><tr><td>Week 8</td><td>Trigonometric integrals (7.3), Trigonometric substitution (7.4)</td></tr><tr><td>Week 9</td><td>Numerical integration (7.6), Improper integrals (7.7)</td></tr><tr><td>Week 10</td><td>Review/Flex, Exam 2</td></tr><tr class='theme-row'><td colspan='2'><b>Geometric applications</b></td></tr><tr><td>Week 11</td><td>Volumes by slices (6.1), Volumes by shells (6.2), Arc Length (6.3)</td></tr><tr><td>Week 12</td><td>Parmetric equations (9.1), Calculus with parametric equations (9.2)</td></tr><tr><td>Week 13</td><td>Polar coordinates (9.3), Calculus with polar coordinates (9.4)</td></tr><tr><td>Week 14</td><td>BREAK</td></tr><tr><td>Week 15</td><td>Flex week</td></tr><tr><td>Week 16</td><td>Review/Flex, Exam 3</td></tr></table>

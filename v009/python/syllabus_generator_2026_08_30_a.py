@@ -19,17 +19,16 @@ Always writes an HTML file next to the course JSON:
 
     {key}_overview.html
 
-That HTML is also used as the source for the PDF. PDF generation uses
-Playwright + Chromium so that the PDF is rendered by a real browser engine
-and closely matches the HTML version.
+That HTML is print-ready on its own (Ctrl/Cmd+P -> Save as PDF gives you
+a clean result in any browser). If the `xhtml2pdf` package is installed
+(`pip install xhtml2pdf --break-system-packages` or just
+`pip install xhtml2pdf`), it also writes:
 
-Install once with:
+    {key}_overview.pdf
 
-    pip install playwright
-    playwright install chromium
-
-If Playwright or Chromium is not available, the HTML is still written and
-the script prints instructions for enabling PDF generation.
+directly -- no browser step needed. If xhtml2pdf isn't installed, the
+script tells you that and skips straight to the HTML, which still works
+fine on its own.
 
 Missing data
 ------------
@@ -51,7 +50,6 @@ import html
 import json
 import os
 import sys
-from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Course/shared lookup -- same pattern as the other brightspace_* scripts
@@ -479,100 +477,30 @@ def build_course_policies(course, shared):
 # ---------------------------------------------------------------------------
 
 CSS = """
-@page {
-    size: Letter;
-    margin: 0.65in 0.70in;
+body { font-family: Helvetica, Arial, sans-serif; color: #1f1f1f; line-height: 1.45; margin: 2em; }
+h1 { font-size: 1.6em; border-bottom: 3px solid #333; padding-bottom: 0.2em; }
+h2 { font-size: 1.25em; margin-top: 1.6em; background: #333333; color: #f1f1f1; padding: 0.3em 0.5em; }
+h3 { font-size: 1.05em; margin-top: 1.1em; margin-bottom: 0.2em; }
+table.meta-table, table.overview-table { border-collapse: collapse; width: 100%; margin: 0.6em 0 1em 0; table-layout: fixed; }
+table.meta-table td, table.overview-table td, table.overview-table th {
+    border: 1px solid #999; padding: 6px 8px; vertical-align: top; text-align: left;
+    word-wrap: break-word;
 }
-
-* { box-sizing: border-box; }
-
-html { font-size: 11pt; }
-
-body {
-    font-family: Helvetica, Arial, sans-serif;
-    color: #1f1f1f;
-    line-height: 1.45;
-    margin: 0;
-    padding: 0;
-}
-
-h1 {
-    font-size: 1.6em;
-    border-bottom: 3px solid #333;
-    padding-bottom: 0.2em;
-    margin: 0 0 0.8em 0;
-}
-
-h2 {
-    font-size: 1.25em;
-    margin: 1.6em 0 0.6em 0;
-    background: #333333;
-    color: #f1f1f1;
-    padding: 0.3em 0.5em;
-}
-
-h3 { font-size: 1.05em; margin: 1.1em 0 0.2em 0; }
-h4 { margin: 1em 0 0.25em 0; }
-p { margin: 0.45em 0 0.8em 0; }
-ol, ul { margin-top: 0.45em; margin-bottom: 0.8em; }
-
-table.meta-table,
-table.overview-table {
-    border-collapse: collapse;
-    width: 100%;
-    max-width: 100%;
-    margin: 0.6em 0 1em 0;
-    table-layout: fixed;
-}
-
-table.meta-table td,
-table.overview-table td,
-table.overview-table th {
-    border: 1px solid #999;
-    padding: 6px 8px;
-    vertical-align: top;
-    text-align: left;
-    overflow-wrap: anywhere;
-    word-break: normal;
-}
-
 table.overview-table th { background: #f2f2f2; }
-
-table.meta-table td.label {
-    font-weight: bold;
-    width: 160px;
-    background: #f7f7f7;
-}
-
+table.meta-table td.label { font-weight: bold; width: 160px; background: #f7f7f7; }
 tr.theme-row td { background: #f7f7f7; }
 tr.total td { border-top: 2px solid #333; }
 a { color: #204a87; }
-
-h2, h3, h4 {
-    break-after: avoid;
-    page-break-after: avoid;
-}
-
-table.overview-table tr,
-table.meta-table tr {
-    break-inside: avoid;
-    page-break-inside: avoid;
-}
-
-/* Long policy/resource blocks should be allowed to cross a page boundary. */
-.keep-together {
-    break-inside: auto;
-    page-break-inside: auto;
-}
-
-@media print {
-    body { margin: 0; }
-
-    h2, h3, h4 { break-after: avoid; }
-
-    table.overview-table tr,
-    table.meta-table tr { break-inside: avoid; }
-}
+/* Note: page-break-inside: avoid is intentionally NOT applied to the big
+   .section wrappers -- those run longer than a single printed page, and
+   telling the renderer to keep an over-long block together just makes it
+   shove the whole thing onto the next page, leaving a large blank gap
+   and throwing off everything after it. Instead, keep only genuinely
+   small, single-page-attempt units together: a table row, or one policy
+   /resource block (heading + its own paragraphs). */
+h2, h3, h4 { page-break-after: avoid; }
+table.overview-table tr { page-break-inside: avoid; }
+.keep-together { page-break-inside: avoid; }
 """
 
 
@@ -663,44 +591,23 @@ def build_document(course, shared):
 
 
 # ---------------------------------------------------------------------------
-# PDF export via Playwright / Chromium
+# PDF export (optional -- only if xhtml2pdf is installed)
 # ---------------------------------------------------------------------------
 
-def try_write_pdf(html_path, pdf_path):
-    """Render the written HTML file to PDF using Chromium."""
+def try_write_pdf(html_text, pdf_path):
     try:
-        from playwright.sync_api import sync_playwright
+        from xhtml2pdf import pisa
     except ImportError:
-        print("(Playwright not installed -- skipping PDF; HTML is still complete.)")
-        print(" To enable PDF output:")
-        print("   pip install playwright")
-        print("   playwright install chromium")
+        print("(xhtml2pdf not installed -- skipping PDF, HTML file is still complete.")
+        print(" To also get a PDF directly next time: pip install xhtml2pdf)")
         return False
 
-    html_uri = Path(html_path).resolve().as_uri()
-
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch()
-            try:
-                page = browser.new_page()
-                page.goto(html_uri, wait_until="networkidle")
-                page.emulate_media(media="print")
-                page.pdf(
-                    path=pdf_path,
-                    format="Letter",
-                    print_background=True,
-                    prefer_css_page_size=True,
-                )
-            finally:
-                browser.close()
-    except Exception as e:
-        print(f"(Could not create PDF with Chromium: {e})")
-        print(" If Chromium has not been installed for Playwright, run:")
-        print("   playwright install chromium")
-        print(" The HTML file is still complete and can be printed from a browser.")
+    with open(pdf_path, 'wb') as f:
+        result = pisa.CreatePDF(html_text, dest=f)
+    if result.err:
+        print(f"(xhtml2pdf reported {result.err} error(s) -- check {pdf_path}, "
+              "or just print the HTML file to PDF from your browser instead.)")
         return False
-
     return True
 
 
@@ -764,7 +671,7 @@ def main():
         f.write(doc_html)
     print(f"HTML saved: {html_path}")
 
-    if try_write_pdf(html_path, pdf_path):
+    if try_write_pdf(doc_html, pdf_path):
         print(f"PDF saved:  {pdf_path}")
 
     print_missing_report()
