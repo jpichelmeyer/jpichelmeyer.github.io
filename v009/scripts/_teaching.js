@@ -228,7 +228,7 @@ function renderTeachingListing(body, mode = 'all') {
             tag('tag_carthage', 'Carthage College'),
             `This course explores the primary approaches for developing computer programs that display characteristics we would think of as being intelligent. Students will analyze how intelligent systems are developed and implemented with a focus on exploring how human behavior on cognitive tasks can be used to inform the development of these artificial systems, as well as how the performance and behavior of these artificial systems can inform our understanding of human cognition.`],
         ['CSC 3730 : Artificial Intelligence for Simulations',
-            tag('tag_carthage', 'Carthage College') + tag('tag_godot', 'Godot') + tag('tag_python', 'Python'),
+            tag('tag_carthage', 'Carthage College') + tag('tag_godot', 'Godot') + tag('tag_gdscript', 'GDscript'),
             `Explore the fundamental AI algorithms used in simulations and game development. This course covers techniques like pathfinding, decision trees, behavior trees, finite state machines, and machine learning. Students will apply these algorithms to create more dynamic, responsive, and intelligent virtual environments. Ideal for those interested in game design, simulations, and AI programming.`],
         ['HON 150/250 : Games for Good',
             tag('tag_westminster', 'Westminster College') + tag('tag_godot', 'Godot'),

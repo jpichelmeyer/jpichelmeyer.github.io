@@ -18,23 +18,23 @@
     },
     {
       "num": 2,
-      "action": "Analyze",
+      "action": "Benchmark",
       "detail": "the performance and effectiveness of different AI techniques in game and simulation environments."
     },
     {
       "num": 3,
+      "action": "Create",
+      "detail": "a fully functional AI-drven simulation project that demonstrates the integration of multiple AI techniques."
+    },
+    {
+      "num": 4,
       "action": "Design",
       "detail": "intelligent behaviors for virtual environments by implementing AI-driven systems and solutions."
     },
     {
-      "num": 4,
+      "num": 5,
       "action": "Evaluate",
       "detail": "the use of machine learning algorithms in simulations, determining their suitability for specific scenarios."
-    },
-    {
-      "num": 5,
-      "action": "Create",
-      "detail": "a fully functional AI-drven simulation project that demonstrates the integration of multiple AI techniques."
     }
   ],
   "courseColor": "#c6efff",
