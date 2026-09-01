@@ -119,6 +119,7 @@
           "GDscript": "csc3730/godot_03_gdscript.html"
         },
         {
+            "Agent": "csc3730/agent.html",
           "Steering behavior": "csc3730/move_cont_01_steering.html",
           "Obstacles": "csc3730/move_cont_02_obstacles.html",
           "Flocking (boids)": "csc3730/move_cont_03_flocking.html"

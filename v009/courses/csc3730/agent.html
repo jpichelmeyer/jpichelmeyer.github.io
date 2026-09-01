@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>
+            Now we want to build our default agent that we'll use throughout the entire course. This will include:
+            <ol>
+                <li><b>agent.tscn</b>. A packed agent scene that we may place inside an environment.</li>
+                <li><b>agent.gd</b> A script to give the agent autonomous action (just wandering to start, then more complicated behavior later).</li>
+            </ol>
+        </p>
+
+        <p>
+            The end result will look something like the Godot demo below.
+        </p>
+        
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/wander/wander.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+
+        <h2>Our Godot Agent</h2>
+        
+        <p>
+            This packed scene for our agent will take the hierarchical form:
+            <ul>
+                <li>Agent (Node2D)</li>
+                <ul>
+                    <li>Sprite (Sprite2D) (use the texture below)</li>
+                </ul>
+            </ul>
+        </p>
+        
+        <div class="screenshot">
+            <img src="../../svgs/agent_sprite.svg" alt="Godot Project Manager window">
+        </div>
+
+</html>
