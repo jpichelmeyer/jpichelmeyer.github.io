@@ -3,15 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <title>Series (10.2)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 10.2
-        <ul>
-            <li>1-23</li>
-            <li>30-49</li>
-            <li>78-81</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Determine whether $\displaystyle\sum_{n=0}^{\infty} 3\left(\frac12\right)^n$ converges, and find its sum if so.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Determine whether $\displaystyle\sum_{n=0}^{\infty} \left(-\frac13\right)^n$ converges, and find its sum if so.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{2^n}{3^{n+1}}$ converges, and find its sum if so.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Determine whether $\displaystyle\sum_{n=0}^{\infty} \frac{5}{4^n}$ converges, and find its sum if so.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Determine whether $\displaystyle\sum_{n=0}^{\infty} \left(\frac32\right)^n$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Express the repeating decimal $0.\overline{7}$ as a geometric series and find its exact fractional value.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Find the sum of the telescoping series $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n(n+1)}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Find the sum of the telescoping series $\displaystyle\sum_{n=1}^{\infty} \frac{1}{(n+1)(n+2)}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Find the sum of the telescoping series $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n(n+2)}$. (Hint: $\dfrac{1}{n(n+2)}=\dfrac12\left(\dfrac1n-\dfrac1{n+2}\right)$.)</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Show that $\displaystyle\sum_{n=1}^{\infty} \ln\!\left(\frac{n}{n+1}\right)$ diverges, even though it telescopes.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Use the $n$th-Term Test to show $\displaystyle\sum_{n=1}^{\infty} \frac{n}{n+1}$ diverges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Use the $n$th-Term Test to show $\displaystyle\sum_{n=1}^{\infty} \frac{2n^2+1}{n^2+3}$ diverges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Use the $n$th-Term Test to show $\displaystyle\sum_{n=1}^{\infty} \cos\!\left(\frac{1}{n}\right)$ diverges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Explain why the $n$th-Term Test cannot be used to conclude that $\displaystyle\sum_{n=1}^{\infty} \frac1n$ converges, even though $\dfrac1n\to 0$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Does $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^3}$ converge or diverge? State the general $p$-series rule you used.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Does $\displaystyle\sum_{n=1}^{\infty} \frac{1}{\sqrt{n}}$ converge or diverge?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Does $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n}$ (the harmonic series) converge or diverge?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">A ball is dropped from $10$ m and rebounds to $60\%$ of its previous height on each bounce. Set up a geometric series for the total vertical distance traveled, and find its sum.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">State the necessary condition every convergent series $\sum a_n$ must satisfy (the contrapositive of this is the $n$th-Term Test).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Explain, using partial sums, what it means for an infinite series $\sum a_n$ to \emph{converge}.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>Converges (ratio $\tfrac12$); sum $=6$.</span></li>
+            <li><span class="ans-num">2.</span><span>Converges (ratio $-\tfrac13$); sum $=\dfrac34$.</span></li>
+            <li><span class="ans-num">3.</span><span>Converges; sum $=\dfrac23$.</span></li>
+            <li><span class="ans-num">4.</span><span>Converges; sum $=\dfrac{20}{3}$.</span></li>
+            <li><span class="ans-num">5.</span><span>Diverges — ratio $\tfrac32>1$.</span></li>
+            <li><span class="ans-num">6.</span><span>$\displaystyle\sum_{n=1}^{\infty}\frac{7}{10^n}=\dfrac{7}{9}$</span></li>
+            <li><span class="ans-num">7.</span><span>$1$</span></li>
+            <li><span class="ans-num">8.</span><span>$\dfrac12$</span></li>
+            <li><span class="ans-num">9.</span><span>$\dfrac34$</span></li>
+            <li><span class="ans-num">10.</span><span>The partial sum is $S_N=\ln\!\left(\dfrac{1}{N+1}\right)\to -\infty$ — telescoping doesn't guarantee convergence.</span></li>
+            <li><span class="ans-num">11.</span><span>$\displaystyle\lim_{n\to\infty}\frac{n}{n+1}=1\ne 0$, so the series diverges.</span></li>
+            <li><span class="ans-num">12.</span><span>$\displaystyle\lim_{n\to\infty}\frac{2n^2+1}{n^2+3}=2\ne 0$, so the series diverges.</span></li>
+            <li><span class="ans-num">13.</span><span>$\displaystyle\lim_{n\to\infty}\cos\!\left(\frac1n\right)=\cos(0)=1\ne 0$, so the series diverges.</span></li>
+            <li><span class="ans-num">14.</span><span>The $n$th-Term Test only detects divergence when the terms don't go to $0$; when they do, the test is inconclusive. The harmonic series $\sum \tfrac1n$ is the classic example of terms $\to 0$ with a series that still diverges.</span></li>
+            <li><span class="ans-num">15.</span><span>Converges — a $p$-series converges exactly when $p>1$, and here $p=3>1$.</span></li>
+            <li><span class="ans-num">16.</span><span>Diverges — this is a $p$-series with $p=\tfrac12\le 1$.</span></li>
+            <li><span class="ans-num">17.</span><span>Diverges — $p$-series with $p=1$.</span></li>
+            <li><span class="ans-num">18.</span><span>Total distance $=10+2\big(10(0.6)+10(0.6)^2+\cdots\big)=10+2\cdot\dfrac{6}{1-0.6}=10+30=40$ m.</span></li>
+            <li><span class="ans-num">19.</span><span>If $\sum a_n$ converges, then $\displaystyle\lim_{n\to\infty}a_n=0$.</span></li>
+            <li><span class="ans-num">20.</span><span>The sequence of partial sums $S_N=\sum_{n=1}^{N}a_n$ must itself converge to some finite limit $S$ as $N\to\infty$; that limit $S$ is defined to be the sum of the series.</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

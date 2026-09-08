@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Integration Using Partial Fractions (7.2)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 7.2
-        <ul>
-            <li>1-35</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{2x+1}{(x-1)(x+2)}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{1}{x^2-1}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{3x-1}{x^2-x-2}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{5}{x(x+5)}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{3}{(x-4)(x-2)(x+1)}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{x+1}{x^2(x-1)}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{1}{(x-1)^2(x+1)}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{x^2+1}{x(x-1)^2}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{2x^2-x+4}{x^3+4x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{x^3+1}{x^2-1}\,dx$. (Divide first — the degree of the numerator isn't less than the denominator's.)</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_2^3 \frac{2x+1}{(x-1)(x+2)}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_2^3 \frac{1}{x^2-1}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_1^2 \frac{5}{x(x+5)}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_2^3 \frac{x+1}{x^2(x-1)}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Write the correct partial fraction decomposition \emph{form} (with unknown constants $A,B,C$ — do not solve for them) for $\dfrac{x^2+3}{(x-1)(x+2)(x-5)}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Write the correct partial fraction decomposition form for $\dfrac{x+4}{(x-3)^2(x+1)}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Write the correct partial fraction decomposition form for $\dfrac{3x^2-x+1}{x(x^2+4)}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Before applying partial fractions to $\dfrac{x^2+1}{x^2-4}$, what algebraic step is required, and why?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">A chemical reaction's rate leads to $\dfrac{dx}{dt}=k(a-x)(b-x)$ with $a\ne b$. After separating variables, the left side becomes $\displaystyle\int \frac{dx}{(a-x)(b-x)}$. Decompose this integrand into partial fractions (treat $a,b$ as constants).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \frac{x}{x^2-5x+6}\,dx$.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$\log{\left(x^{2} + x - 2 \right)} + C$</span></li>
+            <li><span class="ans-num">2.</span><span>$\frac{\log{\left(x - 1 \right)}}{2} - \frac{\log{\left(x + 1 \right)}}{2} + C$</span></li>
+            <li><span class="ans-num">3.</span><span>$\frac{5 \log{\left(x - 2 \right)}}{3} + \frac{4 \log{\left(x + 1 \right)}}{3} + C$</span></li>
+            <li><span class="ans-num">4.</span><span>$\log{\left(x \right)} - \log{\left(x + 5 \right)} + C$</span></li>
+            <li><span class="ans-num">5.</span><span>$\frac{3 \log{\left(x - 4 \right)}}{10} - \frac{\log{\left(x - 2 \right)}}{2} + \frac{\log{\left(x + 1 \right)}}{5} + C$</span></li>
+            <li><span class="ans-num">6.</span><span>$- 2 \log{\left(x \right)} + 2 \log{\left(x - 1 \right)} + \frac{1}{x} + C$</span></li>
+            <li><span class="ans-num">7.</span><span>$- \frac{\log{\left(x - 1 \right)}}{4} + \frac{\log{\left(x + 1 \right)}}{4} - \frac{1}{2 x - 2} + C$</span></li>
+            <li><span class="ans-num">8.</span><span>$\log{\left(x \right)} - \frac{2}{x - 1} + C$</span></li>
+            <li><span class="ans-num">9.</span><span>$\log{\left(x \right)} + \frac{\log{\left(x^{2} + 4 \right)}}{2} - \frac{\operatorname{atan}{\left(\frac{x}{2} \right)}}{2} + C$</span></li>
+            <li><span class="ans-num">10.</span><span>$\frac{x^{2}}{2} + \log{\left(x - 1 \right)} + C$</span></li>
+            <li><span class="ans-num">11.</span><span>$\log{\left(\frac{5}{2} \right)} \approx 0.9163$</span></li>
+            <li><span class="ans-num">12.</span><span>$- \frac{\log{\left(2 \right)}}{2} + \frac{\log{\left(3 \right)}}{2} \approx 0.2027$</span></li>
+            <li><span class="ans-num">13.</span><span>$\log{\left(\frac{12}{7} \right)} \approx 0.5390$</span></li>
+            <li><span class="ans-num">14.</span><span>$- \frac{1}{6} + \log{\left(\frac{16}{9} \right)} \approx 0.4087$</span></li>
+            <li><span class="ans-num">15.</span><span>$\dfrac{A}{x-1}+\dfrac{B}{x+2}+\dfrac{C}{x-5}$</span></li>
+            <li><span class="ans-num">16.</span><span>$\dfrac{A}{x-3}+\dfrac{B}{(x-3)^2}+\dfrac{C}{x+1}$</span></li>
+            <li><span class="ans-num">17.</span><span>$\dfrac{A}{x}+\dfrac{Bx+C}{x^2+4}$</span></li>
+            <li><span class="ans-num">18.</span><span>Polynomial long division first, since the numerator's degree ($2$) is not less than the denominator's ($2$) — partial fractions only decomposes a \emph{proper} rational function.</span></li>
+            <li><span class="ans-num">19.</span><span>$\dfrac{1}{(a-x)(b-x)} = \dfrac{1}{b-a}\left(\dfrac{1}{a-x}-\dfrac{1}{b-x}\right)$</span></li>
+            <li><span class="ans-num">20.</span><span>$3 \log{\left(x - 3 \right)} - 2 \log{\left(x - 2 \right)} + C$</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Integration by Parts (7.1)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 7.1
-        <ul>
-            <li>1-36</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Evaluate $\displaystyle\int x\sin(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Evaluate $\displaystyle\int x\,e^{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \ln(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \arctan(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Evaluate $\displaystyle\int x\cos(2x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Evaluate $\displaystyle\int x\sec^2(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Evaluate $\displaystyle\int x\,\arctan(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \arcsin(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Evaluate $\displaystyle\int x^2\,e^{x}\,dx$ (apply integration by parts twice).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Evaluate $\displaystyle\int x^2\ln(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Evaluate $\displaystyle\int x^2\sin(x)\,dx$ (apply integration by parts twice, or use the tabular method).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Evaluate $\displaystyle\int e^{x}\sin(x)\,dx$ by applying integration by parts twice and solving the resulting equation for the original integral.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \big(\ln x\big)^2\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_0^1 x\,e^{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_0^{\pi} x\sin(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_1^{e} \ln(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_0^{\pi/2} x^2\cos(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">For $\displaystyle\int x^3\ln(x)\,dx$, identify a good choice of $u$ and $dv$ and explain why (do not evaluate).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">State the LIATE heuristic for choosing $u$ in integration by parts, and use it to identify $u$ for $\displaystyle\int x\,e^{2x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">The marginal revenue for a product is $R'(x)=x\,e^{-x}$ (thousands of dollars per unit). Find the total revenue function $R(x)$, given $R(0)=0$.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$- x \cos{\left(x \right)} + \sin{\left(x \right)} + C$</span></li>
+            <li><span class="ans-num">2.</span><span>$\left(x - 1\right) e^{x} + C$</span></li>
+            <li><span class="ans-num">3.</span><span>$x \log{\left(x \right)} - x + C$</span></li>
+            <li><span class="ans-num">4.</span><span>$x \operatorname{atan}{\left(x \right)} - \frac{\log{\left(x^{2} + 1 \right)}}{2} + C$</span></li>
+            <li><span class="ans-num">5.</span><span>$\frac{x \sin{\left(2 x \right)}}{2} + \frac{\cos{\left(2 x \right)}}{4} + C$</span></li>
+            <li><span class="ans-num">6.</span><span>$x \tan{\left(x \right)} + \log{\left(\cos{\left(x \right)} \right)} + C$</span></li>
+            <li><span class="ans-num">7.</span><span>$\frac{x^{2} \operatorname{atan}{\left(x \right)}}{2} - \frac{x}{2} + \frac{\operatorname{atan}{\left(x \right)}}{2} + C$</span></li>
+            <li><span class="ans-num">8.</span><span>$x \operatorname{asin}{\left(x \right)} + \sqrt{1 - x^{2}} + C$</span></li>
+            <li><span class="ans-num">9.</span><span>$\left(x^{2} - 2 x + 2\right) e^{x} + C$</span></li>
+            <li><span class="ans-num">10.</span><span>$\frac{x^{3} \log{\left(x \right)}}{3} - \frac{x^{3}}{9} + C$</span></li>
+            <li><span class="ans-num">11.</span><span>$- x^{2} \cos{\left(x \right)} + 2 x \sin{\left(x \right)} + 2 \cos{\left(x \right)} + C$</span></li>
+            <li><span class="ans-num">12.</span><span>$\dfrac{e^x\big(\sin x-\cos x\big)}{2}+C$</span></li>
+            <li><span class="ans-num">13.</span><span>$x \log{\left(x \right)}^{2} - 2 x \log{\left(x \right)} + 2 x + C$</span></li>
+            <li><span class="ans-num">14.</span><span>$1$</span></li>
+            <li><span class="ans-num">15.</span><span>$\pi \approx 3.142$</span></li>
+            <li><span class="ans-num">16.</span><span>$1$</span></li>
+            <li><span class="ans-num">17.</span><span>$-2 + \frac{\pi^{2}}{4} \approx 0.4674$</span></li>
+            <li><span class="ans-num">18.</span><span>Let $u=\ln x$, $dv=x^3\,dx$ — $\ln x$ becomes simpler ($du=\tfrac1x dx$) while $x^3$ is easy to antidifferentiate, the key LIATE-style trade-off in choosing parts.</span></li>
+            <li><span class="ans-num">19.</span><span>LIATE: prefer $u=$ Logarithmic, Inverse trig, Algebraic, Trigonometric, Exponential (in that priority order). Here $u=x$ (Algebraic beats Exponential).</span></li>
+            <li><span class="ans-num">20.</span><span>$R(x) = 1-(x+1)e^{-x}$</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

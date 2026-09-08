@@ -2,15 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>mth1220</title>
+    <title>Absolute Convergence and the Alternating Series Test (10.6)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 10.6
-        <ul>
-            <li>1-24</li>
-            <li>31-50</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n n}{n+1}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{\sqrt n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n+1}n}{n^2+1}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n\,n!}{2^n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=3}^{\infty} \frac{(-1)^n\ln(n)}{n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{n}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{n^2}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{2^n}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n n}{n+1}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Approximate $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n+1}}{n!}$ using its first $4$ terms, and give a bound on the error.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">How many terms of $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n+1}}{n^3}$ are needed to guarantee an approximation within $0.001$ of the true sum?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Approximate $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n+1}}{n!}$ using its first $5$ terms, and give a bound on the error.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">How many terms of $\displaystyle\sum_{n=0}^{\infty} \frac{(-1)^n}{2n+1}$ are needed to guarantee an approximation within $0.01$ of the true sum?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Define what it means for a series $\sum a_n$ to be absolutely convergent, and state how this relates to ordinary convergence.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Define what it means for a series to be conditionally convergent, with an example.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">What does the Riemann Rearrangement Theorem say can happen to a conditionally convergent series that cannot happen to an absolutely convergent one?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{n=2}^{\infty} \frac{(-1)^n}{n\ln n}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n\,3}{n^{3/2}}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Why does the Alternating Series Test only require $b_n$ to be \emph{eventually} decreasing, rather than decreasing starting at $n=1$?</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>Converges — $b_n=\tfrac1n$ is decreasing and $\to 0$.</span></li>
+            <li><span class="ans-num">2.</span><span>Diverges — $b_n=\tfrac{n}{n+1}\to 1\ne 0$, so the terms don't go to $0$ (the $n$th-Term Test applies).</span></li>
+            <li><span class="ans-num">3.</span><span>Converges — $b_n=\tfrac{1}{\sqrt n}$ is decreasing and $\to 0$.</span></li>
+            <li><span class="ans-num">4.</span><span>Converges — $b_n=\tfrac{n}{n^2+1}$ is eventually decreasing and $\to 0$.</span></li>
+            <li><span class="ans-num">5.</span><span>Diverges — $b_n=\tfrac{n!}{2^n}\to\infty\ne 0$.</span></li>
+            <li><span class="ans-num">6.</span><span>Converges — $b_n=\tfrac{\ln n}{n}$ is eventually decreasing (for $n\ge 3$) and $\to 0$.</span></li>
+            <li><span class="ans-num">7.</span><span>Conditionally convergent — the series itself converges (AST), but $\sum\tfrac1n$ (harmonic) diverges.</span></li>
+            <li><span class="ans-num">8.</span><span>Absolutely convergent — $\sum\tfrac{1}{n^2}$ converges ($p=2$).</span></li>
+            <li><span class="ans-num">9.</span><span>Absolutely convergent — $\sum\tfrac{1}{2^n}$ is a convergent geometric series.</span></li>
+            <li><span class="ans-num">10.</span><span>Divergent — the terms don't approach $0$.</span></li>
+            <li><span class="ans-num">11.</span><span>Partial sum $=\tfrac58=0.625$; error $\le b_5=\tfrac{1}{5!}=\tfrac1{120}\approx 0.0083$.</span></li>
+            <li><span class="ans-num">12.</span><span>Need $b_{n+1}=\tfrac{1}{(n+1)^3}<0.001$, i.e. $(n+1)^3>1000$, so $n+1\ge 11$: use $n=10$ terms.</span></li>
+            <li><span class="ans-num">13.</span><span>Partial sum $=\tfrac{19}{30}\approx 0.6333$; error $\le b_6=\tfrac{1}{6!}=\tfrac1{720}\approx 0.0014$.</span></li>
+            <li><span class="ans-num">14.</span><span>Need $b_{n+1}=\tfrac{1}{2(n+1)+1}<0.01$, i.e. $2n+3>100$, so $n\ge 49$: use $n=49$ terms.</span></li>
+            <li><span class="ans-num">15.</span><span>$\sum a_n$ is absolutely convergent if $\sum|a_n|$ converges. Every absolutely convergent series is also (ordinarily) convergent — absolute convergence is the stronger condition.</span></li>
+            <li><span class="ans-num">16.</span><span>A series that converges, but not absolutely — i.e. $\sum a_n$ converges while $\sum|a_n|$ diverges. Example: $\sum \tfrac{(-1)^n}{n}$.</span></li>
+            <li><span class="ans-num">17.</span><span>A conditionally convergent series can be rearranged (reordered) to converge to \emph{any} real number, or to diverge — absolutely convergent series always converge to the same sum regardless of rearrangement.</span></li>
+            <li><span class="ans-num">18.</span><span>Conditionally convergent — the Alternating Series Test applies ($b_n=\tfrac{1}{n\ln n}\to 0$, decreasing), but $\sum\tfrac{1}{n\ln n}$ diverges (by the Integral Test).</span></li>
+            <li><span class="ans-num">19.</span><span>Absolutely convergent — $\sum\tfrac{3}{n^{3/2}}$ converges ($p=\tfrac32>1$).</span></li>
+            <li><span class="ans-num">20.</span><span>Convergence of a series depends only on the behavior of its tail — changing or ignoring finitely many terms at the start never affects whether the series converges, so it's enough for the decrease to kick in eventually.</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

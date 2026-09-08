@@ -2,15 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Areas, Lengths, and Slopes in Polar Coordinates (9.4)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 9.4
-        <ul>
-            <li>1-18</li>
-            <li>21-45</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Find the area enclosed by $r=3$ (a full circle).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Find the area enclosed by the cardioid $r=1+\cos\theta$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Find the area of one petal of the rose $r=\cos(3\theta)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Find the area enclosed by $r=2\sin\theta$ (traced once for $\theta\in[0,\pi]$), and check it against the area of a circle.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Find the area of one petal of the rose $r=2\cos(2\theta)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Find the area of the inner loop of the limaçon $r=1+2\cos\theta$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Find the area inside $r=2$ and outside $r=1$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Find the area inside the cardioid $r=1+\cos\theta$ and outside the circle $r=1$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Find the area common to (inside both) $r=\cos\theta$ and $r=\sin\theta$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Set up, but do not evaluate, the integral for the area of one petal of the rose $r=\sin(5\theta)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Find the arc length of the full circle $r=3$, and check it against the circumference formula.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Find the arc length of the full cardioid $r=1+\cos\theta$. (Hint: $2+2\cos\theta = 4\cos^2(\theta/2)$.)</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Find the arc length of the spiral $r=\theta$ for $\theta\in[0,\pi]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Set up, but do not evaluate, the arc length integral for $r=\theta^2$, $\theta\in[0,2]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ for the cardioid $r=1+\sin\theta$ at $\theta=0$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ for the cardioid $r=1+\sin\theta$ at $\theta=\pi/4$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ for the rose $r=\cos(2\theta)$ at $\theta=\pi/6$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ for the spiral $r=2\theta$ at $\theta=\pi/2$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">When finding the area of one loop or petal of a polar curve, why is it essential to first solve $r=0$ for $\theta$?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Explain, using the area of a circular sector $\left(\tfrac12 r^2\theta\right)$, where the polar area formula $A=\tfrac12\int r^2\,d\theta$ comes from.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$9\pi$</span></li>
+            <li><span class="ans-num">2.</span><span>$\dfrac{3\pi}{2}$</span></li>
+            <li><span class="ans-num">3.</span><span>$\dfrac{\pi}{12}$</span></li>
+            <li><span class="ans-num">4.</span><span>$\pi$ — matches $\pi r^2$ for the circle of radius $1$ this equation traces.</span></li>
+            <li><span class="ans-num">5.</span><span>$\dfrac{\pi}{2}$</span></li>
+            <li><span class="ans-num">6.</span><span>$\pi-\dfrac{3\sqrt3}{2}\approx 0.5435$</span></li>
+            <li><span class="ans-num">7.</span><span>$3\pi$</span></li>
+            <li><span class="ans-num">8.</span><span>$2+\dfrac{\pi}{4}\approx 2.785$</span></li>
+            <li><span class="ans-num">9.</span><span>$\dfrac{\pi}{8}-\dfrac{1}{4}\approx 0.1427$</span></li>
+            <li><span class="ans-num">10.</span><span>$\displaystyle A=\frac{1}{2}\int_0^{\pi/5} \sin^2(5\theta)\,d\theta$</span></li>
+            <li><span class="ans-num">11.</span><span>$6\pi$</span></li>
+            <li><span class="ans-num">12.</span><span>$8$</span></li>
+            <li><span class="ans-num">13.</span><span>$\dfrac{\sinh^{-1}(\pi)}{2}+\dfrac{\pi\sqrt{1+\pi^2}}{2}\approx 5.7314$</span></li>
+            <li><span class="ans-num">14.</span><span>$\displaystyle L=\int_0^2 \sqrt{\theta^4+4\theta^2}\,d\theta$</span></li>
+            <li><span class="ans-num">15.</span><span>$1$</span></li>
+            <li><span class="ans-num">16.</span><span>$-\sqrt{2}-1$</span></li>
+            <li><span class="ans-num">17.</span><span>$\dfrac{\sqrt{3}}{7}$</span></li>
+            <li><span class="ans-num">18.</span><span>$-\dfrac{2}{\pi}$</span></li>
+            <li><span class="ans-num">19.</span><span>The zeros of $r$ mark where the curve passes through the pole — they give the correct starting and ending angles for one loop or petal, so the sector-area integral doesn't overlap into a neighboring loop.</span></li>
+            <li><span class="ans-num">20.</span><span>Each thin polar sector of angle $d\theta$ and radius $r(\theta)$ has area approximately $\tfrac12 r^2\,d\theta$ (a sector-area formula with an infinitesimal angle); summing (integrating) these thin sectors over the full angular range gives the total area.</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -120,9 +120,11 @@
         },
         {
             "Agent": "csc3730/agent.html",
-          "Steering behavior": "csc3730/move_cont_01_steering.html",
-          "Obstacles": "csc3730/move_cont_02_obstacles.html",
-          "Flocking (boids)": "csc3730/move_cont_03_flocking.html"
+            "Steering behavior": "csc3730/move_cont_01_steering.html"
+        },
+        {
+            "Obstacles": "csc3730/move_cont_02_obstacles.html",
+            "Flocking (boids)": "csc3730/move_cont_03_flocking.html"
         },
         {
           "Grid & Graph": "csc3730/move_disc_01_grid.html",
@@ -130,11 +132,16 @@
           "Search on graphs": "csc3730/move_disc_03_astar.html"
         },
         {
+          "Presentation 1: The Pitch": ""
+        }
+      ]
+    },
+    {
+      "theme": "Artificial Life",
+      "trs": [
+        {
           "Ant Colony Optimization (ACO)": "csc3730/aco.html", 
           "Artificial Life": "csc3730/cellular_automata.html"
-        },
-        {
-          "Presentation 1: The Pitch": ""
         }
       ]
     },
@@ -152,7 +159,7 @@
           "Behavior tree arboriculture": ""
         },
         {
-          "Behavior trees vs FSMs": ""
+          "Behavior trees vs FSMs (memory)": ""
         },
         {
           "Presentation 2: The Progress": ""
@@ -170,13 +177,10 @@
           "Artificial neural networks": ""
         },
         {
-          "Reinforcement learning": ""
-        },
-        {
           "BREAK": ""
         },
         {
-          "Project assist": ""
+          "Reinforcement learning": ""
         },
         {
           "Presentation 3: The...Perfection?": ""

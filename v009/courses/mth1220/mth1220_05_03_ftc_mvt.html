@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>The Fundamental Theorem of Calculus / Mean Value Theorem (5.3)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 5.3
-        <ul>
-            <li>1-8</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_{-1}^{2} (x^3-2x+1)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_{0}^{\pi} \sin(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_{0}^{\pi/4} \sec^2(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_{1}^{e} \frac{1}{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_{0}^{\ln 2} e^{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_{1}^{4} \sqrt{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_{-2}^{2} (x^4-3x^2)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_{1}^{4} \frac{2}{\sqrt{x}}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Find $g'(x)$ if $\displaystyle g(x)=\int_2^x \sqrt{1+t^3}\,dt$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Find $g'(x)$ if $\displaystyle g(x)=\int_0^{x^2} \sin(t)\,dt$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Find $g'(x)$ if $\displaystyle g(x)=\int_1^{x^3} \ln(t)\,dt$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Find $g'(x)$ if $\displaystyle g(x)=\int_x^{x^2} \cos(t)\,dt$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Find $g'(x)$ if $\displaystyle g(x)=\int_x^{5} t^2\,dt$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">State the Fundamental Theorem of Calculus, Part 1, in your own words (what does it say about the derivative of an accumulation function?).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">State the Fundamental Theorem of Calculus, Part 2 (the Evaluation Theorem), in your own words.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Find the average value of $f(x)=x^2$ on $[0,3]$, then find a value $c$ in $[0,3]$ satisfying the Mean Value Theorem for Integrals.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Find the average value of $f(x)=x^2+1$ on $[0,2]$, then find $c$ in $[0,2]$ with $f(c)$ equal to that average.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Find the average value of $f(x)=\sin(x)$ on $[0,\pi]$, then set up (but do not simplify further than an inverse trig expression) the equation for $c$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">Find the average value of $f(x)=x^3$ on $[0,2]$, then find the real value $c$ in $[0,2]$ with $f(c)$ equal to that average.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">A particle has velocity $v(t)=t^2-4t+5$ (m/s). Use the Fundamental Theorem of Calculus to find its displacement over $[0,3]$.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$\frac{15}{4}$</span></li>
+            <li><span class="ans-num">2.</span><span>$2$</span></li>
+            <li><span class="ans-num">3.</span><span>$1$</span></li>
+            <li><span class="ans-num">4.</span><span>$1$</span></li>
+            <li><span class="ans-num">5.</span><span>$1$</span></li>
+            <li><span class="ans-num">6.</span><span>$\frac{14}{3}$</span></li>
+            <li><span class="ans-num">7.</span><span>$- \frac{16}{5}$</span></li>
+            <li><span class="ans-num">8.</span><span>$4$</span></li>
+            <li><span class="ans-num">9.</span><span>$g'(x)=\sqrt{1+x^3}$</span></li>
+            <li><span class="ans-num">10.</span><span>$g'(x)=2x\sin(x^2)$ (chain rule)</span></li>
+            <li><span class="ans-num">11.</span><span>$g'(x)=3x^2\ln(x^3)=9x^2\ln x$ (chain rule)</span></li>
+            <li><span class="ans-num">12.</span><span>$g'(x)=2x\cos(x^2)-\cos(x)$ (Leibniz rule — differentiate each limit separately)</span></li>
+            <li><span class="ans-num">13.</span><span>$g'(x)=-x^2$ (flip the limits to make $x$ the upper bound, picking up a minus sign)</span></li>
+            <li><span class="ans-num">14.</span><span>If $g(x)=\int_a^x f(t)\,dt$ with $f$ continuous, then $g$ is differentiable and $g'(x)=f(x)$ — differentiation undoes integration.</span></li>
+            <li><span class="ans-num">15.</span><span>If $F$ is any antiderivative of a continuous $f$ on $[a,b]$, then $\int_a^b f(x)\,dx = F(b)-F(a)$ — a definite integral can be evaluated from an antiderivative, with no limit process needed.</span></li>
+            <li><span class="ans-num">16.</span><span>Average value $=3$; solving $x^2=3$ on $[0,3]$ gives $c=\sqrt{3}$.</span></li>
+            <li><span class="ans-num">17.</span><span>Average value $=\dfrac{7}{3}$; solving $x^2+1=\dfrac{7}{3}$ on $[0,2]$ gives $c=\dfrac{2\sqrt{3}}{3}$.</span></li>
+            <li><span class="ans-num">18.</span><span>Average value $=\dfrac{2}{\pi}\approx 0.6366$; $c=\arcsin\!\left(\dfrac{2}{\pi}\right)\approx 0.6901$.</span></li>
+            <li><span class="ans-num">19.</span><span>Average value $=2$; solving $x^3=2$ gives $c=\sqrt[3]{2}\approx 1.26$.</span></li>
+            <li><span class="ans-num">20.</span><span>$6$</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>
