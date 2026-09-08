@@ -2,16 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>The Ratio and Root Tests (10.5)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 10.5
-        <ul>
-            <li>1-34</li>
-            <li>39-62</li>
-            <li>74-77</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{2^n}{n!}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n!}{3^n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n^n}{n!}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n}{2^n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(2n)!}{(n!)^2}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n^2}{2^n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \left(\frac{n}{2n+1}\right)^n$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{3^n}{n^n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \left(1+\frac1n\right)^{n^2}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \left(\frac{2n+1}{3n+2}\right)^n$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \frac{n!}{n^n}$? Why?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \left(\frac{n+1}{3n-1}\right)^{2n}$? Why?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \frac{3^n\,n!}{n^n}$? Why?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">For $\displaystyle\sum_{n=1}^{\infty} \frac{5^n}{n^{10}}$, which test is more efficient, and what does it conclude?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Apply the Ratio Test to $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2}$. What do you get, and what must you conclude about the test itself?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Apply the Ratio Test to $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n}$. What do you get, and how does this illustrate a limitation of the test?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">State the Ratio Test in full, including all three cases based on the value of $L$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">State the Root Test in full, including all three cases based on the value of $L$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">For what values of $x$ does $\displaystyle\sum_{n=1}^{\infty} \frac{x^n}{n!}$ converge, according to the Ratio Test?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">For what values of $x$ does $\displaystyle\sum_{n=1}^{\infty} n\,x^n$ converge, according to the Ratio Test?</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$L=\displaystyle\lim_{n\to\infty}\left|\frac{a_{n+1}}{a_n}\right|=0<1$ — converges.</span></li>
+            <li><span class="ans-num">2.</span><span>$L=\infty>1$ — diverges.</span></li>
+            <li><span class="ans-num">3.</span><span>$L=e>1$ — diverges.</span></li>
+            <li><span class="ans-num">4.</span><span>$L=\dfrac12<1$ — converges.</span></li>
+            <li><span class="ans-num">5.</span><span>$L=4>1$ — diverges.</span></li>
+            <li><span class="ans-num">6.</span><span>$L=\dfrac12<1$ — converges.</span></li>
+            <li><span class="ans-num">7.</span><span>$L=\dfrac12<1$ — converges.</span></li>
+            <li><span class="ans-num">8.</span><span>$L=0<1$ — converges.</span></li>
+            <li><span class="ans-num">9.</span><span>$L=e>1$ — diverges.</span></li>
+            <li><span class="ans-num">10.</span><span>$L=\dfrac23<1$ — converges.</span></li>
+            <li><span class="ans-num">11.</span><span>Ratio Test — the factorial simplifies nicely under a ratio ($\tfrac{(n+1)!}{n!}=n+1$), which is awkward to handle with an $n$th root.</span></li>
+            <li><span class="ans-num">12.</span><span>Root Test — the entire term is already raised to the $n$th power (times $2$), so taking an $n$th root cancels the exponent directly.</span></li>
+            <li><span class="ans-num">13.</span><span>Ratio Test — both the factorial and the exponential simplify cleanly in a ratio of consecutive terms.</span></li>
+            <li><span class="ans-num">14.</span><span>The Ratio Test: $L=\displaystyle\lim_{n\to\infty}\left|\frac{5^{n+1}/(n+1)^{10}}{5^n/n^{10}}\right|=5>1$ — diverges.</span></li>
+            <li><span class="ans-num">15.</span><span>$L=1$ — the Ratio Test is inconclusive. (The series actually converges, but you'd need the $p$-series test to see that.)</span></li>
+            <li><span class="ans-num">16.</span><span>$L=1$ — inconclusive, exactly as with $\sum 1/n^2$ above, yet this series \emph{diverges}. The Ratio Test cannot distinguish these two cases when $L=1$; you always need a different test.</span></li>
+            <li><span class="ans-num">17.</span><span>Let $L=\displaystyle\lim_{n\to\infty}\left|\dfrac{a_{n+1}}{a_n}\right|$. If $L<1$, $\sum a_n$ converges absolutely; if $L>1$ (or $L=\infty$), it diverges; if $L=1$, the test is inconclusive.</span></li>
+            <li><span class="ans-num">18.</span><span>Let $L=\displaystyle\lim_{n\to\infty}\sqrt[n]{|a_n|}$. If $L<1$, $\sum a_n$ converges absolutely; if $L>1$ (or $L=\infty$), it diverges; if $L=1$, the test is inconclusive.</span></li>
+            <li><span class="ans-num">19.</span><span>All real $x$ — the ratio $\left|\dfrac{x^{n+1}/(n+1)!}{x^n/n!}\right|=\dfrac{|x|}{n+1}\to 0$ for every fixed $x$, so the series converges absolutely everywhere.</span></li>
+            <li><span class="ans-num">20.</span><span>$|x|<1$ — the ratio $\left|\dfrac{(n+1)x^{n+1}}{nx^n}\right|\to|x|$, which is less than $1$ exactly when $-1<x<1$.</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

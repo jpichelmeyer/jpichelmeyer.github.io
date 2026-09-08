@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Parametric Equations (9.1)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 9.1
-        <ul>
-            <li>1-29</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Eliminate the parameter: $x=t^2,\ y=t+1$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Eliminate the parameter: $x=2\cos t,\ y=3\sin t$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Eliminate the parameter: $x=t-1,\ y=2t+3$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Eliminate the parameter: $x=\cos t,\ y=\cos(2t)$, for $-1\le x\le 1$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Eliminate the parameter: $x=e^{t},\ y=e^{2t}$, for $x>0$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Eliminate the parameter: $x=t^2-1,\ y=t^3$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Eliminate the parameter: $x=\sec t,\ y=\tan t$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ at $t=2$ for $x=t^2,\ y=t^3-3t$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ at $t=\pi/4$ for $x=\cos t,\ y=\sin(2t)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ in terms of $t$ for $x=t^3-3t,\ y=t^2-1$. (Leave your answer as a function of $t$; do not evaluate at a point.)</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ at $t=0$ for $x=e^{t},\ y=t\,e^{-t}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ at $t=\pi/2$ for the cycloid $x=t-\sin t,\ y=1-\cos t$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Find $\dfrac{dy}{dx}$ at $t=1$ for $x=t^2+1,\ y=t^3+t$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Find all points where $x=t^3-3t,\ y=t^2-3$ has a horizontal or vertical tangent line.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Find all points where $x=t^2,\ y=t^3-3t$ has a horizontal or vertical tangent line.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Explain why the parametric curve $x=\cos t,\ y=\sin t$ (the unit circle) cannot, as a whole, be the graph of a single function $y=f(x)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Describe the orientation of the curve $x=\cos t,\ y=\sin t$ as $t$ increases from $0$ to $2\pi$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Give an interval for $t$ that traces the ellipse $\left(\dfrac{x}{3}\right)^2+\left(\dfrac{y}{2}\right)^2=1$ exactly once, using $x=3\cos t,\ y=2\sin t$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">A projectile is launched with initial speed $v_0=20$ m/s at angle $\theta=30^\circ$ above horizontal, with $x=v_0\cos\theta\, t$ and $y=v_0\sin\theta\, t-4.9t^2$ (SI units, $g=9.8$ m/s$^2$). Find the time of flight and the horizontal range.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Eliminate the parameter $t$ from the general projectile equations $x=(v_0\cos\theta)t$, $y=(v_0\sin\theta)t-\tfrac12 gt^2$ to find $y$ as a function of $x$.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$x=(y-1)^2$</span></li>
+            <li><span class="ans-num">2.</span><span>$\dfrac{x^2}{4}+\dfrac{y^2}{9}=1$</span></li>
+            <li><span class="ans-num">3.</span><span>$y=2x+5$</span></li>
+            <li><span class="ans-num">4.</span><span>$y=2x^2-1$</span></li>
+            <li><span class="ans-num">5.</span><span>$y=x^2$</span></li>
+            <li><span class="ans-num">6.</span><span>$y^2=(x+1)^3$</span></li>
+            <li><span class="ans-num">7.</span><span>$x^2-y^2=1$</span></li>
+            <li><span class="ans-num">8.</span><span>$\dfrac{9}{4}$</span></li>
+            <li><span class="ans-num">9.</span><span>$0$</span></li>
+            <li><span class="ans-num">10.</span><span>$\dfrac{2t}{3(t^2-1)}$</span></li>
+            <li><span class="ans-num">11.</span><span>$1$</span></li>
+            <li><span class="ans-num">12.</span><span>$1$</span></li>
+            <li><span class="ans-num">13.</span><span>$2$</span></li>
+            <li><span class="ans-num">14.</span><span>Vertical tangents at $t=\pm 1$: points $(2,-2)$ and $(-2,-2)$. Horizontal tangent at $t=0$: point $(0,-3)$.</span></li>
+            <li><span class="ans-num">15.</span><span>Vertical tangent at $t=0$: point $(0,0)$. Horizontal tangents at $t=\pm 1$: points $(1,2)$ and $(1,-2)$.</span></li>
+            <li><span class="ans-num">16.</span><span>It fails the vertical line test — most vertical lines $x=c$ ($-1<c<1$) cross the circle twice, so no single $y$-value can be assigned to each $x$.</span></li>
+            <li><span class="ans-num">17.</span><span>The point traces the unit circle counterclockwise, starting at $(1,0)$ and returning to $(1,0)$ exactly once.</span></li>
+            <li><span class="ans-num">18.</span><span>$t\in[0,2\pi)$</span></li>
+            <li><span class="ans-num">19.</span><span>Time of flight $=\dfrac{100}{49}\approx 2.041$ s; range $\approx 35.35$ m.</span></li>
+            <li><span class="ans-num">20.</span><span>$y = x\tan\theta - \dfrac{g\,x^2}{2v_0^2\cos^2\theta}$</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

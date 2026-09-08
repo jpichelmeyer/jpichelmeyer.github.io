@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Polar Coordinates (9.3)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 9.3
-        <ul>
-            <li>1-40</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Convert the point $\left(4,\dfrac{\pi}{3}\right)$ (polar) to rectangular coordinates.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Convert the point $\left(2,\dfrac{2\pi}{3}\right)$ (polar) to rectangular coordinates.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Convert the point $(1,1)$ (rectangular) to polar coordinates with $r>0$ and $0\le\theta<2\pi$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Convert the point $(-\sqrt{3},1)$ (rectangular) to polar coordinates with $r>0$ and $0\le\theta<2\pi$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Convert $x^2+y^2=9$ to a polar equation.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Convert $x=5$ to a polar equation.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Convert $y=x$ (with $x>0$) to a polar equation.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Convert $x^2+y^2=2x$ to a polar equation.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Convert the polar equation $r=\dfrac{2}{1-\cos\theta}$ to a rectangular equation, and identify the conic.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Classify the curve $r=3+3\cos\theta$, and state how many petals or loops it has (if applicable).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Classify the curve $r=1+2\cos\theta$. Does it have an inner loop?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Classify the curve $r=\cos(3\theta)$, and state how many petals it has.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Classify the curve $r=\sin(4\theta)$, and state how many petals it has.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Classify the curve $r^2=4\cos(2\theta)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Use a symmetry test to explain why $r=2+2\sin\theta$ is symmetric about the line $\theta=\pi/2$ (the $y$-axis).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Use a symmetry test to explain why $r=3\cos\theta$ is symmetric about the polar axis (the $x$-axis).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">What interval of $\theta$ traces the full rose $r=\cos(3\theta)$ exactly once (with no repeated points)?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Describe the shape of the curve $r=\theta$ for $\theta\ge 0$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">For the limaçon $r=a+b\cos\theta$, what condition on $a$ and $b$ (with $a,b>0$) produces an inner loop, versus a dimpled limaçon with no loop?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Explain why the point $(2,\pi)$ and the point $(-2,0)$ in polar coordinates represent the same location in the plane.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$(2,\ 2\sqrt{3})$</span></li>
+            <li><span class="ans-num">2.</span><span>$(-1,\ \sqrt{3})$</span></li>
+            <li><span class="ans-num">3.</span><span>$\left(\sqrt{2},\ \dfrac{\pi}{4}\right)$</span></li>
+            <li><span class="ans-num">4.</span><span>$\left(2,\ \dfrac{5\pi}{6}\right)$</span></li>
+            <li><span class="ans-num">5.</span><span>$r=3$</span></li>
+            <li><span class="ans-num">6.</span><span>$r=5\sec\theta$</span></li>
+            <li><span class="ans-num">7.</span><span>$\theta=\dfrac{\pi}{4}$</span></li>
+            <li><span class="ans-num">8.</span><span>$r=2\cos\theta$</span></li>
+            <li><span class="ans-num">9.</span><span>$y^2=4x+4$ — a parabola.</span></li>
+            <li><span class="ans-num">10.</span><span>A cardioid (heart-shaped, one loop, no inner loop since the constant term equals the coefficient).</span></li>
+            <li><span class="ans-num">11.</span><span>A limaçon with an inner loop, since $|{-1}| \cdots$ the constant ($1$) is less than the coefficient ($2$).</span></li>
+            <li><span class="ans-num">12.</span><span>A rose curve with $3$ petals (odd $n$ in $r=\cos(n\theta)$ gives $n$ petals).</span></li>
+            <li><span class="ans-num">13.</span><span>A rose curve with $8$ petals (even $n$ in $r=\sin(n\theta)$ gives $2n$ petals).</span></li>
+            <li><span class="ans-num">14.</span><span>A lemniscate (figure-eight shape).</span></li>
+            <li><span class="ans-num">15.</span><span>Replacing $\theta$ with $\pi-\theta$ leaves the equation unchanged, since $\sin(\pi-\theta)=\sin\theta$ — this is the symmetry test for the vertical axis.</span></li>
+            <li><span class="ans-num">16.</span><span>Replacing $\theta$ with $-\theta$ leaves the equation unchanged, since $\cos(-\theta)=\cos\theta$.</span></li>
+            <li><span class="ans-num">17.</span><span>$\theta\in[0,\pi)$</span></li>
+            <li><span class="ans-num">18.</span><span>An Archimedean spiral: it winds outward from the origin, moving farther from the pole by a constant amount for each full turn.</span></li>
+            <li><span class="ans-num">19.</span><span>An inner loop occurs when $a<b$; a dimpled limaçon (no loop, but a dent) occurs when $a<2b$ but $a>b$; when $a\ge 2b$ the curve is a smooth convex limaçon.</span></li>
+            <li><span class="ans-num">20.</span><span>A negative radius $r$ plots the point in the opposite direction: $(-2,0)$ points along $\theta=0$ but backward, landing at the same spot as $(2,\pi)$, which points along $\theta=\pi$ forward.</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

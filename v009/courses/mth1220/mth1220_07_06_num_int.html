@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Approximate Integration (7.6)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 7.6
-        <ul>
-            <li>3-23</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Use the Trapezoidal Rule with $n=4$ to approximate $\displaystyle\int_1^2 \frac{1}{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Use the Trapezoidal Rule with $n=4$ to approximate $\displaystyle\int_0^4 \sqrt{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Use the Trapezoidal Rule with $n=6$ to approximate $\displaystyle\int_0^{\pi} \sin(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Use the Trapezoidal Rule with $n=4$ to approximate $\displaystyle\int_0^1 e^{-x^2}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Use the Trapezoidal Rule with $n=4$ to approximate $\displaystyle\int_0^2 x^2\,dx$, then compare it to the exact value.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Use the Trapezoidal Rule with $n=4$ to approximate $\displaystyle\int_0^1 \frac{1}{1+x^2}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Use Simpson's Rule with $n=4$ to approximate $\displaystyle\int_1^2 \frac{1}{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Use Simpson's Rule with $n=4$ to approximate $\displaystyle\int_0^4 \sqrt{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Use Simpson's Rule with $n=6$ to approximate $\displaystyle\int_0^{\pi} \sin(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Use Simpson's Rule with $n=4$ to approximate $\displaystyle\int_0^1 e^{-x^2}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Use Simpson's Rule with $n=4$ to approximate $\displaystyle\int_0^2 x^2\,dx$. Why is this approximation exact?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Use Simpson's Rule with $n=4$ to approximate $\displaystyle\int_0^1 \frac{1}{1+x^2}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">For $f(x)=\dfrac1x$ on $[1,2]$, $|f''(x)|\le 2$. How large must $n$ be for the Trapezoidal Rule error to be guaranteed under $0.0001$?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">For $f(x)=\dfrac1x$ on $[1,2]$, $|f^{(4)}(x)|\le 24$. How large must (even) $n$ be for the Simpson's Rule error to be guaranteed under $0.0001$?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">A car's velocity (m/s) is recorded every second: $v(0)=3,\ v(1)=5,\ v(2)=4,\ v(3)=7,\ v(4)=6$. Use the Trapezoidal Rule to estimate the distance traveled over $[0,4]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Using the same velocity data ($v(0)=3,\ v(1)=5,\ v(2)=4,\ v(3)=7,\ v(4)=6$), use Simpson's Rule to estimate the distance traveled over $[0,4]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">If $f$ is concave up on $[a,b]$, does the Trapezoidal Rule overestimate or underestimate $\int_a^b f(x)\,dx$? Explain in one sentence.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">State the error bound formula for the Trapezoidal Rule (define every symbol used).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">Why is Simpson's Rule generally far more accurate than the Trapezoidal Rule for the same $n$?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Recall $\displaystyle\int_0^1 \sqrt{1+4x^2}\,dx$ gives the arc length of $y=x^2$ on $[0,1]$ (Section 6.3). Use Simpson's Rule with $n=4$ to approximate it.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$\frac{1171}{1680}$</span></li>
+            <li><span class="ans-num">2.</span><span>$\sqrt{2} + \sqrt{3} + 2 \approx 5.146$</span></li>
+            <li><span class="ans-num">3.</span><span>$\frac{\pi \left(\sqrt{3} + 2\right)}{6} \approx 1.954$</span></li>
+            <li><span class="ans-num">4.</span><span>$\frac{1}{8 e} + \frac{1}{8} + \frac{1}{4 e^{\frac{9}{16}}} + \frac{1}{4 e^{\frac{1}{4}}} + \frac{1}{4 e^{\frac{1}{16}}} \approx 0.7430$</span></li>
+            <li><span class="ans-num">5.</span><span>$\frac{11}{4}$</span></li>
+            <li><span class="ans-num">6.</span><span>$\frac{5323}{6800}$</span></li>
+            <li><span class="ans-num">7.</span><span>$\frac{1747}{2520}$</span></li>
+            <li><span class="ans-num">8.</span><span>$\frac{2 \sqrt{2}}{3} + 2 + \frac{4 \sqrt{3}}{3} \approx 5.252$</span></li>
+            <li><span class="ans-num">9.</span><span>$\frac{\pi \left(\sqrt{3} + 4\right)}{9} \approx 2.001$</span></li>
+            <li><span class="ans-num">10.</span><span>$\frac{1}{12 e} + \frac{1}{12} + \frac{1}{6 e^{\frac{1}{4}}} + \frac{1}{3 e^{\frac{9}{16}}} + \frac{1}{3 e^{\frac{1}{16}}} \approx 0.7469$</span></li>
+            <li><span class="ans-num">11.</span><span>$S_4=\dfrac{8}{3}$ (exact) — Simpson's Rule integrates any polynomial of degree $\le 3$ exactly, and $x^2$ certainly qualifies.</span></li>
+            <li><span class="ans-num">12.</span><span>$\frac{8011}{10200}$</span></li>
+            <li><span class="ans-num">13.</span><span>$n \ge \sqrt{\dfrac{K(b-a)^3}{12\varepsilon}} = \sqrt{\dfrac{2}{12(0.0001)}}\approx 40.8$, so $n=41$.</span></li>
+            <li><span class="ans-num">14.</span><span>$n \ge \left(\dfrac{K(b-a)^5}{180\varepsilon}\right)^{1/4} = \left(\dfrac{24}{180(0.0001)}\right)^{1/4}\approx 6.04$, so the smallest even $n$ that works is $n=8$.</span></li>
+            <li><span class="ans-num">15.</span><span>$T_4 = 1\cdot\left(\dfrac{3}{2}+5+4+7+\dfrac{6}{2}\right) = 20.5$ m</span></li>
+            <li><span class="ans-num">16.</span><span>$S_4 = \dfrac{1}{3}\big(3+4(5)+2(4)+4(7)+6\big) = \dfrac{65}{3}\approx 21.67$ m</span></li>
+            <li><span class="ans-num">17.</span><span>Overestimate — the trapezoid's top edge (a secant line) lies above a concave-up curve.</span></li>
+            <li><span class="ans-num">18.</span><span>$\left|E_T\right| \le \dfrac{K(b-a)^3}{12n^2}$, where $K$ is an upper bound for $|f''(x)|$ on $[a,b]$.</span></li>
+            <li><span class="ans-num">19.</span><span>Simpson's Rule fits a parabola through each pair of subintervals rather than a straight line, so it integrates cubics exactly and its error shrinks like $1/n^4$ instead of $1/n^2$.</span></li>
+            <li><span class="ans-num">20.</span><span>$\frac{1}{12} + \frac{\sqrt{2}}{6} + \frac{\sqrt{5}}{4} + \frac{\sqrt{13}}{6} \approx 1.479$</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

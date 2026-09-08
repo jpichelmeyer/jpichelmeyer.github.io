@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Calculus with Parametric Curves (9.2)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 9.2
-        <ul>
-            <li>1-31</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Find $\dfrac{d^2y}{dx^2}$ at $t=1$ for $x=t^2,\ y=t^3$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Find $\dfrac{d^2y}{dx^2}$ at $t=\pi/4$ for $x=\cos t,\ y=\sin t$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Find $\dfrac{d^2y}{dx^2}$ at $t=2$ for $x=t^3-3t,\ y=t^2$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Find $\dfrac{d^2y}{dx^2}$ (in terms of $t$) for $x=t^2+1,\ y=t^3+t$, and use it to say where the curve is concave up.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Find the area under $x=t^2,\ y=t$ for $t\in[0,2]$ (i.e. between the curve and the $x$-axis).</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Find the area under one arch of the cycloid $x=t-\sin t,\ y=1-\cos t$, $t\in[0,2\pi]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Find the area under the quarter-ellipse $x=3\sin t,\ y=2\cos t$, $t\in[0,\pi/2]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Find the area under $x=t^3,\ y=t^2$ for $t\in[0,1]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Find the arc length of $x=3\cos t,\ y=3\sin t$ for $t\in[0,\pi/2]$, and check it against the circumference formula.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Find the arc length of $x=t^2,\ y=t^3$ for $t\in[0,1]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Find the arc length of one arch of the cycloid $x=t-\sin t,\ y=1-\cos t$, $t\in[0,2\pi]$. (Hint: use $1-\cos t=2\sin^2(t/2)$.)</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Find the arc length of the logarithmic spiral $x=e^{t}\cos t,\ y=e^{t}\sin t$ for $t\in[0,1]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Find the arc length of the astroid arc $x=\cos^3 t,\ y=\sin^3 t$ for $t\in[0,\pi/2]$. (Hint: $\sqrt{9\sin^2t\cos^2t}=3|\sin t\cos t|$.)</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Find the arc length of $x=3t^2,\ y=2t^3$ for $t\in[0,2]$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Set up (do not evaluate) the surface-area integral for revolving $x=t^2,\ y=t^3$, $t\in[0,1]$, about the $x$-axis.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Find the surface area generated by revolving $x=t,\ y=2\sqrt{t}$, $t\in[0,3]$, about the $x$-axis.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Find the surface area generated by revolving the circle $x=\cos t,\ y=\sin t$, $t\in[0,\pi]$ (the upper semicircle), about the $x$-axis, and check it against the formula for the surface area of a sphere.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Explain why the formula for $\dfrac{d^2y}{dx^2}$ of a parametric curve is $\dfrac{d}{dt}\!\left(\dfrac{dy}{dx}\right)\Big/\dfrac{dx}{dt}$, and not simply $\dfrac{d}{dt}\!\left(\dfrac{dy}{dx}\right)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">Why must the area formula $A=\int y\,dx=\int y(t)x'(t)\,dt$ use limits of $t$ that trace the curve left-to-right (increasing $x$)? What happens if you use the reverse orientation instead?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">A wheel of radius $1$ rolls without slipping, tracing the cycloid $x=t-\sin t,\ y=1-\cos t$. Using the arc length found above, how far does a point on the rim travel during \emph{two} full rotations of the wheel ($t\in[0,4\pi]$)?</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$\dfrac{3}{4}$</span></li>
+            <li><span class="ans-num">2.</span><span>$-2\sqrt{2}$</span></li>
+            <li><span class="ans-num">3.</span><span>$-\dfrac{10}{243}$</span></li>
+            <li><span class="ans-num">4.</span><span>$\dfrac{d^2y}{dx^2}=\dfrac{3t^2-1}{4t^3}$; concave up where this is positive, e.g. for $t>\tfrac{1}{\sqrt3}$ (and on part of the negative range too — check the sign of $t^3$ as well).</span></li>
+            <li><span class="ans-num">5.</span><span>$\dfrac{16}{3}$</span></li>
+            <li><span class="ans-num">6.</span><span>$3\pi$</span></li>
+            <li><span class="ans-num">7.</span><span>$\dfrac{3\pi}{2}$</span></li>
+            <li><span class="ans-num">8.</span><span>$\dfrac{3}{5}$</span></li>
+            <li><span class="ans-num">9.</span><span>$\dfrac{3\pi}{2}$ — a quarter of the circumference of a circle with radius $3$ ($2\pi(3)/4$).</span></li>
+            <li><span class="ans-num">10.</span><span>$\dfrac{13\sqrt{13}-8}{27}\approx 1.440$</span></li>
+            <li><span class="ans-num">11.</span><span>$8$</span></li>
+            <li><span class="ans-num">12.</span><span>$\sqrt{2}\,(e-1)\approx 2.4923$</span></li>
+            <li><span class="ans-num">13.</span><span>$\dfrac{3}{2}$</span></li>
+            <li><span class="ans-num">14.</span><span>$10\sqrt{5}-2\approx 20.36$</span></li>
+            <li><span class="ans-num">15.</span><span>$\displaystyle S=2\pi\int_0^1 t^3\sqrt{(2t)^2+(3t^2)^2}\,dt = 2\pi\int_0^1 t^4\sqrt{4+9t^2}\,dt$</span></li>
+            <li><span class="ans-num">16.</span><span>$S=2\pi\displaystyle\int_0^3 2\sqrt{t}\sqrt{1+\tfrac{1}{t}}\,dt = 4\pi\int_0^3\sqrt{t+1}\,dt=\dfrac{8\pi}{3}\big(4^{3/2}-1\big)=\dfrac{56\pi}{3}\approx 58.64$</span></li>
+            <li><span class="ans-num">17.</span><span>$S=4\pi$ — matches the full surface area of a unit sphere, $4\pi r^2$ with $r=1$.</span></li>
+            <li><span class="ans-num">18.</span><span>$\dfrac{dy}{dx}$ is itself a function of $t$, so differentiating it with respect to $x$ still requires the chain rule: $\dfrac{d}{dx}=\dfrac{1}{dx/dt}\dfrac{d}{dt}$.</span></li>
+            <li><span class="ans-num">19.</span><span>If $x$ decreases as $t$ increases, $x'(t)<0$ throughout, so the integral comes out negative — the correct area is its absolute value, or equivalently the limits of integration should be swapped.</span></li>
+            <li><span class="ans-num">20.</span><span>$16$ (twice the length of one arch, since each rotation traces one congruent arch)</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

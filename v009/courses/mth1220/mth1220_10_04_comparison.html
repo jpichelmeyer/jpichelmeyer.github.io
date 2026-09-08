@@ -2,15 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sequences (10.1)</title>
+    <title>The Comparison Tests (10.4)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 10.4
-        <ul>
-            <li>1-50</li>
-            <li>82-91</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2+n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n-0.5}$ diverges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{2+\cos(n)}{n^2}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n!}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n+1}{n^2}$ diverges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=3}^{\infty} \frac{\ln n}{n}$ diverges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^2}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2+1}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^2}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n+1}{n^3+2}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^{3/2}}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{\sqrt n}{n^2+1}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{2^n}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{2^n-1}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^2}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{3n^2+2n}{n^4-n+1}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \sin\!\left(\frac1n\right)$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{1}{n^3+5}$, and why?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{5n^2+1}{n^4-n+2}$, and why?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{1}{\sqrt{n^3+1}}$, and why?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{3^n}{4^n+n}$, and why?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^2}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n^2+1}{n^4+3n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{e^n}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{e^n-n}$ converges.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">State the Direct Comparison Test and the Limit Comparison Test for series of positive terms.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">For $\displaystyle\sum_{n=2}^{\infty} \frac{1}{n^2-n}$, explain why comparing directly to $\tfrac1{n^2}$ doesn't immediately prove convergence by the Direct Comparison Test, and show how the Limit Comparison Test resolves it.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>Converges — $0<\dfrac{1}{n^2+n}<\dfrac{1}{n^2}$, and $\sum \tfrac1{n^2}$ converges ($p=2$).</span></li>
+            <li><span class="ans-num">2.</span><span>Diverges — $\dfrac{1}{n-0.5}>\dfrac1n$ for $n\ge1$, and $\sum\tfrac1n$ diverges.</span></li>
+            <li><span class="ans-num">3.</span><span>Converges — $0\le\dfrac{2+\cos n}{n^2}\le\dfrac{3}{n^2}$, and $\sum \tfrac{3}{n^2}$ converges.</span></li>
+            <li><span class="ans-num">4.</span><span>Converges — $\dfrac{1}{n!}\le\dfrac{1}{2^{n-1}}$ for $n\ge1$, and the geometric series $\sum \tfrac{1}{2^{n-1}}$ converges.</span></li>
+            <li><span class="ans-num">5.</span><span>Diverges — $\dfrac{n+1}{n^2}\ge\dfrac{n}{n^2}=\dfrac1n$, and $\sum\tfrac1n$ diverges.</span></li>
+            <li><span class="ans-num">6.</span><span>Diverges — for $n\ge3$, $\ln n\ge1$, so $\dfrac{\ln n}{n}\ge\dfrac1n$, and $\sum\tfrac1n$ diverges.</span></li>
+            <li><span class="ans-num">7.</span><span>$\displaystyle\lim_{n\to\infty}\frac{1/(n^2+1)}{1/n^2}=1$ (finite, positive) — converges, same as $\sum\tfrac1{n^2}$.</span></li>
+            <li><span class="ans-num">8.</span><span>$\displaystyle\lim_{n\to\infty}\frac{(n+1)/(n^3+2)}{1/n^2}=1$ — converges.</span></li>
+            <li><span class="ans-num">9.</span><span>$\displaystyle\lim_{n\to\infty}\frac{\sqrt n/(n^2+1)}{1/n^{3/2}}=1$ — converges ($p=\tfrac32>1$).</span></li>
+            <li><span class="ans-num">10.</span><span>$\displaystyle\lim_{n\to\infty}\frac{1/(2^n-1)}{1/2^n}=1$ — converges, matching the geometric series $\sum\tfrac1{2^n}$.</span></li>
+            <li><span class="ans-num">11.</span><span>$\displaystyle\lim_{n\to\infty}\frac{(3n^2+2n)/(n^4-n+1)}{1/n^2}=3$ — converges.</span></li>
+            <li><span class="ans-num">12.</span><span>$\displaystyle\lim_{n\to\infty}\frac{\sin(1/n)}{1/n}=1$ — diverges, matching the divergent harmonic series.</span></li>
+            <li><span class="ans-num">13.</span><span>$\sum\tfrac{1}{n^3}$ — for large $n$, the $+5$ is negligible, so the terms behave like $n^{-3}$.</span></li>
+            <li><span class="ans-num">14.</span><span>$\sum\tfrac{1}{n^2}$ — the dominant behavior is $\tfrac{5n^2}{n^4}=\tfrac{5}{n^2}$.</span></li>
+            <li><span class="ans-num">15.</span><span>$\sum\tfrac{1}{n^{3/2}}$ — the dominant behavior under the root is $n^3$, so $\sqrt{n^3+1}\sim n^{3/2}$.</span></li>
+            <li><span class="ans-num">16.</span><span>$\sum\left(\tfrac34\right)^n$ — for large $n$, the $+n$ is negligible next to $4^n$, so the terms behave like $(3/4)^n$.</span></li>
+            <li><span class="ans-num">17.</span><span>$\displaystyle\lim_{n\to\infty}\frac{(n^2+1)/(n^4+3n)}{1/n^2}=1$ — converges.</span></li>
+            <li><span class="ans-num">18.</span><span>$\displaystyle\lim_{n\to\infty}\frac{1/(e^n-n)}{1/e^n}=1$ — converges.</span></li>
+            <li><span class="ans-num">19.</span><span>\textbf{Direct:} if $0\le a_n\le b_n$ eventually and $\sum b_n$ converges, then $\sum a_n$ converges; if $a_n\ge b_n\ge 0$ eventually and $\sum b_n$ diverges, then $\sum a_n$ diverges. \textbf{Limit:} if $a_n,b_n>0$ and $\lim_{n\to\infty}a_n/b_n=c$ with $0<c<\infty$, then $\sum a_n$ and $\sum b_n$ either both converge or both diverge.</span></li>
+            <li><span class="ans-num">20.</span><span>Since $n^2-n<n^2$, we get $\dfrac{1}{n^2-n}>\dfrac{1}{n^2}$ — the inequality points the wrong way for the Direct Comparison Test to conclude convergence. But $\displaystyle\lim_{n\to\infty}\frac{1/(n^2-n)}{1/n^2}=1$, so the Limit Comparison Test still confirms convergence.</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

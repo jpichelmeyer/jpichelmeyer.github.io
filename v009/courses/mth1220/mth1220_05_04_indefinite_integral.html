@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Indefinite Integrals and the Net Change Theorem (5.4)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 5.4
-        <ul>
-            <li>1-50</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int x^5\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int (3x^2-4x+7)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \sqrt{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \frac{1}{x^3}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int e^{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \frac{1}{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \left(4x^3-6\sqrt{x}+\frac{2}{x}\right)dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \frac{x^2+1}{x}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \sin(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \cos(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \sec^2(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \sec(x)\tan(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \frac{1}{1+x^2}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Find the general antiderivative: $\displaystyle\int \frac{1}{\sqrt{1-x^2}}\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Verify by differentiation that $F(x)=x\ln(x)-x$ is an antiderivative of $f(x)=\ln(x)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Verify by differentiation that $F(x)=\tfrac{1}{3}\sin^3(x)$ is an antiderivative of $f(x)=\sin^2(x)\cos(x)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">An object moves with velocity $v(t)=3t^2-2t$ (m/s) and $s(0)=5$ m. Find the position function $s(t)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">An object has acceleration $a(t)=6t$ (m/s$^2$) and $v(0)=-1$ m/s. Find the velocity function $v(t)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">A company's marginal cost is $C'(x)=3x^2-12x+15$ dollars per unit, and fixed costs are $C(0)=200$. Find the total cost function $C(x)$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Solve the initial value problem $\dfrac{dy}{dx}=2x-3$, $y(1)=4$.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$\frac{x^{6}}{6} + C$</span></li>
+            <li><span class="ans-num">2.</span><span>$x^{3} - 2 x^{2} + 7 x + C$</span></li>
+            <li><span class="ans-num">3.</span><span>$\frac{2 x^{\frac{3}{2}}}{3} + C$</span></li>
+            <li><span class="ans-num">4.</span><span>$- \frac{1}{2 x^{2}} + C$</span></li>
+            <li><span class="ans-num">5.</span><span>$e^{x} + C$</span></li>
+            <li><span class="ans-num">6.</span><span>$\log{\left(x \right)} + C$</span></li>
+            <li><span class="ans-num">7.</span><span>$- 4 x^{\frac{3}{2}} + x^{4} + 2 \log{\left(x \right)} + C$</span></li>
+            <li><span class="ans-num">8.</span><span>$\dfrac{x^2}{2}+\ln|x|+C$</span></li>
+            <li><span class="ans-num">9.</span><span>$- \cos{\left(x \right)} + C$</span></li>
+            <li><span class="ans-num">10.</span><span>$\sin{\left(x \right)} + C$</span></li>
+            <li><span class="ans-num">11.</span><span>$\tan(x)+C$</span></li>
+            <li><span class="ans-num">12.</span><span>$\sec(x)+C$</span></li>
+            <li><span class="ans-num">13.</span><span>$\arctan(x)+C$</span></li>
+            <li><span class="ans-num">14.</span><span>$\arcsin(x)+C$</span></li>
+            <li><span class="ans-num">15.</span><span>$F'(x)=\ln(x)+x\cdot\frac{1}{x}-1=\ln(x)+1-1=\ln(x)=f(x)$. \checkmark</span></li>
+            <li><span class="ans-num">16.</span><span>$F'(x)=\sin^2(x)\cos(x)=f(x)$ by the chain rule. \checkmark</span></li>
+            <li><span class="ans-num">17.</span><span>$s(t)=t^3-t^2+5$</span></li>
+            <li><span class="ans-num">18.</span><span>$v(t)=3t^2-1$</span></li>
+            <li><span class="ans-num">19.</span><span>$C(x)=x^3-6x^2+15x+200$</span></li>
+            <li><span class="ans-num">20.</span><span>$y(x)=x^2-3x+6$</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

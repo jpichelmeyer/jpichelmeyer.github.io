@@ -3,14 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <title>Sequences (10.1)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 10.1
-        <ul>
-            <li>1-40</li>
-            <li>108-114</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Find a formula for $a_n$ given the first terms $\dfrac12,\ \dfrac23,\ \dfrac34,\ \dfrac45,\ \dots$</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Find a formula for $a_n$ given the first terms $1,\ -\dfrac12,\ \dfrac14,\ -\dfrac18,\ \dots$</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Find a formula for $a_n$ given the first terms $2,\ 5,\ 10,\ 17,\ 26,\ \dots$</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Find a formula for $a_n$ given the first terms $1,\ \dfrac14,\ \dfrac19,\ \dfrac1{16},\ \dots$</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{3n^2+1}{n^2-2}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{2n+3}{n^3+1}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\left(\frac12\right)^n$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\left(1+\frac1n\right)^n$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{n}{\sqrt{n^2+1}}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{\cos(n)}{n}$. (Squeeze Theorem.)</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{n^2}{e^n}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{n!}{n^n}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{(-1)^n}{n}$, and justify with the Squeeze Theorem.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{\ln(n)}{n}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Find $\displaystyle\lim_{n\to\infty}\frac{3n+(-1)^n}{n+2}$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Is the sequence $a_n=\dfrac{n}{n+1}$ increasing, decreasing, or neither? Is it bounded? What can you conclude about convergence?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Is the sequence $a_n=(-1)^n$ bounded? Is it monotonic? Does it converge?</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Given $-\dfrac{1}{n^2}\le a_n\le \dfrac{1}{n^2}$ for all $n$, find $\displaystyle\lim_{n\to\infty}a_n$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">State the Monotone Convergence Theorem for sequences.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Explain the difference between a sequence and an infinite series, and give a simple example of each.</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$a_n=\dfrac{n}{n+1}$</span></li>
+            <li><span class="ans-num">2.</span><span>$a_n=\left(-\dfrac12\right)^{n-1}$</span></li>
+            <li><span class="ans-num">3.</span><span>$a_n=n^2+1$</span></li>
+            <li><span class="ans-num">4.</span><span>$a_n=\dfrac{1}{n^2}$</span></li>
+            <li><span class="ans-num">5.</span><span>$3$</span></li>
+            <li><span class="ans-num">6.</span><span>$0$</span></li>
+            <li><span class="ans-num">7.</span><span>$0$</span></li>
+            <li><span class="ans-num">8.</span><span>$e$</span></li>
+            <li><span class="ans-num">9.</span><span>$1$</span></li>
+            <li><span class="ans-num">10.</span><span>$0$</span></li>
+            <li><span class="ans-num">11.</span><span>$0$</span></li>
+            <li><span class="ans-num">12.</span><span>$0$</span></li>
+            <li><span class="ans-num">13.</span><span>$0$, since $-\dfrac1n\le\dfrac{(-1)^n}{n}\le\dfrac1n$ and both bounds $\to 0$.</span></li>
+            <li><span class="ans-num">14.</span><span>$0$</span></li>
+            <li><span class="ans-num">15.</span><span>$3$</span></li>
+            <li><span class="ans-num">16.</span><span>Increasing, since $a_{n+1}-a_n=\dfrac{1}{(n+1)(n+2)}>0$; bounded above by $1$. By the Monotone Convergence Theorem, it converges (to $1$).</span></li>
+            <li><span class="ans-num">17.</span><span>Bounded (between $-1$ and $1$), but not monotonic — it oscillates, so the Monotone Convergence Theorem doesn't apply, and in fact the sequence diverges (it never settles on one value).</span></li>
+            <li><span class="ans-num">18.</span><span>$0$, by the Squeeze Theorem.</span></li>
+            <li><span class="ans-num">19.</span><span>If a sequence $\{a_n\}$ is monotonic (always increasing or always decreasing) and bounded, then it converges.</span></li>
+            <li><span class="ans-num">20.</span><span>A sequence is an ordered list of numbers, e.g. $a_n=\tfrac1n$ gives $1,\tfrac12,\tfrac13,\dots$; a series is the sum of the terms of a sequence, e.g. $\sum_{n=1}^{\infty}\tfrac1n$, and its convergence depends on whether the sequence of \emph{partial sums} converges.</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>

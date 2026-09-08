@@ -2,14 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Series (10.2)</title>
+    <title>Trigonometric Integrals (7.3)</title>
+    <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <style>
+        /* Practice Examples styling -- self-contained to this lesson page only. */
+        .practice-intro {
+            color: #444;
+            margin-bottom: 18px;
+        }
+        .practice-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .practice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .practice-num {
+            flex: 0 0 auto;
+            background: #333333;
+            color: #f1f1f1;
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 1.7em;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', Consolas, monospace;
+        }
+        .practice-text {
+            flex: 1;
+            line-height: 1.6;
+            padding-top: 1px;
+        }
+        .practice-answers-block {
+            margin-top: 30px;
+            padding-top: 18px;
+            border-top: 2px solid #1f1f1f;
+        }
+        .practice-answers-block h4 {
+            margin: 0 0 12px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #5b6b78;
+        }
+        .practice-answers-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            columns: 2;
+            column-gap: 32px;
+        }
+        .practice-answers-list li {
+            break-inside: avoid;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.94em;
+            line-height: 1.5;
+        }
+        .practice-answers-list .ans-num {
+            font-weight: 700;
+            color: #333333;
+            flex: 0 0 auto;
+            min-width: 1.6em;
+        }
+        @media (max-width: 640px) {
+            .practice-answers-list { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-    <h3>Exercises</h3>
-    <p>Sisson 7.3
-        <ul>
-            <li>1-34</li>
-        </ul>
-    </p>
+    <h3>Practice Examples</h3>
+        <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
+        <ol class="practice-list">
+            <li class="practice-item">
+                <span class="practice-num">1</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \sin^3(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">2</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \cos^5(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">3</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \sin^2(x)\cos^2(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">4</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \sin^4(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">5</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \sin^2(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">6</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \cos^2(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">7</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \tan^3(x)\sec(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">8</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \tan^2(x)\sec^4(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">9</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \tan^3(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">10</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \sec^3(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">11</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \sec^4(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">12</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \sin(3x)\cos(5x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">13</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \sin(2x)\sin(4x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">14</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \cos(x)\cos(3x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">15</span>
+                <span class="practice-text">Evaluate $\displaystyle\int \cot^3(x)\csc^2(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">16</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_0^{\pi}\sin^3(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">17</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_0^{\pi/2}\sin^2(x)\cos^2(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">18</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_0^{\pi/4}\tan^3(x)\sec(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">19</span>
+                <span class="practice-text">Evaluate $\displaystyle\int_0^{\pi/2}\sin^3(x)\cos(x)\,dx$.</span>
+            </li>
+            <li class="practice-item">
+                <span class="practice-num">20</span>
+                <span class="practice-text">Summarize the strategy for evaluating $\displaystyle\int \sin^m(x)\cos^n(x)\,dx$: what do you do when at least one of $m,n$ is odd, versus when both are even?</span>
+            </li>
+    </ol>
+
+    <div class="practice-answers-block">
+        <h4>Answers</h4>
+        <ol class="practice-answers-list">
+            <li><span class="ans-num">1.</span><span>$\frac{\cos^{3}{\left(x \right)}}{3} - \cos{\left(x \right)} + C$</span></li>
+            <li><span class="ans-num">2.</span><span>$\frac{\sin^{5}{\left(x \right)}}{5} - \frac{2 \sin^{3}{\left(x \right)}}{3} + \sin{\left(x \right)} + C$</span></li>
+            <li><span class="ans-num">3.</span><span>$\dfrac{x}{8}-\dfrac{\sin(4x)}{32}+C$</span></li>
+            <li><span class="ans-num">4.</span><span>$\dfrac{3x}{8}-\dfrac{\sin(2x)}{4}+\dfrac{\sin(4x)}{32}+C$</span></li>
+            <li><span class="ans-num">5.</span><span>$\dfrac{x}{2}-\dfrac{\sin(2x)}{4}+C$</span></li>
+            <li><span class="ans-num">6.</span><span>$\dfrac{x}{2}+\dfrac{\sin(2x)}{4}+C$</span></li>
+            <li><span class="ans-num">7.</span><span>$\dfrac{\sec^3(x)}{3}-\sec(x)+C$</span></li>
+            <li><span class="ans-num">8.</span><span>$- \frac{2 \sin{\left(x \right)}}{15 \cos{\left(x \right)}} - \frac{\sin{\left(x \right)}}{15 \cos^{3}{\left(x \right)}} + \frac{\sin{\left(x \right)}}{5 \cos^{5}{\left(x \right)}} + C$</span></li>
+            <li><span class="ans-num">9.</span><span>$\dfrac{\tan^2(x)}{2}+\ln|\cos(x)|+C$</span></li>
+            <li><span class="ans-num">10.</span><span>$\dfrac{1}{2}\Big(\sec(x)\tan(x)+\ln|\sec(x)+\tan(x)|\Big)+C$</span></li>
+            <li><span class="ans-num">11.</span><span>$\tan(x)+\dfrac{\tan^3(x)}{3}+C$</span></li>
+            <li><span class="ans-num">12.</span><span>$\frac{5 \sin{\left(3 x \right)} \sin{\left(5 x \right)}}{16} + \frac{3 \cos{\left(3 x \right)} \cos{\left(5 x \right)}}{16} + C$</span></li>
+            <li><span class="ans-num">13.</span><span>$- \frac{\sin{\left(2 x \right)} \cos{\left(4 x \right)}}{3} + \frac{\sin{\left(4 x \right)} \cos{\left(2 x \right)}}{6} + C$</span></li>
+            <li><span class="ans-num">14.</span><span>$- \frac{\sin{\left(x \right)} \cos{\left(3 x \right)}}{8} + \frac{3 \sin{\left(3 x \right)} \cos{\left(x \right)}}{8} + C$</span></li>
+            <li><span class="ans-num">15.</span><span>$- \frac{1 - 2 \sin^{2}{\left(x \right)}}{4 \sin^{4}{\left(x \right)}} + C$</span></li>
+            <li><span class="ans-num">16.</span><span>$\frac{4}{3}$</span></li>
+            <li><span class="ans-num">17.</span><span>$\frac{\pi}{16} \approx 0.1964$</span></li>
+            <li><span class="ans-num">18.</span><span>$\frac{2}{3} - \frac{\sqrt{2}}{3} \approx 0.1953$</span></li>
+            <li><span class="ans-num">19.</span><span>$\frac{1}{4}$</span></li>
+            <li><span class="ans-num">20.</span><span>If $m$ or $n$ is odd, peel off one factor of that function, convert the remaining even power using $\sin^2+\cos^2=1$, and substitute $u=$ the other function. If both are even, repeatedly apply the half-angle identities $\sin^2x=\tfrac{1-\cos2x}{2}$, $\cos^2x=\tfrac{1+\cos2x}{2}$ to reduce the powers.</span></li>
+        </ol>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ]
+                });
+            }
+        });
+    </script>
 </body>
 </html>
