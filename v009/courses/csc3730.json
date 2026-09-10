@@ -119,12 +119,12 @@
           "GDscript": "csc3730/godot_03_gdscript.html"
         },
         {
-            "Agent": "csc3730/agent.html",
-            "Steering behavior": "csc3730/move_cont_01_steering.html"
+          "Agent": "csc3730/agent.html",
+          "Steering behavior": "csc3730/move_cont_01_steering.html"
         },
         {
-            "Obstacles": "csc3730/move_cont_02_obstacles.html",
-            "Flocking (boids)": "csc3730/move_cont_03_flocking.html"
+          "Obstacles": "csc3730/move_cont_02_obstacles.html",
+          "Flocking (boids)": "csc3730/move_cont_03_flocking.html"
         },
         {
           "Grid & Graph": "csc3730/move_disc_01_grid.html",
@@ -140,7 +140,7 @@
       "theme": "Artificial Life",
       "trs": [
         {
-          "Ant Colony Optimization (ACO)": "csc3730/aco.html", 
+          "Ant Colony Optimization (ACO)": "csc3730/aco.html",
           "Artificial Life": "csc3730/cellular_automata.html"
         }
       ]
@@ -149,17 +149,17 @@
       "theme": "Decision-making",
       "trs": [
         {
-          "Finite state machines": ""
+          "Finite state machines": "csc3730/decision_01_fsm.html"
         },
         {
-          "Decision trees": "",
-          "Behavior trees": ""
+          "Decision trees": "csc3730/decision_02_dtree.html",
+          "Behavior trees": "csc3730/decision_03_bt.html"
         },
         {
-          "Behavior tree arboriculture": ""
+          "Behavior tree arboriculture": "csc3730/decision_04_bt_arboriculture.html"
         },
         {
-          "Behavior trees vs FSMs (memory)": ""
+          "Behavior trees vs FSMs (memory)": "csc3730/decision_05_bt_vs_fsm.html"
         },
         {
           "Presentation 2: The Progress": ""

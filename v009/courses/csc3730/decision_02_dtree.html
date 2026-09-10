@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Quick note before starting: "decision tree" means two different things in AI, and this course uses both, in two very different weeks. Later this semester, under Machine Learning, you'll meet decision trees that get <em>learned</em> from data (a training algorithm decides which questions to ask and in what order). This lesson is about the other kind: a decision tree you write by hand, as a fixed, symbolic flowchart. Same shape, completely different origin.</p>
+
+        <h3>Part 1. A Decision Tree Is a Flowchart</h3>
+        <p>A hand-written decision tree is exactly what it sounds like: a tree of yes/no (or multiple-choice) questions, where every leaf is an action. Start at the root, answer each question, follow the matching branch, and whichever leaf you land on is what the agent does. No state, no memory of last frame, nothing carried over; every single frame, the agent asks the same questions in the same order from the top.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="dtArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+
+    <rect x="180" y="10" width="120" height="45" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="240" y="37" font-size="12.5" fill="#1f3b52" text-anchor="middle">Is it daytime?</text>
+
+    <rect x="40" y="110" width="150" height="45" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="115" y="132" font-size="12" fill="#1f3b52" text-anchor="middle">Is there grass</text>
+    <text x="115" y="146" font-size="12" fill="#1f3b52" text-anchor="middle">nearby?</text>
+
+    <rect x="310" y="110" width="150" height="45" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="385" y="137" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">Go to shelter</text>
+
+    <rect x="20" y="205" width="140" height="45" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="90" y="232" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">Go to grass</text>
+
+    <rect x="190" y="205" width="140" height="45" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="260" y="227" font-size="12" fill="#8a4526" text-anchor="middle">Wander</text>
+    <text x="260" y="241" font-size="12" fill="#8a4526" text-anchor="middle">(nothing to do)</text>
+
+    <path d="M210 55 L130 108" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#dtArrow)"/>
+    <text x="150" y="88" font-size="11" fill="#2e5a80">yes</text>
+
+    <path d="M270 55 L360 108" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#dtArrow)"/>
+    <text x="320" y="88" font-size="11" fill="#2e5a80">no</text>
+
+    <path d="M100 155 L92 203" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#dtArrow)"/>
+    <text x="60" y="185" font-size="11" fill="#2e5a80">yes</text>
+
+    <path d="M150 155 L245 203" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#dtArrow)"/>
+    <text x="205" y="185" font-size="11" fill="#2e5a80">no</text>
+</svg>
+            <div class="diagram-caption">A three-question decision tree for the same day/night creature the FSM lesson used. Every leaf is a final action; there's no path back up, and no memory of which leaf was reached last time.</div>
+        </div>
+
+        <h3>Part 2. The Same Logic, Two Ways</h3>
+        <p>Recall the FSM's day/night creature: wander by default, chase a target when one's detected, idle briefly on arrival. A decision tree for a similar (simpler) creature reads almost like the flowchart above, translated directly into GDScript:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">(hand-written decision tree, not part of any project)</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func decide(delta: float) -&gt; void:
+	if is_daytime():
+		if grass_nearby() != null:
+			actuator.move_toward(grass_nearby())
+		else:
+			actuator.wander(delta)
+	else:
+		actuator.move_toward(shelter_position)
+</span>
+</div>
+
+        <p>Compare that against last lesson's <span class="code-lesson-il">FSM</span>: no <span class="code-lesson-il">class_name</span> hierarchy, no <span class="code-lesson-il">enter()</span>/<span class="code-lesson-il">exit()</span>, no node named "StateWander" to reorder in a scene tree. Just one function, evaluated top to bottom, every single frame. That's the whole appeal: for logic this size, it's less machinery, and it's easy to read start to finish in one sitting.</p>
+
+        <h3>Part 3. Where It Breaks Down</h3>
+        <p>Try extending the tree above with "but if it was just chasing something, keep chasing until it's lost, even if a closer target shows up" (exactly what <span class="code-lesson-il">StateSeek</span> does with <span class="code-lesson-il">fsm.focus_target</span>). There's nowhere to put that. A decision tree, as written here, has no memory between one evaluation and the next; it can only ever look at whatever <span class="code-lesson-il">is_daytime()</span> and <span class="code-lesson-il">grass_nearby()</span> report <em>right now</em>. Re-run the function next frame and, if a target changed, the whole tree can jump to a completely different leaf with no sense that anything changed, because as far as the tree's structure is concerned, nothing did; it re-asks every question from scratch every time.</p>
+        <p>That's the gap an FSM fills: a state persists across frames on purpose, which is exactly what let <span class="code-lesson-il">StateSeek</span> keep chasing the same target rather than re-deciding "what's closest" every frame. It's also the gap the next lesson's behavior trees fill, a different way, worth having both fresh in mind for the comparison two lessons from now.</p>
+
+        <h3>Part 4. Where It's the Right Tool</h3>
+        <p>Not every decision needs memory. A one-shot classification ("what kind of terrain is the agent standing on, and what movement penalty does that imply") is naturally stateless, evaluate it fresh whenever it's needed, there's nothing to remember between calls. Decision trees are also easy to author from a domain expert's own words ("if the player is close and has low health, attack; otherwise retreat") without translating into states and transitions first, which is part of why they show up constantly in game AI design docs even when the actual code ends up using something else underneath.</p>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain the difference between a hand-written (symbolic) decision tree and a machine-learned one, in one sentence each.</li>
+            <li>Translate a short decision tree diagram (three or four questions) into an if/elif chain, and back.</li>
+            <li>Give a concrete example of agent logic that a bare decision tree can't express, and explain specifically why (what would it need to remember that it can't).</li>
+        </ol>
+
+    </body>
+</html>

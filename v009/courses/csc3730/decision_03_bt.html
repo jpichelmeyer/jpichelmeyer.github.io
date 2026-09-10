@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Two lessons ago, an FSM solved decision trees' memory problem by giving each mode its own persistent, script-sized chunk of behavior. That solves memory, but it introduces a new problem of its own: every state needs to know, explicitly, which other states it might transition to. Four or five states is fine. Fifteen states, each with two or three possible transitions to other named states, gets tangled fast, informally called "transition spaghetti." A <strong>behavior tree</strong> (BT) is a different answer to the same original problem, one built to stay organized as it grows.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/bt/bt.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+
+        <h3>Part 1. Tick, and Three Answers</h3>
+        <p>Instead of one state being "active," a behavior tree is a fixed hierarchy of nodes, and every frame the <strong>root</strong> is <strong>ticked</strong>. A tick is a function call that flows down through the tree and returns exactly one of three answers back up:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">@icon("res://Assets/BT Icons/tree.svg")
+extends Node
+class_name BehaviorTree
+
+enum {
+	SUCCESS,
+	FAILURE,
+	RUNNING
+}
+</span>
+</div>
+
+        <p><span class="code-lesson-il">SUCCESS</span> and <span class="code-lesson-il">FAILURE</span> mean exactly what they sound like: this node's job is done, either it worked or it didn't. <span class="code-lesson-il">RUNNING</span> means "still in progress, ask me again next frame" (moving toward a target takes more than one frame; it returns <span class="code-lesson-il">RUNNING</span> on every frame it hasn't arrived yet). Every single node type in a behavior tree, no matter what it does internally, boils down to producing one of these three answers when ticked. That uniform interface is what lets nodes nest inside each other without needing to know anything about what's inside their children.</p>
+
+        <div class="icon-glossary">
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_tree.svg" alt="Behavior tree root icon">
+                <div class="name">Root</div>
+                <div class="desc">starts the tick</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_category_composite.svg" alt="Composite category icon">
+                <div class="name">Composite</div>
+                <div class="desc">has multiple children</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_selector.svg" alt="Selector icon">
+                <div class="name">Selector</div>
+                <div class="desc">try each 'til one works</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_sequencer.svg" alt="Sequencer icon">
+                <div class="name">Sequencer</div>
+                <div class="desc">all must succeed</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_condition.svg" alt="Condition icon">
+                <div class="name">Condition</div>
+                <div class="desc">leaf, checks something</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_action.svg" alt="Action icon">
+                <div class="name">Action</div>
+                <div class="desc">leaf, does something</div>
+            </div>
+        </div>
+
+        <h3>Part 2. Leaves: Actions and Conditions</h3>
+        <p>Every <strong>leaf</strong> node (no children of its own) is either an <span class="code-lesson-il">Action</span> or a <span class="code-lesson-il">Condition</span>. The only difference between them is what they default to before you override <span class="code-lesson-il">tick()</span>, a small but deliberate detail:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_node_leaf_act.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends BehaviorTree_Node_Leaf
+class_name BehaviorTree_Node_Leaf_Action
+
+func tick(_actor, _blackboard, _delta):
+	return SUCCESS
+</span>
+</div>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_node_leaf_cond.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends BehaviorTree_Node_Leaf
+class_name BehaviorTree_Node_Leaf_Condition
+
+func tick(_actor, _blackboard, _delta):
+	return FAILURE
+</span>
+</div>
+
+        <p>An <span class="code-lesson-il">Action</span> assumes success unless something goes wrong; a <span class="code-lesson-il">Condition</span> assumes failure unless it can prove otherwise. Here's a real condition from the demo project, one that checks the in-game clock:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_node_leaf_cond_day.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends BehaviorTree_Node_Leaf_Condition
+class_name BehaviorTree_Node_Leaf_Condition_Day
+
+var ang_in = Global.npc_day_ang_in
+var ang_out = Global.npc_day_ang_out
+
+func tick(_actor, _blackboard, _delta):
+	var time_angle = Global.time_to_angle
+	if (
+		time_angle &lt; ang_in ||
+		time_angle &gt; ang_out
+	):
+		return SUCCESS
+	return FAILURE
+</span>
+</div>
+
+        <h3>Part 3. Composites: Selector and Sequencer</h3>
+        <p>A leaf can only ever answer for itself. A <strong>composite</strong> node has multiple children and combines their answers into one of its own. This project has two:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_node_comp_sequencer.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends BehaviorTree_Node_Composite
+class_name BehaviorTree_Node_Composite_Sequencer
+
+func tick(actor, blackboard, delta):
+	for c in get_children():
+		if c.has_method("tick"):
+			var response = c.tick(actor, blackboard, delta)
+			if response == SUCCESS:
+				pass
+			elif response in [FAILURE, RUNNING]:
+				return response
+			else:
+				return FAILURE
+	return SUCCESS
+</span>
+</div>
+
+        <p>A <strong>Sequencer</strong> ticks its children left to right and stops the instant one doesn't <span class="code-lesson-il">SUCCESS</span>: a failure or a still-running child short-circuits the whole thing, passing that same result straight up. Only if every child succeeds does the Sequencer itself report <span class="code-lesson-il">SUCCESS</span>. Read it as "and": <em>do this, and this, and this</em>, all the way through, or bail out the moment one fails.</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_node_comp_selector.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends BehaviorTree_Node_Composite
+class_name BehaviorTree_Node_Composite_Selector
+
+func tick(actor, blackboard, delta):
+	for c in get_children():
+		if c.has_method("tick"):
+			var response = c.tick(actor, blackboard, delta)
+			if response != FAILURE:
+				return response
+	
+	return FAILURE
+</span>
+</div>
+
+        <p>A <strong>Selector</strong> is the opposite: it ticks its children left to right and stops the instant one <em>doesn't</em> <span class="code-lesson-il">FAILURE</span>. Read it as "or": <em>try this, or this, or this</em>, taking the first option that isn't a dead end, only reporting <span class="code-lesson-il">FAILURE</span> itself if every single child did. Order matters a lot here: children earlier in the list get first refusal.</p>
+
+        <h3>Part 4. A Real Tree, Read End to End</h3>
+        <p>This is the actual behavior tree driving the day/night creature in the demo above, exactly as it's built in the scene tree (no code beyond what's already shown, just how the nodes are nested):</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="205" y="10" width="110" height="38" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="260" y="34" font-size="12.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Selector</text>
+
+    <rect x="40" y="90" width="180" height="38" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="130" y="114" font-size="12" fill="#1f3b52" text-anchor="middle">Sequencer "go to grass"</text>
+
+    <rect x="300" y="90" width="190" height="38" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="395" y="114" font-size="12" fill="#1f3b52" text-anchor="middle">Sequencer "go to shelter"</text>
+
+    <rect x="10" y="175" width="90" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
+    <text x="55" y="197" font-size="10.5" fill="#8a4526" text-anchor="middle">Check daylight</text>
+
+    <rect x="110" y="175" width="100" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
+    <text x="160" y="197" font-size="10.5" fill="#8a4526" text-anchor="middle">Find grass</text>
+
+    <rect x="220" y="230" width="100" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
+    <text x="270" y="252" font-size="10.5" fill="#8a4526" text-anchor="middle">Move there</text>
+
+    <rect x="300" y="175" width="140" height="34" rx="6" fill="#f3eefb" stroke="#6b4c9e" stroke-width="1.3"/>
+    <text x="370" y="197" font-size="10.5" fill="#4a3266" text-anchor="middle">Inverter</text>
+
+    <rect x="300" y="230" width="120" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
+    <text x="360" y="252" font-size="10.5" fill="#8a4526" text-anchor="middle">Check daylight</text>
+
+    <rect x="440" y="175" width="80" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
+    <text x="480" y="192" font-size="10" fill="#8a4526" text-anchor="middle">Find</text>
+    <text x="480" y="204" font-size="10" fill="#8a4526" text-anchor="middle">shelter</text>
+
+    <rect x="440" y="230" width="80" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
+    <text x="480" y="247" font-size="10" fill="#8a4526" text-anchor="middle">Move</text>
+    <text x="480" y="259" font-size="10" fill="#8a4526" text-anchor="middle">there</text>
+
+    <line x1="245" y1="48" x2="130" y2="88" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="275" y1="48" x2="395" y2="88" stroke="#8a8a8a" stroke-width="1.3"/>
+
+    <line x1="90" y1="128" x2="55" y2="173" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="130" y1="128" x2="160" y2="173" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="160" y1="128" x2="270" y2="228" stroke="#8a8a8a" stroke-width="1.3"/>
+
+    <line x1="360" y1="128" x2="370" y2="173" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="400" y1="128" x2="480" y2="173" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="400" y1="128" x2="480" y2="228" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="370" y1="209" x2="360" y2="228" stroke="#8a8a8a" stroke-width="1.3"/>
+</svg>
+            <div class="diagram-caption">The Gatherer's actual tree. Left branch: sequencer checking daylight, then finding grass, then moving to it (three "and"s -- any failure falls through to the right branch). Right branch: an Inverter flips the same daylight check into "is it night," then finds shelter and moves there. The Selector at the root picks whichever branch didn't fail.</div>
+        </div>
+
+        <p>Read it top to bottom: the root Selector tries the left Sequencer first. If it's daytime <em>and</em> grass is found <em>and</em> the creature successfully starts moving toward it, that whole Sequencer reports success (or <span class="code-lesson-il">RUNNING</span> while still en route), the Selector stops there, and the right branch never even gets ticked this frame. Only if the left Sequencer fails, which happens the instant "Check daylight" fails at night, does the Selector move on and try the shelter branch instead.</p>
+        <p>Notice there's no explicit "go to shelter" state anywhere, and nothing that looks like a transition. The tree's <em>shape</em> encodes the priority (try grass first, shelter second) once, structurally, rather than as a rule living inside some other state.</p>
+
+        <h3>Part 5. Try It</h3>
+        <ol>
+            <li>In the demo project, find the actual "BT Gatherer" scene and locate its Selector's two Sequencer children in the scene tree. Match each node you see there to a box in the diagram above.</li>
+            <li>Swap the order of the two Sequencer children under the root Selector (drag one above the other). Nothing about any script changes. Predict what changes in the creature's behavior, then run it and check.</li>
+            <li><span class="code-lesson-il">bt_node_leaf_act_print_running.gd</span> is a leaf that always returns <span class="code-lesson-il">RUNNING</span> and prints a timestamp. Temporarily drop one into a Sequencer ahead of an existing action and watch the console; confirm for yourself that a <span class="code-lesson-il">RUNNING</span> result stops that Sequencer right there, same as a <span class="code-lesson-il">FAILURE</span> would, just without reporting failure.</li>
+        </ol>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Name the three possible results of a tick, and explain what each one means in one sentence.</li>
+            <li>Explain the default return value difference between <span class="code-lesson-il">Action</span> and <span class="code-lesson-il">Condition</span> leaves, and why that default makes sense for each.</li>
+            <li>Explain Sequencer and Selector's stopping rules in plain English ("and" / "or"), without reading the code back.</li>
+            <li>Given the Gatherer's actual tree, say out loud what happens on a tick where it's night and no shelter exists nearby: what does each node along the way return, and what does the root ultimately report?</li>
+            <li>Point to one specific way this tree avoids the "transition spaghetti" problem an FSM with the same behavior would risk.</li>
+        </ol>
+
+    </body>
+</html>

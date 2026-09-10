@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Two Deciders down, same original problem (decision trees have no memory) solved two different ways. This lesson doesn't introduce anything new; it puts the FSM and the behavior tree from the last three lessons directly side by side, focused specifically on the thing the schedule's title is pointing at: <strong>memory</strong>, what each one remembers between frames, and where that memory actually lives.</p>
+
+        <h3>Part 1. Where "Current State" Lives</h3>
+        <p>An FSM's memory is blunt and explicit: exactly one variable, <span class="code-lesson-il">current_state</span>, always points at exactly one active <span class="code-lesson-il">FSMState</span> node. That single reference <em>is</em> the machine's entire memory of "what was I just doing." Ask an FSM what it's doing and there's exactly one honest answer, always.</p>
+        <p>A behavior tree has no equivalent variable anywhere. There's no <span class="code-lesson-il">current_node</span> field on <span class="code-lesson-il">BehaviorTree_Root</span>; every single tick walks back down from the root, through the Selector, into whichever Sequencer doesn't fail, same as the very first tick ever did. "What was I just doing" isn't stored, it's <em>recomputed</em>, every frame, from the same fixed structure.</p>
+
+        <h3>Part 2. Then How Does a Tree "Remember" Mid-Action?</h3>
+        <p><span class="code-lesson-il">RUNNING</span> is the answer. Go back and look at <span class="code-lesson-il">bt_root.gd</span> closely, specifically a block that's currently commented out:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_root.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _physics_process(delta):
+	# If RUNNING returned, tick directly to the running leaf 
+	#    without going through the whole tree again
+	"""
+	if response_last == RUNNING:
+		response_last = blackboard.board["Running leaf"].tick(actor, blackboard, delta)
+		print(Time.get_ticks_msec(), " : Behavior tree root ticking running node directly")
+		return
+	"""
+	
+	print(Time.get_ticks_msec(), " : BT new tick")
+	response_last = get_child(0).tick(actor, blackboard, delta)
+	print(blackboard.board)
+</span>
+</div>
+
+        <p>As written (that block commented out), the tree re-walks from the root <em>every single frame</em>, full stop, even while a <span class="code-lesson-il">Move to Move Target</span> action is mid-move and returning <span class="code-lesson-il">RUNNING</span>. That works, because every Condition along the way keeps re-passing (it's still daytime, the target's still set), so the Selector and Sequencer keep routing the tick to the same running leaf on their own, but it means the tree is repeating work it already did last frame just to arrive back at the same conclusion.</p>
+        <p>The commented-out block sketches the classic optimization: remember, on the blackboard, <em>which leaf</em> was left <span class="code-lesson-il">RUNNING</span> (<span class="code-lesson-il">set_running_leaf</span>, over in <span class="code-lesson-il">bt_blackboard.gd</span>, exists for exactly this), and next frame tick straight to it, skipping the conditions above it entirely. That's memory, stored on the blackboard rather than in a dedicated variable, and it's memory of a specifically narrow kind: <em>where the tick left off</em>, not <em>what the agent is doing</em> in any broader sense. Turning it on is a real, if small, design decision, not a free lunch: skip the Conditions above a running leaf, and the tree stops re-checking whether they're still true until that leaf finishes.</p>
+
+        <h3>Part 3. Two Different Shapes of "Interrupt"</h3>
+        <p>Recall <span class="code-lesson-il">StateSeek</span>'s <span class="code-lesson-il">on_target_lost</span> hook: the FSM reacts to a signal by explicitly calling <span class="code-lesson-il">fsm.transition_to(&amp;"StateWander")</span>, an interrupt with a name, aimed at a specific destination state.</p>
+        <p>A behavior tree interrupts differently, and more implicitly. Nothing in the Gatherer's tree has an "interrupt" concept at all; the daylight Condition is simply re-checked from the top on the very next tick (or the next un-skipped one, if the running-leaf optimization is on), and if it now fails where it used to succeed, the Selector just naturally falls through to the other branch. There's no line of code anywhere that says "abandon the grass branch"; abandoning it is just what re-ticking the same fixed structure does when a Condition's answer changes.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 480 170" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="15" width="210" height="140" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="115" y="35" font-size="12.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">FSM</text>
+    <text x="25" y="58" font-size="11" fill="#1f3b52">memory = 1 reference</text>
+    <text x="25" y="76" font-size="11" fill="#1f3b52">(current_state)</text>
+    <text x="25" y="100" font-size="11" fill="#1f3b52">interrupt = named,</text>
+    <text x="25" y="116" font-size="11" fill="#1f3b52">explicit transition_to()</text>
+    <text x="25" y="140" font-size="11" fill="#1f3b52">re-evaluated: on signal</text>
+
+    <rect x="260" y="15" width="210" height="140" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="365" y="35" font-size="12.5" fill="#8a4526" text-anchor="middle" font-weight="bold">Behavior Tree</text>
+    <text x="275" y="58" font-size="11" fill="#8a4526">memory = fixed structure</text>
+    <text x="275" y="76" font-size="11" fill="#8a4526">+ optional blackboard entry</text>
+    <text x="275" y="100" font-size="11" fill="#8a4526">interrupt = implicit, a</text>
+    <text x="275" y="116" font-size="11" fill="#8a4526">Condition just re-fails</text>
+    <text x="275" y="140" font-size="11" fill="#8a4526">re-evaluated: every tick</text>
+</svg>
+            <div class="diagram-caption">Same underlying problem, two different places the "memory" actually lives.</div>
+        </div>
+
+        <h3>Part 4. So Which One?</h3>
+        <p>Neither is strictly better; they trade off differently:</p>
+        <ul>
+            <li><strong>Reach for an FSM</strong> when the agent genuinely has a small number of clearly distinct modes, and the transitions between them are the interesting part worth naming and reasoning about explicitly (a boss fight's phases, a menu's screens).</li>
+            <li><strong>Reach for a behavior tree</strong> when the interesting part is <em>priority among many possible reactions</em> (try this, then this, then this) and you expect to keep growing the list; adding a new fallback is dropping in one more Sequencer under a Selector, versus an FSM where a new state often means auditing every existing state for whether it should also know how to transition to it.</li>
+            <li><strong>FSMs get spaghetti as transitions multiply</strong> (every state potentially wired to several others); <strong>behavior trees get unwieldy as depth grows</strong> instead (a deeply nested tree re-ticking Conditions every frame gets expensive and harder to read top to bottom, which is exactly what the running-leaf optimization in Part 2 exists to soften).</li>
+        </ul>
+        <p>Worth saying plainly: real projects mix these. A behavior tree leaf can itself be "enter combat mode," handing off to a small FSM for the fight itself. Treat both as tools for the same Decider slot in SAM, not as competing religions.</p>
+
+        <h3>Part 5. Try It</h3>
+        <ol>
+            <li>In <span class="code-lesson-il">state_seek.gd</span>, count how many other states it explicitly names (<span class="code-lesson-il">transition_to(&amp;"...")</span>). Now count how many other Sequencers the Gatherer's grass-branch Sequencer explicitly names. What's different about how each one decides where to go next?</li>
+            <li>Uncomment the running-leaf shortcut in <span class="code-lesson-il">bt_root.gd</span> and watch the console output before and after. What stops getting printed once it's on, and what does that tell you about what the tree stopped re-checking?</li>
+            <li>In one paragraph: could the Gatherer's exact behavior be rebuilt as an FSM instead? Sketch what the states and transitions would be. Would it be more or less code than the tree?</li>
+        </ol>
+
+        <h3>Checkpoint</h3>
+        <p>Before the presentation, make sure you can:</p>
+        <ol>
+            <li>State, precisely, what an FSM's one piece of persistent memory is, and what a behavior tree's is (both parts: the structure itself, and the optional blackboard shortcut).</li>
+            <li>Explain how a behavior tree "interrupts" a running action without any code that explicitly names an interrupt.</li>
+            <li>Explain the running-leaf optimization: what it skips, what it costs (in terms of what's no longer being re-checked), and why it's commented out by default rather than always on.</li>
+            <li>Give one project-shaped reason to prefer an FSM, and one to prefer a behavior tree, that isn't just "my professor said so."</li>
+        </ol>
+
+    </body>
+</html>
