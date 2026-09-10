@@ -347,3 +347,50 @@
 .os-icon-lin::before { mask-image: url('../svgs/os_lin.svg'); }
 .os-icon-mac::before   { mask-image: url('../svgs/os_mac.svg'); }
 .os-icon-win::before   { mask-image: url('../svgs/os_win.svg'); }
+
+
+/*
+ ---------------------------------------------------------
+    Icon glossary (a strip of node/class icons with labels --
+    e.g. showing each FSM or behavior tree node type once, so
+    it's recognizable later in the actual Godot editor)
+ ---------------------------------------------------------
+*/
+.icon-glossary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 16px 0 28px;
+    padding: 14px;
+    background: #f7f9fb;
+    border: 1px solid #d8e1e8;
+    border-radius: 10px;
+}
+.icon-glossary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 88px;
+    text-align: center;
+}
+.icon-glossary-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-bottom: 6px;
+    background: #2a2f38;
+    border-radius: 8px;
+    padding: 6px;
+    box-sizing: content-box;
+}
+.icon-glossary-item .name {
+    font-weight: 600;
+    font-size: 0.82em;
+    color: #1f3b52;
+}
+.icon-glossary-item .desc {
+    font-size: 0.76em;
+    color: #5b6b78;
+    margin-top: 2px;
+    line-height: 1.3;
+}

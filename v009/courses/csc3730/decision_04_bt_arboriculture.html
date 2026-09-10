@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p><a href="https://en.wikipedia.org/wiki/Arboriculture" target="_blank">Arboriculture</a> is the practice of growing and tending trees on purpose: pruning, grafting, choosing what to plant where. Last lesson built one behavior tree and walked through how it ticks; this one is about the craft of building trees that stay easy to grow, read, and reuse as they get bigger, using two more pieces from the same demo project: decorators and the blackboard.</p>
+
+        <div class="icon-glossary">
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_category_decorator.svg" alt="Decorator category icon">
+                <div class="name">Decorator</div>
+                <div class="desc">wraps one child</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_inverter.svg" alt="Inverter icon">
+                <div class="name">Inverter</div>
+                <div class="desc">flips the result</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_limiter.svg" alt="Limiter icon">
+                <div class="name">Limiter</div>
+                <div class="desc">caps how often/long</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_blackboard.svg" alt="Blackboard icon">
+                <div class="name">Blackboard</div>
+                <div class="desc">shared memory</div>
+            </div>
+        </div>
+
+        <h3>Part 1. Decorators: One Child, Reinterpreted</h3>
+        <p>A <strong>decorator</strong> is a node with exactly one child that changes how that child's result gets reported, without changing what the child itself does:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_node_deco.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends BehaviorTree_Node
+class_name BehaviorTree_Node_Decorator
+
+func _ready():
+	if get_child_count() == 0:
+		print("Error! Behavior tree decorator does not have a child")
+	elif get_child_count() &gt; 1:
+		print("Error! Behavior tree decorator has too many children")
+</span>
+</div>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_node_deco_inverter.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends BehaviorTree_Node_Decorator
+class_name BehaviorTree_Node_Decorator_Inverter
+
+var INVERT = {
+		SUCCESS : FAILURE,
+		FAILURE : SUCCESS,
+		RUNNING : RUNNING,
+	}
+
+func tick(actor, blackboard, delta):
+	var response = get_child(0).tick(actor, blackboard, delta)
+	if response in INVERT.keys():
+		return INVERT[response]
+	return FAILURE
+</span>
+</div>
+
+        <p><span class="code-lesson-il">Inverter</span> is the whole pattern in miniature: tick the one child, look up its answer in <span class="code-lesson-il">INVERT</span>, hand back the opposite. <span class="code-lesson-il">SUCCESS</span> becomes <span class="code-lesson-il">FAILURE</span> and back, <span class="code-lesson-il">RUNNING</span> passes through unchanged (there's no sensible "opposite" of still-in-progress). The child node itself never finds out it's being inverted; it ticks exactly the same as it would anywhere else in the tree.</p>
+
+        <h3>Part 2. The Payoff: Reusing a Condition</h3>
+        <p>Go back to the Gatherer's tree from last lesson. Both branches ask about daylight, but neither branch has its own "is it night" condition:</p>
+
+<div class="code-block" data-lang="html">
+<div class="code-block-header">
+<span class="code-block-filename">BT Gatherer.tscn (structure, not a script)</span>
+<span class="code-block-lang">Scene tree</span>
+</div>
+<span class="code-lesson-bl">Selector
+├─ Sequencer "Go to grass during day"
+│  ├─ Check daylight              (Condition_Day)
+│  ├─ Set Move Target as Fruit    (Condition)
+│  └─ Move to Move Target         (Action)
+└─ Sequencer "Go to shelter at night"
+   ├─ Inverter "Check for night"
+   │  └─ Check daylight           (the exact same Condition_Day script)
+   ├─ Set Move Target as Shelter  (Condition)
+   └─ Move to Move Target         (the exact same Action script)
+</span>
+</div>
+
+        <p>"Is it night" is never written anywhere. It's the exact same <span class="code-lesson-il">Condition_Day</span> leaf, instanced a second time, wrapped in an <span class="code-lesson-il">Inverter</span>. Same for <span class="code-lesson-il">Move to Move Target</span>: one script, reused for both grass and shelter, because it only ever reads whatever's currently stored under <span class="code-lesson-il">"Move target" + actor.name</span> rather than hard-coding a destination. Two leaves, reused three times total across the tree, is the entire arboriculture argument: write the small, single-purpose piece once, and lean on the tree's structure (composites, decorators) to reuse and recombine it, rather than writing near-duplicate leaves for every situation that's almost the same as another one.</p>
+
+        <div class="screenshot">
+            <div class="label">The Inverter in the scene tree</div>
+            <img src="" alt="Godot scene tree showing the Inverter node wrapping a single Check daylight child under the shelter Sequencer">
+            <div class="hint">Zoom in on "Go to shelter at night" in the actual project: the Inverter node has exactly one child, another "Check daylight" node, same script as the one under the grass branch.</div>
+        </div>
+
+        <h3>Part 3. The Blackboard: Memory That Isn't a State</h3>
+        <p>The FSM lesson's <span class="code-lesson-il">focus_target</span> was called out as "the FSM equivalent of a behavior tree's blackboard." Here's the real thing it was pointing at:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_blackboard.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">@icon("res://Assets/BT Icons/blackboard.svg")
+extends BehaviorTree
+class_name BehaviorTree_Blackboard
+
+var board: Dictionary = {}
+
+func set_value(key: String, value: Variant) -&gt; void:
+	board[key] = value
+
+func set_running_leaf(action_leaf_node: Variant) -&gt; void:
+	set_value("Running leaf", action_leaf_node)
+</span>
+</div>
+
+        <p>A blackboard is nothing more than a shared dictionary, one instance per tree, passed into every single <span class="code-lesson-il">tick()</span> call (look back at any leaf or composite above, <span class="code-lesson-il">blackboard</span> is always the second argument). It's how <span class="code-lesson-il">Set Move Target as Fruit</span> hands a destination off to <span class="code-lesson-il">Move to Move Target</span>, two entirely separate leaf nodes that never reference each other directly:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bt_node_leaf_cond_set_move_targ.gd (relevant excerpt)</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func tick(actor, blackboard, _delta):
+	var closest_grass_node = null
+	var dist = dist_start
+	for node in get_tree().get_nodes_in_group(group):
+		var dist_temp = (actor.global_transform.origin - node.global_transform.origin).length()
+		if dist_temp &lt; dist:
+			dist = dist_temp
+			closest_grass_node = node
+			blackboard.board["Move target" + actor.name] = node
+	if !(closest_grass_node == null):
+		return SUCCESS
+	return FAILURE
+</span>
+</div>
+
+        <p>That's the same shape as the FSM's memory, working memory that outlives a single tick and gets read by a different piece of code than the one that wrote it, just without a named state to hang it off of. A blackboard entry belongs to the whole tree, not to whichever branch happens to be running right now.</p>
+
+        <h3>Part 4. A Few Rules of Thumb</h3>
+        <ul>
+            <li><strong>Name nodes for what they mean, not what they are.</strong> The Gatherer's scene tree doesn't have two nodes both named "Sequencer"; it has "Go to grass during day" and "Go to shelter at night". The node names <em>are</em> the documentation, readable without opening a single script.</li>
+            <li><strong>Keep leaves small and single-purpose.</strong> <span class="code-lesson-il">Condition_Day</span> checks exactly one thing. That's what made it reusable under an Inverter with zero changes; a leaf that checked three unrelated things at once couldn't be recombined nearly as easily.</li>
+            <li><strong>Prefer a decorator over a near-duplicate leaf.</strong> Whenever you catch yourself about to copy a Condition and just negate its logic by hand, that's an Inverter instead.</li>
+            <li><strong>Selector order is priority order.</strong> Since a Selector stops at the first non-failure, put the behavior you want to win ties first, deliberately, not by whichever order you happened to drag the nodes in.</li>
+        </ul>
+
+        <h3>Part 5. Try It</h3>
+        <ol>
+            <li>In the project, find <span class="code-lesson-il">bt_node_deco.gd</span> and read its <span class="code-lesson-il">_ready()</span> check again. What happens (in the editor, not at runtime) if you add a second child under an Inverter? Try it and see what gets printed.</li>
+            <li>Design (on paper) a <span class="code-lesson-il">Limiter</span> decorator, one that only lets its child tick a maximum number of times, then always returns <span class="code-lesson-il">FAILURE</span> after that. What state would it need to track internally that <span class="code-lesson-il">Inverter</span> doesn't need at all?</li>
+            <li>Find one other place in the Gatherer's tree (besides the daylight check) where the same leaf script gets instanced more than once. What made that leaf reusable?</li>
+        </ol>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain what a decorator is allowed to have exactly one of, and why that constraint is enforced in <span class="code-lesson-il">_ready()</span> rather than just assumed.</li>
+            <li>Explain, using the Gatherer's actual tree, how the same "is it daytime" check gets reused to also mean "is it night," without writing a second condition.</li>
+            <li>Explain what a blackboard is, in terms of when it's written, when it's read, and by what kind of node.</li>
+            <li>Give one concrete rule from Part 4 and explain, in your own words, what problem it prevents.</li>
+        </ol>
+
+    </body>
+</html>

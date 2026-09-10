@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Last unit, the Decider in your agent was small enough to live in one function: a dictionary lookup, an if/else chain, whatever picked a steering method. That was fine when there was only ever one thing the agent could be doing. Once an agent needs to behave differently depending on what's already happened, wander until something shows up, then chase it, then stand still for a moment, "what should I do right now" stops being a pure function of the current perception alone. It also depends on what the agent was already doing. That's what a <strong>finite state machine</strong> (FSM) is for: a Decider with memory of its own.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/fsm/fsm.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+
+        <h3>Part 1. States and Transitions</h3>
+        <p>An FSM is a small, closed set of <strong>states</strong> (a fixed list of "modes" the agent can be in) and <strong>transitions</strong> (rules for switching from one state to another). At any instant, exactly one state is active; that state alone decides what the agent does this frame, and it alone decides when it's time to hand off to a different state. Nothing outside the active state gets a vote.</p>
+        <p>Watch the demo above for a minute: an agent wanders aimlessly until a target enters its sensor range, turns and closes in on it, then sits still for a moment once it arrives before wandering off again. Three states, three plain-English transition rules. That whole loop, described in one sentence, is the entire finite state machine.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 480 250" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="fsmArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+
+    <circle cx="90" cy="120" r="55" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"/>
+    <text x="90" y="116" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">Wander</text>
+    <text x="90" y="132" font-size="10" fill="#5b6b78" text-anchor="middle">(default)</text>
+
+    <circle cx="300" cy="60" r="52" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"/>
+    <text x="300" y="65" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">Seek</text>
+
+    <circle cx="300" cy="190" r="52" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"/>
+    <text x="300" y="195" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">Idle</text>
+
+    <path d="M 130 95 Q 200 45 245 55" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#fsmArrow)"/>
+    <text x="165" y="52" font-size="10.5" fill="#2e5a80">target detected</text>
+
+    <path d="M 255 100 Q 190 150 132 138" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#fsmArrow)"/>
+    <text x="150" y="172" font-size="10.5" fill="#2e5a80">target lost</text>
+
+    <path d="M 320 110 Q 345 150 315 178" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#fsmArrow)"/>
+    <text x="345" y="145" font-size="10.5" fill="#2e5a80">arrived</text>
+
+    <path d="M 270 225 Q 175 245 108 165" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#fsmArrow)"/>
+    <text x="155" y="248" font-size="10.5" fill="#2e5a80">timer expires</text>
+</svg>
+            <div class="diagram-caption">The demo's three states. Notice the transitions are triggered three different ways: perception (target detected/lost), a computed condition (close enough to have arrived), and a plain timer (idle duration expires) -- an FSM doesn't care which kind of thing triggers a transition, only that something did.</div>
+        </div>
+
+        <h3>Part 2. The FSM Is a Decider</h3>
+        <p>Nothing about "finite state machine" is Godot-specific, and this project doesn't invent a new abstraction to build one; it just makes <span class="code-lesson-il">FSM</span> a concrete <span class="code-lesson-il">Decider</span>:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">decider.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">@icon("res://images/decider_icon.svg")
+extends Node
+class_name Decider
+</span>
+</div>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">fsm.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">class_name FSM
+extends Decider
+</span>
+</div>
+
+        <p><span class="code-lesson-il">Decider</span> itself is close to empty on purpose, just a name and a slot in the SAM diagram. Any Decider you build this semester, a lookup table, an FSM, a behavior tree, is a different way of filling that same slot; the rest of the agent (Perceptor, Actuator) doesn't know or care which one is currently plugged in.</p>
+
+        <div class="icon-glossary">
+            <div class="icon-glossary-item">
+                <img src="../../svgs/perceptor_icon.svg" alt="Perceptor icon">
+                <div class="name">Perceptor</div>
+                <div class="desc">reports what's sensed</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/decider_icon.svg" alt="Decider icon">
+                <div class="name">Decider</div>
+                <div class="desc">FSM's base class</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/fsm_icon.svg" alt="FSM icon">
+                <div class="name">FSM</div>
+                <div class="desc">holds the states</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/actuator_icon.svg" alt="Actuator icon">
+                <div class="name">Actuator</div>
+                <div class="desc">carries out the action</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/agent_node_icon.svg" alt="Agent icon">
+                <div class="name">Agent2D</div>
+                <div class="desc">holds all four</div>
+            </div>
+        </div>
+
+        <h3>Part 3. States as Cartridges</h3>
+        <p>Every concrete state (<span class="code-lesson-il">StateWander</span>, <span class="code-lesson-il">StateSeek</span>, <span class="code-lesson-il">StateIdle</span>) extends one shared base, <span class="code-lesson-il">FSMState</span>, and gets dropped in as a direct child of the <span class="code-lesson-il">FSM</span> node in the scene tree, an interchangeable "cartridge" rather than a case in some giant switch statement:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">fsm_state.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">class_name FSMState
+extends Node
+
+var fsm:FSM
+var agent:Node2D
+var perceptor:Perceptor
+var actuator:Actuator
+
+## Called once by the owning FSM after the whole tree is ready.
+func setup(fsm_ref:FSM, agent_ref:Node2D, perceptor_ref:Perceptor, actuator_ref:Actuator) -&gt; void:
+	fsm = fsm_ref
+	agent = agent_ref
+	perceptor = perceptor_ref
+	actuator = actuator_ref
+
+## Called once, the moment this state becomes the active state.
+func enter() -&gt; void:
+	pass
+
+## Called once, the moment this state stops being the active state.
+func exit() -&gt; void:
+	pass
+
+## Called every frame while this state is active.
+func update(_delta:float) -&gt; void:
+	pass
+
+## Perception hooks: the FSM forwards Perceptor signals to whichever state
+## is currently active, so each state decides for itself whether/how to react.
+func on_target_detected(_target:Node2D) -&gt; void:
+	pass
+
+func on_target_lost(_target:Node2D) -&gt; void:
+	pass
+</span>
+</div>
+
+        <p>Five hooks, every one optional (the base versions do nothing), and that's the entire contract a state has to honor. A new state, say, a Flee state that runs from a threat, is nothing more than a new script extending <span class="code-lesson-il">FSMState</span>, filling in whichever of those five hooks it actually needs, dropped in as another child of the FSM node. Nothing about <span class="code-lesson-il">FSM</span> itself has to change to add it.</p>
+
+        <div class="screenshot">
+            <div class="label">The FSM scene tree</div>
+            <img src="" alt="Godot scene tree showing an FSM node with three children: StateWander, StateSeek, StateIdle">
+            <div class="hint">fsm.tscn: an FSM node with StateWander, StateSeek, and StateIdle as direct children, in that order. Order matters here (see Part 4).</div>
+        </div>
+
+        <h3>Part 4. The FSM Node Itself</h3>
+        <p><span class="code-lesson-il">FSM</span> doesn't know how to wander, seek, or do anything else; it only knows how to hold a current state, route perception to it, and swap it out on request:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">fsm.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">@export var initial_state_name:StringName = &amp;""
+
+## Shared "working memory" a state can stash things in (e.g. which target to
+## chase) for another state to pick up later. Kept generic on purpose -- it's
+## the FSM equivalent of a behavior tree's blackboard.
+var focus_target:Node2D
+
+var current_state:FSMState
+var _states_by_name:Dictionary = {}
+
+@onready var agent:Node2D = get_parent()
+@onready var actuator:Actuator = agent.get_node("Actuator")
+@onready var perceptor:Perceptor = agent.get_node("Perceptor")
+
+func _ready() -&gt; void:
+	for child in get_children():
+		if child is FSMState:
+			_states_by_name[child.name] = child
+			child.setup(self, agent, perceptor, actuator)
+	
+	perceptor.target_detected.connect(_on_target_detected)
+	perceptor.target_lost.connect(_on_target_lost)
+	
+	var start_name:StringName = initial_state_name
+	if start_name == &amp;"" and get_child_count() &gt; 0:
+		start_name = get_child(0).name
+	
+	_enter_state(start_name)
+
+func _process(delta:float) -&gt; void:
+	if current_state != null:
+		current_state.update(delta)
+
+## The one and only way a state cartridge changes the active state.
+func transition_to(state_name:StringName) -&gt; void:
+	if not _states_by_name.has(state_name):
+		push_warning("FSM: no state named '%s' among children of %s" % [state_name, name])
+		return
+	if current_state != null:
+		current_state.exit()
+	_enter_state(state_name)
+</span>
+</div>
+
+        <p>A few things worth noticing here:</p>
+        <ul>
+            <li>States are found by <strong>name</strong> (<span class="code-lesson-il">_states_by_name</span>, keyed off each child's node name), not by index or type. That's why the scene tree screenshot above matters: <span class="code-lesson-il">"StateWander"</span> the string has to match <span class="code-lesson-il">StateWander</span> the node's actual name exactly.</li>
+            <li>If <span class="code-lesson-il">initial_state_name</span> is left blank, the FSM just starts in whichever state happens to be its <strong>first child</strong>. In this project that's <span class="code-lesson-il">StateWander</span>, purely because of the order it was added in <span class="code-lesson-il">fsm.tscn</span>, not because <span class="code-lesson-il">FSM</span> has any special idea of a "start" state.</li>
+            <li><span class="code-lesson-il">transition_to</span> is the <em>only</em> way the active state ever changes, and notice who calls it: never <span class="code-lesson-il">FSM</span> itself, only a state, on itself or (indirectly) on the machine it belongs to. The FSM is a container and a router, not a decision-maker; the decision to leave a state is made by that state, from inside <span class="code-lesson-il">update()</span> or one of the perception hooks.</li>
+            <li><span class="code-lesson-il">focus_target</span> is memory that outlives any single state, exactly the kind of thing the SAM diagram called out as its own unit, separate from Perceptor. Watch for that same idea again next week under a different name.</li>
+        </ul>
+
+        <h3>Part 5. Three Kinds of Transition, Side by Side</h3>
+        <p>The demo's three states were picked deliberately to show that "what triggers a transition" can be almost anything; the FSM's job is the same no matter which kind it is.</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">state_wander.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">class_name StateWander
+extends FSMState
+
+func update(delta:float) -&gt; void:
+	actuator.rotate_wander(delta)
+	actuator.move_forward(delta)
+
+func on_target_detected(target:Node2D) -&gt; void:
+	fsm.focus_target = target
+	fsm.transition_to(&amp;"StateSeek")
+</span>
+</div>
+
+        <p>Wander leaves via a <strong>perception-driven</strong> transition: it does nothing about transitioning inside <span class="code-lesson-il">update()</span> at all, it just reacts the moment <span class="code-lesson-il">on_target_detected</span> fires, which the FSM only calls because it wired this state's hooks up to the Perceptor's signals back in <span class="code-lesson-il">_ready()</span>.</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">state_seek.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">class_name StateSeek
+extends FSMState
+
+const ARRIVE_RADIUS:float = 40.0
+
+func update(delta:float) -&gt; void:
+	var target:Node2D = fsm.focus_target
+	
+	if target == null or not is_instance_valid(target):
+		fsm.transition_to(&amp;"StateWander")
+		return
+	
+	actuator.face_toward(delta, target.global_position)
+	actuator.move_forward(delta)
+	
+	if actuator.distance_to(target.global_position) &lt; ARRIVE_RADIUS:
+		fsm.transition_to(&amp;"StateIdle")
+
+func on_target_lost(target:Node2D) -&gt; void:
+	if target == fsm.focus_target:
+		fsm.focus_target = null
+		fsm.transition_to(&amp;"StateWander")
+</span>
+</div>
+
+        <p>Seek leaves two different ways at once: a <strong>computed condition</strong> checked every frame inside <span class="code-lesson-il">update()</span> (close enough yet?), and a perception hook for the case where the target vanishes mid-chase. Both call the same <span class="code-lesson-il">transition_to</span>; the FSM doesn't need to know or care which path triggered it.</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">state_idle.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">class_name StateIdle
+extends FSMState
+
+const IDLE_DURATION:float = 1.5
+
+var _timer:float = 0.0
+
+func enter() -&gt; void:
+	_timer = 0.0
+
+func update(delta:float) -&gt; void:
+	_timer += delta
+	if _timer &gt;= IDLE_DURATION:
+		fsm.focus_target = null
+		fsm.transition_to(&amp;"StateWander")
+</span>
+</div>
+
+        <p>Idle leaves via a plain <strong>timer</strong>, nothing about perception or distance at all. Notice <span class="code-lesson-il">enter()</span> resets <span class="code-lesson-il">_timer</span> to zero; without that reset, a second visit to <span class="code-lesson-il">StateIdle</span> would inherit whatever the timer was left at from the first visit. <span class="code-lesson-il">enter()</span>/<span class="code-lesson-il">exit()</span> exist specifically so a state can set up and tear down its own local bookkeeping like this.</p>
+
+        <h3>Part 6. Try It</h3>
+        <ol>
+            <li>Open the FSM project and find <span class="code-lesson-il">fsm.tscn</span>. Reorder <span class="code-lesson-il">StateWander</span> and <span class="code-lesson-il">StateIdle</span> in the scene tree (drag one above the other) without touching <span class="code-lesson-il">initial_state_name</span>. Run it. What state does the agent start in now, and why?</li>
+            <li>Add a fourth target to <span class="code-lesson-il">environment.tscn</span> (copy an existing <span class="code-lesson-il">Target</span> node, reposition it). No FSM code needs to change for this to work, confirm that, and be able to say why.</li>
+            <li>Lower <span class="code-lesson-il">ARRIVE_RADIUS</span> in <span class="code-lesson-il">state_seek.gd</span> to something small, like <span class="code-lesson-il">10.0</span>. What visibly changes about the agent's behavior?</li>
+            <li><em>Stretch:</em> sketch (on paper, not in code) a fourth state, <span class="code-lesson-il">StateFlee</span>, that runs directly away from a target instead of toward it. Which of the five <span class="code-lesson-il">FSMState</span> hooks would it need? What would trigger entering it, and what would trigger leaving it?</li>
+        </ol>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain, in one sentence, why <span class="code-lesson-il">FSM extends Decider</span> rather than being some unrelated new class.</li>
+            <li>Name all five <span class="code-lesson-il">FSMState</span> hooks and what each is called in response to.</li>
+            <li>Explain how the FSM decides its starting state, and why getting a state's node <em>name</em> wrong (a typo in a string, say) would fail silently rather than crash.</li>
+            <li>Point out where in this lesson a transition was triggered by perception, by a computed condition, and by a timer, and explain why the FSM node itself needed zero changes to support all three.</li>
+            <li>Explain what <span class="code-lesson-il">focus_target</span> is doing here, and how it relates back to the "Memory" unit from the SAM lesson.</li>
+        </ol>
+
+    </body>
+</html>
