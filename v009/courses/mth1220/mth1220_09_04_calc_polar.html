@@ -82,6 +82,31 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>A polar curve $r=f(\theta)$ can be viewed as the parametric curve $x=f(\theta)\cos\theta$, $y=f(\theta)\sin\theta$ with parameter $\theta$ &mdash; so both the slope formula and a new area formula follow from tools already built.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Slope</div>
+        <p>Apply the parametric slope formula to $x(\theta)=f(\theta)\cos\theta$, $y(\theta)=f(\theta)\sin\theta$:</p>
+        <p>$$\frac{dy}{dx} = \frac{dy/d\theta}{dx/d\theta} = \frac{f'(\theta)\sin\theta+f(\theta)\cos\theta}{f'(\theta)\cos\theta-f(\theta)\sin\theta}$$</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Area enclosed by a polar curve</div>
+        <p>The region swept out by $r=f(\theta)$ between $\theta=\alpha$ and $\theta=\beta$ has area</p>
+        <p>$$A = \frac12\int_{\alpha}^{\beta} [f(\theta)]^2\,d\theta$$</p>
+        <p>This comes from summing thin circular-sector areas ($\frac12 r^2\,d\theta$ each, the sector-area formula) rather than thin rectangles &mdash; a genuinely different building block from every earlier area/volume formula in this course.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example</div>
+        <p>Find the area enclosed by one loop of the rose $r=2\sin(2\theta)$ (for $0\le\theta\le\frac\pi2$, tracing one petal).</p>
+        <p>$$A = \frac12\int_0^{\pi/2} \big[2\sin(2\theta)\big]^2\,d\theta = \frac12\int_0^{\pi/2} 4\sin^2(2\theta)\,d\theta = 2\int_0^{\pi/2}\sin^2(2\theta)\,d\theta$$</p>
+        <p>Using the half-angle identity $\sin^2 u = \frac{1-\cos 2u}{2}$ with $u=2\theta$:</p>
+        <p>$$2\int_0^{\pi/2} \frac{1-\cos(4\theta)}{2}\,d\theta = \int_0^{\pi/2}\big(1-\cos 4\theta\big)\,d\theta = \left[\theta-\frac{\sin4\theta}{4}\right]_0^{\pi/2} = \frac{\pi}{2}$$</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

@@ -82,6 +82,36 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>The same "slice it up, sum the pieces, take a limit" idea behind the definite integral applies directly to volume: slice a solid into thin cross-sections, each with a known area, and integrate that area function.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">General slicing</div>
+        <p>If a solid extends from $x=a$ to $x=b$ and $A(x)$ is the cross-sectional area at position $x$, its volume is $\displaystyle V=\int_a^b A(x)\,dx$.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Disk and washer methods</div>
+        <p>Revolving the region under $y=f(x)$ on $[a,b]$ around the $x$-axis gives circular cross-sections of radius $f(x)$, so $A(x)=\pi[f(x)]^2$:</p>
+        <p>$$V = \pi\int_a^b [f(x)]^2\,dx \quad \text{(disk method)}$$</p>
+        <p>If the region is instead between $y=f(x)$ (outer) and $y=g(x)$ (inner) before revolving, each cross-section is a washer, an annulus with a hole:</p>
+        <p>$$V = \pi\int_a^b \Big([f(x)]^2-[g(x)]^2\Big)\,dx \quad \text{(washer method)}$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; disk method</div>
+        <p>Find the volume of the solid formed by revolving $y=\sqrt x$ on $[0,4]$ around the $x$-axis.</p>
+        <p>$$V = \pi\int_0^4 (\sqrt x)^2\,dx = \pi\int_0^4 x\,dx = \pi\left[\frac{x^2}{2}\right]_0^4 = 8\pi$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; washer method</div>
+        <p>Find the volume when the region between $y=x$ and $y=x^2$ on $[0,1]$ is revolved around the $x$-axis.</p>
+        <p>On $[0,1]$, $x \ge x^2$, so $x$ is the outer radius, $x^2$ the inner radius:</p>
+        <p>$$V = \pi\int_0^1 \big(x^2-x^4\big)\,dx = \pi\left[\frac{x^3}{3}-\frac{x^5}{5}\right]_0^1 = \pi\left(\frac13-\frac15\right) = \frac{2\pi}{15}$$</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

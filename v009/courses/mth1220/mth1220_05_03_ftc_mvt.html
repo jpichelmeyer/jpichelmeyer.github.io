@@ -82,6 +82,40 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Computing a definite integral directly from the limit-of-Riemann-sums definition is painful even for simple functions. The Fundamental Theorem of Calculus is what makes the rest of this course possible: it connects integration back to differentiation, in both directions.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">FTC, Part 1</div>
+        <p>If $f$ is continuous on $[a,b]$ and $\displaystyle g(x) = \int_a^x f(t)\,dt$, then $g$ is differentiable and $g'(x) = f(x)$.</p>
+        <p>In words: the derivative of an accumulation-so-far function is just the original function back again. (With an upper limit that's itself a function of $x$, like $\int_a^{u(x)} f(t)\,dt$, the Chain Rule tags along: the derivative is $f(u(x))\cdot u'(x)$.)</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">FTC, Part 2</div>
+        <p>If $f$ is continuous on $[a,b]$ and $F$ is <em>any</em> antiderivative of $f$ (meaning $F'=f$), then</p>
+        <p>$$\int_a^b f(x)\,dx = F(b) - F(a)$$</p>
+        <p>often written $\big[F(x)\big]_a^b$. This is the tool that turns "evaluate this definite integral" into "find an antiderivative, then plug in two numbers."</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Mean Value Theorem for Integrals</div>
+        <p>If $f$ is continuous on $[a,b]$, there exists some $c$ in $[a,b]$ with $\displaystyle f(c) = \frac{1}{b-a}\int_a^b f(x)\,dx$ &mdash; the right side is called the <strong>average value</strong> of $f$ on $[a,b]$. Geometrically: some rectangle of width $b-a$ and height $f(c)$ has exactly the same area as the region under the curve.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; FTC Part 2</div>
+        <p>Evaluate $\displaystyle\int_0^2 x^2\,dx$ (the same integral estimated by a Riemann sum last lesson).</p>
+        <p>An antiderivative of $x^2$ is $F(x)=\frac{x^3}{3}$. So $\int_0^2 x^2\,dx = \left[\frac{x^3}{3}\right]_0^2 = \frac83 - 0 = \frac83$, matching the estimate that the right Riemann sum ($3.75$) was expected to overshoot.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; FTC Part 1</div>
+        <p>Find $\dfrac{d}{dx}\displaystyle\int_1^{x^2} \sqrt{t^3+1}\,dt$.</p>
+        <p>The upper limit is $x^2$, not $x$, so combine FTC1 with the Chain Rule: $\dfrac{d}{dx}\displaystyle\int_1^{x^2}\sqrt{t^3+1}\,dt = \sqrt{(x^2)^3+1}\cdot \dfrac{d}{dx}(x^2) = 2x\sqrt{x^6+1}$.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

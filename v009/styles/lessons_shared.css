@@ -394,3 +394,42 @@
     margin-top: 2px;
     line-height: 1.3;
 }
+
+
+/*
+ ---------------------------------------------------------
+    Math lesson boxes (definitions/theorems, worked examples)
+ ---------------------------------------------------------
+*/
+.math-box {
+    margin: 16px 0 24px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border-left: 4px solid #2e5a80;
+    background: #eef4f9;
+}
+.math-box .math-box-title {
+    font-weight: 700;
+    color: #1f3b52;
+    margin-bottom: 6px;
+    font-size: 0.95em;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.math-example {
+    margin: 16px 0 24px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border-left: 4px solid #c0693f;
+    background: #fbf1ea;
+}
+.math-example .math-box-title {
+    font-weight: 700;
+    color: #8a4526;
+    margin-bottom: 6px;
+    font-size: 0.95em;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.math-box p, .math-example p { margin: 0 0 10px; line-height: 1.6; }
+.math-box p:last-child, .math-example p:last-child { margin-bottom: 0; }

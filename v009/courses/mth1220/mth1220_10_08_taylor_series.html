@@ -82,6 +82,41 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Power series let you build a new function out of a series. Taylor series go the other direction: given a function you already know, find the power series that matches it &mdash; and all its derivatives &mdash; at a single point.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Definition &mdash; Taylor series</div>
+        <p>If $f$ has derivatives of every order at $a$, its Taylor series centered at $a$ is</p>
+        <p>$$f(x) \sim \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \cdots$$</p>
+        <p>When $a=0$ this is also called a <strong>Maclaurin series</strong>. Truncating after the degree-$n$ term gives the degree-$n$ <strong>Taylor polynomial</strong> $T_n(x)$, the best polynomial approximation to $f$ near $a$ using derivative information up to order $n$.</p>
+    </div>
+
+    <p>A few series are worth memorizing outright, since building others from them (by substitution, differentiating, or integrating term by term) is usually faster than computing derivatives from the definition over and over:</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Common Maclaurin series</div>
+        <p>$$e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}, \qquad \sin x = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n+1}}{(2n+1)!}, \qquad \cos x = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n}}{(2n)!}$$</p>
+        <p>$$\frac{1}{1-x} = \sum_{n=0}^{\infty} x^n \quad (|x|<1)$$</p>
+        <p>All three of the first series converge for every real $x$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; from the definition</div>
+        <p>Find the Maclaurin series for $f(x) = \ln(1+x)$.</p>
+        <p>Notice $f'(x) = \frac{1}{1+x}$, which is the known series above with $x$ replaced by $-x$: $\frac{1}{1+x} = \sum_{n=0}^{\infty} (-x)^n = \sum_{n=0}^{\infty} (-1)^n x^n$. Integrating term by term (and using $f(0)=\ln 1 = 0$ to fix the constant):</p>
+        <p>$$\ln(1+x) = \sum_{n=0}^{\infty} \frac{(-1)^n x^{n+1}}{n+1} = x - \frac{x^2}{2} + \frac{x^3}{3} - \cdots$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; by substitution</div>
+        <p>Find the Maclaurin series for $f(x) = e^{-x^2}$.</p>
+        <p>Substitute $-x^2$ for $x$ directly in the known series for $e^x$:</p>
+        <p>$$e^{-x^2} = \sum_{n=0}^{\infty} \frac{(-x^2)^n}{n!} = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n}}{n!} = 1 - x^2 + \frac{x^4}{2} - \frac{x^6}{6}+\cdots$$</p>
+        <p>Far faster than differentiating $e^{-x^2}$ by hand five or six times.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

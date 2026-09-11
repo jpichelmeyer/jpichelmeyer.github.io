@@ -82,6 +82,31 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>To measure the area under a curve $y=f(x)$ on $[a,b]$, approximate it with rectangles, then let the number of rectangles grow without bound.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Riemann sums</div>
+        <p>Split $[a,b]$ into $n$ equal subintervals of width $\Delta x = \frac{b-a}{n}$, with endpoints $x_0=a, x_1, \dots, x_n=b$. Pick a sample point $x_i^*$ in each subinterval $[x_{i-1}, x_i]$ and form</p>
+        <p>$$\sum_{i=1}^{n} f(x_i^*)\,\Delta x$$</p>
+        <p>the sum of the rectangles' signed areas. Common choices for $x_i^*$: the <strong>left</strong> endpoint $x_{i-1}$, the <strong>right</strong> endpoint $x_i$, or the <strong>midpoint</strong> $\frac{x_{i-1}+x_i}{2}$.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Definition &mdash; the definite integral</div>
+        <p>$$\int_a^b f(x)\,dx = \lim_{n\to\infty} \sum_{i=1}^{n} f(x_i^*)\,\Delta x$$</p>
+        <p>whenever this limit exists (it does for any continuous $f$), regardless of which sample points $x_i^*$ were used. The definite integral <em>is</em> that limit &mdash; a Riemann sum is just a finite approximation to it.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example</div>
+        <p>Approximate $\displaystyle\int_0^2 x^2\,dx$ using a right Riemann sum with $n=4$.</p>
+        <p>$\Delta x = \frac{2-0}{4} = 0.5$, so the subintervals are $[0,0.5],[0.5,1],[1,1.5],[1.5,2]$, and the right endpoints are $0.5, 1, 1.5, 2$.</p>
+        <p>$$\sum_{i=1}^{4} f(x_i)\,\Delta x = 0.5\big[(0.5)^2+(1)^2+(1.5)^2+(2)^2\big] = 0.5\,[0.25+1+2.25+4] = 0.5(7.5) = 3.75$$</p>
+        <p>(The exact value, found in the next few lessons, is $\frac{8}{3}\approx 2.67$ &mdash; a right sum overestimates here since $x^2$ is increasing.)</p>
+    </div>
+
     <h3>Practice Examples</h3>
     <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
     <ol class="practice-list">

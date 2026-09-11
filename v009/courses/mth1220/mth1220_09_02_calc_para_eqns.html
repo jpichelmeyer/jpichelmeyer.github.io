@@ -82,6 +82,31 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Last lesson found $\frac{dy}{dx}$ for a parametric curve. The same Chain-Rule trick extends to second derivatives, arc length, and area, all without ever solving for $y(x)$ directly.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Second derivative</div>
+        <p>$\dfrac{d^2y}{dx^2}$ is <em>not</em> $\dfrac{d^2y/dt^2}{d^2x/dt^2}$. Instead, treat $\frac{dy}{dx}$ itself as a new function of $t$ and differentiate again the same way:</p>
+        <p>$$\frac{d^2y}{dx^2} = \frac{\dfrac{d}{dt}\left(\dfrac{dy}{dx}\right)}{dx/dt}$$</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Arc length</div>
+        <p>For a curve traced once as $t$ runs from $\alpha$ to $\beta$:</p>
+        <p>$$L = \int_{\alpha}^{\beta} \sqrt{\left(\frac{dx}{dt}\right)^2+\left(\frac{dy}{dt}\right)^2}\,dt$$</p>
+        <p>the direct parametric analogue of the arc length formula from Chapter 6.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example &mdash; concavity</div>
+        <p>For $x=t^2$, $y=t^3-3t$ (same curve as last lesson's example), is the curve concave up or down at $t=2$?</p>
+        <p>From before, $\dfrac{dy}{dx} = \dfrac{3t^2-3}{2t}$. Differentiate this with respect to $t$: $\dfrac{d}{dt}\left(\dfrac{3t^2-3}{2t}\right) = \dfrac{3}{2}+\dfrac{3}{2t^2}$ (via the quotient rule, simplified). Divide by $\frac{dx}{dt}=2t$:</p>
+        <p>$$\frac{d^2y}{dx^2} = \frac{\frac32+\frac{3}{2t^2}}{2t}$$</p>
+        <p>At $t=2$: $\dfrac{\frac32+\frac{3}{8}}{4} = \dfrac{15/8}{4} = \dfrac{15}{32} > 0$, so the curve is concave up there.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
@@ -163,7 +188,7 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">20</span>
-                <span class="practice-text">A wheel of radius $1$ rolls without slipping, tracing the cycloid $x=t-\sin t,\ y=1-\cos t$. Using the arc length found above, how far does a point on the rim travel during \emph{two} full rotations of the wheel ($t\in[0,4\pi]$)?</span>
+                <span class="practice-text">A wheel of radius $1$ rolls without slipping, tracing the cycloid $x=t-\sin t,\ y=1-\cos t$. Using the arc length found above, how far does a point on the rim travel during <em>two</em> full rotations of the wheel ($t\in[0,4\pi]$)?</span>
             </li>
     </ol>
 

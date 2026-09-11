@@ -82,6 +82,39 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>A <strong>sequence</strong> is an ordered, infinite list of numbers $a_1, a_2, a_3, \dots$, written compactly as $\{a_n\}_{n=1}^{\infty}$ or just $\{a_n\}$. Usually $a_n$ is given by a formula in $n$, like $a_n = \frac{1}{n}$, which gives $1, \frac12, \frac13, \dots$</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Definition &mdash; Limit of a sequence</div>
+        <p>A sequence $\{a_n\}$ has limit $L$, written $\displaystyle\lim_{n\to\infty} a_n = L$, if $a_n$ can be made arbitrarily close to $L$ by taking $n$ large enough. If this limit exists (and is finite), the sequence <strong>converges</strong>; otherwise it <strong>diverges</strong>.</p>
+    </div>
+
+    <p>Because this is the same idea as a limit at infinity for a function, all the familiar limit laws (sum, product, quotient, power) carry over directly. In fact, if $f(x) \to L$ as $x\to\infty$ and $a_n = f(n)$, then $a_n \to L$ too &mdash; so every function-limit technique you already know (L'Hospital's Rule included) applies to sequences.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Squeeze Theorem for sequences</div>
+        <p>If $a_n \le b_n \le c_n$ for all $n$ beyond some point, and $\displaystyle\lim_{n\to\infty} a_n = \lim_{n\to\infty} c_n = L$, then $\displaystyle\lim_{n\to\infty} b_n = L$ too. A useful special case: if $\lim_{n\to\infty} |a_n| = 0$, then $\lim_{n\to\infty} a_n = 0$.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Monotone Convergence Theorem</div>
+        <p>If a sequence is <strong>monotonic</strong> (always increasing, or always decreasing) and <strong>bounded</strong>, then it converges. This doesn't tell you the limit &mdash; just that one exists, which is often all you need.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1</div>
+        <p>Find $\displaystyle\lim_{n\to\infty} \frac{2n+3}{n^2+1}$.</p>
+        <p>Divide numerator and denominator by the highest power of $n$ in the denominator, $n^2$: $\dfrac{2/n + 3/n^2}{1 + 1/n^2} \to \dfrac{0+0}{1+0} = 0$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2</div>
+        <p>Does $a_n = \dfrac{(-1)^n}{n}$ converge?</p>
+        <p>Since $|a_n| = \dfrac1n \to 0$, the special case of the Squeeze Theorem above gives $a_n \to 0$. It converges, even though it alternates sign along the way.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
@@ -189,7 +222,7 @@
             <li><span class="ans-num">17.</span><span>Bounded (between $-1$ and $1$), but not monotonic — it oscillates, so the Monotone Convergence Theorem doesn't apply, and in fact the sequence diverges (it never settles on one value).</span></li>
             <li><span class="ans-num">18.</span><span>$0$, by the Squeeze Theorem.</span></li>
             <li><span class="ans-num">19.</span><span>If a sequence $\{a_n\}$ is monotonic (always increasing or always decreasing) and bounded, then it converges.</span></li>
-            <li><span class="ans-num">20.</span><span>A sequence is an ordered list of numbers, e.g. $a_n=\tfrac1n$ gives $1,\tfrac12,\tfrac13,\dots$; a series is the sum of the terms of a sequence, e.g. $\sum_{n=1}^{\infty}\tfrac1n$, and its convergence depends on whether the sequence of \emph{partial sums} converges.</span></li>
+            <li><span class="ans-num">20.</span><span>A sequence is an ordered list of numbers, e.g. $a_n=\tfrac1n$ gives $1,\tfrac12,\tfrac13,\dots$; a series is the sum of the terms of a sequence, e.g. $\sum_{n=1}^{\infty}\tfrac1n$, and its convergence depends on whether the sequence of <em>partial sums</em> converges.</span></li>
         </ol>
     </div>
     <script>

@@ -82,6 +82,32 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Integrals built from powers and products of $\sin x$ and $\cos x$ (or other trig functions) usually aren't directly in the basic table, but a Pythagorean identity almost always turns them into something substitution can finish.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Strategy for $\int \sin^m x \cos^n x\,dx$</div>
+        <p><strong>If $m$ is odd:</strong> peel off one factor of $\sin x$, convert the rest ($\sin^{m-1}x$, now an even power) to cosines via $\sin^2x=1-\cos^2x$, then substitute $u=\cos x$.</p>
+        <p><strong>If $n$ is odd</strong> (symmetric case): peel off one $\cos x$, convert the rest to sines, substitute $u=\sin x$.</p>
+        <p><strong>If both are even:</strong> use the half-angle identities $\sin^2x=\frac{1-\cos 2x}{2}$, $\cos^2x=\frac{1+\cos 2x}{2}$ to reduce the powers before integrating.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; odd power present</div>
+        <p>Find $\displaystyle\int \sin^3 x\,\cos^2 x\,dx$.</p>
+        <p>The power of sine is odd. Peel off one factor: $\sin^3x = \sin^2x\cdot\sin x = (1-\cos^2x)\sin x$.</p>
+        <p>$$\int (1-\cos^2x)\cos^2x\,\sin x\,dx$$</p>
+        <p>Let $u=\cos x$, $du=-\sin x\,dx$:</p>
+        <p>$$-\int (1-u^2)u^2\,du = -\int (u^2-u^4)\,du = -\frac{u^3}{3}+\frac{u^5}{5}+C = -\frac{\cos^3x}{3}+\frac{\cos^5x}{5}+C$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; both powers even</div>
+        <p>Find $\displaystyle\int \sin^2 x\,dx$.</p>
+        <p>$$\int \sin^2x\,dx = \int \frac{1-\cos 2x}{2}\,dx = \frac{x}{2} - \frac{\sin 2x}{4} + C$$</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

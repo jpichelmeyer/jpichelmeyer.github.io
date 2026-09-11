@@ -82,6 +82,45 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>FTC2 assumes a finite interval $[a,b]$ and a function that's continuous throughout it. <strong>Improper integrals</strong> extend integration past both restrictions, by taking a limit.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Type 1 &mdash; infinite interval</div>
+        <p>$$\int_a^{\infty} f(x)\,dx = \lim_{t\to\infty} \int_a^t f(x)\,dx$$</p>
+        <p>The improper integral <strong>converges</strong> if this limit exists (is finite), and <strong>diverges</strong> otherwise. ($\int_{-\infty}^{b}$ and $\int_{-\infty}^{\infty}$ are handled the same way, the latter by splitting into two separate limits that must each converge.)</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Type 2 &mdash; discontinuous integrand</div>
+        <p>If $f$ has an infinite discontinuity at $b$ (and is continuous on $[a,b)$), then $\displaystyle\int_a^b f(x)\,dx = \lim_{t\to b^-} \int_a^t f(x)\,dx$, again convergent exactly when the limit is finite. Same idea if the discontinuity is at the left endpoint, or in the interior (split into two pieces there).</p>
+    </div>
+
+    <p>Just as with series, a comparison test lets you decide convergence without finding the exact value: if $0\le f(x)\le g(x)$ on $[a,\infty)$ and $\int_a^\infty g(x)\,dx$ converges, so does $\int_a^\infty f(x)\,dx$; if $\int_a^\infty f(x)\,dx$ diverges, so does $\int_a^\infty g(x)\,dx$.</p>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; Type 1</div>
+        <p>Does $\displaystyle\int_1^{\infty} \frac{1}{x^2}\,dx$ converge?</p>
+        <p>$$\int_1^t \frac1{x^2}\,dx = \left[-\frac1x\right]_1^t = 1-\frac1t \xrightarrow[t\to\infty]{} 1$$</p>
+        <p>The limit is finite, so the integral converges, to $1$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; the $p=1$ boundary case</div>
+        <p>Does $\displaystyle\int_1^{\infty} \frac{1}{x}\,dx$ converge?</p>
+        <p>$$\int_1^t \frac1x\,dx = \big[\ln x\big]_1^t = \ln t \xrightarrow[t\to\infty]{} \infty$$</p>
+        <p>Diverges &mdash; the exact same-looking integral as Example 1, just one power different, with the opposite outcome. (In general $\int_1^\infty \frac{1}{x^p}\,dx$ converges iff $p>1$, mirroring the $p$-series test from Chapter 10.)</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 3 &mdash; Type 2</div>
+        <p>Does $\displaystyle\int_0^1 \frac{1}{\sqrt{x}}\,dx$ converge?</p>
+        <p>$\frac{1}{\sqrt x}$ blows up at $x=0$, so:</p>
+        <p>$$\int_0^1 \frac{dx}{\sqrt x} = \lim_{t\to0^+}\int_t^1 x^{-1/2}\,dx = \lim_{t\to0^+}\Big[2\sqrt x\Big]_t^1 = \lim_{t\to0^+}\big(2-2\sqrt t\big) = 2$$</p>
+        <p>Converges, to $2$, despite the vertical asymptote at the left endpoint.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
@@ -181,7 +220,7 @@
             <li><span class="ans-num">9.</span><span>Diverges</span></li>
             <li><span class="ans-num">10.</span><span>$\frac{3 \cdot 3^{\frac{2}{3}}}{2} \approx 3.120$</span></li>
             <li><span class="ans-num">11.</span><span>$-1$</span></li>
-            <li><span class="ans-num">12.</span><span>The integrand blows up at $x=1$, an \emph{interior} point of $[0,2]$ — the integral must be split into $\int_0^1+\int_1^2$, and each piece diverges to $+\infty$ on its own (the integrand is always positive, so a finite negative \"answer\" from blind FTC is a red flag). The integral diverges.</span></li>
+            <li><span class="ans-num">12.</span><span>The integrand blows up at $x=1$, an <em>interior</em> point of $[0,2]$ — the integral must be split into $\int_0^1+\int_1^2$, and each piece diverges to $+\infty$ on its own (the integrand is always positive, so a finite negative \"answer\" from blind FTC is a red flag). The integral diverges.</span></li>
             <li><span class="ans-num">13.</span><span>Converges — $0<\dfrac{1}{x^3+1}<\dfrac{1}{x^3}$ for $x\ge 1$, and $\int_1^\infty x^{-3}\,dx$ converges ($p=3>1$).</span></li>
             <li><span class="ans-num">14.</span><span>Converges — $0\le\dfrac{1+\sin x}{x^2}\le\dfrac{2}{x^2}$ for all $x$, and $\int_1^\infty 2x^{-2}\,dx$ converges.</span></li>
             <li><span class="ans-num">15.</span><span>Diverges — $\ln x < x$ for $x>1$, so $\dfrac{1}{\ln x}>\dfrac{1}{x}$, and $\int_2^\infty \dfrac{1}{x}\,dx$ diverges.</span></li>

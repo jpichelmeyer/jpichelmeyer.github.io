@@ -82,6 +82,45 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Given a sequence $\{a_n\}$, its <strong>series</strong> is the sum of all its terms, $\displaystyle\sum_{n=1}^{\infty} a_n$. Since you can't literally add infinitely many numbers, this is defined through a new sequence built from the original one.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Definition &mdash; Convergence of a series</div>
+        <p>The $n$-th <strong>partial sum</strong> is $s_n = a_1 + a_2 + \cdots + a_n$. The series $\sum a_n$ <strong>converges</strong> to $S$ if $\displaystyle\lim_{n\to\infty} s_n = S$, and then we write $\sum_{n=1}^{\infty} a_n = S$. If $\{s_n\}$ diverges, the series diverges.</p>
+    </div>
+
+    <p>One family can be summed directly. A <strong>geometric series</strong> is $\displaystyle\sum_{n=0}^{\infty} a r^n = a + ar + ar^2 + \cdots$. Its partial sums have a closed form, which leads to a clean convergence result:</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Geometric series</div>
+        <p>$\displaystyle\sum_{n=0}^{\infty} a r^n$ converges precisely when $|r| < 1$, and then $\displaystyle\sum_{n=0}^{\infty} a r^n = \frac{a}{1-r}$. If $|r|\ge 1$ (and $a\ne0$), it diverges.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Test for Divergence</div>
+        <p>If $\displaystyle\lim_{n\to\infty} a_n \ne 0$ (or doesn't exist), then $\sum a_n$ diverges. Careful: the converse is false &mdash; $a_n\to 0$ does <em>not</em> guarantee convergence (the harmonic series $\sum \frac1n$ is the standard counterexample, covered later this chapter).</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1</div>
+        <p>Evaluate $\displaystyle\sum_{n=0}^{\infty} 3\left(\frac{1}{4}\right)^n$.</p>
+        <p>This is geometric with $a=3$, $r=\frac14$. Since $|r|<1$, it converges to $\dfrac{3}{1-1/4} = \dfrac{3}{3/4} = 4$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2</div>
+        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{n}{n+1}$ converge?</p>
+        <p>Here $a_n = \frac{n}{n+1} \to 1 \ne 0$, so by the Test for Divergence, the series diverges &mdash; no partial-sum computation needed.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 3 &mdash; telescoping</div>
+        <p>Evaluate $\displaystyle\sum_{n=1}^{\infty} \left(\frac{1}{n} - \frac{1}{n+1}\right)$.</p>
+        <p>The partial sum collapses: $s_n = \left(1-\frac12\right)+\left(\frac12-\frac13\right)+\cdots+\left(\frac1n-\frac1{n+1}\right) = 1 - \frac{1}{n+1}$. As $n\to\infty$, $s_n \to 1$, so the series converges to $1$.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
@@ -163,7 +202,7 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">20</span>
-                <span class="practice-text">Explain, using partial sums, what it means for an infinite series $\sum a_n$ to \emph{converge}.</span>
+                <span class="practice-text">Explain, using partial sums, what it means for an infinite series $\sum a_n$ to <em>converge</em>.</span>
             </li>
     </ol>
 
