@@ -82,6 +82,39 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>FTC Part 2 needs an antiderivative before it can do anything. This lesson is about building a toolkit of them.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Definition</div>
+        <p>$F$ is an <strong>antiderivative</strong> of $f$ if $F'=f$. Antiderivatives aren't unique: if $F$ is one, so is $F+C$ for any constant $C$, and every antiderivative of $f$ has this form. The <strong>indefinite integral</strong> $\displaystyle\int f(x)\,dx$ denotes the whole family, $F(x)+C$ &mdash; notation, not a number, unlike a definite integral.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Basic antiderivatives</div>
+        <p>$$\int x^n\,dx = \frac{x^{n+1}}{n+1}+C\ (n\ne -1) \qquad \int \frac1x\,dx = \ln|x|+C \qquad \int e^x\,dx = e^x+C$$</p>
+        <p>$$\int \sin x\,dx = -\cos x + C \qquad \int \cos x\,dx = \sin x + C \qquad \int \sec^2 x\,dx = \tan x + C$$</p>
+        <p>Each is just the corresponding derivative rule read backwards, and like derivatives, integration is linear: $\int[c\,f(x)\pm g(x)]\,dx = c\int f(x)\,dx \pm \int g(x)\,dx$.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Net Change Theorem</div>
+        <p>$\displaystyle\int_a^b F'(x)\,dx = F(b)-F(a)$ &mdash; FTC2 restated, but worth its own name: the integral of a rate of change over $[a,b]$ is the total change in the quantity itself over $[a,b]$. If $F(t)$ is position, $F'(t)$ is velocity, and $\int_a^b F'(t)\,dt$ is displacement from time $a$ to time $b$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1</div>
+        <p>Find $\displaystyle\int \left(3x^2 - \frac{4}{x} + 5e^x\right) dx$.</p>
+        <p>Term by term: $3\cdot\frac{x^3}{3} - 4\ln|x| + 5e^x + C = x^3 - 4\ln|x| + 5e^x + C$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; Net Change Theorem</div>
+        <p>A particle's velocity is $v(t) = 3t^2-2t$ (meters/sec). Find its displacement from $t=0$ to $t=3$.</p>
+        <p>$$\int_0^3 (3t^2-2t)\,dt = \big[t^3-t^2\big]_0^3 = (27-9)-0 = 18 \text{ meters}$$</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

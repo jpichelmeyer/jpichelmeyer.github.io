@@ -82,6 +82,29 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Once $\int_a^b f(x)\,dx$ is defined as a limit of Riemann sums, it inherits some straightforward algebraic properties &mdash; and a couple of conventions worth knowing before doing anything else with it.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Conventions</div>
+        <p>$$\int_a^a f(x)\,dx = 0 \qquad\qquad \int_b^a f(x)\,dx = -\int_a^b f(x)\,dx$$</p>
+        <p>The second lets $\int_a^b$ make sense even when $a>b$.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Properties of the definite integral</div>
+        <p><strong>Linearity:</strong> $\displaystyle\int_a^b \big[c\,f(x) \pm g(x)\big]\,dx = c\int_a^b f(x)\,dx \pm \int_a^b g(x)\,dx$</p>
+        <p><strong>Additivity over intervals:</strong> $\displaystyle\int_a^b f(x)\,dx + \int_b^c f(x)\,dx = \int_a^c f(x)\,dx$, for any $a,b,c$ (not just $a<b<c$).</p>
+        <p><strong>Comparison:</strong> if $f(x)\ge g(x)$ on $[a,b]$, then $\displaystyle\int_a^b f(x)\,dx \ge \int_a^b g(x)\,dx$. In particular, if $m\le f(x)\le M$ on $[a,b]$, then $m(b-a) \le \int_a^b f(x)\,dx \le M(b-a)$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example</div>
+        <p>Given $\displaystyle\int_0^5 f(x)\,dx = 8$ and $\displaystyle\int_3^5 f(x)\,dx = 2$, find $\displaystyle\int_0^3 f(x)\,dx$.</p>
+        <p>By additivity, $\int_0^3 f\,dx + \int_3^5 f\,dx = \int_0^5 f\,dx$, so $\int_0^3 f\,dx = 8 - 2 = 6$.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
@@ -188,7 +211,7 @@
             <li><span class="ans-num">16.</span><span>$M_4 = 2(1.5+2.5+3+2) = 18$</span></li>
             <li><span class="ans-num">17.</span><span>$\displaystyle\int_3^8 x^4\,dx$</span></li>
             <li><span class="ans-num">18.</span><span>$\displaystyle\int_0^{\pi/4} \tan x\,dx$</span></li>
-            <li><span class="ans-num">19.</span><span>The integral gives the \emph{net} signed area: regions below the axis subtract from regions above it, rather than being ignored.</span></li>
+            <li><span class="ans-num">19.</span><span>The integral gives the <em>net</em> signed area: regions below the axis subtract from regions above it, rather than being ignored.</span></li>
             <li><span class="ans-num">20.</span><span>The object moves in one direction the entire time (velocity never negative), so net displacement equals total distance traveled, namely $40$.</span></li>
         </ol>
     </div>

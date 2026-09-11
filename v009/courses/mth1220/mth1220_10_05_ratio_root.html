@@ -82,6 +82,42 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Comparison tests need you to already have a series to compare against. The Ratio and Root Tests instead look only at the series' own terms &mdash; especially useful when factorials or $n$-th powers are involved.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">The Ratio Test</div>
+        <p>Let $\displaystyle L = \lim_{n\to\infty} \left| \frac{a_{n+1}}{a_n} \right|$.</p>
+        <p>&bull; If $L<1$, $\sum a_n$ converges absolutely.</p>
+        <p>&bull; If $L>1$ (or $L=\infty$), $\sum a_n$ diverges.</p>
+        <p>&bull; If $L=1$, the test is inconclusive &mdash; try something else.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">The Root Test</div>
+        <p>Let $\displaystyle L = \lim_{n\to\infty} \sqrt[n]{|a_n|}$. The same three cases apply: converges absolutely if $L<1$, diverges if $L>1$, inconclusive if $L=1$. Reach for this when $a_n$ itself involves an $n$-th power.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; Ratio Test</div>
+        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{n!}{n^n}$ converge?</p>
+        <p>$$\frac{a_{n+1}}{a_n} = \frac{(n+1)!}{(n+1)^{n+1}}\cdot\frac{n^n}{n!} = \frac{(n+1)\,n^n}{(n+1)^{n+1}} = \left(\frac{n}{n+1}\right)^n = \left(1-\frac{1}{n+1}\right)^n \to e^{-1}$$</p>
+        <p>Since $e^{-1} = \frac1e < 1$, the series converges absolutely.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; Root Test</div>
+        <p>Does $\displaystyle\sum_{n=1}^{\infty} \left(\frac{2n+1}{3n-1}\right)^n$ converge?</p>
+        <p>$$\sqrt[n]{|a_n|} = \frac{2n+1}{3n-1} \to \frac{2}{3}$$</p>
+        <p>Since $\frac23<1$, the series converges absolutely.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 3 &mdash; when the Ratio Test fails</div>
+        <p>Try the Ratio Test on the $p$-series $\sum \frac{1}{n^2}$: $\dfrac{a_{n+1}}{a_n} = \dfrac{n^2}{(n+1)^2} \to 1$. $L=1$ tells you nothing &mdash; you already know from the $p$-series test that this converges, but the Ratio Test alone can't see it. Good reminder to reach for the Ratio/Root Test mainly when factorials or $n$-th powers are present; a comparison test is often faster otherwise.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
@@ -185,7 +221,7 @@
             <li><span class="ans-num">13.</span><span>Ratio Test — both the factorial and the exponential simplify cleanly in a ratio of consecutive terms.</span></li>
             <li><span class="ans-num">14.</span><span>The Ratio Test: $L=\displaystyle\lim_{n\to\infty}\left|\frac{5^{n+1}/(n+1)^{10}}{5^n/n^{10}}\right|=5>1$ — diverges.</span></li>
             <li><span class="ans-num">15.</span><span>$L=1$ — the Ratio Test is inconclusive. (The series actually converges, but you'd need the $p$-series test to see that.)</span></li>
-            <li><span class="ans-num">16.</span><span>$L=1$ — inconclusive, exactly as with $\sum 1/n^2$ above, yet this series \emph{diverges}. The Ratio Test cannot distinguish these two cases when $L=1$; you always need a different test.</span></li>
+            <li><span class="ans-num">16.</span><span>$L=1$ — inconclusive, exactly as with $\sum 1/n^2$ above, yet this series <em>diverges</em>. The Ratio Test cannot distinguish these two cases when $L=1$; you always need a different test.</span></li>
             <li><span class="ans-num">17.</span><span>Let $L=\displaystyle\lim_{n\to\infty}\left|\dfrac{a_{n+1}}{a_n}\right|$. If $L<1$, $\sum a_n$ converges absolutely; if $L>1$ (or $L=\infty$), it diverges; if $L=1$, the test is inconclusive.</span></li>
             <li><span class="ans-num">18.</span><span>Let $L=\displaystyle\lim_{n\to\infty}\sqrt[n]{|a_n|}$. If $L<1$, $\sum a_n$ converges absolutely; if $L>1$ (or $L=\infty$), it diverges; if $L=1$, the test is inconclusive.</span></li>
             <li><span class="ans-num">19.</span><span>All real $x$ — the ratio $\left|\dfrac{x^{n+1}/(n+1)!}{x^n/n!}\right|=\dfrac{|x|}{n+1}\to 0$ for every fixed $x$, so the series converges absolutely everywhere.</span></li>

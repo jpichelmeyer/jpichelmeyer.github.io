@@ -82,6 +82,36 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Every test so far assumed $a_n \ge 0$. Once terms are allowed to alternate in sign, there's a new distinction to make.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Absolute vs. conditional convergence</div>
+        <p>$\sum a_n$ <strong>converges absolutely</strong> if $\sum |a_n|$ converges. If $\sum a_n$ converges but $\sum |a_n|$ does not, $\sum a_n$ <strong>converges conditionally</strong>.</p>
+        <p><strong>Theorem:</strong> absolute convergence implies convergence. So checking $\sum |a_n|$ (an ordinary positive-term series, open to every earlier test) is always a valid way to try to establish convergence of $\sum a_n$ itself.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Alternating Series Test</div>
+        <p>Consider a series of the form $\sum (-1)^{n-1} b_n$ with $b_n > 0$. If</p>
+        <p>&bull; $b_{n+1} \le b_n$ for all $n$ (terms are non-increasing), and</p>
+        <p>&bull; $\displaystyle\lim_{n\to\infty} b_n = 0$,</p>
+        <p>then the series converges. Note this test only ever proves convergence, never divergence, and it says nothing about whether that convergence is absolute or conditional.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; the alternating harmonic series</div>
+        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n-1}}{n} = 1 - \frac12 + \frac13 - \frac14 + \cdots$ converge, and if so, absolutely or conditionally?</p>
+        <p>Here $b_n = \frac1n$ is decreasing with $b_n\to 0$, so by the Alternating Series Test, the series converges. But $\sum |a_n| = \sum \frac1n$ is the harmonic series, which diverges ($p=1$). So the convergence is <strong>conditional</strong>, not absolute.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; absolute convergence</div>
+        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{n^2}$ converge absolutely?</p>
+        <p>$\sum |a_n| = \sum \frac{1}{n^2}$ is a $p$-series with $p=2>1$, which converges. So the original series converges <strong>absolutely</strong> &mdash; and by the theorem above, that's already enough to know it converges at all, without needing the Alternating Series Test.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
@@ -163,7 +193,7 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">20</span>
-                <span class="practice-text">Why does the Alternating Series Test only require $b_n$ to be \emph{eventually} decreasing, rather than decreasing starting at $n=1$?</span>
+                <span class="practice-text">Why does the Alternating Series Test only require $b_n$ to be <em>eventually</em> decreasing, rather than decreasing starting at $n=1$?</span>
             </li>
     </ol>
 
@@ -186,7 +216,7 @@
             <li><span class="ans-num">14.</span><span>Need $b_{n+1}=\tfrac{1}{2(n+1)+1}<0.01$, i.e. $2n+3>100$, so $n\ge 49$: use $n=49$ terms.</span></li>
             <li><span class="ans-num">15.</span><span>$\sum a_n$ is absolutely convergent if $\sum|a_n|$ converges. Every absolutely convergent series is also (ordinarily) convergent — absolute convergence is the stronger condition.</span></li>
             <li><span class="ans-num">16.</span><span>A series that converges, but not absolutely — i.e. $\sum a_n$ converges while $\sum|a_n|$ diverges. Example: $\sum \tfrac{(-1)^n}{n}$.</span></li>
-            <li><span class="ans-num">17.</span><span>A conditionally convergent series can be rearranged (reordered) to converge to \emph{any} real number, or to diverge — absolutely convergent series always converge to the same sum regardless of rearrangement.</span></li>
+            <li><span class="ans-num">17.</span><span>A conditionally convergent series can be rearranged (reordered) to converge to <em>any</em> real number, or to diverge — absolutely convergent series always converge to the same sum regardless of rearrangement.</span></li>
             <li><span class="ans-num">18.</span><span>Conditionally convergent — the Alternating Series Test applies ($b_n=\tfrac{1}{n\ln n}\to 0$, decreasing), but $\sum\tfrac{1}{n\ln n}$ diverges (by the Integral Test).</span></li>
             <li><span class="ans-num">19.</span><span>Absolutely convergent — $\sum\tfrac{3}{n^{3/2}}$ converges ($p=\tfrac32>1$).</span></li>
             <li><span class="ans-num">20.</span><span>Convergence of a series depends only on the behavior of its tail — changing or ignoring finitely many terms at the start never affects whether the series converges, so it's enough for the decrease to kick in eventually.</span></li>

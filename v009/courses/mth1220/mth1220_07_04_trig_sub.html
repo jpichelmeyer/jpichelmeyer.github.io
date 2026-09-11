@@ -82,6 +82,25 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>When an integrand contains $\sqrt{a^2-x^2}$, $\sqrt{a^2+x^2}$, or $\sqrt{x^2-a^2}$, a well-chosen trig substitution collapses the square root entirely, via a Pythagorean identity.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Which substitution to use</div>
+        <p>$$\sqrt{a^2-x^2}: \ x=a\sin\theta \qquad \sqrt{a^2+x^2}: \ x=a\tan\theta \qquad \sqrt{x^2-a^2}: \ x=a\sec\theta$$</p>
+        <p>Each is chosen so the identity $1-\sin^2\theta=\cos^2\theta$, $1+\tan^2\theta=\sec^2\theta$, or $\sec^2\theta-1=\tan^2\theta$ turns the expression under the root into a perfect square, letting the radical simplify away. After integrating in $\theta$, use a right-triangle sketch (from $\sin\theta$, $\tan\theta$, or $\sec\theta = \frac{x}{a}$, etc.) to convert the answer back to $x$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example</div>
+        <p>Find $\displaystyle\int \frac{dx}{\sqrt{9-x^2}}$.</p>
+        <p>Here $a=3$ and the pattern is $\sqrt{a^2-x^2}$, so let $x=3\sin\theta$, $dx=3\cos\theta\,d\theta$, and $\sqrt{9-x^2}=\sqrt{9-9\sin^2\theta}=3\cos\theta$ (taking $\cos\theta\ge0$).</p>
+        <p>$$\int \frac{3\cos\theta\,d\theta}{3\cos\theta} = \int d\theta = \theta + C$$</p>
+        <p>Since $x=3\sin\theta$ means $\sin\theta=\frac x3$, i.e. $\theta = \arcsin\left(\frac x3\right)$:</p>
+        <p>$$\int \frac{dx}{\sqrt{9-x^2}} = \arcsin\left(\frac{x}{3}\right)+C$$</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

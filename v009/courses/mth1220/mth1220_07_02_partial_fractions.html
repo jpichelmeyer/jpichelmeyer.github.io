@@ -82,6 +82,25 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>A rational function $\frac{P(x)}{Q(x)}$ is often easier to integrate after being <strong>decomposed</strong> into a sum of simpler fractions &mdash; each one directly integrable by earlier techniques.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Setup</div>
+        <p>If $\deg P \ge \deg Q$, do polynomial long division first, so the remaining fraction has $\deg(\text{numerator}) < \deg(\text{denominator})$. Then factor $Q(x)$ completely; every distinct linear factor $(ax+b)$ contributes a term $\dfrac{A}{ax+b}$ to the decomposition, with $A$ an unknown constant to solve for. (Repeated factors and irreducible quadratic factors need extra terms, covered in a fuller treatment than this lesson &mdash; the distinct-linear-factors case below covers the core idea.)</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example</div>
+        <p>Find $\displaystyle\int \frac{3x+5}{x^2-x-2}\,dx$.</p>
+        <p>Factor the denominator: $x^2-x-2=(x-2)(x+1)$. Write</p>
+        <p>$$\frac{3x+5}{(x-2)(x+1)} = \frac{A}{x-2}+\frac{B}{x+1}$$</p>
+        <p>Multiply both sides by $(x-2)(x+1)$: $3x+5 = A(x+1)+B(x-2)$.</p>
+        <p>Choose convenient values of $x$ to isolate each constant. At $x=2$: $11 = 3A \Rightarrow A=\frac{11}{3}$. At $x=-1$: $2 = -3B \Rightarrow B=-\frac23$.</p>
+        <p>$$\int\frac{3x+5}{x^2-x-2}\,dx = \frac{11}{3}\int\frac{dx}{x-2} - \frac23\int\frac{dx}{x+1} = \frac{11}{3}\ln|x-2| - \frac23\ln|x+1| + C$$</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
@@ -143,7 +162,7 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">15</span>
-                <span class="practice-text">Write the correct partial fraction decomposition \emph{form} (with unknown constants $A,B,C$ — do not solve for them) for $\dfrac{x^2+3}{(x-1)(x+2)(x-5)}$.</span>
+                <span class="practice-text">Write the correct partial fraction decomposition <em>form</em> (with unknown constants $A,B,C$ — do not solve for them) for $\dfrac{x^2+3}{(x-1)(x+2)(x-5)}$.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">16</span>
@@ -187,7 +206,7 @@
             <li><span class="ans-num">15.</span><span>$\dfrac{A}{x-1}+\dfrac{B}{x+2}+\dfrac{C}{x-5}$</span></li>
             <li><span class="ans-num">16.</span><span>$\dfrac{A}{x-3}+\dfrac{B}{(x-3)^2}+\dfrac{C}{x+1}$</span></li>
             <li><span class="ans-num">17.</span><span>$\dfrac{A}{x}+\dfrac{Bx+C}{x^2+4}$</span></li>
-            <li><span class="ans-num">18.</span><span>Polynomial long division first, since the numerator's degree ($2$) is not less than the denominator's ($2$) — partial fractions only decomposes a \emph{proper} rational function.</span></li>
+            <li><span class="ans-num">18.</span><span>Polynomial long division first, since the numerator's degree ($2$) is not less than the denominator's ($2$) — partial fractions only decomposes a <em>proper</em> rational function.</span></li>
             <li><span class="ans-num">19.</span><span>$\dfrac{1}{(a-x)(b-x)} = \dfrac{1}{b-a}\left(\dfrac{1}{a-x}-\dfrac{1}{b-x}\right)$</span></li>
             <li><span class="ans-num">20.</span><span>$3 \log{\left(x - 3 \right)} - 2 \log{\left(x - 2 \right)} + C$</span></li>
         </ol>

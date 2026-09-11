@@ -82,6 +82,39 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Most series can't be summed in closed form the way a geometric or telescoping series can &mdash; the best you can usually do is decide <em>whether</em> $\sum a_n$ converges, by comparing it to a series you already understand. One family worth knowing by heart first:</p>
+
+    <div class="math-box">
+        <div class="math-box-title">$p$-series</div>
+        <p>$\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^p}$ converges if $p>1$, and diverges if $p\le 1$. The case $p=1$ is the harmonic series, $\sum \frac1n$ &mdash; it diverges, despite $\frac1n\to 0$.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Direct Comparison Test</div>
+        <p>Suppose $0 \le a_n \le b_n$ for all $n$ beyond some point.</p>
+        <p>&bull; If $\sum b_n$ converges, so does $\sum a_n$ (it's squeezed under a convergent series).</p>
+        <p>&bull; If $\sum a_n$ diverges, so does $\sum b_n$ (it's forced above a divergent one).</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Limit Comparison Test</div>
+        <p>Suppose $a_n, b_n > 0$ and $\displaystyle\lim_{n\to\infty} \frac{a_n}{b_n} = c$ for some finite $c>0$. Then $\sum a_n$ and $\sum b_n$ either <em>both</em> converge or <em>both</em> diverge. This sidesteps having to find an inequality that goes the right direction, which the Direct Comparison Test needs.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; Direct Comparison</div>
+        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2+n}$ converge?</p>
+        <p>Since $n^2+n > n^2$, we get $\dfrac{1}{n^2+n} < \dfrac{1}{n^2}$. The $p$-series $\sum \frac1{n^2}$ converges ($p=2>1$), so by Direct Comparison, $\sum \frac1{n^2+n}$ converges too.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; Limit Comparison</div>
+        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{3n^2+1}{n^4+2n+5}$ converge?</p>
+        <p>For large $n$, the dominant behavior is $\frac{3n^2}{n^4}=\frac{3}{n^2}$, so compare against $b_n=\frac1{n^2}$: $\displaystyle\lim_{n\to\infty}\frac{a_n}{b_n} = \lim_{n\to\infty}\frac{(3n^2+1)n^2}{n^4+2n+5} = 3$, a finite positive number. Since $\sum \frac1{n^2}$ converges, the Limit Comparison Test says $\sum a_n$ converges too.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

@@ -82,6 +82,24 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>The washer method needs cross-sections perpendicular to the axis of revolution, which sometimes forces solving for $x$ in terms of $y$ or splitting a region into awkward pieces. The <strong>shell method</strong> instead slices <em>parallel</em> to the axis, often sidestepping that entirely.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Shell method</div>
+        <p>Revolving the region under $y=f(x)$ on $[a,b]$ (with $0\le a$) around the <strong>$y$-axis</strong> generates cylindrical shells: at position $x$, a thin shell of radius $x$, height $f(x)$, and thickness $dx$ has surface area (unrolled) $2\pi x\cdot f(x)$, giving</p>
+        <p>$$V = 2\pi\int_a^b x\,f(x)\,dx$$</p>
+        <p>Reach for shells specifically when revolving around a vertical axis but the curve is naturally given as $y=f(x)$ &mdash; exactly the situation where washers would force solving for $x(y)$ first.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example</div>
+        <p>Find the volume when the region under $y=x^2$ on $[0,2]$ is revolved around the $y$-axis.</p>
+        <p>Washers here would need $x=\sqrt y$; shells avoid that entirely:</p>
+        <p>$$V = 2\pi\int_0^2 x\cdot x^2\,dx = 2\pi\int_0^2 x^3\,dx = 2\pi\left[\frac{x^4}{4}\right]_0^2 = 2\pi(4) = 8\pi$$</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

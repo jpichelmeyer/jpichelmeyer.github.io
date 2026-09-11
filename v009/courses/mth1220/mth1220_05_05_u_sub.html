@@ -82,6 +82,30 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>The basic antiderivative table only covers simple, un-composed functions. <strong>Substitution</strong> is the Chain Rule run in reverse, and it's what extends that table to composite functions.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">The method</div>
+        <p>To evaluate $\displaystyle\int f(g(x))\,g'(x)\,dx$, let $u=g(x)$, so $du = g'(x)\,dx$. The integral becomes $\displaystyle\int f(u)\,du$ &mdash; hopefully something the basic table can now handle directly. Finish by substituting $u=g(x)$ back in.</p>
+        <p>For a <strong>definite</strong> integral, either convert back to $x$ before evaluating, or (often faster) convert the limits of integration to $u$-values at the same time as everything else, and never convert back at all.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; indefinite</div>
+        <p>Find $\displaystyle\int 2x\,\cos(x^2)\,dx$.</p>
+        <p>Let $u=x^2$, so $du=2x\,dx$ &mdash; which is exactly the other factor present. The integral becomes $\displaystyle\int \cos u\,du = \sin u + C = \sin(x^2)+C$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; definite, converting the limits</div>
+        <p>Evaluate $\displaystyle\int_0^2 x\sqrt{x^2+1}\,dx$.</p>
+        <p>Let $u=x^2+1$, so $du=2x\,dx$, i.e. $x\,dx = \frac12 du$. Convert the limits too: $x=0\Rightarrow u=1$; $x=2\Rightarrow u=5$.</p>
+        <p>$$\int_0^2 x\sqrt{x^2+1}\,dx = \frac12\int_1^5 \sqrt{u}\,du = \frac12\left[\frac23 u^{3/2}\right]_1^5 = \frac13\left(5^{3/2}-1\right)$$</p>
+        <p>No need to ever substitute back to $x$ &mdash; the bounds were already converted to $u$-values at the start.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

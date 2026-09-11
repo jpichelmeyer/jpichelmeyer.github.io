@@ -82,6 +82,34 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Not every curve is the graph of a function $y=f(x)$ &mdash; a circle fails the vertical line test, for one. <strong>Parametric equations</strong> describe a curve by giving both $x$ and $y$ as functions of a third variable, a parameter $t$, which usually stands in for time.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Definition</div>
+        <p>A parametric curve is given by $x=x(t)$, $y=y(t)$ for $t$ in some interval. As $t$ increases, the point $(x(t),y(t))$ traces the curve out in a specific direction.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Slope of a parametric curve</div>
+        <p>By the Chain Rule, $\dfrac{dy}{dt} = \dfrac{dy}{dx}\cdot\dfrac{dx}{dt}$, which rearranges to</p>
+        <p>$$\frac{dy}{dx} = \frac{dy/dt}{dx/dt} \qquad \left(\frac{dx}{dt}\ne 0\right)$$</p>
+        <p>Notice this never requires solving for $y$ as a function of $x$ at all.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1 &mdash; eliminating the parameter</div>
+        <p>Identify the curve $x=\cos t$, $y=\sin t$, $0\le t\le 2\pi$.</p>
+        <p>Since $x^2+y^2=\cos^2t+\sin^2t=1$, every point lies on the unit circle. As $t$ runs from $0$ to $2\pi$, the point traces the full circle once, counterclockwise, starting at $(1,0)$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; slope without eliminating $t$</div>
+        <p>Find $\dfrac{dy}{dx}$ for $x=t^2$, $y=t^3-3t$ at $t=2$.</p>
+        <p>$\dfrac{dx}{dt}=2t$, $\dfrac{dy}{dt}=3t^2-3$, so $\dfrac{dy}{dx} = \dfrac{3t^2-3}{2t}$. At $t=2$: $\dfrac{3(4)-3}{4} = \dfrac{9}{4}$.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

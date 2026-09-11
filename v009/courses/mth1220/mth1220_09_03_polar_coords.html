@@ -82,6 +82,30 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p><strong>Polar coordinates</strong> locate a point by distance and direction from the origin instead of horizontal/vertical displacement &mdash; a natural fit for curves with circular or spiral symmetry that are awkward to describe with $y=f(x)$.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Definition and conversion</div>
+        <p>A point's polar coordinates $(r,\theta)$ mean: distance $r$ from the origin, at angle $\theta$ from the positive $x$-axis. Conversion to and from rectangular coordinates:</p>
+        <p>$$x = r\cos\theta, \qquad y=r\sin\theta, \qquad r^2=x^2+y^2, \qquad \tan\theta = \frac{y}{x}$$</p>
+        <p>$r$ is allowed to be negative (plot in the opposite direction), and $(r,\theta)$ isn't unique &mdash; the same point has infinitely many representations, e.g. $(r,\theta)=(r,\theta+2\pi)$.</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Common polar curves</div>
+        <p>$r=a$: a circle of radius $a$ centered at the origin. $\ \ \theta=b$: a line through the origin at angle $b$.</p>
+        <p>$r=a(1+\cos\theta)$ or $r=a(1+\sin\theta)$: a <strong>cardioid</strong> (heart-shaped). $\ \ r=a\cos(n\theta)$ or $r=a\sin(n\theta)$: a <strong>rose</strong> with $n$ petals if $n$ is odd, $2n$ petals if $n$ is even.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example</div>
+        <p>Convert the polar point $\left(4, \dfrac{\pi}{3}\right)$ to rectangular coordinates, and identify the curve $r=6\cos\theta$.</p>
+        <p>$x = 4\cos\frac\pi3 = 4\cdot\frac12=2$, $\ y=4\sin\frac\pi3 = 4\cdot\frac{\sqrt3}{2}=2\sqrt3$, so the point is $(2, 2\sqrt3)$.</p>
+        <p>For the curve: multiply both sides by $r$: $r^2=6r\cos\theta$, i.e. $x^2+y^2=6x$. Complete the square: $(x-3)^2+y^2=9$ &mdash; a circle of radius $3$ centered at $(3,0)$.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

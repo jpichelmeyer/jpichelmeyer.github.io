@@ -82,6 +82,37 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Substitution reverses the Chain Rule. <strong>Integration by parts</strong> reverses the Product Rule, and it's the tool for integrands that are a <em>product</em> of two unrelated-looking functions, like $x\,e^x$ or $x\ln x$, where no substitution simplifies both factors at once.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">The formula</div>
+        <p>$$\int u\,dv = uv - \int v\,du$$</p>
+        <p>Starting from $\int f(x)g'(x)\,dx$, choose $u=f(x)$ and $dv=g'(x)\,dx$, then compute $du$ (differentiate $u$) and $v$ (antidifferentiate $dv$). The goal is for $\int v\,du$ to be easier than the integral you started with.</p>
+        <p>The rough heuristic <strong>LIATE</strong> (Logarithmic, Inverse trig, Algebraic, Trigonometric, Exponential) ranks what usually makes a good choice for $u$, earlier categories first &mdash; a log or inverse-trig factor should almost always become $u$, since neither has an elementary antiderivative you'd want to be stuck computing as $v$.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 1</div>
+        <p>Find $\displaystyle\int x\,e^x\,dx$.</p>
+        <p>Let $u=x$ (algebraic, ranks above exponential in LIATE), $dv=e^x\,dx$. Then $du=dx$, $v=e^x$.</p>
+        <p>$$\int x\,e^x\,dx = x\,e^x - \int e^x\,dx = x\,e^x - e^x + C$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; when $dv$ has to be the whole integrand</div>
+        <p>Find $\displaystyle\int \ln x\,dx$.</p>
+        <p>There's only one factor, so let $u=\ln x$, $dv=dx$. Then $du=\frac1x dx$, $v=x$.</p>
+        <p>$$\int \ln x\,dx = x\ln x - \int x\cdot\frac1x\,dx = x\ln x - \int 1\,dx = x\ln x - x + C$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 3 &mdash; applying it twice</div>
+        <p>Find $\displaystyle\int x^2 e^x\,dx$.</p>
+        <p>Let $u=x^2$, $dv=e^x dx$; then $du=2x\,dx$, $v=e^x$: $\int x^2e^x dx = x^2e^x - 2\int x\,e^x\,dx$. The remaining integral is Example 1, already solved: $x^2e^x - 2(xe^x-e^x)+C = e^x(x^2-2x+2)+C$.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

@@ -82,6 +82,31 @@
     </style>
 </head>
 <body>
+
+    <h3>Lesson</h3>
+    <p>Not every antiderivative can be written in closed form ($e^{-x^2}$ is the classic example), and FTC2 is useless without one. Numerical integration approximates $\int_a^b f(x)\,dx$ directly from function values, no antiderivative required.</p>
+
+    <div class="math-box">
+        <div class="math-box-title">Trapezoidal Rule</div>
+        <p>Split $[a,b]$ into $n$ equal subintervals of width $\Delta x=\frac{b-a}{n}$, with endpoints $x_0,x_1,\dots,x_n$. Instead of rectangles, use trapezoids:</p>
+        <p>$$\int_a^b f(x)\,dx \approx \frac{\Delta x}{2}\Big[f(x_0)+2f(x_1)+2f(x_2)+\cdots+2f(x_{n-1})+f(x_n)\Big]$$</p>
+    </div>
+
+    <div class="math-box">
+        <div class="math-box-title">Simpson's Rule</div>
+        <p>Requires $n$ even. Instead of straight-line trapezoid tops, fit a parabola through each consecutive triple of points, weighting alternately:</p>
+        <p>$$\int_a^b f(x)\,dx \approx \frac{\Delta x}{3}\Big[f(x_0)+4f(x_1)+2f(x_2)+4f(x_3)+\cdots+4f(x_{n-1})+f(x_n)\Big]$$</p>
+        <p>For the same $n$, Simpson's Rule is typically far more accurate than the Trapezoidal Rule &mdash; it's exact whenever $f$ itself happens to be a polynomial of degree 3 or lower.</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example &mdash; Trapezoidal Rule</div>
+        <p>Approximate $\displaystyle\int_0^2 x^2\,dx$ using the Trapezoidal Rule with $n=4$ (exact value: $\frac83\approx2.667$, from an earlier lesson).</p>
+        <p>$\Delta x=0.5$; $x_0,\dots,x_4 = 0, 0.5, 1, 1.5, 2$; $f(x)=x^2$ gives values $0, 0.25, 1, 2.25, 4$.</p>
+        <p>$$\frac{0.5}{2}\big[0+2(0.25)+2(1)+2(2.25)+4\big] = 0.25\big[0+0.5+2+4.5+4\big] = 0.25(11) = 2.75$$</p>
+        <p>Closer to the true value $2.667$ than the right-Riemann-sum estimate ($3.75$) from Section 5.1, using the same $n$.</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">
