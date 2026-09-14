@@ -88,17 +88,41 @@
 
     <div class="math-box">
         <div class="math-box-title">Setup</div>
-        <p>If $\deg P \ge \deg Q$, do polynomial long division first, so the remaining fraction has $\deg(\text{numerator}) < \deg(\text{denominator})$. Then factor $Q(x)$ completely; every distinct linear factor $(ax+b)$ contributes a term $\dfrac{A}{ax+b}$ to the decomposition, with $A$ an unknown constant to solve for. (Repeated factors and irreducible quadratic factors need extra terms, covered in a fuller treatment than this lesson &mdash; the distinct-linear-factors case below covers the core idea.)</p>
+        <p>If $\deg P \ge \deg Q$, do polynomial long division first, so the remaining fraction has $\deg(\text{numerator}) < \deg(\text{denominator})$. Then factor $Q(x)$ completely into linear and irreducible quadratic factors. Each type of factor contributes its own form of term(s) to the decomposition:</p>
+        <p><strong>Distinct linear factor</strong> $(ax+b)$: contributes $\dfrac{A}{ax+b}$.</p>
+        <p><strong>Repeated linear factor</strong> $(ax+b)^k$: contributes $k$ separate terms, one for each power up to $k$: $\dfrac{A_1}{ax+b}+\dfrac{A_2}{(ax+b)^2}+\cdots+\dfrac{A_k}{(ax+b)^k}$.</p>
+        <p><strong>Irreducible quadratic factor</strong> $(ax^2+bx+c)$ (one that doesn't factor over the reals): contributes $\dfrac{Ax+B}{ax^2+bx+c}$ &mdash; a linear numerator, not just a constant.</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example</div>
+        <div class="math-box-title">Example 1 &mdash; distinct linear factors</div>
         <p>Find $\displaystyle\int \frac{3x+5}{x^2-x-2}\,dx$.</p>
         <p>Factor the denominator: $x^2-x-2=(x-2)(x+1)$. Write</p>
         <p>$$\frac{3x+5}{(x-2)(x+1)} = \frac{A}{x-2}+\frac{B}{x+1}$$</p>
         <p>Multiply both sides by $(x-2)(x+1)$: $3x+5 = A(x+1)+B(x-2)$.</p>
         <p>Choose convenient values of $x$ to isolate each constant. At $x=2$: $11 = 3A \Rightarrow A=\frac{11}{3}$. At $x=-1$: $2 = -3B \Rightarrow B=-\frac23$.</p>
         <p>$$\int\frac{3x+5}{x^2-x-2}\,dx = \frac{11}{3}\int\frac{dx}{x-2} - \frac23\int\frac{dx}{x+1} = \frac{11}{3}\ln|x-2| - \frac23\ln|x+1| + C$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; a repeated linear factor</div>
+        <p>Find $\displaystyle\int \frac{x+1}{x^2(x-1)}\,dx$.</p>
+        <p>$x^2$ is a repeated factor ($k=2$), so it needs two terms:</p>
+        <p>$$\frac{x+1}{x^2(x-1)} = \frac{A}{x}+\frac{B}{x^2}+\frac{C}{x-1}$$</p>
+        <p>Multiply through by $x^2(x-1)$: $x+1 = Ax(x-1)+B(x-1)+Cx^2$.</p>
+        <p>At $x=0$: $1=-B \Rightarrow B=-1$. At $x=1$: $2=C$. Matching $x^2$ coefficients: $0=A+C \Rightarrow A=-2$.</p>
+        <p>$$\int\frac{x+1}{x^2(x-1)}\,dx = -2\ln|x| + \frac1x + 2\ln|x-1| + C$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 3 &mdash; an irreducible quadratic factor</div>
+        <p>Find $\displaystyle\int \frac{2x^2-x+4}{x^3+4x}\,dx$.</p>
+        <p>Factor: $x^3+4x = x(x^2+4)$, and $x^2+4$ doesn't factor over the reals, so it's irreducible &mdash; its numerator needs a linear term, not just a constant:</p>
+        <p>$$\frac{2x^2-x+4}{x(x^2+4)} = \frac{A}{x}+\frac{Bx+C}{x^2+4}$$</p>
+        <p>Multiply through by $x(x^2+4)$: $2x^2-x+4 = A(x^2+4)+(Bx+C)x$.</p>
+        <p>At $x=0$: $4=4A \Rightarrow A=1$. Matching $x^2$ coefficients: $2=A+B \Rightarrow B=1$. Matching $x$ coefficients: $-1=C$.</p>
+        <p>$$\int\frac{2x^2-x+4}{x^3+4x}\,dx = \int\left(\frac1x+\frac{x-1}{x^2+4}\right)dx = \ln|x| + \frac12\ln(x^2+4) - \frac12\arctan\!\left(\frac x2\right) + C$$</p>
+        <p>(The last piece splits $\frac{x}{x^2+4}$, handled by a quick substitution, from $\frac{-1}{x^2+4}$, a direct arctangent form.)</p>
     </div>
 
     <h3>Practice Examples</h3>

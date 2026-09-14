@@ -94,10 +94,17 @@
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example</div>
+        <div class="math-box-title">Example 1 &mdash; single curve</div>
         <p>Find the volume when the region under $y=x^2$ on $[0,2]$ is revolved around the $y$-axis.</p>
         <p>Washers here would need $x=\sqrt y$; shells avoid that entirely:</p>
         <p>$$V = 2\pi\int_0^2 x\cdot x^2\,dx = 2\pi\int_0^2 x^3\,dx = 2\pi\left[\frac{x^4}{4}\right]_0^2 = 2\pi(4) = 8\pi$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; region between two curves</div>
+        <p>Find the volume when the region between $y=x$ and $y=x^2$ (for $0\le x\le 1$) is revolved around the $y$-axis.</p>
+        <p>Same shell radius $x$ as before, but now the shell's height is the gap between the curves, $x-x^2$, instead of a single function value:</p>
+        <p>$$V = 2\pi\int_0^1 x\big(x-x^2\big)\,dx = 2\pi\int_0^1 \big(x^2-x^3\big)\,dx = 2\pi\left[\frac{x^3}{3}-\frac{x^4}{4}\right]_0^1 = 2\pi\left(\frac13-\frac14\right) = \frac{\pi}{6}$$</p>
     </div>
 
     <h3>Practice Examples</h3>

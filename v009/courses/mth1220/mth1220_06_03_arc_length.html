@@ -94,10 +94,20 @@
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example</div>
+        <div class="math-box-title">Example 1</div>
         <p>Find the length of $y = \dfrac{2}{3}x^{3/2}$ from $x=0$ to $x=3$.</p>
         <p>$f'(x) = x^{1/2}$, so $[f'(x)]^2 = x$.</p>
         <p>$$L = \int_0^3 \sqrt{1+x}\,dx = \left[\frac23(1+x)^{3/2}\right]_0^3 = \frac23\big(4^{3/2}-1^{3/2}\big) = \frac23(8-1) = \frac{14}{3}$$</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 2 &mdash; engineered to simplify</div>
+        <p>Find the length of $y = \dfrac{1}{3}(x^2+2)^{3/2}$ from $x=0$ to $x=3$.</p>
+        <p>Left as $1+[f'(x)]^2$ raw, this would be unpleasant &mdash; the whole point of choosing this particular function is that it doesn't stay that way. First, $f'(x) = \dfrac{1}{3}\cdot\dfrac{3}{2}(x^2+2)^{1/2}\cdot 2x = x\sqrt{x^2+2}$, so $[f'(x)]^2 = x^2(x^2+2) = x^4+2x^2$.</p>
+        <p>$$1+[f'(x)]^2 = x^4+2x^2+1 = (x^2+1)^2$$</p>
+        <p>a perfect square, exactly as engineered. The square root collapses immediately:</p>
+        <p>$$L = \int_0^3 \sqrt{(x^2+1)^2}\,dx = \int_0^3 (x^2+1)\,dx = \left[\frac{x^3}{3}+x\right]_0^3 = 9+3 = 12$$</p>
+        <p>Recognizing this pattern &mdash; that $1+[f'(x)]^2$ is meant to simplify, not just being pushed through blindly &mdash; is most of the difficulty in arc length problems that don't involve a bare power like Example 1's.</p>
     </div>
 
     <h3>Practice Examples</h3>

@@ -108,6 +108,22 @@
         <p>$$\int \sin^2x\,dx = \int \frac{1-\cos 2x}{2}\,dx = \frac{x}{2} - \frac{\sin 2x}{4} + C$$</p>
     </div>
 
+    <div class="math-box">
+        <div class="math-box-title">Strategy for $\int \tan^m x \sec^n x\,dx$</div>
+        <p><strong>If $n$ is even:</strong> peel off a factor of $\sec^2x$, convert the rest to tangents via $\sec^2x=1+\tan^2x$, then substitute $u=\tan x$ (since $du=\sec^2x\,dx$).</p>
+        <p><strong>If $m$ is odd:</strong> peel off a factor of $\sec x\tan x$, convert the rest ($\tan^{m-1}x$, now even) to secants via $\tan^2x=\sec^2x-1$, then substitute $u=\sec x$ (since $du=\sec x\tan x\,dx$).</p>
+        <p>(If neither applies &mdash; $m$ even and $n$ odd &mdash; the integral typically needs integration by parts instead; that case is rare enough to set aside here.)</p>
+    </div>
+
+    <div class="math-example">
+        <div class="math-box-title">Example 3 &mdash; even power of secant</div>
+        <p>Find $\displaystyle\int \tan^2 x\,\sec^4 x\,dx$.</p>
+        <p>$n=4$ is even. Peel off $\sec^2x$: $\sec^4x = \sec^2x\cdot\sec^2x = (1+\tan^2x)\sec^2x$.</p>
+        <p>$$\int \tan^2x\,(1+\tan^2x)\,\sec^2x\,dx$$</p>
+        <p>Let $u=\tan x$, $du=\sec^2x\,dx$:</p>
+        <p>$$\int u^2(1+u^2)\,du = \int(u^2+u^4)\,du = \frac{u^3}{3}+\frac{u^5}{5}+C = \frac{\tan^3x}{3}+\frac{\tan^5x}{5}+C$$</p>
+    </div>
+
     <h3>Practice Examples</h3>
         <p class="practice-intro">Work out your answers to the following questions on paper, then check your answers below.</p>
         <ol class="practice-list">

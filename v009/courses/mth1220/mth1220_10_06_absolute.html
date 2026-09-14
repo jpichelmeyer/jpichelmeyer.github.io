@@ -84,32 +84,32 @@
 <body>
 
     <h3>Lesson</h3>
-    <p>Every test so far assumed $a_n \ge 0$. Once terms are allowed to alternate in sign, there's a new distinction to make.</p>
+    <p>Every test so far assumed $a_i \ge 0$. Once terms are allowed to alternate in sign, there's a new distinction to make.</p>
 
     <div class="math-box">
         <div class="math-box-title">Absolute vs. conditional convergence</div>
-        <p>$\sum a_n$ <strong>converges absolutely</strong> if $\sum |a_n|$ converges. If $\sum a_n$ converges but $\sum |a_n|$ does not, $\sum a_n$ <strong>converges conditionally</strong>.</p>
-        <p><strong>Theorem:</strong> absolute convergence implies convergence. So checking $\sum |a_n|$ (an ordinary positive-term series, open to every earlier test) is always a valid way to try to establish convergence of $\sum a_n$ itself.</p>
+        <p>$\sum a_i$ <strong>converges absolutely</strong> if $\sum |a_i|$ converges. If $\sum a_i$ converges but $\sum |a_i|$ does not, $\sum a_i$ <strong>converges conditionally</strong>.</p>
+        <p><strong>Theorem:</strong> absolute convergence implies convergence. So checking $\sum |a_i|$ (an ordinary positive-term series, open to every earlier test) is always a valid way to try to establish convergence of $\sum a_i$ itself.</p>
     </div>
 
     <div class="math-box">
         <div class="math-box-title">Alternating Series Test</div>
-        <p>Consider a series of the form $\sum (-1)^{n-1} b_n$ with $b_n > 0$. If</p>
-        <p>&bull; $b_{n+1} \le b_n$ for all $n$ (terms are non-increasing), and</p>
-        <p>&bull; $\displaystyle\lim_{n\to\infty} b_n = 0$,</p>
+        <p>Consider a series of the form $\sum (-1)^{i-1} b_i$ with $b_i > 0$. If</p>
+        <p>&bull; $b_{i+1} \le b_i$ for all $i$ (terms are non-increasing), and</p>
+        <p>&bull; $\displaystyle\lim_{i\to\infty} b_i = 0$,</p>
         <p>then the series converges. Note this test only ever proves convergence, never divergence, and it says nothing about whether that convergence is absolute or conditional.</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 1 &mdash; the alternating harmonic series</div>
-        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n-1}}{n} = 1 - \frac12 + \frac13 - \frac14 + \cdots$ converge, and if so, absolutely or conditionally?</p>
-        <p>Here $b_n = \frac1n$ is decreasing with $b_n\to 0$, so by the Alternating Series Test, the series converges. But $\sum |a_n| = \sum \frac1n$ is the harmonic series, which diverges ($p=1$). So the convergence is <strong>conditional</strong>, not absolute.</p>
+        <p>Does $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^{i-1}}{i} = 1 - \frac12 + \frac13 - \frac14 + \cdots$ converge, and if so, absolutely or conditionally?</p>
+        <p>Here $b_i = \frac1i$ is decreasing with $b_i\to 0$, so by the Alternating Series Test, the series converges. But $\sum |a_i| = \sum \frac1i$ is the harmonic series, which diverges ($p=1$). So the convergence is <strong>conditional</strong>, not absolute.</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 2 &mdash; absolute convergence</div>
-        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{n^2}$ converge absolutely?</p>
-        <p>$\sum |a_n| = \sum \frac{1}{n^2}$ is a $p$-series with $p=2>1$, which converges. So the original series converges <strong>absolutely</strong> &mdash; and by the theorem above, that's already enough to know it converges at all, without needing the Alternating Series Test.</p>
+        <p>Does $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i}{i^2}$ converge absolutely?</p>
+        <p>$\sum |a_i| = \sum \frac{1}{i^2}$ is a $p$-series with $p=2>1$, which converges. So the original series converges <strong>absolutely</strong> &mdash; and by the theorem above, that's already enough to know it converges at all, without needing the Alternating Series Test.</p>
     </div>
 
     <h3>Practice Examples</h3>
@@ -117,63 +117,63 @@
         <ol class="practice-list">
             <li class="practice-item">
                 <span class="practice-num">1</span>
-                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{n}$ converges.</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i}{i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">2</span>
-                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n n}{n+1}$ converges.</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i i}{i+1}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">3</span>
-                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{\sqrt n}$ converges.</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i}{\sqrt i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">4</span>
-                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n+1}n}{n^2+1}$ converges.</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^{i+1}i}{i^2+1}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">5</span>
-                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n\,n!}{2^n}$ converges.</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i\,i!}{2^i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">6</span>
-                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{n=3}^{\infty} \frac{(-1)^n\ln(n)}{n}$ converges.</span>
+                <span class="practice-text">Use the Alternating Series Test to determine whether $\displaystyle\sum_{i=3}^{\infty} \frac{(-1)^i\ln(i)}{i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">7</span>
-                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{n}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i}{i}$ as absolutely convergent, conditionally convergent, or divergent.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">8</span>
-                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{n^2}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i}{i^2}$ as absolutely convergent, conditionally convergent, or divergent.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">9</span>
-                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n}{2^n}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i}{2^i}$ as absolutely convergent, conditionally convergent, or divergent.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">10</span>
-                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n n}{n+1}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i i}{i+1}$ as absolutely convergent, conditionally convergent, or divergent.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">11</span>
-                <span class="practice-text">Approximate $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n+1}}{n!}$ using its first $4$ terms, and give a bound on the error.</span>
+                <span class="practice-text">Approximate $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^{i+1}}{i!}$ using its first $4$ terms, and give a bound on the error.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">12</span>
-                <span class="practice-text">How many terms of $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n+1}}{n^3}$ are needed to guarantee an approximation within $0.001$ of the true sum?</span>
+                <span class="practice-text">How many terms of $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^{i+1}}{i^3}$ are needed to guarantee an approximation within $0.001$ of the true sum?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">13</span>
-                <span class="practice-text">Approximate $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^{n+1}}{n!}$ using its first $5$ terms, and give a bound on the error.</span>
+                <span class="practice-text">Approximate $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^{i+1}}{i!}$ using its first $5$ terms, and give a bound on the error.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">14</span>
-                <span class="practice-text">How many terms of $\displaystyle\sum_{n=0}^{\infty} \frac{(-1)^n}{2n+1}$ are needed to guarantee an approximation within $0.01$ of the true sum?</span>
+                <span class="practice-text">How many terms of $\displaystyle\sum_{i=0}^{\infty} \frac{(-1)^i}{2i+1}$ are needed to guarantee an approximation within $0.01$ of the true sum?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">15</span>
-                <span class="practice-text">Define what it means for a series $\sum a_n$ to be absolutely convergent, and state how this relates to ordinary convergence.</span>
+                <span class="practice-text">Define what it means for a series $\sum a_i$ to be absolutely convergent, and state how this relates to ordinary convergence.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">16</span>
@@ -185,40 +185,40 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">18</span>
-                <span class="practice-text">Classify $\displaystyle\sum_{n=2}^{\infty} \frac{(-1)^n}{n\ln n}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{i=2}^{\infty} \frac{(-1)^i}{i\ln i}$ as absolutely convergent, conditionally convergent, or divergent.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">19</span>
-                <span class="practice-text">Classify $\displaystyle\sum_{n=1}^{\infty} \frac{(-1)^n\,3}{n^{3/2}}$ as absolutely convergent, conditionally convergent, or divergent.</span>
+                <span class="practice-text">Classify $\displaystyle\sum_{i=1}^{\infty} \frac{(-1)^i\,3}{i^{3/2}}$ as absolutely convergent, conditionally convergent, or divergent.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">20</span>
-                <span class="practice-text">Why does the Alternating Series Test only require $b_n$ to be <em>eventually</em> decreasing, rather than decreasing starting at $n=1$?</span>
+                <span class="practice-text">Why does the Alternating Series Test only require $b_i$ to be <em>eventually</em> decreasing, rather than decreasing starting at $i=1$?</span>
             </li>
     </ol>
 
     <div class="practice-answers-block">
         <h4>Answers</h4>
         <ol class="practice-answers-list">
-            <li><span class="ans-num">1.</span><span>Converges — $b_n=\tfrac1n$ is decreasing and $\to 0$.</span></li>
-            <li><span class="ans-num">2.</span><span>Diverges — $b_n=\tfrac{n}{n+1}\to 1\ne 0$, so the terms don't go to $0$ (the $n$th-Term Test applies).</span></li>
-            <li><span class="ans-num">3.</span><span>Converges — $b_n=\tfrac{1}{\sqrt n}$ is decreasing and $\to 0$.</span></li>
-            <li><span class="ans-num">4.</span><span>Converges — $b_n=\tfrac{n}{n^2+1}$ is eventually decreasing and $\to 0$.</span></li>
-            <li><span class="ans-num">5.</span><span>Diverges — $b_n=\tfrac{n!}{2^n}\to\infty\ne 0$.</span></li>
-            <li><span class="ans-num">6.</span><span>Converges — $b_n=\tfrac{\ln n}{n}$ is eventually decreasing (for $n\ge 3$) and $\to 0$.</span></li>
-            <li><span class="ans-num">7.</span><span>Conditionally convergent — the series itself converges (AST), but $\sum\tfrac1n$ (harmonic) diverges.</span></li>
-            <li><span class="ans-num">8.</span><span>Absolutely convergent — $\sum\tfrac{1}{n^2}$ converges ($p=2$).</span></li>
-            <li><span class="ans-num">9.</span><span>Absolutely convergent — $\sum\tfrac{1}{2^n}$ is a convergent geometric series.</span></li>
+            <li><span class="ans-num">1.</span><span>Converges — $b_i=\tfrac1i$ is decreasing and $\to 0$.</span></li>
+            <li><span class="ans-num">2.</span><span>Diverges — $b_i=\tfrac{i}{i+1}\to 1\ne 0$, so the terms don't go to $0$ (the $i$th-Term Test applies).</span></li>
+            <li><span class="ans-num">3.</span><span>Converges — $b_i=\tfrac{1}{\sqrt i}$ is decreasing and $\to 0$.</span></li>
+            <li><span class="ans-num">4.</span><span>Converges — $b_i=\tfrac{i}{i^2+1}$ is eventually decreasing and $\to 0$.</span></li>
+            <li><span class="ans-num">5.</span><span>Diverges — $b_i=\tfrac{i!}{2^i}\to\infty\ne 0$.</span></li>
+            <li><span class="ans-num">6.</span><span>Converges — $b_i=\tfrac{\ln i}{i}$ is eventually decreasing (for $i\ge 3$) and $\to 0$.</span></li>
+            <li><span class="ans-num">7.</span><span>Conditionally convergent — the series itself converges (AST), but $\sum\tfrac1i$ (harmonic) diverges.</span></li>
+            <li><span class="ans-num">8.</span><span>Absolutely convergent — $\sum\tfrac{1}{i^2}$ converges ($p=2$).</span></li>
+            <li><span class="ans-num">9.</span><span>Absolutely convergent — $\sum\tfrac{1}{2^i}$ is a convergent geometric series.</span></li>
             <li><span class="ans-num">10.</span><span>Divergent — the terms don't approach $0$.</span></li>
             <li><span class="ans-num">11.</span><span>Partial sum $=\tfrac58=0.625$; error $\le b_5=\tfrac{1}{5!}=\tfrac1{120}\approx 0.0083$.</span></li>
-            <li><span class="ans-num">12.</span><span>Need $b_{n+1}=\tfrac{1}{(n+1)^3}<0.001$, i.e. $(n+1)^3>1000$, so $n+1\ge 11$: use $n=10$ terms.</span></li>
+            <li><span class="ans-num">12.</span><span>Need $b_{i+1}=\tfrac{1}{(i+1)^3}<0.001$, i.e. $(i+1)^3>1000$, so $i+1\ge 11$: use $i=10$ terms.</span></li>
             <li><span class="ans-num">13.</span><span>Partial sum $=\tfrac{19}{30}\approx 0.6333$; error $\le b_6=\tfrac{1}{6!}=\tfrac1{720}\approx 0.0014$.</span></li>
-            <li><span class="ans-num">14.</span><span>Need $b_{n+1}=\tfrac{1}{2(n+1)+1}<0.01$, i.e. $2n+3>100$, so $n\ge 49$: use $n=49$ terms.</span></li>
-            <li><span class="ans-num">15.</span><span>$\sum a_n$ is absolutely convergent if $\sum|a_n|$ converges. Every absolutely convergent series is also (ordinarily) convergent — absolute convergence is the stronger condition.</span></li>
-            <li><span class="ans-num">16.</span><span>A series that converges, but not absolutely — i.e. $\sum a_n$ converges while $\sum|a_n|$ diverges. Example: $\sum \tfrac{(-1)^n}{n}$.</span></li>
+            <li><span class="ans-num">14.</span><span>Need $b_{i+1}=\tfrac{1}{2(i+1)+1}<0.01$, i.e. $2i+3>100$, so $i\ge 49$: use $i=49$ terms.</span></li>
+            <li><span class="ans-num">15.</span><span>$\sum a_i$ is absolutely convergent if $\sum|a_i|$ converges. Every absolutely convergent series is also (ordinarily) convergent — absolute convergence is the stronger condition.</span></li>
+            <li><span class="ans-num">16.</span><span>A series that converges, but not absolutely — i.e. $\sum a_i$ converges while $\sum|a_i|$ diverges. Example: $\sum \tfrac{(-1)^i}{i}$.</span></li>
             <li><span class="ans-num">17.</span><span>A conditionally convergent series can be rearranged (reordered) to converge to <em>any</em> real number, or to diverge — absolutely convergent series always converge to the same sum regardless of rearrangement.</span></li>
-            <li><span class="ans-num">18.</span><span>Conditionally convergent — the Alternating Series Test applies ($b_n=\tfrac{1}{n\ln n}\to 0$, decreasing), but $\sum\tfrac{1}{n\ln n}$ diverges (by the Integral Test).</span></li>
-            <li><span class="ans-num">19.</span><span>Absolutely convergent — $\sum\tfrac{3}{n^{3/2}}$ converges ($p=\tfrac32>1$).</span></li>
+            <li><span class="ans-num">18.</span><span>Conditionally convergent — the Alternating Series Test applies ($b_i=\tfrac{1}{i\ln i}\to 0$, decreasing), but $\sum\tfrac{1}{i\ln i}$ diverges (by the Integral Test).</span></li>
+            <li><span class="ans-num">19.</span><span>Absolutely convergent — $\sum\tfrac{3}{i^{3/2}}$ converges ($p=\tfrac32>1$).</span></li>
             <li><span class="ans-num">20.</span><span>Convergence of a series depends only on the behavior of its tail — changing or ignoring finitely many terms at the start never affects whether the series converges, so it's enough for the decrease to kick in eventually.</span></li>
         </ol>
     </div>

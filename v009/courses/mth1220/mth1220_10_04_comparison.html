@@ -84,35 +84,35 @@
 <body>
 
     <h3>Lesson</h3>
-    <p>Most series can't be summed in closed form the way a geometric or telescoping series can &mdash; the best you can usually do is decide <em>whether</em> $\sum a_n$ converges, by comparing it to a series you already understand. One family worth knowing by heart first:</p>
+    <p>Most series can't be summed in closed form the way a geometric or telescoping series can &mdash; the best you can usually do is decide <em>whether</em> $\sum a_i$ converges, by comparing it to a series you already understand. One family worth knowing by heart first:</p>
 
     <div class="math-box">
         <div class="math-box-title">$p$-series</div>
-        <p>$\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^p}$ converges if $p>1$, and diverges if $p\le 1$. The case $p=1$ is the harmonic series, $\sum \frac1n$ &mdash; it diverges, despite $\frac1n\to 0$.</p>
+        <p>$\displaystyle\sum_{i=1}^{\infty} \frac{1}{i^p}$ converges if $p>1$, and diverges if $p\le 1$. The case $p=1$ is the harmonic series, $\sum \frac1i$ &mdash; it diverges, despite $\frac1i\to 0$.</p>
     </div>
 
     <div class="math-box">
         <div class="math-box-title">Direct Comparison Test</div>
-        <p>Suppose $0 \le a_n \le b_n$ for all $n$ beyond some point.</p>
-        <p>&bull; If $\sum b_n$ converges, so does $\sum a_n$ (it's squeezed under a convergent series).</p>
-        <p>&bull; If $\sum a_n$ diverges, so does $\sum b_n$ (it's forced above a divergent one).</p>
+        <p>Suppose $0 \le a_i \le b_i$ for all $i$ beyond some point.</p>
+        <p>&bull; If $\sum b_i$ converges, so does $\sum a_i$ (it's squeezed under a convergent series).</p>
+        <p>&bull; If $\sum a_i$ diverges, so does $\sum b_i$ (it's forced above a divergent one).</p>
     </div>
 
     <div class="math-box">
         <div class="math-box-title">Limit Comparison Test</div>
-        <p>Suppose $a_n, b_n > 0$ and $\displaystyle\lim_{n\to\infty} \frac{a_n}{b_n} = c$ for some finite $c>0$. Then $\sum a_n$ and $\sum b_n$ either <em>both</em> converge or <em>both</em> diverge. This sidesteps having to find an inequality that goes the right direction, which the Direct Comparison Test needs.</p>
+        <p>Suppose $a_i, b_i > 0$ and $\displaystyle\lim_{i\to\infty} \frac{a_i}{b_i} = c$ for some finite $c>0$. Then $\sum a_i$ and $\sum b_i$ either <em>both</em> converge or <em>both</em> diverge. This sidesteps having to find an inequality that goes the right direction, which the Direct Comparison Test needs.</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 1 &mdash; Direct Comparison</div>
-        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2+n}$ converge?</p>
-        <p>Since $n^2+n > n^2$, we get $\dfrac{1}{n^2+n} < \dfrac{1}{n^2}$. The $p$-series $\sum \frac1{n^2}$ converges ($p=2>1$), so by Direct Comparison, $\sum \frac1{n^2+n}$ converges too.</p>
+        <p>Does $\displaystyle\sum_{i=1}^{\infty} \frac{1}{i^2+i}$ converge?</p>
+        <p>Since $i^2+i > i^2$, we get $\dfrac{1}{i^2+i} < \dfrac{1}{i^2}$. The $p$-series $\sum \frac1{i^2}$ converges ($p=2>1$), so by Direct Comparison, $\sum \frac1{i^2+i}$ converges too.</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 2 &mdash; Limit Comparison</div>
-        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{3n^2+1}{n^4+2n+5}$ converge?</p>
-        <p>For large $n$, the dominant behavior is $\frac{3n^2}{n^4}=\frac{3}{n^2}$, so compare against $b_n=\frac1{n^2}$: $\displaystyle\lim_{n\to\infty}\frac{a_n}{b_n} = \lim_{n\to\infty}\frac{(3n^2+1)n^2}{n^4+2n+5} = 3$, a finite positive number. Since $\sum \frac1{n^2}$ converges, the Limit Comparison Test says $\sum a_n$ converges too.</p>
+        <p>Does $\displaystyle\sum_{i=1}^{\infty} \frac{3i^2+1}{i^4+2i+5}$ converge?</p>
+        <p>For large $i$, the dominant behavior is $\frac{3i^2}{i^4}=\frac{3}{i^2}$, so compare against $b_i=\frac1{i^2}$: $\displaystyle\lim_{i\to\infty}\frac{a_i}{b_i} = \lim_{i\to\infty}\frac{(3i^2+1)i^2}{i^4+2i+5} = 3$, a finite positive number. Since $\sum \frac1{i^2}$ converges, the Limit Comparison Test says $\sum a_i$ converges too.</p>
     </div>
 
     <h3>Practice Examples</h3>
@@ -120,75 +120,75 @@
         <ol class="practice-list">
             <li class="practice-item">
                 <span class="practice-num">1</span>
-                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2+n}$ converges.</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{1}{i^2+i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">2</span>
-                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n-0.5}$ diverges.</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{1}{i-0.5}$ diverges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">3</span>
-                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{2+\cos(n)}{n^2}$ converges.</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{2+\cos(i)}{i^2}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">4</span>
-                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n!}$ converges.</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{1}{i!}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">5</span>
-                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n+1}{n^2}$ diverges.</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{i+1}{i^2}$ diverges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">6</span>
-                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{n=3}^{\infty} \frac{\ln n}{n}$ diverges.</span>
+                <span class="practice-text">Use the Direct Comparison Test to determine whether $\displaystyle\sum_{i=3}^{\infty} \frac{\ln i}{i}$ diverges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">7</span>
-                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^2}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2+1}$ converges.</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{i^2}$) to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{1}{i^2+1}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">8</span>
-                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^2}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n+1}{n^3+2}$ converges.</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{i^2}$) to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{i+1}{i^3+2}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">9</span>
-                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^{3/2}}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{\sqrt n}{n^2+1}$ converges.</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{i^{3/2}}$) to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{\sqrt i}{i^2+1}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">10</span>
-                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{2^n}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{2^n-1}$ converges.</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{2^i}$) to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{1}{2^i-1}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">11</span>
-                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^2}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{3n^2+2n}{n^4-n+1}$ converges.</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{i^2}$) to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{3i^2+2i}{i^4-i+1}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">12</span>
-                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \sin\!\left(\frac1n\right)$ converges.</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{i}$) to determine whether $\displaystyle\sum_{i=1}^{\infty} \sin\!\left(\frac1i\right)$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">13</span>
-                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{1}{n^3+5}$, and why?</span>
+                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{1}{i^3+5}$, and why?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">14</span>
-                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{5n^2+1}{n^4-n+2}$, and why?</span>
+                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{5i^2+1}{i^4-i+2}$, and why?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">15</span>
-                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{1}{\sqrt{n^3+1}}$, and why?</span>
+                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{1}{\sqrt{i^3+1}}$, and why?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">16</span>
-                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{3^n}{4^n+n}$, and why?</span>
+                <span class="practice-text">What comparison series would you use for $\displaystyle\sum \frac{3^i}{4^i+i}$, and why?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">17</span>
-                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{n^2}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n^2+1}{n^4+3n}$ converges.</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{i^2}$) to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{i^2+1}{i^4+3i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">18</span>
-                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{e^n}$) to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{1}{e^n-n}$ converges.</span>
+                <span class="practice-text">Use the Limit Comparison Test (compare to $\tfrac{1}{e^i}$) to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{1}{e^i-i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">19</span>
@@ -196,33 +196,33 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">20</span>
-                <span class="practice-text">For $\displaystyle\sum_{n=2}^{\infty} \frac{1}{n^2-n}$, explain why comparing directly to $\tfrac1{n^2}$ doesn't immediately prove convergence by the Direct Comparison Test, and show how the Limit Comparison Test resolves it.</span>
+                <span class="practice-text">For $\displaystyle\sum_{i=2}^{\infty} \frac{1}{i^2-i}$, explain why comparing directly to $\tfrac1{i^2}$ doesn't immediately prove convergence by the Direct Comparison Test, and show how the Limit Comparison Test resolves it.</span>
             </li>
     </ol>
 
     <div class="practice-answers-block">
         <h4>Answers</h4>
         <ol class="practice-answers-list">
-            <li><span class="ans-num">1.</span><span>Converges — $0<\dfrac{1}{n^2+n}<\dfrac{1}{n^2}$, and $\sum \tfrac1{n^2}$ converges ($p=2$).</span></li>
-            <li><span class="ans-num">2.</span><span>Diverges — $\dfrac{1}{n-0.5}>\dfrac1n$ for $n\ge1$, and $\sum\tfrac1n$ diverges.</span></li>
-            <li><span class="ans-num">3.</span><span>Converges — $0\le\dfrac{2+\cos n}{n^2}\le\dfrac{3}{n^2}$, and $\sum \tfrac{3}{n^2}$ converges.</span></li>
-            <li><span class="ans-num">4.</span><span>Converges — $\dfrac{1}{n!}\le\dfrac{1}{2^{n-1}}$ for $n\ge1$, and the geometric series $\sum \tfrac{1}{2^{n-1}}$ converges.</span></li>
-            <li><span class="ans-num">5.</span><span>Diverges — $\dfrac{n+1}{n^2}\ge\dfrac{n}{n^2}=\dfrac1n$, and $\sum\tfrac1n$ diverges.</span></li>
-            <li><span class="ans-num">6.</span><span>Diverges — for $n\ge3$, $\ln n\ge1$, so $\dfrac{\ln n}{n}\ge\dfrac1n$, and $\sum\tfrac1n$ diverges.</span></li>
-            <li><span class="ans-num">7.</span><span>$\displaystyle\lim_{n\to\infty}\frac{1/(n^2+1)}{1/n^2}=1$ (finite, positive) — converges, same as $\sum\tfrac1{n^2}$.</span></li>
-            <li><span class="ans-num">8.</span><span>$\displaystyle\lim_{n\to\infty}\frac{(n+1)/(n^3+2)}{1/n^2}=1$ — converges.</span></li>
-            <li><span class="ans-num">9.</span><span>$\displaystyle\lim_{n\to\infty}\frac{\sqrt n/(n^2+1)}{1/n^{3/2}}=1$ — converges ($p=\tfrac32>1$).</span></li>
-            <li><span class="ans-num">10.</span><span>$\displaystyle\lim_{n\to\infty}\frac{1/(2^n-1)}{1/2^n}=1$ — converges, matching the geometric series $\sum\tfrac1{2^n}$.</span></li>
-            <li><span class="ans-num">11.</span><span>$\displaystyle\lim_{n\to\infty}\frac{(3n^2+2n)/(n^4-n+1)}{1/n^2}=3$ — converges.</span></li>
-            <li><span class="ans-num">12.</span><span>$\displaystyle\lim_{n\to\infty}\frac{\sin(1/n)}{1/n}=1$ — diverges, matching the divergent harmonic series.</span></li>
-            <li><span class="ans-num">13.</span><span>$\sum\tfrac{1}{n^3}$ — for large $n$, the $+5$ is negligible, so the terms behave like $n^{-3}$.</span></li>
-            <li><span class="ans-num">14.</span><span>$\sum\tfrac{1}{n^2}$ — the dominant behavior is $\tfrac{5n^2}{n^4}=\tfrac{5}{n^2}$.</span></li>
-            <li><span class="ans-num">15.</span><span>$\sum\tfrac{1}{n^{3/2}}$ — the dominant behavior under the root is $n^3$, so $\sqrt{n^3+1}\sim n^{3/2}$.</span></li>
-            <li><span class="ans-num">16.</span><span>$\sum\left(\tfrac34\right)^n$ — for large $n$, the $+n$ is negligible next to $4^n$, so the terms behave like $(3/4)^n$.</span></li>
-            <li><span class="ans-num">17.</span><span>$\displaystyle\lim_{n\to\infty}\frac{(n^2+1)/(n^4+3n)}{1/n^2}=1$ — converges.</span></li>
-            <li><span class="ans-num">18.</span><span>$\displaystyle\lim_{n\to\infty}\frac{1/(e^n-n)}{1/e^n}=1$ — converges.</span></li>
-            <li><span class="ans-num">19.</span><span>\textbf{Direct:} if $0\le a_n\le b_n$ eventually and $\sum b_n$ converges, then $\sum a_n$ converges; if $a_n\ge b_n\ge 0$ eventually and $\sum b_n$ diverges, then $\sum a_n$ diverges. \textbf{Limit:} if $a_n,b_n>0$ and $\lim_{n\to\infty}a_n/b_n=c$ with $0<c<\infty$, then $\sum a_n$ and $\sum b_n$ either both converge or both diverge.</span></li>
-            <li><span class="ans-num">20.</span><span>Since $n^2-n<n^2$, we get $\dfrac{1}{n^2-n}>\dfrac{1}{n^2}$ — the inequality points the wrong way for the Direct Comparison Test to conclude convergence. But $\displaystyle\lim_{n\to\infty}\frac{1/(n^2-n)}{1/n^2}=1$, so the Limit Comparison Test still confirms convergence.</span></li>
+            <li><span class="ans-num">1.</span><span>Converges — $0<\dfrac{1}{i^2+i}<\dfrac{1}{i^2}$, and $\sum \tfrac1{i^2}$ converges ($p=2$).</span></li>
+            <li><span class="ans-num">2.</span><span>Diverges — $\dfrac{1}{i-0.5}>\dfrac1i$ for $i\ge1$, and $\sum\tfrac1i$ diverges.</span></li>
+            <li><span class="ans-num">3.</span><span>Converges — $0\le\dfrac{2+\cos i}{i^2}\le\dfrac{3}{i^2}$, and $\sum \tfrac{3}{i^2}$ converges.</span></li>
+            <li><span class="ans-num">4.</span><span>Converges — $\dfrac{1}{i!}\le\dfrac{1}{2^{i-1}}$ for $i\ge1$, and the geometric series $\sum \tfrac{1}{2^{i-1}}$ converges.</span></li>
+            <li><span class="ans-num">5.</span><span>Diverges — $\dfrac{i+1}{i^2}\ge\dfrac{i}{i^2}=\dfrac1i$, and $\sum\tfrac1i$ diverges.</span></li>
+            <li><span class="ans-num">6.</span><span>Diverges — for $i\ge3$, $\ln i\ge1$, so $\dfrac{\ln i}{i}\ge\dfrac1i$, and $\sum\tfrac1i$ diverges.</span></li>
+            <li><span class="ans-num">7.</span><span>$\displaystyle\lim_{i\to\infty}\frac{1/(i^2+1)}{1/i^2}=1$ (finite, positive) — converges, same as $\sum\tfrac1{i^2}$.</span></li>
+            <li><span class="ans-num">8.</span><span>$\displaystyle\lim_{i\to\infty}\frac{(i+1)/(i^3+2)}{1/i^2}=1$ — converges.</span></li>
+            <li><span class="ans-num">9.</span><span>$\displaystyle\lim_{i\to\infty}\frac{\sqrt i/(i^2+1)}{1/i^{3/2}}=1$ — converges ($p=\tfrac32>1$).</span></li>
+            <li><span class="ans-num">10.</span><span>$\displaystyle\lim_{i\to\infty}\frac{1/(2^i-1)}{1/2^i}=1$ — converges, matching the geometric series $\sum\tfrac1{2^i}$.</span></li>
+            <li><span class="ans-num">11.</span><span>$\displaystyle\lim_{i\to\infty}\frac{(3i^2+2i)/(i^4-i+1)}{1/i^2}=3$ — converges.</span></li>
+            <li><span class="ans-num">12.</span><span>$\displaystyle\lim_{i\to\infty}\frac{\sin(1/i)}{1/i}=1$ — diverges, matching the divergent harmonic series.</span></li>
+            <li><span class="ans-num">13.</span><span>$\sum\tfrac{1}{i^3}$ — for large $i$, the $+5$ is negligible, so the terms behave like $i^{-3}$.</span></li>
+            <li><span class="ans-num">14.</span><span>$\sum\tfrac{1}{i^2}$ — the dominant behavior is $\tfrac{5i^2}{i^4}=\tfrac{5}{i^2}$.</span></li>
+            <li><span class="ans-num">15.</span><span>$\sum\tfrac{1}{i^{3/2}}$ — the dominant behavior under the root is $i^3$, so $\sqrt{i^3+1}\sim i^{3/2}$.</span></li>
+            <li><span class="ans-num">16.</span><span>$\sum\left(\tfrac34\right)^i$ — for large $i$, the $+i$ is negligible next to $4^i$, so the terms behave like $(3/4)^i$.</span></li>
+            <li><span class="ans-num">17.</span><span>$\displaystyle\lim_{i\to\infty}\frac{(i^2+1)/(i^4+3i)}{1/i^2}=1$ — converges.</span></li>
+            <li><span class="ans-num">18.</span><span>$\displaystyle\lim_{i\to\infty}\frac{1/(e^i-i)}{1/e^i}=1$ — converges.</span></li>
+            <li><span class="ans-num">19.</span><span>\textbf{Direct:} if $0\le a_i\le b_i$ eventually and $\sum b_i$ converges, then $\sum a_i$ converges; if $a_i\ge b_i\ge 0$ eventually and $\sum b_i$ diverges, then $\sum a_i$ diverges. \textbf{Limit:} if $a_i,b_i>0$ and $\lim_{i\to\infty}a_i/b_i=c$ with $0<c<\infty$, then $\sum a_i$ and $\sum b_i$ either both converge or both diverge.</span></li>
+            <li><span class="ans-num">20.</span><span>Since $i^2-i<i^2$, we get $\dfrac{1}{i^2-i}>\dfrac{1}{i^2}$ — the inequality points the wrong way for the Direct Comparison Test to conclude convergence. But $\displaystyle\lim_{i\to\infty}\frac{1/(i^2-i)}{1/i^2}=1$, so the Limit Comparison Test still confirms convergence.</span></li>
         </ol>
     </div>
     <script>
