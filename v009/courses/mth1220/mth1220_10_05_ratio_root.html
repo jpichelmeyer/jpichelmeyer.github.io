@@ -84,38 +84,38 @@
 <body>
 
     <h3>Lesson</h3>
-    <p>Comparison tests need you to already have a series to compare against. The Ratio and Root Tests instead look only at the series' own terms &mdash; especially useful when factorials or $n$-th powers are involved.</p>
+    <p>Comparison tests need you to already have a series to compare against. The Ratio and Root Tests instead look only at the series' own terms &mdash; especially useful when factorials or $i$-th powers are involved.</p>
 
     <div class="math-box">
         <div class="math-box-title">The Ratio Test</div>
-        <p>Let $\displaystyle L = \lim_{n\to\infty} \left| \frac{a_{n+1}}{a_n} \right|$.</p>
-        <p>&bull; If $L<1$, $\sum a_n$ converges absolutely.</p>
-        <p>&bull; If $L>1$ (or $L=\infty$), $\sum a_n$ diverges.</p>
+        <p>Let $\displaystyle L = \lim_{i\to\infty} \left| \frac{a_{i+1}}{a_i} \right|$.</p>
+        <p>&bull; If $L<1$, $\sum a_i$ converges absolutely.</p>
+        <p>&bull; If $L>1$ (or $L=\infty$), $\sum a_i$ diverges.</p>
         <p>&bull; If $L=1$, the test is inconclusive &mdash; try something else.</p>
     </div>
 
     <div class="math-box">
         <div class="math-box-title">The Root Test</div>
-        <p>Let $\displaystyle L = \lim_{n\to\infty} \sqrt[n]{|a_n|}$. The same three cases apply: converges absolutely if $L<1$, diverges if $L>1$, inconclusive if $L=1$. Reach for this when $a_n$ itself involves an $n$-th power.</p>
+        <p>Let $\displaystyle L = \lim_{i\to\infty} \sqrt[i]{|a_i|}$. The same three cases apply: converges absolutely if $L<1$, diverges if $L>1$, inconclusive if $L=1$. Reach for this when $a_i$ itself involves an $i$-th power.</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 1 &mdash; Ratio Test</div>
-        <p>Does $\displaystyle\sum_{n=1}^{\infty} \frac{n!}{n^n}$ converge?</p>
-        <p>$$\frac{a_{n+1}}{a_n} = \frac{(n+1)!}{(n+1)^{n+1}}\cdot\frac{n^n}{n!} = \frac{(n+1)\,n^n}{(n+1)^{n+1}} = \left(\frac{n}{n+1}\right)^n = \left(1-\frac{1}{n+1}\right)^n \to e^{-1}$$</p>
+        <p>Does $\displaystyle\sum_{i=1}^{\infty} \frac{i!}{i^i}$ converge?</p>
+        <p>$$\frac{a_{i+1}}{a_i} = \frac{(i+1)!}{(i+1)^{i+1}}\cdot\frac{i^i}{i!} = \frac{(i+1)\,i^i}{(i+1)^{i+1}} = \left(\frac{i}{i+1}\right)^i = \left(1-\frac{1}{i+1}\right)^i \to e^{-1}$$</p>
         <p>Since $e^{-1} = \frac1e < 1$, the series converges absolutely.</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 2 &mdash; Root Test</div>
-        <p>Does $\displaystyle\sum_{n=1}^{\infty} \left(\frac{2n+1}{3n-1}\right)^n$ converge?</p>
-        <p>$$\sqrt[n]{|a_n|} = \frac{2n+1}{3n-1} \to \frac{2}{3}$$</p>
+        <p>Does $\displaystyle\sum_{i=1}^{\infty} \left(\frac{2i+1}{3i-1}\right)^i$ converge?</p>
+        <p>$$\sqrt[i]{|a_i|} = \frac{2i+1}{3i-1} \to \frac{2}{3}$$</p>
         <p>Since $\frac23<1$, the series converges absolutely.</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 3 &mdash; when the Ratio Test fails</div>
-        <p>Try the Ratio Test on the $p$-series $\sum \frac{1}{n^2}$: $\dfrac{a_{n+1}}{a_n} = \dfrac{n^2}{(n+1)^2} \to 1$. $L=1$ tells you nothing &mdash; you already know from the $p$-series test that this converges, but the Ratio Test alone can't see it. Good reminder to reach for the Ratio/Root Test mainly when factorials or $n$-th powers are present; a comparison test is often faster otherwise.</p>
+        <p>Try the Ratio Test on the $p$-series $\sum \frac{1}{i^2}$: $\dfrac{a_{i+1}}{a_i} = \dfrac{i^2}{(i+1)^2} \to 1$. $L=1$ tells you nothing &mdash; you already know from the $p$-series test that this converges, but the Ratio Test alone can't see it. Good reminder to reach for the Ratio/Root Test mainly when factorials or $i$-th powers are present; a comparison test is often faster otherwise.</p>
     </div>
 
     <h3>Practice Examples</h3>
@@ -123,67 +123,67 @@
         <ol class="practice-list">
             <li class="practice-item">
                 <span class="practice-num">1</span>
-                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{2^n}{n!}$ converges.</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{2^i}{i!}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">2</span>
-                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n!}{3^n}$ converges.</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{i!}{3^i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">3</span>
-                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n^n}{n!}$ converges.</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{i^i}{i!}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">4</span>
-                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n}{2^n}$ converges.</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{i}{2^i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">5</span>
-                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{(2n)!}{(n!)^2}$ converges.</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{(2i)!}{(i!)^2}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">6</span>
-                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{n^2}{2^n}$ converges.</span>
+                <span class="practice-text">Use the Ratio Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{i^2}{2^i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">7</span>
-                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \left(\frac{n}{2n+1}\right)^n$ converges.</span>
+                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \left(\frac{i}{2i+1}\right)^i$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">8</span>
-                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \frac{3^n}{n^n}$ converges.</span>
+                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \frac{3^i}{i^i}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">9</span>
-                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \left(1+\frac1n\right)^{n^2}$ converges.</span>
+                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \left(1+\frac1i\right)^{i^2}$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">10</span>
-                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{n=1}^{\infty} \left(\frac{2n+1}{3n+2}\right)^n$ converges.</span>
+                <span class="practice-text">Use the Root Test to determine whether $\displaystyle\sum_{i=1}^{\infty} \left(\frac{2i+1}{3i+2}\right)^i$ converges.</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">11</span>
-                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \frac{n!}{n^n}$? Why?</span>
+                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \frac{i!}{i^i}$? Why?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">12</span>
-                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \left(\frac{n+1}{3n-1}\right)^{2n}$? Why?</span>
+                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \left(\frac{i+1}{3i-1}\right)^{2i}$? Why?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">13</span>
-                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \frac{3^n\,n!}{n^n}$? Why?</span>
+                <span class="practice-text">Would the Ratio Test or the Root Test be the more natural first choice for $\displaystyle\sum \frac{3^i\,i!}{i^i}$? Why?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">14</span>
-                <span class="practice-text">For $\displaystyle\sum_{n=1}^{\infty} \frac{5^n}{n^{10}}$, which test is more efficient, and what does it conclude?</span>
+                <span class="practice-text">For $\displaystyle\sum_{i=1}^{\infty} \frac{5^i}{i^{10}}$, which test is more efficient, and what does it conclude?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">15</span>
-                <span class="practice-text">Apply the Ratio Test to $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n^2}$. What do you get, and what must you conclude about the test itself?</span>
+                <span class="practice-text">Apply the Ratio Test to $\displaystyle\sum_{i=1}^{\infty} \frac{1}{i^2}$. What do you get, and what must you conclude about the test itself?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">16</span>
-                <span class="practice-text">Apply the Ratio Test to $\displaystyle\sum_{n=1}^{\infty} \frac{1}{n}$. What do you get, and how does this illustrate a limitation of the test?</span>
+                <span class="practice-text">Apply the Ratio Test to $\displaystyle\sum_{i=1}^{\infty} \frac{1}{i}$. What do you get, and how does this illustrate a limitation of the test?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">17</span>
@@ -195,18 +195,18 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">19</span>
-                <span class="practice-text">For what values of $x$ does $\displaystyle\sum_{n=1}^{\infty} \frac{x^n}{n!}$ converge, according to the Ratio Test?</span>
+                <span class="practice-text">For what values of $x$ does $\displaystyle\sum_{i=1}^{\infty} \frac{x^i}{i!}$ converge, according to the Ratio Test?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">20</span>
-                <span class="practice-text">For what values of $x$ does $\displaystyle\sum_{n=1}^{\infty} n\,x^n$ converge, according to the Ratio Test?</span>
+                <span class="practice-text">For what values of $x$ does $\displaystyle\sum_{i=1}^{\infty} i\,x^i$ converge, according to the Ratio Test?</span>
             </li>
     </ol>
 
     <div class="practice-answers-block">
         <h4>Answers</h4>
         <ol class="practice-answers-list">
-            <li><span class="ans-num">1.</span><span>$L=\displaystyle\lim_{n\to\infty}\left|\frac{a_{n+1}}{a_n}\right|=0<1$ — converges.</span></li>
+            <li><span class="ans-num">1.</span><span>$L=\displaystyle\lim_{i\to\infty}\left|\frac{a_{i+1}}{a_i}\right|=0<1$ — converges.</span></li>
             <li><span class="ans-num">2.</span><span>$L=\infty>1$ — diverges.</span></li>
             <li><span class="ans-num">3.</span><span>$L=e>1$ — diverges.</span></li>
             <li><span class="ans-num">4.</span><span>$L=\dfrac12<1$ — converges.</span></li>
@@ -216,16 +216,16 @@
             <li><span class="ans-num">8.</span><span>$L=0<1$ — converges.</span></li>
             <li><span class="ans-num">9.</span><span>$L=e>1$ — diverges.</span></li>
             <li><span class="ans-num">10.</span><span>$L=\dfrac23<1$ — converges.</span></li>
-            <li><span class="ans-num">11.</span><span>Ratio Test — the factorial simplifies nicely under a ratio ($\tfrac{(n+1)!}{n!}=n+1$), which is awkward to handle with an $n$th root.</span></li>
-            <li><span class="ans-num">12.</span><span>Root Test — the entire term is already raised to the $n$th power (times $2$), so taking an $n$th root cancels the exponent directly.</span></li>
+            <li><span class="ans-num">11.</span><span>Ratio Test — the factorial simplifies nicely under a ratio ($\tfrac{(i+1)!}{i!}=i+1$), which is awkward to handle with an $i$th root.</span></li>
+            <li><span class="ans-num">12.</span><span>Root Test — the entire term is already raised to the $i$th power (times $2$), so taking an $i$th root cancels the exponent directly.</span></li>
             <li><span class="ans-num">13.</span><span>Ratio Test — both the factorial and the exponential simplify cleanly in a ratio of consecutive terms.</span></li>
-            <li><span class="ans-num">14.</span><span>The Ratio Test: $L=\displaystyle\lim_{n\to\infty}\left|\frac{5^{n+1}/(n+1)^{10}}{5^n/n^{10}}\right|=5>1$ — diverges.</span></li>
+            <li><span class="ans-num">14.</span><span>The Ratio Test: $L=\displaystyle\lim_{i\to\infty}\left|\frac{5^{i+1}/(i+1)^{10}}{5^i/i^{10}}\right|=5>1$ — diverges.</span></li>
             <li><span class="ans-num">15.</span><span>$L=1$ — the Ratio Test is inconclusive. (The series actually converges, but you'd need the $p$-series test to see that.)</span></li>
-            <li><span class="ans-num">16.</span><span>$L=1$ — inconclusive, exactly as with $\sum 1/n^2$ above, yet this series <em>diverges</em>. The Ratio Test cannot distinguish these two cases when $L=1$; you always need a different test.</span></li>
-            <li><span class="ans-num">17.</span><span>Let $L=\displaystyle\lim_{n\to\infty}\left|\dfrac{a_{n+1}}{a_n}\right|$. If $L<1$, $\sum a_n$ converges absolutely; if $L>1$ (or $L=\infty$), it diverges; if $L=1$, the test is inconclusive.</span></li>
-            <li><span class="ans-num">18.</span><span>Let $L=\displaystyle\lim_{n\to\infty}\sqrt[n]{|a_n|}$. If $L<1$, $\sum a_n$ converges absolutely; if $L>1$ (or $L=\infty$), it diverges; if $L=1$, the test is inconclusive.</span></li>
-            <li><span class="ans-num">19.</span><span>All real $x$ — the ratio $\left|\dfrac{x^{n+1}/(n+1)!}{x^n/n!}\right|=\dfrac{|x|}{n+1}\to 0$ for every fixed $x$, so the series converges absolutely everywhere.</span></li>
-            <li><span class="ans-num">20.</span><span>$|x|<1$ — the ratio $\left|\dfrac{(n+1)x^{n+1}}{nx^n}\right|\to|x|$, which is less than $1$ exactly when $-1<x<1$.</span></li>
+            <li><span class="ans-num">16.</span><span>$L=1$ — inconclusive, exactly as with $\sum 1/i^2$ above, yet this series <em>diverges</em>. The Ratio Test cannot distinguish these two cases when $L=1$; you always need a different test.</span></li>
+            <li><span class="ans-num">17.</span><span>Let $L=\displaystyle\lim_{i\to\infty}\left|\dfrac{a_{i+1}}{a_i}\right|$. If $L<1$, $\sum a_i$ converges absolutely; if $L>1$ (or $L=\infty$), it diverges; if $L=1$, the test is inconclusive.</span></li>
+            <li><span class="ans-num">18.</span><span>Let $L=\displaystyle\lim_{i\to\infty}\sqrt[i]{|a_i|}$. If $L<1$, $\sum a_i$ converges absolutely; if $L>1$ (or $L=\infty$), it diverges; if $L=1$, the test is inconclusive.</span></li>
+            <li><span class="ans-num">19.</span><span>All real $x$ — the ratio $\left|\dfrac{x^{i+1}/(i+1)!}{x^i/i!}\right|=\dfrac{|x|}{i+1}\to 0$ for every fixed $x$, so the series converges absolutely everywhere.</span></li>
+            <li><span class="ans-num">20.</span><span>$|x|<1$ — the ratio $\left|\dfrac{(i+1)x^{i+1}}{nx^i}\right|\to|x|$, which is less than $1$ exactly when $-1<x<1$.</span></li>
         </ol>
     </div>
     <script>

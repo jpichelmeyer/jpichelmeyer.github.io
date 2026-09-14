@@ -89,31 +89,31 @@
     <div class="math-box">
         <div class="math-box-title">Definition &mdash; Taylor series</div>
         <p>If $f$ has derivatives of every order at $a$, its Taylor series centered at $a$ is</p>
-        <p>$$f(x) \sim \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \cdots$$</p>
-        <p>When $a=0$ this is also called a <strong>Maclaurin series</strong>. Truncating after the degree-$n$ term gives the degree-$n$ <strong>Taylor polynomial</strong> $T_n(x)$, the best polynomial approximation to $f$ near $a$ using derivative information up to order $n$.</p>
+        <p>$$f(x) \sim \sum_{i=0}^{\infty} \frac{f^{(i)}(a)}{i!}(x-a)^i = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \cdots$$</p>
+        <p>When $a=0$ this is also called a <strong>Maclaurin series</strong>. Truncating after the degree-$i$ term gives the degree-$i$ <strong>Taylor polynomial</strong> $T_i(x)$, the best polynomial approximation to $f$ near $a$ using derivative information up to order $i$.</p>
     </div>
 
     <p>A few series are worth memorizing outright, since building others from them (by substitution, differentiating, or integrating term by term) is usually faster than computing derivatives from the definition over and over:</p>
 
     <div class="math-box">
         <div class="math-box-title">Common Maclaurin series</div>
-        <p>$$e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}, \qquad \sin x = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n+1}}{(2n+1)!}, \qquad \cos x = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n}}{(2n)!}$$</p>
-        <p>$$\frac{1}{1-x} = \sum_{n=0}^{\infty} x^n \quad (|x|<1)$$</p>
+        <p>$$e^x = \sum_{i=0}^{\infty} \frac{x^i}{i!}, \qquad \sin x = \sum_{i=0}^{\infty} \frac{(-1)^i x^{2i+1}}{(2i+1)!}, \qquad \cos x = \sum_{i=0}^{\infty} \frac{(-1)^i x^{2i}}{(2i)!}$$</p>
+        <p>$$\frac{1}{1-x} = \sum_{i=0}^{\infty} x^i \quad (|x|<1)$$</p>
         <p>All three of the first series converge for every real $x$.</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 1 &mdash; from the definition</div>
         <p>Find the Maclaurin series for $f(x) = \ln(1+x)$.</p>
-        <p>Notice $f'(x) = \frac{1}{1+x}$, which is the known series above with $x$ replaced by $-x$: $\frac{1}{1+x} = \sum_{n=0}^{\infty} (-x)^n = \sum_{n=0}^{\infty} (-1)^n x^n$. Integrating term by term (and using $f(0)=\ln 1 = 0$ to fix the constant):</p>
-        <p>$$\ln(1+x) = \sum_{n=0}^{\infty} \frac{(-1)^n x^{n+1}}{n+1} = x - \frac{x^2}{2} + \frac{x^3}{3} - \cdots$$</p>
+        <p>Notice $f'(x) = \frac{1}{1+x}$, which is the known series above with $x$ replaced by $-x$: $\frac{1}{1+x} = \sum_{i=0}^{\infty} (-x)^i = \sum_{i=0}^{\infty} (-1)^i x^i$. Integrating term by term (and using $f(0)=\ln 1 = 0$ to fix the constant):</p>
+        <p>$$\ln(1+x) = \sum_{i=0}^{\infty} \frac{(-1)^i x^{i+1}}{i+1} = x - \frac{x^2}{2} + \frac{x^3}{3} - \cdots$$</p>
     </div>
 
     <div class="math-example">
         <div class="math-box-title">Example 2 &mdash; by substitution</div>
         <p>Find the Maclaurin series for $f(x) = e^{-x^2}$.</p>
         <p>Substitute $-x^2$ for $x$ directly in the known series for $e^x$:</p>
-        <p>$$e^{-x^2} = \sum_{n=0}^{\infty} \frac{(-x^2)^n}{n!} = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n}}{n!} = 1 - x^2 + \frac{x^4}{2} - \frac{x^6}{6}+\cdots$$</p>
+        <p>$$e^{-x^2} = \sum_{i=0}^{\infty} \frac{(-x^2)^i}{i!} = \sum_{i=0}^{\infty} \frac{(-1)^i x^{2i}}{i!} = 1 - x^2 + \frac{x^4}{2} - \frac{x^6}{6}+\cdots$$</p>
         <p>Far faster than differentiating $e^{-x^2}$ by hand five or six times.</p>
     </div>
 
@@ -178,7 +178,7 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">15</span>
-                <span class="practice-text">How large must $n$ be so that the degree-$n$ Maclaurin polynomial for $e^x$ approximates $e^1=e$ to within $0.001$? (Use $M=e$ as a bound on $[0,1]$.)</span>
+                <span class="practice-text">How large must $i$ be so that the degree-$i$ Maclaurin polynomial for $e^x$ approximates $e^1=e$ to within $0.001$? (Use $M=e$ as a bound on $[0,1]$.)</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">16</span>
@@ -186,7 +186,7 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">17</span>
-                <span class="practice-text">State Taylor's Inequality: if $|f^{(n+1)}(x)|\le M$ for all $x$ in an interval around $a$, what bound does it give for the remainder $R_n(x)$ of the degree-$n$ Taylor polynomial?</span>
+                <span class="practice-text">State Taylor's Inequality: if $|f^{(i+1)}(x)|\le M$ for all $x$ in an interval around $a$, what bound does it give for the remainder $R_i(x)$ of the degree-$i$ Taylor polynomial?</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">18</span>
@@ -205,26 +205,26 @@
     <div class="practice-answers-block">
         <h4>Answers</h4>
         <ol class="practice-answers-list">
-            <li><span class="ans-num">1.</span><span>$\displaystyle\sum_{n=0}^{\infty}\frac{x^n}{n!}=1+x+\frac{x^2}{2}+\frac{x^3}{6}+\frac{x^4}{24}+\cdots$</span></li>
-            <li><span class="ans-num">2.</span><span>$\displaystyle\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!}=x-\frac{x^3}{6}+\frac{x^5}{120}-\cdots$</span></li>
-            <li><span class="ans-num">3.</span><span>$\displaystyle\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n}}{(2n)!}=1-\frac{x^2}{2}+\frac{x^4}{24}-\cdots$</span></li>
-            <li><span class="ans-num">4.</span><span>$\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n+1}x^n}{n}=x-\frac{x^2}{2}+\frac{x^3}{3}-\cdots$</span></li>
-            <li><span class="ans-num">5.</span><span>$\displaystyle\sum_{n=0}^{\infty}x^n=1+x+x^2+x^3+\cdots$</span></li>
+            <li><span class="ans-num">1.</span><span>$\displaystyle\sum_{i=0}^{\infty}\frac{x^i}{i!}=1+x+\frac{x^2}{2}+\frac{x^3}{6}+\frac{x^4}{24}+\cdots$</span></li>
+            <li><span class="ans-num">2.</span><span>$\displaystyle\sum_{i=0}^{\infty}\frac{(-1)^i x^{2i+1}}{(2i+1)!}=x-\frac{x^3}{6}+\frac{x^5}{120}-\cdots$</span></li>
+            <li><span class="ans-num">3.</span><span>$\displaystyle\sum_{i=0}^{\infty}\frac{(-1)^i x^{2i}}{(2i)!}=1-\frac{x^2}{2}+\frac{x^4}{24}-\cdots$</span></li>
+            <li><span class="ans-num">4.</span><span>$\displaystyle\sum_{i=1}^{\infty}\frac{(-1)^{i+1}x^i}{i}=x-\frac{x^2}{2}+\frac{x^3}{3}-\cdots$</span></li>
+            <li><span class="ans-num">5.</span><span>$\displaystyle\sum_{i=0}^{\infty}x^i=1+x+x^2+x^3+\cdots$</span></li>
             <li><span class="ans-num">6.</span><span>$1+\dfrac{x}{2}-\dfrac{x^2}{8}+\dfrac{x^3}{16}-\cdots$</span></li>
             <li><span class="ans-num">7.</span><span>$e+e(x-1)+\dfrac{e}{2}(x-1)^2+\dfrac{e}{6}(x-1)^3+\cdots$</span></li>
-            <li><span class="ans-num">8.</span><span>$\displaystyle\sum_{n=0}^{\infty}(-1)^n(x-1)^n=1-(x-1)+(x-1)^2-\cdots$</span></li>
-            <li><span class="ans-num">9.</span><span>$\displaystyle\sum_{n=1}^{\infty}\frac{(-1)^{n+1}(x-1)^n}{n}=(x-1)-\frac{(x-1)^2}{2}+\cdots$</span></li>
+            <li><span class="ans-num">8.</span><span>$\displaystyle\sum_{i=0}^{\infty}(-1)^i(x-1)^i=1-(x-1)+(x-1)^2-\cdots$</span></li>
+            <li><span class="ans-num">9.</span><span>$\displaystyle\sum_{i=1}^{\infty}\frac{(-1)^{i+1}(x-1)^i}{i}=(x-1)-\frac{(x-1)^2}{2}+\cdots$</span></li>
             <li><span class="ans-num">10.</span><span>$\dfrac12-\dfrac{\sqrt3}{2}\left(x-\dfrac{\pi}{3}\right)-\dfrac14\left(x-\dfrac{\pi}{3}\right)^2+\cdots$</span></li>
             <li><span class="ans-num">11.</span><span>$T_4(0.1)\approx 1.1051708$; actual $e^{0.1}\approx 1.1051709$ — accurate to $6$ decimal places.</span></li>
             <li><span class="ans-num">12.</span><span>$T_2(0.2)=1-\dfrac{(0.2)^2}{2}=0.98$; actual $\cos(0.2)\approx 0.98007$.</span></li>
-            <li><span class="ans-num">13.</span><span>$\displaystyle\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!}$</span></li>
+            <li><span class="ans-num">13.</span><span>$\displaystyle\sum_{i=0}^{\infty}\frac{(-1)^i x^{2i+1}}{(2i+1)!}$</span></li>
             <li><span class="ans-num">14.</span><span>$|R_3|\le \dfrac{M(0.1)^4}{4!}=\dfrac{(0.1)^4}{24}\approx 4.17\times10^{-6}$</span></li>
-            <li><span class="ans-num">15.</span><span>Need $\dfrac{e}{(n+1)!}<0.001$. Checking values: at $n=5$ the bound is $\approx 0.00378$ (too big); at $n=6$ it's $\approx 0.00054<0.001$. So $n=6$.</span></li>
+            <li><span class="ans-num">15.</span><span>Need $\dfrac{e}{(i+1)!}<0.001$. Checking values: at $i=5$ the bound is $\approx 0.00378$ (too big); at $i=6$ it's $\approx 0.00054<0.001$. So $i=6$.</span></li>
             <li><span class="ans-num">16.</span><span>$|R_3|\le \dfrac{6\,(0.1)^4}{4!}=2.5\times10^{-5}$</span></li>
-            <li><span class="ans-num">17.</span><span>$\left|R_n(x)\right|\le \dfrac{M}{(n+1)!}\,|x-a|^{n+1}$</span></li>
+            <li><span class="ans-num">17.</span><span>$\left|R_i(x)\right|\le \dfrac{M}{(i+1)!}\,|x-a|^{i+1}$</span></li>
             <li><span class="ans-num">18.</span><span>$\dfrac12$</span></li>
             <li><span class="ans-num">19.</span><span>$\approx 0.94608$ (the true value, $\operatorname{Si}(1)$, is $\approx 0.94608$ as well — this integral has no elementary antiderivative, so a series is the practical way to approximate it).</span></li>
-            <li><span class="ans-num">20.</span><span>$\displaystyle(1+x)^k=\sum_{n=0}^{\infty}\binom{k}{n}x^n$ where $\binom{k}{n}=\dfrac{k(k-1)\cdots(k-n+1)}{n!}$; radius of convergence $R=1$.</span></li>
+            <li><span class="ans-num">20.</span><span>$\displaystyle(1+x)^k=\sum_{i=0}^{\infty}\binom{k}{i}x^i$ where $\binom{k}{i}=\dfrac{k(k-1)\cdots(k-i+1)}{i!}$; radius of convergence $R=1$.</span></li>
         </ol>
     </div>
     <script>

@@ -171,16 +171,18 @@
       "trs": [
         {
           "Machine learning overview": "",
-          "Classification": ""
+          "Classification": "",
+          "Regression" : ""
         },
         {
-          "Artificial neural networks": ""
+          "Reinforcement Learning": "",
+          "Artificial Neural Networks": ""
         },
         {
           "BREAK": ""
         },
         {
-          "Reinforcement learning": ""
+          "Project assist": ""
         },
         {
           "Presentation 3: The...Perfection?": ""
