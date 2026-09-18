@@ -1,0 +1,389 @@
+/* v009/site/styles/_projects_desktop_curriculum_planner.css */
+
+.curric-root {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-family: var(--sans);
+    color: var(--ink);
+}
+
+/* ── Controls ── */
+.curric-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+.curric-control-group {
+    background: var(--bg-light);
+    border: 1px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    padding: 10px 14px;
+    min-width: 170px;
+    flex: 1 1 170px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+.curric-control-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.curric-control-title-row .curric-control-title { margin-bottom: 0; }
+.curric-clear-btn {
+    font-family: var(--sans);
+    font-size: calc(9.5px * var(--mod-font-size));
+    padding: 2px 8px;
+    border: 1px solid var(--panel-bd);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+}
+.curric-clear-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+.curric-control-title {
+    font-weight: bold;
+    font-size: calc(11px * var(--mod-font-size));
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.curric-control-hint {
+    font-weight: normal;
+    text-transform: none;
+    color: var(--ink-faint);
+    font-size: 0.9em;
+}
+.curric-check-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: calc(11.5px * var(--mod-font-size));
+    padding: 2px 0;
+    cursor: default;
+    line-height: 1.35;
+}
+.curric-check-row input[type="checkbox"] {
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.curric-program-name, .curric-group-name, .curric-instructor-name {
+    border-bottom: 1px dashed transparent;
+    cursor: text;
+}
+.curric-program-name:hover, .curric-group-name:hover, .curric-instructor-name:hover,
+.curric-program-name:focus, .curric-group-name:focus, .curric-instructor-name:focus {
+    border-bottom-color: var(--ink-faint);
+    outline: none;
+}
+.curric-program-credits {
+    color: var(--ink-faint);
+    font-size: 0.85em;
+    margin-left: auto;
+    white-space: nowrap;
+    padding-left: 6px;
+}
+.curric-instructor-row .curric-legend-swatch { margin-right: 2px; }
+.curric-prefix-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.15);
+    flex-shrink: 0;
+}
+.curric-color-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid var(--panel-bd);
+    border-radius: 4px;
+    cursor: pointer;
+    background: none;
+    flex-shrink: 0;
+}
+.curric-color-input::-webkit-color-swatch-wrapper { padding: 1px; }
+.curric-color-input::-webkit-color-swatch { border: none; border-radius: 3px; }
+
+.curric-control-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    max-height: none;
+}
+.curric-btn {
+    font-family: var(--sans);
+    font-size: calc(11.5px * var(--mod-font-size));
+    padding: 7px 14px;
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    background: var(--bg-light);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
+}
+.curric-btn:hover { border-color: var(--ink); background: var(--bg2); }
+.curric-btn-reset { border-color: var(--color-accent-projects); }
+
+/* ── Legend ── */
+.curric-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: calc(11px * var(--mod-font-size));
+    color: var(--ink-soft);
+}
+.curric-legend-item { display: flex; align-items: center; gap: 5px; }
+.curric-legend-swatch {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.15);
+    flex-shrink: 0;
+}
+
+/* ── Table ── */
+.curric-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+}
+/* Always exactly the wrapper's width, never wider -- program columns
+   (minmax(0,1fr) in gridTemplate()) shrink to fit however many there
+   are, rather than the table growing and needing horizontal scroll. */
+.curric-table { width: 100%; }
+
+.curric-header-row, .curric-group-header, .curric-row {
+    display: grid;
+    align-items: stretch;
+}
+
+.curric-header-row {
+    position: sticky;
+    top: 0;
+    background: var(--paper1);
+    border-bottom: 1.5px solid var(--ink);
+    z-index: 2;
+}
+.curric-col-course-header {
+    padding: 8px 10px;
+    font-weight: bold;
+    font-size: calc(11px * var(--mod-font-size));
+    display: flex;
+    align-items: flex-end;
+}
+.curric-col-count-header {
+    padding: 8px 4px;
+    font-weight: bold;
+    font-size: calc(10px * var(--mod-font-size));
+    text-align: center;
+    border-left: 1px solid var(--panel-bd);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+.curric-col-program-header {
+    padding: 8px 6px;
+    border-left: 1px solid var(--panel-bd);
+    text-align: center;
+    font-weight: bold;
+    font-size: calc(10px * var(--mod-font-size));
+    line-height: 1.25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    position: relative;
+    min-width: 0;
+}
+.curric-col-drag-handle {
+    cursor: grab;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    touch-action: none;
+    user-select: none;
+    font-size: 0.85em;
+}
+.curric-col-drag-handle:active { cursor: grabbing; }
+.curric-col-program-name { min-width: 0; overflow-wrap: break-word; word-break: break-word; }
+.curric-col-dragging { opacity: 0.3; }
+.curric-col-drop-before { box-shadow: inset 3px 0 0 var(--color-accent-projects); }
+.curric-col-drop-after { box-shadow: inset -3px 0 0 var(--color-accent-projects); }
+.curric-col-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.9;
+    box-shadow: 0 6px 18px var(--shadow-soft);
+    background: var(--paper1);
+}
+
+.curric-group { border-top: 3px solid var(--bg2); }
+.curric-group:first-child { border-top: none; }
+.curric-group-header {
+    background: color-mix(in oklab, var(--color-accent-projects), white 80%);
+}
+.curric-group-name-wrap {
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    font-size: calc(11px * var(--mod-font-size));
+}
+.curric-group-remove {
+    border: none;
+    background: none;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 4px;
+}
+.curric-group-remove:hover { color: var(--accent2); }
+.curric-group-drag-handle {
+    cursor: grab;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    touch-action: none;
+    user-select: none;
+}
+.curric-group-drag-handle:active { cursor: grabbing; }
+.curric-group-dragging { opacity: 0.3; }
+.curric-group-drop-before { box-shadow: inset 0 3px 0 var(--color-accent-projects); }
+.curric-group-drop-after { box-shadow: inset 0 -3px 0 var(--color-accent-projects); }
+.curric-group-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.9;
+    box-shadow: 0 6px 18px var(--shadow-soft);
+    border-radius: 6px;
+}
+
+.curric-group-body { min-height: 4px; }
+.curric-empty-group {
+    padding: 10px;
+    text-align: center;
+    font-size: calc(10.5px * var(--mod-font-size));
+    color: var(--ink-faint);
+    border: 1.5px dashed var(--panel-bd);
+    border-radius: 6px;
+    margin: 4px 10px;
+}
+.curric-dropzone-active { background: color-mix(in oklab, var(--color-accent-projects), white 90%); outline: 2px dashed var(--color-accent-projects); outline-offset: -2px; }
+
+.curric-row { border-top: 1px solid var(--panel-bd); }
+.curric-row:hover { background: var(--bg-light); }
+.curric-row-dragging { opacity: 0.3; }
+
+.curric-course-cell {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    font-size: calc(11px * var(--mod-font-size));
+    min-width: 0;
+    border-radius: 4px;
+}
+.curric-drag-handle {
+    cursor: grab;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+    touch-action: none;
+    user-select: none;
+}
+.curric-drag-handle:active { cursor: grabbing; }
+.curric-prefix-pill {
+    font-family: var(--mono);
+    font-size: calc(9.5px * var(--mod-font-size));
+    font-weight: bold;
+    color: rgba(0,0,0,0.72);
+    padding: 1px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.curric-course-number {
+    font-family: var(--mono);
+    font-size: calc(10.5px * var(--mod-font-size));
+    color: var(--ink-soft);
+    flex-shrink: 0;
+}
+.curric-course-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.curric-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid var(--panel-bd);
+    font-weight: bold;
+    font-size: calc(10px * var(--mod-font-size));
+    color: var(--ink);
+    min-height: 34px;
+    padding: 3px 8px;
+    text-align: center;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.curric-cell-required {
+    justify-content: flex-start;
+    text-align: left;
+    color: #1f3b28;
+    font-weight: 600;
+    line-height: 1.25;
+}
+.curric-cell-elective {
+    color: #4a3b0f;
+}
+.curric-cell-blank {
+    background: transparent;
+}
+.curric-count-cell {
+    border-left: 1px solid var(--panel-bd);
+    font-family: var(--mono);
+    font-size: calc(10.5px * var(--mod-font-size));
+    font-weight: bold;
+    color: var(--ink-soft);
+}
+.curric-empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: calc(12px * var(--mod-font-size));
+}
+.curric-loading {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: calc(12px * var(--mod-font-size));
+    border: 1px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+}
+.curric-loading.curric-error {
+    color: var(--accent2);
+    border-color: var(--accent2);
+}
+
+.curric-row-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.9;
+    box-shadow: 0 6px 18px var(--shadow-soft);
+    border-radius: 6px;
+    background: var(--paper1);
+}

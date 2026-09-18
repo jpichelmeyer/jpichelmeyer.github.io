@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>The SAM lesson closed with a line worth returning to now: a lot of this semester is really just different ways of building a more capable Decider. An FSM's Decider is a set of states and transitions you write by hand. A behavior tree's Decider is a set of nodes you arrange by hand. <strong>Machine learning</strong> is a genuinely different approach: instead of writing the decision rule yourself, you write a way for the agent to <em>discover</em> the rule from data or experience.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/undercover-extraterrestrials/undercover-extraterrestrials.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+
+        <h3>Part 1. Three Agents, Three Paradigms</h3>
+        <p>The simulation above runs three learning agents side by side, and each one is a different flavor of machine learning, which the next three lessons take one at a time:</p>
+        <ul>
+            <li><strong>Checker</strong> watches people arrive at a checkpoint, reads their appearance, and decides whether to let them through. It's a <strong>classification</strong> problem: the output is a discrete category, alien or not.</li>
+            <li><strong>Sentry</strong> watches for a fleeing target and decides how far ahead of it to aim. It's a <strong>regression</strong> problem: the output is a continuous number, how much lead to give the shot.</li>
+            <li>The <strong>aliens</strong> themselves share one policy (the "Hive Mind") for deciding whether to juke up, juke down, or run straight when being shot at. It's a <strong>reinforcement learning</strong> problem: there's no "correct" dodge labeled in advance, only a reward (dodged, or didn't) discovered by trying things.</li>
+        </ul>
+
+        <h3>Part 2. The Three Basic Areas of Machine Learning</h3>
+        <div class="diagram">
+<svg viewBox="0 0 520 230" xmlns="http://www.w3.org/2000/svg">
+    <rect x="200" y="10" width="120" height="42" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="260" y="35" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Machine Learning</text>
+
+    <rect x="10" y="105" width="150" height="42" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="85" y="130" font-size="12.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Supervised</text>
+
+    <rect x="195" y="105" width="130" height="42" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="260" y="130" font-size="12.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Unsupervised</text>
+
+    <rect x="355" y="105" width="150" height="42" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="430" y="130" font-size="12.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Reinforcement</text>
+
+    <rect x="10" y="180" width="70" height="38" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
+    <text x="45" y="203" font-size="11.5" fill="#8a4526" text-anchor="middle">Classification</text>
+
+    <rect x="90" y="180" width="70" height="38" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
+    <text x="125" y="203" font-size="11.5" fill="#8a4526" text-anchor="middle">Regression</text>
+
+    <line x1="230" y1="52" x2="110" y2="103" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="260" y1="52" x2="260" y2="103" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="290" y1="52" x2="410" y2="103" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="60" y1="147" x2="45" y2="178" stroke="#8a8a8a" stroke-width="1.3"/>
+    <line x1="110" y1="147" x2="125" y2="178" stroke="#8a8a8a" stroke-width="1.3"/>
+</svg>
+            <div class="diagram-caption">Classification and regression are both supervised (every training example comes with a known correct answer); reinforcement learning has no labeled correct answer at all, only a reward. Unsupervised learning (not used by any agent in this project) has neither labels nor rewards -- it looks for structure in unlabeled data on its own.</div>
+        </div>
+
+        <ul>
+            <li><strong>Supervised learning</strong>: training data is a set of (input, correct output) pairs. The model's job is to learn a function from input to output that generalizes to new inputs it hasn't seen. If the output is a category (a finite set of discrete labels), it's <strong>classification</strong>. If the output is a number that can fall anywhere along a continuum, it's <strong>regression</strong>.</li>
+            <li><strong>Unsupervised learning</strong>: training data is <em>unlabeled</em> &mdash; just a pile of inputs, no correct-output pairing at all. The model looks for structure on its own: grouping similar inputs together (clustering), or finding a simpler underlying representation of the data. No agent in this project's demo uses it, but it's worth naming as the third basic category alongside supervised and reinforcement learning.</li>
+            <li><strong>Reinforcement learning</strong>: there's no labeled correct answer for any single decision. Instead, an agent takes actions in some environment and receives a <strong>reward</strong> signal (a number saying how well that went), then adjusts its behavior to earn more reward over time. It learns by trial, error, and consequence, not by being shown correct answers upfront.</li>
+        </ul>
+
+        <h3>Part 3. A New Piece of Vocabulary: Training</h3>
+        <p>Every Decider you've built so far reacted every single frame: an FSM's <span class="code-lesson-il">update()</span>, a behavior tree's <span class="code-lesson-il">tick()</span>. A learning agent adds a second mode entirely: it still <em>acts</em> every frame (using whatever it currently believes), but periodically it also <strong>trains</strong>, pausing to update those beliefs from what's accumulated in Memory since the last time.</p>
+        <p>Watch the simulation above for a minute and you'll see this directly: each agent alternates between acting on the world and a brief pause (labeled on screen) where it retrains on what it's collected. This collect-then-train cycle, not deciding fresh from nothing every frame, is the structural signature of a learning Decider, and it's true whether the training update is Checker's Naive Bayes refit, Sentry's gradient descent, or the aliens' shared Q-table nudge &mdash; the next three lessons.</p>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Name the three basic areas of machine learning, and say what distinguishes each one's training data (labeled input/output pairs, no labels at all, or a reward signal).</li>
+            <li>Explain the difference between classification and regression in one sentence.</li>
+            <li>Match each of Checker, Sentry, and the aliens' Hive Mind to the correct one of the three areas, and say why.</li>
+            <li>Explain what "training" adds to the Decider concept that a plain FSM or behavior tree never needed.</li>
+        </ol>
+
+    </body>
+</html>

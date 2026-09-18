@@ -1,0 +1,1055 @@
+{
+  "courses": {
+    "csc1100": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "1100",
+      "title": "Intro to Computing (QR)",
+      "prereqs": []
+    },
+    "csc1710": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "1710",
+      "title": "Game Design",
+      "prereqs": []
+    },
+    "csc1810": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "1810",
+      "title": "Principles of Computer Science I",
+      "prereqs": []
+    },
+    "csc1820": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "1820",
+      "title": "Principles of Computer Science II",
+      "prereqs": []
+    },
+    "csc2350": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "2350",
+      "title": "Software Engineering",
+      "prereqs": []
+    },
+    "csc2560": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "2560",
+      "title": "Data Structures and Algorithms",
+      "prereqs": []
+    },
+    "csc2710": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "2710",
+      "title": "Game Development I",
+      "prereqs": []
+    },
+    "csc2720": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "2720",
+      "title": "Game Development II",
+      "prereqs": []
+    },
+    "csc2810": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "2810",
+      "title": "Database Design and Management",
+      "prereqs": []
+    },
+    "csc2910": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "2910",
+      "title": "Object-Oriented",
+      "prereqs": []
+    },
+    "csc3030": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3030",
+      "title": "Information Visualization",
+      "prereqs": []
+    },
+    "csc3210": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3210",
+      "title": "Computing Paradigms",
+      "prereqs": []
+    },
+    "csc3510": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3510",
+      "title": "Computer Organization",
+      "prereqs": []
+    },
+    "csc3520": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3520",
+      "title": "Connected Systems",
+      "prereqs": []
+    },
+    "csc3530": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3530",
+      "title": "Artificial Intelligence and Cognitive Modeling",
+      "prereqs": []
+    },
+    "csc3630": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3630",
+      "title": "Reinforcement Learning",
+      "prereqs": []
+    },
+    "csc3710": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3710",
+      "title": "Game Engine Programming",
+      "prereqs": []
+    },
+    "csc3730": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3730",
+      "title": "Artificial Intelligence for Simulations",
+      "prereqs": []
+    },
+    "csc3750": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3750",
+      "title": "Algorithms",
+      "prereqs": []
+    },
+    "csc3770": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3770",
+      "title": "Computer Graphics",
+      "prereqs": []
+    },
+    "csc3830": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3830",
+      "title": "Generative AI",
+      "prereqs": []
+    },
+    "csc2430": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "2430",
+      "title": "Artificial Life (IDP)",
+      "prereqs": []
+    },
+    "csc4000": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "4000",
+      "title": "Senior Seminar",
+      "prereqs": []
+    },
+    "csc4350": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "4350",
+      "title": "(Adv) Software Engineering",
+      "prereqs": []
+    },
+    "csc4990": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "4990",
+      "title": "Senior Thesis Completion",
+      "prereqs": []
+    },
+    "csc400t": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "400T",
+      "title": "Topics in Game Development",
+      "prereqs": []
+    },
+    "csc200t": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "200T",
+      "title": "AI in the Zone",
+      "prereqs": []
+    },
+    "csc400a": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "400A",
+      "title": "Agile Development",
+      "prereqs": []
+    },
+    "csc400c": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "400C",
+      "title": "Web Development",
+      "prereqs": []
+    },
+    "csc400l": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "400L",
+      "title": "Mobile App Development",
+      "prereqs": []
+    },
+    "csc400r": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "400R",
+      "title": "Software Security",
+      "prereqs": []
+    },
+    "csc3410": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3410",
+      "title": "Web Development",
+      "prereqs": []
+    },
+    "csc3450": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3450",
+      "title": "Computer Systems Admin",
+      "prereqs": []
+    },
+    "csc3600": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3600",
+      "title": "Network Programming",
+      "prereqs": []
+    },
+    "csc3810": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "3810",
+      "title": "Foundations of CS",
+      "prereqs": []
+    },
+    "csc4360": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "4360",
+      "title": "Agile Software Dev",
+      "prereqs": []
+    },
+    "csc4650": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "4650",
+      "title": "Computer Architecture",
+      "prereqs": []
+    },
+    "csc4730": {
+      "prefixes": [
+        "CSC"
+      ],
+      "number": "4730",
+      "title": "Operating Systems",
+      "prereqs": []
+    },
+    "mth1120": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1120",
+      "title": "Calculus I",
+      "prereqs": []
+    },
+    "mth1220": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1220",
+      "title": "Calculus II",
+      "prereqs": []
+    },
+    "mth1240": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1240",
+      "title": "Discrete Structures",
+      "prereqs": []
+    },
+    "mth2020": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "2020",
+      "title": "Differential Equations",
+      "prereqs": []
+    },
+    "mth2040": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "2040",
+      "title": "Linear Algebra",
+      "prereqs": []
+    },
+    "mth2090": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "2090",
+      "title": "Mathematical Computing",
+      "prereqs": []
+    },
+    "mth2120": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "2120",
+      "title": "Multivariable Calculus",
+      "prereqs": []
+    },
+    "mth3040": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "3040",
+      "title": "Abstract Algebra I",
+      "prereqs": []
+    },
+    "mth3050": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "3050",
+      "title": "Statistics",
+      "prereqs": []
+    },
+    "mth3120": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "3120",
+      "title": "Real Analysis",
+      "prereqs": []
+    },
+    "mth4300": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "4300",
+      "title": "Senior Research",
+      "prereqs": []
+    },
+    "mth4990": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "4990",
+      "title": "Senior Thesis Completion",
+      "prereqs": []
+    },
+    "phy2200": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "2200",
+      "title": "General Physics I",
+      "prereqs": []
+    },
+    "phy2210": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "2210",
+      "title": "General Physics II",
+      "prereqs": []
+    },
+    "egr3120": {
+      "prefixes": [
+        "EGR",
+        "PHY"
+      ],
+      "number": "3120",
+      "title": "Electronics",
+      "prereqs": []
+    },
+    "egr1020": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "1020",
+      "title": "Computational Reasoning with MATLAB",
+      "prereqs": []
+    },
+    "egr1100": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "1100",
+      "title": "Intro to Engineering Design",
+      "prereqs": []
+    },
+    "egr1200": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "1200",
+      "title": "Visualization and Modeling with SolidWorks",
+      "prereqs": []
+    },
+    "egr1300": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "1300",
+      "title": "Managing an Engineering Venture",
+      "prereqs": []
+    },
+    "egr2100": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "2100",
+      "title": "Engineering Statics and Solid Mechanics",
+      "prereqs": []
+    },
+    "egr2700": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "2700",
+      "title": "Engineering Practice I",
+      "prereqs": []
+    },
+    "egr2710": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "2710",
+      "title": "Engineering Practice II",
+      "prereqs": []
+    },
+    "egr3100": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "3100",
+      "title": "Engineering Materials",
+      "prereqs": []
+    },
+    "egr3400": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "3400",
+      "title": "Thermal Fluids",
+      "prereqs": []
+    },
+    "egr3600": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "3600",
+      "title": "Engineering Codes, Standards, and Economics",
+      "prereqs": []
+    },
+    "egr4500": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4500",
+      "title": "Analysis and Measurement of Engineered Systems",
+      "prereqs": []
+    },
+    "egr4900": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4900",
+      "title": "Senior Capstone Project",
+      "prereqs": []
+    },
+    "egr4910": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4910",
+      "title": "Engineering Capstone I",
+      "prereqs": []
+    },
+    "egr4920": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4920",
+      "title": "Engineering Capstone II",
+      "prereqs": []
+    },
+    "egr4990": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4990",
+      "title": "Senior Capstone Completion",
+      "prereqs": []
+    },
+    "chm1010": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "1010",
+      "title": "General Chemistry I",
+      "prereqs": []
+    },
+    "dat1030": {
+      "prefixes": [
+        "DAT"
+      ],
+      "number": "1030",
+      "title": "Data Science I",
+      "prereqs": []
+    },
+    "dat1040": {
+      "prefixes": [
+        "DAT"
+      ],
+      "number": "1040",
+      "title": "Data Science II",
+      "prereqs": []
+    },
+    "dat2190": {
+      "prefixes": [
+        "DAT"
+      ],
+      "number": "2190",
+      "title": "Ethics in Data Science",
+      "prereqs": []
+    },
+    "dat3090": {
+      "prefixes": [
+        "DAT"
+      ],
+      "number": "3090",
+      "title": "Machine Learning",
+      "prereqs": []
+    },
+    "dat3350": {
+      "prefixes": [
+        "DAT"
+      ],
+      "number": "3350",
+      "title": "Data Science Portfolio I",
+      "prereqs": []
+    },
+    "dat4350": {
+      "prefixes": [
+        "DAT"
+      ],
+      "number": "4350",
+      "title": "D.S. Portfolio II",
+      "prereqs": []
+    },
+    "dat4990": {
+      "prefixes": [
+        "DAT"
+      ],
+      "number": "4990",
+      "title": "Senior Thesis Completion",
+      "prereqs": []
+    }
+  },
+  "programs": [
+    {
+      "code": "ba_cs",
+      "name": "B.A. Computer Science",
+      "credits": "46 credits",
+      "required": [
+        "csc1810",
+        "csc1820",
+        "csc2560",
+        "csc2810",
+        "csc3510",
+        "csc4350",
+        "csc4000",
+        "csc4990",
+        "mth1240"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [],
+        "openRule": {
+          "prefix": "CSC",
+          "minNumber": 2000
+        }
+      }
+    },
+    {
+      "code": "bs_cs",
+      "name": "B.S. Computer Science",
+      "credits": "70 credits",
+      "required": [
+        "csc1810",
+        "csc1820",
+        "csc2560",
+        "csc2810",
+        "csc3510",
+        "csc4350",
+        "mth1120",
+        "mth1220",
+        "mth1240"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [],
+        "openRule": {
+          "prefix": "CSC",
+          "minNumber": 2000
+        }
+      }
+    },
+    {
+      "code": "ba_gamedev",
+      "name": "B.A. Game Development",
+      "credits": "54 credits",
+      "required": [
+        "csc1710",
+        "csc1810",
+        "csc1820",
+        "csc2560",
+        "csc2710",
+        "csc2720",
+        "csc2810",
+        "csc4000",
+        "csc4350",
+        "csc4990"
+      ],
+      "elective": {
+        "pick": 2,
+        "list": [
+          "csc3710",
+          "csc3730",
+          "csc3530",
+          "csc3770",
+          "csc400t"
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "bs_gamedev",
+      "name": "B.S. Game Development",
+      "credits": "70 credits",
+      "required": [
+        "csc1710",
+        "csc1810",
+        "csc1820",
+        "csc2560",
+        "csc2710",
+        "csc2720",
+        "csc2810",
+        "csc4000",
+        "csc4350",
+        "csc4990",
+        "mth1120",
+        "mth2040"
+      ],
+      "elective": {
+        "pick": 2,
+        "list": [
+          "csc3710",
+          "csc3730",
+          "csc3530",
+          "csc3770",
+          "csc400t"
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "bs_swe",
+      "name": "B.S. Software Engineering",
+      "credits": "54+ credits",
+      "required": [
+        "egr1100",
+        "csc1810",
+        "csc1820",
+        "csc2350",
+        "csc2560",
+        "egr2700",
+        "egr2710",
+        "egr3120",
+        "csc3510",
+        "csc3520",
+        "csc4000",
+        "csc4350",
+        "mth1120",
+        "mth1220",
+        "mth1240",
+        "mth2120",
+        "mth3050",
+        "phy2200",
+        "phy2210"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [],
+        "openRule": {
+          "prefix": "CSC",
+          "minNumber": 2000
+        }
+      }
+    },
+    {
+      "code": "ba_swe",
+      "name": "B.A. Software Engineering",
+      "credits": "54 credits",
+      "required": [
+        "egr1100",
+        "csc1810",
+        "csc1820",
+        "csc2350",
+        "csc2560",
+        "egr2700",
+        "egr2710",
+        "csc3510",
+        "csc3520",
+        "csc4000",
+        "csc4350",
+        "mth1240"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [],
+        "openRule": {
+          "prefix": "CSC",
+          "minNumber": 2000
+        }
+      }
+    },
+    {
+      "code": "bs_engineering",
+      "name": "B.S. Engineering",
+      "credits": "credits n/a",
+      "required": [
+        "mth1120",
+        "mth1220",
+        "mth2020",
+        "mth2120",
+        "mth3050",
+        "phy2200",
+        "phy2210",
+        "chm1010",
+        "egr1020",
+        "egr1100",
+        "egr1200",
+        "egr1300",
+        "egr2100",
+        "egr2700",
+        "egr2710",
+        "egr3100",
+        "egr3120",
+        "egr3400",
+        "egr3600",
+        "egr4500",
+        "egr4910",
+        "egr4920"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [],
+        "openRule": {
+          "prefix": "EGR",
+          "minNumber": 4100
+        }
+      }
+    },
+    {
+      "code": "ba_appliedengineering",
+      "name": "B.A. Applied Engineering",
+      "credits": "credits n/a",
+      "required": [
+        "mth1120",
+        "mth1220",
+        "mth2020",
+        "mth2120",
+        "mth3050",
+        "phy2200",
+        "phy2210",
+        "chm1010",
+        "egr1020",
+        "egr1100",
+        "egr1200",
+        "egr1300",
+        "egr2100",
+        "egr2700",
+        "egr2710",
+        "egr4900",
+        "egr4990"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [],
+        "openRule": {
+          "prefix": "EGR",
+          "minNumber": 4100
+        }
+      }
+    },
+    {
+      "code": "b_mathematics",
+      "name": "B. Mathematics",
+      "credits": "credits n/a",
+      "required": [
+        "mth1120",
+        "mth1220",
+        "mth1240",
+        "mth2040",
+        "mth2090",
+        "mth3040",
+        "mth3120",
+        "mth4300",
+        "mth4990",
+        "dat1030"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [],
+        "openRule": {
+          "prefix": "MTH",
+          "minNumber": 2000
+        }
+      }
+    },
+    {
+      "code": "b_datascience",
+      "name": "B. Data Science",
+      "credits": "credits n/a",
+      "required": [
+        "dat1030",
+        "dat1040",
+        "mth1120",
+        "mth2040",
+        "csc2810",
+        "dat3090",
+        "dat3350",
+        "dat4350",
+        "dat4990",
+        "dat2190"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+          "csc1100",
+          "csc1810"
+        ],
+        "openRule": null
+      }
+    }
+  ],
+  "defaultGroups": [
+    {
+      "name": "Catalog Courses",
+      "courses": [
+        "csc1100",
+        "csc1710",
+        "csc1810",
+        "csc1820",
+        "csc2560",
+        "csc2710",
+        "csc2720",
+        "csc2810",
+        "csc2910",
+        "csc3030",
+        "csc3210",
+        "csc3510",
+        "csc3520",
+        "csc3530",
+        "csc3710",
+        "csc3730",
+        "csc3750",
+        "csc3770",
+        "csc4000",
+        "csc4350"
+      ]
+    },
+    {
+      "name": "Jterm Courses",
+      "courses": [
+        "csc200t",
+        "csc400a",
+        "csc400c",
+        "csc400l",
+        "csc400t",
+        "csc400r"
+      ]
+    },
+    {
+      "name": "New Courses",
+      "courses": [
+        "csc2350",
+        "csc3630",
+        "csc3830",
+        "csc2430",
+        "csc4990"
+      ]
+    },
+    {
+      "name": "Stale Courses?",
+      "courses": [
+        "csc3410",
+        "csc3450",
+        "csc3600",
+        "csc3810",
+        "csc4360",
+        "csc4650",
+        "csc4730"
+      ]
+    },
+    {
+      "name": "Math Courses",
+      "courses": [
+        "mth1120",
+        "mth1220",
+        "mth1240",
+        "mth2020",
+        "mth2040",
+        "mth2090",
+        "mth2120",
+        "mth3040",
+        "mth3050",
+        "mth3120",
+        "mth4300",
+        "mth4990"
+      ]
+    },
+    {
+      "name": "Physics Courses",
+      "courses": [
+        "phy2200",
+        "phy2210"
+      ]
+    },
+    {
+      "name": "Engineering Courses",
+      "courses": [
+        "egr1020",
+        "egr1100",
+        "egr1200",
+        "egr1300",
+        "egr2100",
+        "egr2700",
+        "egr2710",
+        "egr3100",
+        "egr3120",
+        "egr3400",
+        "egr3600",
+        "egr4500",
+        "egr4900",
+        "egr4910",
+        "egr4920",
+        "egr4990"
+      ]
+    },
+    {
+      "name": "Chemistry Courses",
+      "courses": [
+        "chm1010"
+      ]
+    },
+    {
+      "name": "Data Science Courses",
+      "courses": [
+        "dat1030",
+        "dat1040",
+        "dat2190",
+        "dat3090",
+        "dat3350",
+        "dat4350",
+        "dat4990"
+      ]
+    }
+  ],
+  "instructorTags": {
+    "csc2910": "#86d4ff",
+    "csc3030": "#bf9ed5",
+    "csc3210": "#86d4ff",
+    "csc3520": "#86d4ff",
+    "csc3530": "#92ffa3",
+    "csc3710": "#ffb272",
+    "csc3730": "#ffb272",
+    "csc3770": "#ffb272",
+    "csc4350": "#86d4ff",
+    "csc200t": "#bf9ed5",
+    "csc2350": "#bf9ed5",
+    "csc3630": "#92ffa3",
+    "csc3830": "#92ffa3",
+    "csc2430": "#92ffa3",
+    "csc3410": "#b7b7b7",
+    "csc3450": "#b7b7b7",
+    "csc3600": "#b7b7b7",
+    "csc3810": "#b7b7b7",
+    "csc4360": "#b7b7b7",
+    "csc4650": "#b7b7b7",
+    "csc4730": "#b7b7b7"
+  },
+  "prefixColors": {
+    "CSC": "#8fc9ab",
+    "EGR": "#a9c4e8",
+    "DAT": "#e8a9c0",
+    "PHY": "#c9b7e0",
+    "CHM": "#c7d97e",
+    "MTH": "#e3c682"
+  }
+}

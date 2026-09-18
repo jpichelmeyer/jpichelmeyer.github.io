@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p><strong>Regression</strong> is supervised learning where the output is a continuous number rather than a category. Sentry is this course's running example: instead of sorting people into buckets, it predicts a single number, how far ahead of a fleeing target to aim, and that number can be anything along a range, not one of a fixed few choices.</p>
+
+        <h3>Part 1. The Problem: Leading a Moving Target</h3>
+        <p>A projectile takes time to travel. Aim straight at where a fleeing target is <em>right now</em> and, by the time the shot arrives, the target's moved. Sentry has to predict how far ahead of the target's current position to aim, its <strong>lead</strong>, and the only thing it has to go on is the target's current distance:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">sentry_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func predict_lead(distance:float) -> float:
+    return weights[0] + weights[1] * (distance / 100.0)
+</span>
+</div>
+
+        <p>That's the entire model: a straight line. <span class="code-lesson-il">weights[0]</span> is the line's intercept (the predicted lead at distance zero); <span class="code-lesson-il">weights[1]</span> is its slope (how much predicted lead grows per unit of distance). "Training" means finding good values for those two numbers, and nothing else about the model's shape ever changes.</p>
+
+        <h3>Part 2. Where the Correct Answer Comes From</h3>
+        <p>Classification needs a ground-truth label for every training example; regression needs a ground-truth <em>number</em>. Sentry gets one in a way worth noticing: after every shot, geometry alone (not another model, not a guess) works out what lead would, in hindsight, have hit exactly:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">projectile.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">if target_node != null:
+    var dist_at_fire:float = global_position.distance_to(target_node.global_position)
+    hindsight_ideal_lead = dist_at_fire / SPEED
+</span>
+</div>
+
+        <p>Every shot, hit or miss, produces one of these hindsight values, appended to Memory alongside the distance it was fired from. That's what makes this genuine regression rather than a hit/miss classifier in disguise: the label is a real, continuous, correct number for that exact shot, not just <span class="code-lesson-il">true</span> or <span class="code-lesson-il">false</span>.</p>
+
+        <h3>Part 3. Loss: Measuring How Wrong a Line Is</h3>
+        <p>To improve the line, the model needs a number that says how badly it's currently doing, a <strong>loss</strong>. Sentry uses squared error: for each training example, the difference between the predicted lead and the ideal lead, squared. Squaring does two things at once &mdash; it makes every error positive (so overshooting and undershooting don't cancel out), and it punishes large errors much more than small ones.</p>
+
+        <h3>Part 4. Training: Gradient Descent</h3>
+        <p>Rather than solving for the best-fit line in one shot, Sentry nudges its weights a little at a time, in whichever direction reduces the error for each example, repeated over many passes through Memory:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">sentry_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">const LEARNING_RATE:float = 0.05
+const TRAINING_EPOCHS:int = 300
+
+var weights:Array = [0.0, 0.0] # [bias, distance_coefficient]
+
+func _train_on_memory() -> void:
+    for epoch in range(TRAINING_EPOCHS):
+        for record in memory:
+            var x:float = record.distance / 100.0
+            var predicted:float = weights[0] + weights[1] * x
+            var error:float = predicted - record.ideal_lead
+            weights[0] -= LEARNING_RATE * error
+            weights[1] -= LEARNING_RATE * error * x
+</span>
+</div>
+
+        <p>Read the update line by line:</p>
+        <ul>
+            <li><span class="code-lesson-il">error = predicted - record.ideal_lead</span>: positive if the model over-predicted, negative if it under-predicted.</li>
+            <li><span class="code-lesson-il">weights[0] -= LEARNING_RATE * error</span>: nudge the intercept opposite the error &mdash; if predictions are running high, pull the whole line down a little.</li>
+            <li><span class="code-lesson-il">weights[1] -= LEARNING_RATE * error * x</span>: nudge the slope too, scaled by <span class="code-lesson-il">x</span> itself &mdash; a large-distance example with a big error moves the slope more than a small-distance one does, since the slope's effect on the prediction scales with <span class="code-lesson-il">x</span> in the first place.</li>
+        </ul>
+        <p><span class="code-lesson-il">TRAINING_EPOCHS</span> is how many full passes over Memory each training cycle makes; <span class="code-lesson-il">LEARNING_RATE</span> is how big each individual nudge is. Both are worth experimenting with directly (see Part 5) &mdash; too high a learning rate can overshoot and never settle; too low, and 300 epochs might not be enough to get anywhere close to the best line.</p>
+
+        <div class="screenshot">
+            <div class="label">Sentry's HUD panel</div>
+            <img src="" alt="The Sentry panel in the simulation HUD, showing hit rate and a rolling loss plot">
+            <div class="hint">The loss plot should trend downward across training cycles as the line's fit improves; a flat or rising loss plot is a sign something's off (too high a learning rate is a common culprit).</div>
+        </div>
+
+        <h3>Part 5. Try It</h3>
+        <ol>
+            <li>Before Sentry's first training cycle, <span class="code-lesson-il">weights</span> is <span class="code-lesson-il">[0.0, 0.0]</span>. What lead does <span class="code-lesson-il">predict_lead()</span> return for <em>any</em> distance at that point? Watch the first several shots and confirm.</li>
+            <li>Try setting <span class="code-lesson-il">LEARNING_RATE</span> to something much larger, like <span class="code-lesson-il">2.0</span>. What happens to the loss plot, and why does an error-proportional update like this one break down at a high learning rate?</li>
+            <li>Sentry's model only ever sees one input, distance. Name one other piece of information available in the scene (target speed, angle, anything else) that a richer model could have used as a second input to potentially predict lead more accurately.</li>
+        </ol>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain what makes this genuine regression rather than a classifier, in terms of where the training label comes from and what kind of value it is.</li>
+            <li>Write out, in your own words, what each of the two weight-update lines is doing and why.</li>
+            <li>Explain what squared error loss is measuring, and why squaring (rather than just taking the raw difference) matters.</li>
+            <li>Explain the role of the learning rate, and what could go wrong if it's set too high or too low.</li>
+        </ol>
+
+    </body>
+</html>

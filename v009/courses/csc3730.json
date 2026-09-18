@@ -170,13 +170,13 @@
       "theme": "Learning",
       "trs": [
         {
-          "Machine learning overview": "",
-          "Classification": "",
-          "Regression" : ""
+          "Machine learning overview": "csc3730/learn_01_overview.html",
+          "Classification": "csc3730/learn_02_classification.html",
+          "Regression": "csc3730/learn_03_regression.html"
         },
         {
-          "Reinforcement Learning": "",
-          "Artificial Neural Networks": ""
+          "Reinforcement Learning": "csc3730/learn_04_reinforcement.html",
+          "Artificial Neural Networks": "csc3730/learn_05_ann.html"
         },
         {
           "BREAK": ""
