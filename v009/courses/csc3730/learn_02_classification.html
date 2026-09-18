@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p><strong>Classification</strong> is supervised learning where the output is one of a fixed set of discrete categories. Checker is this course's running example: every person who reaches the checkpoint gets sorted into exactly one of two categories, alien or human, based only on what's visible.</p>
+
+        <h3>Part 1. Perceptor, Memory, and the Honesty Rule</h3>
+        <p>Mapped onto SAM: Checker's Perceptor reads three features off whoever's waiting at the checkpoint &mdash; <span class="code-lesson-il">head_tone</span>, <span class="code-lesson-il">shirt_color</span>, <span class="code-lesson-il">pants_color</span> &mdash; the only things it's ever allowed to look at before deciding. Whether that person is <em>actually</em> an alien (<span class="code-lesson-il">is_alien</span>) is ground truth the simulation itself knows, but Checker's Decider is never handed that value directly as an input; it only reaches Memory afterward, once accepted or denied, as the label to learn from:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">checker_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func get_features() -> Array:
+    return [head_tone, shirt_color, pants_color]
+
+# ...
+
+# Memory: features and, eventually, the ground truth, the same way
+# a real audit would confirm a decision after the fact.
+memory.append({"features": features, "alien": person.is_alien})
+</span>
+</div>
+
+        <p>That ordering matters: features go in <em>before</em> a decision is made; the true label only gets appended <em>after</em>. A classifier that could peek at the label while deciding wouldn't be learning anything &mdash; it'd just be reading the answer.</p>
+
+        <h3>Part 2. The Decider: Naive Bayes</h3>
+        <p>Checker's Decider is a <strong>Naive Bayes classifier</strong>. The idea: for each class (alien, human), keep a running count of how often each feature value shows up among training examples of that class. To classify a new person, multiply together how "typical" each of their features is for each class, weighted by how common that class is overall, and pick whichever class comes out on top.</p>
+        <p>"Naive" refers to a simplifying assumption baked into that multiplication: it treats head tone, shirt color, and pants color as though they were independent of each other given the class, some combinations really are more or less likely together in reality, and the model ignores that. It's rarely exactly true, but it keeps the model simple and, for a project like this, works well enough.</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">checker_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _predict(features:Array) -> bool:
+    var head:int = features[0]
+    var shirt:int = features[1]
+    var pants:int = features[2]
+
+    var score_alien:float = log(max(prior_alien, 0.0001))
+    score_alien += log(float(head_counts_alien[head]) / float(head_total_alien))
+    score_alien += log(float(shirt_counts_alien[shirt]) / float(shirt_total_alien))
+    score_alien += log(float(pants_counts_alien[pants]) / float(pants_total_alien))
+
+    var score_human:float = log(max(prior_human, 0.0001))
+    score_human += log(float(head_counts_human[head]) / float(head_total_human))
+    score_human += log(float(shirt_counts_human[shirt]) / float(shirt_total_human))
+    score_human += log(float(pants_counts_human[pants]) / float(pants_total_human))
+
+    if is_equal_approx(score_alien, score_human):
+        return randf() < 0.5
+    return score_alien > score_human
+</span>
+</div>
+
+        <p>Two implementation details worth calling out by name:</p>
+        <ul>
+            <li><strong>Working in log-space.</strong> Multiplying several probabilities together (each less than 1) shrinks toward zero fast enough to lose precision. Adding their logarithms instead, and comparing sums, gives the same ranking without that problem.</li>
+            <li><strong>Laplace smoothing.</strong> Every feature-count table starts at <span class="code-lesson-il">1</span>, not <span class="code-lesson-il">0</span>, for every possible value (see <span class="code-lesson-il">_ready()</span>). Without that, a value never yet seen for some class would carry a raw count of zero, and <span class="code-lesson-il">log(0)</span> is negative infinity &mdash; one unseen combination would completely veto that class, forever, the instant it showed up. A starting count of 1 keeps every value possible, just unlikely, until data says otherwise.</li>
+        </ul>
+
+        <h3>Part 3. Training: Counting, Not Gradient Descent</h3>
+        <p>Unlike Sentry (next lesson) or a neural network, Naive Bayes doesn't inch its way toward better weights over many small steps. "Training" here just means recomputing the frequency tables directly from everything in Memory, all at once, replacing the old tables outright:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">checker_agent.gd (excerpt)</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">for record in memory:
+    var f:Array = record.features
+    if record.alien:
+        head_counts_alien[f[0]] += 1
+        shirt_counts_alien[f[1]] += 1
+        pants_counts_alien[f[2]] += 1
+        n_alien += 1
+    else:
+        head_counts_human[f[0]] += 1
+        shirt_counts_human[f[1]] += 1
+        pants_counts_human[f[2]] += 1
+        n_human += 1
+</span>
+</div>
+
+        <p>With a dataset this small, recomputing from scratch every cycle (rather than maintaining running totals incrementally) is simpler and no slower &mdash; worth noticing as a real engineering tradeoff, not a shortcut: the "right" way to update a model depends on how much data there is and how often you retrain, not on some universal rule.</p>
+
+        <h3>Part 4. Two Ways to Be Wrong</h3>
+        <p>Overall accuracy (<span class="code-lesson-il">total_correct / total_evaluations</span>) hides an important asymmetry: this project tracks two specific mistakes separately, because they're not equally bad.</p>
+        <ul>
+            <li><span class="code-lesson-il">accepted_and_alien</span>: an alien got waved through. The dangerous kind of mistake.</li>
+            <li><span class="code-lesson-il">denied_but_human</span>: an innocent human got turned away. The unfair kind of mistake.</li>
+        </ul>
+        <p>A classifier that denies literally everyone would have zero of the dangerous mistakes and a perfect record on "letting no aliens through" &mdash; while being wrong (and unfair) constantly. Watching only overall accuracy can hide exactly that kind of failure; tracking both error types separately is what actually surfaces it.</p>
+
+        <div class="screenshot">
+            <div class="label">Checker's HUD panel</div>
+            <img src="" alt="The Checker panel in the simulation HUD, showing accuracy, mistake counts, and a rolling accuracy plot">
+            <div class="hint">Watch the accuracy plot climb over the first several training cycles as the frequency tables fill in from Laplace-smoothed near-randomness toward the real pattern.</div>
+        </div>
+
+        <h3>Part 5. Try It</h3>
+        <ol>
+            <li>Run the simulation and watch Checker's very first few decisions, before its first training cycle completes. Explain, using what <span class="code-lesson-il">_ready()</span> sets up, why those decisions are close to a coin flip.</li>
+            <li>Find <span class="code-lesson-il">TARGET_ALIEN_RATE</span> in <span class="code-lesson-il">environment.gd</span>. If it were raised, would you expect <span class="code-lesson-il">prior_alien</span> to end up higher or lower after training? Why?</li>
+            <li>Suppose one head tone appeared on aliens and humans in exactly the same proportion, no signal there at all. What would you expect Checker's learned frequency tables to look like for that feature, roughly equal counts across the board?</li>
+        </ol>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain what makes classification different from regression, in terms of what kind of thing the output is.</li>
+            <li>Explain what the "naive" independence assumption in Naive Bayes actually assumes, and why it's a simplification rather than strictly true here.</li>
+            <li>Explain Laplace smoothing: what problem it prevents, and what would go wrong without it.</li>
+            <li>Name Checker's two tracked error types and explain, with a concrete example, why watching only overall accuracy could hide a real problem.</li>
+        </ol>
+
+    </body>
+</html>

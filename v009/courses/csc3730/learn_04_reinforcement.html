@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Classification and regression both need a correct answer supplied up front, a label or an ideal number, for every training example. <strong>Reinforcement learning</strong> doesn't have that. The aliens don't get told the correct dodge for any given shot; all they get, after the fact, is whether it worked. Everything they learn comes from trying things and feeling the consequences.</p>
+
+        <h3>Part 1. State, Action, Reward</h3>
+        <div class="diagram">
+<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+
+    <rect x="60" y="20" width="150" height="55" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="135" y="52" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Agent (alien)</text>
+
+    <rect x="270" y="20" width="150" height="55" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="345" y="52" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">Environment</text>
+
+    <path d="M 210 40 L 268 40" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <text x="240" y="32" font-size="11" fill="#2e5a80" text-anchor="middle">action</text>
+
+    <path d="M 270 60 L 212 60" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <text x="240" y="78" font-size="11" fill="#2e5a80" text-anchor="middle">state, reward</text>
+
+    <rect x="40" y="150" width="120" height="42" rx="6" fill="#f3f3f3" stroke="#8a8a8a" stroke-width="1.3"/>
+    <text x="100" y="167" font-size="12" fill="#333" text-anchor="middle">State: distance,</text>
+    <text x="100" y="182" font-size="12" fill="#333" text-anchor="middle">targeted?</text>
+
+    <rect x="190" y="150" width="120" height="42" rx="6" fill="#f3f3f3" stroke="#8a8a8a" stroke-width="1.3"/>
+    <text x="250" y="167" font-size="12" fill="#333" text-anchor="middle">Action: straight /</text>
+    <text x="250" y="182" font-size="12" fill="#333" text-anchor="middle">juke up / juke down</text>
+
+    <rect x="340" y="150" width="120" height="42" rx="6" fill="#f3f3f3" stroke="#8a8a8a" stroke-width="1.3"/>
+    <text x="400" y="167" font-size="12" fill="#333" text-anchor="middle">Reward: +1 miss,</text>
+    <text x="400" y="182" font-size="12" fill="#333" text-anchor="middle">-1 hit</text>
+</svg>
+            <div class="diagram-caption">The reinforcement learning loop, and how this project fills in each piece.</div>
+        </div>
+
+        <p>Three pieces of vocabulary, all directly visible in <span class="code-lesson-il">alien_hive_mind.gd</span>:</p>
+        <ul>
+            <li><strong>State</strong>: what the agent currently observes about its situation. Here, a bucketed distance to the sentry (near/medium/far) combined with whether it's currently being targeted, six possible states total.</li>
+            <li><strong>Action</strong>: what the agent can choose to do. Here, exactly three options: <span class="code-lesson-il">STRAIGHT</span>, <span class="code-lesson-il">JUKE_UP</span>, <span class="code-lesson-il">JUKE_DOWN</span>.</li>
+            <li><strong>Reward</strong>: a number describing how that action turned out. Here, <span class="code-lesson-il">+1</span> if the resulting shot missed, <span class="code-lesson-il">-1</span> if it hit.</li>
+        </ul>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">alien_hive_mind.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func get_state(distance:float, is_targeted:bool) -> int:
+    var bucket:int = 2
+    if distance < DISTANCE_NEAR:
+        bucket = 0
+    elif distance < DISTANCE_MEDIUM:
+        bucket = 1
+    var targeted_index:int = 1 if is_targeted else 0
+    return bucket * N_TARGETED_STATES + targeted_index
+</span>
+</div>
+
+        <h3>Part 2. The Q-Table</h3>
+        <p>The policy itself is a table, <span class="code-lesson-il">q_table[state][action]</span>, one number per (state, action) pair, an estimate of how good that action tends to be in that state. Picking an action just means looking across a state's row and taking whichever action currently has the highest value:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">alien_hive_mind.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func choose_action(state:int) -> int:
+    if randf() < EXPLORATION_CHANCE:
+        return randi() % N_ACTIONS
+    var best_action:int = 0
+    var best_value:float = q_table[state][0]
+    for a in range(1, N_ACTIONS):
+        if q_table[state][a] > best_value:
+            best_value = q_table[state][a]
+            best_action = a
+    return best_action
+</span>
+</div>
+
+        <p>Note the check before any of that: with probability <span class="code-lesson-il">EXPLORATION_CHANCE</span>, skip the table entirely and pick a uniformly random action instead. This is the <strong>explore/exploit tradeoff</strong>, one of the central ideas in reinforcement learning. Always taking the current best-known action (pure exploitation) means never discovering that some other action might actually be better; always acting randomly (pure exploration) means never using anything that's been learned. A small, constant chance of a random action is a simple way to keep doing a little of both, forever.</p>
+
+        <h3>Part 3. Training: A Running Average, Not Full Q-Learning</h3>
+        <p>The project's own comments are direct about this, worth reading in their own words:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">alien_hive_mind.gd (top-of-file comment)</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">#   This is deliberately NOT full Q-learning: there's no bootstrapped
+#   "value of the next state" term. Each dodge decision's consequence
+#   (hit or missed) resolves quickly, closer to a contextual bandit
+#   than a long-horizon sequential decision problem, so learning here
+#   is just a running average of how well each (situation, action)
+#   pairing has actually worked out: Q[s][a] nudged toward the reward
+#   it just earned, nothing more.
+</span>
+</div>
+
+        <p>The actual update backs that up:</p>
+
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">alien_hive_mind.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func record_outcome(state:int, action:int, hit:bool) -> void:
+    total_shots_faced += 1
+    if not hit:
+        total_shots_dodged += 1
+
+    if learning_enabled:
+        var reward:float = -1.0 if hit else 1.0
+        q_table[state][action] += LEARNING_RATE * (reward - q_table[state][action])
+</span>
+</div>
+
+        <p><span class="code-lesson-il">q_table[state][action] += LEARNING_RATE * (reward - q_table[state][action])</span> nudges that one table entry a fraction of the way toward the reward just received, exactly the same shape as Sentry's weight update from last lesson: current estimate, plus a learning rate, times an error term. Full Q-learning would also add a term for the <em>best possible value of whatever state comes next</em>, letting reward from several steps in the future propagate backward through earlier decisions. This project's dodge decisions resolve fast enough (one shot, one outcome) that skipping that term is a reasonable simplification, not a bug.</p>
+
+        <h3>Part 4. One Policy, Shared by Every Alien</h3>
+        <p>There's exactly one <span class="code-lesson-il">AlienHiveMind</span> instance in the whole scene, referenced by every fleeing alien. Whatever any single alien experiences updates the same table every other alien reads from immediately afterward, hence "hive mind" rather than each alien learning independently. Practically, this means the aliens collectively accumulate experience far faster than any one of them would alone &mdash; ten aliens each dodging once contribute ten updates to one shared table, not one update each to ten separate tables.</p>
+
+        <div class="screenshot">
+            <div class="label">Alien panel and the Learning toggle</div>
+            <img src="" alt="The Alien panel in the simulation HUD, showing a Learning Enabled toggle and a rolling dodge-rate plot">
+            <div class="hint">The HUD's Learning toggle sets learning_enabled directly. With it off, aliens still act (reading whatever the table currently holds), they simply stop updating it -- useful for isolating whether learning is actually helping (see Part 5).</div>
+        </div>
+
+        <h3>Part 5. Try It</h3>
+        <ol>
+            <li>Let the simulation run with learning on until the dodge-rate plot climbs and levels off. Then toggle learning off using the HUD and watch several more cycles. Does the dodge rate hold roughly steady, or drift? What does that tell you about whether the table had actually converged to something useful?</li>
+            <li>Set <span class="code-lesson-il">EXPLORATION_CHANCE</span> to <span class="code-lesson-il">0.0</span> from the very start of a run. Predict what happens to the very first few actions taken in each state (recall every <span class="code-lesson-il">q_table</span> entry starts at exactly <span class="code-lesson-il">0.0</span>), then run it and check.</li>
+            <li>In one paragraph: why does it make sense to call each dodge decision "closer to a contextual bandit than a long-horizon sequential decision problem"? What would have to be true about the dodge-and-shot cycle for a bootstrapped next-state term to actually matter here?</li>
+        </ol>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Define state, action, and reward using this project's own values for each.</li>
+            <li>Explain the explore/exploit tradeoff, and what role <span class="code-lesson-il">EXPLORATION_CHANCE</span> plays in it.</li>
+            <li>Explain, in your own words, what the Q-table update line is doing, and how it resembles Sentry's gradient descent update from last lesson.</li>
+            <li>Explain what "hive mind" means here concretely, in terms of how many <span class="code-lesson-il">AlienHiveMind</span> instances exist and who reads/writes to it.</li>
+            <li>Explain why this project's reinforcement learning is described as NOT full Q-learning, and what piece is missing.</li>
+        </ol>
+
+    </body>
+</html>
