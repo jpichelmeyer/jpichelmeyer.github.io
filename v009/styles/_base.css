@@ -155,6 +155,7 @@ body::before {
 .nav-btn.active[data-panel="courses"]  { background: var(--color-accent-courses); }
 .nav-btn.active[data-panel="projects"] { background: var(--color-accent-projects); }
 .nav-btn.active[data-panel="research"] { background: var(--color-accent-research); }
+.nav-btn.active[data-panel="advancement"] { background: var(--color-accent-advancement); }
 
 #nav-right { margin-left: auto; display: flex; align-items: center; padding: 0 18px; gap: 14px; }
 .eco-stat  { font-size: calc(9px * var(--mod-font-size)); color: var(--ink-faint); letter-spacing: 0.06em; display: flex; align-items: center; gap: 5px; }
@@ -224,6 +225,7 @@ body::before {
 #panel-courses  .panel-titlebar { background: var(--color-accent-courses); }
 #panel-projects .panel-titlebar { background: var(--color-accent-projects); }
 #panel-research .panel-titlebar { background: var(--color-accent-research); }
+#panel-advancement .panel-titlebar { background: var(--color-accent-advancement); }
 
 .panel-title {
     font-size: calc(16px * var(--mod-font-size)); font-weight: 1000;
@@ -325,6 +327,12 @@ body::before {
 
 #about-titles { 
     flex: none;
+}
+#about-pixel {
+    align-self: center;
+    width: 100%;
+    max-width: 140px;
+    image-rendering: pixelated;   /* keep the pixel art crisp when scaled */
 }
 
 #sketch-o-self {

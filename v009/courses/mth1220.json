@@ -14,27 +14,32 @@
     {
       "num": 1,
       "action": "Apply",
-      "detail": "techniques of integration to compute reasonable antiderivatives."
+      "detail": "techniques of integration to compute reasonable antiderivatives.",
+      "blooms" : 3
     },
     {
       "num": 2,
       "action": "Build",
-      "detail": "connections between differentiation and integration using the Fundamental Theorem of Calculus."
+      "detail": "connections between differentiation and integration using the Fundamental Theorem of Calculus.",
+      "blooms" : 4
     },
     {
       "num": 3,
       "action": "Communicate",
-      "detail": "using correct mathematical notation, coherent explanation, and appropriate form in a clear and unambiguous way, both formally and informall"
+      "detail": "using correct mathematical notation, coherent explanation, and appropriate form in a clear and unambiguous way, both formally and informally",
+      "blooms" : 2
     },
     {
       "num": 4,
       "action": "Demonstrate",
-      "detail": "sufficient knowledge of the course content"
+      "detail": "sufficient knowledge of the course content",
+      "blooms" : 1
     },
     {
       "num": 5,
       "action": "Explain",
-      "detail": "the meaning of convergence and the ideas behind convergence tests"
+      "detail": "the meaning of convergence and the ideas behind convergence tests",
+      "blooms" : 2
     }
   ],
   "courseColor": "#f0a8a8",

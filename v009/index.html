@@ -30,6 +30,44 @@
         <!-- ── PARTICLE LIFE CANVAS ── -->
         <canvas id="life-canvas"></canvas>
 
+        <!-- ── ROBOTICS: deployed-robot render layer (above particle life,
+             behind navbar/panels). The workshop's gear icon lives in the navbar. ── -->
+        <canvas id="robo-canvas"></canvas>
+        <!-- ── ROBOTICS WORKSHOP (opened by the toolbox) ── -->
+        <div id="robo-workshop">
+            <div class="robo-workshop-titlebar">
+                <span>Robotics Workshop</span>
+                <button id="robo-workshop-close" title="Close">×</button>
+            </div>
+            <div class="robo-workshop-body">
+                <div class="robo-palette" id="robo-palette"></div>
+                <div class="robo-build-area">
+                    <div class="robo-name-row">
+                        <label for="robo-name">Name</label>
+                        <input type="text" id="robo-name" maxlength="24" placeholder="Name this robot">
+                    </div>
+                    <div class="robo-chassis" id="robo-chassis"></div>
+                    <div class="robo-build-actions">
+                        <div class="robo-stats" id="robo-stats"></div>
+                        <button class="robo-btn robo-btn-withdraw" id="robo-withdraw-btn" hidden>Withdraw</button>
+                        <button class="robo-btn robo-btn-deploy" id="robo-deploy-btn" disabled>Deploy</button>
+                    </div>
+                    <!-- ROBASIC program editor (inline, below the parts) -->
+                    <div class="robasic-section">
+                        <div class="robasic-section-title">Program (ROBASIC)</div>
+                        <div class="robasic-body">
+                            <div class="robasic-palette" id="robasic-palette"></div>
+                            <div class="robasic-script" id="robasic-script"></div>
+                            <div class="robasic-memory">
+                                <div class="robasic-memory-title">Memory</div>
+                                <div class="robasic-memory-grid" id="robasic-memory-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ── NAVBAR ── -->
         <nav id="navbar">
             <div id="brand">
@@ -41,11 +79,17 @@
                 <div class="nav-btn" data-panel="courses">Teaching</div>
                 <div class="nav-btn" data-panel="research">Research</div>
                                 <div class="nav-btn" data-panel="projects">Projects</div>
+                <div class="nav-btn" data-panel="advancement">Institution</div>
             </div>
             <div id="nav-right">
-                <div class="eco-stat">
-                    <div class="eco-dot"></div>
-                    <span id="pop-ct">—</span>&nbsp;particles
+                <div id="robo-toolbox" title="Open the robotics workshop">
+                    <!-- Interlocking gears: pitch radii and speeds are proportional to
+                         tooth count (12 / 8 / 10), so the teeth stay meshed while turning. -->
+                    <svg viewBox="4.1 1.1 55.3 58.1" xmlns="http://www.w3.org/2000/svg">
+                      <g transform="translate(22.00 29.00)"><g class="robo-gear robo-gear-cw" style="animation-duration:2.4s"><g transform="rotate(0.00)"><path d="M12.64 -2.00 L15.76 -1.16 L15.76 1.16 L12.64 2.00 L11.95 4.59 L14.23 6.88 L13.07 8.88 L9.95 8.06 L8.06 9.95 L8.88 13.07 L6.88 14.23 L4.59 11.95 L2.00 12.64 L1.16 15.76 L-1.16 15.76 L-2.00 12.64 L-4.59 11.95 L-6.88 14.23 L-8.88 13.07 L-8.06 9.95 L-9.95 8.06 L-13.07 8.88 L-14.23 6.88 L-11.95 4.59 L-12.64 2.00 L-15.76 1.16 L-15.76 -1.16 L-12.64 -2.00 L-11.95 -4.59 L-14.23 -6.88 L-13.07 -8.88 L-9.95 -8.06 L-8.06 -9.95 L-8.88 -13.07 L-6.88 -14.23 L-4.59 -11.95 L-2.00 -12.64 L-1.16 -15.76 L1.16 -15.76 L2.00 -12.64 L4.59 -11.95 L6.88 -14.23 L8.88 -13.07 L8.06 -9.95 L9.95 -8.06 L13.07 -8.88 L14.23 -6.88 L11.95 -4.59 Z" fill="#1f1f1f" stroke-linejoin="round"/><circle r="2.59" class="robo-gear-hole"/></g></g></g>
+                      <g transform="translate(40.91 14.22)"><g class="robo-gear robo-gear-ccw" style="animation-duration:1.6s"><g transform="rotate(152.50)"><path d="M7.78 -1.87 L10.93 -1.21 L10.93 1.21 L7.78 1.87 L6.82 4.18 L8.58 6.88 L6.88 8.58 L4.18 6.82 L1.87 7.78 L1.21 10.93 L-1.21 10.93 L-1.87 7.78 L-4.18 6.82 L-6.88 8.58 L-8.58 6.88 L-6.82 4.18 L-7.78 1.87 L-10.93 1.21 L-10.93 -1.21 L-7.78 -1.87 L-6.82 -4.18 L-8.58 -6.88 L-6.88 -8.58 L-4.18 -6.82 L-1.87 -7.78 L-1.21 -10.93 L1.21 -10.93 L1.87 -7.78 L4.18 -6.82 L6.88 -8.58 L8.58 -6.88 L6.82 -4.18 Z" fill="#1f1f1f" stroke-linejoin="round"/><circle r="1.80" class="robo-gear-hole"/></g></g></g>
+                      <g transform="translate(43.89 43.76)"><g class="robo-gear robo-gear-ccw" style="animation-duration:2.0s"><g transform="rotate(200.80)"><path d="M10.22 -1.95 L13.35 -1.18 L13.35 1.18 L10.22 1.95 L9.41 4.43 L11.49 6.89 L10.11 8.80 L7.12 7.58 L5.01 9.11 L5.24 12.33 L3.01 13.06 L1.30 10.32 L-1.30 10.32 L-3.01 13.06 L-5.24 12.33 L-5.01 9.11 L-7.12 7.58 L-10.11 8.80 L-11.49 6.89 L-9.41 4.43 L-10.22 1.95 L-13.35 1.18 L-13.35 -1.18 L-10.22 -1.95 L-9.41 -4.43 L-11.49 -6.89 L-10.11 -8.80 L-7.12 -7.58 L-5.01 -9.11 L-5.24 -12.33 L-3.01 -13.06 L-1.30 -10.32 L1.30 -10.32 L3.01 -13.06 L5.24 -12.33 L5.01 -9.11 L7.12 -7.58 L10.11 -8.80 L11.49 -6.89 L9.41 -4.43 Z" fill="#1f1f1f" stroke-linejoin="round"/><circle r="2.16" class="robo-gear-hole"/></g></g></g>
+                    </svg>
                 </div>
             </div>
         </nav>
@@ -84,6 +128,9 @@
                                     <div class="about-sub">Assistant Professor<br>Computer Science<br>Carthage College</div>
                                 </div>
                             </div>
+
+                            <!-- Pixel portrait, under the post-it -->
+                            <img id="about-pixel" src="./imgs/portrait-pixel.gif" alt="Pixel-art portrait">
                         
                         </div>
                         
@@ -111,180 +158,109 @@
                     
                     <div class="tab-page" data-tab="career">
                     
-                    <div class="timeline">
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_arrow"></div></div>
-                                <div class="timeline_textbox"></div>
-                            </div>
-                            <div class="timeline_row">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates">2026-......</div>
-                                <div class="timeline_institution"><img src="./imgs/place-carthage.png" alt="Carthage College"></div>
-                                <div class="timeline_textbox">
-                                    <div class="timeline_title_row">
-                                        <div class="timeline_textbox_title">Assistant Professor</div>
-                                        <div class="timeline_tags">
-                                            <span class="timeline-textbox-subject timeline-cs">Computer Science</span>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-place">Carthage College</div>
+                    <!-- Career path: vertical timeline, newest first. Degree stamps are drawn by _timeline.js from the data-* attributes. -->
+                    <div class="tl">
+                        <div class="tl-entry tl-current">
+                            <div class="tl-dot"></div>
+                            <div class="tl-card">
+                                <img class="tl-logo" src="./imgs/place-carthage.png" alt="">
+                                <div class="tl-main">
+                                    <div class="tl-dates">2026 &ndash; Present</div>
+                                    <div class="tl-title">Assistant Professor</div>
+                                    <div class="tl-place">Carthage College</div>
+                                    <div class="timeline_tags"><span class="timeline-textbox-subject timeline-cs">Computer Science</span></div>
                                 </div>
-                            </div>
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
-                                <div class="timeline_textbox"></div>
-                            </div>
-                            <div class="timeline_row">
-                                <div class="timeline_logo"><img src="./imgs/degree_ms.png" alt="Master of Science"></div>
-                                <div class="timeline_dates">2024-2026</div>
-                                <div class="timeline_institution"><img src="./imgs/place_gt.png" alt="Georgia Institute of Technology"></div>
-                                <div class="timeline_textbox">
-                                    <div class="timeline_title_row">
-                                        <div class="timeline_textbox_title">Master of Science</div>
-                                        <div class="timeline_tags">
-                                            <span class="timeline-textbox-subject timeline-cs">Computer Science</span>
-                                            <span class="timeline-textbox-subject timeline-ai">Artificial Intelligence</span>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-place">Georgia Institute of Technology</div>
-                                </div>
-                            </div>
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
-                                <div class="timeline_textbox"></div>
-                            </div>
-                            <div class="timeline_row">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates">2021-2024</div>
-                                <div class="timeline_institution"><img src="./imgs/place-westminster.png" alt="Westminster College"></div>
-                                <div class="timeline_textbox">
-                                    <div class="timeline_title_row">
-                                        <div class="timeline_textbox_title">Assistant Professor</div>
-                                        <div class="timeline_tags">
-                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
-                                            <span class="timeline-textbox-subject timeline-ds">Data Science</span>
-                                            <span class="timeline-textbox-subject timeline-gamedesign">Game Design</span>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-place">Westminster College (MO)</div>
-                                </div>
-                            </div>
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
-                                <div class="timeline_textbox"></div>
-                            </div>
-                            <div class="timeline_row">
-                                <div class="timeline_logo"><img src="./imgs/degree_phd.png" alt="Doctor of Philosophy"></div>
-                                <div class="timeline_dates">2016-2021</div>
-                                <div class="timeline_institution"><img src="./imgs/place-ksu.png" alt="Kansas State University"></div>
-                                <div class="timeline_textbox">
-                                    <div class="timeline_title_row">
-                                        <div class="timeline_textbox_title">Doctor of Philosophy</div>
-                                        <div class="timeline_tags">
-                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-place">Kansas State University</div>
-                                </div>
-                            </div>
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
-                                <div class="timeline_textbox"></div>
-                            </div>
-                            <div class="timeline_row">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates">2012-2016</div>
-                                <div class="timeline_institution"><img src="./imgs/place-msoe.png" alt="Milwaukee School of Engineering"></div>
-                                <div class="timeline_textbox">
-                                    <div class="timeline_title_row">
-                                        <div class="timeline_textbox_title">Instructor</div>
-                                        <div class="timeline_tags">
-                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-place">MSOE, UW-Milwaukee</div>
-                                </div>
-                            </div>
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
-                                <div class="timeline_textbox"></div>
-                            </div>
-                            <div class="timeline_row">
-                                <div class="timeline_logo"><img src="./imgs/degree_ms.png" alt="Master of Science"></div>
-                                <div class="timeline_dates">2010-2012</div>
-                                <div class="timeline_institution"><img src="./imgs/place-uwm.png" alt="University of Wisconsin-Milwaukee"></div>
-                                <div class="timeline_textbox">
-                                    <div class="timeline_title_row">
-                                        <div class="timeline_textbox_title">Master of Science</div>
-                                        <div class="timeline_tags">
-                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-place">UW-Milwaukee</div>
-                                </div>
-                            </div>
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
-                                <div class="timeline_textbox"></div>
-                            </div>
-                            <div class="timeline_row">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates">2008-2020</div>
-                                <div class="timeline_institution"><img src="./imgs/place-cty.png" alt="Johns Hopkins University Center for Talented Youth"></div>
-                                <div class="timeline_textbox">
-                                    <div class="timeline_title_row">
-                                        <div class="timeline_textbox_title">Instructor</div>
-                                        <div class="timeline_tags">
-                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
-                                            <span class="timeline-textbox-subject timeline-logic">Logic</span>
-                                            <span class="timeline-textbox-subject timeline-engineering">Engineering</span>
-                                            <span class="timeline-textbox-subject timeline-cryptology">Cryptology</span>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-place">Johns Hopkins CTY</div>
-                                </div>
-                            </div>
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_line"></div></div>
-                                <div class="timeline_textbox"></div>
-                            </div>
-                            <div class="timeline_row">
-                                <div class="timeline_logo"><img src="./imgs/degree_bs.png" alt="Bachelor of Science"></div>
-                                <div class="timeline_dates">2005-2010</div>
-                                <div class="timeline_institution"><img src="./imgs/place-oshkosh.png" alt="University of Wisconsin-Oshkosh"></div>
-                                <div class="timeline_textbox">
-                                    <div class="timeline_title_row">
-                                        <div class="timeline_textbox_title">Bachelor of Science</div>
-                                        <div class="timeline_tags">
-                                            <span class="timeline-textbox-subject timeline-math">Mathematics</span>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-place">UW-Oshkosh</div>
-                                </div>
-                            </div>
-                            <div class="timeline_row timeline_row_connector">
-                                <div class="timeline_logo"></div>
-                                <div class="timeline_dates"></div>
-                                <div class="timeline_icon"><div class="timeline_icon_tail"></div></div>
-                                <div class="timeline_textbox"></div>
                             </div>
                         </div>
+                        <div class="tl-entry tl-degree">
+                            <div class="tl-dot"></div>
+                            <div class="tl-card">
+                                <img class="tl-logo" src="./imgs/place_gt.png" alt="">
+                                <div class="tl-main">
+                                    <div class="tl-dates">2024 &ndash; 2026</div>
+                                    <div class="tl-title">Master of Science</div>
+                                    <div class="tl-place">Georgia Institute of Technology</div>
+                                    <div class="timeline_tags"><span class="timeline-textbox-subject timeline-cs">Computer Science</span><span class="timeline-textbox-subject timeline-ai">Artificial Intelligence</span></div>
+                                </div>
+                                <div class="tl-stamp" data-shape="rect" data-deg="M.S." data-field="COMPUTER SCIENCE" data-school="GEORGIA TECH" data-year="2026" data-ink="#2b4f9e" data-rot="-7"></div>
+                            </div>
+                        </div>
+                        <div class="tl-entry">
+                            <div class="tl-dot"></div>
+                            <div class="tl-card">
+                                <img class="tl-logo" src="./imgs/place-westminster.png" alt="">
+                                <div class="tl-main">
+                                    <div class="tl-dates">2021 &ndash; 2024</div>
+                                    <div class="tl-title">Assistant Professor</div>
+                                    <div class="tl-place">Westminster College (MO)</div>
+                                    <div class="timeline_tags"><span class="timeline-textbox-subject timeline-math">Mathematics</span><span class="timeline-textbox-subject timeline-ds">Data Science</span><span class="timeline-textbox-subject timeline-gamedesign">Game Design</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tl-entry tl-degree">
+                            <div class="tl-dot"></div>
+                            <div class="tl-card">
+                                <img class="tl-logo" src="./imgs/place-ksu.png" alt="">
+                                <div class="tl-main">
+                                    <div class="tl-dates">2016 &ndash; 2021</div>
+                                    <div class="tl-title">Doctor of Philosophy</div>
+                                    <div class="tl-place">Kansas State University</div>
+                                    <div class="timeline_tags"><span class="timeline-textbox-subject timeline-math">Mathematics</span></div>
+                                </div>
+                                <div class="tl-stamp" data-shape="circle" data-deg="Ph.D." data-field="MATHEMATICS" data-school="KANSAS STATE UNIVERSITY" data-year="2021" data-ink="#5b2d8e" data-rot="9"></div>
+                            </div>
+                        </div>
+                        <div class="tl-entry">
+                            <div class="tl-dot"></div>
+                            <div class="tl-card">
+                                <img class="tl-logo" src="./imgs/place-msoe.png" alt="">
+                                <div class="tl-main">
+                                    <div class="tl-dates">2012 &ndash; 2016</div>
+                                    <div class="tl-title">Instructor</div>
+                                    <div class="tl-place">MSOE, UW-Milwaukee</div>
+                                    <div class="timeline_tags"><span class="timeline-textbox-subject timeline-math">Mathematics</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tl-entry tl-degree">
+                            <div class="tl-dot"></div>
+                            <div class="tl-card">
+                                <img class="tl-logo" src="./imgs/place-uwm.png" alt="">
+                                <div class="tl-main">
+                                    <div class="tl-dates">2010 &ndash; 2012</div>
+                                    <div class="tl-title">Master of Science</div>
+                                    <div class="tl-place">University of Wisconsin&ndash;Milwaukee</div>
+                                    <div class="timeline_tags"><span class="timeline-textbox-subject timeline-math">Mathematics</span></div>
+                                </div>
+                                <div class="tl-stamp" data-shape="oval" data-deg="M.S." data-field="MATHEMATICS" data-school="UW&ndash;MILWAUKEE" data-year="2012" data-ink="#b3322b" data-rot="-11"></div>
+                            </div>
+                        </div>
+                        <div class="tl-entry">
+                            <div class="tl-dot"></div>
+                            <div class="tl-card">
+                                <img class="tl-logo" src="./imgs/place-cty.png" alt="">
+                                <div class="tl-main">
+                                    <div class="tl-dates">2008 &ndash; 2020</div>
+                                    <div class="tl-title">Instructor</div>
+                                    <div class="tl-place">Johns Hopkins Center for Talented Youth</div>
+                                    <div class="timeline_tags"><span class="timeline-textbox-subject timeline-math">Mathematics</span><span class="timeline-textbox-subject timeline-logic">Logic</span><span class="timeline-textbox-subject timeline-engineering">Engineering</span><span class="timeline-textbox-subject timeline-cryptology">Cryptology</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tl-entry tl-degree">
+                            <div class="tl-dot"></div>
+                            <div class="tl-card">
+                                <img class="tl-logo" src="./imgs/place-oshkosh.png" alt="">
+                                <div class="tl-main">
+                                    <div class="tl-dates">2005 &ndash; 2010</div>
+                                    <div class="tl-title">Bachelor of Science</div>
+                                    <div class="tl-place">University of Wisconsin&ndash;Oshkosh</div>
+                                    <div class="timeline_tags"><span class="timeline-textbox-subject timeline-math">Mathematics</span></div>
+                                </div>
+                                <div class="tl-stamp" data-shape="octagon" data-deg="B.S." data-field="MATHEMATICS" data-school="UW&ndash;OSHKOSH" data-year="2010" data-ink="#2e6b4f" data-rot="6"></div>
+                            </div>
+                        </div>
+                    </div>
                     
                     </div>
                     
@@ -448,7 +424,22 @@
                     
                 </div>
             </div>
-            
+
+            <div class="panel" id="panel-advancement">
+                <div class="panel-titlebar">
+                    <div class="panel-tabs" data-tabgroup="advancement">
+                        <button class="panel-tab active" data-tab="teaching">Teaching</button>
+                        <button class="panel-tab" data-tab="scholarship">Scholarship</button>
+                        <button class="panel-tab" data-tab="service">Service</button>
+                    </div>
+                </div>
+                <div class="panel-body" id="advancement-body">
+                    <div class="tab-page active" data-tab="teaching" id="adv-tab-teaching"></div>
+                    <div class="tab-page" data-tab="scholarship" id="adv-tab-scholarship"></div>
+                    <div class="tab-page" data-tab="service" id="adv-tab-service"></div>
+                </div>
+            </div>
+
 
         </div><!-- #content-area -->
         

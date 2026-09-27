@@ -58,19 +58,44 @@ async function loadAll() {
 // Reading column is gone entirely; reading links no longer come from
 // here (see the note in the delivery message about that data).
 
+// Bloom's taxonomy pyramid shown beside each course's learning goals.
+// Level colors match the .lg-blooms-N classes in _teaching.css.
+const BLOOMS_LEVELS = ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create']; // 1..6
+const BLOOMS_PYRAMID_SVG = (() => {
+    const W = 220, H = 204, band = H / 6;
+    const halfAt = y => 32 + (W / 2 - 32) * (y / H); // half-width at depth y (flat top so 'Create' fits)
+    const bands = BLOOMS_LEVELS.map((name, i) => {
+        const level = i + 1;
+        const y0 = H - (i + 1) * band, y1 = H - i * band;  // level 1 at the bottom
+        const a = halfAt(y0), b = halfAt(y1), cx = W / 2;
+        return `<polygon class="lg-blooms-${level}" points="${cx - a},${y0} ${cx + a},${y0} ${cx + b},${y1} ${cx - b},${y1}" stroke="#f7f7f7" stroke-width="2"/>
+            <text x="${cx}" y="${(y0 + y1) / 2 + 4}" text-anchor="middle">${name}</text>`;
+    }).join('');
+    return `<figure class="lg-blooms-pyramid"><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bloom's taxonomy pyramid">${bands}</svg><figcaption>Bloom's taxonomy</figcaption></figure>`;
+})();
+
 function buildScheduleRows(c) {
     let weekNum = 0, html = '';
 
     // Shared by both the single- and multi-topic paths below: pulls an
     // inline "Exam N" out of a topic string and tag-highlights it,
     // same as before.
+    // Tag types, checked in order: a qualified exam ("Oral Exam 1",
+    // "Agent Exam 3") -> soft gold; a plain "Exam N" -> red; any lab
+    // ("Lab 4", "Lab Practical 2") -> blue.
+    const TOPIC_TAGS = [
+        [/\s*,?\s*\b((?!final\b|midterm\b)[a-z]+\s+Exam(?:\s*\d+)?)\s*,?\s*/i, 'exam-alt'],
+        [/\s*,?\s*(Exam\s*\d+)\s*,?\s*/i, 'exam'],
+        [/\s*,?\s*\b(Lab(?:\s+Practical)?(?:\s*\d+)?)\b\s*,?\s*/i, 'lab'],
+    ];
     function extractExamTag(name) {
-        const examMatch = name.match(/\s*,?\s*(Exam\s*\d+)\s*,?\s*/i);
+        let examMatch = null, kind = null;
+        for (const [re, k] of TOPIC_TAGS) { examMatch = name.match(re); if (examMatch) { kind = k; break; } }
         const mainName = examMatch
             ? (name.slice(0, examMatch.index) + ' ' + name.slice(examMatch.index + examMatch[0].length)).trim()
             : name;
         const examTag = examMatch
-            ? ` <span class="topic-tag topic-tag-exam">${esc(examMatch[1])}</span>`
+            ? ` <span class="topic-tag topic-tag-${kind}">${esc(examMatch[1])}</span>`
             : '';
         return { mainName, examTag };
     }
@@ -177,10 +202,13 @@ function deriveLessonModules(c) {
 // Courses that have a full detail page (schedule/assessments/etc), keyed
 // by the same key used in MANIFEST / COURSE_DB. These get a course-dot.
 const DETAIL_PAGE_COURSES = {
-    'CSC 1100 : Introduction to Computing':            'csc1100',
-    //'CSC 1810 : Principles of Computer Science I':      'csc1810',
-    'CSC 3730 : Artificial Intelligence for Simulations':'csc3730',
-    'MTH 1220 : Calculus II':      'mth1220',
+    'CSC 1100 : Introduction to Computing':                         'csc1100',
+    'CSC 1810 : Principles of Computer Science I':                  'csc1810',
+    'CSC 2710 : Game Development I':                                'csc2710',
+    'CSC 3530 : Artificial Intelligence and Cognitive Modeling':    'csc3530',
+    'CSC 3730 : Artificial Intelligence for Simulations':           'csc3730',
+    'CSC 4110 : Internet of Things':                                'csc4110',
+    'MTH 1220 : Calculus II':                                       'mth1220',
 };
 
 // Builds the title+tags markup for one taught_course entry. The dot
@@ -188,8 +216,9 @@ const DETAIL_PAGE_COURSES = {
 // clickable course-dot itself only appears for courses with a detail page.
 function buildTaughtCourseHead(title, tagsHtml) {
     const detailKey = DETAIL_PAGE_COURSES[title];
+    const c = detailKey ? COURSE_DB[detailKey] : null;
     const dot = detailKey
-        ? `<div class="course-dot" data-course="${detailKey}" title="View course page"></div>`
+        ? `<div class="course-dot course-btn" data-course="${detailKey}" title="View course page" style="background:${esc(c?.courseColor || '#aaaaaa')};">${c?.svg ? `<img src="./svgs/${esc(c.svg)}" alt="" />` : ''}</div>`
         : '';
     return `
             <div class="taught_course_head">
@@ -222,14 +251,17 @@ function renderTeachingListing(body, mode = 'all') {
             tag('tag_carthage', 'Carthage College') + tag('tag_csharp', 'C sharp'),
             `A study of the fundamentals of writing computer programs and problem-solving, using structured and object-oriented techniques. Intended for future majors and minors in Computer Science and minors in Game Development.`],
         ['CSC 2710 : Game Development I',
-            tag('tag_carthage', 'Carthage College') + tag('tag_unity', 'Unity') + tag('tag_csharp', 'C sharp'),
+            tag('tag_carthage', 'Carthage College') + tag('tag_godot', 'Godot') + tag('tag_gdscript', 'GDscript') + tag('tag_unity', 'Unity') + tag('tag_csharp', 'C sharp'),
             `Video games are serious work. Reaching far beyond the multibillion-dollar gaming industry, the lessons of video game development increasingly translate to disparate fields requiring simulation, training, and easy-to-use interfaces. This course introduces students to the game development and design process. Students will build games representative of a variety of genres. This is a project-based course.`],
         ['CSC 3530 : Artificial Intelligence and Cognitive Modeling',
-            tag('tag_carthage', 'Carthage College'),
+            tag('tag_carthage', 'Carthage College') + tag('tag_python', 'Python'),
             `This course explores the primary approaches for developing computer programs that display characteristics we would think of as being intelligent. Students will analyze how intelligent systems are developed and implemented with a focus on exploring how human behavior on cognitive tasks can be used to inform the development of these artificial systems, as well as how the performance and behavior of these artificial systems can inform our understanding of human cognition.`],
         ['CSC 3730 : Artificial Intelligence for Simulations',
             tag('tag_carthage', 'Carthage College') + tag('tag_godot', 'Godot') + tag('tag_gdscript', 'GDscript'),
             `Explore the fundamental AI algorithms used in simulations and game development. This course covers techniques like pathfinding, decision trees, behavior trees, finite state machines, and machine learning. Students will apply these algorithms to create more dynamic, responsive, and intelligent virtual environments. Ideal for those interested in game design, simulations, and AI programming.`],
+        ['CSC 4110 : Internet of Things',
+            tag('tag_carthage', 'Carthage College') + tag('tag_micropython', 'MicroPython') + tag('tag_microcontrollers', 'Microcontrollers'),
+            `In this course, students will explore the Internet of Things using a combination of lecture and laboratory practice. Topics include, but are not limited to, IoT Architectures, Sensors and Microcontrollers, Synthetic Sensors, Digital and Analog Electronics, Python and C programming for IoT, Sampling Strategies, Connectivity and Networks, Data Analysis and Data Management. In the laboratory component, students will design and build IoT solutions according to design requirements provided by the instructor.`],
         ['HON 150/250 : Games for Good',
             tag('tag_westminster', 'Westminster College') + tag('tag_godot', 'Godot'),
             `A study of the design and development of video games and their ability to act as agents of positive social change. Students will learn and practice several cycles of iterative design over three major projects, starting with paper prototypes and culminating in a playable digital game. Digital development will be done using the Godot game engine.`],
@@ -356,6 +388,104 @@ function labelizeInstructionKey(key) {
     return spaced.replace(/\s+/g, ' ').trim().replace(/\b\w/g, ch => ch.toUpperCase());
 }
 
+// ===========  Rubric print flow  ======================================
+//
+// Triggered by the "Print rubric..." button buildInstructionsPane adds
+// wherever a pane's content contains a .rubric-table. Asks which of the
+// three presentations this printout is for, then opens a small,
+// self-contained popup window (its own document, not this page) with
+// just that label, the course name, blank Name/Date lines, and a clone
+// of the rubric table -- and calls print() on it. A separate window
+// keeps this to a couple of small functions instead of needing print
+// stylesheets that hide the rest of the single-page app.
+
+const RUBRIC_PRESENTATION_NAMES = ['The Pitch', 'The Progress', 'The...Perfection?'];
+
+function openPrintPicker(c, table) {
+    let selected = RUBRIC_PRESENTATION_NAMES[0];
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'rubric-print-backdrop';
+    backdrop.innerHTML = `
+        <div class="rubric-print-picker">
+            <div class="rubric-print-picker-title">Print rubric for which presentation?</div>
+            <div class="rubric-print-picker-options">
+                ${RUBRIC_PRESENTATION_NAMES.map((name, i) => `
+                    <button type="button" class="rubric-print-option ${i === 0 ? 'active' : ''}" data-name="${esc(name)}">${esc(name)}</button>
+                `).join('')}
+            </div>
+            <div class="rubric-print-picker-actions">
+                <button type="button" class="rubric-print-cancel">Cancel</button>
+                <button type="button" class="rubric-print-confirm">Print</button>
+            </div>
+        </div>`;
+    document.body.appendChild(backdrop);
+
+    qsa('.rubric-print-option', backdrop).forEach(btn => {
+        btn.addEventListener('click', () => {
+            selected = btn.dataset.name;
+            qsa('.rubric-print-option', backdrop).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    const close = () => backdrop.remove();
+    backdrop.querySelector('.rubric-print-cancel').addEventListener('click', close);
+    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
+    backdrop.querySelector('.rubric-print-confirm').addEventListener('click', () => {
+        printRubric(c, selected, table);
+        close();
+    });
+}
+
+function printRubric(c, presentationName, table) {
+    const win = window.open('', '_blank', 'width=850,height=1100');
+    if (!win) {
+        alert('Please allow popups for this site to print the rubric.');
+        return;
+    }
+    const courseName = `${c.pre} ${c.num} : ${c.full}`;
+    win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${esc(courseName)} \u2014 ${esc(presentationName)} rubric</title>
+<style>
+    body { font-family: Arial, Helvetica, sans-serif; color: #1f1f1f; padding: 40px; }
+    .rp-presentation { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: #666; margin-bottom: 4px; }
+    .rp-course { font-size: 23px; margin-bottom: 22px; }
+    .rp-presen { font-size: 26px; font-weight: bold; margin-bottom: 22px; }
+    .rp-fields { display: flex; gap: 50px; margin-bottom: 26px; font-size: 14px; }
+    .rp-fields .rp-field { flex: 1; }
+    .rp-fields .rp-line { display: inline-block; border-bottom: 1px solid #999; width: 100%; min-width: 160px; height: 1.4em; }
+    .rp-fields .rp-line-short { display: inline-block; border-bottom: 1px solid #999; width: 20%; min-width: 40px; height: 1.4em; }
+    table.rubric-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    table.rubric-table th, table.rubric-table td { border: 1px solid #ccc; padding: 7px 9px; text-align: left; vertical-align: top; }
+    table.rubric-table th { background: #f2f2f2; }
+    table.rubric-table tbody tr:nth-child(even) { background: #fafafa; }
+    @media print { body { padding: 20px; } }
+</style>
+</head>
+<body>
+    <div class="rp-presen">${esc(presentationName)}</div>
+    <div class="rp-course">${esc(courseName)}</div>
+    <div class="rp-fields">
+        <div class="rp-field">Name<br><span class="rp-line">&nbsp;</span></div>
+        <div class="rp-field">Date<br><span class="rp-line">&nbsp;</span></div>
+    </div>
+    ${table.outerHTML}
+    <div class="rp-fields">
+        <div class="rp-field">Score<br><br><br><span class="rp-line-short">&nbsp;</span> / 15 pts</div>
+    </div>
+</body>
+</html>`);
+    win.document.close();
+    win.focus();
+    const doPrint = () => { try { win.print(); } catch (e) { /* no-op */ } };
+    win.onload = doPrint;
+    setTimeout(doPrint, 300); // fallback if onload already fired
+}
+
 function buildInstructionsPane(c) {
     const instr = c.instructions;
     const keys = instr ? Object.keys(instr) : [];
@@ -373,11 +503,24 @@ function buildInstructionsPane(c) {
         <div class="instr-mini-tab ${i === 0 ? 'active' : ''}" data-itab="${i}">${esc(labelizeInstructionKey(key))}</div>
     `).join('');
 
-    const miniPanesHtml = keys.map((key, i) => `
+    const miniPanesHtml = keys.map((key, i) => {
+        const body = instr[key];
+        // Detect a rubric table by content, not by which key it lives
+        // under -- so this works for "Presentations" (csc1100/csc3730's
+        // shape) or a future "Presentation 1/2/3" split alike, with no
+        // per-course special-casing, and automatically stops offering
+        // the button again if a rubric is ever removed.
+        const hasRubric = /rubric-table/i.test(body);
+        const printBtnHtml = hasRubric
+            ? `<div class="instr-print-row"><button class="instr-print-rubric-btn" type="button">Print rubric\u2026</button></div>`
+            : '';
+        return `
         <div class="instr-pane ${i === 0 ? 'active' : ''}" id="instr-pane-${i}">
-            <div class="instr-block"><div class="instr-body-text">${instr[key]}</div></div>
+            <div class="instr-block"><div class="instr-body-text">${body}</div></div>
+            ${printBtnHtml}
         </div>
-    `).join('');
+    `;
+    }).join('');
 
     return `
         <div class="instr-layout">
@@ -493,7 +636,7 @@ function renderDetailView(body, key) {
  
     
     const goalsHtml = c.goals.map((g, i) =>
-        `<div class="lg-line"><b>${g.num || i + 1}.</b> <span class="lg-action lg-action-${g.action.toLowerCase()}">${esc(g.action)}</span> ${esc(g.detail)}</div>`
+        `<div class="lg-line"><b>${g.num || i + 1}.</b> <span class="lg-action lg-action-${g.action.toLowerCase()}${g.blooms ? ' lg-blooms-' + g.blooms : ''}">${esc(g.action)}</span> ${esc(g.detail)}</div>`
     ).join('');
     
     // Assessment colors come from shared.json (["assessments"]["colors"][type]),
@@ -577,7 +720,7 @@ function renderDetailView(body, key) {
                     </div>
                     <div class="cxd-full">${esc(c.full)}</div>
                     <div class="cxd-short">${esc(c.short)}</div>
-                    <div class="cxd-sem">${esc(SHARED.sem)}</div>
+                    <div class="cxd-sem">${esc(c.sem || SHARED.sem)}</div>
                     <div class="cxd-dts">${esc(c.days)} ${esc(c.time)}</div>
                     <div class="cxd-location">${esc(c.place)}</div>
                 </div>
@@ -611,7 +754,7 @@ function renderDetailView(body, key) {
                     
                     <!-- GOALS -->
                     <div class="cx-pane" id="cx-pane-goals">
-                        <div class="cd-body">${goalsHtml}</div>
+                        <div class="cd-body lg-layout"><div class="lg-list">${goalsHtml}</div>${BLOOMS_PYRAMID_SVG}</div>
                     </div>
                     
                     <!-- SCHEDULE --> 
@@ -710,6 +853,18 @@ function renderDetailView(body, key) {
                     mountLessonFrame(mount);
                 }
             }
+        });
+    });
+
+    // Rubric print button (see buildInstructionsPane): scoped to this
+    // renderDetailView call, so it closes directly over this course's
+    // own `c`, no data-attribute round-trip needed.
+    qsa('.instr-print-rubric-btn', body).forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const pane = btn.closest('.instr-pane');
+            const table = pane && pane.querySelector('.rubric-table');
+            if (table) openPrintPicker(c, table);
         });
     });
 

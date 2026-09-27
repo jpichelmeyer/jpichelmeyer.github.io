@@ -1,0 +1,172 @@
+{
+  "meta": {
+    "sourceNote": "Every category and checklist item here is drawn directly from two source documents: the department's Scholarship Statement and the excerpted Faculty Handbook sections (3.9, 4.1, 4.8-4.11, 4.17.3). Where the source text is quoted, it's marked as a quote below so it's easy to point back to the original.",
+    "teachingLoadCreditsPerYear": 28,
+    "probationaryYearsStandard": 5,
+    "probationaryYearsMaxReduction": 3
+  },
+
+  "scholarshipCategories": [
+    {
+      "id": "discovery",
+      "name": "Scholarship of Discovery",
+      "source": "Scholarship Statement",
+      "summary": "New knowledge in computing -- core or interdisciplinary -- disseminated in a recognized way.",
+      "evidenceForms": [
+        "Research initiatives that push the boundaries of computing",
+        "Work that integrates student involvement",
+        "Dissemination via peer-reviewed journals, conferences, local forums, or creative presentations (tech-focused performances/exhibitions)",
+        "New terms, frameworks, or languages (programming-specific or interdisciplinary)"
+      ]
+    },
+    {
+      "id": "teaching_learning",
+      "name": "Scholarship of Teaching and Learning",
+      "source": "Scholarship Statement",
+      "summary": "Research into how to teach computing well, or substantive curriculum development.",
+      "evidenceForms": [
+        "Researching the efficacy of teaching tools",
+        "Strategies for integrating technology into the classroom",
+        "Methods to improve student engagement",
+        "Creation of new courses/programs, or significant overhaul of existing ones",
+        "Taking courses from other institutions to integrate new knowledge into teaching",
+        "Presentation at venues such as ACM SIGCSE, GDC, or local educational forums"
+      ]
+    },
+    {
+      "id": "integration",
+      "name": "Scholarship of Integration",
+      "source": "Scholarship Statement",
+      "summary": "Computing in conversation with other disciplines.",
+      "evidenceForms": [
+        "Collaboration with faculty in other disciplines (e.g. biology, economics, social sciences) to analyze/interpret data",
+        "Publications, conference presentations, or other recognition from such collaboration",
+        "Independent/singular research on interdisciplinary themes: information literacy, misinformation studies, visualization"
+      ]
+    },
+    {
+      "id": "application_engagement",
+      "name": "Scholarship of Application and Engagement",
+      "source": "Scholarship Statement",
+      "summary": "Bridging academia and industry/community/professional organizations.",
+      "evidenceForms": [
+        "Consulting with companies / contributing to real-world problems",
+        "Presenting research to industry groups",
+        "Presentations at industry meetings, community workshops, or other public engagement",
+        "Engagement with professional computing organizations (national/regional associations)",
+        "Committee work, conference presentations, or collaborative projects within those organizations"
+      ]
+    },
+    {
+      "id": "historiography",
+      "name": "Scholarship of Historiography",
+      "source": "Scholarship Statement (department extension to Boyer's model)",
+      "summary": "The history and cultural impact of computing.",
+      "evidenceForms": [
+        "Study of the development of computing technologies, key figures, or social/ethical/cultural context",
+        "Academic papers or books",
+        "Creative works: plays, screenplays, performances"
+      ]
+    },
+    {
+      "id": "urm_research",
+      "name": "Supporting Underrepresented Students in Research",
+      "source": "Scholarship Statement (department extension to Boyer's model)",
+      "summary": "Recruiting and mentoring underrepresented students in meaningful research.",
+      "evidenceForms": [
+        "Actively recruiting and mentoring students from diverse backgrounds into research",
+        "Research projects reflecting/contributing to equity and inclusion in STEM",
+        "Resulting presentations, publications, or other external recognition"
+      ]
+    }
+  ],
+
+  "scholarshipEvidenceTypes": [
+    { "id": "publication", "name": "Publication" },
+    { "id": "presentation", "name": "Presentation" },
+    { "id": "report", "name": "Report" },
+    { "id": "performance", "name": "Performance" }
+  ],
+  "scholarshipEvidenceTypesQuote": "Scholarship requires an external product that could include publication, public presentation of work at a conference or event, report to a public or private organization, or performance to a public audience. (Handbook 4.8.2)",
+
+  "scholarshipFlexibilityNote": "Faculty members are not required to demonstrate contributions in all areas of scholarship for tenure or promotion. Significant achievements or substantial work in one or more areas can fulfill scholarship expectations... excellence in one domain can compensate for less activity in others. (Scholarship Statement, \u201cFlexibility in Scholarship Areas\u201d)",
+
+  "serviceCategories": [
+    {
+      "id": "committees",
+      "name": "Committees",
+      "quote": "Service on College, faculty, divisional, and departmental committees is a significant responsibility of faculty members. (4.8.3)"
+    },
+    {
+      "id": "required_events",
+      "name": "Required events",
+      "quote": "Faculty attendance at the New Student Convocation, Honors Convocation, Baccalaureate, and Commencement is also required. (4.8.3)"
+    },
+    {
+      "id": "requested_occasions",
+      "name": "Requested occasions",
+      "quote": "Attendance at Chapel, service as an advisor to student organizations, attendance at athletic events, performances, recitals, lectures, Parents Weekend, Homecoming events, and participation in recruiting activities...may be requested on specific occasions by the Provost. (4.8.3)"
+    },
+    {
+      "id": "academic_advising",
+      "name": "Academic advising",
+      "quote": "In the spring of their first year, after they have declared a major, they are assigned a faculty advisor from their major field of study. (4.8.4)"
+    },
+    {
+      "id": "student_org_advising",
+      "name": "Student org. advising",
+      "quote": "Each recognized student organization is required to have at least one faculty or staff advisor. (4.8.5)"
+    },
+    {
+      "id": "outside_service",
+      "name": "Outside the College",
+      "quote": "It is recognized that faculty members fulfill service responsibilities through participation in community and non-profit organizations outside the College community. (4.8.3)"
+    }
+  ],
+
+  "teachingEssentials": [
+    "Course description and syllabus for each class",
+    "Preparing regularly for class",
+    "Maintaining office hours",
+    "Verifying class rosters with the Registrar",
+    "Identifying students with low grades and/or poor attendance",
+    "Submitting final grades to the Registrar",
+    "Advising students"
+  ],
+  "teachingEssentialsQuote": "Certain activities on the part of faculty members are essential. These include but are not limited to: developing a course description and syllabus for each class; preparing regularly for class; maintaining office hours; verifying class rosters with the Registrar; identifying students with low grades and/or poor attendance; submitting final grades to the Registrar; and advising students. (4.8.1)",
+  "chairObservationQuote": "The Department Chair/Program Director visits all tenure-track and annual/multi-year faculty members at mutually agreed times, at least once per year. (4.9.1)",
+  "studentEvalsQuote": "[The Chair] receives copies of the compilation of student evaluations for all courses taught in the department or program each term. (4.9.1)",
+
+  "tenureFileChecklist": [
+    "Candidate Narrative (limit 3,500 words)",
+    "Current CV",
+    "Letter of Recommendation from Dean at Carthage",
+    "Letter of Recommendation from Chair at Carthage",
+    "Departmental Scholarship Statement",
+    "Additional Supporting Materials (optional)",
+    "Course Evaluations"
+  ],
+  "tenureFileChecklistQuote": "In consideration of a candidate for tenure, the following documents are required of all candidates: 1. The Candidate Narrative...2. A current CV. 3. Letters of Recommendation... 4. Departmental Scholarship Statement. 5. Additional Supporting Materials... 6. Course Evaluations. (4.10.2)",
+
+  "tenureKeyDates": [
+    { "label": "Provost compiles list of tenure candidates", "when": "2nd Monday in May (prior year)" },
+    { "label": "Chair's original letter of evaluation shared with candidate", "when": "2nd Monday in September" },
+    { "label": "Chair's final letter of evaluation sent", "when": "3rd Monday in September" },
+    { "label": "Dean's original letter of evaluation shared with candidate", "when": "3rd Monday in September" },
+    { "label": "Dean's final letter of evaluation sent", "when": "4th Monday in September" },
+    { "label": "Complete tenure file due to Personnel & Tenure Committee", "when": "1st Monday in October" },
+    { "label": "P&T Committee's original recommendation shared", "when": "4th Thursday in October" },
+    { "label": "P&T Committee's final letter of evaluation sent", "when": "2nd Monday in November" },
+    { "label": "Provost's final recommendation forwarded", "when": "2nd Monday in December" },
+    { "label": "Board of Trustees decision (Winter Board Meeting)", "when": "December" }
+  ],
+
+  "threeAreasQuote": "The work of a faculty member includes teaching, scholarship and professional activities, and involvement in the College and larger community. Excellence in performing these responsibilities is the primary criterion for reappointment, tenure, promotion, and level of compensation. (4.8)",
+
+  "years": [
+    { "id": "y1", "label": "2026\u201327", "note": "" },
+    { "id": "y2", "label": "2027\u201328", "note": "" },
+    { "id": "y3", "label": "2028\u201329", "note": "Early tenure petition year (planned)" },
+    { "id": "y4", "label": "2029\u201330", "note": "Standard-track fallback year" }
+  ]
+}

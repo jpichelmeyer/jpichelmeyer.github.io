@@ -1,0 +1,157 @@
+{
+  "id": "csc2710",
+  "pre": "CSC",
+  "num": "2710",
+  "short": "Game Dev I",
+  "full": "Game Development I",
+  "svg": "csc2710.svg",
+  "days": "MWF",
+  "time": "9:15am-10:20am",
+  "sem": "AY 2026-2027 Spring",
+  "place": "TBD",
+  "prereq": "csc1810",
+  "catalog": "Video games are serious work. Reaching far beyond the multibillion-dollar gaming industry, the lessons of video game development increasingly translate to disparate fields requiring simulation, training, and easy-to-use interfaces. This course introduces students to the game development and design process. Students will build games representative of a variety of genres. This is a project-based course.",
+  "goals": [
+    {
+      "num": 1,
+      "action": "Program",
+      "detail": "2D character movement and collision handling in Godot.",
+      "blooms" : 3
+    },
+    {
+      "num": 2,
+      "action": "Construct",
+      "detail": "modular combat mechanics using instanced scenes and signals in Godot.",
+      "blooms" : 6
+    },
+    {
+      "num": 3,
+      "action": "Compare",
+      "detail": "Godot's node hierarchy tree with commponent-based engine architectures.",
+      "blooms" : 4
+    },
+    {
+      "num": 4,
+      "action": "Build",
+      "detail": "a playable, multi-scene 2D game from intial logic to final deployment.",
+      "blooms" : 6
+    }
+  ],
+  "courseColor": "#ffd1a6",
+  "srcColor": {
+    "MSDOC": [
+      "#0078d4",
+      "#e8f0fe"
+    ],
+    "CPP": [
+      "#2d4a22",
+      "#a3d977"
+    ]
+  },
+  "schedule": [
+    {
+      "theme": "Foundation",
+      "trs": [
+        {
+          "Godot setup" : "",
+          "Nodes" : "",
+          "GDScript" : "",
+          "User input and movement" : ""
+        },
+        {
+          "Tilemaps" : "",
+          "Collisions" : ""
+        },
+        {
+          "Sprite sheets" : "",
+          "AnimationPlayer node" : ""
+        },
+        {
+          "Godot signals" : "",
+          "Scene changing" : ""
+        },
+        {
+          "Flex" : "",
+          "Review" : "",
+          "Exam 1" : ""
+        }
+      ]
+    },
+    {
+      "theme": "Expansion",
+      "trs": [
+        {
+          "Hitboxes" : "",
+          "Instancing" : ""
+        },
+        {
+          "Variables" : "",
+          "HUD" : ""
+        },
+        {
+          "AI routing" : ""
+        },
+        {
+          "Hurtboxes" : "",
+          "Health systems" : ""
+        },
+        {
+          "Flex" : "",
+          "Review" : "",
+          "Exam 2" : ""
+        }
+      ]
+    },
+    {
+      "theme": "Conversion",
+      "trs": [
+        {
+          "Nodes vs objects" : "",
+          "Nodes vs components" : ""
+        },
+        {
+          "extends vs public class" : "",
+          "_process vs void Update()" : "",
+          "_physics_process vs void FixedUpdate()" : ""
+        },
+        {
+          "CharacterBody2D vs RigidBody2D" : "",
+          "User input" : ""
+        },
+        {
+          "signals vs UnityEvents" : "",
+          "CanvasLayer vs Canvas" : ""
+        },
+        {
+          "Flex" : "",
+          "Review" : "",
+          "Exam 3" : ""
+        }
+      ]
+    }
+  ],
+  "assess": [
+    {
+        "name": "Exams",
+        "type": "exam",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
+        "percentage": "60",
+        "colorbg": "#7cbf8e",
+        "colorfont": "#1f1f1f"
+    },
+    {
+      "name": "Quizzes",
+      "type": "quiz",
+      "description": "A short in-class quiz each week on the prior week's reading and concepts.",
+      "percentage": "40"
+    }
+  ],
+  "instructions": {
+    "Presentation 1": "Here is an <b>HTML-syntax</b> string",
+    "Presentation 2": "Here is an <b>HTML-syntax</b> string",
+    "Presentation 3": "Here is an <b>HTML-syntax</b> string",
+    "Progress reports": "Here is an <b>HTML-syntax</b> string"
+  },
+  "materials": "Laptop, writing utensils, paper",
+  "credits": "4"
+}

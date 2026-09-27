@@ -68,10 +68,13 @@
     --panel-bd:         #ccc9bf;
     
     /* --- Titlebars --- */
-    --color-accent-about:           #de6268;        /* core palette red  */
+    --color-accent-about:           #262626;        /* very dark charcoal */
     --color-accent-courses:         #4a7ec2;        /* Core palette blue */
-    --color-accent-projects:        #d6b969;        /* Core palette gold */
+    --color-accent-projects:        #d6ae69;        /* Core palette gold #d6b969 */
     --color-accent-research:        #72a67f;        /* Core palette sage */
+    --color-accent-advancement:     #de6268;        /* core palette red (was About's) */
+    --color-accent-robotics:        #7b8089;        /* lighter slate grey titlebar */
+    --color-accent-robotics-hl:     #9b8ec9;        /* lavender, robotics inner accents */
     --color-titlebar-font:          #f1f1f1;
 
     /* --- Portrait -- */

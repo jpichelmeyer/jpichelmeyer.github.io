@@ -1,0 +1,186 @@
+{
+  "id": "csc3530",
+  "pre": "CSC",
+  "num": "3530",
+  "short": "AI and Cog Mod",
+  "full": "Artificial Intelligence and Cognitive Modeling",
+  "svg": "csc3530.svg",
+  "days": "TR",
+  "time": "9:50am-11:30am",
+  "place": "TBD",
+  "prereq": "",
+  "catalog": "This course explores the primary approaches for developing computer programs that display characteristics we would think of as being intelligent. Students will analyze how intelligent systems are developed and implemented with a focus on exploring how human behavior on cognitive tasks can be used to inform the development of these artificial systems, as well as how the performance and behavior of these artificial systems can inform our understanding of human cognition.",
+  "goals": [
+    {
+      "num": 1,
+      "action": "Implement",
+      "detail": "state-space search algorithms to solve pathfinding problems.",
+      "blooms" : 3
+    },
+    {
+      "num": 2,
+      "action": "Model",
+      "detail": "analogical reasoning in agents by designing them to map past solutions onto new problems.",
+      "blooms" : 4
+    },
+    {
+      "num": 3,
+      "action": "Evaluate",
+      "detail": "how metacognitive feedback loops allow agents to correct their own errors.",
+      "blooms" : 5
+    },
+    {
+      "num": 4,
+      "action": "Design",
+      "detail": "an integrated cognitive agent that combines search, memory, and reasoning.",
+      "blooms" : 6
+    }
+  ],
+  "courseColor": "#ffccd9",
+  "srcColor": {
+    "MSDOC": [
+      "#0078d4",
+      "#e8f0fe"
+    ],
+    "CPP": [
+      "#2d4a22",
+      "#a3d977"
+    ]
+  },
+  "schedule": [
+    {
+      "theme": "Structure",
+      "trs": [
+        {
+          "Semantic networks" : "",
+          "Hofstadter Prologue" : "",
+          "McShane 1 StS" : ""
+        },
+        {
+          "Frames" : "",
+          "Production systems" : "",
+          "Hofstadter 1 CBOW" : "",
+          "McShane 2 CCCM" : ""
+        },
+        {
+          "Generate and test" : "",
+          "Means-Ends Analysis" : "",
+          "Hofstadter 2 McwP" : "",
+          "McShane 3 KbaO" : ""
+        },
+        {
+          "Logic" : "",
+          "Planning" : "",
+          "Hofstadter 3 AVOolA" : "",
+          "McShane 6 DraA" : ""
+        },
+        {
+          "Exam 1" : "",
+          "Agent Exam 1" : ""
+        }
+      ]
+    },
+    {
+      "theme": "Analogy",
+      "trs": [
+        {
+          "Learning by recording cases" : "",
+          "Incremental concept learning" : "",
+          "Hofstadter 4 AaICS" : "",
+          "McShane 7 LiCA" : ""
+        },
+        {
+          "Case-based reasoning" : "",
+          "Classification" : "",
+          "Hofstadter 5 HAMU" : "",
+          "McShane 5 MTD" : ""
+        },
+        {
+          "Understanding" : "",
+          "Common sense reasonsing" : "",
+          "Scripts" : "",
+          "Hofstadter 6 HWWA" : "",
+          "McShane 4 LaCU" : ""
+        },
+        {
+          "Explanation-based learning" : "",
+          "Hofstadter 7 NaaHLP" : "",
+          "McShane 8 EaT" : ""
+        },
+        {
+          "Exam 2" : "",
+          "Agent Exam 2" : ""
+        }
+      ]
+    },
+    {
+      "theme": "Metacognition",
+      "trs": [
+        {
+          "Constraint propagation" : "",
+          "Hofstadter 8 ASW" : "",
+          "McShane 9 KA" : ""
+        },
+        {
+          "Configuration" : "",
+          "Diagnoses" : "",
+          "Hofstadter Epidaig KADC" : "",
+          "McShane 10 DDP" : ""
+        },
+        {
+          "Learning by correcting mistakes" : "",
+          "Meta reasoning" : "",
+          "Hofstadter 7 (again)" : "",
+          "McShane 8 (again)" : ""
+        },
+        {
+          "Symbolic KBAI vs modern LLMs" : "",
+          "Hofstadter Epilogue AIHaAT" : "",
+          "McShane Conclusion TAC" : ""
+        },
+        {
+          "Exam 3" : "",
+          "Agent Exam 3" : ""
+        }
+      ]
+    }
+  ],
+  "assess": [
+    {
+      "name": "Agent Reports",
+      "type": "report",
+      "description": "At the end of each week, students will turn in a progress report, detailing what they have accomplished on their term project since the prior report. Must be *hand-written.*",
+      "percentage": "10"
+    },
+    {
+        "name": "Agent Exams",
+        "type": "agentexam",
+        "description": "In class, oral explanation of agent work via questioning by instructor.",
+        "percentage": "20",
+        "colorbg": "#ffe4a6",
+        "colorfont": "#1f1f1f"
+    },
+    {
+        "name": "Exams",
+        "type": "exam",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
+        "percentage": "40",
+        "colorbg": "#7cbf8e",
+        "colorfont": "#1f1f1f"
+    },
+    {
+      "name": "Quizzes",
+      "type": "quiz",
+      "description": "A short in-class quiz each week on the prior week's reading and concepts.",
+      "percentage": "30"
+    }
+  ],
+  "instructions": {
+    "Presentation 1": "Here is an <b>HTML-syntax</b> string",
+    "Presentation 2": "Here is an <b>HTML-syntax</b> string",
+    "Presentation 3": "Here is an <b>HTML-syntax</b> string",
+    "Progress reports": "Here is an <b>HTML-syntax</b> string"
+  },
+  "materials": "Laptop, writing utensils, paper",
+  "credits": "4"
+}
