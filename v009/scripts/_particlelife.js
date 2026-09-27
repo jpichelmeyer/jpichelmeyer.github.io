@@ -5,8 +5,7 @@
 
     Features:
     - asymmetric ecological interactions
-    - smooth mouse influence
-    - right-click continuous spawning
+    - (no mouse interaction: particles ignore the cursor entirely)
     - cascading plague system
 */
 
@@ -79,6 +78,11 @@ let spawnCooldown = 0;
 
 // Plague waves
 let plagueWaves = [];
+
+
+// Solid obstacles (deployed robots): oriented rectangles
+// { x, y, hw, hh, angle } set each frame by _robotics.js
+let obstacles = [];
 
 
 
@@ -337,35 +341,6 @@ function stepParticles() {
 
 
         // ─────────────────────────────────────────
-        // Mouse interaction
-        // ─────────────────────────────────────────
-
-        if (!mOverUI) {
-
-            const dx = mX - p.x;
-            const dy = mY - p.y;
-
-            const d = Math.hypot(dx, dy);
-
-            if (d > 1 && d < 400) {
-
-                const strength =
-                    mDown
-                        ? -0.5
-                        : 0.15;
-
-                const force =
-                    strength /
-                    (d * 0.02 + 1);
-
-                fx += (dx / d) * force;
-                fy += (dy / d) * force;
-            }
-        }
-
-
-
-        // ─────────────────────────────────────────
         // Plague interactions
         // ─────────────────────────────────────────
 
@@ -434,6 +409,34 @@ function stepParticles() {
 
         p.x += p.vx;
         p.y += p.vy;
+
+
+        // Robots are solid: push the particle back out to the robot's
+        // edge and cancel the inward part of its velocity, so it stops
+        // or slides around the side instead of passing through.
+        for (const o of obstacles) {
+            const cos = Math.cos(o.angle), sin = Math.sin(o.angle);
+            const rx = p.x - o.x, ry = p.y - o.y;
+            const lx = rx * cos + ry * sin, ly = -rx * sin + ry * cos; // into robot frame
+            const hw = o.hw + p.r, hh = o.hh + p.r;
+            if (Math.abs(lx) >= hw || Math.abs(ly) >= hh) continue;
+            let nx = 0, ny = 0, px, py; // local outward normal + corrected local position
+            if (o.resolve) {
+                // Non-rectangular robot: it resolves against its own shape
+                const hit = o.resolve(lx, ly, p.r);
+                if (!hit) continue;
+                [px, py, nx, ny] = hit;
+            } else {
+                if (hw - Math.abs(lx) < hh - Math.abs(ly)) nx = Math.sign(lx) || 1;
+                else ny = Math.sign(ly) || 1;
+                px = nx ? nx * hw : lx; py = ny ? ny * hh : ly;
+            }
+            p.x = o.x + px * cos - py * sin;
+            p.y = o.y + px * sin + py * cos;
+            const wx = nx * cos - ny * sin, wy = nx * sin + ny * cos; // world normal
+            const vn = p.vx * wx + p.vy * wy;
+            if (vn < 0) { p.vx -= vn * wx; p.vy -= vn * wy; }
+        }
 
 
 
@@ -602,6 +605,53 @@ requestAnimationFrame(lifeLoop);
 
 /* ====================================================================
 
+        Robotics hook (minimal, read-mostly API)
+
+    Exposes just enough for _robotics.js to build sensors that read
+    genuine simulation state, and for deployed robots to nudge nearby
+    particles the same gentle way the mouse already does -- without
+    _robotics.js needing to reach into this module's private state
+    directly, and without changing anything about how particle life
+    itself behaves when no robot is deployed.
+
+==================================================================== */
+
+window._particleLifeAPI = {
+    getParticles() { return parts; },
+    setObstacles(list) { obstacles = list; },
+    getColors() { return COLORS_HEX; },
+    getBounds() {
+        return { width: lifeCanvas.width, height: lifeCanvas.height, navH: NAV_H_L };
+    },
+    // Mirrors the existing mouse-repel mechanic (see the "Mouse
+    // interaction" block in stepParticles) so a moving robot disturbs
+    // nearby particles the same gentle way the cursor does.
+    // Used by robot particle generators; respects the same MAX_POP cap.
+    spawn(x, y, species) {
+        if (parts.length >= MAX_POP) return false;
+        const p = spawnParticle(x, y);
+        if (species !== undefined) p.c = species;
+        parts.push(p);
+        return true;
+    },
+    nudge(x, y, radius, strength) {
+        for (const p of parts) {
+            const dx = p.x - x;
+            const dy = p.y - y;
+            const d = Math.hypot(dx, dy);
+            if (d > 1 && d < radius) {
+                const force = strength / (d * 0.02 + 1);
+                p.vx += (dx / d) * force;
+                p.vy += (dy / d) * force;
+            }
+        }
+    },
+};
+
+
+
+/* ====================================================================
+
         Event Listeners
 
 ==================================================================== */
@@ -610,102 +660,3 @@ window.addEventListener(
     'resize',
     resizeLife
 );
-
-
-document.addEventListener(
-    'mousemove',
-    e => {
-
-        mX = e.clientX;
-        mY = e.clientY;
-    }
-);
-
-
-// Mouse buttons
-document.addEventListener(
-    'mousedown',
-    e => {
-
-        mDown = true;
-
-        // Clicks over a panel or the navbar shouldn't spawn waves or
-        // trigger spawning in the background life -- only real clicks
-        // on empty background should.
-        if (mOverUI) return;
-
-
-        // LEFT CLICK
-        // single carrier wave
-
-        if (e.button === 0) {
-
-            emitCarrierWave(
-                e.clientX,
-                e.clientY
-            );
-        }
-
-
-        // RIGHT CLICK
-        // continuous spawning
-
-        else if (e.button === 2) {
-
-            spawnEmit = true;
-        }
-    }
-);
-
-
-document.addEventListener(
-    'mouseup',
-    e => {
-
-        mDown = false;
-
-
-        // RIGHT CLICK
-        // stop spawning
-
-        if (e.button === 2) {
-
-            spawnEmit = false;
-        }
-    }
-);
-
-
-// Prevent browser context menu
-document.addEventListener(
-    'contextmenu',
-    e => e.preventDefault()
-);
-
-
-
-// UI hover protection
-
-nav.addEventListener(
-    'mouseenter',
-    () => mOverUI = true
-);
-
-nav.addEventListener(
-    'mouseleave',
-    () => mOverUI = false
-);
-
-
-qsa('.panel').forEach(panel => {
-
-    panel.addEventListener(
-        'mouseenter',
-        () => mOverUI = true
-    );
-
-    panel.addEventListener(
-        'mouseleave',
-        () => mOverUI = false
-    );
-});

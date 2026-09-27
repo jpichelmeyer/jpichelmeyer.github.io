@@ -12,105 +12,121 @@
 
 /*
 ------------------------------------------------------------------
-    Timeline
+    Timeline (About > Path)
+    A vertical line on the left with one node per entry; each entry
+    is a card with the institution icon, dates, title, place and
+    subject tags. Degrees get a passport-style ink stamp (SVG drawn
+    by _timeline.js).
 ------------------------------------------------------------------
 */
 
-/*
-                                     |padding-left|padding-bottom|display|gap.|filter..|content|height|
-    .timeline					   	 |20px........|30px..........|
-        .timeline_row				 |............|..............|flex...|10px|
-            .timeline_icon           |............|..............|.......|....|.< * >.|
-                .timeline_icon_dot	 |............|..............|.......|....|var(...)|url(..)|40px..|
-                .timeline_icon_degree|............|..............|.......|....|var(...)|url(..)|40px..|
-            .timeline_dates             
-            .timeline_textbox
-*/
-
-.timeline { 
-    padding-left: 10px; 
-    padding-bottom: 20px; 
-    font-family: var(--sans-inter); 
-    min-width: 620px;
-    }
-.timeline_row { 
-    display: flex; 
-    gap: 10px; 
-    align-items: center;
+.tl {
+    position: relative;
+    padding: 10px 6px 30px 40px;
+    font-family: var(--sans-inter);
 }
-.timeline_dates { 
-    width: 100px; 
-    font-size: calc(12px * var(--mod-font-size));  
-    /*padding-top: 10px;*/ 
-    text-align: right; 
-    opacity: 0.5;
-    }
-.timeline_icon { filter: brightness(0%);}
-.timeline_icon_arrow  { content: url(../imgs/timeline_arrow.png);  height: 40px; opacity: var(--timeline-opacity); }
-.timeline_icon_degree { content: url(../imgs/timeline_degree.png); height: 40px; }
-.timeline_icon_dot    { content: url(../imgs/timeline_dot.png);    height: 40px; opacity: 0.4; }
-.timeline_icon_line   { content: url(../imgs/timeline_line.png);   width: 40px; height: 20px; opacity: var(--timeline-opacity); }
-.timeline_icon_tail   { content: url(../imgs/timeline_tail.png);   height: 40px; opacity: var(--timeline-opacity); }
-
-/* Compact connector rows — the thin line/arrow/tail rows strung between
-   institutions. Kept short and stout so entries sit closer together. */
-.timeline_row_connector { 
-    min-height: 0; 
-    }
-.timeline_row_connector .timeline_icon_line  { 
-    height: 14px; 
-    }
-.timeline_row_connector .timeline_icon_arrow,
-.timeline_row_connector .timeline_icon_tail  { 
-    height: 22px; 
-    }
-
-/* Degree badge — sits in the old institution-logo spot, only present
-   for entries where a degree was actually earned. */
-.timeline_logo {
-    width: 42px;
-    height: 42px;
-    flex-shrink: 0;
+/* the vertical line, fading out at both ends */
+.tl::before {
+    content: "";
+    position: absolute;
+    left: 17px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, #b9b4aa 30px, #b9b4aa calc(100% - 40px), transparent);
+}
+.tl-entry {
+    position: relative;
+    margin-bottom: 16px;
+}
+/* node on the line: hollow ring for positions, filled for degrees,
+   accent + halo for the current role */
+.tl-dot {
+    position: absolute;
+    left: -29px; top: 30px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--panel-bg);
+    border: 2.5px solid #8f897d;
+    box-sizing: border-box;
+}
+.tl-degree .tl-dot { background: #3a3a3a; border-color: #3a3a3a; }
+.tl-current .tl-dot {
+    background: var(--color-accent-about);
+    border-color: var(--color-accent-about);
+    box-shadow: 0 0 0 5px color-mix(in oklab, var(--color-accent-about), transparent 82%);
+}
+/* short connector from the line to the card */
+.tl-dot::after {
+    content: "";
+    position: absolute;
+    left: 100%; top: 50%;
+    width: 13px; height: 1.5px;
+    background: #b9b4aa;
+}
+.tl-card {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 14px;
+    background: var(--panel-bg-bright);
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    padding: 12px 14px 12px 0;    /* no left padding: the logo is the card's left cap */
+    min-height: 72px;
 }
-.timeline_logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-radius: 4px;
-}
-/* Institution icon — now sits in the old dot/degree icon spot, the
-   main "node" of the timeline. */
-.timeline_institution {
-    width: 48px;
-    height: 48px;
+.tl-logo {
+    /* Left cap: full card height, flush with the card's left edge,
+       rounded to match the card's own corners (like a panel titlebar) */
+    align-self: stretch;
+    width: 60px;
+    margin: 6px 6px 10px 10px;
+    height: auto;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    object-fit: cover;
+    object-view-box: inset(3% 4%);   /* trim the logos' transparent margins (where supported) */
+    border-radius: calc(var(--border-radius2) - 1.5px) 0 0 calc(var(--border-radius2) - 1.5px);
 }
-.timeline_institution img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-radius: 4px;
+.tl-main { flex: 1; min-width: 0; }
+.tl-dates {
+    font-family: var(--mono);
+    font-size: calc(10px * var(--mod-font-size));
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    margin-bottom: 2px;
 }
-.timeline_textbox { width: 100%; }
-.timeline_title_row {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
+.tl-current .tl-dates { color: var(--color-accent-about); font-weight: bold; }
+.tl-title {
+    font-weight: bold;
+    font-size: calc(13px * var(--mod-font-size));
+    color: var(--timeline-highlight);
 }
-.timeline_textbox_title { 
-    width: 150px;
+.tl-place {
+    font-size: calc(11px * var(--mod-font-size));
+    color: var(--timeline-lowlight);
+    margin: 1px 0 7px;
+}
+/* passport stamp: tilted, ink-like, overlapping the card edge a little */
+.tl-stamp {
+    width: 118px;
     flex-shrink: 0;
-    font-weight: bold; 
-    color: var(--timeline-highlight); 
-    font-size: calc(11.5px * var(--mod-font-size)); 
-    padding-top: 5px; 
+    margin: -18px -6px -18px 0;
+    transform: rotate(var(--stamp-rot, 0deg));
+    opacity: 0.82;
+    mix-blend-mode: multiply;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
+.tl-stamp svg { display: block; width: 100%; height: auto; overflow: visible; }
+.tl-card:hover .tl-stamp { opacity: 1; transform: rotate(var(--stamp-rot, 0deg)) scale(1.05); }
+
+@media (max-width: 600px) {
+    .tl { padding-left: 30px; }
+    .tl::before { left: 11px; }
+    .tl-dot { left: -25px; }
+    .tl-dot::after { width: 9px; }
+    .tl-card { flex-wrap: wrap; gap: 10px; }
+    .tl-logo { width: 64px; margin-bottom: -12px; }
+    .tl-main { flex-basis: calc(100% - 48px); }
+    .tl-stamp { width: 90px; margin: -6px 0 -6px auto; }
+}
+
 .timeline-textbox-subject { 
     display: inline-flex;
     background-color: #1f1f1f;

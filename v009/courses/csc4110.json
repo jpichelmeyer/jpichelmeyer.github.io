@@ -1,0 +1,224 @@
+{
+  "id": "csc4110",
+  "pre": "CSC / EGR",
+  "num": "4110",
+  "short": "IoT",
+  "full": "Internet of Things",
+  "svg": "csc4110.svg",
+  "days": "MWF 2:50pm-3:55pm",
+  "time": "R 12:30pm-2:10pm",
+  "place": "DSC 53",
+  "prereq": "",
+  "catalog": "In this course, students will explore the Internet of Things using a combination of lecture and laboratory practice. Topics include, but are not limited to, IoT Architectures, Sensors and Microcontrollers, Synthetic Sensors, Digital and Analog Electronics, Python and C programming for IoT, Sampling Strategies, Connectivity and Networks, Data Analysis and Data Management. In the laboratory component, students will design and build IoT solutions according to design requirements provided by the instructor.",
+  "goals": [
+    {
+      "num": 1,
+      "action": "Understand",
+      "detail": "the architectures and devices which comprise Internet of Things systems.",
+      "blooms" : 2
+    },
+    {
+      "num": 2,
+      "action": "Analyze",
+      "detail": "the structural alignment between physical processing constraints and sensor data throughput in real-timme edge applications.",
+      "blooms" : 4
+    },
+    {
+      "num": 3,
+      "action": "Develop",
+      "detail": "IoT systems by combining physical sensors, actuators, and microcontroller-integrated software and hardware components.",
+      "blooms" : 6
+    },
+    {
+      "num": 4,
+      "action": "Program",
+      "detail": "edge devices to collect, serialize, and transmit operational data across a local network to coordinate system behavior.",
+      "blooms" : 4
+    },
+    {
+      "num": 5,
+      "action": "Configure",
+      "detail": "IoT system architectures, distinguishing between edge node operations and a central hub.",
+      "blooms" : 4
+    },
+    {
+      "num": 6,
+      "action": "Validate",
+      "detail": "collaborative, network IoT system design requirements through physical testing.",
+      "blooms" : 5
+    }
+  ],
+  "courseColor": "#91d9ba",
+  "srcColor": {
+    "MSDOC": [
+      "#0078d4",
+      "#e8f0fe"
+    ],
+    "CPP": [
+      "#2d4a22",
+      "#a3d977"
+    ]
+  },
+  "schedule": [
+    {
+      "theme": "Single-Node Telemetry",
+      "trs": [
+        {
+          "Thonny" : "",
+          "Microcontrollers" : "",
+          "Circuits and GPIO" : "",
+          "Lab 1" : ""
+        },
+        {
+          "ADC" : "",
+          "Quantization" : "",
+          "Sampling rates" : "",
+          "Noise filtering" : "",
+          "Nyquist-Shannon sampling thrm" : "",
+          "Moving average filters" : "",
+          "Lab 2" : ""
+        },
+        {
+          "WiFi provisioning" : "",
+          "CYW43439 network arch." : "",
+          "TCP / IP" : "",
+          "Publish-subscribe" : "",
+          "Non-blocking loops" : "",
+          "Lab 3" : ""
+        },
+        {
+          "Payload serialization" : "",
+          "MQTT" : "",
+          "Topic naming" : "",
+          "Data streaming" : "",
+          "Telemetry packets" : "",
+          "Lab 4" : ""
+        },
+        {
+          "Flex" : "",
+          "Review" : "",
+          "Lab Practical 1": "",
+          "Exam 1" : ""
+        }
+      ]
+    },
+    {
+      "theme": "Distributed Messaging",
+      "trs": [
+        {
+          "Topic trees" : "",
+          "Wildcards" : "",
+          "Mosquitto broker" : "",
+          "Bi-Dir. message routing" : "",
+          "Advanced MQTT" : "",
+          "Lab 5" : ""
+        },
+        {
+          "QoS" : "",
+          "State persistence" : "",
+          "LWT" : "",
+          "Network resilience" : "",
+          "Lab 6" : ""
+        },
+        {
+          "Message handling" : "",
+          "Asynch. loops" : "",
+          "FETs" : "",
+          "Remote triggering" : "",
+          "Lab 7" : ""
+        },
+        {
+          "Edge AI, TinyML, and Cloud ML" : "",
+          "Feature extraction" : "",
+          "Rolling Z-scores" : "",
+          "EMA" : "",
+          "Lab 8" : ""
+        },
+        {
+          "Flex" : "",
+          "Review" : "",
+          "Lab Practical 2": "",
+          "Exam 2" : ""
+        }
+      ]
+    },
+    {
+      "theme": "Multi-Agent Systems",
+      "trs": [
+        {
+          "Multi-agent systems (MAS)" : "",
+          "Distributed state machines" : "",
+          "Role specialization" : "",
+          "Message contracts and payloads for MAS" : "",
+          "Lab 9" : ""
+        },
+        {
+          "PWM" : "",
+          "H-bridge motor drivers" : "",
+          "Resource management" : "",
+          "Lab 10" : ""
+        },
+        {
+          "P2P" : "",
+          "Inter-node subscription" : "",
+          "PID" : "",
+          "Sensor fusion" : "",
+          "Lab 11" : ""
+        },
+        {
+          "Latency" : "",
+          "Systemic collision avoidance" : "",
+          "Message starvation" : "",
+          "State tracking" : "",
+          "Lab 12" : ""
+        },
+        {
+          "Flex" : "",
+          "Review" : "",
+          "Lab Practical 3": "",
+          "Exam 3" : ""
+        }
+      ]
+    }
+  ],
+  "assess": [
+    {
+        "name": "Lab reports",
+        "type": "report",
+        "description": "Handwritten, live report of what was accomplished during lab.",
+        "percentage": "10",
+        "colorbg": "#ffe4a6",
+        "colorfont": "#1f1f1f"
+    },
+    {
+        "name": "Lab practicals",
+        "type": "labpractical",
+        "description": "Lab practical of physical system, graded according to live performance of task.",
+        "percentage": "20",
+        "colorbg": "#ffe4a6",
+        "colorfont": "#1f1f1f"
+    },
+    {
+        "name": "Exams",
+        "type": "exam",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
+        "percentage": "50",
+        "colorbg": "#7cbf8e",
+        "colorfont": "#1f1f1f"
+    },
+    {
+      "name": "Quizzes",
+      "type": "quiz",
+      "description": "A short in-class quiz each week on the prior week's reading and concepts.",
+      "percentage": "20"
+    }
+  ],
+  "instructions": {
+    "Presentation 1": "Here is an <b>HTML-syntax</b> string",
+    "Presentation 2": "Here is an <b>HTML-syntax</b> string",
+    "Presentation 3": "Here is an <b>HTML-syntax</b> string",
+    "Progress reports": "Here is an <b>HTML-syntax</b> string"
+  },
+  "materials": "Laptop, writing utensils, paper",
+  "credits": "4"
+}

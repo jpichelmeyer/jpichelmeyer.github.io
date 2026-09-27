@@ -219,7 +219,7 @@
     font-size: calc(11.5px * var(--mod-font-size));
     color: var(--ink-soft);
     line-height: 1.5;
-    margin-left: 40px;
+    margin-left: 48px;
 }
 
 /* ── Course tags ── */
@@ -233,28 +233,30 @@
     font-size: calc(8.5px * var(--mod-font-size));
     opacity: 0.85;
 }
-.tag_aseprite   { background:#ddd; color:#111; }
-.tag_blender    { background:#f27718; }
-.tag_carthage   { background:#c90223; color:#fff; }
-.tag_cpp        { background:#2b8068; }
-.tag_csharp     { background:#7355dd; }
-.tag_css        { background:#2e7de6; }
-.tag_gdscript   { background:#353f9c; }
-.tag_gt         { background:#B3A369; color:#000; }
-.tag_godot      { background:#4476b8; }
-.tag_html       { background:#f27718; }
-.tag_javascript { background:#f5d742; color:#333; }
-.tag_jhu        { background:#114ebf; }
-.tag_ksu        { background:#8533d6; }
-.tag_mathematica{ background:#f21818; }
-.tag_matlab     { background:#f27718; color:#18f2ef; }
-.tag_msoe       { background:#ba211c; }
-.tag_octave     { background:#1d7e8f; color:#ffa861; }
-.tag_python     { background:#f5d742; color:#001540; }
-.tag_r          { background:#ccc; color:#003596; }
-.tag_unity      { background:#222; }
-.tag_uwm        { background:#ffc73b; color:#1f1f1f; }
-.tag_westminster{ background:#2459c9; color:#fff; }
+.tag_aseprite           { background:#ddd; color:#111; }
+.tag_blender            { background:#f27718; }
+.tag_carthage           { background:#c90223; color:#fff; }
+.tag_cpp                { background:#2b8068; }
+.tag_csharp             { background:#7355dd; }
+.tag_css                { background:#2e7de6; }
+.tag_gdscript           { background:#353f9c; }
+.tag_gt                 { background:#B3A369; color:#000; }
+.tag_godot              { background:#4476b8; }
+.tag_html               { background:#f27718; }
+.tag_javascript         { background:#f5d742; color:#333; }
+.tag_jhu                { background:#114ebf; }
+.tag_ksu                { background:#8533d6; }
+.tag_mathematica        { background:#f21818; }
+.tag_matlab             { background:#f27718; color:#18f2ef; }
+.tag_microcontrollers   { background:#212121; color:#f1f1f1; }
+.tag_micropython        { background:#ad4949; color:#ffe49e; }
+.tag_msoe               { background:#ba211c; }
+.tag_octave             { background:#1d7e8f; color:#ffa861; }
+.tag_python             { background:#f5d742; color:#001540; }
+.tag_r                  { background:#ccc; color:#003596; }
+.tag_unity              { background:#222; }
+.tag_uwm                { background:#ffc73b; color:#1f1f1f; }
+.tag_westminster        { background:#2459c9; color:#fff; }
 
 /* ── Course-page icon indicator (courses that have a full detail page) ──
    The icon column is reserved for every course row so titles all line
@@ -265,7 +267,7 @@
     gap: 12px;
 }
 .taught_course_dot_col {
-    width: 28px;
+    width: 36px;
     flex-shrink: 0;
     display: flex;
     /*align-items: center;*/
@@ -297,12 +299,33 @@
     filter: brightness(1.15);
     box-shadow: 0 0 0 4px rgba(0,0,0,0.06);
 }
+/* Course button: rounded tile in the course color with its icon centered
+   (same treatment as the .cxc tile on the course page). */
+.course-dot.course-btn {
+    -webkit-mask-image: none;
+    mask-image: none;
+    flex-shrink: 0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.course-btn img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    opacity: 0.90;
+    filter: brightness(0);
+    pointer-events: none;
+}
 
 @media (max-width: 600px) {
     .teaching-listing { padding: 16px 14px 24px; }
     .taught_course_title { font-size: calc(11.5px * var(--mod-font-size)); }
-    .taught_course_dot_col { width: 22px; }
-    .taught_course_description { margin-left: 30px; }
+    .taught_course_dot_col { width: 30px; }
+    .course-dot.course-btn { width: 30px; height: 30px; }
+    .course-btn img { width: 22px; height: 22px; }
+    .taught_course_description { margin-left: 42px; }
 }
 
 
@@ -604,6 +627,14 @@
     background: var(--color-exam-bg);
     color: var(--color-exam-font);
 }
+.topic-tag-lab {             /* labs / lab practicals */
+    background: #6f98c4;
+    color: #f1f1f1;
+}
+.topic-tag-exam-alt {        /* qualified exams: "Oral Exam 1", "Agent Exam 3" */
+    background: #cfae5c;
+    color: #f1f1f1;
+}
 
 
 
@@ -658,6 +689,39 @@
 }
 .lg-action-explain {
     background: #5e9fff;
+}
+
+/* Bloom's level colors (goal 'blooms': 1-6). Two classes, so these win
+   over the per-verb .lg-action-* colors whenever 'blooms' is set. */
+.lg-action.lg-blooms-1, polygon.lg-blooms-1 { background: #b9d7f5; fill: #b9d7f5; }  /* remember   - blue     */
+.lg-action.lg-blooms-2, polygon.lg-blooms-2 { background: #d8ccf1; fill: #d8ccf1; }  /* understand - lavender */
+.lg-action.lg-blooms-3, polygon.lg-blooms-3 { background: #f4b9b9; fill: #f4b9b9; }  /* apply      - red      */
+.lg-action.lg-blooms-4, polygon.lg-blooms-4 { background: #f8cfa5; fill: #f8cfa5; }  /* analyze    - orange   */
+.lg-action.lg-blooms-5, polygon.lg-blooms-5 { background: #f3e0a0; fill: #f3e0a0; }  /* evaluate   - gold     */
+.lg-action.lg-blooms-6, polygon.lg-blooms-6 { background: #bfe3c1; fill: #bfe3c1; }  /* create     - green    */
+.lg-action[class*="lg-blooms-"] { color: #1f1f1f; }
+
+/* Goals list + pyramid side by side */
+.lg-layout { display: flex; align-items: flex-start; gap: 20px; }
+.lg-list { flex: 1; min-width: 0; }
+.lg-blooms-pyramid { flex-shrink: 0; width: 200px; margin: 8px 0 0; text-align: center; }
+.lg-blooms-pyramid svg { display: block; width: 100%; height: auto; }
+.lg-blooms-pyramid text {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: bold;
+    fill: #1f1f1f;
+}
+.lg-blooms-pyramid figcaption {
+    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: calc(9px * var(--mod-font-size));
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+@media (max-width: 600px) {
+    .lg-layout { flex-direction: column; align-items: center; }
 }
 
 
@@ -757,6 +821,107 @@
 /* ── Generic content blocks ── */
 .instr-block {
     margin-bottom: 20px;
+}
+
+/* ── Rubric print button + picker (see buildInstructionsPane /
+   openPrintPicker in _teaching.js) ── */
+.instr-print-row {
+    margin-bottom: 14px;
+}
+.instr-print-rubric-btn {
+    font-family: var(--sans);
+    font-size: calc(11px * var(--mod-font-size));
+    padding: 7px 14px;
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    background: var(--bg-light);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.12s;
+}
+.instr-print-rubric-btn:hover {
+    border-color: var(--ink);
+    background: var(--bg2);
+}
+
+.rubric-print-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.rubric-print-picker {
+    background: var(--paper1);
+    border-radius: var(--border-radius2);
+    padding: 22px 24px;
+    width: min(420px, 88vw);
+    box-shadow: 0 12px 32px var(--shadow-soft);
+}
+.rubric-print-picker-title {
+    font-family: var(--sans);
+    font-weight: bold;
+    font-size: calc(13px * var(--mod-font-size));
+    color: var(--ink);
+    margin-bottom: 14px;
+}
+.rubric-print-picker-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.rubric-print-option {
+    font-family: var(--sans);
+    font-size: calc(11.5px * var(--mod-font-size));
+    padding: 9px 12px;
+    text-align: left;
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    background: var(--bg-light);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.12s;
+}
+.rubric-print-option:hover {
+    border-color: var(--ink);
+}
+.rubric-print-option.active {
+    border-color: var(--color-accent-courses);
+    background: color-mix(in oklab, var(--color-accent-courses), white 85%);
+    font-weight: bold;
+}
+.rubric-print-picker-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.rubric-print-cancel, .rubric-print-confirm {
+    font-family: var(--sans);
+    font-size: calc(11px * var(--mod-font-size));
+    padding: 7px 16px;
+    border-radius: var(--border-radius2);
+    cursor: pointer;
+    transition: all 0.12s;
+}
+.rubric-print-cancel {
+    border: 1.5px solid var(--panel-bd);
+    background: var(--bg-light);
+    color: var(--ink);
+}
+.rubric-print-cancel:hover {
+    border-color: var(--ink);
+}
+.rubric-print-confirm {
+    border: 1.5px solid var(--color-accent-courses);
+    background: var(--color-accent-courses);
+    color: var(--paper1);
+    font-weight: bold;
+}
+.rubric-print-confirm:hover {
+    filter: brightness(1.08);
 }
 
 .instr-body-text {

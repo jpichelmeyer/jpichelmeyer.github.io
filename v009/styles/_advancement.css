@@ -1,0 +1,127 @@
+/* v009/site/styles/_advancement.css -- "Institution" panel */
+
+#panel-advancement .panel-body {
+    font-family: var(--sans);
+    color: var(--ink);
+    padding: 20px 26px 40px;
+}
+
+/* ── Teaching: one card per term ── */
+.inst-term {
+    background: var(--panel-bg-bright);
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    padding: 12px 16px 10px;
+    margin-bottom: 14px;
+}
+.inst-term-head {
+    font-family: var(--mono);
+    font-size: calc(11px * var(--mod-font-size));
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    color: var(--color-accent-advancement);
+    margin-bottom: 8px;
+}
+.inst-course {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: calc(11.5px * var(--mod-font-size));
+}
+.inst-course-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 112px;
+    flex-shrink: 0;
+}
+.inst-course-num {
+    font-family: var(--mono);
+    font-size: calc(10.5px * var(--mod-font-size));
+    color: var(--ink-soft);
+    margin-left: 2px;
+}
+.inst-course-name { color: var(--ink); }
+.inst-empty {
+    font-size: calc(11px * var(--mod-font-size));
+    color: var(--ink-faint);
+    font-style: italic;
+}
+
+/* ── Scholarship: PLAB ── */
+.inst-plab-head {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+.inst-plab-logo { width: 96px; height: 96px; object-fit: contain; flex-shrink: 0; }
+.inst-plab-name {
+    font-family: var(--serif);
+    font-size: calc(22px * var(--mod-font-size));
+    line-height: 1.15;
+    color: var(--ink);
+}
+.inst-plab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+}
+.inst-plab-card {
+    background: var(--panel-bg-bright);
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    padding: 14px 16px;
+}
+.inst-plab-card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.inst-plab-card-head img { width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
+.inst-plab-card-name {
+    font-weight: bold;
+    font-size: calc(14px * var(--mod-font-size));
+    line-height: 1.15;
+}
+.inst-plab-card-sub {
+    font-style: italic;
+    font-size: calc(11.5px * var(--mod-font-size));
+    color: var(--ink-soft);
+}
+.inst-plab-card-desc {
+    font-size: calc(11.5px * var(--mod-font-size));
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+}
+.inst-plab-card-outcomes-head {
+    font-weight: bold;
+    font-size: calc(11.5px * var(--mod-font-size));
+    margin-bottom: 4px;
+}
+.inst-plab-card-outcomes {
+    padding-left: 18px;
+    font-size: calc(11px * var(--mod-font-size));
+    line-height: 1.5;
+    color: var(--ink-soft);
+}
+
+/* ── Service ── */
+.inst-service-block {
+    font-size: calc(11.5px * var(--mod-font-size));
+    line-height: 1.6;
+    color: var(--ink-soft);
+    padding-left: 6px;
+}
+.inst-link { color: var(--color-accent-advancement); font-weight: bold; }
+.inst-committee { display: flex; gap: 10px; padding: 3px 0; }
+.inst-committee-name { color: var(--ink); font-weight: bold; }
+.inst-committee-meta { color: var(--ink-faint); }
+
+@media (max-width: 600px) {
+    .inst-course { flex-wrap: wrap; gap: 4px 10px; }
+    .inst-plab-logo { width: 64px; height: 64px; }
+}

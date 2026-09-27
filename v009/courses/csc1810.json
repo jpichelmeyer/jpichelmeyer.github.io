@@ -6,33 +6,38 @@
   "full": "Principles of Computer Science I",
   "svg": "csc1810.svg",
   "days": "MWF",
-  "time": "TBD",
+  "time": "8:00am-9:05am",
   "place": "TBD",
+  "sem": "AY 2026-2027 Spring",
   "prereq": "",
   "catalog": "A study of the fundamentals of writing computer programs and problem-solving, using structured and object-oriented techniques. Intended for future majors and minors in Computer Science and minors in Game Development. This course uses C#.",
   "goals": [
     {
       "num": 1,
       "action": "Develop",
-      "detail": "knowledge of a basic computer system architecture."
+      "detail": "knowledge of a basic computer system architecture.",
+      "blooms" : 1
     },
     {
       "num": 2,
       "action": "Develop",
-      "detail": "a problem solving methodology and apply it to writing programs in C#."
+      "detail": "a problem solving methodology and apply it to writing programs in C#.",
+      "blooms" : 3
     },
     {
       "num": 3,
       "action": "Acquire",
-      "detail": "an understanding of the basic C# language concepts."
+      "detail": "an understanding of the basic C# language concepts.",
+      "blooms" : 2
     },
     {
       "num": 4,
       "action": "Develop",
-      "detail": "your ability to use a C# editor and debugger."
+      "detail": "your ability to use a C# editor and debugger.",
+      "blooms" : 3
     }
   ],
-  "courseColor": "#c89ee6",
+  "courseColor": "#ddbefa",
   "srcColor": {
     "MSDOC": [
       "#0078d4",
@@ -45,112 +50,114 @@
   },
   "schedule": [
     {
-      "theme": "Theme 1",
+      "theme": "Fundamentals",
       "trs": [
         {
-          "Setup": "csc1810_setup.html",
-          "variables": "csc1810_variables.html",
-          "types": "csc1810_types.html",
-          "expressions": "csc1810_expressions.html"
+          "Terminal" : "",
+          "program.cs" : "",
+          "using System;" : "",
+          "Class Program" : "",
+          "static void Main(string[] args)": ""
         },
         {
-          "Decision logic and control flow": ""
+          "Types" : "",
+          "Explicit vs implicit" : "",
+          "Memory sizes" : "",
+          "Arithmetic" : "",
+          "String operations" : ""
         },
         {
-          "Looping": ""
+          "Boolean logic" : "",
+          "Truth tables" : "",
+          "Relational operators" : "",
+          "Conditional logic" : "",
+          "User input" : ""
         },
         {
-          "Functions": ""
+          "Loops" : "",
+          "Scope" : "",
+          "Stack" : "",
+          "Patterns" : ""
         },
         {
-          "Presentation 1: The Pitch": ""
+          "Flex" : "",
+          "Review" : "",
+          "Exam 1" : ""
         }
       ]
     },
     {
-      "theme": "Theme 2",
+      "theme": "Structure",
       "trs": [
         {
-          "Arrays and collections": ""
+          "Functions and methods" : "",
+          "Values vs references" : "",
+          "Overloading" : "",
+          "Recursion" : ""
         },
         {
-          "Structured data": ""
+          "Arrays" : "",
+          "Iteration" : "",
+          "Stacks vs Heaps" : ""
         },
         {
-          "Recursion": ""
+          "Custom types" : "",
+          "Constructors" : "",
+          "Access modifiers" : "",
+          "Encapsulation" : ""
         },
         {
-          "Exceptions and debugging": ""
+          "Inheritance" : "",
+          "Overriding" : "",
+          "Composition" : "",
+          "Multi-file projects" : ""
         },
         {
-          "Presentation 2: The Progress": ""
+          "Flex" : "",
+          "Review" : "",
+          "Exam 2" : ""
         }
       ]
     },
     {
-      "theme": "Theme 3",
+      "theme": "Tools",
       "trs": [
         {
-          "Classes and objects": ""
+          "Building" : "",
+          "Project dependencies" : ""
         },
         {
-          "Inheritance and polymorphism": ""
+          "Opening in different IDEs" : "",
+          "Lightweight vs heavy IDE workflow" : ""
         },
         {
-          "Algorithms, pseudocode": ""
+          "Debugging" : ""
         },
         {
-          "BREAK": ""
+          "Exceptions" : ""
         },
         {
-          "Project assist": ""
-        },
-        {
-          "Presentation 3: The...Perfection?": ""
+          "Flex" : "",
+          "Review" : "",
+          "Exam 3" : ""
         }
       ]
     }
   ],
   "assess": [
     {
+        "name": "Exams",
+        "type": "exam",
+        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
+        "percentage": "60",
+        "colorbg": "#7cbf8e",
+        "colorfont": "#1f1f1f"
+    },
+    {
       "name": "Quizzes",
       "type": "quiz",
-      "description": "At the end of each week, a short in-class quiz on the prior week's reading and concepts.",
-      "percentage": "10",
-      "colorbg": "#6facde",
-      "colorfont": "#1f1f1f"
-    },
-    {
-      "name": "Progress Reports",
-      "type": "report",
-      "description": "Weekly written update on project status: what was attempted, what works, what doesn't, what's next.",
-      "percentage": "10",
-      "colorbg": "#de716f",
-      "colorfont": "#1f1f1f"
-    },
-    {
-      "name": "Presentation 1: The Pitch",
-      "type": "presentation",
-      "description": "Students pitch their semester project: what it is, why it interests them, and which C# concepts they expect to use.",
-      "percentage": "15",
-      "colorbg": "#decb6f",
-      "colorfont": "#1f1f1f"
-    },
-    {
-      "name": "Presentation 2: The Progress",
-      "type": "presentation",
-      "description": "Students demonstrate working C# code for at least one core feature and explain design decisions made so far.",
-      "percentage": "25",
-      "colorbg": "#decb6f",
-      "colorfont": "#1f1f1f"
-    },
-    {
-      "name": "Presentation 3: The Final Form",
-      "type": "presentation",
-      "description": "Full project demonstration, code walkthrough, and oral exam. Questions may cover any part of the code.",
-      "percentage": "40",
-      "colorbg": "#decb6f",
-      "colorfont": "#1f1f1f"
+      "description": "A short in-class quiz each week on the prior week's reading and concepts.",
+      "percentage": "40"
     }
   ],
   "instructions": {

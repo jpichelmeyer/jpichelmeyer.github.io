@@ -10,6 +10,7 @@ import './__utils.js';
 import './_base.js';
 import './_timeline.js';
 import './_particlelife.js';
+import './_robotics.js';
 import './pyodide_terminal.js';
 import './_teaching.js';
 import './_projects.js';
@@ -20,6 +21,7 @@ import './_projects_desktop_project1.js';
 //import './_projects_desktop_cellular_automata.js';
 //import './_projects_desktop_ants_pheromone.js';
 import './_projects_desktop_curriculum_planner.js';
+import './_advancement.js';
 import './_animation.js';
 
 

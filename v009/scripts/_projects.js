@@ -147,6 +147,7 @@ function buildProjectRow(project) {
     const row = document.createElement('div');
     row.className = 'proj-row';
     row.dataset.layout = project.layout;
+    row.dataset.project = project.id;
     row.innerHTML = `
         <div class="proj-row-head">
             <img class="proj-thumb" src="./svgs/${project.thumb || 'dull.svg'}" alt="" />

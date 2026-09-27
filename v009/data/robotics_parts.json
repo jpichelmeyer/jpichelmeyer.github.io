@@ -1,0 +1,121 @@
+{
+  "chassis": [
+    { "id": "chs_scout", "name": "Scout Frame", "cols": 3, "rows": 3, "weight": 2, "desc": "Tiny and light. Room for the essentials and not much else." },
+    { "id": "chs_standard", "name": "Standard Frame", "cols": 4, "rows": 4, "weight": 4, "desc": "A balanced platform for most builds." },
+    { "id": "chs_hauler", "name": "Hauler Frame", "cols": 6, "rows": 4, "weight": 7, "desc": "Long and wide. Fits treads plus a full payload." },
+    { "id": "chs_pod", "name": "Pod Frame", "cols": 4, "rows": 3, "weight": 3, "mask": [".xx.", "xxxx", ".xx."], "desc": "A little rounded pod. Squeeze in the basics." },
+    { "id": "chs_arrow", "name": "Arrowhead Frame", "cols": 5, "rows": 5, "weight": 6, "mask": ["..x..", ".xxx.", "xxxxx", "xxxxx", "xx.xx"], "desc": "Pointed nose, wide tail -- plenty of room in the back." },
+    { "id": "chs_ring", "name": "Ring Frame", "cols": 6, "rows": 6, "weight": 7, "mask": [".xxxx.", "xxxxxx", "xx..xx", "xx..xx", "xxxxxx", ".xxxx."], "desc": "A rounded ring with a hollow core; parts have to fit around the hole." },
+    { "id": "chs_disc", "name": "Disc Frame", "cols": 6, "rows": 6, "weight": 8, "mask": ["..xx..", ".xxxx.", "xxxxxx", "xxxxxx", ".xxxx.", "..xx.."], "desc": "Round and roomy in the middle, tight at the edges." },
+    { "id": "chs_heavy", "name": "Heavy Frame", "cols": 6, "rows": 6, "weight": 11, "desc": "Huge and heavy -- everything fits, but moving it costs a lot." }
+  ],
+
+  "power": [
+    { "id": "pwr_s", "w": 1, "h": 1, "name": "Compact Cell", "size": "S", "capacity": 40, "rechargeRate": 0.060, "weight": 2 },
+    { "id": "pwr_m", "w": 2, "h": 1, "name": "Standard Cell", "size": "M", "capacity": 80, "rechargeRate": 0.035, "weight": 4 },
+    { "id": "pwr_l", "w": 2, "h": 2, "name": "Heavy Cell", "size": "L", "capacity": 150, "rechargeRate": 0.018, "weight": 7 }
+  ],
+
+  "sensors": [
+    {
+      "id": "sns_proximity", "w": 1, "h": 1,
+      "name": "Proximity Sensor",
+      "detects": "nearest",
+      "range": 140,
+      "powerDraw": 0.03,
+      "weight": 1,
+      "desc": "Finds the single nearest particle within range, regardless of species."
+    },
+    {
+      "id": "sns_density", "w": 1, "h": 1,
+      "name": "Density Sensor",
+      "detects": "density",
+      "range": 90,
+      "densityThreshold": 5,
+      "powerDraw": 0.05,
+      "weight": 2,
+      "desc": "Counts particles within a smaller radius; \"detects\" when the local crowd is thick, not just when something's near."
+    },
+    {
+      "id": "sns_velocity", "w": 1, "h": 1,
+      "name": "Velocity Sensor",
+      "detects": "turbulence",
+      "range": 110,
+      "speedThreshold": 1.6,
+      "powerDraw": 0.06,
+      "weight": 2,
+      "desc": "Detects when nearby particles are moving fast -- reads local turbulence rather than presence or count."
+    },
+    {
+      "id": "sns_ping", "w": 1, "h": 1,
+      "name": "Sonar Pinger",
+      "detects": "ping",
+      "range": 170,
+      "interval": 50,
+      "pingSpeed": 5,
+      "powerDraw": 0.04,
+      "weight": 1,
+      "desc": "Sends out a ping every so often; senses if the ping comes back off a particle within range."
+    }
+  ],
+
+  "processors": [
+    { "id": "cpu_ll", "w": 1, "h": 1, "name": "Featherweight", "speedTier": "low", "memTier": "low", "speedFactor": 1, "powerDraw": 0.10, "memory": 6, "memGrid": [3, 2], "weight": 1 },
+    { "id": "cpu_lh", "w": 2, "h": 1, "name": "Archivist", "speedTier": "low", "memTier": "high", "speedFactor": 1, "powerDraw": 0.12, "memory": 24, "memGrid": [6, 4], "weight": 4 },
+    { "id": "cpu_hl", "w": 1, "h": 1, "name": "Sprinter", "speedTier": "high", "memTier": "low", "speedFactor": 3, "powerDraw": 0.32, "memory": 6, "memGrid": [3, 2], "weight": 1 },
+    { "id": "cpu_hh", "w": 2, "h": 2, "name": "Overkill", "speedTier": "high", "memTier": "high", "speedFactor": 3, "powerDraw": 0.36, "memory": 24, "memGrid": [6, 4], "weight": 4 },
+    { "id": "cpu_avg", "w": 2, "h": 1, "name": "Workhorse", "speedTier": "average", "memTier": "average", "speedFactor": 2, "powerDraw": 0.20, "memory": 12, "memGrid": [4, 3], "weight": 2 }
+  ],
+
+  "movement": [
+    {
+      "id": "mov_treads", "w": 3, "h": 2,
+      "name": "Treads",
+      "topSpeed": 0.7,
+      "basePowerDraw": 0.05,
+      "weightFactor": 0.010,
+      "speedFactor": 0.08,
+      "weight": 5,
+      "desc": "Slower, but tolerates a heavier chassis without its power draw ballooning."
+    },
+    {
+      "id": "mov_wheels", "w": 2, "h": 1,
+      "name": "Wheels + Servos",
+      "topSpeed": 1.6,
+      "basePowerDraw": 0.04,
+      "weightFactor": 0.028,
+      "speedFactor": 0.16,
+      "weight": 3,
+      "desc": "Faster top speed, but power draw climbs quickly with both speed and total weight."
+    }
+  ],
+
+  "displays": [
+    { "id": "dsp_led", "w": 1, "h": 1, "name": "Status LED", "style": "simple", "powerDraw": 0.02, "weight": 1, "desc": "A single steady/blinking light. Cheap to run." },
+    { "id": "dsp_fancy", "w": 2, "h": 2, "name": "Halo Display", "style": "fancy", "powerDraw": 0.18, "weight": 2, "desc": "An animated spinning ring of color. Looks great, drinks power." }
+  ],
+
+  "generators": [
+    { "id": "gen_seed", "w": 1, "h": 1, "name": "Seeder", "count": 1, "species": "random", "cooldown": 30, "emitCost": 0.6, "powerDraw": 0.02, "weight": 1, "desc": "Drops a single particle of a random species. Cheap and quick to reload." },
+    { "id": "gen_cluster", "w": 2, "h": 2, "name": "Cluster Spawner", "count": 4, "species": "same", "cooldown": 120, "emitCost": 2.5, "powerDraw": 0.05, "weight": 3, "desc": "Releases a small clump of one species at a time -- instant little colony, slow to reload." },
+    { "id": "gen_mimic", "w": 1, "h": 2, "name": "Mimic Emitter", "count": 2, "species": "nearest", "cooldown": 60, "emitCost": 1.2, "powerDraw": 0.04, "weight": 2, "desc": "Copies the species of the nearest sensed particle (random if nothing is sensed). Pairs well with a sensor." }
+  ],
+
+  "pulsers": [
+    { "id": "out_zap", "w": 2, "h": 1, "name": "Disruptor Pulse", "effect": "kill", "range": 90, "pulseSpeed": 3, "cooldown": 90, "emitCost": 3.0, "powerDraw": 0.03, "weight": 3, "desc": "Fires an expanding ring that destroys every particle it passes over." },
+    { "id": "out_lure", "w": 1, "h": 1, "name": "Lure Pulse", "effect": "attract", "range": 160, "pulseSpeed": 4, "cooldown": 60, "emitCost": 1.0, "powerDraw": 0.02, "weight": 1, "desc": "Fires an expanding ring that tugs every particle it passes over toward the robot." }
+  ],
+
+  "robasicBlocks": [
+    { "id": "move_forward", "requires": "movement", "name": "Move Forward", "kind": "action", "desc": "Move forward at the movement suite's current speed for the set number of ticks.", "param": { "label": "ticks", "default": 1, "min": 1, "max": 600 } },
+    { "id": "turn_toward", "requires": "sensors", "name": "Turn Toward Nearest", "kind": "action", "desc": "Rotate to face whatever the sensor most recently detected." },
+    { "id": "turn_away", "requires": "sensors", "name": "Turn Away From Nearest", "kind": "action", "desc": "Rotate to face away from whatever the sensor most recently detected." },
+    { "id": "turn_random", "requires": "movement", "name": "Turn Random", "kind": "action", "desc": "Rotate to a random new heading." },
+    { "id": "turn_deg", "requires": "movement", "name": "Turn", "kind": "action", "desc": "Rotate by the set number of degrees, left, right, or a random one of the two.", "param": { "label": "deg", "default": 90, "min": 1, "max": 360 }, "choice": { "options": ["left", "right", "random"], "default": "right" } },
+    { "id": "wait", "name": "Wait", "kind": "action", "desc": "Do nothing for the set number of ticks.", "param": { "label": "ticks", "default": 30, "min": 1, "max": 600 } },
+    { "id": "emit", "requires": "generators", "name": "Emit Particles", "kind": "action", "desc": "Fire every equipped particle generator that has reloaded." },
+    { "id": "pulse", "requires": "pulsers", "name": "Fire Pulse", "kind": "action", "desc": "Fire every equipped pulse emitter that has reloaded." },
+    { "id": "if_sensing", "requires": "sensors", "name": "If Sensing: Continue", "kind": "control", "desc": "If the sensor currently detects something, run the next block this tick; otherwise skip it." },
+    { "id": "if_not_sensing", "requires": "sensors", "name": "If Not Sensing: Continue", "kind": "control", "desc": "If the sensor currently detects nothing, run the next block this tick; otherwise skip it." }
+  ]
+}
