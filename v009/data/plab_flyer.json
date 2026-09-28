@@ -1,0 +1,53 @@
+{
+  "siteUrl": "https://jpichelmeyer.github.io/",
+  "deepLinkHash": "#plab",
+  "person": {
+    "name": "Dr. Jake Pichelmeyer",
+    "title": "Assistant Professor of Computer Science",
+    "office": "DSC 72",
+    "emailUser": "jpichelmeyer",
+    "emailDomain": "carthage.edu"
+  },
+  "flyer": {
+    "orgLine": "CARTHAGE COLLEGE / DEPARTMENT OF COMPUTER SCIENCE",
+    "headline": "Summer Student Research / Development Opportunity",
+    "intro": "Dr. Jake Pichelmeyer of Carthage's Computer Science Department invites inquiries and applications for collaborative summer research and development. We provide structured opportunities to bridge academic foundations with applied computing engineering.",
+    "inclusiveStatement": "We are committed to an inclusive environment. Students of all experience levels and backgrounds are encouraged to apply.",
+    "logistics": "",
+    "defaultDeadline": "",
+    "noDeadlineText": "Applications reviewed on a rolling basis",
+    "trackHeadings": {
+      "research": "Academic Research Tracks",
+      "applied": "Applied Engineering and Development Tracks"
+    }
+  },
+  "apply": {
+    "subjectFormat": "PLAB Summer Application - [Your last name]",
+    "fields": [
+      "Full name",
+      "Year / expected graduation",
+      "Major(s) / minor(s)",
+      "Track(s) of interest (up to two)",
+      "Relevant experience: courses, projects, jobs, or hobbies (any level is fine, a few sentences)",
+      "Why this interests you (2-3 sentences)",
+      "Availability this summer (dates and approximate hours per week)",
+      "GitHub / portfolio link (optional)"
+    ]
+  },
+  "ways": {
+    "heading": "Ways to take part",
+    "items": [
+      {
+        "title": "SURE summer research",
+        "link": "https://www.carthage.edu/academics/experiential-learning/research/summer-undergraduate-research-experience/",
+        "text": "Carthage's Summer Undergraduate Research Experience: 10 weeks, full-time, with a stipend, campus housing, and a meal plan, open to first- through third-year students. One SURE position is guaranteed for Summer 2027 with me as your mentor (I'll choose based on fit, preparation, and availability). Other students can apply through the SURE committee, but that funding isn't guaranteed. Applications are due in March.",
+        "short": "10 weeks, full-time; stipend, housing, meals. First- through third-year students. One spot guaranteed for Summer 2027; others may apply via the SURE committee (due in March)."
+      },
+      {
+        "title": "Course credit",
+        "text": "Research can count toward CSC 4900, Research in Computer Science (1-4 credits). It requires CSC 1820 with a C- or higher, and my approval.",
+        "short": "CSC 4900 Research in CS, 1-4 credits (needs CSC 1820 and instructor approval)."
+      }
+    ]
+  }
+}
