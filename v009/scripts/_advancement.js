@@ -37,36 +37,47 @@ const TERMS = [
 const PLAB_PROJECTS = [
     {
         icon: 'plab_explainable_ai.svg',
+        track: 'research',
         name: 'Explainable AI',
         desc: 'Applying mathematical and applied computing tools to the study of artificial intelligence and machine learning models in order to better understand and explain what is happening in AI black boxes.',
         outcomes: ['Paper submission to academic journals', 'Presentation at relevant conferences'],
     },
     {
         icon: 'plab_alife.svg',
+        track: 'research',
         name: 'Artificial Life',
         sub: 'Life as it could be',
         desc: 'Using inspiration from biology to study the computational advancement of life as it could be under new and novel computational paradigms.',
-        outcomes: ['Paper submission to academic journals', 'Presentation at relevant conferences', 'Travel to international conferences'],
+        outcomes: ['Paper submission to academic journals', 'Presentation at relevant conferences', 'Possible conference travel, as funding allows'],
     },
     {
         icon: 'plab_responsive_robotics.svg',
+        track: 'applied',
         name: 'Responsive Robotics',
         desc: 'Deploy lightweight machine learning and other artificial intelligence models on low-power embedded hardware to drive real-time autonomous decision-making in real world robotics.',
         outcomes: ['Gain experience with physical computing hardware', 'Gain experience with MicroPython and Edge AI / TinyML development'],
     },
     {
         icon: 'plab_ecosystem_game_world.svg',
+        track: 'applied',
         name: 'Living Game Worlds',
         desc: 'Design and build a complex, dynamic virtual ecosystem where autonomous agents, emergent behaviors and interactive environments evolve in real time as a player moves through it.',
         outcomes: ['Portfolio-ready simulation architecture', 'Interactive public web demo build', 'Playable demonstration at regional showcases'],
     },
     {
         icon: 'plab_project_godot_to_steam.svg',
+        track: 'applied',
         name: 'Godot Game to Steam',
         desc: 'Engineering core mechanics, optimize performance, handle production pipelines in Godot to take an indie game project from prototype to commercial publication.',
         outcomes: ['itch.io playtesting and public feedback cycle', 'Official Steam storefront release', 'Published commercial / indie software project'],
     },
 ];
+
+// The recruiting-flyer generator (_plab_flyer.js) reads this same list at
+// click time, so editing a project here updates the page AND the next
+// flyer. `track` ('research' | 'applied') only controls which flyer
+// section a project appears under.
+window._plabProjects = PLAB_PROJECTS;
 
 // ---------------------------------------------------------------------
 // Service
@@ -96,6 +107,7 @@ function renderScholarship() {
             <img class="inst-plab-logo" src="./svgs/plab.svg" alt="PLAB logo" />
             <div class="inst-plab-name">Pichelmeyer's Lab for<br>Autonomy and Bioemulation</div>
         </div>
+        <div id="plab-actions"></div>
         <div class="inst-plab-grid">
             ${PLAB_PROJECTS.map(p => `
                 <div class="inst-plab-card">
@@ -110,7 +122,9 @@ function renderScholarship() {
                     <div class="inst-plab-card-outcomes-head">Target outcomes</div>
                     <ul class="inst-plab-card-outcomes">${p.outcomes.map(o => `<li>${esc(o)}</li>`).join('')}</ul>
                 </div>`).join('')}
-        </div>`;
+        </div>
+        <div id="plab-footer"></div>`;
+    window._plabUI?.mount(document.getElementById('plab-actions'), document.getElementById('plab-footer'));
 }
 
 function renderService() {
@@ -151,4 +165,19 @@ function renderService() {
     renderTeaching(prefixColors);
     renderScholarship();
     renderService();
+    openFromHash();
+    window.addEventListener('hashchange', openFromHash);
 })();
+
+// The flyer's QR code points at <site>/#plab. Nothing else on the site
+// uses URL hashes, so this is the whole routing layer: open the
+// Institution panel on its Scholarship tab.
+function openFromHash() {
+    if (location.hash.toLowerCase() !== '#plab') return;
+    const panel = document.getElementById('panel-advancement');
+    if (!panel) return;
+    if (!panel.classList.contains('active')) {
+        document.querySelector('.nav-btn[data-panel="advancement"]')?.click();
+    }
+    panel.querySelector('.panel-tab[data-tab="scholarship"]')?.click();
+}

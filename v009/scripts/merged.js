@@ -22,6 +22,7 @@ import './_projects_desktop_project1.js';
 //import './_projects_desktop_ants_pheromone.js';
 import './_projects_desktop_curriculum_planner.js';
 import './_advancement.js';
+import './_plab_flyer.js';
 import './_animation.js';
 
 

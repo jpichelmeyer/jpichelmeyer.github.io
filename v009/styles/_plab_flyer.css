@@ -1,0 +1,126 @@
+/* v009/site/styles/_plab_flyer.css
+   Apply-by-email block and flyer options dialog for the PLAB page.
+   (The flyer itself is styled inside the popup document it opens, in
+   _plab_flyer.js, since it lives in its own window.) */
+
+.plab-apply {
+    background: color-mix(in oklab, var(--color-accent-advancement), white 90%);
+    border: 1.5px solid color-mix(in oklab, var(--color-accent-advancement), white 55%);
+    border-radius: var(--border-radius2);
+    padding: 14px 16px;
+    margin-bottom: 18px;
+}
+.plab-apply-title {
+    font-weight: bold;
+    font-size: calc(14px * var(--mod-font-size));
+    margin-bottom: 4px;
+}
+.plab-apply-text {
+    font-size: calc(11.5px * var(--mod-font-size));
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+}
+.plab-ways { margin: 0 0 12px; }
+.plab-ways-title {
+    font-weight: bold;
+    font-size: calc(11.5px * var(--mod-font-size));
+    margin-bottom: 4px;
+}
+.plab-ways-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: calc(11.5px * var(--mod-font-size));
+    line-height: 1.5;
+    color: var(--ink-soft);
+}
+.plab-ways-list li { margin-bottom: 4px; }
+.plab-ways-list a { color: var(--color-accent-advancement); }
+.plab-apply-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+.plab-btn {
+    font-family: var(--sans);
+    font-size: calc(11.5px * var(--mod-font-size));
+    padding: 7px 14px;
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    background: var(--bg-light);
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.12s;
+    display: inline-block;
+}
+.plab-btn:hover { border-color: var(--ink); background: var(--bg2); }
+.plab-btn-primary {
+    border-color: var(--color-accent-advancement);
+    background: var(--color-accent-advancement);
+    color: var(--paper1);
+    font-weight: bold;
+}
+.plab-btn-primary:hover { filter: brightness(1.08); background: var(--color-accent-advancement); border-color: var(--color-accent-advancement); }
+.plab-copy-status { font-size: calc(10.5px * var(--mod-font-size)); color: var(--ink-soft); }
+
+.plab-template { margin-top: 10px; font-size: calc(11px * var(--mod-font-size)); color: var(--ink-soft); }
+.plab-template summary { cursor: pointer; }
+.plab-template-line { margin: 6px 0 0 4px; }
+.plab-template-fields { margin: 6px 0 0; padding-left: 22px; line-height: 1.55; }
+.plab-apply-error { color: var(--accent2); font-size: calc(11px * var(--mod-font-size)); }
+
+/* Flyer button: owner-only tool, so it sits quietly at the page bottom */
+.plab-footer {
+    margin: 26px 0 8px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--panel-bd);
+    text-align: right;
+}
+.plab-btn-quiet {
+    font-size: calc(10px * var(--mod-font-size));
+    padding: 4px 10px;
+    color: var(--ink-faint);
+    background: transparent;
+    border-color: transparent;
+}
+.plab-btn-quiet:hover { color: var(--ink); border-color: var(--panel-bd); background: var(--bg-light); }
+
+/* ── Flyer options dialog ── */
+.plab-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.plab-modal {
+    background: var(--paper1);
+    border-radius: var(--border-radius2);
+    padding: 22px 24px;
+    width: min(460px, 92vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 32px var(--shadow-soft);
+    font-family: var(--sans);
+    color: var(--ink);
+}
+.plab-modal-title { font-weight: bold; font-size: calc(14px * var(--mod-font-size)); margin-bottom: 2px; }
+.plab-modal-sub { font-size: calc(10.5px * var(--mod-font-size)); color: var(--ink-faint); margin-bottom: 12px; }
+.plab-label { display: block; font-weight: bold; font-size: calc(11px * var(--mod-font-size)); margin: 12px 0 4px; }
+.plab-modal input[type="date"], .plab-modal input[type="text"] {
+    width: 100%;
+    font-family: var(--sans);
+    font-size: calc(11.5px * var(--mod-font-size));
+    border: 1px solid var(--panel-bd);
+    border-radius: 6px;
+    padding: 6px 8px;
+    box-sizing: border-box;
+}
+.plab-hint { font-size: calc(10px * var(--mod-font-size)); color: var(--ink-faint); margin-top: 3px; }
+.plab-radio-row { display: flex; gap: 16px; font-size: calc(11.5px * var(--mod-font-size)); }
+.plab-project-checks { display: flex; flex-direction: column; gap: 4px; font-size: calc(11.5px * var(--mod-font-size)); }
+.plab-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
