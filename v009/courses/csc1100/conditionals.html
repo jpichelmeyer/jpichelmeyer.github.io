@@ -146,6 +146,378 @@ print(is_even(7))</script>
         <script type="text/plain" class="pyeditor-expected">False</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Positive, Negative, or Zero.</strong> Write a function <code class="code-lesson-il">sign_label(n)</code> that returns the string <code class="code-lesson-il">"positive"</code>, <code class="code-lesson-il">"negative"</code>, or <code class="code-lesson-il">"zero"</code> depending on <code class="code-lesson-il">n</code>. Use an <code class="code-lesson-il">if</code> / <code class="code-lesson-il">elif</code> / <code class="code-lesson-il">else</code> chain.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def sign_label(n):
+    pass   # TODO
+
+print(sign_label(5))
+print(sign_label(-3))
+print(sign_label(0))</script>
+        <script type="text/plain" class="pyeditor-expected">positive
+negative
+zero</script>
+    </div>
+
+    <p><strong>Exercise 2: Voting Age.</strong> Write a function <code class="code-lesson-il">voting_message(age)</code> that returns <code class="code-lesson-il">"You can vote!"</code> if <code class="code-lesson-il">age</code> is 18 or older. Otherwise it returns a message saying how many more years to wait, like <code class="code-lesson-il">"Wait 3 more year(s)"</code>. You'll need <code class="code-lesson-il">str()</code> to join the number into the message.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def voting_message(age):
+    pass   # TODO
+
+print(voting_message(20))
+print(voting_message(15))
+print(voting_message(18))</script>
+        <script type="text/plain" class="pyeditor-expected">You can vote!
+Wait 3 more year(s)
+You can vote!</script>
+    </div>
+
+    <p><strong>Exercise 3: Boolean Predictions.</strong> Predict <code class="code-lesson-il">True</code> or <code class="code-lesson-il">False</code> for each line before running. For the last two, work out the inner parts first and write the intermediate values down.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">a = True
+b = False
+x = 7
+
+print(a and b)
+print(a or b)
+print(not a)
+print(x > 5 and x < 10)
+print(5 < x < 7)
+print(not (x == 7) or b)
+print((x % 2 == 1) and not b)</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Leap Year.</strong> Write a function <code class="code-lesson-il">is_leap_year(year)</code> that returns <code class="code-lesson-il">True</code> if <code class="code-lesson-il">year</code> is a leap year. The rule: a year is a leap year if it's divisible by 4, <strong>except</strong> years divisible by 100 are not, <strong>unless</strong> they're also divisible by 400. So 2024 and 2000 are leap years, but 1900 and 2023 are not.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def is_leap_year(year):
+    pass   # TODO
+
+print(is_leap_year(2024))
+print(is_leap_year(1900))
+print(is_leap_year(2000))
+print(is_leap_year(2023))</script>
+        <script type="text/plain" class="pyeditor-expected">True
+False
+True
+False</script>
+    </div>
+
+    <p><strong>Exercise 5: Shipping Cost.</strong> Write a function <code class="code-lesson-il">shipping_cost(weight_kg, is_member)</code> that returns the shipping price in dollars:</p>
+    <ul>
+        <li>Members always ship free (<code class="code-lesson-il">0</code>).</li>
+        <li>Otherwise, packages under 1 kg cost <code class="code-lesson-il">5</code>.</li>
+        <li>Packages from 1 kg up to and including 5 kg cost <code class="code-lesson-il">10</code>.</li>
+        <li>Anything heavier than 5 kg costs <code class="code-lesson-il">20</code>.</li>
+    </ul>
+    <p>Be careful with the boundaries: exactly 1 kg and exactly 5 kg should both cost <code class="code-lesson-il">10</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def shipping_cost(weight_kg, is_member):
+    pass   # TODO
+
+print(shipping_cost(0.5, False))
+print(shipping_cost(1, False))
+print(shipping_cost(5, False))
+print(shipping_cost(5.1, False))
+print(shipping_cost(12, True))</script>
+        <script type="text/plain" class="pyeditor-expected">5
+10
+10
+20
+0</script>
+    </div>
+
+    <p><strong>Exercise 6: Order Matters Bug.</strong> A movie theater charges: free for kids under 5, $8 for ages 65 and up, and $12 for everyone else. The function below returns <code class="code-lesson-il">12</code> for every age. Explain why the later branches never run, then fix it by reordering (not rewriting) the conditions.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def ticket_price(age):
+    if age >= 0:
+        return 12
+    elif age < 5:
+        return 0
+    elif age >= 65:
+        return 8
+
+print(ticket_price(3))
+print(ticket_price(30))
+print(ticket_price(70))</script>
+        <script type="text/plain" class="pyeditor-expected">0
+12
+8</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Triangle Classifier.</strong> Write a function <code class="code-lesson-il">triangle_type(a, b, c)</code> that takes three side lengths and returns one of:</p>
+    <ul>
+        <li><code class="code-lesson-il">"invalid"</code> if any side is 0 or negative, or if any one side is greater than or equal to the sum of the other two (those sides can't actually close into a triangle),</li>
+        <li><code class="code-lesson-il">"equilateral"</code> if all three sides are equal,</li>
+        <li><code class="code-lesson-il">"isosceles"</code> if exactly two sides are equal,</li>
+        <li><code class="code-lesson-il">"scalene"</code> if no sides are equal.</li>
+    </ul>
+    <p>Check for invalid triangles first. Think about why.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def triangle_type(a, b, c):
+    pass   # TODO
+
+print(triangle_type(3, 3, 3))
+print(triangle_type(3, 3, 5))
+print(triangle_type(3, 4, 5))
+print(triangle_type(1, 2, 10))
+print(triangle_type(0, 4, 4))</script>
+        <script type="text/plain" class="pyeditor-expected">equilateral
+isosceles
+scalene
+invalid
+invalid</script>
+    </div>
+
+    <p><strong>Exercise 8: Rock, Paper, Scissors.</strong> Write a function <code class="code-lesson-il">rps_winner(p1, p2)</code> where each argument is <code class="code-lesson-il">"rock"</code>, <code class="code-lesson-il">"paper"</code>, or <code class="code-lesson-il">"scissors"</code>. Return <code class="code-lesson-il">"Tie"</code>, <code class="code-lesson-il">"Player 1"</code>, or <code class="code-lesson-il">"Player 2"</code>. Rock beats scissors, scissors beats paper, paper beats rock. Try to do it with one <code class="code-lesson-il">if</code> for the tie, one <code class="code-lesson-il">elif</code> that combines all three ways Player 1 can win using <code class="code-lesson-il">and</code> / <code class="code-lesson-il">or</code>, and an <code class="code-lesson-il">else</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def rps_winner(p1, p2):
+    pass   # TODO
+
+print(rps_winner("rock", "scissors"))
+print(rps_winner("rock", "paper"))
+print(rps_winner("paper", "paper"))
+print(rps_winner("scissors", "paper"))</script>
+        <script type="text/plain" class="pyeditor-expected">Player 1
+Player 2
+Tie
+Player 1</script>
+    </div>
+
+    <p><strong>Exercise 9: Simplify the Logic.</strong> The function below works, but it's four levels deep. A car can be rented only if the customer has a license, is at least 25, and has a credit card. Rewrite <code class="code-lesson-il">can_rent_car</code> as a single <code class="code-lesson-il">return</code> statement using <code class="code-lesson-il">and</code>, with no <code class="code-lesson-il">if</code> at all. Your version must print exactly the same results for the tests.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def can_rent_car(age, has_license, has_credit_card):
+    if has_license:
+        if age >= 25:
+            if has_credit_card:
+                return True
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False
+
+print(can_rent_car(30, True, True))
+print(can_rent_car(22, True, True))
+print(can_rent_car(30, False, True))
+print(can_rent_car(30, True, False))</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Positive, Negative, or Zero</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def sign_label(n):
+    if n &gt; 0:
+        return "positive"
+    elif n &lt; 0:
+        return "negative"
+    else:
+        return "zero"
+
+print(sign_label(5))
+print(sign_label(-3))
+print(sign_label(0))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Voting Age</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def voting_message(age):
+    if age &gt;= 18:
+        return "You can vote!"
+    else:
+        return "Wait " + str(18 - age) + " more year(s)"
+
+print(voting_message(20))
+print(voting_message(15))
+print(voting_message(18))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Boolean Predictions</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">a = True
+b = False
+x = 7
+print(a and b)                 # False
+print(a or b)                  # True
+print(not a)                   # False
+print(x &gt; 5 and x &lt; 10)        # True
+print(5 &lt; x &lt; 7)               # False, 7 is not less than 7
+print(not (x == 7) or b)       # False or False -&gt; False
+print((x % 2 == 1) and not b)  # True and True -&gt; True</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Leap Year</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def is_leap_year(year):
+    if year % 400 == 0:
+        return True
+    elif year % 100 == 0:
+        return False
+    elif year % 4 == 0:
+        return True
+    else:
+        return False
+
+print(is_leap_year(2024))
+print(is_leap_year(1900))
+print(is_leap_year(2000))
+print(is_leap_year(2023))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Shipping Cost</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def shipping_cost(weight_kg, is_member):
+    if is_member:
+        return 0
+    elif weight_kg &lt; 1:
+        return 5
+    elif weight_kg &lt;= 5:
+        return 10
+    else:
+        return 20
+
+print(shipping_cost(0.5, False))
+print(shipping_cost(1, False))
+print(shipping_cost(5, False))
+print(shipping_cost(5.1, False))
+print(shipping_cost(12, True))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Order Matters Bug</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def ticket_price(age):
+    if age &lt; 5:
+        return 0
+    elif age &gt;= 65:
+        return 8
+    elif age &gt;= 0:
+        return 12
+
+print(ticket_price(3))
+print(ticket_price(30))
+print(ticket_price(70))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Triangle Classifier</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def triangle_type(a, b, c):
+    if a &lt;= 0 or b &lt;= 0 or c &lt;= 0:
+        return "invalid"
+    elif a &gt;= b + c or b &gt;= a + c or c &gt;= a + b:
+        return "invalid"
+    elif a == b == c:
+        return "equilateral"
+    elif a == b or b == c or a == c:
+        return "isosceles"
+    else:
+        return "scalene"
+
+print(triangle_type(3, 3, 3))
+print(triangle_type(3, 3, 5))
+print(triangle_type(3, 4, 5))
+print(triangle_type(1, 2, 10))
+print(triangle_type(0, 4, 4))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Rock, Paper, Scissors</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def rps_winner(p1, p2):
+    if p1 == p2:
+        return "Tie"
+    elif (p1 == "rock" and p2 == "scissors") or \
+         (p1 == "scissors" and p2 == "paper") or \
+         (p1 == "paper" and p2 == "rock"):
+        return "Player 1"
+    else:
+        return "Player 2"
+
+print(rps_winner("rock", "scissors"))
+print(rps_winner("rock", "paper"))
+print(rps_winner("paper", "paper"))
+print(rps_winner("scissors", "paper"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Simplify the Logic</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">conditionals.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def can_rent_car(age, has_license, has_credit_card):
+    return has_license and age &gt;= 25 and has_credit_card
+
+print(can_rent_car(30, True, True))
+print(can_rent_car(22, True, True))
+print(can_rent_car(30, False, True))
+print(can_rent_car(30, True, False))</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

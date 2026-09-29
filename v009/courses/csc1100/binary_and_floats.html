@@ -65,6 +65,332 @@ print(round(0.1 + 0.2, 2) == 0.3)</script>
 True</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Binary by Hand.</strong> On paper, convert 5, 10, and 19 to binary, and convert the binary numbers 1010, 1111, and 100000 to decimal. Only then run the editor to check your work. For the binary-to-decimal ones, write out which place values (1, 2, 4, 8, ...) you added together.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(bin(5))
+print(bin(10))
+print(bin(19))
+print(int("1010", 2))
+print(int("1111", 2))
+print(int("100000", 2))</script>
+    </div>
+
+    <p><strong>Exercise 2: Powers of Two.</strong> Use a loop to print a table of the powers of 2 from 2⁰ to 2¹⁰, one per line, each followed by its binary form, like <code class="code-lesson-il">8 0b1000</code>. What pattern do you see in the binary column? Why does it happen?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">for i in range(11):
+    pass   # TODO</script>
+        <script type="text/plain" class="pyeditor-expected">1 0b1
+2 0b10
+4 0b100
+8 0b1000
+16 0b10000
+32 0b100000
+64 0b1000000
+128 0b10000000
+256 0b100000000
+512 0b1000000000
+1024 0b10000000000</script>
+    </div>
+
+    <p><strong>Exercise 3: Adding a Dime Ten Times.</strong> Add <code class="code-lesson-il">0.1</code> to a running total ten times in a loop. Print the total, then print whether it <code class="code-lesson-il">== 1.0</code>. Then print a third line that compares them safely, using a tolerance check like Part 4's.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">total = 0.0
+# TODO: loop ten times
+print(total)
+# TODO: two comparison prints</script>
+        <script type="text/plain" class="pyeditor-expected">0.9999999999999999
+False
+True</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Decimal to Binary, Yourself.</strong> Write <code class="code-lesson-il">to_binary(n)</code> that returns the binary digits of a non-negative integer as a string (no <code class="code-lesson-il">0b</code> prefix), <strong>without</strong> using <code class="code-lesson-il">bin()</code>. Method: repeatedly take <code class="code-lesson-il">n % 2</code> (the next bit, from right to left) and then <code class="code-lesson-il">n // 2</code>, until <code class="code-lesson-il">n</code> is 0. Since you get the bits right-to-left, add each new one to the <strong>front</strong> of your string. Handle <code class="code-lesson-il">n = 0</code> as a special case.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def to_binary(n):
+    pass   # TODO
+
+print(to_binary(13))
+print(to_binary(255))
+print(to_binary(0))
+print(to_binary(1024))</script>
+        <script type="text/plain" class="pyeditor-expected">1101
+11111111
+0
+10000000000</script>
+    </div>
+
+    <p><strong>Exercise 5: Binary to Decimal, Yourself.</strong> Write <code class="code-lesson-il">from_binary(bits)</code> that converts a string of 0s and 1s into an integer, <strong>without</strong> using <code class="code-lesson-il">int(x, 2)</code>. Read the string left to right, keeping a running <code class="code-lesson-il">value</code>: for each character, double <code class="code-lesson-il">value</code> and add the new bit. (Try tracing <code class="code-lesson-il">"1101"</code> by hand first: 1, 3, 6, 13.)</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def from_binary(bits):
+    pass   # TODO
+
+print(from_binary("1101"))
+print(from_binary("11111111"))
+print(from_binary("0"))
+print(from_binary(bin(2026)[2:]))</script>
+        <script type="text/plain" class="pyeditor-expected">13
+255
+0
+2026</script>
+    </div>
+
+    <p><strong>Exercise 6: Close Enough.</strong> Write <code class="code-lesson-il">close_enough(a, b, tolerance=1e-9)</code> that returns <code class="code-lesson-il">True</code> if two floats differ by less than <code class="code-lesson-il">tolerance</code>. Use it to check the comparisons in the tests, which would all fail (or pass by accident) with <code class="code-lesson-il">==</code>. Then look up <code class="code-lesson-il">math.isclose()</code> and compare it to your version.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def close_enough(a, b, tolerance=1e-9):
+    pass   # TODO
+
+print(close_enough(0.1 + 0.2, 0.3))
+print(close_enough(0.1 * 3, 0.3))
+print(close_enough(1.0, 1.001))
+print(close_enough(1.0, 1.001, tolerance=0.01))</script>
+        <script type="text/plain" class="pyeditor-expected">True
+True
+False
+True</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Counting Bits.</strong> Write <code class="code-lesson-il">count_ones(n)</code> that returns how many 1 bits are in the binary form of <code class="code-lesson-il">n</code>, using only <code class="code-lesson-il">%</code> and <code class="code-lesson-il">//</code> (no <code class="code-lesson-il">bin()</code>, no strings). Then write <code class="code-lesson-il">bits_needed(n)</code> that returns how many bits it takes to write <code class="code-lesson-il">n</code> in binary (the number of times you can <code class="code-lesson-il">// 2</code> before reaching 0; treat 0 as needing 1 bit). Check your answers against <code class="code-lesson-il">bin()</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def count_ones(n):
+    pass   # TODO
+
+def bits_needed(n):
+    pass   # TODO
+
+for n in [0, 5, 255, 256, 1000]:
+    print(n, count_ones(n), bits_needed(n), bin(n))</script>
+        <script type="text/plain" class="pyeditor-expected">0 0 1 0b0
+5 2 3 0b101
+255 8 8 0b11111111
+256 1 9 0b100000000
+1000 6 10 0b1111101000</script>
+    </div>
+
+    <p><strong>Exercise 8: Money in Cents.</strong> Because of floating point, you should never store money as a float. The starter adds up a day's sales both ways: as floats, and as whole numbers of cents (ints, which are exact). Finish the cents version, then print both totals. Explain why the float version goes wrong and the integer version can't.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">sales = [0.10, 0.20, 0.30, 0.10, 0.20, 0.30]
+
+total_float = 0.0
+for s in sales:
+    total_float += s
+print(total_float)
+
+total_cents = 0
+# TODO: add each sale as a whole number of cents (hint: round(s * 100))
+print(total_cents)
+# TODO: print total_cents in dollars-and-cents form, like $1.20, using // and %</script>
+        <script type="text/plain" class="pyeditor-expected">1.2000000000000002
+120
+$1.20</script>
+    </div>
+
+    <p><strong>Exercise 9: Recursive Binary.</strong> Rewrite <code class="code-lesson-il">to_binary</code> from Exercise 4 recursively as <code class="code-lesson-il">to_binary_rec(n)</code>. The binary form of <code class="code-lesson-il">n</code> is the binary form of <code class="code-lesson-il">n // 2</code>, followed by the digit <code class="code-lesson-il">n % 2</code>. Identify your base case (which numbers are already a single binary digit?). Test it against <code class="code-lesson-il">bin(n)[2:]</code> for every <code class="code-lesson-il">n</code> from 0 to 20 and print whether they all matched.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def to_binary_rec(n):
+    pass   # TODO
+
+print(to_binary_rec(13))
+print(to_binary_rec(1))
+all_match = True
+# TODO: compare against bin(n)[2:] for n in range(21)
+print(all_match)</script>
+        <script type="text/plain" class="pyeditor-expected">1101
+1
+True</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Binary by Hand</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(bin(5))    # 0b101
+print(bin(10))   # 0b1010
+print(bin(19))   # 0b10011
+print(int("1010", 2))     # 10
+print(int("1111", 2))     # 15
+print(int("100000", 2))   # 32</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Powers of Two</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">for i in range(11):
+    print(2 ** i, bin(2 ** i))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Adding a Dime Ten Times</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">total = 0.0
+for i in range(10):
+    total += 0.1
+print(total)
+print(total == 1.0)
+print(abs(total - 1.0) &lt; 1e-9)</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Decimal to Binary, Yourself</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def to_binary(n):
+    if n == 0:
+        return "0"
+    bits = ""
+    while n &gt; 0:
+        bits = str(n % 2) + bits
+        n = n // 2
+    return bits
+
+print(to_binary(13))
+print(to_binary(255))
+print(to_binary(0))
+print(to_binary(1024))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Binary to Decimal, Yourself</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def from_binary(bits):
+    value = 0
+    for ch in bits:
+        value = value * 2 + int(ch)
+    return value
+
+print(from_binary("1101"))
+print(from_binary("11111111"))
+print(from_binary("0"))
+print(from_binary(bin(2026)[2:]))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Close Enough</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def close_enough(a, b, tolerance=1e-9):
+    return abs(a - b) &lt; tolerance
+
+print(close_enough(0.1 + 0.2, 0.3))
+print(close_enough(0.1 * 3, 0.3))
+print(close_enough(1.0, 1.001))
+print(close_enough(1.0, 1.001, tolerance=0.01))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Counting Bits</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def count_ones(n):
+    count = 0
+    while n &gt; 0:
+        count += n % 2
+        n = n // 2
+    return count
+
+def bits_needed(n):
+    if n == 0:
+        return 1
+    count = 0
+    while n &gt; 0:
+        n = n // 2
+        count += 1
+    return count
+
+for n in [0, 5, 255, 256, 1000]:
+    print(n, count_ones(n), bits_needed(n), bin(n))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Money in Cents</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">sales = [0.10, 0.20, 0.30, 0.10, 0.20, 0.30]
+
+total_float = 0.0
+for s in sales:
+    total_float += s
+print(total_float)
+
+total_cents = 0
+for s in sales:
+    total_cents += round(s * 100)
+print(total_cents)
+print("$" + str(total_cents // 100) + "." + str(total_cents % 100).zfill(2))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Recursive Binary</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">binary.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def to_binary_rec(n):
+    if n &lt; 2:
+        return str(n)
+    return to_binary_rec(n // 2) + str(n % 2)
+
+print(to_binary_rec(13))
+print(to_binary_rec(1))
+all_match = True
+for n in range(21):
+    if to_binary_rec(n) != bin(n)[2:]:
+        all_match = False
+print(all_match)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

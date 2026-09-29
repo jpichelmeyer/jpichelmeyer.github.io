@@ -97,5 +97,24 @@ func _train_on_memory() -> void:
             <li>Explain the role of the learning rate, and what could go wrong if it's set too high or too low.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Display predicted and actual target positions. Main (Node2D) → Agent, Target, Predictor (Node), UI (CanvasLayer) → Plot (Control).</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Compare prediction error at short and long horizons. Keep training logic in Predictor and display mean squared error.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add a second feature and evaluate on held-out data. Store samples in a Resource or script and compare against the single-feature model.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

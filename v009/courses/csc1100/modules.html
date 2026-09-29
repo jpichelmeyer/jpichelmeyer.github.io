@@ -92,6 +92,290 @@ print(mymath.double(21))   # 42</code>
     </div>
     <p>The editor on this page only ever runs one file at a time, so this specific example isn't something you can try right here, but it works exactly this way in Thonny on your own computer: two <code class="code-lesson-il">.py</code> files in the same folder, one importing the other by its filename, minus the <code class="code-lesson-il">.py</code>.</p>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Circle Area.</strong> Import <code class="code-lesson-il">math</code> and use <code class="code-lesson-il">math.pi</code> to compute the area of a circle with radius 3 (area = pi times r squared). Print it rounded to 2 decimal places.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">radius = 3
+# TODO
+area = 0
+print(round(area, 2))</script>
+        <script type="text/plain" class="pyeditor-expected">28.27</script>
+    </div>
+
+    <p><strong>Exercise 2: Hypotenuse.</strong> Using <code class="code-lesson-il">from math import sqrt</code>, write a function <code class="code-lesson-il">hypotenuse(a, b)</code> that returns the length of the long side of a right triangle: the square root of a² + b².</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter"># TODO: import
+
+def hypotenuse(a, b):
+    pass   # TODO
+
+print(hypotenuse(3, 4))
+print(hypotenuse(5, 12))</script>
+        <script type="text/plain" class="pyeditor-expected">5.0
+13.0</script>
+    </div>
+
+    <p><strong>Exercise 3: Exploring with an Alias.</strong> Import <code class="code-lesson-il">math</code> under the alias <code class="code-lesson-il">m</code>. Use it to print <code class="code-lesson-il">m.floor(7.8)</code>, <code class="code-lesson-il">m.ceil(7.2)</code>, and <code class="code-lesson-il">m.factorial(5)</code>. Predict each result first. Then use <code class="code-lesson-il">print(dir(m))</code> to list everything the module contains, and pick one function you haven't seen to try out.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter"># TODO: import math as m</script>
+        <script type="text/plain" class="pyeditor-expected">7
+8
+120</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Dice Roller.</strong> The <code class="code-lesson-il">random</code> module's <code class="code-lesson-il">random.randint(a, b)</code> returns a random integer from <code class="code-lesson-il">a</code> to <code class="code-lesson-il">b</code>, inclusive. Write a function <code class="code-lesson-il">roll_dice(n)</code> that rolls a six-sided die <code class="code-lesson-il">n</code> times and returns the list of results, then print the rolls and their total. Run it a few times: the output should change every run, which is exactly why this editor has no expected output.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import random
+
+def roll_dice(n):
+    pass   # TODO
+
+rolls = roll_dice(5)
+print(rolls)
+print(sum(rolls))</script>
+    </div>
+
+    <p><strong>Exercise 5: The statistics Module.</strong> Python's standard library has a <code class="code-lesson-il">statistics</code> module. Import it and print the mean, median, and mode of the <code class="code-lesson-il">ages</code> list, using <code class="code-lesson-il">statistics.mean</code>, <code class="code-lesson-il">statistics.median</code>, and <code class="code-lesson-il">statistics.mode</code>. Then check the median by hand: sort the list and find the middle value.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">ages = [19, 22, 19, 25, 30, 19, 22]
+# TODO</script>
+        <script type="text/plain" class="pyeditor-expected">22.285714285714285
+22
+19</script>
+    </div>
+
+    <p><strong>Exercise 6: Three Import Styles.</strong> The program below uses <code class="code-lesson-il">import math</code>. Rewrite it twice more below it, once using <code class="code-lesson-il">from math import ...</code> and once using <code class="code-lesson-il">import math as m</code>, so that it prints the same two values three times. Which version would you prefer in a long program that also has its own variable called <code class="code-lesson-il">pi</code>, and why?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math
+print(round(math.sqrt(50), 3))
+print(round(math.pi * 2, 3))
+
+# TODO: version 2, using from math import ...
+
+# TODO: version 3, using import math as m</script>
+        <script type="text/plain" class="pyeditor-expected">7.071
+6.283
+7.071
+6.283
+7.071
+6.283</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Your Own Module (in Thonny).</strong> This one needs two files, so do it in Thonny rather than this page's editor. Create <code class="code-lesson-il">temperature.py</code> containing two functions, <code class="code-lesson-il">c_to_f(c)</code> and <code class="code-lesson-il">f_to_c(f)</code>. In the same folder, create <code class="code-lesson-il">main.py</code> that does <code class="code-lesson-il">import temperature</code> and prints <code class="code-lesson-il">temperature.c_to_f(100)</code> and <code class="code-lesson-il">temperature.f_to_c(32)</code>. Run <code class="code-lesson-il">main.py</code>. Then change it to use <code class="code-lesson-il">from temperature import c_to_f</code> and confirm it still works.</p>
+    <p><strong>Exercise 8: Who Am I? __name__.</strong> Every module has a built-in variable <code class="code-lesson-il">__name__</code>. When a file is run directly, its <code class="code-lesson-il">__name__</code> is <code class="code-lesson-il">"__main__"</code>; when it's imported, <code class="code-lesson-il">__name__</code> is the module's own name. Print <code class="code-lesson-il">__name__</code> for this program and <code class="code-lesson-il">math.__name__</code> for the imported module.</p>
+    <p>Then, in Thonny: add a test line like <code class="code-lesson-il">print(c_to_f(100))</code> to the bottom of your <code class="code-lesson-il">temperature.py</code> from Exercise 7 and run <code class="code-lesson-il">main.py</code>. The test runs on import, which you don't want. Fix it by putting the test inside <code class="code-lesson-il">if __name__ == "__main__":</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math
+# TODO: print __name__, then math.__name__</script>
+        <script type="text/plain" class="pyeditor-expected">__main__
+math</script>
+    </div>
+
+    <p><strong>Exercise 9: Estimating pi with Randomness.</strong> Throw <code class="code-lesson-il">n</code> random darts at a 1 by 1 square: each dart is a point <code class="code-lesson-il">(x, y)</code> where <code class="code-lesson-il">x = random.random()</code> and <code class="code-lesson-il">y = random.random()</code> (each between 0 and 1). The fraction of darts that land inside the quarter circle, where x² + y² ≤ 1, is about pi / 4. Write <code class="code-lesson-il">estimate_pi(n)</code> using this idea, then print your estimate for <code class="code-lesson-il">n = 1000</code> and <code class="code-lesson-il">n = 100000</code> next to <code class="code-lesson-il">math.pi</code>. How does the accuracy change as <code class="code-lesson-il">n</code> grows?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import random
+import math
+
+def estimate_pi(n):
+    pass   # TODO
+
+print(estimate_pi(1000))
+print(estimate_pi(100000))
+print(math.pi)</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Circle Area</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+
+radius = 3
+area = math.pi * radius ** 2
+print(round(area, 2))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Hypotenuse</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">from math import sqrt
+
+def hypotenuse(a, b):
+    return sqrt(a ** 2 + b ** 2)
+
+print(hypotenuse(3, 4))
+print(hypotenuse(5, 12))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Exploring with an Alias</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math as m
+
+print(m.floor(7.8))
+print(m.ceil(7.2))
+print(m.factorial(5))</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Dice Roller</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import random
+
+def roll_dice(n):
+    rolls = []
+    for i in range(n):
+        rolls.append(random.randint(1, 6))
+    return rolls
+
+rolls = roll_dice(5)
+print(rolls)
+print(sum(rolls))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: The statistics Module</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import statistics
+
+ages = [19, 22, 19, 25, 30, 19, 22]
+print(statistics.mean(ages))
+print(statistics.median(ages))
+print(statistics.mode(ages))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Three Import Styles</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+print(round(math.sqrt(50), 3))
+print(round(math.pi * 2, 3))
+
+from math import sqrt, pi
+print(round(sqrt(50), 3))
+print(round(pi * 2, 3))
+
+import math as m
+print(round(m.sqrt(50), 3))
+print(round(m.pi * 2, 3))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Your Own Module (in Thonny)</summary>
+    <p><code class="code-lesson-il">temperature.py</code>:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def c_to_f(c):
+    return c * 9 / 5 + 32</code>
+    </div>
+    <p>def f_to_c(f): return (f - 32) * 5 / 9 <code class="code-lesson-il"></code><code class="code-lesson-il"></code></p>
+    <p><code class="code-lesson-il">main.py</code>, in the same folder:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import temperature</code>
+    </div>
+    <p>print(temperature.c_to_f(100))   # 212.0 print(temperature.f_to_c(32))    # 0.0 <code class="code-lesson-il"></code><code class="code-lesson-il"></code></p>
+    <p>With <code class="code-lesson-il">from temperature import c_to_f</code>, the call becomes just <code class="code-lesson-il">c_to_f(100)</code>.</p>
+    </details>
+    <details>
+    <summary>Exercise 8: Who Am I? __name__</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+print(__name__)
+print(math.__name__)</code>
+    </div>
+    <p>For the Thonny part, the bottom of <code class="code-lesson-il">temperature.py</code> becomes:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">if __name__ == "__main__":
+    print(c_to_f(100))</code>
+    </div>
+    <p>That test now runs when <code class="code-lesson-il">temperature.py</code> is run directly, but not when <code class="code-lesson-il">main.py</code> imports it.</p>
+    </details>
+    <details>
+    <summary>Exercise 9: Estimating pi with Randomness</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">modules.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import random
+import math
+
+def estimate_pi(n):
+    inside = 0
+    for i in range(n):
+        x = random.random()
+        y = random.random()
+        if x ** 2 + y ** 2 &lt;= 1:
+            inside += 1
+    return 4 * inside / n
+
+print(estimate_pi(1000))
+print(estimate_pi(100000))
+print(math.pi)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

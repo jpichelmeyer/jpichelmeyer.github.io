@@ -42,6 +42,329 @@ print(sys.getrecursionlimit() > 0)</script>
     <h3>Part 4. Where the Term "Stack Overflow" Actually Comes From</h3>
     <p>You've probably heard "Stack Overflow" as the name of a website programmers use constantly to look things up. The name isn't arbitrary: a stack overflow is exactly this failure, the call stack growing past the memory set aside for it, most commonly from recursion with no working base case. It's such a common, recognizable failure that an entire programming Q&amp;A site was named after it. You now know, precisely, what that name is actually describing.</p>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Predict the Order.</strong> Predict the full output before running. Then draw the call stack at the exact moment <code class="code-lesson-il">c</code> prints: which frames are on it, and in what order from bottom to top?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def a():
+    print("a start")
+    b()
+    print("a end")
+
+def b():
+    print("b start")
+    c()
+    print("b end")
+
+def c():
+    print("c")
+
+a()</script>
+    </div>
+
+    <p><strong>Exercise 2: Every Frame Has Its Own x.</strong> Both functions have a variable named <code class="code-lesson-il">x</code>. Predict all three lines of output. Then explain, in terms of stack frames, why <code class="code-lesson-il">g</code> changing its <code class="code-lesson-il">x</code> has no effect on <code class="code-lesson-il">f</code>'s <code class="code-lesson-il">x</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def f(n):
+    x = n * 2
+    print("f sees x =", x)
+    g(x)
+    print("back in f, x =", x)
+
+def g(x):
+    x = x + 100
+    print("g sees x =", x)
+
+f(5)</script>
+    </div>
+
+    <p><strong>Exercise 3: Draw the Deepest Point.</strong> On paper, draw the call stack for <code class="code-lesson-il">sum_to(3)</code> (from the recursion lesson) at its deepest point. Write each frame's value of <code class="code-lesson-il">n</code>. How many frames belong to <code class="code-lesson-il">sum_to</code> at that moment? Which frame is the first to return, and what does it return?</p>
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Visualize the Depth.</strong> Write <code class="code-lesson-il">trace_factorial(n, depth=0)</code> that computes factorial recursively, but also prints what's happening, indented by two spaces per level of depth: <code class="code-lesson-il">factorial(3)</code> on the way in, and <code class="code-lesson-il">returns 6</code> on the way out. Each recursive call passes <code class="code-lesson-il">depth + 1</code>. The output should look like a picture of the stack growing and shrinking.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def trace_factorial(n, depth=0):
+    indent = "  " * depth
+    print(indent + f"factorial({n})")
+    # TODO: compute result (recursively when n > 1)
+    result = 1
+    print(indent + f"returns {result}")
+    return result
+
+trace_factorial(3)</script>
+        <script type="text/plain" class="pyeditor-expected">factorial(3)
+  factorial(2)
+    factorial(1)
+    returns 1
+  returns 2
+returns 6</script>
+    </div>
+
+    <p><strong>Exercise 5: A Stack Made of a List.</strong> A Python list can act as a stack: <code class="code-lesson-il">append()</code> pushes onto the top and <code class="code-lesson-il">pop()</code> removes and returns the top item. Simulate the call stack from Exercise 1: push <code class="code-lesson-il">"main"</code>, <code class="code-lesson-il">"a"</code>, <code class="code-lesson-il">"b"</code>, and <code class="code-lesson-il">"c"</code>, printing <code class="code-lesson-il">call &lt;name&gt;</code> for each. Then pop until the list is empty, printing <code class="code-lesson-il">return from &lt;name&gt;</code> each time. Notice the returns come out in reverse order, last in, first out.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">stack = []
+for name in ["main", "a", "b", "c"]:
+    pass   # TODO: push and print
+
+# TODO: pop until empty</script>
+        <script type="text/plain" class="pyeditor-expected">call main
+call a
+call b
+call c
+return from c
+return from b
+return from a
+return from main</script>
+    </div>
+
+    <p><strong>Exercise 6: Deep, But Not Too Deep.</strong> Write a recursive function <code class="code-lesson-il">count_calls(n)</code> that returns <code class="code-lesson-il">n</code> by calling itself: <code class="code-lesson-il">count_calls(0)</code> returns 0, and otherwise it returns <code class="code-lesson-il">1 + count_calls(n - 1)</code>. Test it with 100. Then, on your own, try 5000 and read the <strong>last</strong> line of the traceback. Relate what you see to <code class="code-lesson-il">sys.getrecursionlimit()</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def count_calls(n):
+    pass   # TODO
+
+print(count_calls(100))</script>
+        <script type="text/plain" class="pyeditor-expected">100</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Rewrite Without the Stack.</strong> <code class="code-lesson-il">sum_to(n)</code> from the recursion lesson needs one stack frame per number, so it crashes for large <code class="code-lesson-il">n</code>. Write <code class="code-lesson-il">sum_to_loop(n)</code> that computes the same thing with a <code class="code-lesson-il">for</code> loop, using only one frame no matter how big <code class="code-lesson-il">n</code> is. Confirm both versions agree for <code class="code-lesson-il">n = 100</code>, then show that the loop version handles <code class="code-lesson-il">n = 100000</code> easily.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def sum_to(n):
+    if n == 0:
+        return 0
+    return n + sum_to(n - 1)
+
+def sum_to_loop(n):
+    pass   # TODO
+
+print(sum_to(100))
+print(sum_to_loop(100))
+print(sum_to_loop(100000))</script>
+        <script type="text/plain" class="pyeditor-expected">5050
+5050
+5000050000</script>
+    </div>
+
+    <p><strong>Exercise 8: Simulating Factorial&#x27;s Stack.</strong> Compute 5! without recursion by doing, with a list, exactly what the call stack does. Phase 1 ("going down"): push 5, 4, 3, 2, 1 onto a list and print the list when it's full. Phase 2 ("unwinding"): start <code class="code-lesson-il">result = 1</code>, then pop values one at a time and multiply them into <code class="code-lesson-il">result</code>. Print the final result.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">stack = []
+n = 5
+# TODO: phase 1, push n down to 1
+print(stack)
+
+result = 1
+# TODO: phase 2, pop and multiply
+print(result)</script>
+        <script type="text/plain" class="pyeditor-expected">[5, 4, 3, 2, 1]
+120</script>
+    </div>
+
+    <p><strong>Exercise 9: Mutual Recursion.</strong> Two functions can recurse through <strong>each other</strong>. Define <code class="code-lesson-il">is_even(n)</code> and <code class="code-lesson-il">is_odd(n)</code> for non-negative integers using only these facts: 0 is even (and not odd), and <code class="code-lesson-il">n</code> is even exactly when <code class="code-lesson-il">n - 1</code> is odd (and vice versa). Neither function may use <code class="code-lesson-il">%</code>. On paper, list the frames on the stack at the deepest point of <code class="code-lesson-il">is_even(3)</code>. How deep would <code class="code-lesson-il">is_even(5000)</code> go?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def is_even(n):
+    pass   # TODO
+
+def is_odd(n):
+    pass   # TODO
+
+print(is_even(4))
+print(is_even(7))
+print(is_odd(7))
+print(is_odd(0))</script>
+        <script type="text/plain" class="pyeditor-expected">True
+False
+True
+False</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Predict the Order</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">the_call_stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># a start, b start, c, b end, a end
+# At "c": module (bottom), a, b, c (top)
+def a():
+    print("a start")
+    b()
+    print("a end")
+
+def b():
+    print("b start")
+    c()
+    print("b end")
+
+def c():
+    print("c")
+
+a()</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Every Frame Has Its Own x</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">the_call_stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># f sees x = 10 / g sees x = 110 / back in f, x = 10
+def f(n):
+    x = n * 2
+    print("f sees x =", x)
+    g(x)
+    print("back in f, x =", x)
+
+def g(x):
+    x = x + 100
+    print("g sees x =", x)
+
+f(5)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Draw the Deepest Point</summary>
+    <p>At the deepest point, from bottom to top: the module frame, then <code class="code-lesson-il">sum_to(3)</code>, <code class="code-lesson-il">sum_to(2)</code>, <code class="code-lesson-il">sum_to(1)</code>, <code class="code-lesson-il">sum_to(0)</code>. That's 4 frames belonging to <code class="code-lesson-il">sum_to</code>. <code class="code-lesson-il">sum_to(0)</code> is the first to return, and it returns 0.</p>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Visualize the Depth</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">the_call_stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def trace_factorial(n, depth=0):
+    indent = "  " * depth
+    print(indent + f"factorial({n})")
+    if n &lt;= 1:
+        result = 1
+    else:
+        result = n * trace_factorial(n - 1, depth + 1)
+    print(indent + f"returns {result}")
+    return result
+
+trace_factorial(3)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: A Stack Made of a List</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">the_call_stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">stack = []
+for name in ["main", "a", "b", "c"]:
+    stack.append(name)
+    print("call " + name)
+
+while len(stack) &gt; 0:
+    name = stack.pop()
+    print("return from " + name)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Deep, But Not Too Deep</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">the_call_stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def count_calls(n):
+    if n == 0:
+        return 0
+    return 1 + count_calls(n - 1)
+
+print(count_calls(100))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Rewrite Without the Stack</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">the_call_stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def sum_to(n):
+    if n == 0:
+        return 0
+    return n + sum_to(n - 1)
+
+def sum_to_loop(n):
+    total = 0
+    for i in range(1, n + 1):
+        total += i
+    return total
+
+print(sum_to(100))
+print(sum_to_loop(100))
+print(sum_to_loop(100000))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Simulating Factorial&#x27;s Stack</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">the_call_stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">stack = []
+n = 5
+while n &gt;= 1:
+    stack.append(n)
+    n -= 1
+print(stack)
+
+result = 1
+while len(stack) &gt; 0:
+    result *= stack.pop()
+print(result)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Mutual Recursion</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">the_call_stack.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def is_even(n):
+    if n == 0:
+        return True
+    return is_odd(n - 1)
+
+def is_odd(n):
+    if n == 0:
+        return False
+    return is_even(n - 1)
+
+print(is_even(4))
+print(is_even(7))
+print(is_odd(7))
+print(is_odd(0))</code>
+    </div>
+    <p>At the deepest point of <code class="code-lesson-il">is_even(3)</code> the stack holds <code class="code-lesson-il">is_even(3)</code>, <code class="code-lesson-il">is_odd(2)</code>, <code class="code-lesson-il">is_even(1)</code>, <code class="code-lesson-il">is_odd(0)</code>. <code class="code-lesson-il">is_even(5000)</code> would need about 5001 frames, more than the usual recursion limit, so it raises <code class="code-lesson-il">RecursionError</code>.</p>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

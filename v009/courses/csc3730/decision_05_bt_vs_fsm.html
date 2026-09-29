@@ -90,5 +90,24 @@
             <li>Give one project-shaped reason to prefer an FSM, and one to prefer a behavior tree, that isn't just "my professor said so."</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Implement patrol/idle in both approaches. Create AgentFSM.tscn and AgentBT.tscn; each contains Sprite2D and its respective controller.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add danger interruption to both. Add DangerArea (Area2D) → CollisionShape2D and compare how each implementation resumes behavior.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Extend both with investigate, flee, and recover. Place both agent scenes in a shared TestArena (Node2D) and compare state bookkeeping.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

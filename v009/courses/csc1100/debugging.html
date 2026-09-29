@@ -76,6 +76,293 @@ print("Age: " + age)</script>
         <script type="text/plain" class="pyeditor-expected">Age: 25</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Most of these start with broken code. Run it first and read the traceback from the bottom up before you change anything. Where an editor has an expected output, the fixed program should match it exactly.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Name That Error.</strong> Each commented line causes a different error. For each one, predict the error type (<code class="code-lesson-il">NameError</code>, <code class="code-lesson-il">TypeError</code>, <code class="code-lesson-il">IndexError</code>, <code class="code-lesson-il">ZeroDivisionError</code>, or <code class="code-lesson-il">SyntaxError</code>) before running. Then uncomment the lines one at a time to check.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter"># print(lenght("hello"))
+# print("Age: " + 25)
+# print([10, 20, 30][3])
+# print(100 / (5 - 5))
+# print("missing paren"</script>
+    </div>
+
+    <p><strong>Exercise 2: Fix It: SyntaxError.</strong> This program has two syntax errors. Python reports only one at a time, so fix the first, run again, and fix the second.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">temp = 25
+if temp > 20
+    print("warm")
+print("checked"</script>
+        <script type="text/plain" class="pyeditor-expected">warm
+checked</script>
+    </div>
+
+    <p><strong>Exercise 3: Fix It: The Counter That Never Counts.</strong> This should print the average of the numbers, <code class="code-lesson-il">25.0</code>. It crashes instead. Read the error, then find the line that's missing (not wrong, missing).</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">numbers = [10, 20, 30, 40]
+total = 0
+count = 0
+for n in numbers:
+    total += n
+print(total / count)</script>
+        <script type="text/plain" class="pyeditor-expected">25.0</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Off by One.</strong> This is supposed to print every item in the list, numbered starting from 1. Instead it skips Mercury <strong>and</strong> crashes with an <code class="code-lesson-il">IndexError</code>. Both symptoms come from the same mix-up between counting from 1 and indexing from 0. Use a temporary <code class="code-lesson-il">print(i)</code> inside the loop to see which index goes too far, then fix it with the smallest change you can.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">planets = ["Mercury", "Venus", "Earth"]
+for i in range(1, len(planets) + 1):
+    print(str(i) + ". " + planets[i])</script>
+        <script type="text/plain" class="pyeditor-expected">1. Mercury
+2. Venus
+3. Earth</script>
+    </div>
+
+    <p><strong>Exercise 5: Print Debugging: Vowel Counter.</strong> <code class="code-lesson-il">count_vowels</code> doesn't crash, it just gives the wrong answer (it should print 3 and 5). Add a temporary <code class="code-lesson-il">print</code> inside the loop showing <code class="code-lesson-il">ch</code> and <code class="code-lesson-il">count</code> on each pass, find exactly where reality stops matching your expectation, fix the bug, then delete the debugging print.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def count_vowels(text):
+    for ch in text:
+        count = 0
+        if ch in "aeiou":
+            count += 1
+    return count
+
+print(count_vowels("education"[:5]))
+print(count_vowels("education"))</script>
+        <script type="text/plain" class="pyeditor-expected">3
+5</script>
+    </div>
+
+    <p><strong>Exercise 6: Wrong Output, No Crash.</strong> Nothing crashes here, but one of the four results is wrong. Figure out which test case is wrong <strong>before</strong> touching the code, then find and fix the one-character bug. This is why good tests include values right at the boundary.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def is_adult(age):
+    return age > 18
+
+print(is_adult(30))
+print(is_adult(10))
+print(is_adult(18))
+print(is_adult(17))</script>
+        <script type="text/plain" class="pyeditor-expected">True
+False
+True
+False</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Three Bugs, One Function.</strong> Orders of $50 or more are supposed to get free shipping. This function has three separate bugs: one <code class="code-lesson-il">NameError</code>, one <code class="code-lesson-il">TypeError</code>, and one logic error that only shows up once the crashes are fixed. Fix them one at a time, running after each fix.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def describe_order(item, quantity, price):
+    total = quantity * pric
+    message = item + " x" + quantity
+    if total > 50:
+        message += " (free shipping)"
+    return message + ": $" + str(total)
+
+print(describe_order("pen", 3, 2))
+print(describe_order("lamp", 2, 40))
+print(describe_order("book", 5, 10))</script>
+        <script type="text/plain" class="pyeditor-expected">pen x3: $6
+lamp x2 (free shipping): $80
+book x5 (free shipping): $50</script>
+    </div>
+
+    <p><strong>Exercise 8: Returning Too Early.</strong> <code class="code-lesson-il">find_max</code> should return the largest number in the list (9, then 100). It returns the wrong value, and never crashes. The bug is <strong>indentation</strong>. Trace the loop by hand for the first list to see how many times it actually runs.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def find_max(numbers):
+    biggest = numbers[0]
+    for n in numbers:
+        if n > biggest:
+            biggest = n
+        return biggest
+
+print(find_max([3, 9, 2, 7]))
+print(find_max([5, 1, 100]))</script>
+        <script type="text/plain" class="pyeditor-expected">9
+100</script>
+    </div>
+
+    <p><strong>Exercise 9: Following a Traceback Upstream.</strong> This crash has a traceback several frames deep. Read it bottom up: which line actually raised the error, and which call passed in the bad data? The real bug isn't on the line that crashed. Fix it so that a student with no scores is reported as <code class="code-lesson-il">no scores yet</code> instead of crashing, by changing <code class="code-lesson-il">average</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def average(values):
+    return sum(values) / len(values)
+
+def report(name, scores):
+    return name + ": " + str(average(scores))
+
+gradebook = {"Ada": [90, 80], "Alan": [], "Grace": [100]}
+for name, scores in gradebook.items():
+    print(report(name, scores))</script>
+        <script type="text/plain" class="pyeditor-expected">Ada: 85.0
+Alan: no scores yet
+Grace: 100.0</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Name That Error</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># NameError, TypeError, IndexError, ZeroDivisionError, SyntaxError
+print("done")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Fix It: SyntaxError</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">temp = 25
+if temp &gt; 20:
+    print("warm")
+print("checked")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Fix It: The Counter That Never Counts</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">numbers = [10, 20, 30, 40]
+total = 0
+count = 0
+for n in numbers:
+    total += n
+    count += 1
+print(total / count)</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Off by One</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">planets = ["Mercury", "Venus", "Earth"]
+for i in range(1, len(planets) + 1):
+    print(str(i) + ". " + planets[i - 1])</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Print Debugging: Vowel Counter</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def count_vowels(text):
+    count = 0
+    for ch in text:
+        if ch in "aeiou":
+            count += 1
+    return count
+
+print(count_vowels("education"[:5]))
+print(count_vowels("education"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Wrong Output, No Crash</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def is_adult(age):
+    return age &gt;= 18
+
+print(is_adult(30))
+print(is_adult(10))
+print(is_adult(18))
+print(is_adult(17))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Three Bugs, One Function</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def describe_order(item, quantity, price):
+    total = quantity * price
+    message = item + " x" + str(quantity)
+    if total &gt;= 50:
+        message += " (free shipping)"
+    return message + ": $" + str(total)
+
+print(describe_order("pen", 3, 2))
+print(describe_order("lamp", 2, 40))
+print(describe_order("book", 5, 10))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Returning Too Early</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def find_max(numbers):
+    biggest = numbers[0]
+    for n in numbers:
+        if n &gt; biggest:
+            biggest = n
+    return biggest
+
+print(find_max([3, 9, 2, 7]))
+print(find_max([5, 1, 100]))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Following a Traceback Upstream</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">debugging.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def average(values):
+    if len(values) == 0:
+        return "no scores yet"
+    return sum(values) / len(values)
+
+def report(name, scores):
+    return name + ": " + str(average(scores))
+
+gradebook = {"Ada": [90, 80], "Alan": [], "Grace": [100]}
+for name, scores in gradebook.items():
+    print(report(name, scores))</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

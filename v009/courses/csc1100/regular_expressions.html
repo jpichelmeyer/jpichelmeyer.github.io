@@ -102,6 +102,273 @@ print(words)</script>
     </div>
     <p>Notice <code class="code-lesson-il">It's</code> split into <code class="code-lesson-il">It</code> and <code class="code-lesson-il">s</code>, the apostrophe isn't a letter, digit, or underscore, so <code class="code-lesson-il">\w+</code> stops right there. Patterns match exactly what you tell them to, nothing more, which is worth remembering the first time a regex "almost" works.</p>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: First Number.</strong> Use <code class="code-lesson-il">re.search()</code> with the pattern <code class="code-lesson-il">\d+</code> to pull the first number out of the text, and print it with <code class="code-lesson-il">.group()</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+text = "Room 214 is on floor 2"
+# TODO</script>
+        <script type="text/plain" class="pyeditor-expected">214</script>
+    </div>
+
+    <p><strong>Exercise 2: Hashtags.</strong> Use <code class="code-lesson-il">re.findall()</code> to get a list of every hashtag in the post: a <code class="code-lesson-il">#</code> followed by one or more word characters.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+post = "Loving #python and #regex today, #100DaysOfCode"
+# TODO</script>
+        <script type="text/plain" class="pyeditor-expected">['#python', '#regex', '#100DaysOfCode']</script>
+    </div>
+
+    <p><strong>Exercise 3: Redact the Digits.</strong> Use <code class="code-lesson-il">re.sub()</code> to replace every <strong>single</strong> digit with an <code class="code-lesson-il">X</code>, so the card number becomes unreadable. Then change the pattern to <code class="code-lesson-il">\d+</code> and predict how the output changes before running it.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+text = "Card: 1234-5678, PIN 42"
+# TODO</script>
+        <script type="text/plain" class="pyeditor-expected">Card: XXXX-XXXX, PIN XX</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Is It a ZIP Code?.</strong> <code class="code-lesson-il">re.search()</code> finds a pattern <strong>anywhere</strong>, so <code class="code-lesson-il">\d{5}</code> would match inside <code class="code-lesson-il">"1234567"</code>. <code class="code-lesson-il">re.fullmatch(pattern, text)</code> only matches if the <strong>entire</strong> string fits the pattern. Write <code class="code-lesson-il">is_zip(text)</code> that returns <code class="code-lesson-il">True</code> if <code class="code-lesson-il">text</code> is exactly five digits. (A match object counts as true in an <code class="code-lesson-il">if</code>, and <code class="code-lesson-il">None</code> counts as false; use <code class="code-lesson-il">is not None</code> to turn it into a real boolean.)</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+
+def is_zip(text):
+    pass   # TODO
+
+print(is_zip("53140"))
+print(is_zip("5314"))
+print(is_zip("531400"))
+print(is_zip("5314a"))</script>
+        <script type="text/plain" class="pyeditor-expected">True
+False
+False
+False</script>
+    </div>
+
+    <p><strong>Exercise 5: Add Up the Prices.</strong> Find every price in the receipt with <code class="code-lesson-il">re.findall()</code>, then convert each to a <code class="code-lesson-il">float</code> and add them up. Prices look like <code class="code-lesson-il">$</code> then digits, a dot, and two digits. <code class="code-lesson-il">$</code> and <code class="code-lesson-il">.</code> both have special meanings in regex, so match them literally by escaping them with a backslash: <code class="code-lesson-il">\$</code> and <code class="code-lesson-il">\.</code>. Print the list of matches and the total rounded to 2 places.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+receipt = "coffee $3.50, bagel $2.25, juice $4.00, tip $1.75"
+# TODO</script>
+        <script type="text/plain" class="pyeditor-expected">['$3.50', '$2.25', '$4.00', '$1.75']
+11.5</script>
+    </div>
+
+    <p><strong>Exercise 6: When There&#x27;s No Match.</strong> Write <code class="code-lesson-il">find_year(text)</code> that returns the first four-digit number in <code class="code-lesson-il">text</code> as an <code class="code-lesson-il">int</code>, or <code class="code-lesson-il">None</code> if there isn't one. Calling <code class="code-lesson-il">.group()</code> on <code class="code-lesson-il">None</code> crashes, so check the result of <code class="code-lesson-il">re.search()</code> before using it.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+
+def find_year(text):
+    pass   # TODO
+
+print(find_year("Python was first released in 1991."))
+print(find_year("No dates here."))
+print(find_year("Version 3 came out in 2008, not 1999"))</script>
+        <script type="text/plain" class="pyeditor-expected">1991
+None
+2008</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Email Extractor.</strong> Square brackets define a <strong>character class</strong>: <code class="code-lesson-il">[\w.]</code> means "a word character or a dot." Use one to write a pattern that finds email addresses: one or more word-characters-or-dots, then <code class="code-lesson-il">@</code>, then word characters, then a literal dot, then word characters. Print the list of emails found.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+text = "Contact ada.lovelace@example.com or grace@navy.mil, not @nobody or bob@."
+# TODO</script>
+        <script type="text/plain" class="pyeditor-expected">['ada.lovelace@example.com', 'grace@navy.mil']</script>
+    </div>
+
+    <p><strong>Exercise 8: Normalize Whitespace.</strong> <code class="code-lesson-il">\s</code> matches any whitespace character: a space, a tab (<code class="code-lesson-il">\t</code>), or a newline (<code class="code-lesson-il">\n</code>). Write <code class="code-lesson-il">tidy(text)</code> that replaces every run of whitespace with a single space and removes any at the start and end. It should take one <code class="code-lesson-il">re.sub()</code> call plus <code class="code-lesson-il">.strip()</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+
+def tidy(text):
+    pass   # TODO
+
+print(tidy("  too    many\tspaces \n here  "))
+print(tidy("already fine"))</script>
+        <script type="text/plain" class="pyeditor-expected">too many spaces here
+already fine</script>
+    </div>
+
+    <p><strong>Exercise 9: Phone Number Formatter.</strong> Parentheses in a pattern create <strong>groups</strong>, and in the replacement text <code class="code-lesson-il">\1</code>, <code class="code-lesson-il">\2</code>, <code class="code-lesson-il">\3</code> insert whatever each group matched. <code class="code-lesson-il">\D</code> matches any character that is <strong>not</strong> a digit. Write <code class="code-lesson-il">format_phone(text)</code> that turns a 10-digit US phone number written any common way into the format <code class="code-lesson-il">(414) 555-0199</code>. Pattern idea: three digits in a group, any non-digits (<code class="code-lesson-il">\D*</code>), three digits in a group, any non-digits, four digits in a group.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import re
+
+def format_phone(text):
+    pass   # TODO
+
+print(format_phone("4145550199"))
+print(format_phone("414-555-0199"))
+print(format_phone("(414) 555.0199"))
+print(format_phone("414 555 0199"))</script>
+        <script type="text/plain" class="pyeditor-expected">(414) 555-0199
+(414) 555-0199
+(414) 555-0199
+(414) 555-0199</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: First Number</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+text = "Room 214 is on floor 2"
+match = re.search(r"\d+", text)
+print(match.group())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Hashtags</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+post = "Loving #python and #regex today, #100DaysOfCode"
+print(re.findall(r"#\w+", post))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Redact the Digits</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+text = "Card: 1234-5678, PIN 42"
+print(re.sub(r"\d", "X", text))</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Is It a ZIP Code?</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+
+def is_zip(text):
+    return re.fullmatch(r"\d{5}", text) is not None
+
+print(is_zip("53140"))
+print(is_zip("5314"))
+print(is_zip("531400"))
+print(is_zip("5314a"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Add Up the Prices</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+receipt = "coffee $3.50, bagel $2.25, juice $4.00, tip $1.75"
+prices = re.findall(r"\$\d+\.\d{2}", receipt)
+print(prices)
+total = 0
+for p in prices:
+    total += float(p[1:])
+print(round(total, 2))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: When There&#x27;s No Match</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+
+def find_year(text):
+    match = re.search(r"\d{4}", text)
+    if match is None:
+        return None
+    return int(match.group())
+
+print(find_year("Python was first released in 1991."))
+print(find_year("No dates here."))
+print(find_year("Version 3 came out in 2008, not 1999"))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Email Extractor</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+text = "Contact ada.lovelace@example.com or grace@navy.mil, not @nobody or bob@."
+print(re.findall(r"[\w.]+@\w+\.\w+", text))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Normalize Whitespace</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+
+def tidy(text):
+    return re.sub(r"\s+", " ", text).strip()
+
+print(tidy("  too    many\tspaces \n here  "))
+print(tidy("already fine"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Phone Number Formatter</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">regex.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import re
+
+def format_phone(text):
+    return re.sub(r"\D*(\d{3})\D*(\d{3})\D*(\d{4})\D*", r"(\1) \2-\3", text)
+
+print(format_phone("4145550199"))
+print(format_phone("414-555-0199"))
+print(format_phone("(414) 555.0199"))
+print(format_phone("414 555 0199"))</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

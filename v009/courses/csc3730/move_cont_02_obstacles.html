@@ -46,5 +46,24 @@
         </ol>
         <p>Next: flocking, then a grid over this same environment, obstacle included, that agents can actually search.</p>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Place an obstacle between agent and target. Main (Node2D) → Agent, Obstacles → Obstacle (StaticBody2D) → Sprite2D, CollisionShape2D, Target (Marker2D).</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add a second obstacle and visualize the feeler ray with Line2D under Agent. Reuse Obstacle.tscn and tune look-ahead distance.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Compare ray avoidance with waypoint detours. Add waypoint markers under Main and a UI toggle to switch methods; describe each method’s failure case.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

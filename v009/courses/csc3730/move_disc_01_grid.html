@@ -250,5 +250,24 @@ func _on_gen_grid_pressed() -> void:
         </ol>
         <p>Next: search this graph for an actual path from one cell to another.</p>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Block another cell and verify world-to-cell conversion. Main (Node2D) → PathGrid, Agent; keep occupancy data in PathGrid.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Toggle a cell with mouse clicks. Add input handling to PathGrid and ensure drawing and walkability update together.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Make grid dimensions configurable. Add UI control under CanvasLayer and test corners, edges, and negative world positions.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

@@ -272,5 +272,24 @@
             <li>Explain why neither <span class="code-lesson-il">_follow_path</span> nor <span class="code-lesson-il">display_path</span> needed any changes at all to support A*.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Compare A* and BFS on a maze with equal movement costs. Main → PathGrid, Agent, UI → FindPathButton; algorithms remain separate from Agent.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add a heuristic selector. UI (CanvasLayer) → HeuristicOptionButton; ensure the heuristic is appropriate for allowed movement and display visited count.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add weighted terrain. Store terrain costs in PathGrid, update g-cost, and compare route cost against BFS on a weighted map.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

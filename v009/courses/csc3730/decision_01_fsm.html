@@ -314,5 +314,24 @@ func update(delta:float) -&gt; void:
             <li>Explain what <span class="code-lesson-il">focus_target</span> is doing here, and how it relates back to the "Memory" unit from the SAM lesson.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Add a Rest state. Agent (CharacterBody2D) → Sprite2D, FSM (Node) → RestState; transition back after a timer.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add a Flee state triggered by danger and return to the previous state when safe. Add FleeState under FSM and a DangerArea (Area2D) → CollisionShape2D.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add an Investigate state triggered by a sound, interruptible by danger. Add SoundStimulus (Area2D) and specify transition priority.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

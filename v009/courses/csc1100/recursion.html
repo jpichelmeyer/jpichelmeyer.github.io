@@ -154,6 +154,337 @@ print(power(2, 5))</script>
         <script type="text/plain" class="pyeditor-expected">32</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Countdown.</strong> Write a recursive function <code class="code-lesson-il">countdown(n)</code> that prints the numbers from <code class="code-lesson-il">n</code> down to 1, and then prints <code class="code-lesson-il">Blastoff!</code>. Before you write any code, write two comments: one naming your <strong>base case</strong> (when to stop recursing) and one naming your <strong>recursive case</strong> (how to call the function with a smaller input).</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def countdown(n):
+    # Base case:
+    # Recursive case:
+    pass   # TODO
+
+countdown(5)</script>
+        <script type="text/plain" class="pyeditor-expected">5
+4
+3
+2
+1
+Blastoff!</script>
+    </div>
+
+    <p><strong>Exercise 2: Multiplication by Addition.</strong> Write a recursive function <code class="code-lesson-il">multiply(a, b)</code> that multiplies two non-negative integers <strong>without</strong> using <code class="code-lesson-il">*</code>. Think of <code class="code-lesson-il">a * b</code> as <code class="code-lesson-il">a</code> added to itself <code class="code-lesson-il">b</code> times: <code class="code-lesson-il">multiply(a, b)</code> is <code class="code-lesson-il">a + multiply(a, b - 1)</code>. What's the answer when <code class="code-lesson-il">b</code> is 0?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def multiply(a, b):
+    pass   # TODO
+
+print(multiply(6, 7))
+print(multiply(5, 0))
+print(multiply(1, 9))</script>
+        <script type="text/plain" class="pyeditor-expected">42
+0
+9</script>
+    </div>
+
+    <p><strong>Exercise 3: Trace the Mystery.</strong> Without running it, trace <code class="code-lesson-il">mystery(4)</code> by hand the way Parts 2 and 3 do: write the chain of calls going down, then fill in values coming back up. What does it return? In plain words, what does <code class="code-lesson-il">mystery(n)</code> compute for any <code class="code-lesson-il">n</code>? Run it to check.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def mystery(n):
+    if n == 0:
+        return 0
+    return 2 + mystery(n - 1)
+
+print(mystery(4))</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Reverse a String.</strong> Write a recursive function <code class="code-lesson-il">reverse(s)</code> that returns <code class="code-lesson-il">s</code> backwards, without using <code class="code-lesson-il">[::-1]</code>. Idea: the reverse of a string is the reverse of everything after the first character, followed by the first character. What's the simplest string to reverse?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def reverse(s):
+    pass   # TODO
+
+print(reverse("stressed"))
+print(reverse("a"))
+print(reverse("drawer"))</script>
+        <script type="text/plain" class="pyeditor-expected">desserts
+a
+reward</script>
+    </div>
+
+    <p><strong>Exercise 5: Down and Back Up.</strong> Write a recursive function <code class="code-lesson-il">echo(n)</code> that prints <code class="code-lesson-il">n</code> on the way <strong>down</strong> the stack and prints it again on the way back <strong>up</strong>. For <code class="code-lesson-il">echo(3)</code> the output is 3, 2, 1, then 1, 2, 3. Hint: you need exactly two <code class="code-lesson-il">print(n)</code> calls, one before the recursive call and one after it. Explain the output using the "stack unwinds" idea from Part 3.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def echo(n):
+    pass   # TODO
+
+echo(3)</script>
+        <script type="text/plain" class="pyeditor-expected">3
+2
+1
+1
+2
+3</script>
+    </div>
+
+    <p><strong>Exercise 6: Fibonacci.</strong> The Fibonacci sequence starts 0, 1, and each number after that is the sum of the two before it: 0, 1, 1, 2, 3, 5, 8, ... Write a recursive function <code class="code-lesson-il">fib(n)</code> that returns the nth Fibonacci number, with <code class="code-lesson-il">fib(0) = 0</code> and <code class="code-lesson-il">fib(1) = 1</code>. This one needs <strong>two</strong> base cases and makes <strong>two</strong> recursive calls.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def fib(n):
+    pass   # TODO
+
+for i in range(11):
+    print(fib(i))</script>
+        <script type="text/plain" class="pyeditor-expected">0
+1
+1
+2
+3
+5
+8
+13
+21
+34
+55</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Recursive List Sum and Max.</strong> Write two recursive functions that work on lists, using slicing to make the problem smaller each time:</p>
+    <ul>
+        <li><code class="code-lesson-il">list_sum(numbers)</code> returns the total. The sum of an empty list is 0; otherwise it's the first item plus the sum of <code class="code-lesson-il">numbers[1:]</code>.</li>
+        <li><code class="code-lesson-il">list_max(numbers)</code> returns the largest item of a non-empty list. The max of a one-item list is that item; otherwise compare the first item to the max of the rest.</li>
+    </ul>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def list_sum(numbers):
+    pass   # TODO
+
+def list_max(numbers):
+    pass   # TODO
+
+print(list_sum([4, 8, 15, 16, 23, 42]))
+print(list_sum([]))
+print(list_max([4, 8, 15, 16, 23, 42]))
+print(list_max([-3, -1, -7]))</script>
+        <script type="text/plain" class="pyeditor-expected">108
+0
+42
+-1</script>
+    </div>
+
+    <p><strong>Exercise 8: Recursive Palindrome.</strong> Write <code class="code-lesson-il">is_pal(s)</code> recursively: a string is a palindrome if its first and last characters match <strong>and</strong> the middle part (<code class="code-lesson-il">s[1:-1]</code>) is also a palindrome. Strings of length 0 or 1 are always palindromes. No <code class="code-lesson-il">[::-1]</code> allowed.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def is_pal(s):
+    pass   # TODO
+
+print(is_pal("racecar"))
+print(is_pal("abba"))
+print(is_pal("abca"))
+print(is_pal(""))</script>
+        <script type="text/plain" class="pyeditor-expected">True
+True
+False
+True</script>
+    </div>
+
+    <p><strong>Exercise 9: How Many Calls?.</strong> Your <code class="code-lesson-il">fib</code> from Exercise 6 gets painfully slow around <code class="code-lesson-il">fib(35)</code>. To see why, write a recursive function <code class="code-lesson-il">fib_calls(n)</code> that returns how many total calls <code class="code-lesson-il">fib(n)</code> makes, counting itself. <code class="code-lesson-il">fib(0)</code> and <code class="code-lesson-il">fib(1)</code> each make just 1 call (themselves). For larger <code class="code-lesson-il">n</code>, it's 1 (this call) plus however many calls <code class="code-lesson-il">fib(n - 1)</code> and <code class="code-lesson-il">fib(n - 2)</code> make. Then explain in a sentence why the count explodes.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def fib_calls(n):
+    pass   # TODO
+
+print(fib_calls(5))
+print(fib_calls(10))
+print(fib_calls(20))</script>
+        <script type="text/plain" class="pyeditor-expected">15
+177
+21891</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Countdown</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def countdown(n):
+    # Base case: n == 0, print Blastoff! and stop
+    # Recursive case: print n, then countdown(n - 1)
+    if n == 0:
+        print("Blastoff!")
+        return
+    print(n)
+    countdown(n - 1)
+
+countdown(5)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Multiplication by Addition</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def multiply(a, b):
+    if b == 0:
+        return 0
+    return a + multiply(a, b - 1)
+
+print(multiply(6, 7))
+print(multiply(5, 0))
+print(multiply(1, 9))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Trace the Mystery</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># mystery(4) = 2 + mystery(3) = 2 + 2 + mystery(2) = ... = 8
+# It computes 2 * n.
+def mystery(n):
+    if n == 0:
+        return 0
+    return 2 + mystery(n - 1)
+
+print(mystery(4))</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Reverse a String</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def reverse(s):
+    if len(s) &lt;= 1:
+        return s
+    return reverse(s[1:]) + s[0]
+
+print(reverse("stressed"))
+print(reverse("a"))
+print(reverse("drawer"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Down and Back Up</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def echo(n):
+    if n == 0:
+        return
+    print(n)
+    echo(n - 1)
+    print(n)
+
+echo(3)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Fibonacci</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def fib(n):
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return fib(n - 1) + fib(n - 2)
+
+for i in range(11):
+    print(fib(i))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Recursive List Sum and Max</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def list_sum(numbers):
+    if len(numbers) == 0:
+        return 0
+    return numbers[0] + list_sum(numbers[1:])
+
+def list_max(numbers):
+    if len(numbers) == 1:
+        return numbers[0]
+    rest_max = list_max(numbers[1:])
+    if numbers[0] &gt; rest_max:
+        return numbers[0]
+    return rest_max
+
+print(list_sum([4, 8, 15, 16, 23, 42]))
+print(list_sum([]))
+print(list_max([4, 8, 15, 16, 23, 42]))
+print(list_max([-3, -1, -7]))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Recursive Palindrome</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def is_pal(s):
+    if len(s) &lt;= 1:
+        return True
+    if s[0] != s[-1]:
+        return False
+    return is_pal(s[1:-1])
+
+print(is_pal("racecar"))
+print(is_pal("abba"))
+print(is_pal("abca"))
+print(is_pal(""))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: How Many Calls?</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">recursion.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def fib_calls(n):
+    if n &lt;= 1:
+        return 1
+    return 1 + fib_calls(n - 1) + fib_calls(n - 2)
+
+print(fib_calls(5))
+print(fib_calls(10))
+print(fib_calls(20))
+# Each call spawns two more, recomputing the same values over and over.</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

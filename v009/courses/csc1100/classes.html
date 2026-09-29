@@ -82,6 +82,385 @@ print(b.author)</script>
 Frank Herbert</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Rectangle.</strong> Write a <code class="code-lesson-il">Rectangle</code> class whose <code class="code-lesson-il">__init__</code> stores <code class="code-lesson-il">width</code> and <code class="code-lesson-il">height</code>. Create a 4 by 7 rectangle, then print its width, its height, and its area (computed outside the class, from the attributes).</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Rectangle:
+    pass   # TODO: __init__
+
+r = Rectangle(4, 7)
+# TODO: print width, height, and area</script>
+        <script type="text/plain" class="pyeditor-expected">4
+7
+28</script>
+    </div>
+
+    <p><strong>Exercise 2: Two Students.</strong> Write a <code class="code-lesson-il">Student</code> class with <code class="code-lesson-il">name</code>, <code class="code-lesson-il">student_id</code>, and <code class="code-lesson-il">gpa</code> attributes. Create two students and print one line for each in the format <code class="code-lesson-il">Ada (1001): 3.9</code>. Use an f-string.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Student:
+    pass   # TODO
+
+# TODO: create two students and print them</script>
+        <script type="text/plain" class="pyeditor-expected">Ada (1001): 3.9
+Alan (1002): 3.4</script>
+    </div>
+
+    <p><strong>Exercise 3: Independent Accounts.</strong> Predict the output before running: after <code class="code-lesson-il">acct1.balance</code> is changed, what does <code class="code-lesson-il">acct2.balance</code> show? Then add a third line of code that changes <code class="code-lesson-il">acct2</code>'s owner, and print both owners to confirm <code class="code-lesson-il">acct1</code> is unaffected.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+acct1 = BankAccount("Ada", 100)
+acct2 = BankAccount("Alan", 100)
+acct1.balance = acct1.balance - 40
+print(acct1.balance)
+print(acct2.balance)</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Attributes That Aren&#x27;t Parameters.</strong> Not every attribute has to come from a parameter. Write a <code class="code-lesson-il">Player</code> class whose <code class="code-lesson-il">__init__</code> takes <code class="code-lesson-il">name</code> and an optional <code class="code-lesson-il">team</code> (default <code class="code-lesson-il">"free agent"</code>), and also sets <code class="code-lesson-il">score</code> to 0 and <code class="code-lesson-il">level</code> to 1 for every new player. Create two players (one with a team, one without), change one player's score, and print everything in the format shown.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Player:
+    pass   # TODO
+
+p1 = Player("Ada", "Rockets")
+p2 = Player("Alan")
+p1.score = 250
+print(p1.name, p1.team, p1.score, p1.level)
+print(p2.name, p2.team, p2.score, p2.level)</script>
+        <script type="text/plain" class="pyeditor-expected">Ada Rockets 250 1
+Alan free agent 0 1</script>
+    </div>
+
+    <p><strong>Exercise 5: A List of Objects.</strong> Write a <code class="code-lesson-il">Book</code> class with <code class="code-lesson-il">title</code>, <code class="code-lesson-il">author</code>, and <code class="code-lesson-il">pages</code>. The starter builds a list of three books. Loop over the list to compute the total number of pages and to find the title of the longest book. Print both.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Book:
+    pass   # TODO
+
+shelf = [
+    Book("Dune", "Frank Herbert", 412),
+    Book("Kindred", "Octavia Butler", 264),
+    Book("Middlemarch", "George Eliot", 880),
+]
+total_pages = 0
+longest = shelf[0]
+# TODO: loop
+print(total_pages)
+print(longest.title)</script>
+        <script type="text/plain" class="pyeditor-expected">1556
+Middlemarch</script>
+    </div>
+
+    <p><strong>Exercise 6: Functions That Take Objects.</strong> Write a <code class="code-lesson-il">Pet</code> class with <code class="code-lesson-il">name</code>, <code class="code-lesson-il">species</code>, and <code class="code-lesson-il">age</code>. Then write two ordinary functions (outside the class): <code class="code-lesson-il">describe(pet)</code> returns a string like <code class="code-lesson-il">"Milo the cat, age 3"</code>, and <code class="code-lesson-il">is_senior(pet)</code> returns <code class="code-lesson-il">True</code> if the pet is 7 or older. (Next lesson, you'll see how to move functions like these inside the class.)</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Pet:
+    pass   # TODO
+
+def describe(pet):
+    pass   # TODO
+
+def is_senior(pet):
+    pass   # TODO
+
+milo = Pet("Milo", "cat", 3)
+rex = Pet("Rex", "dog", 9)
+print(describe(milo))
+print(is_senior(milo))
+print(describe(rex))
+print(is_senior(rex))</script>
+        <script type="text/plain" class="pyeditor-expected">Milo the cat, age 3
+False
+Rex the dog, age 9
+True</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Objects Inside Objects.</strong> An attribute can hold another object. Write an <code class="code-lesson-il">Address</code> class (<code class="code-lesson-il">street</code>, <code class="code-lesson-il">city</code>) and a <code class="code-lesson-il">Person</code> class (<code class="code-lesson-il">name</code>, <code class="code-lesson-il">address</code>). Two roommates share <strong>the same</strong> <code class="code-lesson-il">Address</code> object. Predict what happens to Alan's street when Ada's address is updated, then run it. Connect this to the memory and references lesson: how many <code class="code-lesson-il">Address</code> objects exist?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Address:
+    pass   # TODO
+
+class Person:
+    pass   # TODO
+
+home = Address("12 Elm St", "Springfield")
+ada = Person("Ada", home)
+alan = Person("Alan", home)
+ada.address.street = "99 Oak Ave"
+print(ada.address.street)
+print(alan.address.street)</script>
+        <script type="text/plain" class="pyeditor-expected">99 Oak Ave
+99 Oak Ave</script>
+    </div>
+
+    <p><strong>Exercise 8: From Dictionaries to Objects.</strong> <code class="code-lesson-il">catalog</code> is a list of dictionaries. Write a <code class="code-lesson-il">Course</code> class (<code class="code-lesson-il">code</code>, <code class="code-lesson-il">title</code>, <code class="code-lesson-il">credits</code>), then convert every dictionary into a <code class="code-lesson-il">Course</code> object and collect them in a list called <code class="code-lesson-il">courses</code>. Finally, loop over <code class="code-lesson-il">courses</code> and print the code and title of every course worth 4 or more credits.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">catalog = [
+    {"code": "CSC1100", "title": "Intro to Computing", "credits": 4},
+    {"code": "MTH1010", "title": "Calculus I", "credits": 5},
+    {"code": "ENG1000", "title": "Writing", "credits": 3},
+]
+
+class Course:
+    pass   # TODO
+
+courses = []
+# TODO: convert and filter</script>
+        <script type="text/plain" class="pyeditor-expected">CSC1100 Intro to Computing
+MTH1010 Calculus I</script>
+    </div>
+
+    <p><strong>Exercise 9: Validating in __init__.</strong> A class can refuse to build an invalid object. Write a <code class="code-lesson-il">Temperature</code> class that takes a value in <code class="code-lesson-il">kelvin</code> and raises a <code class="code-lesson-il">ValueError</code> with the message <code class="code-lesson-il">"below absolute zero"</code> if it's negative. Also store a <code class="code-lesson-il">celsius</code> attribute computed from it (C = K - 273.15, rounded to 2 places). The test code tries three values.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Temperature:
+    pass   # TODO
+
+for k in [300, 0, -5]:
+    try:
+        t = Temperature(k)
+        print(t.kelvin, t.celsius)
+    except ValueError as e:
+        print("error:", e)</script>
+        <script type="text/plain" class="pyeditor-expected">300 26.85
+0 -273.15
+error: below absolute zero</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Rectangle</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+r = Rectangle(4, 7)
+print(r.width)
+print(r.height)
+print(r.width * r.height)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Two Students</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Student:
+    def __init__(self, name, student_id, gpa):
+        self.name = name
+        self.student_id = student_id
+        self.gpa = gpa
+
+s1 = Student("Ada", 1001, 3.9)
+s2 = Student("Alan", 1002, 3.4)
+print(f"{s1.name} ({s1.student_id}): {s1.gpa}")
+print(f"{s2.name} ({s2.student_id}): {s2.gpa}")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Independent Accounts</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+acct1 = BankAccount("Ada", 100)
+acct2 = BankAccount("Alan", 100)
+acct1.balance = acct1.balance - 40
+print(acct1.balance)   # 60
+print(acct2.balance)   # 100
+acct2.owner = "Grace"
+print(acct1.owner)
+print(acct2.owner)</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Attributes That Aren&#x27;t Parameters</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Player:
+    def __init__(self, name, team="free agent"):
+        self.name = name
+        self.team = team
+        self.score = 0
+        self.level = 1
+
+p1 = Player("Ada", "Rockets")
+p2 = Player("Alan")
+p1.score = 250
+print(p1.name, p1.team, p1.score, p1.level)
+print(p2.name, p2.team, p2.score, p2.level)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: A List of Objects</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Book:
+    def __init__(self, title, author, pages):
+        self.title = title
+        self.author = author
+        self.pages = pages
+
+shelf = [
+    Book("Dune", "Frank Herbert", 412),
+    Book("Kindred", "Octavia Butler", 264),
+    Book("Middlemarch", "George Eliot", 880),
+]
+total_pages = 0
+longest = shelf[0]
+for book in shelf:
+    total_pages += book.pages
+    if book.pages &gt; longest.pages:
+        longest = book
+print(total_pages)
+print(longest.title)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Functions That Take Objects</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Pet:
+    def __init__(self, name, species, age):
+        self.name = name
+        self.species = species
+        self.age = age
+
+def describe(pet):
+    return f"{pet.name} the {pet.species}, age {pet.age}"
+
+def is_senior(pet):
+    return pet.age &gt;= 7
+
+milo = Pet("Milo", "cat", 3)
+rex = Pet("Rex", "dog", 9)
+print(describe(milo))
+print(is_senior(milo))
+print(describe(rex))
+print(is_senior(rex))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Objects Inside Objects</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Address:
+    def __init__(self, street, city):
+        self.street = street
+        self.city = city
+
+class Person:
+    def __init__(self, name, address):
+        self.name = name
+        self.address = address
+
+home = Address("12 Elm St", "Springfield")
+ada = Person("Ada", home)
+alan = Person("Alan", home)
+ada.address.street = "99 Oak Ave"
+print(ada.address.street)
+print(alan.address.street)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: From Dictionaries to Objects</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">catalog = [
+    {"code": "CSC1100", "title": "Intro to Computing", "credits": 4},
+    {"code": "MTH1010", "title": "Calculus I", "credits": 5},
+    {"code": "ENG1000", "title": "Writing", "credits": 3},
+]
+
+class Course:
+    def __init__(self, code, title, credits):
+        self.code = code
+        self.title = title
+        self.credits = credits
+
+courses = []
+for entry in catalog:
+    courses.append(Course(entry["code"], entry["title"], entry["credits"]))
+
+for c in courses:
+    if c.credits &gt;= 4:
+        print(c.code, c.title)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Validating in __init__</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">classes.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Temperature:
+    def __init__(self, kelvin):
+        if kelvin &lt; 0:
+            raise ValueError("below absolute zero")
+        self.kelvin = kelvin
+        self.celsius = round(kelvin - 273.15, 2)
+
+for k in [300, 0, -5]:
+    try:
+        t = Temperature(k)
+        print(t.kelvin, t.celsius)
+    except ValueError as e:
+        print("error:", e)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

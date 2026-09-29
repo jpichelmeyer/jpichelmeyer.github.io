@@ -240,5 +240,24 @@ func tick(actor, blackboard, delta):
             <li>Point to one specific way this tree avoids the "transition spaghetti" problem an FSM with the same behavior would risk.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Build a tree that patrols until the player enters detection range. Agent → BehaviorTree → Selector/Sequence → condition and action leaves; detection uses Area2D + CollisionShape2D.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add approach-then-interact behavior with RUNNING status across frames. Add condition/action nodes under the existing tree and test target movement.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add a retry decorator with a bounded count, then fall back to patrol. Add a Retry node with one child and test reset after success/failure.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

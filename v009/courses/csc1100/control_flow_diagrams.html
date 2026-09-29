@@ -310,6 +310,198 @@ i += 1</text>
 
     <p>Nothing to trace here yet, just file the shape away. When loops actually show up in a couple of weeks, this is the picture to come back to.</p>
 
+    <h3>Exercises</h3>
+    <p>These exercises are done on paper (or any drawing tool you like). Use the shapes from Part 2 and label every decision's arrows Yes/No. Where an exercise asks you to write code, type it into Thonny and run it.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Straight-Line Diagram.</strong> Draw the control flow diagram for this program. Which shape does each line get, and how many paths are there from Start to End?</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">control_flow_diagrams.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">price = 20
+tax = price * 0.07
+total = price + tax
+print(total)</code>
+    </div>
+    <p><strong>Exercise 2: Name the Shape.</strong> For each item below, name the flowchart shape it should be drawn with:</p>
+    <ul>
+        <li>The point where a program begins</li>
+        <li><code class="code-lesson-il">count = count + 1</code></li>
+        <li><code class="code-lesson-il">if score &gt;= 90:</code></li>
+        <li><code class="code-lesson-il">print(result)</code></li>
+        <li>The point where a program finishes</li>
+        <li>Asking the user to type in their name</li>
+    </ul>
+    <p><strong>Exercise 3: Label and Trace.</strong> Draw the diagram for the program below, labeling both arrows out of the diamond. Then trace it with your finger twice, once with <code class="code-lesson-il">temp = 35</code> and once with <code class="code-lesson-il">temp = 20</code>, and write down the list of boxes visited each time, in order.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">control_flow_diagrams.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">temp = 35
+if temp &gt; 30:
+    print("hot")
+print("done")</code>
+    </div>
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Even or Odd, Drawn.</strong> Draw the diagram for the program below. Point to the exact spot where the two branches merge back together. Then explain in one sentence why the diagram for an <code class="code-lesson-il">if</code> / <code class="code-lesson-il">else</code> always has exactly one merge point.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">control_flow_diagrams.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">n = 14
+if n % 2 == 0:
+    print("even")
+else:
+    print("odd")
+print("checked", n)</code>
+    </div>
+    <p><strong>Exercise 5: Counting Diamonds.</strong> Draw this <code class="code-lesson-il">elif</code> chain as nested decisions, the way Part 6 does. Then answer: for a score of 85, how many diamonds does execution pass through before reaching a <code class="code-lesson-il">print</code>? For a score of 55? For a score of 95?</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">control_flow_diagrams.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">if score &gt;= 90:
+    print("A")
+elif score &gt;= 80:
+    print("B")
+elif score &gt;= 70:
+    print("C")
+else:
+    print("F")</code>
+    </div>
+    <p><strong>Exercise 6: Diagram to Code.</strong> Here is a diagram described in words. Write the Python program it represents, then run it in Thonny with <code class="code-lesson-il">is_raining</code> set to <code class="code-lesson-il">True</code> and to <code class="code-lesson-il">False</code>.</p>
+    <ul>
+        <li>Start</li>
+        <li>Process: <code class="code-lesson-il">is_raining = True</code></li>
+        <li>Decision: is_raining? Yes leads to Process <code class="code-lesson-il">bring = "umbrella"</code>. No leads to Process <code class="code-lesson-il">bring = "sunglasses"</code>.</li>
+        <li>Both paths lead to Output: print <code class="code-lesson-il">bring</code></li>
+        <li>End</li>
+    </ul>
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Find the Unreachable Box.</strong> A student drew this plan for labeling ages: the first diamond asks age &lt; 20? and its Yes arrow prints "teen". Its No arrow prints "adult". The Yes arrow first passes through a second diamond, age &lt; 13?, whose Yes arrow prints "child"... except the student drew that second diamond on the <strong>No</strong> branch of the first one by mistake.</p>
+    <p>Draw the student's (broken) diagram. Trace it for age 8. Which print box can never be reached, no matter what age you try? Redraw it correctly, then write the correct <code class="code-lesson-il">if</code> / <code class="code-lesson-il">elif</code> / <code class="code-lesson-il">else</code> code.</p>
+    <p><strong>Exercise 8: Plan Before You Code.</strong> Draw the diagram for a leap year check <strong>before</strong> writing any code: a year is a leap year if it's divisible by 4, except years divisible by 100 aren't, unless they're also divisible by 400. Decide which question to ask first so that each diamond only asks one simple question. Then write the code from your diagram and test it with 2024, 1900, 2000, and 2023 (expected: leap, not leap, leap, not leap).</p>
+    <p><strong>Exercise 9: Your First Back-Arrow.</strong> Using the loop shape from Part 7, draw the diagram for this program. Then answer: how many times is the diamond evaluated in total? (Count the final check that sends execution out of the loop.) How many times does <code class="code-lesson-il">print(n)</code> run?</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">control_flow_diagrams.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">n = 3
+while n &gt; 0:
+    print(n)
+    n = n - 1
+print("liftoff")</code>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Straight-Line Diagram</summary>
+    <p>Start (terminator) → <code class="code-lesson-il">price = 20</code> (process) → <code class="code-lesson-il">tax = price * 0.07</code> (process) → <code class="code-lesson-il">total = price + tax</code> (process) → <code class="code-lesson-il">print(total)</code> (input/output) → End (terminator). Every arrow points down, and there is exactly one path from Start to End.</p>
+    </details>
+    <details>
+    <summary>Exercise 2: Name the Shape</summary>
+    <ul>
+        <li>Program begins: terminator.</li>
+        <li><code class="code-lesson-il">count = count + 1</code>: process.</li>
+        <li><code class="code-lesson-il">if score &gt;= 90:</code>: decision (diamond).</li>
+        <li><code class="code-lesson-il">print(result)</code>: input/output.</li>
+        <li>Program finishes: terminator.</li>
+        <li>Asking the user to type their name: input/output.</li>
+    </ul>
+    </details>
+    <details>
+    <summary>Exercise 3: Label and Trace</summary>
+    <p>Start → <code class="code-lesson-il">temp = 35</code> → diamond <code class="code-lesson-il">temp &gt; 30?</code>. Yes → <code class="code-lesson-il">print("hot")</code> → <code class="code-lesson-il">print("done")</code>. No → straight to <code class="code-lesson-il">print("done")</code>. Then → End.</p>
+    <ul>
+        <li>With <code class="code-lesson-il">temp = 35</code>: Start, <code class="code-lesson-il">temp = 35</code>, diamond, <code class="code-lesson-il">print("hot")</code>, <code class="code-lesson-il">print("done")</code>, End.</li>
+        <li>With <code class="code-lesson-il">temp = 20</code>: Start, <code class="code-lesson-il">temp = 20</code>, diamond, <code class="code-lesson-il">print("done")</code>, End.</li>
+    </ul>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Even or Odd, Drawn</summary>
+    <p>Start → <code class="code-lesson-il">n = 14</code> → diamond <code class="code-lesson-il">n % 2 == 0?</code>. Yes → <code class="code-lesson-il">print("even")</code>, No → <code class="code-lesson-il">print("odd")</code>. Both arrows merge into <code class="code-lesson-il">print("checked", n)</code> → End. The merge point is the arrow into <code class="code-lesson-il">print("checked", n)</code>. There's exactly one merge point because exactly one of the two branches runs, and whichever it is, execution continues with the next statement after the whole <code class="code-lesson-il">if</code> / <code class="code-lesson-il">else</code>.</p>
+    </details>
+    <details>
+    <summary>Exercise 5: Counting Diamonds</summary>
+    <p>Three diamonds, each nested in the previous one's No branch: <code class="code-lesson-il">score &gt;= 90?</code>, then <code class="code-lesson-il">score &gt;= 80?</code>, then <code class="code-lesson-il">score &gt;= 70?</code>, with the final No leading to <code class="code-lesson-il">print("F")</code>.</p>
+    <ul>
+        <li>Score 85: passes through 2 diamonds (No at 90, Yes at 80), prints B.</li>
+        <li>Score 55: passes through all 3 diamonds, prints F.</li>
+        <li>Score 95: passes through 1 diamond, prints A.</li>
+    </ul>
+    </details>
+    <details>
+    <summary>Exercise 6: Diagram to Code</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">control_flow_diagrams.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">is_raining = True
+if is_raining:
+    bring = "umbrella"
+else:
+    bring = "sunglasses"
+print(bring)</code>
+    </div>
+    <p>With <code class="code-lesson-il">True</code> it prints <code class="code-lesson-il">umbrella</code>; with <code class="code-lesson-il">False</code> it prints <code class="code-lesson-il">sunglasses</code>.</p>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Find the Unreachable Box</summary>
+    <p>In the broken diagram, the first diamond is <code class="code-lesson-il">age &lt; 20?</code>: Yes prints "teen". No goes to a second diamond <code class="code-lesson-il">age &lt; 13?</code>, whose Yes prints "child" and whose No prints "adult". Tracing age 8: 8 &lt; 20 is Yes, so it prints "teen", which is wrong. The "child" box can never be reached: getting there requires <code class="code-lesson-il">age &gt;= 20</code> (No at the first diamond) <strong>and</strong> <code class="code-lesson-il">age &lt; 13</code>, which is impossible. The fix is to ask the more specific question first:</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">control_flow_diagrams.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">if age &lt; 13:
+    print("child")
+elif age &lt; 20:
+    print("teen")
+else:
+    print("adult")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Plan Before You Code</summary>
+    <p>One good ordering asks the most specific question first, so each diamond only needs one check: <code class="code-lesson-il">year % 400 == 0?</code> Yes → leap. No → <code class="code-lesson-il">year % 100 == 0?</code> Yes → not leap. No → <code class="code-lesson-il">year % 4 == 0?</code> Yes → leap, No → not leap.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">control_flow_diagrams.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">year = 2024
+if year % 400 == 0:
+    print("leap")
+elif year % 100 == 0:
+    print("not leap")
+elif year % 4 == 0:
+    print("leap")
+else:
+    print("not leap")</code>
+    </div>
+    <p>Results: 2024 leap, 1900 not leap, 2000 leap, 2023 not leap.</p>
+    </details>
+    <details>
+    <summary>Exercise 9: Your First Back-Arrow</summary>
+    <p>Start → <code class="code-lesson-il">n = 3</code> → diamond <code class="code-lesson-il">n &gt; 0?</code>. Yes → <code class="code-lesson-il">print(n)</code> → <code class="code-lesson-il">n = n - 1</code> → back-arrow to the diamond. No → <code class="code-lesson-il">print("liftoff")</code> → End. The diamond is evaluated 4 times (n = 3, 2, 1, then 0, which exits the loop). <code class="code-lesson-il">print(n)</code> runs 3 times.</p>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

@@ -95,6 +95,301 @@ print(first + " " + last)</script>
         <script type="text/plain" class="pyeditor-expected">Ada Lovelace</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Personal Info Card.</strong> Create four variables describing yourself: <code class="code-lesson-il">name</code> (a <code class="code-lesson-il">str</code>), <code class="code-lesson-il">age</code> (an <code class="code-lesson-il">int</code>), <code class="code-lesson-il">height_m</code> (a <code class="code-lesson-il">float</code>, your height in meters), and <code class="code-lesson-il">is_student</code> (a <code class="code-lesson-il">bool</code>). Print each one on its own line, then print the <code class="code-lesson-il">type()</code> of each one.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">name = "TODO"
+# TODO: create age, height_m, and is_student
+
+print(name)
+# TODO: print the other three values, then the type of each</script>
+    </div>
+
+    <p><strong>Exercise 2: Valid or Not?.</strong> Each line in the editor tries to create a variable. Before running anything, decide which names are valid and which are not, and for the invalid ones, say which rule they break. Then uncomment the lines one at a time to check your predictions. For each valid name that doesn't follow the snake_case convention, write the snake_case version.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter"># Uncomment one line at a time and run it.
+# my_var = 1
+# 3rd_place = 2
+# _hidden = 3
+# total-score = 4
+# for = 5
+# StudentName = 6
+# name2 = 7</script>
+    </div>
+
+    <p><strong>Exercise 3: Type Detective.</strong> Predict the type of each value below (<code class="code-lesson-il">int</code>, <code class="code-lesson-il">float</code>, <code class="code-lesson-il">str</code>, or <code class="code-lesson-il">bool</code>) before running the editor. Pay extra attention to the ones that are wearing a disguise: <code class="code-lesson-il">"42"</code> and <code class="code-lesson-il">"True"</code> look like other types but have quotes around them.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(type(42))
+print(type(42.0))
+print(type("42"))
+print(type(True))
+print(type("True"))
+print(type(-7))
+print(type(3e2))</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Swap Two Variables.</strong> The variables <code class="code-lesson-il">a</code> and <code class="code-lesson-il">b</code> start out holding <code class="code-lesson-il">"left"</code> and <code class="code-lesson-il">"right"</code>. Swap them, so that <code class="code-lesson-il">a</code> ends up holding <code class="code-lesson-il">"right"</code> and <code class="code-lesson-il">b</code> holds <code class="code-lesson-il">"left"</code>, without typing the strings <code class="code-lesson-il">"left"</code> or <code class="code-lesson-il">"right"</code> again. Hint: you'll need a third, temporary variable to hold one value while you overwrite it.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">a = "left"
+b = "right"
+
+# TODO: swap a and b using a temporary variable
+
+print(a)
+print(b)</script>
+        <script type="text/plain" class="pyeditor-expected">right
+left</script>
+    </div>
+
+    <p><strong>Exercise 5: Reassignment Trace.</strong> Read the code in the editor without running it and predict both lines of output. Then run it.</p>
+    <ul>
+        <li>Question 1: After <code class="code-lesson-il">y = x</code>, why doesn't changing <code class="code-lesson-il">x</code> to <code class="code-lesson-il">"ten"</code> also change <code class="code-lesson-il">y</code>?</li>
+        <li>Question 2: What is the type of <code class="code-lesson-il">x</code> at the end, and what was it at the start?</li>
+    </ul>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">x = 10
+y = x
+x = "ten"
+print(x)
+print(y)</script>
+    </div>
+
+    <p><strong>Exercise 6: Building a Sentence.</strong> Using the variables <code class="code-lesson-il">city</code> and <code class="code-lesson-il">country</code> and the <code class="code-lesson-il">+</code> operator, print the sentence <code class="code-lesson-il">Paris is in France.</code> (including the period). Then reassign both variables to a different city and country and print the sentence again, using the exact same line of code as before.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">city = "Paris"
+country = "France"
+# TODO: print the sentence using city, country, and +
+
+city = "Nairobi"
+country = "Kenya"
+# TODO: print the same sentence again</script>
+        <script type="text/plain" class="pyeditor-expected">Paris is in France.
+Nairobi is in Kenya.</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Three-Way Rotation.</strong> Start with <code class="code-lesson-il">a = 1</code>, <code class="code-lesson-il">b = 2</code>, <code class="code-lesson-il">c = 3</code>. Rotate the values so that <code class="code-lesson-il">a</code> gets <code class="code-lesson-il">b</code>'s value, <code class="code-lesson-il">b</code> gets <code class="code-lesson-il">c</code>'s value, and <code class="code-lesson-il">c</code> gets <code class="code-lesson-il">a</code>'s original value. You may use only <strong>one</strong> temporary variable, and you may not type the numbers 1, 2, or 3 anywhere after the first three lines.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">a = 1
+b = 2
+c = 3
+
+# TODO: rotate the values using only one temporary variable
+
+print(a)
+print(b)
+print(c)</script>
+        <script type="text/plain" class="pyeditor-expected">2
+3
+1</script>
+    </div>
+
+    <p><strong>Exercise 8: Changing Types on Purpose.</strong> Python has built-in functions that convert between types: <code class="code-lesson-il">int()</code>, <code class="code-lesson-il">float()</code>, and <code class="code-lesson-il">str()</code>. Starting from <code class="code-lesson-il">value = "100"</code> (a string), print the type of <code class="code-lesson-il">value</code>. Then reassign <code class="code-lesson-il">value</code> to <code class="code-lesson-il">int(value)</code> and print its type. Then reassign it to <code class="code-lesson-il">float(value)</code> and print both the value itself and its type. Your output should have four lines.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">value = "100"
+print(type(value))
+
+# TODO: convert value to an int and print its type
+
+# TODO: convert value to a float, print the value, then print its type</script>
+        <script type="text/plain" class="pyeditor-expected"><class 'str'>
+<class 'int'>
+100.0
+<class 'float'></script>
+    </div>
+
+    <p><strong>Exercise 9: Case Sensitivity Puzzle.</strong> Without running the code, answer: how many <strong>different</strong> variables does this program create, and what does it print? Then run it to check. Finally, rewrite it so that it follows snake_case and uses names that describe what the values actually mean (for example, points for two different games).</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">score = 10
+Score = 20
+SCORE = "thirty"
+score = Score
+print(score)
+print(Score)
+print(SCORE)</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Personal Info Card</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">name = "Ada"
+age = 19
+height_m = 1.65
+is_student = True
+print(name)
+print(age)
+print(height_m)
+print(is_student)
+print(type(name))
+print(type(age))
+print(type(height_m))
+print(type(is_student))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Valid or Not?</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># valid: my_var, _hidden, StudentName (better: student_name), name2
+# invalid: 3rd_place (starts with a digit), total-score (hyphen is subtraction), for (reserved word)
+my_var = 1
+_hidden = 3
+student_name = 6
+name2 = 7</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Type Detective</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(type(42))
+print(type(42.0))
+print(type("42"))
+print(type(True))
+print(type("True"))
+print(type(-7))
+print(type(3e2))</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Swap Two Variables</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">a = "left"
+b = "right"
+
+temp = a
+a = b
+b = temp
+
+print(a)
+print(b)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Reassignment Trace</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">x = 10
+y = x
+x = "ten"
+print(x)   # ten
+print(y)   # 10: y was pointed at the value 10, not at the name x</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Building a Sentence</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">city = "Paris"
+country = "France"
+print(city + " is in " + country + ".")
+
+city = "Nairobi"
+country = "Kenya"
+print(city + " is in " + country + ".")</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Three-Way Rotation</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">a = 1
+b = 2
+c = 3
+
+temp = a
+a = b
+b = c
+c = temp
+
+print(a)
+print(b)
+print(c)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Changing Types on Purpose</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">value = "100"
+print(type(value))
+
+value = int(value)
+print(type(value))
+
+value = float(value)
+print(value)
+print(type(value))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Case Sensitivity Puzzle</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">variables.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># Three different variables: score, Score, SCORE (names are case sensitive).
+# Prints 20, 20, thirty.
+game1_points = 10
+game2_points = 20
+label = "thirty"
+game1_points = game2_points
+print(game1_points)
+print(game2_points)
+print(label)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>
