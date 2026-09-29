@@ -100,6 +100,308 @@ print(my_list)</script>
         <script type="text/plain" class="pyeditor-expected">[1, 2, 3, 'surprise']</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: == or is?.</strong> Predict <code class="code-lesson-il">True</code> or <code class="code-lesson-il">False</code> for each of the four comparisons before running. For each one, say which question it's asking: "do these look the same?" or "are these the same object?".</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">a = [1, 2]
+b = a
+c = [1, 2]
+print(a == b)
+print(a is b)
+print(a == c)
+print(a is c)</script>
+    </div>
+
+    <p><strong>Exercise 2: The Backup That Wasn&#x27;t.</strong> This program tries to keep a backup of the scores before adding a new one, but the backup changes too. Fix it with a one-word change so the output matches.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">scores = [88, 92, 79]
+backup = scores
+scores.append(100)
+print(scores)
+print(backup)</script>
+        <script type="text/plain" class="pyeditor-expected">[88, 92, 79, 100]
+[88, 92, 79]</script>
+    </div>
+
+    <p><strong>Exercise 3: Why Strings Don&#x27;t Surprise You.</strong> Predict the output, then explain: the line <code class="code-lesson-il">t = t + "!"</code> changes <code class="code-lesson-il">t</code>, so why doesn't it also change <code class="code-lesson-il">s</code>, when <code class="code-lesson-il">b.append(4)</code> in Part 2 did change <code class="code-lesson-il">a</code>? Hint: one of these lines mutates an existing object; the other builds a new object and moves the label.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">s = "hi"
+t = s
+t = t + "!"
+print(s)
+print(t)
+print(s is t)</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: List Mutation vs. Return.</strong> Write a function <code class="code-lesson-il">double_elements(items)</code> that modifies an input list <strong>in place</strong> by doubling each integer in it (it doesn't need to return anything). Then write a second function <code class="code-lesson-il">get_doubled_elements(items)</code> that leaves the original list untouched and <strong>returns</strong> a new list with every item doubled. The tests demonstrate the difference.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def double_elements(items):
+    pass   # TODO: change items itself
+
+def get_doubled_elements(items):
+    pass   # TODO: build and return a new list
+
+nums = [1, 2, 3]
+new_nums = get_doubled_elements(nums)
+print(nums)
+print(new_nums)
+
+double_elements(nums)
+print(nums)</script>
+        <script type="text/plain" class="pyeditor-expected">[1, 2, 3]
+[2, 4, 6]
+[2, 4, 6]</script>
+    </div>
+
+    <p><strong>Exercise 5: Reassign vs. Mutate.</strong> Both functions look like they empty the list. Predict what each one does to the caller's list, then run it. Explain why <code class="code-lesson-il">lst = []</code> inside a function doesn't affect the caller, but <code class="code-lesson-il">lst.clear()</code> does. (Think about which one moves a label and which one changes the object.)</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def reset(lst):
+    lst = []
+
+def clear_out(lst):
+    lst.clear()
+
+a = [1, 2, 3]
+reset(a)
+print(a)
+
+b = [1, 2, 3]
+clear_out(b)
+print(b)</script>
+    </div>
+
+    <p><strong>Exercise 6: Safe Append.</strong> Write <code class="code-lesson-il">with_item(lst, item)</code> that returns a <strong>new</strong> list containing everything in <code class="code-lesson-il">lst</code> plus <code class="code-lesson-il">item</code> at the end, without changing <code class="code-lesson-il">lst</code>. The tests check that the original is untouched and that the result is a different object.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def with_item(lst, item):
+    pass   # TODO
+
+original = ["a", "b"]
+bigger = with_item(original, "c")
+print(original)
+print(bigger)
+print(original is bigger)</script>
+        <script type="text/plain" class="pyeditor-expected">['a', 'b']
+['a', 'b', 'c']
+False</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: The Grid Trap.</strong> This is supposed to build a 3x3 grid of zeros and set only the top-left cell to 1. Instead, the whole first column changes. Explain why (how many different inner lists does <code class="code-lesson-il">[[0] * 3] * 3</code> actually create?), then fix it by building the grid with a loop that appends a brand-new row each time.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">grid = [[0] * 3] * 3
+grid[0][0] = 1
+print(grid)</script>
+        <script type="text/plain" class="pyeditor-expected">[[1, 0, 0], [0, 0, 0], [0, 0, 0]]</script>
+    </div>
+
+    <p><strong>Exercise 8: Shallow Copies.</strong> <code class="code-lesson-il">.copy()</code> makes a new outer list, but the inner lists are still shared. Predict what <code class="code-lesson-il">teams</code> looks like after the append, then fix the code so that <code class="code-lesson-il">new_teams</code> is fully independent: build it with a loop that copies each inner list.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">teams = [["ana", "bo"], ["cy", "dee"]]
+new_teams = teams.copy()
+new_teams[0].append("eli")
+print(teams)
+print(new_teams)</script>
+        <script type="text/plain" class="pyeditor-expected">[['ana', 'bo'], ['cy', 'dee']]
+[['ana', 'bo', 'eli'], ['cy', 'dee']]</script>
+    </div>
+
+    <p><strong>Exercise 9: The Default Argument Trap.</strong> A default value is created <strong>once</strong>, when the function is defined, not fresh on every call. That makes this function behave strangely. Predict both lines, run it, then fix it: use <code class="code-lesson-il">bucket=None</code> as the default and create a new list inside the function when <code class="code-lesson-il">bucket is None</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def add_to(item, bucket=[]):
+    bucket.append(item)
+    return bucket
+
+print(add_to("a"))
+print(add_to("b"))</script>
+        <script type="text/plain" class="pyeditor-expected">['a']
+['b']</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: == or is?</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">a = [1, 2]
+b = a
+c = [1, 2]
+print(a == b)   # True
+print(a is b)   # True
+print(a == c)   # True
+print(a is c)   # False</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: The Backup That Wasn&#x27;t</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">scores = [88, 92, 79]
+backup = scores.copy()
+scores.append(100)
+print(scores)
+print(backup)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Why Strings Don&#x27;t Surprise You</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># hi / hi! / False: t + "!" builds a new string and rebinds t; strings can't be mutated.
+s = "hi"
+t = s
+t = t + "!"
+print(s)
+print(t)
+print(s is t)</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: List Mutation vs. Return</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def double_elements(items):
+    for i in range(len(items)):
+        items[i] = items[i] * 2
+
+def get_doubled_elements(items):
+    result = []
+    for item in items:
+        result.append(item * 2)
+    return result
+
+nums = [1, 2, 3]
+new_nums = get_doubled_elements(nums)
+print(nums)
+print(new_nums)
+
+double_elements(nums)
+print(nums)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Reassign vs. Mutate</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># [1, 2, 3] then []
+def reset(lst):
+    lst = []
+
+def clear_out(lst):
+    lst.clear()
+
+a = [1, 2, 3]
+reset(a)
+print(a)
+
+b = [1, 2, 3]
+clear_out(b)
+print(b)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Safe Append</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def with_item(lst, item):
+    result = lst.copy()
+    result.append(item)
+    return result
+
+original = ["a", "b"]
+bigger = with_item(original, "c")
+print(original)
+print(bigger)
+print(original is bigger)</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: The Grid Trap</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">grid = []
+for i in range(3):
+    grid.append([0] * 3)
+grid[0][0] = 1
+print(grid)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Shallow Copies</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">teams = [["ana", "bo"], ["cy", "dee"]]
+new_teams = []
+for team in teams:
+    new_teams.append(team.copy())
+new_teams[0].append("eli")
+print(teams)
+print(new_teams)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: The Default Argument Trap</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">memory_and_references.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def add_to(item, bucket=None):
+    if bucket is None:
+        bucket = []
+    bucket.append(item)
+    return bucket
+
+print(add_to("a"))
+print(add_to("b"))</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

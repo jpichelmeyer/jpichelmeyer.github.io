@@ -7,6 +7,7 @@
 // ===========  Imports  ==============================================
 
 import { esc, el, qsa } from './__utils.js';
+import { highlightLessonDoc } from './_lesson_highlight.js';
 
 // ===========  Declarations  =========================================
 
@@ -609,13 +610,19 @@ function mountLessonFrame(mount) {
     iframe.className = 'lesson-frame';
     iframe.src = src;
     iframe.addEventListener('load', () => {
+        let doc;
         try {
-            const doc = iframe.contentDocument;
+            doc = iframe.contentDocument;
             if (!doc) return;
             const style = doc.createElement('style');
             style.textContent = 'html, body { background: transparent !important; }';
             doc.head.appendChild(style);
-        } catch (e) { /* cross-origin -- nothing we can do, harmless no-op */ }
+        } catch (e) { return; /* cross-origin -- nothing we can do, harmless no-op */ }
+        // Deliberately outside the try/catch above: that one exists only
+        // to swallow a genuine cross-origin failure, and was silently
+        // swallowing real highlighter bugs too. A real failure here
+        // should hit the console, not vanish.
+        highlightLessonDoc(doc);
     });
     mount.appendChild(iframe);
 }

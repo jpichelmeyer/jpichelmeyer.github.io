@@ -300,5 +300,24 @@ func _update_edge_mode_label() -> void:
         </ol>
         <p>Unlike every previous project this semester, nothing here has a position, a rotation, or a notion of "self." Worth sitting with that contrast: this is complexity from a rule applied everywhere at once, not complexity from anything that could be called an individual.</p>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Add a rule preset selector. Main (Node2D) → CellGrid (Node2D), UI (CanvasLayer) → OptionButton; pass the selected rule into CellGrid.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add pause and single-step controls. Add UI → PauseButton, StepButton; separate generation updates from drawing so one click advances exactly once.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add clickable pattern presets such as a glider and oscillator. Add PatternPicker under UI and place patterns into CellGrid; define edge behavior for each topology.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

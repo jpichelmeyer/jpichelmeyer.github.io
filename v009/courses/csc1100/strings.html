@@ -127,6 +127,304 @@ print(is_palindrome("racecar"))</script>
         <script type="text/plain" class="pyeditor-expected">True</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Slicing Practice.</strong> Using only indexing and slicing on <code class="code-lesson-il">s</code>, print (one per line): the first 3 characters, the last 7 characters, every other character starting from the first, and the whole string reversed. Use negative indices for the last-7 slice.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">s = "computer science"
+# TODO: four prints, each using a slice of s</script>
+        <script type="text/plain" class="pyeditor-expected">com
+science
+cmue cec
+ecneics retupmoc</script>
+    </div>
+
+    <p><strong>Exercise 2: Initials.</strong> Write a function <code class="code-lesson-il">initials(full_name)</code> that returns the uppercase initials of a name, each followed by a period. <code class="code-lesson-il">initials("Ada Lovelace")</code> should return <code class="code-lesson-il">"A.L."</code>. Use <code class="code-lesson-il">.split()</code> to break the name into words, then loop over the words and index the first character of each.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def initials(full_name):
+    result = ""
+    # TODO
+    return result
+
+print(initials("Ada Lovelace"))
+print(initials("grace brewster hopper"))</script>
+        <script type="text/plain" class="pyeditor-expected">A.L.
+G.B.H.</script>
+    </div>
+
+    <p><strong>Exercise 3: f-string Receipt.</strong> Use a single f-string to print a receipt line like <code class="code-lesson-il">2 x coffee @ $3.50 = $7.00</code>. Inside the braces, <code class="code-lesson-il">{price:.2f}</code> formats a number with exactly two decimal places, which is what you want for money. Compute the line total inside the braces too.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">item = "coffee"
+price = 3.5
+qty = 2
+# TODO: one print with one f-string</script>
+        <script type="text/plain" class="pyeditor-expected">2 x coffee @ $3.50 = $7.00</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Palindrome, For Real.</strong> The Try It Yourself version of <code class="code-lesson-il">is_palindrome</code> only works on single, lowercase words. Write a better one that ignores capitalization and spaces, so that <code class="code-lesson-il">"Never odd or even"</code> counts as a palindrome. Hint: clean the string first with <code class="code-lesson-il">.replace(" ", "").lower()</code>, then compare it to its reverse.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def is_palindrome(text):
+    pass   # TODO
+
+print(is_palindrome("racecar"))
+print(is_palindrome("Race car"))
+print(is_palindrome("Never odd or even"))
+print(is_palindrome("python"))</script>
+        <script type="text/plain" class="pyeditor-expected">True
+True
+True
+False</script>
+    </div>
+
+    <p><strong>Exercise 5: Count a Character.</strong> Write a function <code class="code-lesson-il">count_char(text, ch)</code> that returns how many times the character <code class="code-lesson-il">ch</code> appears in <code class="code-lesson-il">text</code>, ignoring case. Don't use the built-in <code class="code-lesson-il">.count()</code> method; use a loop and an accumulator.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def count_char(text, ch):
+    pass   # TODO
+
+print(count_char("Mississippi", "s"))
+print(count_char("Mississippi", "M"))
+print(count_char("banana", "z"))</script>
+        <script type="text/plain" class="pyeditor-expected">4
+1
+0</script>
+    </div>
+
+    <p><strong>Exercise 6: Censor.</strong> Write a function <code class="code-lesson-il">censor(sentence, bad_word)</code> that returns a new sentence where every occurrence of <code class="code-lesson-il">bad_word</code> has been replaced by asterisks, one asterisk per letter. Hint: <code class="code-lesson-il">"*" * 4</code> is <code class="code-lesson-il">"****"</code>, and <code class="code-lesson-il">len()</code> tells you how many you need.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def censor(sentence, bad_word):
+    pass   # TODO
+
+print(censor("that test was a darn hard test", "darn"))
+print(censor("heck heck hooray", "heck"))</script>
+        <script type="text/plain" class="pyeditor-expected">that test was a **** hard test
+**** **** hooray</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Caesar Cipher.</strong> A Caesar cipher shifts every letter a fixed number of places along the alphabet, wrapping around from z back to a. Write <code class="code-lesson-il">caesar(text, shift)</code> that works on lowercase text and leaves anything that isn't a letter (spaces, punctuation) unchanged. Use the <code class="code-lesson-il">alphabet</code> string: <code class="code-lesson-il">alphabet.index(ch)</code> gives a letter's position, and <code class="code-lesson-il">% 26</code> handles the wrap-around. Since strings are immutable, build the result up in a new string.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">alphabet = "abcdefghijklmnopqrstuvwxyz"
+
+def caesar(text, shift):
+    result = ""
+    # TODO
+    return result
+
+secret = caesar("hello, world", 3)
+print(secret)
+print(caesar(secret, -3))
+print(caesar("xyz", 2))</script>
+        <script type="text/plain" class="pyeditor-expected">khoor, zruog
+hello, world
+zab</script>
+    </div>
+
+    <p><strong>Exercise 8: Title Case, Your Way.</strong> Write <code class="code-lesson-il">my_title(text)</code> that capitalizes the first letter of every word and lowercases the rest, <strong>without</strong> using the built-in <code class="code-lesson-il">.title()</code> method. Words are separated by spaces, and extra spaces between words can be collapsed to one. Hint: <code class="code-lesson-il">.split()</code> with no argument splits on any run of whitespace; slicing gives you <code class="code-lesson-il">word[0]</code> and <code class="code-lesson-il">word[1:]</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def my_title(text):
+    pass   # TODO
+
+print(my_title("the quick brown fox"))
+print(my_title("  hELLO   wORLD "))</script>
+        <script type="text/plain" class="pyeditor-expected">The Quick Brown Fox
+Hello World</script>
+    </div>
+
+    <p><strong>Exercise 9: Working Around Immutability.</strong> Strings can't be changed in place, so <code class="code-lesson-il">s[0] = "J"</code> fails. Write a function <code class="code-lesson-il">replace_at(s, index, ch)</code> that returns a <strong>new</strong> string with the character at <code class="code-lesson-il">index</code> replaced by <code class="code-lesson-il">ch</code>, built from slices. Then use it to turn <code class="code-lesson-il">"python"</code> into <code class="code-lesson-il">"Jython"</code>, and confirm the original variable is unchanged.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def replace_at(s, index, ch):
+    pass   # TODO
+
+word = "python"
+new_word = replace_at(word, 0, "J")
+
+print(new_word)
+print(word)
+print(replace_at("cat", 2, "p"))</script>
+        <script type="text/plain" class="pyeditor-expected">Jython
+python
+cap</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Slicing Practice</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">s = "computer science"
+print(s[:3])
+print(s[-7:])
+print(s[::2])
+print(s[::-1])</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Initials</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def initials(full_name):
+    result = ""
+    for word in full_name.split():
+        result += word[0].upper() + "."
+    return result
+
+print(initials("Ada Lovelace"))
+print(initials("grace brewster hopper"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: f-string Receipt</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">item = "coffee"
+price = 3.5
+qty = 2
+print(f"{qty} x {item} @ ${price:.2f} = ${price * qty:.2f}")</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Palindrome, For Real</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def is_palindrome(text):
+    cleaned = text.replace(" ", "").lower()
+    return cleaned == cleaned[::-1]
+
+print(is_palindrome("racecar"))
+print(is_palindrome("Race car"))
+print(is_palindrome("Never odd or even"))
+print(is_palindrome("python"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Count a Character</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def count_char(text, ch):
+    count = 0
+    for c in text.lower():
+        if c == ch.lower():
+            count += 1
+    return count
+
+print(count_char("Mississippi", "s"))
+print(count_char("Mississippi", "M"))
+print(count_char("banana", "z"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Censor</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def censor(sentence, bad_word):
+    return sentence.replace(bad_word, "*" * len(bad_word))
+
+print(censor("that test was a darn hard test", "darn"))
+print(censor("heck heck hooray", "heck"))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Caesar Cipher</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">alphabet = "abcdefghijklmnopqrstuvwxyz"
+
+def caesar(text, shift):
+    result = ""
+    for ch in text:
+        if ch in alphabet:
+            new_pos = (alphabet.index(ch) + shift) % 26
+            result += alphabet[new_pos]
+        else:
+            result += ch
+    return result
+
+secret = caesar("hello, world", 3)
+print(secret)
+print(caesar(secret, -3))
+print(caesar("xyz", 2))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Title Case, Your Way</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def my_title(text):
+    result = ""
+    for word in text.split():
+        if result != "":
+            result += " "
+        result += word[0].upper() + word[1:].lower()
+    return result
+
+print(my_title("the quick brown fox"))
+print(my_title("  hELLO   wORLD "))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Working Around Immutability</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">strings.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def replace_at(s, index, ch):
+    return s[:index] + ch + s[index + 1:]
+
+word = "python"
+new_word = replace_at(word, 0, "J")
+
+print(new_word)
+print(word)
+print(replace_at("cat", 2, "p"))</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

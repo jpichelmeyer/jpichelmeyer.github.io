@@ -75,5 +75,24 @@
             <li>Point to a piece of GDScript (yours or an example) and say which unit it belongs to.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Identify the four SAM units in a scene. Agent (Node2D) → Perceptor, Memory, DecisionMaker, Action (Nodes), Sprite2D.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Store one sensed fact in Memory and use it on the next decision update. Add DebugLabel under CanvasLayer to show the fact.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add a second agent with a different policy but shared interfaces. Main → Environment, Agents (Node2D) → Agent instances; swap decision logic without changing perception/action contracts.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

@@ -155,5 +155,24 @@
             <li>Explain why this project's reinforcement learning is described as NOT full Q-learning, and what piece is missing.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Add a second state/action outcome and show selected action. Main → Agent, Environment, Learner (Node), UI → PolicyLabel.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add reset controls for environment and episode count without erasing learned values accidentally. Main → UI → ResetButton; make persistence behavior explicit.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Compare two reward schemes across repeated episodes and graph cumulative reward. Add RewardSelector and chart under UI; keep environment and learner separate.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

@@ -174,5 +174,24 @@ func set_running_leaf(action_leaf_node: Variant) -&gt; void:
             <li>Give one concrete rule from Part 4 and explain, in your own words, what problem it prevents.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Add a blackboard target key and a condition that checks it. Agent → BehaviorTree → condition/action nodes; Blackboard (Node) belongs to Agent or tree.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Wrap a condition in an Inverter decorator. Decorator node has exactly one child; display returned status in a DebugLabel under CanvasLayer.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Have two branches share a target key and safely clear deleted targets. Test target removal and prevent stale instance access.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

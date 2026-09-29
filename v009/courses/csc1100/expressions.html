@@ -82,6 +82,287 @@ print("Score: " + str(score))</script>
         <script type="text/plain" class="pyeditor-expected">Score: 95</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Temperature Converter.</strong> The variable <code class="code-lesson-il">c_temp</code> holds a temperature in Celsius. Compute the same temperature in Fahrenheit and store it in <code class="code-lesson-il">f_temp</code>. Formula: F = (C * 9/5) + 32. Once it prints <code class="code-lesson-il">68.0</code>, try changing <code class="code-lesson-il">c_temp</code> to <code class="code-lesson-il">100.0</code> and <code class="code-lesson-il">-40.0</code> to check your formula against temperatures you already know.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">c_temp = 20.0
+f_temp = 0   # TODO: replace 0 with the conversion formula
+print(f_temp)</script>
+        <script type="text/plain" class="pyeditor-expected">68.0</script>
+    </div>
+
+    <p><strong>Exercise 2: Minutes and Seconds.</strong> A timer reports <code class="code-lesson-il">total_seconds = 500</code>. Use <code class="code-lesson-il">//</code> and <code class="code-lesson-il">%</code> to split it into whole minutes and leftover seconds, and print them in the format shown by the last line of the starter code.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">total_seconds = 500
+minutes = 0   # TODO: use //
+seconds = 0   # TODO: use %
+print(minutes, "minutes and", seconds, "seconds")</script>
+        <script type="text/plain" class="pyeditor-expected">8 minutes and 20 seconds</script>
+    </div>
+
+    <p><strong>Exercise 3: Predict the Output.</strong> Write down what you think each line prints, then run it. Two of these are designed to surprise you: <code class="code-lesson-il">2 ** 3 ** 2</code> (exponents group from the <strong>right</strong>) and <code class="code-lesson-il">-7 // 2</code> (floor division always rounds <strong>down</strong>, toward negative infinity, not toward zero).</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(10 / 4)
+print(10 // 4)
+print(10 % 4)
+print(10 / 5)
+print(2 ** 3 ** 2)
+print(-7 // 2)
+print(1 + 2 * 3 - 4 / 2)</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Bill &amp; Tip Calculator.</strong> A meal costs <code class="code-lesson-il">bill = 50.0</code>. Tax is 7% and the tip is 18%, both calculated on the original bill. Compute the total and print it in the format <code class="code-lesson-il">Total: $62.5</code>. Use <code class="code-lesson-il">round(total, 2)</code> to round to two decimal places, and <code class="code-lesson-il">str()</code> to join the number onto the text. Then change the tip rate to 20% and see how the total changes.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">bill = 50.0
+tax_rate = 0.07
+tip_rate = 0.18
+
+total = 0   # TODO
+print("Total: $" + str(round(total, 2)))</script>
+        <script type="text/plain" class="pyeditor-expected">Total: $62.5</script>
+    </div>
+
+    <p><strong>Exercise 5: Parentheses Repair.</strong> This is supposed to compute the average of three test scores, which should be <code class="code-lesson-il">90.0</code>. It prints something much larger. Explain what order Python is actually evaluating it in, then fix it by adding parentheses.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">average = 80 + 90 + 100 / 3
+print(average)</script>
+        <script type="text/plain" class="pyeditor-expected">90.0</script>
+    </div>
+
+    <p><strong>Exercise 6: Digit Extraction.</strong> Given <code class="code-lesson-il">n = 4729</code>, use only <code class="code-lesson-il">//</code> and <code class="code-lesson-il">%</code> (no strings) to pull out each digit. Print the ones digit, tens digit, hundreds digit, and thousands digit on separate lines, in that order, then print the sum of all four digits. Hint: <code class="code-lesson-il">n % 10</code> is the ones digit, and <code class="code-lesson-il">n // 10</code> chops the ones digit off.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">n = 4729
+
+ones = 0        # TODO
+tens = 0        # TODO
+hundreds = 0    # TODO
+thousands = 0   # TODO
+
+print(ones)
+print(tens)
+print(hundreds)
+print(thousands)
+print(ones + tens + hundreds + thousands)</script>
+        <script type="text/plain" class="pyeditor-expected">9
+2
+7
+4
+22</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Change Maker.</strong> A vending machine owes you <code class="code-lesson-il">cents = 289</code>. Using <code class="code-lesson-il">//</code> and <code class="code-lesson-il">%</code>, work out the fewest coins it can give you: as many quarters (25) as possible, then dimes (10), then nickels (5), then pennies (1). Print each count using the labels in the starter code. After it works for 289, try a few other amounts and check them by hand.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">cents = 289
+
+# TODO: compute quarters, then update what's left over; repeat for dimes, nickels, pennies
+quarters = 0
+dimes = 0
+nickels = 0
+pennies = 0
+
+print("Quarters: " + str(quarters))
+print("Dimes: " + str(dimes))
+print("Nickels: " + str(nickels))
+print("Pennies: " + str(pennies))</script>
+        <script type="text/plain" class="pyeditor-expected">Quarters: 11
+Dimes: 1
+Nickels: 0
+Pennies: 4</script>
+    </div>
+
+    <p><strong>Exercise 8: Compound Interest.</strong> An account starts with <code class="code-lesson-il">principal = 1000.0</code> and earns 5% interest per year, compounded yearly. After <code class="code-lesson-il">years</code> years it holds principal * (1 + rate) ** years. Compute the amount after 10 years and print it rounded to 2 decimal places. Then answer: roughly how many years does it take to double? Try changing <code class="code-lesson-il">years</code> until you find out.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">principal = 1000.0
+rate = 0.05
+years = 10
+
+amount = 0   # TODO
+print(round(amount, 2))</script>
+        <script type="text/plain" class="pyeditor-expected">1628.89</script>
+    </div>
+
+    <p><strong>Exercise 9: Type Mixing Puzzle.</strong> For every line, predict both the <strong>value</strong> and the <strong>type</strong> of the result before running. The last line is commented out because it raises an error: predict which error, then uncomment it to check, then fix it two different ways (one that produces <code class="code-lesson-il">9</code> and one that produces <code class="code-lesson-il">"72"</code>).</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">print(7 + 2.0, type(7 + 2.0))
+print("7" + "2", type("7" + "2"))
+print("7" * 3)
+print(int("7") + 2)
+print(str(7) + str(2))
+print(int(7.9))
+print(float("2.5") * 2)
+# print("7" + 2)</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Temperature Converter</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">c_temp = 20.0
+f_temp = (c_temp * 9 / 5) + 32
+print(f_temp)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Minutes and Seconds</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">total_seconds = 500
+minutes = total_seconds // 60
+seconds = total_seconds % 60
+print(minutes, "minutes and", seconds, "seconds")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Predict the Output</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(10 / 4)       # 2.5
+print(10 // 4)      # 2
+print(10 % 4)       # 2
+print(10 / 5)       # 2.0, / always gives a float
+print(2 ** 3 ** 2)  # 512, i.e. 2 ** 9
+print(-7 // 2)      # -4
+print(1 + 2 * 3 - 4 / 2)   # 5.0</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Bill &amp; Tip Calculator</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">bill = 50.0
+tax_rate = 0.07
+tip_rate = 0.18
+
+total = bill + bill * tax_rate + bill * tip_rate
+print("Total: $" + str(round(total, 2)))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Parentheses Repair</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">average = (80 + 90 + 100) / 3
+print(average)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Digit Extraction</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">n = 4729
+
+ones = n % 10
+tens = n // 10 % 10
+hundreds = n // 100 % 10
+thousands = n // 1000
+
+print(ones)
+print(tens)
+print(hundreds)
+print(thousands)
+print(ones + tens + hundreds + thousands)</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Change Maker</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">cents = 289
+
+quarters = cents // 25
+cents = cents % 25
+dimes = cents // 10
+cents = cents % 10
+nickels = cents // 5
+pennies = cents % 5
+
+print("Quarters: " + str(quarters))
+print("Dimes: " + str(dimes))
+print("Nickels: " + str(nickels))
+print("Pennies: " + str(pennies))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Compound Interest</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">principal = 1000.0
+rate = 0.05
+years = 10
+
+amount = principal * (1 + rate) ** years
+print(round(amount, 2))
+# doubles after about 15 years (14.2 exactly)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Type Mixing Puzzle</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">expressions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">print(7 + 2.0, type(7 + 2.0))       # 9.0 float
+print("7" + "2", type("7" + "2"))   # 72 str
+print("7" * 3)                      # 777
+print(int("7") + 2)                 # 9
+print(str(7) + str(2))              # 72
+print(int(7.9))                     # 7, int() truncates, it does not round
+print(float("2.5") * 2)             # 5.0
+# print("7" + 2) -&gt; TypeError
+print(int("7") + 2)                 # 9
+print("7" + str(2))                 # 72</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

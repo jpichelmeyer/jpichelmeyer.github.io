@@ -436,5 +436,24 @@ func _ready() -> void:
             <li>Get a colony converging on a visibly brighter route around an obstacle after letting it run for a while.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Add a second food source and compare route choice. Scene tree: Main (Node2D) → PheromoneLayer, Nest, FoodSources (Node2D) → FoodSource instances, Agents (Node2D). Make FoodSource a reusable packed scene with its own remaining-food value.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add a pheromone display toggle and test two evaporation rates. Add UI (CanvasLayer) → ToggleButton; keep trail data in PheromoneLayer and explain how evaporation affects stale trails.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Make agents choose among three food sources with different amounts. Reuse FoodSource.tscn; test depletion and verify agents stop targeting empty sources.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

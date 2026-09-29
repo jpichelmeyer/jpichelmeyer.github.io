@@ -236,5 +236,24 @@ func _steer_arrive(delta_passed: float) -> void:
         </ol>
         <p>Next: what to do about the fact that none of these agents have any idea an obstacle exists.</p>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Switch between two targets when the first is reached. Main (Node2D) → Agent, TargetA (Marker2D), TargetB (Marker2D).</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Combine seek and arrive so the agent slows near its target. Keep steering on Agent and expose arrival radius/max speed.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add weighted seek/flee/arrive controls. Main → Agent, UI (CanvasLayer) → sliders; clamp combined steering and test opposing vectors.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

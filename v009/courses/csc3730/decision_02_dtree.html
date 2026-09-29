@@ -88,5 +88,24 @@
             <li>Give a concrete example of agent logic that a bare decision tree can't express, and explain specifically why (what would it need to remember that it can't).</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Implement a tree that chooses patrol or rest based on stamina. Agent (Node2D) → Sprite2D, DecisionMaker (Node); keep branching logic in DecisionMaker.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add distance-to-target as a second feature and log the selected branch. Add DebugLabel under UI (CanvasLayer); test values around each threshold.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Build a flee/pursue/investigate tree using at least three features. Reuse Agent scene and report the decision path in DebugLabel.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

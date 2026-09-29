@@ -117,6 +117,455 @@ print(p.is_puppy)</script>
 True</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Inheriting Without Changing Anything.</strong> <code class="code-lesson-il">Car</code> inherits from <code class="code-lesson-il">Vehicle</code> and adds nothing yet. Fill in <code class="code-lesson-il">Vehicle</code>'s <code class="code-lesson-il">describe()</code> so it returns a string like <code class="code-lesson-il">Toyota with 4 wheels</code>, then create a <code class="code-lesson-il">Car</code> and call <code class="code-lesson-il">describe()</code> on it. Where does <code class="code-lesson-il">Car</code> get <code class="code-lesson-il">describe()</code> from?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Vehicle:
+    def __init__(self, make, wheels):
+        self.make = make
+        self.wheels = wheels
+
+    def describe(self):
+        pass   # TODO
+
+class Car(Vehicle):
+    pass
+
+car = Car("Toyota", 4)
+bike = Vehicle("Trek", 2)
+print(car.describe())
+print(bike.describe())</script>
+        <script type="text/plain" class="pyeditor-expected">Toyota with 4 wheels
+Trek with 2 wheels</script>
+    </div>
+
+    <p><strong>Exercise 2: Overriding area().</strong> <code class="code-lesson-il">Shape.area()</code> returns 0 because a generic shape has no area. Write a <code class="code-lesson-il">Square</code> class that inherits from <code class="code-lesson-il">Shape</code>, adds a <code class="code-lesson-il">side</code> attribute, and <strong>overrides</strong> <code class="code-lesson-il">area()</code>. Leave <code class="code-lesson-il">Shape</code> itself unchanged.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Shape:
+    def __init__(self, name):
+        self.name = name
+
+    def area(self):
+        return 0
+
+# TODO: class Square(Shape)
+
+s = Square(5)
+print(s.name, s.area())
+blob = Shape("blob")
+print(blob.name, blob.area())</script>
+        <script type="text/plain" class="pyeditor-expected">square 25
+blob 0</script>
+    </div>
+
+    <p><strong>Exercise 3: Which Version Runs?.</strong> For each of the three calls at the bottom, predict the output before running, and say which class's <code class="code-lesson-il">speak()</code> is actually being used and why.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+class Puppy(Dog):
+    pass
+
+class Fish(Animal):
+    pass
+
+print(Puppy("Biscuit").speak())
+print(Fish("Nemo").speak())
+print(Dog("Rex").speak())</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Manager Extends Employee.</strong> Write a <code class="code-lesson-il">Manager</code> class that inherits from <code class="code-lesson-il">Employee</code>. Its <code class="code-lesson-il">__init__</code> takes <code class="code-lesson-il">name</code>, <code class="code-lesson-il">salary</code>, and a list of <code class="code-lesson-il">reports</code> (the names of people they manage). Use <code class="code-lesson-il">super().__init__</code> so you don't repeat the parent's setup. Add a method <code class="code-lesson-il">team_size()</code> that returns how many reports they have.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Employee:
+    def __init__(self, name, salary):
+        self.name = name
+        self.salary = salary
+
+# TODO: class Manager(Employee)
+
+m = Manager("Grace", 95000, ["Ada", "Alan", "Linus"])
+print(m.name, m.salary)
+print(m.team_size())</script>
+        <script type="text/plain" class="pyeditor-expected">Grace 95000
+3</script>
+    </div>
+
+    <p><strong>Exercise 5: Extending, Not Replacing.</strong> <code class="code-lesson-il">SavingsAccount</code> should add an interest rate to whatever <code class="code-lesson-il">Account.describe()</code> already says, without copying <code class="code-lesson-il">Account</code>'s code. Write its <code class="code-lesson-il">__init__</code> and <code class="code-lesson-il">describe()</code>, using <code class="code-lesson-il">super()</code> in <strong>both</strong>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    def describe(self):
+        return f"{self.owner} has ${self.balance}"
+
+class SavingsAccount(Account):
+    pass   # TODO
+
+print(Account("Ada", 500).describe())
+print(SavingsAccount("Alan", 1000, 0.03).describe())</script>
+        <script type="text/plain" class="pyeditor-expected">Ada has $500
+Alan has $1000 at 3.0% interest</script>
+    </div>
+
+    <p><strong>Exercise 6: Is It One of Those?.</strong> <code class="code-lesson-il">isinstance(obj, SomeClass)</code> returns <code class="code-lesson-il">True</code> if <code class="code-lesson-il">obj</code> was created from <code class="code-lesson-il">SomeClass</code> <strong>or from any class that inherits from it</strong>. Predict all six results before running. Which ones surprised you?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Animal:
+    pass
+
+class Dog(Animal):
+    pass
+
+class Cat(Animal):
+    pass
+
+rex = Dog()
+generic = Animal()
+print(isinstance(rex, Dog))
+print(isinstance(rex, Animal))
+print(isinstance(rex, Cat))
+print(isinstance(generic, Animal))
+print(isinstance(generic, Dog))
+print(isinstance(rex, object))</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: A Three-Level Chain.</strong> Build <code class="code-lesson-il">Shape</code> → <code class="code-lesson-il">Rectangle</code> → <code class="code-lesson-il">Square</code>. <code class="code-lesson-il">Rectangle(width, height)</code> has an <code class="code-lesson-il">area()</code> method. <code class="code-lesson-il">Square(side)</code> should inherit from <code class="code-lesson-il">Rectangle</code> and do nothing in its <code class="code-lesson-il">__init__</code> except call <code class="code-lesson-il">super().__init__(side, side)</code>. <code class="code-lesson-il">Square</code> should <strong>not</strong> define its own <code class="code-lesson-il">area()</code>. Explain why it still works.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Shape:
+    def describe(self):
+        return f"{type(self).__name__} with area {self.area()}"
+
+# TODO: Rectangle(Shape) and Square(Rectangle)
+
+print(Rectangle(3, 5).describe())
+print(Square(4).describe())
+print(Square(4).width, Square(4).height)</script>
+        <script type="text/plain" class="pyeditor-expected">Rectangle with area 15
+Square with area 16
+4 4</script>
+    </div>
+
+    <p><strong>Exercise 8: Extending __str__.</strong> <code class="code-lesson-il">Person</code> has a <code class="code-lesson-il">__str__</code>. Write a <code class="code-lesson-il">Student</code> subclass that adds a <code class="code-lesson-il">major</code>, and whose <code class="code-lesson-il">__str__</code> returns the parent's string plus <code class="code-lesson-il">, studying &lt;major&gt;</code>, by calling <code class="code-lesson-il">super().__str__()</code> rather than repeating the parent's formatting.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return f"{self.name} ({self.age})"
+
+# TODO: class Student(Person)
+
+print(Person("Alan", 41))
+print(Student("Ada", 19, "Computer Science"))</script>
+        <script type="text/plain" class="pyeditor-expected">Alan (41)
+Ada (19), studying Computer Science</script>
+    </div>
+
+    <p><strong>Exercise 9: Refactor Out the Duplication.</strong> <code class="code-lesson-il">Cat</code> and <code class="code-lesson-il">Dog</code> below repeat the same <code class="code-lesson-il">__init__</code> and <code class="code-lesson-il">birthday()</code> code. Refactor: create an <code class="code-lesson-il">Animal</code> base class holding everything they share, and make <code class="code-lesson-il">Cat</code> and <code class="code-lesson-il">Dog</code> inherit from it, each keeping only its own <code class="code-lesson-il">sound()</code>. The output must stay exactly the same.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Cat:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def birthday(self):
+        self.age += 1
+        return f"{self.name} is now {self.age}"
+    def sound(self):
+        return "Meow"
+
+class Dog:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def birthday(self):
+        self.age += 1
+        return f"{self.name} is now {self.age}"
+    def sound(self):
+        return "Woof"
+
+print(Cat("Tom", 3).birthday())
+print(Dog("Rex", 5).birthday())
+print(Cat("Tom", 3).sound(), Dog("Rex", 5).sound())</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Inheriting Without Changing Anything</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Vehicle:
+    def __init__(self, make, wheels):
+        self.make = make
+        self.wheels = wheels
+
+    def describe(self):
+        return f"{self.make} with {self.wheels} wheels"
+
+class Car(Vehicle):
+    pass
+
+car = Car("Toyota", 4)
+bike = Vehicle("Trek", 2)
+print(car.describe())
+print(bike.describe())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Overriding area()</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Shape:
+    def __init__(self, name):
+        self.name = name
+
+    def area(self):
+        return 0
+
+class Square(Shape):
+    def __init__(self, side):
+        super().__init__("square")
+        self.side = side
+
+    def area(self):
+        return self.side ** 2
+
+s = Square(5)
+print(s.name, s.area())
+blob = Shape("blob")
+print(blob.name, blob.area())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Which Version Runs?</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># Biscuit says Woof! (Puppy inherits Dog's), ... (Fish inherits Animal's), Rex says Woof!
+class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+class Puppy(Dog):
+    pass
+
+class Fish(Animal):
+    pass
+
+print(Puppy("Biscuit").speak())
+print(Fish("Nemo").speak())
+print(Dog("Rex").speak())</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Manager Extends Employee</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Employee:
+    def __init__(self, name, salary):
+        self.name = name
+        self.salary = salary
+
+class Manager(Employee):
+    def __init__(self, name, salary, reports):
+        super().__init__(name, salary)
+        self.reports = reports
+
+    def team_size(self):
+        return len(self.reports)
+
+m = Manager("Grace", 95000, ["Ada", "Alan", "Linus"])
+print(m.name, m.salary)
+print(m.team_size())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Extending, Not Replacing</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Account:
+    def __init__(self, owner, balance):
+        self.owner = owner
+        self.balance = balance
+
+    def describe(self):
+        return f"{self.owner} has ${self.balance}"
+
+class SavingsAccount(Account):
+    def __init__(self, owner, balance, rate):
+        super().__init__(owner, balance)
+        self.rate = rate
+
+    def describe(self):
+        return super().describe() + f" at {self.rate * 100}% interest"
+
+print(Account("Ada", 500).describe())
+print(SavingsAccount("Alan", 1000, 0.03).describe())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Is It One of Those?</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># True, True, False, True, False, True (every class inherits from object)
+class Animal:
+    pass
+
+class Dog(Animal):
+    pass
+
+class Cat(Animal):
+    pass
+
+rex = Dog()
+generic = Animal()
+print(isinstance(rex, Dog))
+print(isinstance(rex, Animal))
+print(isinstance(rex, Cat))
+print(isinstance(generic, Animal))
+print(isinstance(generic, Dog))
+print(isinstance(rex, object))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: A Three-Level Chain</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Shape:
+    def describe(self):
+        return f"{type(self).__name__} with area {self.area()}"
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+class Square(Rectangle):
+    def __init__(self, side):
+        super().__init__(side, side)
+
+print(Rectangle(3, 5).describe())
+print(Square(4).describe())
+print(Square(4).width, Square(4).height)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Extending __str__</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return f"{self.name} ({self.age})"
+
+class Student(Person):
+    def __init__(self, name, age, major):
+        super().__init__(name, age)
+        self.major = major
+
+    def __str__(self):
+        return super().__str__() + f", studying {self.major}"
+
+print(Person("Alan", 41))
+print(Student("Ada", 19, "Computer Science"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Refactor Out the Duplication</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">inheritance.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Animal:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def birthday(self):
+        self.age += 1
+        return f"{self.name} is now {self.age}"
+
+class Cat(Animal):
+    def sound(self):
+        return "Meow"
+
+class Dog(Animal):
+    def sound(self):
+        return "Woof"
+
+print(Cat("Tom", 3).birthday())
+print(Dog("Rex", 5).birthday())
+print(Cat("Tom", 3).sound(), Dog("Rex", 5).sound())</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

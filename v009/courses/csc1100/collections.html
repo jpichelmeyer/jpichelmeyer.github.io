@@ -154,6 +154,329 @@ print(counts)</script>
         <script type="text/plain" class="pyeditor-expected">{'a': 3, 'b': 2, 'c': 1}</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Shopping List.</strong> Starting from the list in the editor: append <code class="code-lesson-il">"eggs"</code> and <code class="code-lesson-il">"butter"</code>, then replace the first item with <code class="code-lesson-il">"oat milk"</code>. Print the number of items, then the whole list.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">groceries = ["milk", "bread", "apples"]
+# TODO
+print(len(groceries))
+print(groceries)</script>
+        <script type="text/plain" class="pyeditor-expected">5
+['oat milk', 'bread', 'apples', 'eggs', 'butter']</script>
+    </div>
+
+    <p><strong>Exercise 2: Distance from the Origin.</strong> <code class="code-lesson-il">point</code> is a tuple holding an (x, y) coordinate. Unpack it into two variables <code class="code-lesson-il">x</code> and <code class="code-lesson-il">y</code> in one line, then compute the distance from the origin: the square root of x² + y², which you can write as <code class="code-lesson-il">(x ** 2 + y ** 2) ** 0.5</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">point = (3, 4)
+# TODO: unpack, then compute distance
+distance = 0
+print(distance)</script>
+        <script type="text/plain" class="pyeditor-expected">5.0</script>
+    </div>
+
+    <p><strong>Exercise 3: Unique Visitors.</strong> A website logged the usernames below, one entry per page view. Use a set to find out how many <strong>different</strong> people visited, then print that count and the usernames in alphabetical order.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">log = ["ana", "bo", "ana", "cy", "bo", "ana", "dee"]
+# TODO</script>
+        <script type="text/plain" class="pyeditor-expected">4
+['ana', 'bo', 'cy', 'dee']</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Multiple Return Values: Basic Statistics.</strong> Write a function <code class="code-lesson-il">get_list_stats(numbers)</code> that takes a list of numbers and returns <strong>three</strong> values: the minimum, the maximum, and the average. Use a loop to find the minimum and maximum yourself rather than the built-in <code class="code-lesson-il">min()</code> and <code class="code-lesson-il">max()</code>. Unpack the returned tuple into three separate variables and print them.</p>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">min_val, max_val, avg = get_list_stats([10, 20, 30, 40])</code>
+    </div>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def get_list_stats(numbers):
+    pass   # TODO: return smallest, largest, average
+
+min_val, max_val, avg = get_list_stats([10, 20, 30, 40])
+print(min_val)
+print(max_val)
+print(avg)</script>
+        <script type="text/plain" class="pyeditor-expected">10
+40
+25.0</script>
+    </div>
+
+    <p><strong>Exercise 5: Count Evens.</strong> Write a function <code class="code-lesson-il">count_evens(number_list)</code> that takes a list of integers and returns how many of them are even. Do <strong>not</strong> use built-in shortcuts like <code class="code-lesson-il">filter()</code>; use a loop and an <code class="code-lesson-il">if</code> statement.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def count_evens(number_list):
+    pass   # TODO
+
+print(count_evens([1, 2, 3, 4, 5, 6]))
+print(count_evens([7, 9, 11]))
+print(count_evens([]))</script>
+        <script type="text/plain" class="pyeditor-expected">3
+0
+0</script>
+    </div>
+
+    <p><strong>Exercise 6: Phone Book.</strong> Build a phone book as a dictionary. In order: add Ada (555-0101) and Grace (555-0199), then update Ada's number to 555-0102, then add Alan (555-0150). Print each entry using <code class="code-lesson-il">.items()</code> in the format <code class="code-lesson-il">Ada: 555-0102</code>. Finally, look up <code class="code-lesson-il">"Linus"</code> with <code class="code-lesson-il">.get()</code> so that it prints <code class="code-lesson-il">unknown</code> instead of crashing.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">phone_book = {}
+# TODO: add, update, add
+
+# TODO: loop over phone_book.items()
+
+print(phone_book.get("Linus"))   # TODO: give .get() a default</script>
+        <script type="text/plain" class="pyeditor-expected">Ada: 555-0102
+Grace: 555-0199
+Alan: 555-0150
+unknown</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Most Common Word.</strong> Write a function <code class="code-lesson-il">most_common_word(sentence)</code> that returns the word appearing most often in <code class="code-lesson-il">sentence</code>, ignoring capitalization. Build a count dictionary the way the Try It Yourself did, then loop over it to find the word with the largest count. If there's a tie, return whichever of the tied words appeared first in the sentence.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def most_common_word(sentence):
+    pass   # TODO
+
+print(most_common_word("the cat and the hat and the bat"))
+print(most_common_word("Red blue RED green blue red"))
+print(most_common_word("one two two one"))</script>
+        <script type="text/plain" class="pyeditor-expected">the
+red
+one</script>
+    </div>
+
+    <p><strong>Exercise 8: Set Operations.</strong> Two classes have the student lists below. Write two functions using sets: <code class="code-lesson-il">in_both(a, b)</code> returns a sorted list of names in both lists, and <code class="code-lesson-il">only_in_first(a, b)</code> returns a sorted list of names in <code class="code-lesson-il">a</code> but not in <code class="code-lesson-il">b</code>. Look up (or guess, then test) what the <code class="code-lesson-il">&amp;</code> and <code class="code-lesson-il">-</code> operators do between two sets.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">cs_class = ["ana", "bo", "cy", "dee", "eli"]
+math_class = ["cy", "eli", "fay", "bo"]
+
+def in_both(a, b):
+    pass   # TODO
+
+def only_in_first(a, b):
+    pass   # TODO
+
+print(in_both(cs_class, math_class))
+print(only_in_first(cs_class, math_class))
+print(only_in_first(math_class, cs_class))</script>
+        <script type="text/plain" class="pyeditor-expected">['bo', 'cy', 'eli']
+['ana', 'dee']
+['fay']</script>
+    </div>
+
+    <p><strong>Exercise 9: Gradebook.</strong> <code class="code-lesson-il">grades</code> maps each student's name to a list of their scores. Build a <strong>new</strong> dictionary <code class="code-lesson-il">averages</code> that maps each name to their average, rounded to 1 decimal place. Print each student's average in the format <code class="code-lesson-il">Ada: 91.7</code>, then print the name of the student with the highest average.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">grades = {
+    "Ada": [95, 88, 92],
+    "Alan": [72, 85, 80],
+    "Grace": [99, 94, 97],
+}
+averages = {}
+# TODO</script>
+        <script type="text/plain" class="pyeditor-expected">Ada: 91.7
+Alan: 79.0
+Grace: 96.7
+Grace</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Shopping List</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">groceries = ["milk", "bread", "apples"]
+groceries.append("eggs")
+groceries.append("butter")
+groceries[0] = "oat milk"
+print(len(groceries))
+print(groceries)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Distance from the Origin</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">point = (3, 4)
+x, y = point
+distance = (x ** 2 + y ** 2) ** 0.5
+print(distance)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Unique Visitors</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">log = ["ana", "bo", "ana", "cy", "bo", "ana", "dee"]
+visitors = set(log)
+print(len(visitors))
+print(sorted(visitors))</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Multiple Return Values: Basic Statistics</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def get_list_stats(numbers):
+    smallest = numbers[0]
+    largest = numbers[0]
+    total = 0
+    for n in numbers:
+        if n &lt; smallest:
+            smallest = n
+        if n &gt; largest:
+            largest = n
+        total += n
+    return smallest, largest, total / len(numbers)
+
+min_val, max_val, avg = get_list_stats([10, 20, 30, 40])
+print(min_val)
+print(max_val)
+print(avg)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Count Evens</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def count_evens(number_list):
+    count = 0
+    for n in number_list:
+        if n % 2 == 0:
+            count += 1
+    return count
+
+print(count_evens([1, 2, 3, 4, 5, 6]))
+print(count_evens([7, 9, 11]))
+print(count_evens([]))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Phone Book</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">phone_book = {}
+phone_book["Ada"] = "555-0101"
+phone_book["Grace"] = "555-0199"
+phone_book["Ada"] = "555-0102"
+phone_book["Alan"] = "555-0150"
+
+for name, number in phone_book.items():
+    print(name + ": " + number)
+
+print(phone_book.get("Linus", "unknown"))</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Most Common Word</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def most_common_word(sentence):
+    counts = {}
+    for word in sentence.lower().split():
+        counts[word] = counts.get(word, 0) + 1
+    best_word = ""
+    best_count = 0
+    for word, count in counts.items():
+        if count &gt; best_count:
+            best_word = word
+            best_count = count
+    return best_word
+
+print(most_common_word("the cat and the hat and the bat"))
+print(most_common_word("Red blue RED green blue red"))
+print(most_common_word("one two two one"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Set Operations</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">cs_class = ["ana", "bo", "cy", "dee", "eli"]
+math_class = ["cy", "eli", "fay", "bo"]
+
+def in_both(a, b):
+    return sorted(set(a) &amp; set(b))
+
+def only_in_first(a, b):
+    return sorted(set(a) - set(b))
+
+print(in_both(cs_class, math_class))
+print(only_in_first(cs_class, math_class))
+print(only_in_first(math_class, cs_class))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Gradebook</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">collections.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">grades = {
+    "Ada": [95, 88, 92],
+    "Alan": [72, 85, 80],
+    "Grace": [99, 94, 97],
+}
+averages = {}
+for name, scores in grades.items():
+    averages[name] = round(sum(scores) / len(scores), 1)
+
+for name, avg in averages.items():
+    print(name + ": " + str(avg))
+
+top = ""
+for name in averages:
+    if top == "" or averages[name] &gt; averages[top]:
+        top = name
+print(top)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

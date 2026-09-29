@@ -125,6 +125,368 @@ bb 2
 ccc 3</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Write and Read Back.</strong> Use <code class="code-lesson-il">with</code> and <code class="code-lesson-il">"w"</code> mode to write three grocery items to <code class="code-lesson-il">groceries.txt</code>, one per line (don't forget the <code class="code-lesson-il">\n</code>). Then open it again in <code class="code-lesson-il">"r"</code> mode and print its entire contents with <code class="code-lesson-il">read()</code>. When you run it, there's an extra blank line after the last item: can you explain where it comes from?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter"># TODO: write three lines: milk, eggs, bread
+
+# TODO: read the whole file back and print it</script>
+        <script type="text/plain" class="pyeditor-expected">milk
+eggs
+bread</script>
+    </div>
+
+    <p><strong>Exercise 2: Count the Lines.</strong> The first part of the starter creates a file. Without changing that part, read the file back and count how many lines it has by looping over the file object. Print the count.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">with open("haiku.txt", "w") as f:
+    f.write("an old silent pond\n")
+    f.write("a frog jumps into the pond\n")
+    f.write("splash! silence again\n")
+
+count = 0
+# TODO
+print(count)</script>
+        <script type="text/plain" class="pyeditor-expected">3</script>
+    </div>
+
+    <p><strong>Exercise 3: w vs. a.</strong> Predict exactly what gets printed. How many lines end up in the file, and which ones? Then change the second <code class="code-lesson-il">"w"</code> to <code class="code-lesson-il">"a"</code> and predict again.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">with open("log.txt", "w") as f:
+    f.write("first\n")
+with open("log.txt", "w") as f:
+    f.write("second\n")
+with open("log.txt", "a") as f:
+    f.write("third\n")
+
+with open("log.txt", "r") as f:
+    print(f.read())</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Numbers In, Total Out.</strong> Write the numbers 1 through 10 to <code class="code-lesson-il">numbers.txt</code>, one per line (you'll need <code class="code-lesson-il">str()</code>, since <code class="code-lesson-il">write()</code> only accepts strings). Then read the file back line by line, convert each line to an <code class="code-lesson-il">int</code>, and print the total.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter"># TODO: write 1..10, one per line
+
+total = 0
+# TODO: read back and add up
+print(total)</script>
+        <script type="text/plain" class="pyeditor-expected">55</script>
+    </div>
+
+    <p><strong>Exercise 5: Word Count.</strong> Write a function <code class="code-lesson-il">word_count(filename)</code> that returns how many words are in a file. Read the file, <code class="code-lesson-il">.split()</code> the text, and count the pieces. The starter creates a test file for you.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">with open("speech.txt", "w") as f:
+    f.write("Programs must be written for people to read\n")
+    f.write("and only incidentally for machines to execute\n")
+
+def word_count(filename):
+    pass   # TODO
+
+print(word_count("speech.txt"))</script>
+        <script type="text/plain" class="pyeditor-expected">15</script>
+    </div>
+
+    <p><strong>Exercise 6: A Simple Logger.</strong> Write a function <code class="code-lesson-il">log(filename, message)</code> that <strong>appends</strong> one line to the file in the format <code class="code-lesson-il">[3] message</code>, where the number is the line's position in the file (1 for the first message, 2 for the second, and so on). To find the next number, read the file first and count its lines, but the file won't exist on the very first call, so catch <code class="code-lesson-il">FileNotFoundError</code> and treat that as 0 lines.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def log(filename, message):
+    pass   # TODO
+
+log("app.log", "started")
+log("app.log", "loaded settings")
+log("app.log", "shutting down")
+
+with open("app.log", "r") as f:
+    print(f.read().strip())</script>
+        <script type="text/plain" class="pyeditor-expected">[1] started
+[2] loaded settings
+[3] shutting down</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Grade Report.</strong> The starter writes a small CSV file: each line is <code class="code-lesson-il">name,score</code>. Read it, and for each line use <code class="code-lesson-il">.strip()</code> and <code class="code-lesson-il">.split(",")</code> to separate the name from the score. Write a new file <code class="code-lesson-il">report.txt</code> containing the class average (rounded to 1 decimal place) and the name of the top student, in the format shown by the expected output. Finally, read <code class="code-lesson-il">report.txt</code> back and print it.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">with open("grades.csv", "w") as f:
+    f.write("Ada,94\n")
+    f.write("Alan,81\n")
+    f.write("Grace,97\n")
+    f.write("Linus,76\n")
+
+# TODO: read grades.csv, compute average and top student
+
+# TODO: write report.txt
+
+with open("report.txt", "r") as f:
+    print(f.read().strip())</script>
+        <script type="text/plain" class="pyeditor-expected">Average: 87.0
+Top student: Grace</script>
+    </div>
+
+    <p><strong>Exercise 8: Copy with Line Numbers.</strong> Write <code class="code-lesson-il">number_lines(src, dest)</code> that reads every line of <code class="code-lesson-il">src</code> and writes it to <code class="code-lesson-il">dest</code> in uppercase, prefixed with its line number, like <code class="code-lesson-il">1: FIRST LINE</code>. Blank lines in the source should be skipped (and not counted). Then print <code class="code-lesson-il">dest</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">with open("input.txt", "w") as f:
+    f.write("roses are red\n")
+    f.write("\n")
+    f.write("violets are blue\n")
+    f.write("files are fun\n")
+
+def number_lines(src, dest):
+    pass   # TODO
+
+number_lines("input.txt", "output.txt")
+with open("output.txt", "r") as f:
+    print(f.read().strip())</script>
+        <script type="text/plain" class="pyeditor-expected">1: ROSES ARE RED
+2: VIOLETS ARE BLUE
+3: FILES ARE FUN</script>
+    </div>
+
+    <p><strong>Exercise 9: Settings with a Fallback.</strong> Write <code class="code-lesson-il">load_high_score(filename)</code> that returns the integer stored in the file, or 0 if the file doesn't exist (<code class="code-lesson-il">FileNotFoundError</code>) or doesn't contain a valid integer (<code class="code-lesson-il">ValueError</code>). Then write <code class="code-lesson-il">save_high_score(filename, score)</code>. The test code simulates three game sessions: the high score should only be saved when it's beaten.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def load_high_score(filename):
+    pass   # TODO
+
+def save_high_score(filename, score):
+    pass   # TODO
+
+for this_game in [120, 90, 300]:
+    best = load_high_score("score.txt")
+    if this_game > best:
+        save_high_score("score.txt", this_game)
+        print("new high score:", this_game)
+    else:
+        print("high score is still", best)</script>
+        <script type="text/plain" class="pyeditor-expected">new high score: 120
+high score is still 120
+new high score: 300</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Write and Read Back</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("groceries.txt", "w") as f:
+    f.write("milk\n")
+    f.write("eggs\n")
+    f.write("bread\n")
+
+with open("groceries.txt", "r") as f:
+    print(f.read())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Count the Lines</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("haiku.txt", "w") as f:
+    f.write("an old silent pond\n")
+    f.write("a frog jumps into the pond\n")
+    f.write("splash! silence again\n")
+
+count = 0
+with open("haiku.txt", "r") as f:
+    for line in f:
+        count += 1
+print(count)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: w vs. a</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># second, third (the second "w" erased "first")
+with open("log.txt", "w") as f:
+    f.write("first\n")
+with open("log.txt", "w") as f:
+    f.write("second\n")
+with open("log.txt", "a") as f:
+    f.write("third\n")
+
+with open("log.txt", "r") as f:
+    print(f.read())</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Numbers In, Total Out</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("numbers.txt", "w") as f:
+    for i in range(1, 11):
+        f.write(str(i) + "\n")
+
+total = 0
+with open("numbers.txt", "r") as f:
+    for line in f:
+        total += int(line.strip())
+print(total)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Word Count</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("speech.txt", "w") as f:
+    f.write("Programs must be written for people to read\n")
+    f.write("and only incidentally for machines to execute\n")
+
+def word_count(filename):
+    with open(filename, "r") as f:
+        return len(f.read().split())
+
+print(word_count("speech.txt"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: A Simple Logger</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def log(filename, message):
+    try:
+        with open(filename, "r") as f:
+            count = len(f.readlines())
+    except FileNotFoundError:
+        count = 0
+    with open(filename, "a") as f:
+        f.write("[" + str(count + 1) + "] " + message + "\n")
+
+log("app.log", "started")
+log("app.log", "loaded settings")
+log("app.log", "shutting down")
+
+with open("app.log", "r") as f:
+    print(f.read().strip())</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Grade Report</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("grades.csv", "w") as f:
+    f.write("Ada,94\n")
+    f.write("Alan,81\n")
+    f.write("Grace,97\n")
+    f.write("Linus,76\n")
+
+total = 0
+count = 0
+top_name = ""
+top_score = -1
+with open("grades.csv", "r") as f:
+    for line in f:
+        name, score = line.strip().split(",")
+        score = int(score)
+        total += score
+        count += 1
+        if score &gt; top_score:
+            top_name = name
+            top_score = score
+
+with open("report.txt", "w") as f:
+    f.write("Average: " + str(round(total / count, 1)) + "\n")
+    f.write("Top student: " + top_name + "\n")
+
+with open("report.txt", "r") as f:
+    print(f.read().strip())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Copy with Line Numbers</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">with open("input.txt", "w") as f:
+    f.write("roses are red\n")
+    f.write("\n")
+    f.write("violets are blue\n")
+    f.write("files are fun\n")
+
+def number_lines(src, dest):
+    n = 1
+    with open(src, "r") as fin, open(dest, "w") as fout:
+        for line in fin:
+            text = line.strip()
+            if text == "":
+                continue
+            fout.write(str(n) + ": " + text.upper() + "\n")
+            n += 1
+
+number_lines("input.txt", "output.txt")
+with open("output.txt", "r") as f:
+    print(f.read().strip())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Settings with a Fallback</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">files_io.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def load_high_score(filename):
+    try:
+        with open(filename, "r") as f:
+            return int(f.read().strip())
+    except (FileNotFoundError, ValueError):
+        return 0
+
+def save_high_score(filename, score):
+    with open(filename, "w") as f:
+        f.write(str(score))
+
+for this_game in [120, 90, 300]:
+    best = load_high_score("score.txt")
+    if this_game &gt; best:
+        save_high_score("score.txt", this_game)
+        print("new high score:", this_game)
+    else:
+        print("high score is still", best)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

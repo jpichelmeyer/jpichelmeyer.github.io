@@ -147,6 +147,386 @@ except ValueError as e:
 caught: age can't be negative</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Safe Integer Parse.</strong> Write a function <code class="code-lesson-il">to_int(text)</code> that returns <code class="code-lesson-il">int(text)</code> when that works, and returns <code class="code-lesson-il">None</code> when it raises a <code class="code-lesson-il">ValueError</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def to_int(text):
+    pass   # TODO
+
+print(to_int("42"))
+print(to_int("abc"))
+print(to_int("3.5"))</script>
+        <script type="text/plain" class="pyeditor-expected">42
+None
+None</script>
+    </div>
+
+    <p><strong>Exercise 2: Match the Exception.</strong> Each <code class="code-lesson-il">try</code> block below raises a different exception. Replace each <code class="code-lesson-il">Exception</code> placeholder with the <strong>specific</strong> exception type that line raises, and make each <code class="code-lesson-il">except</code> print <code class="code-lesson-il">caught</code> followed by that type's name. Look up <code class="code-lesson-il">KeyError</code> if you haven't seen it: it's what a dictionary raises for a missing key.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">try:
+    print([1, 2, 3][5])
+except Exception:   # TODO
+    print("caught ???")
+
+try:
+    print({"a": 1}["b"])
+except Exception:   # TODO
+    print("caught ???")
+
+try:
+    print(10 / 0)
+except Exception:   # TODO
+    print("caught ???")
+
+try:
+    print(int("x"))
+except Exception:   # TODO
+    print("caught ???")</script>
+        <script type="text/plain" class="pyeditor-expected">caught IndexError
+caught KeyError
+caught ZeroDivisionError
+caught ValueError</script>
+    </div>
+
+    <p><strong>Exercise 3: else and finally: Who Runs?.</strong> The function is called twice, once with good input and once with bad input. Predict every line of output before running. Which block runs in both cases?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def parse(text):
+    try:
+        n = int(text)
+    except ValueError:
+        print("bad input")
+    else:
+        print("parsed", n)
+    finally:
+        print("done with", text)
+
+parse("12")
+parse("twelve")</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Safe Divide with Messages.</strong> Write <code class="code-lesson-il">safe_divide(a, b)</code> that returns <code class="code-lesson-il">a / b</code>, but returns the string <code class="code-lesson-il">"cannot divide by zero"</code> on a <code class="code-lesson-il">ZeroDivisionError</code> and <code class="code-lesson-il">"inputs must be numbers"</code> on a <code class="code-lesson-il">TypeError</code>. Use two separate <code class="code-lesson-il">except</code> clauses.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def safe_divide(a, b):
+    pass   # TODO
+
+print(safe_divide(10, 4))
+print(safe_divide(10, 0))
+print(safe_divide(10, "2"))</script>
+        <script type="text/plain" class="pyeditor-expected">2.5
+cannot divide by zero
+inputs must be numbers</script>
+    </div>
+
+    <p><strong>Exercise 5: Raise Your Own: Bank Withdrawal.</strong> Write <code class="code-lesson-il">withdraw(balance, amount)</code> that returns the new balance. It should <code class="code-lesson-il">raise</code> a <code class="code-lesson-il">ValueError</code> with the message <code class="code-lesson-il">"amount must be positive"</code> if <code class="code-lesson-il">amount</code> is 0 or less, and <code class="code-lesson-il">"insufficient funds"</code> if <code class="code-lesson-il">amount</code> is more than <code class="code-lesson-il">balance</code>. The test code catches the errors and prints their messages.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def withdraw(balance, amount):
+    pass   # TODO
+
+for amount in [30, -5, 500]:
+    try:
+        print(withdraw(100, amount))
+    except ValueError as e:
+        print("error:", e)</script>
+        <script type="text/plain" class="pyeditor-expected">70
+error: amount must be positive
+error: insufficient funds</script>
+    </div>
+
+    <p><strong>Exercise 6: Keep Asking Until It&#x27;s Valid.</strong> Real programs keep asking until the user types something usable. Since this editor can't pause for typing, <code class="code-lesson-il">answers</code> stands in for what a user typed, one attempt at a time. Loop through the answers: convert each to an <code class="code-lesson-il">int</code>; print <code class="code-lesson-il">not a number: &lt;answer&gt;</code> for a <code class="code-lesson-il">ValueError</code>, <code class="code-lesson-il">must be positive: &lt;answer&gt;</code> for numbers 0 or below, and stop (with <code class="code-lesson-il">break</code>) at the first valid one, printing <code class="code-lesson-il">got &lt;number&gt;</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">answers = ["ten", "-5", "abc", "7", "99"]
+for answer in answers:
+    pass   # TODO</script>
+        <script type="text/plain" class="pyeditor-expected">not a number: ten
+must be positive: -5
+not a number: abc
+got 7</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Average of Messy Data.</strong> Write <code class="code-lesson-il">average_valid(values)</code> that averages only the items that can be converted with <code class="code-lesson-il">float()</code>, and skips the rest. Watch out: <code class="code-lesson-il">float("oops")</code> raises a <code class="code-lesson-il">ValueError</code>, but <code class="code-lesson-il">float(None)</code> raises a <code class="code-lesson-il">TypeError</code>. Return two values: the average and how many items were skipped.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def average_valid(values):
+    pass   # TODO: return average, skipped
+
+avg, skipped = average_valid(["10", "20", "oops", 30, None, "abc"])
+print(avg)
+print(skipped)</script>
+        <script type="text/plain" class="pyeditor-expected">20.0
+3</script>
+    </div>
+
+    <p><strong>Exercise 8: Validating Input by Type.</strong> Write <code class="code-lesson-il">letter_grade(score)</code> that raises a <code class="code-lesson-il">TypeError</code> (message <code class="code-lesson-il">"score must be a number"</code>) if <code class="code-lesson-il">score</code> isn't an <code class="code-lesson-il">int</code> or <code class="code-lesson-il">float</code>, and a <code class="code-lesson-il">ValueError</code> (message <code class="code-lesson-il">"score must be 0-100"</code>) if it's out of range. Otherwise return <code class="code-lesson-il">"A"</code> for 90+, <code class="code-lesson-il">"B"</code> for 80+, <code class="code-lesson-il">"C"</code> for 70+, and <code class="code-lesson-il">"F"</code> below that. <code class="code-lesson-il">isinstance(score, (int, float))</code> checks the type. The test loop handles each exception type differently.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def letter_grade(score):
+    pass   # TODO
+
+for s in [95, 72.5, "88", 105, 40]:
+    try:
+        print(letter_grade(s))
+    except TypeError as e:
+        print("type problem:", e)
+    except ValueError as e:
+        print("value problem:", e)</script>
+        <script type="text/plain" class="pyeditor-expected">A
+C
+type problem: score must be a number
+value problem: score must be 0-100
+F</script>
+    </div>
+
+    <p><strong>Exercise 9: Reporting Errors from Deep Inside.</strong> Write <code class="code-lesson-il">parse_settings(lines)</code> that turns lines like <code class="code-lesson-il">"volume=7"</code> into a dictionary <code class="code-lesson-il">{"volume": "7"}</code>. If a line has no <code class="code-lesson-il">=</code>, raise a <code class="code-lesson-il">ValueError</code> whose message includes the line number (starting from 1), like <code class="code-lesson-il">line 3: missing '='</code>. The caller catches it. Notice the exception travels up out of <code class="code-lesson-il">parse_settings</code> to wherever the <code class="code-lesson-il">try</code> is, even though that's a different function.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">def parse_settings(lines):
+    settings = {}
+    # TODO
+    return settings
+
+good = ["volume=7", "theme=dark"]
+bad = ["volume=7", "theme=dark", "brightness 5"]
+for lines in [good, bad]:
+    try:
+        print(parse_settings(lines))
+    except ValueError as e:
+        print("could not load settings:", e)</script>
+        <script type="text/plain" class="pyeditor-expected">{'volume': '7', 'theme': 'dark'}
+could not load settings: line 3: missing '='</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Safe Integer Parse</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def to_int(text):
+    try:
+        return int(text)
+    except ValueError:
+        return None
+
+print(to_int("42"))
+print(to_int("abc"))
+print(to_int("3.5"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Match the Exception</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">try:
+    print([1, 2, 3][5])
+except IndexError:
+    print("caught IndexError")
+
+try:
+    print({"a": 1}["b"])
+except KeyError:
+    print("caught KeyError")
+
+try:
+    print(10 / 0)
+except ZeroDivisionError:
+    print("caught ZeroDivisionError")
+
+try:
+    print(int("x"))
+except ValueError:
+    print("caught ValueError")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: else and finally: Who Runs?</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl"># parsed 12 / done with 12 / bad input / done with twelve
+def parse(text):
+    try:
+        n = int(text)
+    except ValueError:
+        print("bad input")
+    else:
+        print("parsed", n)
+    finally:
+        print("done with", text)
+
+parse("12")
+parse("twelve")</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Safe Divide with Messages</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return "cannot divide by zero"
+    except TypeError:
+        return "inputs must be numbers"
+
+print(safe_divide(10, 4))
+print(safe_divide(10, 0))
+print(safe_divide(10, "2"))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Raise Your Own: Bank Withdrawal</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def withdraw(balance, amount):
+    if amount &lt;= 0:
+        raise ValueError("amount must be positive")
+    if amount &gt; balance:
+        raise ValueError("insufficient funds")
+    return balance - amount
+
+for amount in [30, -5, 500]:
+    try:
+        print(withdraw(100, amount))
+    except ValueError as e:
+        print("error:", e)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Keep Asking Until It&#x27;s Valid</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">answers = ["ten", "-5", "abc", "7", "99"]
+for answer in answers:
+    try:
+        n = int(answer)
+    except ValueError:
+        print("not a number: " + answer)
+        continue
+    if n &lt;= 0:
+        print("must be positive: " + answer)
+    else:
+        print("got " + str(n))
+        break</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Average of Messy Data</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def average_valid(values):
+    total = 0
+    count = 0
+    skipped = 0
+    for v in values:
+        try:
+            total += float(v)
+            count += 1
+        except (ValueError, TypeError):
+            skipped += 1
+    return total / count, skipped
+
+avg, skipped = average_valid(["10", "20", "oops", 30, None, "abc"])
+print(avg)
+print(skipped)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Validating Input by Type</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def letter_grade(score):
+    if not isinstance(score, (int, float)):
+        raise TypeError("score must be a number")
+    if score &lt; 0 or score &gt; 100:
+        raise ValueError("score must be 0-100")
+    if score &gt;= 90:
+        return "A"
+    elif score &gt;= 80:
+        return "B"
+    elif score &gt;= 70:
+        return "C"
+    return "F"
+
+for s in [95, 72.5, "88", 105, 40]:
+    try:
+        print(letter_grade(s))
+    except TypeError as e:
+        print("type problem:", e)
+    except ValueError as e:
+        print("value problem:", e)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Reporting Errors from Deep Inside</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">exceptions.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">def parse_settings(lines):
+    settings = {}
+    line_number = 1
+    for line in lines:
+        if "=" not in line:
+            raise ValueError("line " + str(line_number) + ": missing '='")
+        parts = line.split("=")
+        settings[parts[0]] = parts[1]
+        line_number += 1
+    return settings
+
+good = ["volume=7", "theme=dark"]
+bad = ["volume=7", "theme=dark", "brightness 5"]
+for lines in [good, bad]:
+    try:
+        print(parse_settings(lines))
+    except ValueError as e:
+        print("could not load settings:", e)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

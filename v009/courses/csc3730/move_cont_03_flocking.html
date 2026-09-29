@@ -248,5 +248,24 @@ func _ready():
             <li>Get a flock of agents on screen and describe, in your own words, what changed when you pushed a weight constant up or down.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Spawn a small flock and tune separation radius. Main (Node2D) → Flock (Node2D) → Agent instances; Agent.tscn contains Sprite2D and flock script.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Keep agents in bounds with wrap or bounce behavior. Put boundary logic in Flock or each Agent and test corner cases.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add a predator that nearby agents flee while maintaining flocking. Main → Flock and Predator (CharacterBody2D) → Sprite2D; tune avoidance weight.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

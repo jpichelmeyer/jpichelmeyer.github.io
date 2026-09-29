@@ -111,6 +111,456 @@ print(d)</script>
         <script type="text/plain" class="pyeditor-expected">Dog named Rex</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Rectangle, Now with Methods.</strong> Add two methods to <code class="code-lesson-il">Rectangle</code>: <code class="code-lesson-il">area()</code> and <code class="code-lesson-il">perimeter()</code>, each returning a number computed from <code class="code-lesson-il">self.width</code> and <code class="code-lesson-il">self.height</code>.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    # TODO: area and perimeter
+
+r = Rectangle(4, 7)
+print(r.area())
+print(r.perimeter())</script>
+        <script type="text/plain" class="pyeditor-expected">28
+22</script>
+    </div>
+
+    <p><strong>Exercise 2: Click Counter.</strong> Write a <code class="code-lesson-il">Counter</code> class that starts at 0, with three methods: <code class="code-lesson-il">increment()</code> adds 1, <code class="code-lesson-il">reset()</code> sets it back to 0, and <code class="code-lesson-il">get()</code> returns the current value. Why does each method need <code class="code-lesson-il">self</code> even though none of them take any other input?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Counter:
+    pass   # TODO
+
+c = Counter()
+c.increment()
+c.increment()
+c.increment()
+print(c.get())
+c.reset()
+print(c.get())</script>
+        <script type="text/plain" class="pyeditor-expected">3
+0</script>
+    </div>
+
+    <p><strong>Exercise 3: A Readable Book.</strong> Give <code class="code-lesson-il">Book</code> a <code class="code-lesson-il">__str__</code> method so that printing a book shows <code class="code-lesson-il">Kindred by Octavia Butler</code>. Before adding it, run the starter once to see the default, unreadable output.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Book:
+    def __init__(self, title, author):
+        self.title = title
+        self.author = author
+
+    # TODO: __str__
+
+print(Book("Kindred", "Octavia Butler"))
+print(Book("Dune", "Frank Herbert"))</script>
+        <script type="text/plain" class="pyeditor-expected">Kindred by Octavia Butler
+Dune by Frank Herbert</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Bank Account.</strong> Write a <code class="code-lesson-il">BankAccount</code> class with an <code class="code-lesson-il">owner</code> and a <code class="code-lesson-il">balance</code> (default 0) and three methods:</p>
+    <ul>
+        <li><code class="code-lesson-il">deposit(amount)</code> adds to the balance.</li>
+        <li><code class="code-lesson-il">withdraw(amount)</code> subtracts and returns <code class="code-lesson-il">True</code> if there's enough money; otherwise it changes nothing and returns <code class="code-lesson-il">False</code>.</li>
+        <li><code class="code-lesson-il">__str__</code> returns something like <code class="code-lesson-il">Ada: $70</code>.</li>
+    </ul>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class BankAccount:
+    pass   # TODO
+
+acct = BankAccount("Ada")
+acct.deposit(100)
+print(acct.withdraw(30))
+print(acct.withdraw(500))
+print(acct)</script>
+        <script type="text/plain" class="pyeditor-expected">True
+False
+Ada: $70</script>
+    </div>
+
+    <p><strong>Exercise 5: Student IDs from a Class Variable.</strong> Write a <code class="code-lesson-il">Student</code> class with a class variable <code class="code-lesson-il">next_id</code> that starts at 1000. Every new student gets <code class="code-lesson-il">self.student_id</code> set to the current <code class="code-lesson-il">next_id</code>, and then <code class="code-lesson-il">Student.next_id</code> goes up by 1, so no two students ever share an ID. Also add a class variable <code class="code-lesson-il">school = "CSC University"</code> and print it through an instance.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Student:
+    pass   # TODO
+
+a = Student("Ada")
+b = Student("Alan")
+c = Student("Grace")
+print(a.name, a.student_id)
+print(b.name, b.student_id)
+print(c.name, c.student_id)
+print(a.school)
+print(Student.next_id)</script>
+        <script type="text/plain" class="pyeditor-expected">Ada 1000
+Alan 1001
+Grace 1002
+CSC University
+1003</script>
+    </div>
+
+    <p><strong>Exercise 6: Methods That Call Methods.</strong> Write a <code class="code-lesson-il">Circle</code> class with a <code class="code-lesson-il">radius</code>, plus methods <code class="code-lesson-il">area()</code> and <code class="code-lesson-il">circumference()</code> (use <code class="code-lesson-il">math.pi</code>). Then add <code class="code-lesson-il">describe()</code>, which returns a sentence built by <strong>calling the other two methods</strong> through <code class="code-lesson-il">self</code>, with both numbers rounded to 2 places.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math
+
+class Circle:
+    pass   # TODO
+
+print(Circle(1).describe())
+print(Circle(2.5).describe())</script>
+        <script type="text/plain" class="pyeditor-expected">radius 1: area 3.14, circumference 6.28
+radius 2.5: area 19.63, circumference 15.71</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Shopping Cart.</strong> Write a <code class="code-lesson-il">ShoppingCart</code> class that stores items in a dictionary mapping item name to <code class="code-lesson-il">(price, quantity)</code>. Give it:</p>
+    <ul>
+        <li><code class="code-lesson-il">add_item(name, price, quantity=1)</code>: if the item is already in the cart, increase its quantity instead of replacing it.</li>
+        <li><code class="code-lesson-il">remove_item(name)</code>: remove it if present; do nothing otherwise.</li>
+        <li><code class="code-lesson-il">total()</code>: the total cost.</li>
+        <li><code class="code-lesson-il">__str__</code>: one line per item like <code class="code-lesson-il">apple x3 @ $0.50</code>, followed by a <code class="code-lesson-il">Total: $...</code> line, with money to 2 decimal places.</li>
+    </ul>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class ShoppingCart:
+    pass   # TODO
+
+cart = ShoppingCart()
+cart.add_item("apple", 0.5, 2)
+cart.add_item("bread", 3.25)
+cart.add_item("apple", 0.5)
+cart.add_item("gum", 1.0)
+cart.remove_item("gum")
+cart.remove_item("caviar")
+print(cart)</script>
+        <script type="text/plain" class="pyeditor-expected">apple x3 @ $0.50
+bread x1 @ $3.25
+Total: $4.75</script>
+    </div>
+
+    <p><strong>Exercise 8: The Shared List Bug.</strong> Each dog should have its own list of tricks, but teaching Rex a trick also teaches Fido. Explain why, using the difference between class variables and instance variables, then fix it so each dog gets its own list.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Dog:
+    tricks = []
+
+    def __init__(self, name):
+        self.name = name
+
+    def learn(self, trick):
+        self.tricks.append(trick)
+
+rex = Dog("Rex")
+fido = Dog("Fido")
+rex.learn("roll over")
+fido.learn("sit")
+print(rex.name, rex.tricks)
+print(fido.name, fido.tricks)</script>
+        <script type="text/plain" class="pyeditor-expected">Rex ['roll over']
+Fido ['sit']</script>
+    </div>
+
+    <p><strong>Exercise 9: Fractions.</strong> Write a <code class="code-lesson-il">Fraction</code> class with a <code class="code-lesson-il">numerator</code> and <code class="code-lesson-il">denominator</code>, always stored in lowest terms (divide both by <code class="code-lesson-il">math.gcd(numerator, denominator)</code> in <code class="code-lesson-il">__init__</code>). Add:</p>
+    <ul>
+        <li><code class="code-lesson-il">add(other)</code>: returns a <strong>new</strong> <code class="code-lesson-il">Fraction</code> equal to <code class="code-lesson-il">self + other</code> (a/b + c/d = (ad + bc) / bd), leaving both originals unchanged.</li>
+        <li><code class="code-lesson-il">multiply(other)</code>: returns a new <code class="code-lesson-il">Fraction</code> equal to the product.</li>
+        <li><code class="code-lesson-il">__str__</code>: shows it like <code class="code-lesson-il">3/4</code>.</li>
+    </ul>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math
+
+class Fraction:
+    pass   # TODO
+
+half = Fraction(1, 2)
+quarter = Fraction(2, 8)
+print(quarter)
+print(half.add(quarter))
+print(half.multiply(quarter))
+print(half)</script>
+        <script type="text/plain" class="pyeditor-expected">1/4
+3/4
+1/8
+1/2</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Rectangle, Now with Methods</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+    def perimeter(self):
+        return 2 * (self.width + self.height)
+
+r = Rectangle(4, 7)
+print(r.area())
+print(r.perimeter())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Click Counter</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Counter:
+    def __init__(self):
+        self.value = 0
+
+    def increment(self):
+        self.value += 1
+
+    def reset(self):
+        self.value = 0
+
+    def get(self):
+        return self.value
+
+c = Counter()
+c.increment()
+c.increment()
+c.increment()
+print(c.get())
+c.reset()
+print(c.get())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: A Readable Book</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Book:
+    def __init__(self, title, author):
+        self.title = title
+        self.author = author
+
+    def __str__(self):
+        return self.title + " by " + self.author
+
+print(Book("Kindred", "Octavia Butler"))
+print(Book("Dune", "Frank Herbert"))</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Bank Account</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount &gt; self.balance:
+            return False
+        self.balance -= amount
+        return True
+
+    def __str__(self):
+        return f"{self.owner}: ${self.balance}"
+
+acct = BankAccount("Ada")
+acct.deposit(100)
+print(acct.withdraw(30))
+print(acct.withdraw(500))
+print(acct)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Student IDs from a Class Variable</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Student:
+    next_id = 1000
+    school = "CSC University"
+
+    def __init__(self, name):
+        self.name = name
+        self.student_id = Student.next_id
+        Student.next_id += 1
+
+a = Student("Ada")
+b = Student("Alan")
+c = Student("Grace")
+print(a.name, a.student_id)
+print(b.name, b.student_id)
+print(c.name, c.student_id)
+print(a.school)
+print(Student.next_id)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Methods That Call Methods</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+
+    def area(self):
+        return math.pi * self.radius ** 2
+
+    def circumference(self):
+        return 2 * math.pi * self.radius
+
+    def describe(self):
+        return f"radius {self.radius}: area {round(self.area(), 2)}, circumference {round(self.circumference(), 2)}"
+
+print(Circle(1).describe())
+print(Circle(2.5).describe())</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Shopping Cart</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class ShoppingCart:
+    def __init__(self):
+        self.items = {}
+
+    def add_item(self, name, price, quantity=1):
+        if name in self.items:
+            old_price, old_qty = self.items[name]
+            self.items[name] = (old_price, old_qty + quantity)
+        else:
+            self.items[name] = (price, quantity)
+
+    def remove_item(self, name):
+        if name in self.items:
+            del self.items[name]
+
+    def total(self):
+        t = 0
+        for price, qty in self.items.values():
+            t += price * qty
+        return t
+
+    def __str__(self):
+        lines = ""
+        for name, (price, qty) in self.items.items():
+            lines += f"{name} x{qty} @ ${price:.2f}\n"
+        return lines + f"Total: ${self.total():.2f}"
+
+cart = ShoppingCart()
+cart.add_item("apple", 0.5, 2)
+cart.add_item("bread", 3.25)
+cart.add_item("apple", 0.5)
+cart.add_item("gum", 1.0)
+cart.remove_item("gum")
+cart.remove_item("caviar")
+print(cart)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: The Shared List Bug</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Dog:
+    def __init__(self, name):
+        self.name = name
+        self.tricks = []
+
+    def learn(self, trick):
+        self.tricks.append(trick)
+
+rex = Dog("Rex")
+fido = Dog("Fido")
+rex.learn("roll over")
+fido.learn("sit")
+print(rex.name, rex.tricks)
+print(fido.name, fido.tricks)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Fractions</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">methods.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+
+class Fraction:
+    def __init__(self, numerator, denominator):
+        g = math.gcd(numerator, denominator)
+        self.numerator = numerator // g
+        self.denominator = denominator // g
+
+    def add(self, other):
+        n = self.numerator * other.denominator + other.numerator * self.denominator
+        d = self.denominator * other.denominator
+        return Fraction(n, d)
+
+    def multiply(self, other):
+        return Fraction(self.numerator * other.numerator, self.denominator * other.denominator)
+
+    def __str__(self):
+        return f"{self.numerator}/{self.denominator}"
+
+half = Fraction(1, 2)
+quarter = Fraction(2, 8)
+print(quarter)
+print(half.add(quarter))
+print(half.multiply(quarter))
+print(half)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

@@ -96,5 +96,24 @@
             <li>Give one concrete way a neural version of Checker or Sentry could outperform the actual model in this project, and one real cost that comes with that upgrade.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Expose a neuron’s weights and show its output. Main → Network (Node), UI (CanvasLayer) → WeightSliders, OutputLabel.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add a hidden layer and plot loss over epochs. Keep layer data in Network and add LossPlot (Control) under UI.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Train a small network on two-feature data and visualize decision regions. Main → Network, Dataset, UI → Plot; use separate evaluation examples.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

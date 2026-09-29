@@ -87,6 +87,540 @@ Fido says Woof!</script>
     </div>
     <p>Every new animal type would mean going back and adding another branch to <em>every single place</em> in the code that does this kind of check, instead of just writing one new class with its own <code class="code-lesson-il">speak()</code> and being done. That growing pile of type checks scattered everywhere is exactly what polymorphism exists to avoid.</p>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Add a Cow.</strong> Add a <code class="code-lesson-il">Cow</code> class that overrides <code class="code-lesson-il">speak()</code> to say Moo, and add a cow to the list. The loop itself must not change at all: that's the whole point.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+class Cat(Animal):
+    def speak(self):
+        return self.name + " says Meow!"
+
+# TODO: class Cow(Animal)
+
+animals = [Dog("Rex"), Cat("Whiskers")]   # TODO: add Cow("Bessie")
+for a in animals:
+    print(a.speak())</script>
+        <script type="text/plain" class="pyeditor-expected">Rex says Woof!
+Whiskers says Meow!
+Bessie says Moo!</script>
+    </div>
+
+    <p><strong>Exercise 2: Shapes with area().</strong> Write three classes, <code class="code-lesson-il">Circle(radius)</code>, <code class="code-lesson-il">Square(side)</code>, and <code class="code-lesson-il">Triangle(base, height)</code>, each with its own <code class="code-lesson-il">area()</code> method (triangle area is base × height / 2; use <code class="code-lesson-il">math.pi</code> for the circle). The loop prints each area rounded to 2 places, without checking which kind of shape it is.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math
+
+# TODO: Circle, Square, Triangle
+
+shapes = [Circle(1), Square(3), Triangle(4, 5)]
+for s in shapes:
+    print(round(s.area(), 2))</script>
+        <script type="text/plain" class="pyeditor-expected">3.14
+9
+10.0</script>
+    </div>
+
+    <p><strong>Exercise 3: No Parent Required.</strong> Python doesn't actually require a shared parent class for this to work, only that each object has a method with the right name. Write two completely unrelated classes, <code class="code-lesson-il">Robot</code> and <code class="code-lesson-il">Person</code>, each with a <code class="code-lesson-il">greet()</code> method that returns a different greeting. Put one of each in a list and loop over them calling <code class="code-lesson-il">greet()</code>. (This style is often called <strong>duck typing</strong>: if it has a <code class="code-lesson-il">greet()</code>, you can greet it.)</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter"># TODO: class Robot and class Person, no inheritance
+
+for thing in [Robot("R2"), Person("Ada")]:
+    print(thing.greet())</script>
+        <script type="text/plain" class="pyeditor-expected">BEEP. UNIT R2 ONLINE.
+Hi, I'm Ada!</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Total Area.</strong> Using the shape classes from Exercise 2 (copy them in), write a function <code class="code-lesson-il">total_area(shapes)</code> that returns the sum of the areas of every shape in a list, however many kinds of shape it contains. Print the result rounded to 2 places. Then add a <code class="code-lesson-il">Rectangle(width, height)</code> class and a rectangle to the list: <code class="code-lesson-il">total_area</code> should need no changes.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math
+
+# TODO: paste in Circle, Square, Triangle; add Rectangle
+
+def total_area(shapes):
+    pass   # TODO
+
+print(round(total_area([Circle(1), Square(3), Triangle(4, 5), Rectangle(2, 6)]), 2))</script>
+        <script type="text/plain" class="pyeditor-expected">34.14</script>
+    </div>
+
+    <p><strong>Exercise 5: Payroll.</strong> Three kinds of employee are paid differently each week. Write subclasses of <code class="code-lesson-il">Employee</code>, each overriding <code class="code-lesson-il">weekly_pay()</code>:</p>
+    <ul>
+        <li><code class="code-lesson-il">Salaried(name, annual_salary)</code>: annual salary divided by 52.</li>
+        <li><code class="code-lesson-il">Hourly(name, rate, hours)</code>: rate × hours, plus time-and-a-half (1.5 × rate) for every hour over 40.</li>
+        <li><code class="code-lesson-il">Commissioned(name, base, sales)</code>: base plus 10% of sales.</li>
+    </ul>
+    <p>The payroll loop prints each person's pay to 2 decimal places.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Employee:
+    def __init__(self, name):
+        self.name = name
+    def weekly_pay(self):
+        return 0
+
+# TODO: Salaried, Hourly, Commissioned
+
+staff = [Salaried("Ada", 78000), Hourly("Alan", 20, 45), Commissioned("Grace", 300, 4000)]
+for e in staff:
+    print(f"{e.name}: ${e.weekly_pay():.2f}")</script>
+        <script type="text/plain" class="pyeditor-expected">Ada: $1500.00
+Alan: $950.00
+Grace: $700.00</script>
+    </div>
+
+    <p><strong>Exercise 6: Replace the Type Checks.</strong> <code class="code-lesson-il">send_all</code> uses an <code class="code-lesson-il">isinstance</code> chain, the pattern Part 3 warns about. Refactor it: give each notification class its own <code class="code-lesson-il">send()</code> method returning the same text as before, and rewrite <code class="code-lesson-il">send_all</code> so its loop body is a single line with no <code class="code-lesson-il">if</code> at all. The output must not change.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Email:
+    def __init__(self, address, text):
+        self.address = address
+        self.text = text
+
+class SMS:
+    def __init__(self, number, text):
+        self.number = number
+        self.text = text
+
+def send_all(notifications):
+    for n in notifications:
+        if isinstance(n, Email):
+            print("Emailing " + n.address + ": " + n.text)
+        elif isinstance(n, SMS):
+            print("Texting " + n.number + ": " + n.text[:20])
+
+send_all([Email("ada@example.com", "Your grade is posted"),
+          SMS("555-0199", "Class is cancelled today due to snow")])</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: The Template Method.</strong> A base class method can call a method that subclasses override. <code class="code-lesson-il">Animal.introduce()</code> below calls <code class="code-lesson-il">self.speak()</code> and <code class="code-lesson-il">self.move()</code>. Write <code class="code-lesson-il">Dog</code>, <code class="code-lesson-il">Bird</code>, and <code class="code-lesson-il">Snake</code> classes that override one or both. <code class="code-lesson-il">Snake</code> should override only <code class="code-lesson-il">move()</code>, leaving the default <code class="code-lesson-il">speak()</code>. Predict each line of output before running.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "makes no sound"
+    def move(self):
+        return "walks"
+    def introduce(self):
+        return f"{self.name} {self.speak()} and {self.move()}."
+
+# TODO: Dog (speak: barks), Bird (speak: chirps, move: flies), Snake (move: slithers)
+
+for a in [Dog("Rex"), Bird("Tweety"), Snake("Kaa")]:
+    print(a.introduce())</script>
+        <script type="text/plain" class="pyeditor-expected">Rex barks and walks.
+Tweety chirps and flies.
+Kaa makes no sound and slithers.</script>
+    </div>
+
+    <p><strong>Exercise 8: The Biggest Shape.</strong> Give each shape class a <code class="code-lesson-il">__str__</code> (like <code class="code-lesson-il">Circle(r=2)</code>) and write <code class="code-lesson-il">largest(shapes)</code>, which returns the shape with the biggest area using only <code class="code-lesson-il">area()</code>, never checking types. Print the largest shape and then every shape whose area is above the average area.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">import math
+
+class Circle:
+    def __init__(self, r):
+        self.r = r
+    def area(self):
+        return math.pi * self.r ** 2
+    # TODO: __str__
+
+class Rect:
+    def __init__(self, w, h):
+        self.w = w
+        self.h = h
+    def area(self):
+        return self.w * self.h
+    # TODO: __str__
+
+def largest(shapes):
+    pass   # TODO
+
+shapes = [Circle(2), Rect(3, 3), Rect(1, 20), Circle(1)]
+print(largest(shapes))
+# TODO: print every shape with above-average area</script>
+        <script type="text/plain" class="pyeditor-expected">Rect(1x20)
+Circle(r=2)
+Rect(1x20)</script>
+    </div>
+
+    <p><strong>Exercise 9: One Round of Battle.</strong> Build a tiny turn-based game. Every <code class="code-lesson-il">Character</code> has a <code class="code-lesson-il">name</code> and <code class="code-lesson-il">hp</code> (hit points). Each subclass overrides <code class="code-lesson-il">take_turn(target)</code>, which changes <code class="code-lesson-il">hp</code> values and returns a sentence describing what happened:</p>
+    <ul>
+        <li><code class="code-lesson-il">Warrior</code>: deals 12 damage to the target.</li>
+        <li><code class="code-lesson-il">Mage</code>: deals 20 damage to the target but loses 5 of its own hp.</li>
+        <li><code class="code-lesson-il">Healer</code>: ignores the target and heals itself for 10.</li>
+    </ul>
+    <p>The main loop gives every character one turn against the <code class="code-lesson-il">boss</code>, printing each sentence, then prints the boss's remaining hp.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">class Character:
+    def __init__(self, name, hp):
+        self.name = name
+        self.hp = hp
+    def take_turn(self, target):
+        return self.name + " waits."
+
+# TODO: Warrior, Mage, Healer
+
+boss = Character("Dragon", 100)
+party = [Warrior("Ada", 50), Mage("Alan", 30), Healer("Grace", 40)]
+for hero in party:
+    print(hero.take_turn(boss))
+print(boss.name + " has " + str(boss.hp) + " hp left")</script>
+        <script type="text/plain" class="pyeditor-expected">Ada strikes Dragon for 12.
+Alan casts a fireball at Dragon for 20 (costs 5 hp, now 25).
+Grace heals to 50 hp.
+Dragon has 68 hp left</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Add a Cow</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "..."
+
+class Dog(Animal):
+    def speak(self):
+        return self.name + " says Woof!"
+
+class Cat(Animal):
+    def speak(self):
+        return self.name + " says Meow!"
+
+class Cow(Animal):
+    def speak(self):
+        return self.name + " says Moo!"
+
+animals = [Dog("Rex"), Cat("Whiskers"), Cow("Bessie")]
+for a in animals:
+    print(a.speak())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Shapes with area()</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+    def area(self):
+        return math.pi * self.radius ** 2
+
+class Square:
+    def __init__(self, side):
+        self.side = side
+    def area(self):
+        return self.side ** 2
+
+class Triangle:
+    def __init__(self, base, height):
+        self.base = base
+        self.height = height
+    def area(self):
+        return self.base * self.height / 2
+
+shapes = [Circle(1), Square(3), Triangle(4, 5)]
+for s in shapes:
+    print(round(s.area(), 2))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: No Parent Required</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Robot:
+    def __init__(self, model):
+        self.model = model
+    def greet(self):
+        return "BEEP. UNIT " + self.model + " ONLINE."
+
+class Person:
+    def __init__(self, name):
+        self.name = name
+    def greet(self):
+        return "Hi, I'm " + self.name + "!"
+
+for thing in [Robot("R2"), Person("Ada")]:
+    print(thing.greet())</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Total Area</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+    def area(self):
+        return math.pi * self.radius ** 2
+
+class Square:
+    def __init__(self, side):
+        self.side = side
+    def area(self):
+        return self.side ** 2
+
+class Triangle:
+    def __init__(self, base, height):
+        self.base = base
+        self.height = height
+    def area(self):
+        return self.base * self.height / 2
+
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    def area(self):
+        return self.width * self.height
+
+def total_area(shapes):
+    total = 0
+    for s in shapes:
+        total += s.area()
+    return total
+
+print(round(total_area([Circle(1), Square(3), Triangle(4, 5), Rectangle(2, 6)]), 2))</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Payroll</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Employee:
+    def __init__(self, name):
+        self.name = name
+    def weekly_pay(self):
+        return 0
+
+class Salaried(Employee):
+    def __init__(self, name, annual_salary):
+        super().__init__(name)
+        self.annual_salary = annual_salary
+    def weekly_pay(self):
+        return self.annual_salary / 52
+
+class Hourly(Employee):
+    def __init__(self, name, rate, hours):
+        super().__init__(name)
+        self.rate = rate
+        self.hours = hours
+    def weekly_pay(self):
+        if self.hours &lt;= 40:
+            return self.rate * self.hours
+        overtime = self.hours - 40
+        return self.rate * 40 + overtime * self.rate * 1.5
+
+class Commissioned(Employee):
+    def __init__(self, name, base, sales):
+        super().__init__(name)
+        self.base = base
+        self.sales = sales
+    def weekly_pay(self):
+        return self.base + 0.10 * self.sales
+
+staff = [Salaried("Ada", 78000), Hourly("Alan", 20, 45), Commissioned("Grace", 300, 4000)]
+for e in staff:
+    print(f"{e.name}: ${e.weekly_pay():.2f}")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: Replace the Type Checks</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Email:
+    def __init__(self, address, text):
+        self.address = address
+        self.text = text
+    def send(self):
+        return "Emailing " + self.address + ": " + self.text
+
+class SMS:
+    def __init__(self, number, text):
+        self.number = number
+        self.text = text
+    def send(self):
+        return "Texting " + self.number + ": " + self.text[:20]
+
+def send_all(notifications):
+    for n in notifications:
+        print(n.send())
+
+send_all([Email("ada@example.com", "Your grade is posted"),
+          SMS("555-0199", "Class is cancelled today due to snow")])</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: The Template Method</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "makes no sound"
+    def move(self):
+        return "walks"
+    def introduce(self):
+        return f"{self.name} {self.speak()} and {self.move()}."
+
+class Dog(Animal):
+    def speak(self):
+        return "barks"
+
+class Bird(Animal):
+    def speak(self):
+        return "chirps"
+    def move(self):
+        return "flies"
+
+class Snake(Animal):
+    def move(self):
+        return "slithers"
+
+for a in [Dog("Rex"), Bird("Tweety"), Snake("Kaa")]:
+    print(a.introduce())</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: The Biggest Shape</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">import math
+
+class Circle:
+    def __init__(self, r):
+        self.r = r
+    def area(self):
+        return math.pi * self.r ** 2
+    def __str__(self):
+        return f"Circle(r={self.r})"
+
+class Rect:
+    def __init__(self, w, h):
+        self.w = w
+        self.h = h
+    def area(self):
+        return self.w * self.h
+    def __str__(self):
+        return f"Rect({self.w}x{self.h})"
+
+def largest(shapes):
+    best = shapes[0]
+    for s in shapes:
+        if s.area() &gt; best.area():
+            best = s
+    return best
+
+shapes = [Circle(2), Rect(3, 3), Rect(1, 20), Circle(1)]
+print(largest(shapes))
+total = 0
+for s in shapes:
+    total += s.area()
+average = total / len(shapes)
+for s in shapes:
+    if s.area() &gt; average:
+        print(s)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: One Round of Battle</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">polymorphism.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">class Character:
+    def __init__(self, name, hp):
+        self.name = name
+        self.hp = hp
+    def take_turn(self, target):
+        return self.name + " waits."
+
+class Warrior(Character):
+    def take_turn(self, target):
+        target.hp -= 12
+        return f"{self.name} strikes {target.name} for 12."
+
+class Mage(Character):
+    def take_turn(self, target):
+        target.hp -= 20
+        self.hp -= 5
+        return f"{self.name} casts a fireball at {target.name} for 20 (costs 5 hp, now {self.hp})."
+
+class Healer(Character):
+    def take_turn(self, target):
+        self.hp += 10
+        return f"{self.name} heals to {self.hp} hp."
+
+boss = Character("Dragon", 100)
+party = [Warrior("Ada", 50), Mage("Alan", 30), Healer("Grace", 40)]
+for hero in party:
+    print(hero.take_turn(boss))
+print(boss.name + " has " + str(boss.hp) + " hp left")</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

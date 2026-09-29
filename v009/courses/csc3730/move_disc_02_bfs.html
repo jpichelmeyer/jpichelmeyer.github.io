@@ -240,5 +240,24 @@ func _process(delta: float) -> void:
         </ol>
         <p>Next: the same idea, but guided by a heuristic instead of exploring blindly in every direction.</p>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Display the BFS route between start and goal. Main (Node2D) → PathGrid, Agent, UI (CanvasLayer) → FindPathButton; keep BFS in a pathfinding node/script.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Handle unreachable goals and show “no path.” Test a goal enclosed by blocked cells and clear stale routes.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Visualize explored cells before final path. Add SearchOverlay (Node2D) under Main and separate search data from drawing.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>

@@ -300,6 +300,25 @@ func _rotation_wander(delta_passed: float) -> void:
         </ol>
         <p>If all of this feels solid, you're ready for steering next: giving an agent a reason to turn, instead of turning on its own.</p>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Export a speed variable and adjust it in Inspector. Agent (Node2D) → Sprite2D; attach script to Agent.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Create a collectible packed scene: Collectible (Area2D) → Sprite2D, CollisionShape2D. Main (Node2D) → Agent, Collectibles (Node2D); increment a counter on overlap.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Create a spawner that instantiates Agent.tscn up to a cap. Main → AgentSpawner (Node), Agents (Node2D); export PackedScene, interval, and cap.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 
 </html>

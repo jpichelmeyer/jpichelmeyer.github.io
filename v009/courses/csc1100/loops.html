@@ -144,6 +144,287 @@ print(product)</script>
         <script type="text/plain" class="pyeditor-expected">120</script>
     </div>
 
+    <h3>Exercises</h3>
+    <p>Practice problems in three tiers. Each editor starts with some scaffolding; replace the parts marked <code class="code-lesson-il">TODO</code> and run it. Where an editor has an expected output, your program should match it exactly. Exercises that ask you to predict something first are worth doing honestly: write your guess down before you run anything.</p>
+
+    <h4>Warm Up</h4>
+    <p><strong>Exercise 1: Countdown.</strong> Use a <code class="code-lesson-il">while</code> loop to print the numbers 10 down to 1, one per line, then print <code class="code-lesson-il">Blastoff!</code> after the loop ends. Make sure the loop variable actually changes on every pass.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">n = 10
+# TODO: while loop here
+print("Blastoff!")</script>
+        <script type="text/plain" class="pyeditor-expected">10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Blastoff!</script>
+    </div>
+
+    <p><strong>Exercise 2: Multiplication Row.</strong> Use a <code class="code-lesson-il">for</code> loop and <code class="code-lesson-il">range()</code> to print the 7 times table from 7 x 1 up to 7 x 10, using the format in the starter's <code class="code-lesson-il">print</code> line.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">n = 7
+# TODO: loop i from 1 to 10 (inclusive!)
+i = 1
+print(n, "x", i, "=", n * i)</script>
+        <script type="text/plain" class="pyeditor-expected">7 x 1 = 7
+7 x 2 = 14
+7 x 3 = 21
+7 x 4 = 28
+7 x 5 = 35
+7 x 6 = 42
+7 x 7 = 49
+7 x 8 = 56
+7 x 9 = 63
+7 x 10 = 70</script>
+    </div>
+
+    <p><strong>Exercise 3: Sum of Evens.</strong> Use <code class="code-lesson-il">range()</code> with a step and the accumulator pattern to add up every even number from 2 to 100, inclusive. Print only the final total. Double-check the stop value: <code class="code-lesson-il">range</code> stops <strong>before</strong> it.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">total = 0
+# TODO
+print(total)</script>
+        <script type="text/plain" class="pyeditor-expected">2550</script>
+    </div>
+
+
+    <h4>Intermediate</h4>
+    <p><strong>Exercise 4: Vowel Counter.</strong> Loop over the string <code class="code-lesson-il">text</code> one character at a time and count how many vowels (a, e, i, o, u) it contains. Lowercase vowels only is fine for this text. Hint: <code class="code-lesson-il">ch in "aeiou"</code> is <code class="code-lesson-il">True</code> when <code class="code-lesson-il">ch</code> is a vowel.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">text = "programming is fun"
+count = 0
+# TODO
+print(count)</script>
+        <script type="text/plain" class="pyeditor-expected">5</script>
+    </div>
+
+    <p><strong>Exercise 5: Digit Sum with while.</strong> Add up the digits of <code class="code-lesson-il">n = 98765</code> without converting it to a string. Use a <code class="code-lesson-il">while</code> loop: on each pass, add <code class="code-lesson-il">n % 10</code> (the last digit) to your total, then chop that digit off with <code class="code-lesson-il">n = n // 10</code>. Stop when <code class="code-lesson-il">n</code> reaches 0. Why is a <code class="code-lesson-il">while</code> loop a better fit than a <code class="code-lesson-il">for</code> loop here?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">n = 98765
+digit_sum = 0
+# TODO
+print(digit_sum)</script>
+        <script type="text/plain" class="pyeditor-expected">35</script>
+    </div>
+
+    <p><strong>Exercise 6: FizzBuzz.</strong> Print the numbers from 1 to 15, but for multiples of 3 print <code class="code-lesson-il">Fizz</code> instead of the number, for multiples of 5 print <code class="code-lesson-il">Buzz</code>, and for multiples of both print <code class="code-lesson-il">FizzBuzz</code>. Which condition has to be checked first, and why?</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">for i in range(1, 16):
+    print(i)   # TODO: replace with the FizzBuzz logic</script>
+        <script type="text/plain" class="pyeditor-expected">1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz</script>
+    </div>
+
+
+    <h4>Advanced</h4>
+    <p><strong>Exercise 7: Prime Checker with break.</strong> Check whether <code class="code-lesson-il">n</code> is prime by trying every divisor from 2 up to <code class="code-lesson-il">n - 1</code>. As soon as you find one that divides evenly, record it and <code class="code-lesson-il">break</code> out of the loop, there's no point checking further. After the loop, print <code class="code-lesson-il">97 is prime</code> or, for a number like 91, <code class="code-lesson-il">91 is not prime (divisible by 7)</code>. Hint: start a variable like <code class="code-lesson-il">divisor = 0</code> before the loop and use it as a flag.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">n = 97
+divisor = 0
+# TODO: loop, set divisor and break when you find one
+
+# TODO: print the right message</script>
+        <script type="text/plain" class="pyeditor-expected">97 is prime</script>
+    </div>
+
+    <p><strong>Exercise 8: Collatz Steps.</strong> Start with <code class="code-lesson-il">n = 27</code>. Repeat until <code class="code-lesson-il">n</code> equals 1: if <code class="code-lesson-il">n</code> is even, halve it (use <code class="code-lesson-il">//</code>); if it's odd, set it to <code class="code-lesson-il">3 * n + 1</code>. Count how many steps it takes and print only the count. (Nobody has proven that this always reaches 1 for every starting number, which is exactly why it has to be a <code class="code-lesson-il">while</code> loop.)</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">n = 27
+steps = 0
+# TODO
+print(steps)</script>
+        <script type="text/plain" class="pyeditor-expected">111</script>
+    </div>
+
+    <p><strong>Exercise 9: Triangle of Stars.</strong> Use <strong>nested</strong> loops to print a right triangle of <code class="code-lesson-il">*</code> characters with <code class="code-lesson-il">height</code> rows: row 1 has one star, row 2 has two, and so on. Build each row with an inner loop that adds one <code class="code-lesson-il">"*"</code> at a time to a string, then print the row. Once it matches, try printing it upside down.</p>
+
+    <div class="pyeditor">
+        <script type="text/plain" class="pyeditor-starter">height = 4
+for row in range(1, height + 1):
+    line = ""
+    # TODO: inner loop that adds row stars to line
+    print(line)</script>
+        <script type="text/plain" class="pyeditor-expected">*
+**
+***
+****</script>
+    </div>
+
+    <h3>Solutions</h3>
+    <p>Give each exercise an honest try before opening its solution. Most problems have more than one correct answer; if yours produces the same output, it's right, even if it doesn't look like this one.</p>
+
+    <h4>Warm Up</h4>
+    <details>
+    <summary>Exercise 1: Countdown</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">n = 10
+while n &gt;= 1:
+    print(n)
+    n -= 1
+print("Blastoff!")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 2: Multiplication Row</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">n = 7
+for i in range(1, 11):
+    print(n, "x", i, "=", n * i)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 3: Sum of Evens</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">total = 0
+for i in range(2, 101, 2):
+    total += i
+print(total)</code>
+    </div>
+    </details>
+
+    <h4>Intermediate</h4>
+    <details>
+    <summary>Exercise 4: Vowel Counter</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">text = "programming is fun"
+count = 0
+for ch in text:
+    if ch in "aeiou":
+        count += 1
+print(count)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 5: Digit Sum with while</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">n = 98765
+digit_sum = 0
+while n &gt; 0:
+    digit_sum += n % 10
+    n = n // 10
+print(digit_sum)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 6: FizzBuzz</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">for i in range(1, 16):
+    if i % 15 == 0:
+        print("FizzBuzz")
+    elif i % 3 == 0:
+        print("Fizz")
+    elif i % 5 == 0:
+        print("Buzz")
+    else:
+        print(i)</code>
+    </div>
+    </details>
+
+    <h4>Advanced</h4>
+    <details>
+    <summary>Exercise 7: Prime Checker with break</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">n = 97
+divisor = 0
+for d in range(2, n):
+    if n % d == 0:
+        divisor = d
+        break
+
+if divisor == 0:
+    print(str(n) + " is prime")
+else:
+    print(str(n) + " is not prime (divisible by " + str(divisor) + ")")</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 8: Collatz Steps</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">n = 27
+steps = 0
+while n != 1:
+    if n % 2 == 0:
+        n = n // 2
+    else:
+        n = 3 * n + 1
+    steps += 1
+print(steps)</code>
+    </div>
+    </details>
+    <details>
+    <summary>Exercise 9: Triangle of Stars</summary>
+    <div class="code-block" data-lang="python">
+        <div class="code-block-header">
+            <span class="code-block-filename">loops.py</span>
+            <span class="code-block-lang">Python</span>
+        </div>
+        <code class="code-lesson-bl">height = 4
+for row in range(1, height + 1):
+    line = ""
+    for i in range(row):
+        line += "*"
+    print(line)</code>
+    </div>
+    </details>
+
     <h3>Checkpoint</h3>
     <p>Before moving on, make sure you can:</p>
     <ol>

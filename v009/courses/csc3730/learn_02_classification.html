@@ -121,5 +121,24 @@ memory.append({"features": features, "alien": person.is_alien})
             <li>Name Checker's two tracked error types and explain, with a concrete example, why watching only overall accuracy could hide a real problem.</li>
         </ol>
 
-    </body>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Add one labeled sample and update class counts. Main → Agent, Classifier (Node), UI (CanvasLayer) → AddSampleButton.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Display a confusion matrix using held-out examples. Add ConfusionMatrix (Control) under UI and track both error types.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Compare Naive Bayes with a rule-based classifier on identical samples. Add a UI toggle and report where predictions differ.</li>
+            <li>Test one normal case and one edge case; record the expected behavior.</li>
+        </ol>
+    </section>
+</body>
 </html>
