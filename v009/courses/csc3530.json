@@ -182,5 +182,7 @@
     "Progress reports": "Here is an <b>HTML-syntax</b> string"
   },
   "materials": "Laptop, writing utensils, paper",
-  "credits": "4"
+  "credits": "4",
+  "files" : [
+  ]
 }
