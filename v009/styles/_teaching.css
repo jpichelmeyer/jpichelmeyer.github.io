@@ -44,6 +44,26 @@
 .cd-body   { font-family: var(--sans); font-size: calc(15px * var(--mod-font-size)); line-height: 1.65; color: var(--ink-soft); }
 .cd-body p { margin-bottom: 8px; }
 
+/* ── Files tab ── */
+.cd-file-list { display: flex; flex-direction: column; gap: 8px; }
+.cd-file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--panel-bd);
+    border-radius: 8px;
+    background: var(--bg-light);
+    font-family: var(--sans);
+    font-size: calc(13px * var(--mod-font-size));
+    color: var(--ink);
+    text-decoration: none;
+    transition: all 0.12s;
+}
+.cd-file-row:hover { border-color: var(--color-accent-courses); background: var(--bg2); }
+.cd-file-icon { color: var(--color-accent-courses); font-size: 1.1em; flex-shrink: 0; }
+.cd-file-name { word-break: break-word; }
+
 /* ── Schedule table ── */
 .cd-schedule { 
     grid-column: 1/-1; 
@@ -243,6 +263,7 @@
 .tag_gt                 { background:#B3A369; color:#000; }
 .tag_godot              { background:#4476b8; }
 .tag_html               { background:#f27718; }
+.tag_java               { background:#9e4941; color:#f1f1f1; }
 .tag_javascript         { background:#f5d742; color:#333; }
 .tag_jhu                { background:#114ebf; }
 .tag_ksu                { background:#8533d6; }

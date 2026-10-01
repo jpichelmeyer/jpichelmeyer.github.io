@@ -208,6 +208,7 @@ const DETAIL_PAGE_COURSES = {
     'CSC 2710 : Game Development I':                                'csc2710',
     'CSC 3530 : Artificial Intelligence and Cognitive Modeling':    'csc3530',
     'CSC 3730 : Artificial Intelligence for Simulations':           'csc3730',
+    'CSC 3750 : Algorithms':                                        'csc3750',
     'CSC 4110 : Internet of Things':                                'csc4110',
     'MTH 1220 : Calculus II':                                       'mth1220',
 };
@@ -260,6 +261,9 @@ function renderTeachingListing(body, mode = 'all') {
         ['CSC 3730 : Artificial Intelligence for Simulations',
             tag('tag_carthage', 'Carthage College') + tag('tag_godot', 'Godot') + tag('tag_gdscript', 'GDscript'),
             `Explore the fundamental AI algorithms used in simulations and game development. This course covers techniques like pathfinding, decision trees, behavior trees, finite state machines, and machine learning. Students will apply these algorithms to create more dynamic, responsive, and intelligent virtual environments. Ideal for those interested in game design, simulations, and AI programming.`],
+        ['CSC 3750 : Algorithms',
+            tag('tag_carthage', 'Carthage College') + tag('tag_python', 'Python') + tag('tag_java', 'Java'),
+            `This course provides a rigorous foundation in the design, formal analysis, and theoretical complexity of algorithms. Topics include major algorithmic paradigms (such as divide-and-conquer, greedy approaches, dynamic programming, and graph algorithms), mathematical techniques for analyzing time and space efficiency, and an introduction to tractability and NP-completeness.`],
         ['CSC 4110 : Internet of Things',
             tag('tag_carthage', 'Carthage College') + tag('tag_micropython', 'MicroPython') + tag('tag_microcontrollers', 'Microcontrollers'),
             `In this course, students will explore the Internet of Things using a combination of lecture and laboratory practice. Topics include, but are not limited to, IoT Architectures, Sensors and Microcontrollers, Synthetic Sensors, Digital and Analog Electronics, Python and C programming for IoT, Sampling Strategies, Connectivity and Networks, Data Analysis and Data Management. In the laboratory component, students will design and build IoT solutions according to design requirements provided by the instructor.`],
@@ -751,6 +755,7 @@ function renderDetailView(body, key) {
                     <div class="cx-tab" data-tab="policies">Policies</div>
                     ${deriveLessonModules(c).length ? `<div class="cx-tab" data-tab="lessons">Lessons</div>` : ''}
                     <div class="cx-tab" data-tab="syllabus">Syllabus</div>
+                    ${(c.files || []).length ? `<div class="cx-tab" data-tab="files">Files</div>` : ''}
                 </div>
                 <div class="course-content">
                     
@@ -809,6 +814,21 @@ function renderDetailView(body, key) {
                     <div class="cx-pane" id="cx-pane-syllabus">
                         <div class="lesson-frame-mount" data-lesson-src="./courses/${esc(key)}_syllabus.html"></div>
                     </div>
+                    
+                    ${(c.files || []).length ? `
+                    <!-- FILES -->
+                    <div class="cx-pane" id="cx-pane-files">
+                        <div class="cd-body">
+                            <div class="cd-file-list">
+                                ${c.files.map(f => `
+                                    <a class="cd-file-row" href="./${esc(f)}" download>
+                                        <span class="cd-file-icon">\u2B07</span>
+                                        <span class="cd-file-name">${esc(f)}</span>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>` : ''}
                     
                 </div>
             </div>

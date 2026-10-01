@@ -1,48 +1,48 @@
 {
-  "id": "csc3730",
+  "id": "csc3750",
   "pre": "CSC",
-  "num": "3730",
-  "short": "AI for Sim",
-  "full": "Artificial Intelligence for Simulations",
-  "svg": "csc3730.svg",
-  "days": "TR",
-  "time": "9:50-11:30am",
-  "place": "DSC 99",
-  "prereq": "CSC 1810 or equivalent",
-  "catalog": "Explore the fundamental AI algorithms used in simulations and game development. This course covers techniques like pathfinding, decision trees, behavior trees, finite state machines, and machine learning. Students will apply these algorithms to create more dynamic, responsive, and intelligent virtual environments. Ideal for those interested in game design, simulations, and AI programming.",
+  "num": "3750",
+  "short": "Algorithms",
+  "full": "Algorithms",
+  "svg": "csc3750.svg",
+  "days": "TBD",
+  "time": "TBD",
+  "place": "TBD",
+  "prereq": "CSC 2560 Data Structures",
+  "catalog": "This course provides a rigorous foundation in the design, formal analysis, and theoretical complexity of algorithms. Topics include major algorithmic paradigms (such as divide-and-conquer, greedy approaches, dynamic programming, and graph algorithms), mathematical techniques for analyzing time and space efficiency, and an introduction to tractability and NP-completeness.",
   "goals": [
     {
       "num": 1,
-      "action": "Apply",
-      "detail": "AI algorithms such as pathfinding, decision trees, and behavior trees to create dynamic and responsive simulations.",
-      "blooms" : 3
+      "action": "Design",
+      "detail": "efficient software solutions using major algorithmic paradigms (divide-and-conquer, greedy, dynamic programming, graph algorithms).",
+      "blooms" : 6
     },
     {
       "num": 2,
-      "action": "Benchmark",
-      "detail": "the performance and effectiveness of different AI techniques in game and simulation environments.",
+      "action": "Derive",
+      "detail": "formal mathematical complexity bounds using asymptotic analysis and recurrent relations.",
       "blooms" : 4
     },
     {
       "num": 3,
-      "action": "Create",
-      "detail": "a fully functional AI-drven simulation project that demonstrates the integration of multiple AI techniques.",
-      "blooms" : 6
+      "action": "Evaluate",
+      "detail": "algorithmic efficiency and scaling behavior through empmirical profiling and benchmark experiments.",
+      "blooms" : 5
     },
     {
       "num": 4,
-      "action": "Design",
-      "detail": "intelligent behaviors for virtual environments by implementing AI-driven systems and solutions.",
-      "blooms" : 6
+      "action": "Classify",
+      "detail": "computational problems with respect to theoretical complexity, tractability, P vs NP distinctions, and polynomial-time reductions.",
+      "blooms" : 4
     },
     {
       "num": 5,
-      "action": "Evaluate",
-      "detail": "the use of machine learning algorithms in simulations, determining their suitability for specific scenarios.",
-      "blooms" : 5
+      "action": "Synthesize",
+      "detail": "advanced or specialized algorithmic strategies beyond core lectures into structured technical presentations and written reports.",
+      "blooms" : 6
     }
   ],
-  "courseColor": "#c6efff",
+  "courseColor": "#f0a8a8",
   "srcColor": {
     "alife": [
       "#49ab7f",
@@ -235,6 +235,5 @@
   "materials": "Laptop, writing utensils, paper",
   "credits": "4",
   "files" : [
-    "zips/csc3730_2026_10_01_a.zip"
   ]
 }
