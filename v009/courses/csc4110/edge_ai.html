@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>“Machine learning” sounds like something that needs a data centre. Some of it does. A great deal of useful sensing, though, is a small calculation on a few numbers, and running it where the data is produced can be faster, cheaper and more private than sending everything away. This lesson is about deciding where a decision should be made, and what a modest board like the Pico can realistically do.</p>
+
+
+<h3>Part 1. Three Places to Decide</h3>
+<p>Think of three tiers. The <strong>device</strong> (your Pico) sees the data first and can react in milliseconds without any network. The <strong>edge</strong> (the Pi 3B+ on your own network) has far more memory and speed and is still local. The <strong>cloud</strong> is effectively unlimited, but is a network trip away and means your data leaves the room.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="170" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="95" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold"></text><rect x="180" y="16" width="190" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="275" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">Device (Pico)</text><rect x="370" y="16" width="190" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="465" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">Edge (Pi 3B+)</text><rect x="560" y="16" width="178" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="649" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">Cloud</text><rect x="10" y="72" width="170" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="105" font-size="15.0" fill="#1f3b52" text-anchor="start">reaction time</text><rect x="180" y="72" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="105" font-size="15.0" fill="#1f3b52" text-anchor="middle">milliseconds</text><rect x="370" y="72" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="465" y="105" font-size="15.0" fill="#1f3b52" text-anchor="middle">tens of ms (LAN)</text><rect x="560" y="72" width="178" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="649" y="105" font-size="15.0" fill="#1f3b52" text-anchor="middle">hundreds of ms+</text><rect x="10" y="128" width="170" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="161" font-size="15.0" fill="#1f3b52" text-anchor="start">needs a network</text><rect x="180" y="128" width="190" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="161" font-size="15.0" fill="#1f3b52" text-anchor="middle">no</text><rect x="370" y="128" width="190" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="465" y="161" font-size="15.0" fill="#1f3b52" text-anchor="middle">local only</text><rect x="560" y="128" width="178" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="649" y="161" font-size="15.0" fill="#1f3b52" text-anchor="middle">yes, internet</text><rect x="10" y="184" width="170" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="217" font-size="15.0" fill="#1f3b52" text-anchor="start">compute / memory</text><rect x="180" y="184" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="217" font-size="15.0" fill="#1f3b52" text-anchor="middle">264 KB, tiny</text><rect x="370" y="184" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="465" y="217" font-size="15.0" fill="#1f3b52" text-anchor="middle">GBs (Pi 3B+)</text><rect x="560" y="184" width="178" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="649" y="217" font-size="15.0" fill="#1f3b52" text-anchor="middle">effectively unlimited</text><rect x="10" y="240" width="170" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="273" font-size="15.0" fill="#1f3b52" text-anchor="start">data leaves the room</text><rect x="180" y="240" width="190" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="273" font-size="15.0" fill="#1f3b52" text-anchor="middle">no</text><rect x="370" y="240" width="190" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="465" y="273" font-size="15.0" fill="#1f3b52" text-anchor="middle">no</text><rect x="560" y="240" width="178" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="649" y="273" font-size="15.0" fill="#1f3b52" text-anchor="middle">yes</text><rect x="10" y="296" width="170" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="329" font-size="15.0" fill="#1f3b52" text-anchor="start">running cost</text><rect x="180" y="296" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="329" font-size="15.0" fill="#1f3b52" text-anchor="middle">almost none</text><rect x="370" y="296" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="465" y="329" font-size="15.0" fill="#1f3b52" text-anchor="middle">a Pi</text><rect x="560" y="296" width="178" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="649" y="329" font-size="15.0" fill="#1f3b52" text-anchor="middle">per request / month</text></svg>
+            <div class="diagram-caption">Three places a decision can be made. The closer to the sensor, the faster and more private; the further away, the more computing power and data you can bring to bear.</div>
+        </div>
+
+<p>“Edge AI” means running the intelligence at the device or nearby, rather than shipping raw data to a distant server. “Cloud ML” means the opposite. Real systems mix them: a cheap check on the device decides what is worth sending onward.</p>
+<h3>Part 2. Every Model Has the Same Shape</h3>
+<p>However sophisticated, a sensing model follows one pipeline. Raw samples are gathered into a <strong>window</strong>; the window is reduced to a few <strong>features</strong>; a <strong>model</strong> maps the features to a <strong>decision</strong>. The model may be a hand-written rule, a statistic such as a z-score, a decision tree, or a neural network, but the stages before and after it are the same.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d127a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="18" y="60" width="124" height="84" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="80" y="86" font-size="18.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">Sensor</text><text x="80" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">raw samples</text><rect x="168" y="60" width="124" height="84" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="230" y="86" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">Window</text><text x="230" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">last N samples</text><path d="M146,102 L164,102" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d127a0)"></path><rect x="318" y="60" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="86" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Features</text><text x="380" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">mean, std, ...</text><path d="M296,102 L314,102" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d127a0)"></path><rect x="468" y="60" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="530" y="86" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Model</text><text x="530" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">rule or learned</text><path d="M446,102 L464,102" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d127a0)"></path><rect x="618" y="60" width="124" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="680" y="86" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Decision</text><text x="680" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">alert / ok</text><path d="M596,102 L614,102" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d127a0)"></path><path d="M18,170 L18,186 L592,186 L592,170" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path><text x="305" y="214" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">can all run on the Pico</text><text x="380" y="276" font-size="17.6" fill="#5b6b78" text-anchor="middle" font-weight="bold">Send the small things (features, decisions), not the raw stream.</text></svg>
+            <div class="diagram-caption">The common shape of every sensing model, big or small. Raw samples are turned into a few features, a model turns features into a decision, and only the decision (or the features) needs to leave the device.</div>
+        </div>
+
+<p>Most of the engineering, and most of the data reduction, happens in the middle stage. The next three lessons build that pipeline for the Pico: windows and features, then a statistical detector, then the smoothing average it relies on.</p>
+<h3>Part 3. What Fits on a Pico</h3>
+<p>The RP2040 has 264 KB of RAM, shared with MicroPython itself, your program, the network stack and every buffer you have. There is no floating-point hardware, and floats are 32-bit. That rules some things out and leaves a lot in:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="28" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">model size (KB, log scale)</text><text x="218" y="82" font-size="16.2" fill="#1f3b52" text-anchor="end" font-weight="bold">threshold rule</text><rect x="230" y="52" width="14.3871" height="42" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="254.387" y="82" font-size="16.2" fill="#2d5a2d" text-anchor="start" font-weight="bold">0.05 KB</text><text x="218" y="142" font-size="16.2" fill="#1f3b52" text-anchor="end" font-weight="bold">z-score statistics</text><rect x="230" y="112" width="57.9206" height="42" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="297.921" y="142" font-size="16.2" fill="#2d5a2d" text-anchor="start" font-weight="bold">0.2 KB</text><text x="218" y="202" font-size="16.2" fill="#1f3b52" text-anchor="end" font-weight="bold">small decision tree</text><rect x="230" y="172" width="159.002" height="42" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="399.002" y="202" font-size="16.2" fill="#2d5a2d" text-anchor="start" font-weight="bold">5 KB</text><text x="218" y="262" font-size="16.2" fill="#1f3b52" text-anchor="end" font-weight="bold">tiny neural net (int8)</text><rect x="230" y="232" width="253.077" height="42" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="493.077" y="262" font-size="16.2" fill="#2d5a2d" text-anchor="start" font-weight="bold">100 KB</text><text x="218" y="322" font-size="16.2" fill="#1f3b52" text-anchor="end" font-weight="bold">image classifier</text><rect x="230" y="292" width="375.926" height="42" rx="6" fill="#fff3f0" stroke="#d64545" stroke-width="2.5"></rect><text x="615.926" y="322" font-size="16.2" fill="#d64545" text-anchor="start" font-weight="bold">5000 KB</text><line x1="513.562" y1="44" x2="513.562" y2="360" stroke="#d64545" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="7 5"></line><text x="521.562" y="376" font-size="15.6" fill="#d64545" text-anchor="start" font-weight="bold">Pico RAM: 264 KB</text></svg>
+            <div class="diagram-caption">Rough sizes of different models against the Pico's RAM (log scale, orders of magnitude only). Statistics and small trees fit easily; neural networks need care; image models do not fit at all.</div>
+        </div>
+
+<ul>
+<li><strong>Fits easily:</strong> threshold rules, z-scores, moving statistics, small decision trees written as nested <span class="code-lesson-il">if</span> statements.</li>
+<li><strong>Possible with care:</strong> tiny neural networks, quantized to 8-bit integers. These are normally run with compiled code (for example the C/C++ SDK with TensorFlow Lite for Microcontrollers, or specialised MicroPython modules), not plain MicroPython.</li>
+<li><strong>Does not fit:</strong> image or audio models of any size; these belong on the edge or in the cloud.</li>
+</ul>
+<h3>Part 4. Choosing Where to Run It</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d129a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#4a8a4a"></path></marker><marker id="d129a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#8a8a8a"></path></marker></defs><rect x="210" y="14" width="340" height="60" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="380" y="50" font-size="15.6" fill="#1f3b52" text-anchor="middle" font-weight="bold">Need an answer in under ~100 ms?</text><rect x="20" y="150" width="220" height="64" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="130" y="176.88" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Run on the DEVICE</text><text x="130" y="199.92" font-size="15.0" fill="#5b6b78" text-anchor="middle">fast, works offline</text><rect x="520" y="150" width="220" height="64" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="630" y="188" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">Next question</text><path d="M310,74 L150,148" fill="none" stroke="#4a8a4a" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d129a0)"></path><text x="190" y="106" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">yes</text><path d="M450,74 L600,148" fill="none" stroke="#8a8a8a" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d129a1)"></path><text x="570" y="106" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">no</text><rect x="440" y="250" width="200" height="62" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="540" y="287" font-size="15.0" fill="#1f3b52" text-anchor="middle" font-weight="bold">Data must stay local?</text><rect x="660" y="250" width="90" height="62" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="705" y="287" font-size="15.6" fill="#8a4526" text-anchor="middle" font-weight="bold">Edge Pi</text><rect x="440" y="334" width="200" height="56" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="540" y="368" font-size="15.0" fill="#1f3b52" text-anchor="middle" font-weight="bold">Heavy compute?</text><rect x="660" y="334" width="90" height="56" rx="10" fill="#f3ecfa" stroke="#8a4fc9" stroke-width="2.5"></rect><text x="705" y="368" font-size="15.6" fill="#5b2f93" text-anchor="middle" font-weight="bold">Cloud</text><path d="M640,281 L656,281" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#d129a1)"></path><path d="M640,362 L656,362" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#d129a1)"></path><path d="M595,214 L545,246" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#d129a1)"></path></svg>
+            <div class="diagram-caption">A quick way to decide where to run a model. Start from what you cannot compromise on: how fast the answer is needed, whether the data may leave, and how much computing it takes.</div>
+        </div>
+
+<p>A useful default for this course: run the cheap, fast check on the Pico (a z-score, a threshold), and publish its <em>decision</em> and the <em>features</em>, not the raw stream. If something needs a heavier model, a program on the Pi can subscribe to the features and run it there, still on your own network.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># Stay on the device: decide locally, send only what matters
+level = filtered_read()
+if level &lt; DARK_THRESHOLD:
+    client.publish(b"lab/pico01/tele/dark", b"1", retain=True)
+
+# What NOT to do for a slow signal: stream every raw sample
+# client.publish(b"lab/pico01/tele/raw", str(raw).encode())     # 100 messages a second, for nothing
+</span>
+</div>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Place the Task.</strong> Say which tier is best, and why: (a) switch a light off in under 50 ms when it gets bright, (b) classify bird calls from a microphone, (c) log a month of room temperature for a chart, (d) alert when a machine’s vibration changes.</p>
+        <p><strong>Exercise 2: How Much Is Saved?.</strong> A vibration sensor is read 100 times a second. Sending each reading costs about 6 bytes as JSON; a summary (mean, std, min, max, count) sent once a second costs about 65 bytes. Compare the data per second.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: A Rule-Based “Model”.</strong> Write <span class="code-lesson-il">classify(level)</span> for an LDR reading (0 to 65535) that returns <span class="code-lesson-il">"dark"</span> below 15000, <span class="code-lesson-il">"bright"</span> above 45000 and <span class="code-lesson-il">"normal"</span> otherwise, and publish only when the class <em>changes</em>.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Design a Split.</strong> A farm monitors soil moisture on 20 battery-powered Picos. Decide what runs on each Pico, what runs on a Pi in the barn, and what (if anything) goes to the cloud. Say what you are trading.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Place the Task</summary>
+<p>(a) <strong>device</strong>: the speed requirement rules out a network trip. (b) <strong>edge or cloud</strong>: audio models are far too big for a Pico. (c) <strong>edge</strong> (the Pi): lots of storage, no internet needed. (d) <strong>device</strong> for the cheap statistical check, with the features forwarded to the edge for a closer look.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: How Much Is Saved?</summary>
+<p>Raw: 100 × 6 = <strong>600 bytes/s</strong>. Summary: <strong>65 bytes/s</strong>, about <strong>9 times less</strong>, while still saying what the signal is doing. Over a day that is about 52 MB against 5.6 MB, before counting the packets’ own overhead.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: A Rule-Based “Model”</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">last = None
+
+def classify(level):
+    if level &lt; 15000:
+        return "dark"
+    if level &gt; 45000:
+        return "bright"
+    return "normal"
+
+def update(level):
+    global last
+    c = classify(level)
+    if c != last:                       # a decision, not a stream
+        client.publish(b"lab/pico01/tele/light_class", c.encode(), retain=True)
+        last = c
+</span>
+</div><p>This is a complete (if very small) model: a window of one reading, one feature, a rule, a decision. Publishing on change keeps traffic near zero when nothing is happening.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Design a Split</summary>
+<p><strong>Pico:</strong> read, filter, compute a few features, and publish every few minutes (deep sleep between, to save battery). <strong>Pi in the barn:</strong> subscribe to all 20, store history, run a heavier model that predicts when to irrigate, and drive the pumps (it has power and speed). <strong>Cloud:</strong> only a daily summary for a phone dashboard, if the farmer wants remote access. <strong>Trade-offs:</strong> keeping the heavy work local avoids depending on an internet link and avoids sending field data away; the cost is that you maintain the Pi.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Name the three tiers and one strength and one cost of each.</li>
+            <li>Draw the common pipeline of a sensing model and say what each stage does.</li>
+            <li>State what kinds of model fit on a Pico and which do not.</li>
+            <li>Choose where to run a given task and justify it.</li>
+        </ol>
+
+    </body>
+</html>

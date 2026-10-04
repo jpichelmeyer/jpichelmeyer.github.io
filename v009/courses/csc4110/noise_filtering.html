@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Sample a perfectly steady sensor, a potentiometer held dead still, say, and the raw readings still wobble a little from one sample to the next. That wobble is <strong>noise</strong>: small, essentially random fluctuations layered on top of the real signal, and it's present in basically every analog sensor you'll ever read. This lesson covers the simplest, most common way to tame it.</p>
+
+        <h3>Part 1. Where Noise Comes From</h3>
+        <p>Noise isn't a bug in any one sensor, it's a byproduct of physics: thermal jitter in the circuit, tiny voltage fluctuations on the power rail, electrical interference from other components nearby, even the ADC's own quantization contributes a little. The practical upshot is the same regardless of cause: two readings taken a few milliseconds apart, of a value that hasn't truly changed, often won't be identical.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="34" width="680" height="200" rx="0" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M40,134.899 L53.6,144.227 L67.2,123.86 L80.8,141.758 L94.4,154.376 L108,143.049 L121.6,168.365 L135.2,114.528 L148.8,135.483 L162.4,118.485 L176,116.761 L189.6,129.955 L203.2,138.868 L216.8,143.218 L230.4,145.179 L244,183.142 L257.6,152.976 L271.2,98.9204 L284.8,138.496 L298.4,120.293 L312,122.654 L325.6,162.737 L339.2,129.095 L352.8,91.0718 L366.4,140.833 L380,127.588 L393.6,108.163 L407.2,113.736 L420.8,120.244 L434.4,133.485 L448,124.612 L461.6,135.572 L475.2,174.397 L488.8,116.394 L502.4,116.236 L516,128.518 L529.6,158.102 L543.2,118.463 L556.8,165.554 L570.4,105.222 L584,111.288 L597.6,132.804 L611.2,115.004 L624.8,120.396 L638.4,143.926 L652,149.932 L665.6,136.507 L679.2,127.958 L692.8,163.571 L706.4,142.858 L720,128.828" fill="none" stroke="#c0693f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><line x1="40" y1="134" x2="720" y2="134" stroke="#2e5a80" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 5"></line><text x="40" y="274" font-size="16.9" fill="#8a4526" text-anchor="start" font-weight="bold">━ raw readings: jump around a stable value</text><text x="40" y="304" font-size="16.9" fill="#2e5a80" text-anchor="start" font-weight="bold">— — the true value: perfectly flat</text></svg>
+            <div class="diagram-caption">The dial hasn't moved at all between these samples. Every wiggle in the raw line is noise, not signal, and a program that reacts to every tiny change (lighting an LED above some exact threshold, say) would flicker constantly even though nothing meaningful happened.</div>
+        </div>
+
+                <div class="diagram">
+<svg viewBox="0 0 760 200" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d29a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="20" y="60" width="150" height="64" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="95" y="86" font-size="19.5" fill="#5b6b78" text-anchor="middle" font-weight="bold">Sensor</text><text x="95" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">analog volts</text><rect x="210" y="60" width="150" height="64" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="285" y="86" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">ADC</text><text x="285" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">raw count</text><path d="M174,92 L206,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d29a0)"></path><rect x="400" y="60" width="150" height="64" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="475" y="86" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Filter</text><text x="475" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">smooths noise</text><path d="M364,92 L396,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d29a0)"></path><rect x="590" y="60" width="150" height="64" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="665" y="86" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Your logic</text><text x="665" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">thresholds, publish</text><path d="M554,92 L586,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d29a0)"></path><text x="380" y="36" font-size="22.1" fill="#1f3b52" text-anchor="middle" font-weight="bold">Where the filter sits</text><text x="380" y="166" font-size="18.2" fill="#5b6b78" text-anchor="middle">Filter in software, after the ADC, before any decision: the logic then sees a steadier number.</text></svg>
+            <div class="diagram-caption">Software filtering sits after the ADC and before any decision. Whatever the logic does next sees a steadier number.</div>
+        </div>
+
+        <h3>Part 2. The Moving Average Filter</h3>
+        <p>A <strong>moving average filter</strong> smooths noisy data by replacing each reading with the average of the last several readings, a sliding window that moves forward one sample at a time. Averaging tends to cancel out random noise (some samples a little high, some a little low) while a real, sustained change in the signal still comes through, since it shows up consistently across the whole window rather than in just one noisy sample.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 270" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d10a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#333"></path></marker></defs><text x="20" y="30" font-size="16.9" fill="#5b6b78" text-anchor="start">incoming samples →</text><rect x="20" y="90" width="88" height="56" rx="8" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="1.5"></rect><text x="64" y="127" font-size="20.8" fill="#5b6b78" text-anchor="middle" font-weight="bold">41</text><rect x="116" y="90" width="88" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="3"></rect><text x="160" y="127" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">44</text><rect x="212" y="90" width="88" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="3"></rect><text x="256" y="127" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">39</text><rect x="308" y="90" width="88" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="3"></rect><text x="352" y="127" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">43</text><rect x="404" y="90" width="88" height="56" rx="8" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="1.5"></rect><text x="448" y="127" font-size="20.8" fill="#5b6b78" text-anchor="middle" font-weight="bold">40</text><rect x="500" y="90" width="88" height="56" rx="8" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="1.5"></rect><text x="544" y="127" font-size="20.8" fill="#5b6b78" text-anchor="middle" font-weight="bold">42</text><path d="M116,82 L116,68 L396,68 L396,82" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path><text x="256" y="56" font-size="16.9" fill="#2e5a80" text-anchor="middle" font-weight="bold">window of 3: (44 + 39 + 43) / 3 = 42</text><rect x="580" y="170" width="160" height="56" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="3"></rect><text x="660" y="206" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">output: 42</text><path d="M352,150 L352,196 L576,198" fill="none" stroke="#333" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d10a0)"></path><text x="300" y="250" font-size="15.2" fill="#5b6b78" text-anchor="start">next sample in, oldest sample out: the window slides forward by one</text></svg>
+            <div class="diagram-caption">A window of 3 means every output is the average of only the 3 most recent readings. As a new sample arrives, the oldest one in the window is dropped, so the average always reflects the most recent, not the entire history of every reading ever taken.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import ADC, Pin
+from time import sleep
+
+sensor = ADC(Pin(26))
+
+WINDOW_SIZE = 5
+window = []
+
+def filtered_read():
+    raw = sensor.read_u16()
+    window.append(raw)
+    if len(window) &gt; WINDOW_SIZE:
+        window.pop(0)        # drop the oldest sample
+    return sum(window) / len(window)
+
+while True:
+    print(filtered_read())
+    sleep(0.1)
+</span>
+</div>
+
+        <p>Notice <span class="code-lesson-il">filtered_read()</span> divides by <span class="code-lesson-il">len(window)</span>, not by <span class="code-lesson-il">WINDOW_SIZE</span>, which matters for the first few calls before the window has actually filled up; dividing by a fixed <span class="code-lesson-il">WINDOW_SIZE</span> from the very first sample would quietly produce wrong averages until the window reaches full size.</p>
+
+        <h3>Part 3. The Trade-Off: Smoothness vs. Lag</h3>
+        <p>A bigger window smooths more aggressively, but it also responds to a real change more slowly, since a genuine jump in the signal has to work its way through the whole window before the average fully reflects it. A window of 50 produces a very steady output, but one that lags several hundred milliseconds behind reality at a 10ms sample interval; a window of 2 barely filters anything but reacts almost instantly. There's no universally correct window size, only a trade-off to make deliberately, based on how noisy the sensor actually is and how quickly your program needs to react to real changes.</p>
+
+                <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="40" width="680" height="230" rx="0" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M40,211.193 L43.4171,195.25 L46.8342,225.353 L50.2513,198.805 L53.6683,216.076 L57.0854,216.109 L60.5025,186.284 L63.9196,210.326 L67.3367,213.092 L70.7538,202.433 L74.1709,196.949 L77.5879,212.926 L81.005,204.386 L84.4221,225.937 L87.8392,217.562 L91.2563,218.546 L94.6734,230.886 L98.0905,233.317 L101.508,234.951 L104.925,215.793 L108.342,214.879 L111.759,216.921 L115.176,211.546 L118.593,230.931 L122.01,213.597 L125.427,209.214 L128.844,202.136 L132.261,224.178 L135.678,218.018 L139.095,240.309 L142.513,219.45 L145.93,242.814 L149.347,232.088 L152.764,197.299 L156.181,242.882 L159.598,201.48 L163.015,207.975 L166.432,216.81 L169.849,206.161 L173.266,205.221 L176.683,198.073 L180.101,215.679 L183.518,220.673 L186.935,220.844 L190.352,226.113 L193.769,213.12 L197.186,223.343 L200.603,197.753 L204.02,238.298 L207.437,227.594 L210.854,225.654 L214.271,241.382 L217.688,186.249 L221.106,245.735 L224.523,216.409 L227.94,219.748 L231.357,189.648 L234.774,239.899 L238.191,197.709 L241.608,222.594 L245.025,214.642 L248.442,221.759 L251.859,203.661 L255.276,228.199 L258.693,213.589 L262.111,207.623 L265.528,187.104 L268.945,245.693 L272.362,191.453 L275.779,199.417 L279.196,104.174 L282.613,93.292 L286.03,103.931 L289.447,74.7751 L292.864,94.6077 L296.281,100.475 L299.698,100.647 L303.116,100.258 L306.533,99.9373 L309.95,109.63 L313.367,69.0949 L316.784,123.872 L320.201,147.259 L323.618,99.1953 L327.035,99.5226 L330.452,92.3604 L333.869,100.322 L337.286,99.544 L340.704,92.9136 L344.121,84.1359 L347.538,103.682 L350.955,102.645 L354.372,70.7208 L357.789,90.1856 L361.206,111.099 L364.623,65.4296 L368.04,86.7925 L371.457,105.628 L374.874,113.707 L378.291,93.3832 L381.709,108.984 L385.126,112.094 L388.543,115.385 L391.96,104.485 L395.377,82.2158 L398.794,103.483 L402.211,117.502 L405.628,88.2701 L409.045,96.5935 L412.462,85.8544 L415.879,80.9161 L419.296,99.8286 L422.714,99.4988 L426.131,98.1277 L429.548,113.157 L432.965,88.2681 L436.382,78.5635 L439.799,95.1014 L443.216,100.777 L446.633,101.087 L450.05,108.272 L453.467,108.594 L456.884,103.032 L460.302,109.119 L463.719,103.536 L467.136,119.266 L470.553,92.6687 L473.97,96.8222 L477.387,113.405 L480.804,129.216 L484.221,97.6074 L487.638,82.2655 L491.055,107.623 L494.472,104.165 L497.889,105.344 L501.307,88.4843 L504.724,110.14 L508.141,83.8956 L511.558,101.682 L514.975,84.739 L518.392,97.0503 L521.809,100.692 L525.226,117.899 L528.643,106.983 L532.06,101.105 L535.477,88.3964 L538.894,94.1196 L542.312,107.115 L545.729,91.8457 L549.146,83.8749 L552.563,99.5503 L555.98,103.559 L559.397,102.934 L562.814,86.3131 L566.231,90.071 L569.648,110.329 L573.065,92.3263 L576.482,104.124 L579.899,107.867 L583.317,80.3932 L586.734,86.1683 L590.151,107.503 L593.568,96.4052 L596.985,90.5798 L600.402,106.325 L603.819,99.162 L607.236,88.2976 L610.653,122.192 L614.07,92.9801 L617.487,87.3046 L620.905,90.5407 L624.322,116.013 L627.739,93.1033 L631.156,109.416 L634.573,89.634 L637.99,89.1563 L641.407,94.5131 L644.824,108.062 L648.241,105.657 L651.658,85.714 L655.075,109.903 L658.492,90.658 L661.91,90.4421 L665.327,101.345 L668.744,64.4551 L672.161,96.5318 L675.578,67.8789 L678.995,125.324 L682.412,128.463 L685.829,83.9514 L689.246,88.7203 L692.663,101.81 L696.08,98.2389 L699.497,123.762 L702.915,106.18 L706.332,111.763 L709.749,100.561 L713.166,85.2726 L716.583,96.7688 L720,92.3701" fill="none" stroke="#cbb08f" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></path><path d="M40,211.193 L43.4171,203.221 L46.8342,210.599 L50.2513,207.65 L53.6683,209.335 L57.0854,210.319 L60.5025,208.525 L63.9196,205.52 L67.3367,208.377 L70.7538,205.649 L74.1709,201.817 L77.5879,207.145 L81.005,205.957 L84.4221,208.526 L87.8392,211.552 L91.2563,215.871 L94.6734,219.463 L98.0905,225.25 L101.508,227.052 L104.925,226.699 L108.342,225.965 L111.759,223.172 L115.176,218.818 L118.593,218.014 L122.01,217.575 L125.427,216.442 L128.844,213.485 L132.261,216.011 L135.678,213.429 L139.095,218.771 L142.513,220.818 L145.93,228.954 L149.347,230.536 L152.764,226.392 L156.181,226.907 L159.598,223.313 L163.015,216.345 L166.432,213.289 L169.849,215.062 L173.266,207.529 L176.683,206.848 L180.101,208.389 L183.518,209.161 L186.935,212.098 L190.352,216.276 L193.769,219.286 L197.186,220.819 L200.603,216.235 L204.02,219.726 L207.437,220.022 L210.854,222.528 L214.271,226.136 L217.688,223.835 L221.106,225.323 L224.523,223.086 L227.94,221.904 L231.357,211.558 L234.774,222.288 L238.191,212.683 L241.608,213.919 L245.025,212.898 L248.442,219.32 L251.859,212.073 L255.276,218.171 L258.693,216.37 L262.111,214.966 L265.528,208.035 L268.945,216.442 L272.362,209.092 L275.779,206.258 L279.196,185.568 L282.613,166.806 L286.03,138.453 L289.447,115.118 L292.864,94.1558 L296.281,93.4161 L299.698,94.8871 L303.116,94.1526 L306.533,99.185 L309.95,102.19 L313.367,95.9136 L316.784,100.558 L320.201,109.959 L323.618,109.81 L327.035,107.789 L330.452,112.442 L333.869,107.732 L337.286,98.1889 L340.704,96.9326 L344.121,93.8552 L347.538,96.1196 L350.955,96.5841 L354.372,90.8195 L357.789,90.2739 L361.206,95.6665 L364.623,88.016 L368.04,84.8455 L371.457,91.827 L374.874,96.5313 L378.291,92.9881 L381.709,101.699 L385.126,106.759 L388.543,108.711 L391.96,106.866 L395.377,104.633 L398.794,103.532 L402.211,104.614 L405.628,99.1911 L409.045,97.6128 L412.462,98.3405 L415.879,93.8272 L419.296,90.2925 L422.714,92.5383 L426.131,92.8451 L429.548,98.3057 L432.965,99.7761 L436.382,95.5231 L439.799,94.6436 L443.216,95.1734 L446.633,92.7592 L450.05,96.7601 L453.467,102.766 L456.884,104.352 L460.302,106.021 L463.719,106.51 L467.136,108.709 L470.553,105.524 L473.97,104.282 L477.387,105.14 L480.804,110.276 L484.221,105.944 L487.638,103.863 L491.055,106.023 L494.472,104.175 L497.889,99.4011 L501.307,97.5764 L504.724,103.151 L508.141,98.4058 L511.558,97.9092 L514.975,93.7882 L518.392,95.5014 L521.809,93.6119 L525.226,100.413 L528.643,101.473 L532.06,104.746 L535.477,103.015 L538.894,101.701 L542.312,99.5439 L545.729,96.5164 L549.146,93.0703 L552.563,95.3011 L555.98,97.1889 L559.397,96.3527 L562.814,95.2462 L566.231,96.4854 L569.648,98.6411 L573.065,96.3947 L576.482,96.6327 L579.899,100.943 L583.317,99.0078 L586.734,94.1757 L590.151,97.211 L593.568,95.6673 L596.985,92.2099 L600.402,97.3962 L603.819,99.995 L607.236,96.1539 L610.653,101.311 L614.07,101.791 L617.487,97.9873 L620.905,96.263 L624.322,101.806 L627.739,95.9884 L631.156,99.2756 L634.573,99.7415 L637.99,99.4646 L641.407,95.1645 L644.824,98.1563 L648.241,97.4046 L651.658,96.6206 L655.075,100.77 L658.492,99.9989 L661.91,96.4749 L665.327,95.6124 L668.744,91.3607 L672.161,88.6864 L675.578,84.1305 L678.995,91.1069 L682.412,96.5304 L685.829,100.43 L689.246,98.8674 L692.663,105.653 L696.08,100.237 L699.497,99.2963 L702.915,103.742 L706.332,108.351 L709.749,108.101 L713.166,105.508 L716.583,100.109 L720,97.3471" fill="none" stroke="#2e5a80" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"></path><path d="M40,211.193 L43.4171,203.221 L46.8342,210.599 L50.2513,207.65 L53.6683,209.335 L57.0854,210.464 L60.5025,207.01 L63.9196,207.424 L67.3367,208.054 L70.7538,207.492 L74.1709,206.534 L77.5879,207.066 L81.005,206.86 L84.4221,208.223 L87.8392,208.845 L91.2563,209.452 L94.6734,210.713 L98.0905,211.968 L101.508,213.178 L104.925,213.309 L108.342,213.384 L111.759,213.544 L115.176,213.457 L118.593,214.186 L122.01,214.162 L125.427,214.083 L128.844,214.358 L132.261,214.311 L135.678,215.08 L139.095,216.049 L142.513,216.183 L145.93,218.444 L149.347,219.314 L152.764,218.683 L156.181,220.301 L159.598,220.482 L163.015,220.284 L166.432,220.781 L169.849,219.99 L173.266,219.496 L176.683,218.677 L180.101,218.069 L183.518,217.563 L186.935,216.999 L190.352,217.412 L193.769,217.341 L197.186,217.598 L200.603,217.047 L204.02,217.341 L207.437,217.901 L210.854,218.559 L214.271,220.128 L217.688,218.611 L221.106,219.72 L224.523,218.764 L227.94,218.776 L231.357,216.649 L234.774,216.962 L238.191,216.978 L241.608,216.167 L245.025,216.693 L248.442,217.244 L251.859,216.718 L255.276,217.6 L258.693,217.935 L262.111,218.317 L265.528,217.174 L268.945,218.174 L272.362,216.999 L275.779,215.931 L279.196,211.573 L282.613,206.371 L286.03,202.618 L289.447,196.077 L292.864,190.758 L296.281,185.751 L299.698,180.121 L303.116,176.682 L306.533,170.85 L309.95,166.579 L313.367,160.552 L316.784,157.921 L320.201,154.216 L323.618,150.275 L327.035,145.352 L330.452,140.461 L333.869,135.604 L337.286,131.439 L340.704,126.028 L344.121,120.849 L347.538,116.692 L350.955,113.313 L354.372,106.315 L357.789,102.264 L361.206,98.7312 L364.623,97.1814 L368.04,96.9214 L371.457,96.9893 L374.874,98.5466 L378.291,98.4976 L381.709,98.838 L385.126,99.2959 L388.543,99.9009 L391.96,100.083 L395.377,98.9863 L398.794,100.362 L402.211,100.107 L405.628,97.7474 L409.045,97.6434 L412.462,97.0966 L415.879,96.6389 L419.296,96.6191 L422.714,96.6173 L426.131,96.8259 L429.548,97.9867 L432.965,97.3702 L436.382,96.4069 L439.799,97.3821 L443.216,97.8058 L446.633,97.4053 L450.05,99.119 L453.467,99.9911 L456.884,99.8872 L460.302,99.7037 L463.719,100.11 L467.136,100.521 L470.553,99.744 L473.97,99.0015 L477.387,99.3583 L480.804,101.238 L484.221,101.003 L487.638,99.5938 L491.055,100.368 L494.472,100.671 L497.889,101.45 L501.307,101.753 L504.724,102.166 L508.141,101.541 L511.558,101.684 L514.975,100.547 L518.392,100.898 L521.809,101.783 L525.226,102.695 L528.643,102.944 L532.06,102.944 L535.477,102.149 L538.894,101.57 L542.312,101.734 L545.729,101.043 L549.146,100.256 L552.563,99.4676 L555.98,99.9032 L559.397,100.148 L562.814,99.064 L566.231,97.4982 L569.648,98.0071 L573.065,98.4095 L576.482,98.2695 L579.899,98.4176 L583.317,97.4196 L586.734,97.3269 L590.151,97.2215 L593.568,97.7218 L596.985,97.2778 L600.402,98.1412 L603.819,98.2256 L607.236,97.7299 L610.653,97.9016 L614.07,97.3414 L617.487,96.7894 L620.905,96.8752 L624.322,97.7509 L627.739,97.1905 L631.156,97.8933 L634.573,98.1236 L637.99,97.7079 L641.407,97.3461 L644.824,97.5512 L648.241,98.325 L651.658,98.1507 L655.075,98.1336 L658.492,98.0669 L661.91,97.5196 L665.327,97.2588 L668.744,96.6212 L672.161,97.0358 L675.578,95.4508 L678.995,96.6076 L682.412,98.1229 L685.829,97.2279 L689.246,96.8103 L692.663,97.3507 L696.08,96.3926 L699.497,97.6239 L702.915,98.3789 L706.332,99.2278 L709.749,98.6097 L713.166,98.2965 L716.583,97.7906 L720,97.9" fill="none" stroke="#d64545" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><line x1="278" y1="40" x2="278" y2="270" stroke="#8a8a8a" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4"></line><text x="284" y="56" font-size="16.9" fill="#5b6b78" text-anchor="start">real change happens here</text><rect x="60" y="292" width="0" height="0" rx="6" fill="none" stroke="none" stroke-width="0"></rect><rect x="60" y="292" width="0" height="0" rx="6" fill="none" stroke="none" stroke-width="0"></rect><rect x="60" y="292" width="0" height="0" rx="6" fill="none" stroke="none" stroke-width="0"></rect><text x="40" y="300" font-size="18.2" fill="#a07a45" text-anchor="start" font-weight="bold">● raw samples</text><text x="190" y="300" font-size="18.2" fill="#2e5a80" text-anchor="start" font-weight="bold">● window of 5</text><text x="330" y="300" font-size="18.2" fill="#d64545" text-anchor="start" font-weight="bold">● window of 25: smoothest, but slowest to react</text></svg>
+            <div class="diagram-caption">The same noisy step through windows of 5 and 25 samples. The bigger window is much smoother but lags visibly behind the real change.</div>
+        </div>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: By Hand.</strong> Apply a window-3 moving average (using the "average what you have so far" rule at the start) to 10, 12, 11, 50, 12, 11. List the six outputs.</p>
+        <p><strong>Exercise 2: Pick a Window.</strong> A sensor is read at 20 Hz and you want a real change to show up fully within about half a second. What is the largest sensible window?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: A Reusable Filter.</strong> Turn the filter into a small class, <code class="code-lesson-il">MovingAverage(size)</code>, with an <code class="code-lesson-il">add(x)</code> method that returns the current average.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Beat the Spike.</strong> A median filter returns the middle value of the window instead of the mean. Write one, run it on the same six numbers with a window of 3, and compare with the moving average.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: By Hand</summary>
+<p><strong>10, 11, 11, 24.3, 24.3, 24.3</strong>. The single spike of 50 drags three consecutive outputs up to 24.3 before it leaves the window: a moving average spreads a spike out rather than removing it.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Pick a Window</summary>
+<p>A change takes a whole window of samples to pass through completely: N / 20 s. For 0.5 s, N = <strong>10 samples</strong> at most.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: A Reusable Filter</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">filters.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class MovingAverage:
+    def __init__(self, size):
+        self.size = size
+        self.values = []
+
+    def add(self, x):
+        self.values.append(x)
+        if len(self.values) &gt; self.size:
+            self.values.pop(0)
+        return sum(self.values) / len(self.values)
+
+avg = MovingAverage(5)
+for x in (10, 12, 11, 50, 12, 11):
+    print(avg.add(x))
+</span>
+</div><p>Each filter object keeps its own window, so you can run several (for example one per sensor) side by side.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Beat the Spike</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">median.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def median(window):
+    s = sorted(window)
+    return s[len(s) // 2]
+
+data = [10, 12, 11, 50, 12, 11]
+for i in range(2, len(data)):
+    print(median(data[i - 2:i + 1]))
+</span>
+</div><p>Output: 11, 12, 12, 12. The spike of 50 vanishes entirely, because it is never the middle value. A median filter is better at rejecting occasional spikes; a moving average is better at smoothing steady, small noise.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain, in physical terms, why even a perfectly still sensor produces slightly different readings from sample to sample.</li>
+            <li>Explain how a moving average filter reduces noise, in terms of what averaging does to random positive and negative fluctuations.</li>
+            <li>Explain the lag/smoothness trade-off in your own words, and describe a sensor or situation (from this course or otherwise) where you'd want a small window versus a large one.</li>
+            <li>Explain why <span class="code-lesson-il">filtered_read()</span> divides by <span class="code-lesson-il">len(window)</span> rather than the fixed <span class="code-lesson-il">WINDOW_SIZE</span>.</li>
+        </ol>
+
+    </body>
+</html>

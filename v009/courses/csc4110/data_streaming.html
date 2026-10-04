@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>A telemetry stream is more than a loop that publishes. Once data flows continuously you start to care about how much, how steadily, what gets lost, and what happens when the link breaks. This lesson gives you the vocabulary and the standard techniques for each.</p>
+
+
+<h3>Part 1. Rate, Throughput, Latency</h3>
+<ul>
+<li><strong>Rate</strong>: how many messages per second you publish.</li>
+<li><strong>Throughput</strong>: how many bytes per second that adds up to (rate &times; message size).</li>
+<li><strong>Latency</strong>: how long one message takes to get from the sensor to the subscriber.</li>
+<li><strong>Jitter</strong>: how much that latency varies from message to message.</li>
+</ul>
+<p>Throughput is the one you control most directly. Every tenfold increase in rate multiplies the traffic, the radio's power use and the load on the broker by ten:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 320" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="14" y="26" font-size="20.8" fill="#1f3b52" text-anchor="start" font-weight="bold">Bytes per hour for one sensor, 60-byte messages</text><text x="158" y="80" font-size="19.5" fill="#1f3b52" text-anchor="end" font-weight="bold">every 10 s</text><rect x="170" y="56" width="133.577" height="36" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="313.577" y="80" font-size="18.9" fill="#8a4526" text-anchor="start" font-weight="bold">22 KB</text><text x="158" y="134" font-size="19.5" fill="#1f3b52" text-anchor="end" font-weight="bold">every 1 s</text><rect x="170" y="110" width="245.718" height="36" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="425.718" y="134" font-size="18.9" fill="#8a4526" text-anchor="start" font-weight="bold">216 KB</text><text x="158" y="188" font-size="19.5" fill="#1f3b52" text-anchor="end" font-weight="bold">every 100 ms</text><rect x="170" y="164" width="357.859" height="36" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="537.859" y="188" font-size="18.9" fill="#8a4526" text-anchor="start" font-weight="bold">2.2 MB</text><text x="158" y="242" font-size="19.5" fill="#1f3b52" text-anchor="end" font-weight="bold">every 10 ms</text><rect x="170" y="218" width="470" height="36" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="650" y="242" font-size="18.9" fill="#8a4526" text-anchor="start" font-weight="bold">21.6 MB</text><text x="380" y="288" font-size="17.6" fill="#5b6b78" text-anchor="middle">(bars are on a log scale)  10× faster means 10× the traffic, the battery drain and the broker load.</text></svg>
+            <div class="diagram-caption">Traffic grows in direct proportion to the sampling rate. Each tenfold increase multiplies bytes sent, power used and broker load by ten.</div>
+        </div>
+
+<h3>Part 2. Knowing What You Did Not Receive</h3>
+<p>MQTT by default does not guarantee that every message arrives (the default level, QoS 0, is "send it once and hope"). Unit 2 covers stronger guarantees, but even then a subscriber benefits from being able to <em>see</em> loss. A <strong>sequence number</strong> that rises by one per message does exactly that:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d41a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#8a8a8a"></path></marker></defs><text x="14" y="26" font-size="20.8" fill="#1f3b52" text-anchor="start" font-weight="bold">Sequence numbers reveal what the broker never saw</text><rect x="30" y="60" width="62" height="52" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="61" y="82" font-size="14.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">seq 100</text><text x="61" y="102" font-size="15.6" fill="#5b6b78" text-anchor="middle">v=412</text><rect x="102" y="60" width="62" height="52" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="133" y="82" font-size="14.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">seq 101</text><text x="133" y="102" font-size="15.6" fill="#5b6b78" text-anchor="middle">v=412</text><rect x="174" y="60" width="62" height="52" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="205" y="82" font-size="14.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">seq 102</text><text x="205" y="102" font-size="15.6" fill="#5b6b78" text-anchor="middle">v=412</text><rect x="246" y="60" width="62" height="52" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="277" y="82" font-size="14.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">seq 103</text><text x="277" y="102" font-size="15.6" fill="#5b6b78" text-anchor="middle">v=412</text><rect x="318" y="60" width="62" height="52" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2" stroke-dasharray="5 4"></rect><text x="349" y="82" font-size="14.4" fill="#d64545" text-anchor="middle" font-weight="bold">seq 104</text><text x="349" y="102" font-size="15.6" fill="#d64545" text-anchor="middle">lost</text><rect x="390" y="60" width="62" height="52" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2" stroke-dasharray="5 4"></rect><text x="421" y="82" font-size="14.9" fill="#d64545" text-anchor="middle" font-weight="bold">seq 105</text><text x="421" y="102" font-size="15.6" fill="#d64545" text-anchor="middle">lost</text><rect x="462" y="60" width="62" height="52" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="493" y="82" font-size="14.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">seq 106</text><text x="493" y="102" font-size="15.6" fill="#5b6b78" text-anchor="middle">v=412</text><rect x="534" y="60" width="62" height="52" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="565" y="82" font-size="14.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">seq 107</text><text x="565" y="102" font-size="15.6" fill="#5b6b78" text-anchor="middle">v=412</text><rect x="606" y="60" width="62" height="52" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="637" y="82" font-size="14.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">seq 108</text><text x="637" y="102" font-size="15.6" fill="#5b6b78" text-anchor="middle">v=412</text><rect x="678" y="60" width="62" height="52" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="709" y="82" font-size="14.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">seq 109</text><text x="709" y="102" font-size="15.6" fill="#5b6b78" text-anchor="middle">v=412</text><path d="M30,150 L730,150" fill="none" stroke="#8a8a8a" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d41a0)"></path><text x="380" y="176" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">what the subscriber receives:  100, 101, 102, 103,  …gap…  106, 107, 108, 109</text><text x="380" y="206" font-size="19.5" fill="#d64545" text-anchor="middle" font-weight="bold">106 − 103 − 1 = 2 readings missing</text><text x="380" y="234" font-size="17.6" fill="#5b6b78" text-anchor="middle">A timestamp tells you when; a sequence number tells you what you did not get.</text></svg>
+            <div class="diagram-caption">A sequence number is a cheap way to know what you did not receive. Any jump larger than one marks lost readings.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">last_seq = None
+
+def on_message(topic, msg):
+    global last_seq
+    seq = json.loads(msg)["seq"]
+    if last_seq is not None and seq != last_seq + 1:
+        print("lost", seq - last_seq - 1, "messages")
+    last_seq = seq
+</span>
+</div>
+<h3>Part 3. Sending Less</h3>
+<p>Most signals are quiet most of the time, so a fixed rate wastes most of its messages. Two common remedies:</p>
+<ul>
+<li><strong>Report by exception</strong> (a deadband): publish only when the value has changed by more than a threshold, plus a slow <em>heartbeat</em> so that silence means "unchanged", never "dead".</li>
+<li><strong>Summarize</strong>: sample fast but publish the mean, minimum and maximum of each batch. You keep the information that matters (and any spike shows in the maximum) at a fraction of the traffic.</li>
+</ul>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="14" y="26" font-size="20.8" fill="#1f3b52" text-anchor="start" font-weight="bold">Report by exception (deadband)</text><rect x="60" y="44" width="640" height="170" rx="0" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M60,197.27 L65.3782,196.149 L70.7563,193.195 L76.1345,194.718 L81.5126,198.665 L86.8908,198.859 L92.2689,197.44 L97.6471,194.179 L103.025,197.789 L108.403,201.628 L113.782,199.532 L119.16,198.124 L124.538,193.57 L129.916,190.653 L135.294,190.955 L140.672,191.769 L146.05,184.137 L151.429,184.994 L156.807,187.325 L162.185,190.705 L167.563,190.422 L172.941,189.99 L178.319,191.014 L183.697,191.199 L189.076,190.388 L194.454,188.332 L199.832,185.075 L205.21,184.452 L210.588,189.767 L215.966,187.683 L221.345,191.898 L226.723,192.407 L232.101,196.783 L237.479,196.777 L242.857,199.089 L248.235,198.454 L253.613,188.654 L258.992,188.799 L264.37,186.298 L269.748,190.227 L275.126,191.082 L280.504,189.115 L285.882,189.39 L291.261,188.291 L296.639,187.984 L302.017,190.972 L307.395,189.298 L312.773,191.709 L318.151,186.151 L323.529,187.651 L328.908,185.614 L334.286,185.607 L339.664,182.779 L345.042,184.567 L350.42,181.601 L355.798,181.969 L361.176,178.218 L366.555,176.365 L371.933,175.945 L377.311,178.262 L382.689,175.982 L388.067,174.592 L393.445,169.717 L398.824,170.836 L404.202,169.189 L409.58,167.681 L414.958,166.841 L420.336,166.222 L425.714,165.681 L431.092,167.458 L436.471,170.47 L441.849,168.678 L447.227,163.954 L452.605,156.498 L457.983,150.627 L463.361,144.531 L468.739,139.254 L474.118,134.21 L479.496,130.697 L484.874,125.437 L490.252,117.201 L495.63,115.204 L501.008,114.295 L506.387,105.506 L511.765,101.81 L517.143,95.9576 L522.521,90.3936 L527.899,90.7967 L533.277,80.6017 L538.655,72.3596 L544.034,71.8342 L549.412,69.5998 L554.79,69.223 L560.168,71.8483 L565.546,72.181 L570.924,71.0704 L576.303,67.7573 L581.681,65.6513 L587.059,65.4746 L592.437,61.4518 L597.815,63.7106 L603.193,61.3563 L608.571,58.0539 L613.95,58.921 L619.328,64.2378 L624.706,66.9288 L630.084,66.2251 L635.462,64.6578 L640.84,60.0607 L646.218,63.0424 L651.597,63.0363 L656.975,61.1098 L662.353,61.5781 L667.731,68.6143 L673.109,66.2197 L678.487,59.354 L683.866,56.372 L689.244,59.0961 L694.622,60.3206 L700,59.6619" fill="none" stroke="#9bb3c7" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="60" cy="197.27" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="146.05" cy="184.137" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="232.101" cy="196.783" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="264.37" cy="186.298" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="366.555" cy="176.365" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="420.336" cy="166.222" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="457.983" cy="150.627" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="468.739" cy="139.254" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="484.874" cy="125.437" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="495.63" cy="115.204" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="511.765" cy="101.81" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="522.521" cy="90.3936" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="538.655" cy="72.3596" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><circle cx="592.437" cy="61.4518" r="6" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><text x="60" y="246" font-size="16.2" fill="#8a4526" text-anchor="start" font-weight="bold">● sent only when the value moved 0.04 or more from the last one sent:  14 of 120 readings</text><text x="60" y="272" font-size="16.2" fill="#5b6b78" text-anchor="start">A fixed interval would send all 120. Add a slow heartbeat so silence still means "alive", not "dead".</text><text x="60" y="300" font-size="16.2" fill="#5b6b78" text-anchor="start">Trade-off: quiet signals cost almost nothing, but the stream is no longer evenly spaced in time.</text></svg>
+            <div class="diagram-caption">Sending only when the value has moved enough (orange dots) carries nearly the same information as sending everything, at a fraction of the traffic.</div>
+        </div>
+
+<h3>Part 4. When the Link Drops</h3>
+<p>A device that publishes during a WiFi outage has three choices: drop the readings, stop and wait, or queue them. Queuing is only safe if it is <em>bounded</em>, because RAM is small:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d44a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><text x="14" y="26" font-size="20.8" fill="#1f3b52" text-anchor="start" font-weight="bold">Buffering while the link is down</text><rect x="40" y="60" width="300" height="150" rx="10" fill="#fff3f0" stroke="#d64545" stroke-width="2.5"></rect><text x="190" y="86" font-size="19.5" fill="#d64545" text-anchor="middle" font-weight="bold">WiFi / broker down</text><rect x="60" y="110" width="36" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="78" y="136" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">1</text><rect x="104" y="110" width="36" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="122" y="136" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">2</text><rect x="148" y="110" width="36" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="166" y="136" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">3</text><rect x="192" y="110" width="36" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="210" y="136" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">4</text><rect x="236" y="110" width="36" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="254" y="136" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">5</text><rect x="280" y="110" width="36" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="298" y="136" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">6</text><text x="190" y="180" font-size="17.6" fill="#5b6b78" text-anchor="middle">readings pile up in a small list</text><text x="190" y="198" font-size="17.6" fill="#d64545" text-anchor="middle">(RAM is only 264 KB: cap the size!)</text><path d="M340,135 L420,135" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d44a0)"></path><text x="380" y="122" font-size="16.9" fill="#5b6b78" text-anchor="middle">link back</text><rect x="420" y="60" width="300" height="150" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="570" y="86" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Connected again</text><text x="570" y="126" font-size="17.6" fill="#2d5a2d" text-anchor="middle">send the oldest first,</text><text x="570" y="150.77" font-size="17.6" fill="#2d5a2d" text-anchor="middle">then new live readings</text><text x="570" y="175.541" font-size="17.6" fill="#2d5a2d" text-anchor="middle"></text><text x="570" y="200.311" font-size="17.6" fill="#2d5a2d" text-anchor="middle">drop the oldest if full</text><text x="380" y="250" font-size="18.2" fill="#5b6b78" text-anchor="middle">Plan for the outage: decide how much to keep, and what to throw away when the buffer fills.</text><text x="380" y="274" font-size="18.2" fill="#5b6b78" text-anchor="middle">A real, unbounded list would eventually crash the Pico with an out-of-memory error.</text></svg>
+            <div class="diagram-caption">While the link is down, readings queue up in RAM. A fixed upper limit and a rule for what to discard keep an outage from becoming a crash.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class Buffer:
+    def __init__(self, maxlen):
+        self.maxlen = maxlen
+        self.items = []
+
+    def add(self, item):
+        if len(self.items) &gt;= self.maxlen:
+            self.items.pop(0)          # drop the oldest to make room
+        self.items.append(item)
+
+    def drain(self, send):
+        while self.items:
+            send(self.items[0])
+            self.items.pop(0)          # removed only after a successful send
+</span>
+</div>
+<p>Deciding what to throw away is a design decision, not a detail: for a thermometer the newest readings matter most, but for a log you might prefer to keep the oldest.</p>
+<h3>Part 5. Putting It Together</h3>
+<p>A well-behaved telemetry node publishes at a rate chosen for its signal, labels every message with a sequence number and timestamp, reduces traffic where it can, and degrades gracefully when the network disappears. None of this changes the sensor code; it is all in how the stream is handled.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Bandwidth Math.</strong> Messages are 60 bytes. How many bytes per hour at (a) 5 messages per second, (b) one every 10 seconds?</p>
+        <p><strong>Exercise 2: Find the Losses.</strong> A subscriber receives sequence numbers 100, 101, 102, 105, 106, 110. Which are missing, and how many?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Report by Exception.</strong> Publish a reading only if it differs by at least 500 counts from the last one sent, but always send at least once a minute as a heartbeat.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: A Bounded Backlog.</strong> When the broker is unreachable, keep readings in a buffer of at most 50, dropping the oldest when full, and send them in order when the connection returns.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Bandwidth Math</summary>
+<p>(a) 60 &times; 5 &times; 3600 = <strong>1,080,000 bytes (about 1.1 MB)</strong> per hour. (b) 60 &times; 360 = <strong>21,600 bytes (about 22 KB)</strong> per hour. A 50&times; difference in traffic for a signal that may not need the faster rate.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Find the Losses</summary>
+<p>Missing: <strong>103, 104, 107, 108, 109</strong>, so 5 readings lost. Each gap is (next &minus; previous &minus; 1): 105 &minus; 102 &minus; 1 = 2, and 110 &minus; 106 &minus; 1 = 3.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Report by Exception</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">THRESH = 500
+HEARTBEAT_MS = 60000
+last_sent = None
+last_time = ticks_ms()
+
+def maybe_publish(value):
+    global last_sent, last_time
+    now = ticks_ms()
+    changed = last_sent is None or abs(value - last_sent) &gt;= THRESH
+    quiet_too_long = ticks_diff(now, last_time) &gt;= HEARTBEAT_MS
+    if changed or quiet_too_long:
+        publish(value)
+        last_sent = value
+        last_time = now
+</span>
+</div><p>The heartbeat matters: without it, "no messages" would be ambiguous between "nothing changed" and "the device died".</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: A Bounded Backlog</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class Buffer:
+    def __init__(self, maxlen):
+        self.maxlen = maxlen
+        self.items = []
+
+    def add(self, item):
+        if len(self.items) &gt;= self.maxlen:
+            self.items.pop(0)            # forget the oldest
+        self.items.append(item)
+
+    def drain(self, send):
+        while self.items:
+            send(self.items[0])          # may raise if the link is down
+            self.items.pop(0)            # only removed once sent
+
+backlog = Buffer(50)
+</span>
+</div><p>The size cap protects the Pico's small RAM. Removing an item only <em>after</em> <code class="code-lesson-il">send</code> succeeds means a failed send leaves it queued for the next attempt.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Define rate, throughput, latency and jitter, and compute throughput from rate and message size.</li>
+            <li>Explain how a sequence number reveals lost messages and how many were lost.</li>
+            <li>Describe report-by-exception and why it needs a heartbeat.</li>
+            <li>Explain why an offline buffer must have a maximum size, and what to do when it fills.</li>
+        </ol>
+
+    </body>
+</html>

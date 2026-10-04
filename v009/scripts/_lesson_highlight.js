@@ -29,6 +29,30 @@ const LANG_WORDS = {
             'except','finally','with','lambda','yield','global','nonlocal','raise','assert','del'],
         types: ['int','float','str','bool','list','dict','tuple','set','object','bytes'],
     },
+    // Same language, same keyword set as python above -- the distinct
+    // entry exists because MicroPython code leans heavily on a small
+    // set of hardware-facing class names (Pin, ADC, WLAN, ...) that are
+    // worth recognizing as their own token type even though they're
+    // ordinary classes, not language keywords, plus True/False/None are
+    // both common here and worth the same treatment.
+    // Pi terminal sessions and Mosquitto config files: only a few real
+    // words are worth coloring, and the C# fallback would wrongly color
+    // ordinary words like "new" or "for" in command output.
+    shell: {
+        keywords: ['sudo','apt','systemctl','journalctl','nano','cat','echo','ls','cd','mosquitto_sub','mosquitto_pub','mosquitto_passwd','ss','grep','tail'],
+        types: [],
+    },
+    conf: {
+        keywords: ['listener','allow_anonymous','password_file','acl_file','persistence','persistence_location','log_dest','log_type','sys_interval','user','topic','pattern','true','false','read','write','readwrite'],
+        types: [],
+    },
+    micropython: {
+        keywords: ['def','return','if','elif','else','for','while','import','from','as','class',
+            'pass','break','continue','and','or','not','in','is','True','False','None','try',
+            'except','finally','with','lambda','yield','global','nonlocal','raise','assert','del'],
+        types: ['int','float','str','bool','list','dict','tuple','set','object','bytes',
+            'Pin','ADC','PWM','I2C','SPI','UART','Timer','RTC','WLAN','MQTTClient'],
+    },
     // Also the fallback for any data-lang value that isn't listed above
     // (see langWords()) -- "csharp" and "default" are deliberately the
     // same entry, matching the request for csharp's palette to double
@@ -75,6 +99,25 @@ const HL_CSS = `
 .code-block[data-lang="python"] .hl-com  { color: #c0392b; }
 .code-block[data-lang="python"] .hl-num  { color: #1a5fb4; }
 .code-block[data-lang="python"] .hl-fn   { color: #1a5fb4; font-weight: 700; }
+.code-block[data-lang="shell"] .code-lesson-bl { background: #1b1f23; color: #e6e6e6; }
+.code-block[data-lang="shell"] .hl-kw   { color: #7ee0a0; font-weight: 700; }
+.code-block[data-lang="shell"] .hl-str  { color: #f0c674; }
+.code-block[data-lang="shell"] .hl-com  { color: #8b95a1; }
+.code-block[data-lang="shell"] .hl-num  { color: #b9a3ff; }
+.code-block[data-lang="shell"] .hl-fn   { color: #e6e6e6; }
+.code-block[data-lang="conf"] .code-lesson-bl { background: #26292f; color: #e6e6e6; }
+.code-block[data-lang="conf"] .hl-kw   { color: #ffb86b; font-weight: 700; }
+.code-block[data-lang="conf"] .hl-str  { color: #f0c674; }
+.code-block[data-lang="conf"] .hl-com  { color: #8b95a1; }
+.code-block[data-lang="conf"] .hl-num  { color: #b9a3ff; }
+.code-block[data-lang="conf"] .hl-fn   { color: #e6e6e6; }
+.code-block[data-lang="micropython"] .code-lesson-bl { background: #fff8e6; color: #1f1f1f; }
+.code-block[data-lang="micropython"] .hl-kw   { color: #0a7a8a; font-weight: 700; }
+.code-block[data-lang="micropython"] .hl-type { color: #b15a00; font-weight: 600; }
+.code-block[data-lang="micropython"] .hl-str  { color: #17803a; }
+.code-block[data-lang="micropython"] .hl-com  { color: #7a705c; }
+.code-block[data-lang="micropython"] .hl-num  { color: #6a3ec9; }
+.code-block[data-lang="micropython"] .hl-fn   { color: #1a5fb4; }
 `;
 
 // One combined scanner for every language: line comments (# or //),

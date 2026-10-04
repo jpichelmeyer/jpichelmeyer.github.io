@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>The moving average from Unit 1 needs a buffer of recent readings. The exponential moving average, EMA, gets nearly the same smoothing from <em>one</em> stored number and one line of code. It is the workhorse of embedded signal processing, and the machinery inside the z-score detector you just met.</p>
+
+
+<h3>Part 1. One Line</h3>
+<p>Each new reading nudges the average a fraction <strong>alpha</strong> of the way towards it:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">ema.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">ema = first_reading
+while True:
+    x = read()
+    ema = ema + alpha * (x - ema)          # equivalently: alpha*x + (1-alpha)*ema
+</span>
+</div>
+<p><span class="code-lesson-il">alpha</span> is between 0 and 1. Small values move the average slowly (a lot of smoothing); large values follow the input closely (little smoothing). At <span class="code-lesson-il">alpha = 1</span> the output is simply the input.</p>
+<h3>Part 2. What It Remembers</h3>
+<p>Unrolling the line shows that each past reading contributes with weight <span class="code-lesson-il">alpha·(1−alpha)<sup>k</sup></span> where <em>k</em> is how many samples ago it arrived. Recent readings count most, and older ones fade smoothly, never quite to zero. A window average, by contrast, weighs its last N readings equally and forgets the rest at once:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="30" font-size="17.6" fill="#1f3b52" text-anchor="start" font-weight="bold">window average, N = 5</text><rect x="80" y="96" width="40" height="80" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="130" y="96" width="40" height="80" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="180" y="96" width="40" height="80" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="230" y="96" width="40" height="80" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="280" y="96" width="40" height="80" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="330" y="176" width="40" height="1" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="380" y="176" width="40" height="1" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="430" y="176" width="40" height="1" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="480" y="176" width="40" height="1" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="530" y="176" width="40" height="1" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="580" y="176" width="40" height="1" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="630" y="176" width="40" height="1" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><line x1="70" y1="176" x2="690" y2="176" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="20" y="220" font-size="17.6" fill="#8a4526" text-anchor="start" font-weight="bold">EMA, alpha = 0.3</text><rect x="80" y="246" width="40" height="120" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="130" y="282" width="40" height="84" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="180" y="307.2" width="40" height="58.8" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="230" y="324.84" width="40" height="41.16" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="280" y="337.188" width="40" height="28.812" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="330" y="345.832" width="40" height="20.1684" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="380" y="351.882" width="40" height="14.1179" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="430" y="356.117" width="40" height="9.88252" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="480" y="359.082" width="40" height="6.91776" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="530" y="361.158" width="40" height="4.84243" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="580" y="362.61" width="40" height="3.3897" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><rect x="630" y="363.627" width="40" height="2.37279" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><line x1="70" y1="366" x2="690" y2="366" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="380" y="390" font-size="15.6" fill="#5b6b78" text-anchor="middle">age of the reading (newest on the left) →</text></svg>
+            <div class="diagram-caption">Which samples an average remembers. A window average weighs the last N readings equally and forgets the rest instantly; an EMA weighs recent readings most and fades older ones smoothly, never quite to zero.</div>
+        </div>
+
+<h3>Part 3. Choosing Alpha</h3>
+<p>Alpha controls how fast the average responds. After a sudden step in the input, the output closes the gap geometrically:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="70" y1="290" x2="710" y2="290" stroke="#444" stroke-width="2" stroke-linecap="round"></line><line x1="70" y1="30" x2="70" y2="290" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="390" y="328" font-size="18.2" fill="#5b6b78" text-anchor="middle">samples after the step →</text><text x="32" y="160" font-size="18.2" fill="#5b6b78" text-anchor="middle" transform="rotate(-90 32 160)">output</text><path d="M70,290 L86,170.4 L102,110.6 L118,80.7 L134,65.75 L150,58.275 L166,54.5375 L182,52.6687 L198,51.7344 L214,51.2672 L230,51.0336 L246,50.9168 L262,50.8584 L278,50.8292 L294,50.8146 L310,50.8073 L326,50.8036 L342,50.8018 L358,50.8009 L374,50.8005 L390,50.8002 L406,50.8001 L422,50.8001 L438,50.8 L454,50.8 L470,50.8 L486,50.8 L502,50.8 L518,50.8 L534,50.8 L550,50.8 L566,50.8 L582,50.8 L598,50.8 L614,50.8 L630,50.8 L646,50.8 L662,50.8 L678,50.8 L694,50.8 L710,50.8" fill="none" stroke="#d64545" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70,290 L86,242.16 L102,203.888 L118,173.27 L134,148.776 L150,129.181 L166,113.505 L182,100.964 L198,90.9311 L214,82.9049 L230,76.4839 L246,71.3471 L262,67.2377 L278,63.9502 L294,61.3201 L310,59.2161 L326,57.5329 L342,56.1863 L358,55.109 L374,54.2472 L390,53.5578 L406,53.0062 L422,52.565 L438,52.212 L454,51.9296 L470,51.7037 L486,51.5229 L502,51.3784 L518,51.2627 L534,51.1701 L550,51.0961 L566,51.0369 L582,50.9895 L598,50.9516 L614,50.9213 L630,50.897 L646,50.8776 L662,50.8621 L678,50.8497 L694,50.8397 L710,50.8318" fill="none" stroke="#2e5a80" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70,290 L86,278.04 L102,266.678 L118,255.884 L134,245.63 L150,235.888 L166,226.634 L182,217.842 L198,209.49 L214,201.556 L230,194.018 L246,186.857 L262,180.054 L278,173.591 L294,167.452 L310,161.619 L326,156.078 L342,150.814 L358,145.814 L374,141.063 L390,136.55 L406,132.262 L422,128.189 L438,124.32 L454,120.644 L470,117.152 L486,113.834 L502,110.682 L518,107.688 L534,104.844 L550,102.142 L566,99.5745 L582,97.1358 L598,94.819 L614,92.618 L630,90.5271 L646,88.5408 L662,86.6537 L678,84.8611 L694,83.158 L710,81.5401" fill="none" stroke="#4a8a4a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"></path><line x1="70" y1="50.8" x2="710" y2="50.8" stroke="#8a8a8a" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="5 4"></line><text x="706" y="42.8" font-size="15.6" fill="#5b6b78" text-anchor="end">input (after the step)</text><text x="130" y="352" font-size="16.9" fill="#d64545" text-anchor="start" font-weight="bold">● alpha 0.5</text><text x="290" y="352" font-size="16.9" fill="#2e5a80" text-anchor="start" font-weight="bold">● alpha 0.2</text><text x="450" y="352" font-size="16.9" fill="#2d5a2d" text-anchor="start" font-weight="bold">● alpha 0.05</text></svg>
+            <div class="diagram-caption">How an exponential moving average responds to a sudden step. A small alpha is smooth but slow to follow; a large alpha follows quickly but passes more noise.</div>
+        </div>
+
+<p>Two numbers describe the behaviour. The <strong>time constant</strong> is how many samples it takes to cover about 63 % of a step; after roughly three time constants it has settled to 95 %. And you can match it to a window average: an EMA behaves like a moving average of about <span class="code-lesson-il">N ≈ 2/alpha − 1</span> samples.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="16" width="130" height="54" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="105" y="49" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">alpha</text><rect x="170" y="16" width="190" height="54" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="265" y="49" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">time constant (samples)</text><rect x="360" y="16" width="200" height="54" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="460" y="49" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">like a window of N =</text><rect x="560" y="16" width="160" height="54" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="640" y="49" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">95 % settled after</text><rect x="40" y="70" width="130" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="102" font-size="18.2" fill="#1f3b52" text-anchor="start">0.5</text><rect x="170" y="70" width="190" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="265" y="102" font-size="18.2" fill="#1f3b52" text-anchor="middle">1.4</text><rect x="360" y="70" width="200" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="460" y="102" font-size="18.2" fill="#1f3b52" text-anchor="middle">3</text><rect x="560" y="70" width="160" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="640" y="102" font-size="18.2" fill="#1f3b52" text-anchor="middle">5</text><rect x="40" y="124" width="130" height="54" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="156" font-size="18.2" fill="#1f3b52" text-anchor="start">0.3</text><rect x="170" y="124" width="190" height="54" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="265" y="156" font-size="18.2" fill="#1f3b52" text-anchor="middle">2.8</text><rect x="360" y="124" width="200" height="54" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="460" y="156" font-size="18.2" fill="#1f3b52" text-anchor="middle">6</text><rect x="560" y="124" width="160" height="54" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="640" y="156" font-size="18.2" fill="#1f3b52" text-anchor="middle">9</text><rect x="40" y="178" width="130" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="210" font-size="18.2" fill="#1f3b52" text-anchor="start">0.2</text><rect x="170" y="178" width="190" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="265" y="210" font-size="18.2" fill="#1f3b52" text-anchor="middle">4.5</text><rect x="360" y="178" width="200" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="460" y="210" font-size="18.2" fill="#1f3b52" text-anchor="middle">9</text><rect x="560" y="178" width="160" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="640" y="210" font-size="18.2" fill="#1f3b52" text-anchor="middle">14</text><rect x="40" y="232" width="130" height="54" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="264" font-size="18.2" fill="#1f3b52" text-anchor="start">0.1</text><rect x="170" y="232" width="190" height="54" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="265" y="264" font-size="18.2" fill="#1f3b52" text-anchor="middle">9.5</text><rect x="360" y="232" width="200" height="54" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="460" y="264" font-size="18.2" fill="#1f3b52" text-anchor="middle">19</text><rect x="560" y="232" width="160" height="54" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="640" y="264" font-size="18.2" fill="#1f3b52" text-anchor="middle">29</text><rect x="40" y="286" width="130" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="318" font-size="18.2" fill="#1f3b52" text-anchor="start">0.05</text><rect x="170" y="286" width="190" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="265" y="318" font-size="18.2" fill="#1f3b52" text-anchor="middle">19.5</text><rect x="360" y="286" width="200" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="460" y="318" font-size="18.2" fill="#1f3b52" text-anchor="middle">39</text><rect x="560" y="286" width="160" height="54" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="640" y="318" font-size="18.2" fill="#1f3b52" text-anchor="middle">59</text><text x="380" y="360" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">time constant = −1 / ln(1 − alpha)     equivalent N ≈ 2 / alpha − 1</text></svg>
+            <div class="diagram-caption">Choosing alpha. It sets how many samples the average effectively remembers, how long it takes to settle after a change, and the matching window size for a simple moving average.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="30" width="680" height="250" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M40,222.298 L44.2767,207.911 L48.5535,221.739 L52.8302,223.408 L57.1069,234.938 L61.3836,221.499 L65.6604,196.652 L69.9371,209.547 L74.2138,198.059 L78.4906,212.833 L82.7673,210.098 L87.044,214.025 L91.3208,248.739 L95.5975,201.464 L99.8742,208.005 L104.151,208.147 L108.428,249.213 L112.704,250.198 L116.981,234.18 L121.258,226.279 L125.535,211.773 L129.811,218.361 L134.088,207.732 L138.365,229.542 L142.642,211.712 L146.918,210.11 L151.195,229.896 L155.472,185.296 L159.748,207.064 L164.025,195.056 L168.302,229.131 L172.579,231.366 L176.855,223.951 L181.132,219.495 L185.409,205.649 L189.686,212.842 L193.962,225.888 L198.239,235.442 L202.516,227.261 L206.792,194.608 L211.069,232.649 L215.346,212.911 L219.623,209.503 L223.899,245.433 L228.176,216.591 L232.453,193.008 L236.73,255.269 L241.006,223.53 L245.283,219.49 L249.56,232.824 L253.836,208.174 L258.113,218.668 L262.39,244.962 L266.667,201.978 L270.943,204.95 L275.22,199.765 L279.497,190.489 L283.774,210.708 L288.05,215.264 L292.327,241.859 L296.604,205.96 L300.881,228.97 L305.157,225.988 L309.434,241.215 L313.711,235.643 L317.987,227.459 L322.264,193.334 L326.541,255.596 L330.818,244.832 L335.094,213.012 L339.371,65.4372 L343.648,81.6532 L347.925,128.124 L352.201,139.717 L356.478,85.7988 L360.755,106.305 L365.031,113.496 L369.308,74.1743 L373.585,71.8415 L377.862,89.5515 L382.138,87.8917 L386.415,84.3557 L390.692,62.6124 L394.969,80.8932 L399.245,82.7753 L403.522,82.2299 L407.799,121.906 L412.075,68.4675 L416.352,74.5918 L420.629,82.5696 L424.906,129.51 L429.182,104.382 L433.459,76.7068 L437.736,126.46 L442.013,95.9504 L446.289,73.3839 L450.566,117.085 L454.843,62.3105 L459.119,82.1507 L463.396,95.3151 L467.673,86.4087 L471.95,80.3157 L476.226,90.2426 L480.503,71.0189 L484.78,104.904 L489.057,100.276 L493.333,72.9684 L497.61,91.9975 L501.887,109.009 L506.164,74.754 L510.44,65.0219 L514.717,100.84 L518.994,118.375 L523.27,95.0265 L527.547,95.2941 L531.824,98.0875 L536.101,66.1606 L540.377,111.755 L544.654,68.864 L548.931,116.281 L553.208,107.257 L557.484,80.659 L561.761,71.3371 L566.038,76.3937 L570.314,86.027 L574.591,89.8308 L578.868,89.641 L583.145,81.7135 L587.421,95.8037 L591.698,87.2981 L595.975,81.7614 L600.252,92.4843 L604.528,78.1753 L608.805,81.8898 L613.082,54.8006 L617.358,86.4073 L621.635,100.517 L625.912,99.4853 L630.189,92.7457 L634.465,75.179 L638.742,98.8106 L643.019,85.2658 L647.296,58.0506 L651.572,140.588 L655.849,113.573 L660.126,87.9269 L664.403,85.0312 L668.679,88.0268 L672.956,100.584 L677.233,80.216 L681.509,87.2101 L685.786,102.288 L690.063,46.9365 L694.34,85.8413 L698.616,102.892 L702.893,94.3647 L707.17,96.7299 L711.447,93.6764 L715.723,143.652 L720,101.629" fill="none" stroke="#cbb08f" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></path><path d="M40,222.298 L44.2767,215.104 L48.5535,217.316 L52.8302,218.839 L57.1069,222.059 L61.3836,221.965 L65.6604,218.349 L69.9371,217.249 L74.2138,215.117 L78.4906,214.065 L82.7673,214.308 L87.044,213.451 L91.3208,216.266 L95.5975,212.546 L99.8742,211.047 L104.151,212.324 L108.428,216.731 L112.704,222.525 L116.981,224.897 L121.258,226.694 L125.535,226.444 L129.811,223.069 L134.088,223.765 L138.365,226.158 L142.642,226.554 L146.918,222.21 L151.195,219.954 L155.472,214.522 L159.748,212.387 L164.025,210.53 L168.302,211.727 L172.579,214.353 L176.855,213.731 L181.132,214.596 L185.409,214.1 L189.686,212.206 L193.962,216.716 L198.239,219.869 L202.516,223.447 L206.792,219.611 L211.069,219.754 L215.346,218.527 L219.623,217.417 L223.899,221.837 L228.176,222.254 L232.453,218.601 L236.73,220.804 L241.006,220.389 L245.283,223.154 L249.56,223.173 L253.836,222.647 L258.113,223.665 L262.39,223.613 L266.667,221.989 L270.943,223.316 L275.22,217.149 L279.497,213.478 L283.774,212.502 L288.05,210.551 L292.327,214.294 L296.604,212.882 L300.881,211.105 L305.157,213.773 L309.434,217.802 L313.711,221.788 L317.987,225.896 L322.264,223.966 L326.541,228.447 L330.818,228.778 L335.094,229.561 L339.371,211.391 L343.648,195.353 L347.925,182.788 L352.201,172.129 L356.478,156.389 L360.755,146.719 L365.031,130.931 L369.308,111.969 L373.585,96.283 L377.862,98.9623 L382.138,99.6555 L386.415,94.7924 L390.692,86.2252 L394.969,85.6801 L399.245,83.0657 L403.522,79.5917 L407.799,84.8952 L412.075,84.5203 L416.352,82.8582 L420.629,82.2668 L424.906,87.284 L429.182,91.925 L433.459,91.4598 L437.736,96.3137 L442.013,97.8382 L446.289,92.4469 L450.566,97.8488 L454.843,96.4842 L459.119,96.4377 L463.396,92.6382 L467.673,90.6412 L471.95,91.0422 L476.226,87.018 L480.503,84.2479 L484.78,87.7501 L489.057,85.8825 L493.333,87.0667 L497.61,88.1608 L501.887,89.6823 L506.164,88.3873 L510.44,86.688 L514.717,87.8656 L518.994,93.1273 L523.27,92.0299 L527.547,91.4763 L531.824,94.2673 L536.101,91.3965 L540.377,91.7017 L544.654,91.0472 L548.931,96.7427 L553.208,97.4556 L557.484,93.265 L561.761,90.6328 L566.038,88.5328 L570.314,87.1927 L574.591,89.8227 L578.868,87.3656 L583.145,88.7933 L587.421,86.5181 L591.698,84.3004 L595.975,84.4229 L600.252,86.7726 L604.528,86.9706 L608.805,86.5109 L613.082,82.6186 L617.358,82.2593 L621.635,84.3487 L625.912,84.7577 L630.189,85.363 L634.465,84.6316 L638.742,85.3346 L643.019,86.1224 L647.296,83.4736 L651.572,93.0055 L655.849,96.0239 L660.126,94.625 L664.403,93.019 L668.679,92.4947 L672.956,95.3174 L677.233,93.2514 L681.509,93.4674 L685.786,98.3827 L690.063,87.977 L694.34,84.8957 L698.616,86.5585 L702.893,87.5955 L707.17,88.5625 L711.447,87.795 L715.723,94.8434 L720,96.4455" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><path d="M40,222.298 L44.2767,219.42 L48.5535,219.884 L52.8302,220.589 L57.1069,223.459 L61.3836,223.067 L65.6604,217.784 L69.9371,216.136 L74.2138,212.521 L78.4906,212.583 L82.7673,212.086 L87.044,212.474 L91.3208,219.727 L95.5975,216.074 L99.8742,214.461 L104.151,213.198 L108.428,220.401 L112.704,226.36 L116.981,227.924 L121.258,227.595 L125.535,224.431 L129.811,223.217 L134.088,220.12 L138.365,222.004 L142.642,219.946 L146.918,217.978 L151.195,220.362 L155.472,213.349 L159.748,212.092 L164.025,208.685 L168.302,212.774 L172.579,216.492 L176.855,217.984 L181.132,218.286 L185.409,215.759 L189.686,215.175 L193.962,217.318 L198.239,220.943 L202.516,222.206 L206.792,216.687 L211.069,219.879 L215.346,218.485 L219.623,216.689 L223.899,222.438 L228.176,221.268 L232.453,215.616 L236.73,223.547 L241.006,223.543 L245.283,222.733 L249.56,224.751 L253.836,221.436 L258.113,220.882 L262.39,225.698 L266.667,220.954 L270.943,217.753 L275.22,214.156 L279.497,209.422 L283.774,209.679 L288.05,210.796 L292.327,217.009 L296.604,214.799 L300.881,217.633 L305.157,219.304 L309.434,223.686 L313.711,226.078 L317.987,226.354 L322.264,219.75 L326.541,226.919 L330.818,230.502 L335.094,227.004 L339.371,194.691 L343.648,172.083 L347.925,163.291 L352.201,158.576 L356.478,144.021 L360.755,136.478 L365.031,131.881 L369.308,120.34 L373.585,110.64 L377.862,106.422 L382.138,102.716 L386.415,99.0442 L390.692,91.7579 L394.969,89.5849 L399.245,88.223 L403.522,87.0244 L407.799,94.0007 L412.075,88.894 L416.352,86.0336 L420.629,85.3408 L424.906,94.1747 L429.182,96.216 L433.459,92.3142 L437.736,99.1434 L442.013,98.5048 L446.289,93.4806 L450.566,98.2014 L454.843,91.0233 L459.119,89.2487 L463.396,90.462 L467.673,89.6514 L471.95,87.7842 L476.226,88.2759 L480.503,84.8245 L484.78,88.8404 L489.057,91.1276 L493.333,87.4957 L497.61,88.3961 L501.887,92.5186 L506.164,88.9657 L510.44,84.1769 L514.717,87.5096 L518.994,93.6827 L523.27,93.9515 L527.547,94.22 L531.824,94.9935 L536.101,89.2269 L540.377,93.7325 L544.654,88.7588 L548.931,94.2633 L553.208,96.862 L557.484,93.6214 L561.761,89.1645 L566.038,86.6104 L570.314,86.4937 L574.591,87.1611 L578.868,87.6571 L583.145,86.4684 L587.421,88.3354 L591.698,88.128 L595.975,86.8546 L600.252,87.9806 L604.528,86.0195 L608.805,85.1936 L613.082,79.115 L617.358,80.5735 L621.635,84.5622 L625.912,87.5469 L630.189,88.5866 L634.465,85.9051 L638.742,88.4862 L643.019,87.8421 L647.296,81.8838 L651.572,93.6246 L655.849,97.6143 L660.126,95.6769 L664.403,93.5477 L668.679,92.4435 L672.956,94.0716 L677.233,91.3005 L681.509,90.4824 L685.786,92.8436 L690.063,83.6622 L694.34,84.098 L698.616,87.8568 L702.893,89.1583 L707.17,90.6727 L711.447,91.2734 L715.723,101.749 L720,101.725" fill="none" stroke="#d64545" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><text x="40" y="316" font-size="16.9" fill="#a07a45" text-anchor="start" font-weight="bold">● raw</text><text x="150" y="316" font-size="16.9" fill="#2e5a80" text-anchor="start" font-weight="bold">● window average N = 9  (9 numbers stored)</text><text x="150" y="344" font-size="16.9" fill="#d64545" text-anchor="start" font-weight="bold">● EMA alpha = 0.2  (1 number stored)</text></svg>
+            <div class="diagram-caption">The same noisy signal smoothed two ways, tuned to a similar amount of smoothing. The EMA needs one stored number; the window average needs a buffer of nine.</div>
+        </div>
+
+<p>The two lines above smooth by a similar amount and lag by a similar amount; the difference is what they cost. The window average stores nine numbers and sums them each time (or keeps a running total); the EMA stores one.</p>
+<h3>Part 4. Practical Details</h3>
+<ul>
+<li><strong>Initialise with the first reading</strong>, not zero. Starting from zero makes the output crawl up from nothing for the first several time constants.</li>
+<li><strong>Integers:</strong> for <span class="code-lesson-il">alpha = 1/8</span> you can use a shift, <span class="code-lesson-il">ema += (x − ema) &gt;&gt; 3</span>, which avoids floats entirely. It rounds toward minus infinity, so a small bias builds up in the last bit; fine for smoothing, not for precision work.</li>
+<li><strong>Different alphas for different jobs:</strong> a fast EMA tracks the signal, a slow one tracks the baseline, and the difference between them is a cheap trend detector.</li>
+<li><strong>Variance too:</strong> the same idea gives a running spread, <span class="code-lesson-il">var = (1−alpha)·(var + alpha·d²)</span> with <span class="code-lesson-il">d = x − ema</span>, which is exactly what powers the rolling z-score.</li>
+</ul>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">ema.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class EMA:
+    def __init__(self, alpha):
+        self.alpha = alpha
+        self.value = None
+
+    def update(self, x):
+        if self.value is None:
+            self.value = x                 # start at the first reading
+        else:
+            self.value += self.alpha * (x - self.value)
+        return self.value
+</span>
+</div>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: By Hand.</strong> Starting at 10 with <span class="code-lesson-il">alpha = 0.25</span>, compute the EMA after the readings 10, 10, 10, 50.</p>
+        <p><strong>Exercise 2: Pick an Alpha.</strong> You want an EMA to settle to within 5 % of a step in about 20 samples. Roughly what alpha, and what window average is it similar to?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: An Integer EMA.</strong> Implement an EMA with alpha = 1/8 using only integers, and feed it a step from 0 to 800.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: A Trend Detector.</strong> Run two EMAs on the same signal, a fast one (alpha 0.3) and a slow one (alpha 0.02), and publish <span class="code-lesson-il">"rising"</span> when the fast one exceeds the slow one by more than a threshold. Explain why this works.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: By Hand</summary>
+<p>The first three leave it at 10. For 50: 10 + 0.25 × (50 − 10) = <strong>20</strong>. One big reading moves the average a quarter of the way; a window average of four would have moved to 20 as well, but a longer window would move less.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Pick an Alpha</summary>
+<p>From the table, alpha = 0.1 settles (95 %) in about 29 samples and alpha = 0.2 in about 14; 20 lies between, so alpha ≈ <strong>0.14</strong>. Its equivalent window is about 2 / 0.14 − 1 ≈ <strong>13 samples</strong>.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: An Integer EMA</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">ema.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">ema = 0
+out = []
+for x in [800] * 20:
+    ema += (x - ema) &gt;&gt; 3              # alpha = 1/8
+    out.append(ema)
+print(out[:6], out[-1])                # [100, 187, 263, 330, 388, 439] 741
+</span>
+</div><p>After 20 samples it has reached 741 and it keeps closing the gap, but because the shift rounds down it finally settles at 793, seven counts short of 800. For smoothing that is harmless; do not use it where the last count matters.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: A Trend Detector</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">trend.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">fast = EMA(0.3)
+slow = EMA(0.02)
+THRESH = 500
+
+def trend(x):
+    f, s = fast.update(x), slow.update(x)
+    if f - s &gt; THRESH:
+        return "rising"
+    if s - f &gt; THRESH:
+        return "falling"
+    return "steady"
+</span>
+</div><p>The slow average is a stable baseline; the fast one follows recent changes. When the signal rises steadily the fast one pulls ahead of the baseline, and the gap measures how fast. It needs only two numbers of memory.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Write the EMA update from memory and say what alpha controls.</li>
+            <li>Explain how an EMA weighs old readings compared with a window average.</li>
+            <li>Choose an alpha for a wanted time constant, and relate it to an equivalent window size.</li>
+            <li>Explain why to initialise with the first reading.</li>
+        </ol>
+
+    </body>
+</html>

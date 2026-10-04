@@ -88,6 +88,20 @@
 .code-block[data-lang="python"] .code-block-header { background: #f0dcae; color: #4a3a12; }
 .code-block[data-lang="python"] .code-block-lang   { color: #4a3a12; }
 
+/* MicroPython matches the MicroPython tag on the course listing
+   (.tag_micropython in _teaching.css: #ad4949 background, #ffe49e text),
+   so the header, the filename and the language label all use those two
+   colors. The code area below uses a pale tint of the same #ffe49e; that
+   background and the token colors live in _lesson_highlight.js (HL_CSS). */
+.code-block[data-lang="micropython"] .code-block-header { background: #ad4949; color: #ffe49e; }
+.code-block[data-lang="micropython"] .code-block-lang   { color: #ffe49e; }
+/* Pi terminal and config-file blocks (Unit 2 lessons) */
+.code-block[data-lang="shell"] .code-block-header { background: #2f3b34; color: #cfe8cf; }
+.code-block[data-lang="shell"] .code-block-lang   { color: #7ee0a0; }
+.code-block[data-lang="conf"]  .code-block-header { background: #3a3426; color: #f1e3c2; }
+.code-block[data-lang="conf"]  .code-block-lang   { color: #ffb86b; }
+
+
 /* The editable code box gets its own, deliberately different, header
    color: gold marks "read this example," dark grey marks "type here." */
 .code-block[data-lang="python-editable"] .code-block-header { background: #333333; color: #fff; }

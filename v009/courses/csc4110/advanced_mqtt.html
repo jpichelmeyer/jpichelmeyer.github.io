@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>You now have the everyday features of MQTT: publish, subscribe, topics and permissions. This lesson covers the behaviours that decide whether a system feels solid or flaky: retained messages, keep-alive, and sessions. None of them is complicated, but each one has a default that surprises people the first time.</p>
+
+
+<h3>Part 1. Retained Messages</h3>
+<p>Normally a message is delivered to whoever is subscribed at that instant and then forgotten. A <strong>retained</strong> message is also stored by the broker (one per topic) and given to every new subscriber the moment it subscribes. That makes it ideal for <em>state</em>: the latest value is always available, even to a client that starts later.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 430" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d81a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#4a8a4a"></path></marker></defs><text x="20" y="36" font-size="19.5" fill="#d64545" text-anchor="start" font-weight="bold">Without retain</text><line x1="40" y1="130" x2="720" y2="130" stroke="#444" stroke-width="2.5" stroke-linecap="round"></line><text x="720" y="158" font-size="15.6" fill="#5b6b78" text-anchor="end">time →</text><circle cx="110" cy="130" r="9" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><text x="110" y="105" font-size="16.2" fill="#8a4526" text-anchor="middle" font-weight="bold">publish 22.4</text><circle cx="300" cy="130" r="9" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><text x="300" y="105" font-size="16.2" fill="#8a4526" text-anchor="middle" font-weight="bold">publish 22.9</text><rect x="400" y="54" width="6" height="76" rx="2" fill="#2e5a80" stroke="none" stroke-width="0"></rect><text x="428" y="80" font-size="16.2" fill="#1f3b52" text-anchor="start" font-weight="bold">subscriber joins</text><text x="420" y="190" font-size="16.9" fill="#d64545" text-anchor="start" font-weight="bold">receives nothing yet</text><text x="420" y="214" font-size="15.6" fill="#5b6b78" text-anchor="start">(waits for the next publish)</text><text x="20" y="246" font-size="19.5" fill="#2d5a2d" text-anchor="start" font-weight="bold">With retain</text><line x1="40" y1="340" x2="720" y2="340" stroke="#444" stroke-width="2.5" stroke-linecap="round"></line><text x="720" y="368" font-size="15.6" fill="#5b6b78" text-anchor="end">time →</text><circle cx="110" cy="340" r="9" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><text x="110" y="315" font-size="16.2" fill="#8a4526" text-anchor="middle" font-weight="bold">publish 22.4</text><circle cx="300" cy="340" r="9" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><text x="300" y="315" font-size="16.2" fill="#8a4526" text-anchor="middle" font-weight="bold">publish 22.9</text><rect x="400" y="264" width="6" height="76" rx="2" fill="#2e5a80" stroke="none" stroke-width="0"></rect><text x="428" y="290" font-size="16.2" fill="#1f3b52" text-anchor="start" font-weight="bold">subscriber joins</text><path d="M403,340 L403,370" fill="none" stroke="#4a8a4a" stroke-width="3" stroke-linejoin="round" marker-end="url(#d81a0)"></path><text x="420" y="400" font-size="16.9" fill="#2d5a2d" text-anchor="start" font-weight="bold">receives 22.9 straight away</text></svg>
+            <div class="diagram-caption">A retained message is stored by the broker and handed to every new subscriber immediately. Without retain, a subscriber that joins late sees nothing until the next publish.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">client.publish(b"lab/pico01/stat/led", b"on", retain=True)    # store it on the broker
+</span>
+</div>
+<div class="code-block" data-lang="shell">
+<div class="code-block-header">
+<span class="code-block-filename">Pi terminal</span>
+<span class="code-block-lang">Shell</span>
+</div>
+<span class="code-lesson-bl">mosquitto_sub -h localhost -u dashboard -P pw -v -t 'lab/+/stat/#'      # new subscribers see stored states at once
+mosquitto_pub -h localhost -u instructor -P pw -r -n -t lab/pico01/stat/led   # -r -n: clear a retained message
+</span>
+</div>
+<p>To remove a retained message you publish an <em>empty</em> payload to the same topic with retain set; <span class="code-lesson-il">-n</span> sends the empty payload. Retained messages are the wrong tool for readings that keep changing and should not be replayed to latecomers, such as a stream of telemetry.</p>
+<h3>Part 2. Keep-Alive</h3>
+<p>A TCP connection can die without either end noticing, for example when WiFi drops. MQTT detects this with a <strong>keep-alive</strong>: the client promises to send <em>something</em> within a stated number of seconds, and the broker closes the connection if it hears nothing for one and a half times that.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="36" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">keepalive = 30 seconds</text><line x1="40" y1="160" x2="720" y2="160" stroke="#444" stroke-width="2.5" stroke-linecap="round"></line><line x1="60" y1="152" x2="60" y2="168" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="60" y="194" font-size="16.2" fill="#5b6b78" text-anchor="middle">0</text><line x1="250" y1="152" x2="250" y2="168" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="250" y="194" font-size="16.2" fill="#5b6b78" text-anchor="middle">30 s</text><line x1="440" y1="152" x2="440" y2="168" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="440" y="194" font-size="16.2" fill="#5b6b78" text-anchor="middle">60 s</text><line x1="630" y1="152" x2="630" y2="168" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="630" y="194" font-size="16.2" fill="#5b6b78" text-anchor="middle">90 s</text><circle cx="60" cy="160" r="8" fill="#2e5a80" stroke="#fff" stroke-width="2.5"></circle><text x="60" y="134" font-size="15.6" fill="#1f3b52" text-anchor="middle" font-weight="bold">PINGREQ</text><circle cx="250" cy="160" r="8" fill="#2e5a80" stroke="#fff" stroke-width="2.5"></circle><text x="250" y="134" font-size="15.6" fill="#1f3b52" text-anchor="middle" font-weight="bold">PINGREQ</text><rect x="250" y="212" width="285" height="36" rx="6" fill="#fff3f0" stroke="#d64545" stroke-width="1.8"></rect><text x="392" y="236" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">client silent (WiFi lost)</text><circle cx="535" cy="160" r="9" fill="#d64545" stroke="#fff" stroke-width="2.5"></circle><text x="560" y="110" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">broker closes at</text><text x="560" y="132" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">1.5 × 30 s = 45 s of silence</text><text x="380" y="300" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">umqtt does not ping for you: call client.ping() more often than the keep-alive time.</text></svg>
+            <div class="diagram-caption">Keep-alive proves a silent client is still there. The client promises to send something within the keep-alive time; if the broker hears nothing for one and a half times that, it drops the connection.</div>
+        </div>
+
+<p>MicroPython’s <span class="code-lesson-il">umqtt.simple</span> does not do this for you. The default keep-alive is 0, which disables it, and even when you set one the library never sends a ping by itself. Set the keep-alive and send a ping in your loop more often than that time:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import ticks_ms, ticks_diff
+
+KEEPALIVE = 30
+client = MQTTClient("pico01", BROKER_IP, keepalive=KEEPALIVE)
+client.connect()
+
+last_ping = ticks_ms()
+while True:
+    client.check_msg()
+    if ticks_diff(ticks_ms(), last_ping) &gt; KEEPALIVE * 1000 // 2:     # half the time: a safe margin
+        client.ping()
+        last_ping = ticks_ms()
+</span>
+</div>
+<p>Any message you publish also counts as activity, so a device that publishes every few seconds needs no separate ping. A device that mostly listens does.</p>
+<h3>Part 3. Sessions</h3>
+<p>A <strong>session</strong> is what the broker remembers about a client. With <span class="code-lesson-il">clean_session=True</span> (the default) it remembers nothing between connections. With <span class="code-lesson-il">clean_session=False</span> and the same client id every time, it keeps the subscriptions and queues messages sent at QoS 1 or higher while the client is away.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="14" width="360" height="372" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.5"></rect><text x="194" y="44" font-size="18.9" fill="#d64545" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">clean_session=True</text><line x1="44" y1="120" x2="344" y2="120" stroke="#444" stroke-width="2.5" stroke-linecap="round"></line><rect x="124" y="105" width="110" height="30" rx="6" fill="#e9ecef" stroke="#aaa" stroke-width="1.5"></rect><text x="179" y="126" font-size="15.6" fill="#5b6b78" text-anchor="middle">offline</text><circle cx="44" cy="120" r="7" fill="#2e5a80" stroke="#fff" stroke-width="2"></circle><circle cx="344" cy="120" r="7" fill="#4a8a4a" stroke="#fff" stroke-width="2"></circle><text x="44" y="100" font-size="15.0" fill="#1f3b52" text-anchor="start">connect</text><text x="344" y="100" font-size="15.0" fill="#2d5a2d" text-anchor="end">reconnect</text><rect x="34" y="170" width="320" height="46" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2"></rect><text x="194" y="199" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">subscriptions: forgotten</text><rect x="34" y="228" width="320" height="46" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2"></rect><text x="194" y="257" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">messages sent while away: lost</text><rect x="34" y="286" width="320" height="46" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2"></rect><text x="194" y="315" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">re-subscribe on every connect</text><rect x="386" y="14" width="360" height="372" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.5"></rect><text x="566" y="44" font-size="18.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">clean_session=False</text><line x1="416" y1="120" x2="716" y2="120" stroke="#444" stroke-width="2.5" stroke-linecap="round"></line><rect x="496" y="105" width="110" height="30" rx="6" fill="#e9ecef" stroke="#aaa" stroke-width="1.5"></rect><text x="551" y="126" font-size="15.6" fill="#5b6b78" text-anchor="middle">offline</text><circle cx="416" cy="120" r="7" fill="#2e5a80" stroke="#fff" stroke-width="2"></circle><circle cx="716" cy="120" r="7" fill="#4a8a4a" stroke="#fff" stroke-width="2"></circle><text x="416" y="100" font-size="15.0" fill="#1f3b52" text-anchor="start">connect</text><text x="716" y="100" font-size="15.0" fill="#2d5a2d" text-anchor="end">reconnect</text><rect x="406" y="170" width="320" height="46" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="566" y="199" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">subscriptions: kept</text><rect x="406" y="228" width="320" height="46" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="566" y="257" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">QoS 1 messages: queued for you</text><rect x="406" y="286" width="320" height="46" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="566" y="315" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">needs the SAME client id each time</text></svg>
+            <div class="diagram-caption">What the broker remembers while a client is away. A clean session forgets everything on disconnect; a persistent session keeps the subscriptions and queues QoS 1 messages until the client returns.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">client.connect(clean_session=False)     # resume the previous session (same client id!)
+</span>
+</div>
+<p>A persistent session is useful for a device that must not miss commands while briefly offline. It also means the broker holds a queue for a client that might never return, so use it deliberately and only where it earns its keep.</p>
+<h3>Part 4. Which MQTT?</h3>
+<p>The protocol has two versions in use. Everything in this course is MQTT 3.1.1, which is what Mosquitto and <span class="code-lesson-il">umqtt.simple</span> speak. MQTT 5 adds features worth knowing about, but the Pico’s library cannot use them, so any design here must work without them.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="16" width="300" height="42" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="190" y="43" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">feature</text><rect x="340" y="16" width="190" height="42" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="435" y="43" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">3.1.1</text><rect x="530" y="16" width="190" height="42" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="625" y="43" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">5.0</text><rect x="40" y="58" width="300" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="84" font-size="16.2" fill="#1f3b52" text-anchor="start">Retained messages</text><rect x="340" y="58" width="190" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="435" y="85" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="530" y="58" width="190" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="625" y="85" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="40" y="100" width="300" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="126" font-size="16.2" fill="#1f3b52" text-anchor="start">Last will</text><rect x="340" y="100" width="190" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="435" y="127" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="530" y="100" width="190" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="625" y="127" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="40" y="142" width="300" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="168" font-size="16.2" fill="#1f3b52" text-anchor="start">QoS 0 / 1 / 2</text><rect x="340" y="142" width="190" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="435" y="169" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="530" y="142" width="190" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="625" y="169" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="40" y="184" width="300" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="210" font-size="16.2" fill="#1f3b52" text-anchor="start">Shared subscriptions</text><rect x="340" y="184" width="190" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="435" y="211" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text><rect x="530" y="184" width="190" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="625" y="211" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="40" y="226" width="300" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="252" font-size="16.2" fill="#1f3b52" text-anchor="start">Reason codes, user properties</text><rect x="340" y="226" width="190" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="435" y="253" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text><rect x="530" y="226" width="190" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="625" y="253" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="40" y="268" width="300" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="294" font-size="16.2" fill="#1f3b52" text-anchor="start">Message expiry</text><rect x="340" y="268" width="190" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="435" y="295" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text><rect x="530" y="268" width="190" height="42" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="625" y="295" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="40" y="310" width="300" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="48" y="336" font-size="16.2" fill="#1f3b52" text-anchor="start">Supported by umqtt.simple</text><rect x="340" y="310" width="190" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="435" y="337" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="530" y="310" width="190" height="42" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="625" y="337" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text></svg>
+            <div class="diagram-caption">MQTT 3.1.1 is what Mosquitto, umqtt and this course use. MQTT 5 adds useful features, but the Pico's library cannot use them yet.</div>
+        </div>
+
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Retain or Not?.</strong> Say whether each should be published retained, and why: (a) a light reading every second, (b) whether a fan is on, (c) a device’s configuration interval, (d) a button press event.</p>
+        <p><strong>Exercise 2: Timeout Arithmetic.</strong> A client connects with <span class="code-lesson-il">keepalive=20</span> and then loses WiFi right after its last message. After how long does the broker consider it gone? How often should the Pico call <span class="code-lesson-il">ping()</span> while idle?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: A Keep-Alive Helper.</strong> Write a small class <span class="code-lesson-il">KeepAlive(client, seconds)</span> with a <span class="code-lesson-il">tick()</span> method you call every loop that pings when half the keep-alive has passed since the last activity.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: A Retained Config Topic.</strong> Design the topic and the Pico code for a retained setting, <span class="code-lesson-il">lab/class/config/interval</span> (milliseconds between readings), that every Pico adopts at start-up and whenever it changes. Reject values outside 100 to 60000 and keep the old value.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Retain or Not?</summary>
+<p>(a) <strong>No</strong>: it changes constantly and a latecomer does not want a stale reading. (b) <strong>Yes</strong>: it is state a late dashboard needs at once. (c) <strong>Yes</strong>: a rebooting device should find its configuration waiting. (d) <strong>No</strong>: an event that already happened should not be replayed to every new subscriber.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Timeout Arithmetic</summary>
+<p>The broker waits 1.5 \u00d7 20 = <strong>30 seconds</strong> of silence. The Pico should ping comfortably inside 20 seconds, for example every 10 (half the keep-alive).</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: A Keep-Alive Helper</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">keepalive.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import ticks_ms, ticks_diff
+
+class KeepAlive:
+    def __init__(self, client, seconds):
+        self.client = client
+        self.every = seconds * 500          # half the keep-alive, in ms
+        self.last = ticks_ms()
+
+    def sent(self):
+        self.last = ticks_ms()               # call after any publish
+
+    def tick(self):
+        if ticks_diff(ticks_ms(), self.last) &gt;= self.every:
+            self.client.ping()
+            self.last = ticks_ms()
+</span>
+</div><p>Calling <span class="code-lesson-il">sent()</span> after each publish avoids pinging when the connection is already busy. <span class="code-lesson-il">ticks_diff</span> keeps it correct across the tick counter wrapping.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: A Retained Config Topic</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">interval_ms = 1000                      # default until the broker tells us otherwise
+
+def on_message(topic, msg):
+    global interval_ms
+    if topic == b"lab/class/config/interval":
+        try:
+            v = int(msg)
+        except ValueError:
+            return
+        if 100 &lt;= v &lt;= 60000:
+            interval_ms = v
+
+client.set_callback(on_message)
+client.subscribe(b"lab/class/config/interval")    # retained: arrives right after subscribing
+</span>
+</div><p>Because the topic is retained, a Pico that boots later still receives the current value as soon as it subscribes. The range check protects against a mistyped setting reaching every device at once.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain what a retained message is, when it helps, and how to clear one.</li>
+            <li>State what the broker does when it hears nothing from a client for 1.5 times the keep-alive time.</li>
+            <li>Explain why a Pico running umqtt must call <code class="code-lesson-il">ping()</code> itself.</li>
+            <li>Describe the difference between a clean and a persistent session.</li>
+        </ol>
+
+    </body>
+</html>

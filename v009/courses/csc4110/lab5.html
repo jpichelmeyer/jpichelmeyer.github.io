@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lab turns the week into a working system. You will secure the shared broker, give every student a login limited to their own subtree, and then make your Pico a good citizen of the room: it publishes structured telemetry, reports its own availability, and obeys a setting broadcast by the instructor.</p>
+
+
+<h3>The Network You Are Building</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 420" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d85a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d85a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#4a8a4a"></path></marker><marker id="d85a2" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#8a4fc9"></path></marker></defs><rect x="300" y="150" width="160" height="100" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="192" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">Mosquitto</text><text x="380" y="228" font-size="15.6" fill="#5b6b78" text-anchor="middle">Pi 3B+  :1883</text><rect x="20" y="10" width="190" height="80" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="115" y="43.6" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico 01</text><text x="115" y="72.4" font-size="15.0" fill="#5b6b78" text-anchor="middle">lab/pico01/#</text><path d="M210,50 L296,200" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d85a0)" marker-start="url(#d85a0)"></path><rect x="20" y="160" width="190" height="80" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="115" y="193.6" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico 02</text><text x="115" y="222.4" font-size="15.0" fill="#5b6b78" text-anchor="middle">lab/pico02/#</text><path d="M210,200 L296,200" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d85a0)" marker-start="url(#d85a0)"></path><rect x="20" y="310" width="190" height="80" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="115" y="343.6" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico 03</text><text x="115" y="372.4" font-size="15.0" fill="#5b6b78" text-anchor="middle">lab/pico03/#</text><path d="M210,350 L296,200" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d85a0)" marker-start="url(#d85a0)"></path><rect x="550" y="60" width="190" height="90" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="645" y="97.8" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Dashboard</text><text x="645" y="130.2" font-size="15.0" fill="#5b6b78" text-anchor="middle">subscribes lab/#</text><path d="M460,180 L546,110" fill="none" stroke="#4a8a4a" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d85a1)"></path><rect x="550" y="240" width="190" height="90" rx="10" fill="#f3ecfa" stroke="#8a4fc9" stroke-width="2.5"></rect><text x="645" y="277.8" font-size="16.9" fill="#5b2f93" text-anchor="middle" font-weight="bold">Instructor</text><text x="645" y="310.2" font-size="15.0" fill="#5b6b78" text-anchor="middle">publishes config</text><path d="M546,285 L460,225" fill="none" stroke="#8a4fc9" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d85a2)"></path><text x="645" y="366" font-size="15.0" fill="#5b2f93" text-anchor="middle" font-weight="bold">retained broadcast topic:</text><text x="645" y="390" font-size="15.0" fill="#5b2f93" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">lab/class/config/#</text></svg>
+            <div class="diagram-caption">The Lab 5 network. Each Pico owns one subtree and may only write inside it; a dashboard on the Pi watches everything; one retained topic broadcasts a setting to every Pico.</div>
+        </div>
+
+<h3>Part 1. Secure the Broker</h3>
+<p>Work in pairs on the Pi. Replace the open configuration with a password file and an ACL like the one in the broker lesson. Add one user per student (named <span class="code-lesson-il">pico01</span>, <span class="code-lesson-il">pico02</span>, and so on), a <span class="code-lesson-il">dashboard</span> user and an <span class="code-lesson-il">instructor</span> user.</p>
+<div class="code-block" data-lang="conf">
+<div class="code-block-header">
+<span class="code-block-filename">/etc/mosquitto/acl</span>
+<span class="code-block-lang">Config</span>
+</div>
+<span class="code-lesson-bl">pattern readwrite lab/%u/#
+pattern read lab/class/config/#
+
+user dashboard
+topic read lab/#
+
+user instructor
+topic readwrite lab/#
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 370" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="210" height="48" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="125" y="46" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">user</text><rect x="230" y="16" width="170" height="48" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="315" y="46" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">may</text><rect x="400" y="16" width="340" height="48" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="570" y="46" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">topic</text><rect x="20" y="64" width="210" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="93" font-size="16.2" fill="#1f3b52" text-anchor="start">picoNN (student)</text><rect x="230" y="64" width="170" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="315" y="93" font-size="16.2" fill="#1f3b52" text-anchor="middle">read + write</text><rect x="400" y="64" width="340" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="408" y="93" font-size="16.2" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">lab/picoNN/#</text><rect x="20" y="112" width="210" height="48" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="141" font-size="16.2" fill="#1f3b52" text-anchor="start">picoNN (student)</text><rect x="230" y="112" width="170" height="48" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="315" y="141" font-size="16.2" fill="#1f3b52" text-anchor="middle">read only</text><rect x="400" y="112" width="340" height="48" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="408" y="141" font-size="16.2" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">lab/class/config/#</text><rect x="20" y="160" width="210" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="189" font-size="16.2" fill="#1f3b52" text-anchor="start">dashboard</text><rect x="230" y="160" width="170" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="315" y="189" font-size="16.2" fill="#1f3b52" text-anchor="middle">read only</text><rect x="400" y="160" width="340" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="408" y="189" font-size="16.2" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">lab/#</text><rect x="20" y="208" width="210" height="48" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="237" font-size="16.2" fill="#1f3b52" text-anchor="start">instructor</text><rect x="230" y="208" width="170" height="48" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="315" y="237" font-size="16.2" fill="#1f3b52" text-anchor="middle">read + write</text><rect x="400" y="208" width="340" height="48" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="408" y="237" font-size="16.2" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">lab/class/#</text><rect x="20" y="256" width="210" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="285" font-size="16.2" fill="#1f3b52" text-anchor="start">anyone else</text><rect x="230" y="256" width="170" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="315" y="285" font-size="16.2" fill="#1f3b52" text-anchor="middle">no access</text><rect x="400" y="256" width="340" height="48" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="408" y="285" font-size="16.2" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">(not in passwd)</text><text x="20" y="336" font-size="16.2" fill="#5b6b78" text-anchor="start">one rule for all students:</text><text x="260" y="337" font-size="16.2" fill="#2e5a80" text-anchor="start" font-weight="bold" style="font-family:'Courier New',monospace">pattern readwrite lab/%u/#</text></svg>
+            <div class="diagram-caption">The access rules for Lab 5 as a table. The pattern lines use %u so one rule gives every student write access to their own subtree and nothing else.</div>
+        </div>
+
+<h3>Part 2. Your Pico</h3>
+<p>Your program must, in one non-blocking loop (Unit 1): connect with its own username and password; keep alive with pings; publish a JSON telemetry packet with a sequence number every interval to <span class="code-lesson-il">lab/&lt;id&gt;/tele/light</span>; publish <span class="code-lesson-il">online</span> retained to <span class="code-lesson-il">lab/&lt;id&gt;/stat/online</span> after connecting; and subscribe to the retained <span class="code-lesson-il">lab/class/config/interval</span>, adopting a valid new value immediately.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (outline)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">ID = "pico01"                       # your assigned id: also your username
+interval_ms = 1000
+seq = 0
+
+def on_message(topic, msg):
+    global interval_ms
+    if topic == b"lab/class/config/interval":
+        try:
+            v = int(msg)
+        except ValueError:
+            return
+        if 100 &lt;= v &lt;= 60000:
+            interval_ms = v
+
+client = MQTTClient(ID, BROKER_IP, user=ID, password=PASSWORD, keepalive=30)
+client.set_callback(on_message)
+client.connect()
+client.subscribe(b"lab/class/config/interval")
+client.publish(("lab/%s/stat/online" % ID).encode(), b"online", retain=True)
+
+last = ticks_ms()
+while True:
+    client.check_msg()
+    if ticks_diff(ticks_ms(), last) &gt;= interval_ms:
+        seq += 1
+        payload = json.dumps({"seq": seq, "value": filtered_read()}).encode()
+        client.publish(("lab/%s/tele/light" % ID).encode(), payload)
+        last = ticks_ms()
+</span>
+</div>
+<h3>Part 3. Test It in Order</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="60" height="52" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="50" y="48" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="80" y="16" width="380" height="52" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="270" y="48" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">test</text><rect x="460" y="16" width="260" height="52" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="590" y="48" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">expected</text><rect x="20" y="68" width="60" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="99" font-size="16.2" fill="#1f3b52" text-anchor="start">1</text><rect x="80" y="68" width="380" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="270" y="99" font-size="16.2" fill="#1f3b52" text-anchor="middle">connect without a password</text><rect x="460" y="68" width="260" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="590" y="99" font-size="16.2" fill="#1f3b52" text-anchor="middle">refused</text><rect x="20" y="120" width="60" height="52" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="151" font-size="16.2" fill="#1f3b52" text-anchor="start">2</text><rect x="80" y="120" width="380" height="52" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="270" y="151" font-size="16.2" fill="#1f3b52" text-anchor="middle">connect with your password</text><rect x="460" y="120" width="260" height="52" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="590" y="151" font-size="16.2" fill="#1f3b52" text-anchor="middle">accepted</text><rect x="20" y="172" width="60" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="203" font-size="16.2" fill="#1f3b52" text-anchor="start">3</text><rect x="80" y="172" width="380" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="270" y="203" font-size="16.2" fill="#1f3b52" text-anchor="middle">publish inside your subtree</text><rect x="460" y="172" width="260" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="590" y="203" font-size="16.2" fill="#1f3b52" text-anchor="middle">delivered</text><rect x="20" y="224" width="60" height="52" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="255" font-size="16.2" fill="#1f3b52" text-anchor="start">4</text><rect x="80" y="224" width="380" height="52" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="270" y="255" font-size="16.2" fill="#1f3b52" text-anchor="middle">publish into another student's</text><rect x="460" y="224" width="260" height="52" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="590" y="255" font-size="16.2" fill="#1f3b52" text-anchor="middle">dropped (see log)</text><rect x="20" y="276" width="60" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="28" y="307" font-size="16.2" fill="#1f3b52" text-anchor="start">5</text><rect x="80" y="276" width="380" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="270" y="307" font-size="16.2" fill="#1f3b52" text-anchor="middle">change the retained interval</text><rect x="460" y="276" width="260" height="52" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="590" y="307" font-size="16.2" fill="#1f3b52" text-anchor="middle">all Picos adapt</text></svg>
+            <div class="diagram-caption">Five checks in the order that finds problems fastest: network first, then login, then permission, then data, then the broadcast.</div>
+        </div>
+
+<h3>Lab Report</h3>
+<ol>
+<li>Paste the ACL you used and explain what <span class="code-lesson-il">%u</span> does in it.</li>
+<li>Record what the broker log showed for test 4 (publishing into another student’s subtree), and what your Pico saw.</li>
+<li>When the instructor changed the retained interval, how long did your Pico take to adopt it? Explain why a Pico that boots <em>after</em> the change still gets the right value.</li>
+<li>One thing that went wrong, and which layer it turned out to be in: network, broker, or your code.</li>
+</ol>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Trace a Denial.</strong> Your Pico publishes to <span class="code-lesson-il">lab/pico02/tele/light</span> while logged in as <span class="code-lesson-il">pico01</span>. What does the Pico see, what does the broker do, and how would you find out?</p>
+        <p><strong>Exercise 2: Why Retained?.</strong> The instructor publishes <span class="code-lesson-il">lab/class/config/interval</span> once, retained. Why would a non-retained publish be a poor way to set the interval?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Report Online and Offline.</strong> Make your Pico mark itself offline cleanly: before it disconnects deliberately, publish <span class="code-lesson-il">offline</span> (retained) to its <span class="code-lesson-il">stat/online</span> topic. Show the shutdown code.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Check for Gaps.</strong> Write the subscriber-side check for a dashboard that watches <span class="code-lesson-il">lab/+/tele/light</span> and prints a warning when any device’s sequence number skips. Keep one counter per device.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Trace a Denial</summary>
+<p>The Pico sees <strong>nothing</strong>: <span class="code-lesson-il">publish()</span> returns normally. The broker drops the message because <span class="code-lesson-il">pico01</span> has no write permission outside <span class="code-lesson-il">lab/pico01/#</span>. The denial is recorded in the broker log (<span class="code-lesson-il">journalctl -u mosquitto</span>); a subscriber on <span class="code-lesson-il">lab/pico02/#</span> will also never see the message.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Why Retained?</summary>
+<p>Only Picos connected at that instant would hear it; any Pico that booted or reconnected later would keep its default forever. A retained message waits on the broker and is delivered to every new subscriber the moment it subscribes.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Report Online and Offline</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def shutdown():
+    client.publish(("lab/%s/stat/online" % ID).encode(), b"offline", retain=True)
+    client.disconnect()
+</span>
+</div><p>A deliberate disconnect does not trigger the broker’s last-will message (next week), so the device has to say goodbye itself. Next week’s last will covers the case where it cannot.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Check for Gaps</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">dashboard.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">last_seq = {}
+
+def on_message(topic, msg):
+    device = topic.decode().split("/")[1]
+    seq = json.loads(msg)["seq"]
+    prev = last_seq.get(device)
+    if prev is not None and seq != prev + 1:
+        print(device, "missed", seq - prev - 1, "readings")
+    last_seq[device] = seq
+</span>
+</div><p>A dictionary keyed by device gives each Pico its own count, which is only possible because the device id sits at a fixed level of the topic.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain how one ACL pattern line gives every student their own subtree.</li>
+            <li>Show where a retained config topic is read and why a late-booting Pico still gets it.</li>
+            <li>Explain why test 4 produces no error on the Pico, and where to look instead.</li>
+        </ol>
+
+    </body>
+</html>

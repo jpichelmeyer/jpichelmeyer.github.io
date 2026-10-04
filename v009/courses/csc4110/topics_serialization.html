@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Last lesson's topics, <span class="code-lesson-il">lab/pico01/status</span> and <span class="code-lesson-il">lab/pico01/cmd</span>, weren't arbitrary strings, MQTT topics follow a deliberate naming convention, and designing that hierarchy well is most of what separates an MQTT setup that scales cleanly from one that becomes unmanageable the moment a second or third device joins. This lesson also covers the other half of every message: not just where it goes, but how its contents are packaged.</p>
+
+        <h3>Part 1. Topics Are a Tree, Not a Flat List</h3>
+        <p>MQTT topics are hierarchical strings, segments separated by <span class="code-lesson-il">/</span>, read as a path from general to specific, much like a file path. There's no requirement to register a topic in advance; publishing to a topic that's never been used before simply creates it, from the broker's point of view, the instant the first message arrives.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 350" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="40" y="40" font-size="20.8" fill="#1f3b52" text-anchor="start" font-weight="bold" style="font-family:'Courier New',monospace">lab</text><line x1="60" y1="52" x2="60" y2="260" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><line x1="60" y1="90" x2="100" y2="90" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><rect x="100" y="70" width="110" height="40" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="155" y="96" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">pico01</text><line x1="60" y1="222" x2="100" y2="222" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><rect x="100" y="202" width="110" height="40" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="155" y="228" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">pico02</text><line x1="210" y1="90" x2="250" y2="90" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><line x1="250" y1="56" x2="250" y2="164" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><line x1="250" y1="56" x2="280" y2="56" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><rect x="280" y="36" width="110" height="40" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="335" y="62" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">status</text><line x1="250" y1="110" x2="280" y2="110" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><rect x="280" y="90" width="110" height="40" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="335" y="116" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">temp</text><line x1="250" y1="164" x2="280" y2="164" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><rect x="280" y="144" width="110" height="40" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="335" y="170" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">cmd</text><line x1="210" y1="222" x2="250" y2="222" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><line x1="250" y1="222" x2="280" y2="222" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"></line><rect x="280" y="202" width="110" height="40" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="335" y="228" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">status</text><text x="450" y="60" font-size="16.9" fill="#5b6b78" text-anchor="start" font-weight="bold">Full topics:</text><text x="450" y="94" font-size="16.9" fill="#333" text-anchor="start" style="font-family:'Courier New',monospace">lab/pico01/status</text><text x="450" y="128" font-size="16.9" fill="#333" text-anchor="start" style="font-family:'Courier New',monospace">lab/pico01/temp</text><text x="450" y="162" font-size="16.9" fill="#333" text-anchor="start" style="font-family:'Courier New',monospace">lab/pico01/cmd</text><text x="450" y="196" font-size="16.9" fill="#333" text-anchor="start" style="font-family:'Courier New',monospace">lab/pico02/status</text><text x="380" y="296" font-size="16.2" fill="#5b6b78" text-anchor="middle">Grouping by device first, then by kind of data, is this course's convention.</text><text x="380" y="322" font-size="16.2" fill="#5b6b78" text-anchor="middle">The broker enforces none of it: it is a discipline people agree to follow.</text></svg>
+            <div class="diagram-caption">This specific layout, <span class="code-lesson-il">lab/&lt;device&gt;/&lt;kind&gt;</span>, is this course's convention, not a rule MQTT itself imposes. The broker treats every topic as just a string; the tree structure is a human organizing principle laid on top.</div>
+        </div>
+
+        <h3>Part 2. Wildcards</h3>
+        <p>Topic hierarchies pay off most clearly when subscribing, not publishing. A <span class="code-lesson-il">+</span> matches exactly one segment, a <span class="code-lesson-il">#</span> matches any number of remaining segments:</p>
+        <ul>
+            <li><span class="code-lesson-il">lab/+/status</span> subscribes to every device's status, <span class="code-lesson-il">pico01</span>, <span class="code-lesson-il">pico02</span>, any future one, without listing them individually.</li>
+            <li><span class="code-lesson-il">lab/pico01/#</span> subscribes to everything under <span class="code-lesson-il">pico01</span>, status, temp, cmd, and anything added later, in one subscription.</li>
+            <li><span class="code-lesson-il">#</span> alone subscribes to literally everything on the broker, useful for debugging, rarely appropriate in real device code.</li>
+        </ul>
+        <p>This is the direct payoff of a well-organized topic tree: a dashboard watching every device's status doesn't need to know how many devices exist, it subscribes to <span class="code-lesson-il">lab/+/status</span> once, and a new Pico joining tomorrow is automatically included without changing a single line on the dashboard side.</p>
+
+        <h3>Part 3. Payload Serialization: Why Not Just Send a Number?</h3>
+        <p>An MQTT message's <strong>payload</strong> is just bytes, MQTT has no opinion on what's inside, <span class="code-lesson-il">"online"</span> from last lesson worked fine as a raw string. The moment a message needs to carry more than one piece of information, a reading plus the time it was taken, say, raw text stops scaling and you need a convention both the sender and every receiver agree on in advance. That convention is <strong>serialization</strong>: a consistent way to turn a Python value (a number, a dictionary) into bytes, and back again on the other end.</p>
+        <p><strong>JSON</strong> is this course's serialization format, for the same reason it's extremely common in IoT generally: it's human-readable (useful for debugging with <span class="code-lesson-il">mosquitto_sub</span> directly), and MicroPython's <span class="code-lesson-il">json</span> module makes converting to and from it trivial.</p>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import json
+
+reading = {"value": 41230, "unit": "raw_adc"}
+
+payload = json.dumps(reading)       # '{"value": 41230, "unit": "raw_adc"}' (a str)
+client.publish(b"lab/pico01/temp", payload.encode())   # publish() needs bytes
+</span>
+</div>
+
+        <p><span class="code-lesson-il">json.dumps()</span> returns a <span class="code-lesson-il">str</span>, and <span class="code-lesson-il">.encode()</span> converts that <span class="code-lesson-il">str</span> to the <span class="code-lesson-il">bytes</span> that <span class="code-lesson-il">publish()</span> actually requires, the same bytes-not-string requirement last lesson's <span class="code-lesson-il">b"online"</span> satisfied directly by being written as a byte literal in the first place. On the receiving end, the reverse:</p>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def on_message(topic, msg):
+    reading = json.loads(msg)           # bytes -&gt; dict
+    print(reading["value"], reading["unit"])
+</span>
+</div>
+
+                <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="28" font-size="22.1" fill="#1f3b52" text-anchor="middle" font-weight="bold">Anatomy of one JSON telemetry packet</text><rect x="40" y="56" width="680" height="70" rx="10" fill="#1b1f23" stroke="#555" stroke-width="2"></rect><text x="380" y="102" font-size="21.9" fill="#e8e8e8" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">{"value": 41230, "unit": "raw_adc", "t_ms": 123456}</text><text x="60" y="150" font-size="16.2" fill="#1f3b52" text-anchor="start" font-weight="bold">{ }  one object</text><text x="165" y="150" font-size="15.2" fill="#7a5a00" text-anchor="start" font-weight="bold">"key"  quoted name</text><text x="290" y="150" font-size="15.2" fill="#2d7a2d" text-anchor="start" font-weight="bold">41230  a number</text><text x="430" y="150" font-size="16.2" fill="#8a4526" text-anchor="start" font-weight="bold">"raw_adc"  a string</text><text x="600" y="150" font-size="16.2" fill="#2d7a2d" text-anchor="start" font-weight="bold">123456  a number</text><text x="380" y="196" font-size="18.2" fill="#5b6b78" text-anchor="middle">Keys and strings use double quotes; single quotes are not valid JSON.</text><text x="380" y="227.2" font-size="18.2" fill="#5b6b78" text-anchor="middle">No trailing commas. Numbers can be integers or decimals.</text><text x="380" y="258.4" font-size="18.2" fill="#5b6b78" text-anchor="middle">Whoever receives it needs only a JSON parser, not your code.</text></svg>
+            <div class="diagram-caption">The parts of a JSON object. It is plain text, so people can read it in <code class="code-lesson-il">mosquitto_sub</code>, and any language can parse it.</div>
+        </div>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d60a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="15" y="56" width="122" height="76" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="76" y="82" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">dict</text><text x="76" y="104" font-size="16.2" fill="#5b6b78" text-anchor="middle">{"v": 41230}</text><rect x="167" y="56" width="122" height="76" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="228" y="82" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">str</text><text x="228" y="104" font-size="16.2" fill="#5b6b78" text-anchor="middle">json.dumps()</text><path d="M141,94 L163,94" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d60a0)"></path><rect x="319" y="56" width="122" height="76" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="82" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">bytes</text><text x="380" y="104" font-size="16.2" fill="#5b6b78" text-anchor="middle">.encode()</text><path d="M293,94 L315,94" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d60a0)"></path><rect x="471" y="56" width="122" height="76" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="532" y="82" font-size="19.5" fill="#5b6b78" text-anchor="middle" font-weight="bold">on the wire</text><text x="532" y="104" font-size="16.2" fill="#5b6b78" text-anchor="middle">TCP → broker</text><path d="M445,94 L467,94" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d60a0)"></path><rect x="623" y="56" width="122" height="76" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="684" y="82" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">dict</text><text x="684" y="104" font-size="16.2" fill="#5b6b78" text-anchor="middle">json.loads()</text><path d="M597,94 L619,94" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d60a0)"></path><text x="380" y="28" font-size="22.1" fill="#1f3b52" text-anchor="middle" font-weight="bold">Every message crosses several representations</text><text x="76" y="164" font-size="16.2" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">{'v': 41230}</text><text x="228" y="164" font-size="16.2" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">'{"v": 41230}'</text><text x="380" y="164" font-size="16.2" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">b'{"v": 41230}'</text><text x="684" y="164" font-size="16.2" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">{'v': 41230}</text><text x="380" y="214" font-size="18.2" fill="#5b6b78" text-anchor="middle">The Pico does the first three steps; the subscriber does json.loads().</text><text x="380" y="245.2" font-size="18.2" fill="#5b6b78" text-anchor="middle">If the two ends disagree about the format, the data arrives intact but unreadable.</text><text x="380" y="284" font-size="18.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">Rule of thumb: decide the format once, write it down, and keep it stable.</text></svg>
+            <div class="diagram-caption">A reading changes form several times between sensor and subscriber. Knowing which form you are holding at each step explains most serialization errors.</div>
+        </div>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Wildcard Matching.</strong> Which of these match the subscription <code class="code-lesson-il">lab/+/status</code>? <code class="code-lesson-il">lab/pico01/status</code>, <code class="code-lesson-il">lab/pico01/temp</code>, <code class="code-lesson-il">lab/status</code>, <code class="code-lesson-il">lab/pico01/a/status</code>. And which match <code class="code-lesson-il">lab/#</code>?</p>
+        <p><strong>Exercise 2: Name Some Topics.</strong> Design topics, following the <code class="code-lesson-il">lab/&lt;device&gt;/&lt;kind&gt;</code> convention, for a temperature and a humidity reading from <code class="code-lesson-il">pico07</code>, and one command channel for it.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Round Trip.</strong> Publish <code class="code-lesson-il">{"value": 123, "unit": "adc"}</code> as JSON from a dict, and write the callback that prints just the value on the receiving Pico.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Survive Bad Data.</strong> Make the callback ignore messages that are not valid JSON or that lack a <code class="code-lesson-il">"value"</code> key, printing a warning instead of crashing.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Wildcard Matching</summary>
+<p><code class="code-lesson-il">lab/+/status</code> matches only <strong>lab/pico01/status</strong>: <code class="code-lesson-il">+</code> stands for exactly one level. <code class="code-lesson-il">lab/#</code> matches <strong>all four</strong> (and <code class="code-lesson-il">lab</code> itself), because <code class="code-lesson-il">#</code> covers any number of remaining levels.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Name Some Topics</summary>
+<p><code class="code-lesson-il">lab/pico07/temp</code>, <code class="code-lesson-il">lab/pico07/humidity</code>, <code class="code-lesson-il">lab/pico07/cmd</code>. A dashboard can then use <code class="code-lesson-il">lab/+/temp</code> for every device's temperature, or <code class="code-lesson-il">lab/pico07/#</code> for everything about one device.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Round Trip</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import json
+
+# sender
+reading = {"value": 123, "unit": "adc"}
+client.publish(b"lab/pico01/data", json.dumps(reading).encode())
+
+# receiver
+def on_message(topic, msg):
+    data = json.loads(msg)      # bytes -&gt; dict
+    print(data["value"])
+</span>
+</div><p><code class="code-lesson-il">json.loads</code> accepts the bytes directly in MicroPython, so no extra decode step is needed.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Survive Bad Data</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def on_message(topic, msg):
+    try:
+        data = json.loads(msg)
+        value = data["value"]
+    except (ValueError, KeyError):
+        print("ignored bad message on", topic, msg)
+        return
+    print(value)
+</span>
+</div><p>Never trust incoming data: any other client on the broker can publish anything to your topic. <code class="code-lesson-il">ValueError</code> covers broken JSON; <code class="code-lesson-il">KeyError</code> covers valid JSON with the wrong shape.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain the difference between <span class="code-lesson-il">+</span> and <span class="code-lesson-il">#</span> wildcards, with an example of each.</li>
+            <li>Explain why a dashboard subscribing with a wildcard scales better than one that lists every device's topic individually.</li>
+            <li>Explain what serialization is solving, and why a single raw number stops being enough once a message needs to carry more than one value.</li>
+            <li>Trace a JSON reading all the way from a Python dict on the publisher through <span class="code-lesson-il">json.dumps()</span>, <span class="code-lesson-il">.encode()</span>, the wire, and back through <span class="code-lesson-il">json.loads()</span> into a dict on the subscriber.</li>
+        </ol>
+
+    </body>
+</html>

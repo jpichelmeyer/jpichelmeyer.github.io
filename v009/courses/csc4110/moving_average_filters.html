@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>The noise-filtering lesson introduced the moving average as a tool. This lesson looks at it as an object worth understanding: what it costs, how it behaves in time, why it works, and exactly when something else would be better.</p>
+
+
+<h3>Part 1. The Definition</h3>
+<p>A moving average of window size N replaces each sample with the mean of the most recent N samples. For every new sample, one new value enters the window and the oldest leaves. In symbols, y<sub>n</sub> = (x<sub>n</sub> + x<sub>n&minus;1</sub> + &hellip; + x<sub>n&minus;N+1</sub>) / N.</p>
+<h3>Part 2. Doing It Cheaply</h3>
+<p>The version in the previous lesson keeps a growing list and calls <span class="code-lesson-il">sum()</span> over all N values on every update, so the work grows with N. On a small, fixed-memory device a better design keeps a <strong>circular buffer</strong> of exactly N slots and a <strong>running sum</strong>: subtract the value being overwritten, add the new one, and divide.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d31a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#c0693f"></path></marker></defs><path d="M200,110 L200,60 A110,110 0 0 1 304.616,136.008 L257.063,151.459 A60,60 0 0 0 200,110 Z" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></path><text x="249.962" y="107.234" font-size="26.0" fill="#1f3b52" text-anchor="middle" font-weight="bold">41</text><text x="276.412" y="69.8278" font-size="16.9" fill="#5b6b78" text-anchor="middle">[0]</text><path d="M257.063,151.459 L304.616,136.008 A110,110 0 0 1 264.656,258.992 L235.267,218.541 A60,60 0 0 0 257.063,151.459 Z" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></path><text x="280.84" y="202.266" font-size="26.0" fill="#1f3b52" text-anchor="middle" font-weight="bold">44</text><text x="323.637" y="215.172" font-size="16.9" fill="#5b6b78" text-anchor="middle">[1]</text><path d="M235.267,218.541 L264.656,258.992 A110,110 0 0 1 135.344,258.992 L164.733,218.541 A60,60 0 0 0 235.267,218.541 Z" fill="#fff3d6" stroke="#2e5a80" stroke-width="2.5"></path><text x="200" y="261" font-size="26.0" fill="#1f3b52" text-anchor="middle" font-weight="bold">39</text><text x="200" y="305" font-size="16.9" fill="#5b6b78" text-anchor="middle">[2]</text><path d="M164.733,218.541 L135.344,258.992 A110,110 0 0 1 95.3838,136.008 L142.937,151.459 A60,60 0 0 0 164.733,218.541 Z" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></path><text x="119.16" y="202.266" font-size="26.0" fill="#1f3b52" text-anchor="middle" font-weight="bold">43</text><text x="76.3627" y="215.172" font-size="16.9" fill="#5b6b78" text-anchor="middle">[3]</text><path d="M142.937,151.459 L95.3838,136.008 A110,110 0 0 1 200,60 L200,110 A60,60 0 0 0 142.937,151.459 Z" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></path><text x="150.038" y="107.234" font-size="26.0" fill="#1f3b52" text-anchor="middle" font-weight="bold">40</text><text x="123.588" y="69.8278" font-size="16.9" fill="#5b6b78" text-anchor="middle">[4]</text><path d="M200,200 L200,225" fill="none" stroke="#c0693f" stroke-width="3" stroke-linejoin="round" marker-end="url(#d31a0)"></path><text x="200" y="175" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">next</text><text x="400" y="70" font-size="19.5" fill="#1f3b52" text-anchor="start">A circular buffer of 5 slots.</text><text x="400" y="98.6" font-size="19.5" fill="#1f3b52" text-anchor="start"></text><text x="400" y="127.2" font-size="19.5" fill="#1f3b52" text-anchor="start">The newest reading overwrites the</text><text x="400" y="155.8" font-size="19.5" fill="#1f3b52" text-anchor="start">oldest, so the buffer is always</text><text x="400" y="184.4" font-size="19.5" fill="#1f3b52" text-anchor="start">the last 5 samples.</text><rect x="400" y="214" width="330" height="92" rx="8" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.5"></rect><text x="415" y="242" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">running sum:</text><text x="415" y="266" font-size="19" fill="#8a4526" text-anchor="start" font-weight="bold" style="font-family:'Courier New',monospace">sum = sum − oldest + newest</text><text x="415" y="292" font-size="18.2" fill="#5b6b78" text-anchor="start">average = sum / 5   (no loop needed)</text></svg>
+            <div class="diagram-caption">A circular buffer holds the last N samples in fixed memory. New readings overwrite the oldest, and a running sum makes each update a single add and subtract.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">filters.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class RunningAverage:
+    def __init__(self, size):
+        self.size = size
+        self.buf = [0] * size     # fixed memory, allocated once
+        self.i = 0                # which slot to overwrite next
+        self.count = 0            # how many real samples so far
+        self.total = 0
+
+    def add(self, x):
+        self.total += x - self.buf[self.i]     # new in, oldest out
+        self.buf[self.i] = x
+        self.i = (self.i + 1) % self.size
+        if self.count &lt; self.size:
+            self.count += 1
+        return self.total / self.count
+</span>
+</div>
+<p>Each <span class="code-lesson-il">add</span> now does the same small amount of work however large the window, and the memory use never changes. That is the difference between code that works on a laptop and code that is happy on a microcontroller running for months.</p>
+<h3>Part 3. Lag and Noise Reduction</h3>
+<p>Two simple rules describe what the filter does. <strong>Noise falls like 1 / &radic;N</strong> for uncorrelated noise: a window of 16 makes random noise four times smaller, a window of 100 only ten times. And <strong>lag is about (N &minus; 1) / 2 samples</strong>: the average is centered on the middle of the window, which is already in the past.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="14" y="26" font-size="20.8" fill="#1f3b52" text-anchor="start" font-weight="bold">Moving average of a clean step: pure lag</text><rect x="60" y="44" width="640" height="220" rx="0" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M60,242 L70.8475,242 L81.6949,242 L92.5424,242 L103.39,242 L114.237,242 L125.085,242 L135.932,242 L146.78,242 L157.627,242 L168.475,242 L179.322,242 L190.169,242 L201.017,242 L211.864,242 L222.712,242 L233.559,242 L244.407,242 L255.254,242 L266.102,242 L276.949,66 L287.797,66 L298.644,66 L309.492,66 L320.339,66 L331.186,66 L342.034,66 L352.881,66 L363.729,66 L374.576,66 L385.424,66 L396.271,66 L407.119,66 L417.966,66 L428.814,66 L439.661,66 L450.508,66 L461.356,66 L472.203,66 L483.051,66 L493.898,66 L504.746,66 L515.593,66 L526.441,66 L537.288,66 L548.136,66 L558.983,66 L569.831,66 L580.678,66 L591.525,66 L602.373,66 L613.22,66 L624.068,66 L634.915,66 L645.763,66 L656.61,66 L667.458,66 L678.305,66 L689.153,66 L700,66" fill="none" stroke="#9aa5af" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"></path><path d="M60,242 L70.8475,242 L81.6949,242 L92.5424,242 L103.39,242 L114.237,242 L125.085,242 L135.932,242 L146.78,242 L157.627,242 L168.475,242 L179.322,242 L190.169,242 L201.017,242 L211.864,242 L222.712,242 L233.559,242 L244.407,242 L255.254,242 L266.102,242 L276.949,206.8 L287.797,171.6 L298.644,136.4 L309.492,101.2 L320.339,66 L331.186,66 L342.034,66 L352.881,66 L363.729,66 L374.576,66 L385.424,66 L396.271,66 L407.119,66 L417.966,66 L428.814,66 L439.661,66 L450.508,66 L461.356,66 L472.203,66 L483.051,66 L493.898,66 L504.746,66 L515.593,66 L526.441,66 L537.288,66 L548.136,66 L558.983,66 L569.831,66 L580.678,66 L591.525,66 L602.373,66 L613.22,66 L624.068,66 L634.915,66 L645.763,66 L656.61,66 L667.458,66 L678.305,66 L689.153,66 L700,66" fill="none" stroke="#2e5a80" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"></path><path d="M60,242 L70.8475,242 L81.6949,242 L92.5424,242 L103.39,242 L114.237,242 L125.085,242 L135.932,242 L146.78,242 L157.627,242 L168.475,242 L179.322,242 L190.169,242 L201.017,242 L211.864,242 L222.712,242 L233.559,242 L244.407,242 L255.254,242 L266.102,242 L276.949,230.267 L287.797,218.533 L298.644,206.8 L309.492,195.067 L320.339,183.333 L331.186,171.6 L342.034,159.867 L352.881,148.133 L363.729,136.4 L374.576,124.667 L385.424,112.933 L396.271,101.2 L407.119,89.4667 L417.966,77.7333 L428.814,66 L439.661,66 L450.508,66 L461.356,66 L472.203,66 L483.051,66 L493.898,66 L504.746,66 L515.593,66 L526.441,66 L537.288,66 L548.136,66 L558.983,66 L569.831,66 L580.678,66 L591.525,66 L602.373,66 L613.22,66 L624.068,66 L634.915,66 L645.763,66 L656.61,66 L667.458,66 L678.305,66 L689.153,66 L700,66" fill="none" stroke="#d64545" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"></path><text x="60" y="296" font-size="18.2" fill="#5b6b78" text-anchor="start" font-weight="bold">● input step</text><text x="210" y="296" font-size="18.2" fill="#2e5a80" text-anchor="start" font-weight="bold">● N = 5: settles in 5 samples</text><text x="470" y="296" font-size="18.2" fill="#d64545" text-anchor="start" font-weight="bold">● N = 15: settles in 15 samples</text><text x="380" y="320" font-size="17.6" fill="#5b6b78" text-anchor="middle">A window of N takes N samples to fully "catch up" with a sudden change.</text></svg>
+            <div class="diagram-caption">A moving average responds to a sudden change as a ramp N samples long. The bigger the window, the longer the ramp.</div>
+        </div>
+
+<p>Both rules point the same way: a bigger window helps with noise but costs response time, with steadily diminishing returns. The right N depends on how noisy the sensor is and how quickly your program must react.</p>
+<h3>Part 4. A Filter in the Frequency Sense</h3>
+<p>A moving average is also a low-pass filter. Any frequency that fits a whole number of cycles into the window is averaged to exactly zero, because the positive and negative halves cancel. At 200 samples per second, a window of 4 spans 20 ms, one full cycle of 50 Hz mains interference, so that interference vanishes:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="14" y="26" font-size="20.8" fill="#1f3b52" text-anchor="start" font-weight="bold">Frequency response of a 4-sample moving average at fs = 200 Hz</text><line x1="80" y1="268" x2="680" y2="268" stroke="#444" stroke-width="2" stroke-linecap="round"></line><line x1="80" y1="48" x2="80" y2="268" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="380" y="306" font-size="18.2" fill="#5b6b78" text-anchor="middle">signal frequency (Hz)</text><text x="42" y="158" font-size="18.2" fill="#5b6b78" text-anchor="middle" transform="rotate(-90 42 158)">gain</text><path d="M80,48 L83,48.0339 L86,48.1357 L89,48.3052 L92,48.5425 L95,48.8473 L98,49.2195 L101,49.659 L104,50.1655 L107,50.7387 L110,51.3784 L113,52.0842 L116,52.8559 L119,53.6929 L122,54.5949 L125,55.5614 L128,56.592 L131,57.686 L134,58.843 L137,60.0624 L140,61.3436 L143,62.6858 L146,64.0885 L149,65.5509 L152,67.0723 L155,68.652 L158,70.289 L161,71.9827 L164,73.7321 L167,75.5364 L170,77.3947 L173,79.3059 L176,81.2693 L179,83.2838 L182,85.3483 L185,87.4618 L188,89.6234 L191,91.8318 L194,94.0861 L197,96.385 L200,98.7274 L203,101.112 L206,103.538 L209,106.004 L212,108.509 L215,111.051 L218,113.629 L221,116.242 L224,118.889 L227,121.568 L230,124.278 L233,127.018 L236,129.786 L239,132.581 L242,135.401 L245,138.246 L248,141.113 L251,144.002 L254,146.91 L257,149.837 L260,152.781 L263,155.741 L266,158.715 L269,161.702 L272,164.699 L275,167.707 L278,170.723 L281,173.745 L284,176.774 L287,179.806 L290,182.84 L293,185.876 L296,188.911 L299,191.944 L302,194.973 L305,197.998 L308,201.017 L311,204.028 L314,207.03 L317,210.021 L320,213 L323,215.966 L326,218.917 L329,221.852 L332,224.769 L335,227.668 L338,230.546 L341,233.403 L344,236.236 L347,239.046 L350,241.83 L353,244.588 L356,247.317 L359,250.017 L362,252.687 L365,255.325 L368,257.93 L371,260.501 L374,263.037 L377,265.537 L380,268 L383,265.576 L386,263.191 L389,260.847 L392,258.544 L395,256.283 L398,254.066 L401,251.893 L404,249.765 L407,247.684 L410,245.649 L413,243.662 L416,241.723 L419,239.833 L422,237.994 L425,236.205 L428,234.467 L431,232.781 L434,231.147 L437,229.567 L440,228.04 L443,226.567 L446,225.149 L449,223.786 L452,222.478 L455,221.226 L458,220.03 L461,218.891 L464,217.808 L467,216.783 L470,215.814 L473,214.903 L476,214.049 L479,213.253 L482,212.514 L485,211.833 L488,211.21 L491,210.644 L494,210.137 L497,209.686 L500,209.293 L503,208.957 L506,208.679 L509,208.457 L512,208.292 L515,208.182 L518,208.129 L521,208.132 L524,208.189 L527,208.302 L530,208.468 L533,208.689 L536,208.963 L539,209.289 L542,209.668 L545,210.098 L548,210.58 L551,211.111 L554,211.692 L557,212.322 L560,213 L563,213.725 L566,214.497 L569,215.315 L572,216.177 L575,217.083 L578,218.032 L581,219.023 L584,220.056 L587,221.128 L590,222.24 L593,223.389 L596,224.576 L599,225.799 L602,227.056 L605,228.347 L608,229.671 L611,231.026 L614,232.412 L617,233.826 L620,235.269 L623,236.738 L626,238.233 L629,239.751 L632,241.293 L635,242.856 L638,244.44 L641,246.043 L644,247.663 L647,249.3 L650,250.952 L653,252.617 L656,254.295 L659,255.984 L662,257.683 L665,259.389 L668,261.103 L671,262.823 L674,264.546 L677,266.272 L680,268" fill="none" stroke="#c0693f" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"></path><text x="80" y="286" font-size="16.2" fill="#5b6b78" text-anchor="middle">0</text><text x="230" y="286" font-size="16.2" fill="#5b6b78" text-anchor="middle">25</text><text x="380" y="286" font-size="16.2" fill="#5b6b78" text-anchor="middle">50</text><text x="530" y="286" font-size="16.2" fill="#5b6b78" text-anchor="middle">75</text><text x="680" y="286" font-size="16.2" fill="#5b6b78" text-anchor="middle">100</text><circle cx="380" cy="268" r="7" fill="#d64545" stroke="#fff" stroke-width="2.5"></circle><text x="380" y="254" font-size="16.9" fill="#d64545" text-anchor="middle" font-weight="bold">null at 50 Hz</text><circle cx="680" cy="268" r="7" fill="#d64545" stroke="#fff" stroke-width="2.5"></circle><text x="680" y="254" font-size="16.9" fill="#d64545" text-anchor="middle" font-weight="bold">null at 100 Hz</text><text x="72" y="53" font-size="16.2" fill="#5b6b78" text-anchor="end">1</text><text x="72" y="273" font-size="16.2" fill="#5b6b78" text-anchor="end">0</text><text x="380" y="324" font-size="15.1" fill="#5b6b78" text-anchor="middle">Averaging N samples removes every frequency that fits a whole number of cycles in the window: fs / N, 2fs / N, …</text></svg>
+            <div class="diagram-caption">A moving average is also a filter in the frequency sense: any frequency that fits a whole number of cycles into the window is cancelled completely.</div>
+        </div>
+
+<h3>Part 5. When Something Else Is Better</h3>
+<ul>
+<li><strong>Occasional large spikes:</strong> a <em>median</em> filter ignores them completely, while a moving average smears each spike across N outputs.</li>
+<li><strong>Memory-starved or very long smoothing:</strong> the <em>exponential moving average</em>, <span class="code-lesson-il">avg += alpha * (x - avg)</span>, stores a single number whatever the smoothing. It returns in Unit 2.</li>
+<li><strong>Sharp edges that must be tracked:</strong> any averaging filter blurs them; choose a smaller window or none.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: How Much Lag?.</strong> A window of 9 samples at 10 Hz: roughly how late does the filtered output track a steady ramp?</p>
+        <p><strong>Exercise 2: How Much Quieter?.</strong> Random noise of &plusmn;8 counts is averaged with N = 16 and N = 100. Roughly how large is the remaining noise?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Running Sum.</strong> Summing the whole window on every call wastes time. Write a version that keeps a running total and a fixed-size circular buffer, so each <code class="code-lesson-il">add</code> does a constant amount of work.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: A Cheaper Smoother.</strong> The exponential moving average updates with <code class="code-lesson-il">avg += alpha * (x - avg)</code>. Implement it, and say how its memory use compares with the window versions. (It comes back in Unit 2.)</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: How Much Lag?</summary>
+<p>Delay &asymp; (N &minus; 1) / 2 samples = 4 samples = <strong>0.4 s</strong> at 10 Hz. The average is centered on the middle of the window, which is already in the past.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: How Much Quieter?</summary>
+<p>Uncorrelated noise falls as 1 / &radic;N. N = 16: 8 / 4 = <strong>&plusmn;2 counts</strong>. N = 100: 8 / 10 = <strong>&plusmn;0.8 counts</strong>. Diminishing returns: 6&times; more samples bought only 2.5&times; more quietness.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Running Sum</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">filters.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class RunningAverage:
+    def __init__(self, size):
+        self.size = size
+        self.buf = [0] * size
+        self.i = 0               # slot to overwrite next
+        self.count = 0           # how many real samples so far
+        self.total = 0
+
+    def add(self, x):
+        self.total += x - self.buf[self.i]   # add new, drop the oldest
+        self.buf[self.i] = x
+        self.i = (self.i + 1) % self.size
+        if self.count &lt; self.size:
+            self.count += 1
+        return self.total / self.count
+</span>
+</div><p>No growing list, no <code class="code-lesson-il">pop(0)</code> shuffling, no <code class="code-lesson-il">sum()</code> loop: the work and the memory are the same however large the window.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: A Cheaper Smoother</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">ema.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class EMA:
+    def __init__(self, alpha):
+        self.alpha = alpha
+        self.avg = None
+
+    def add(self, x):
+        if self.avg is None:
+            self.avg = x               # start from the first sample
+        else:
+            self.avg += self.alpha * (x - self.avg)
+        return self.avg
+</span>
+</div><p>It stores <strong>one number</strong> no matter how smooth you want it. A larger <code class="code-lesson-il">alpha</code> reacts faster; a smaller one smooths more. Roughly, alpha = 0.2 behaves like a window of about 9.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Write out the moving-average formula and explain how a running sum avoids re-adding the whole window.</li>
+            <li>Explain what a circular buffer is and why it never needs to grow.</li>
+            <li>Estimate the lag and the noise reduction for a given window size.</li>
+            <li>Explain how a window of N samples can cancel interference at fs / N, and give a concrete example.</li>
+        </ol>
+
+    </body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Your Pico now has an IP address, which answers "where is this device on the network." That alone isn't enough to actually have two devices exchange data reliably, which is what this lesson covers: how an address gets a conversation started, and the protocol MQTT itself (next week) is quietly built on top of.</p>
+
+        <h3>Part 1. Addresses and Ports</h3>
+        <p>An <strong>IP address</strong> identifies a device on a network, the Pico's <span class="code-lesson-il">wlan.ifconfig()[0]</span> from last lesson, or the Pi 3B+'s own address once it's set up as this unit's broker. That alone identifies a <em>machine</em>, not a specific program running on it; a single Pi could, in principle, run a broker and a web server and a dozen other things simultaneously, all reachable at the same IP address.</p>
+        <p><strong>Ports</strong> disambiguate which program on that machine a connection is meant for, a number from 0 to 65,535 tacked onto the address. MQTT brokers conventionally listen on port <strong>1883</strong>; your web browser talks to most ordinary websites on port 80 or 443. An address plus a port together, written like <span class="code-lesson-il">192.168.1.42:1883</span>, uniquely identifies one specific listening program on one specific machine.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="26" width="430" height="250" rx="12" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="235" y="60" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">Pi 3B+: one machine, one IP address</text><text x="235" y="92" font-size="20.8" fill="#333" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">192.168.1.42</text><rect x="40" y="112" width="390" height="60" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="235" y="150" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">mosquitto broker — port 1883</text><rect x="40" y="192" width="390" height="60" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="235" y="230" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold">another service — port 8080</text><text x="470" y="110" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">"192.168.1.42:1883"</text><text x="470" y="141.2" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">reaches the broker</text><text x="470" y="172.4" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">specifically, not just</text><text x="470" y="203.6" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">"the Pi" in general</text></svg>
+            <div class="diagram-caption">One physical machine, one IP address, potentially several independent programs each listening on their own port. Connecting to the wrong port on the right machine typically just fails to connect at all, nothing is there to answer.</div>
+        </div>
+
+                <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="32" font-size="22.1" fill="#1f3b52" text-anchor="middle" font-weight="bold">What wlan.ifconfig() tells you</text><rect x="120" y="56" width="330" height="70" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="3"></rect><text x="285" y="102" font-size="37.4" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">192.168.1</text><rect x="450" y="56" width="130" height="70" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="3"></rect><text x="515" y="102" font-size="37.4" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">.42</text><text x="285" y="148" font-size="17.6" fill="#1f3b52" text-anchor="middle">same for every device on this network</text><text x="515" y="148" font-size="17.6" fill="#8a4526" text-anchor="middle">unique per device</text><text x="380" y="184" font-size="19.5" fill="#1f1f1f" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">('192.168.1.57', '255.255.255.0', '192.168.1.1', '192.168.1.1')</text><text x="140" y="222" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">IP address</text><text x="140" y="242" font-size="16.2" fill="#5b6b78" text-anchor="start">this Pico</text><text x="305" y="222" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">subnet mask</text><text x="305" y="242" font-size="16.2" fill="#5b6b78" text-anchor="start">which part is "network"</text><text x="470" y="222" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">gateway</text><text x="470" y="242" font-size="16.2" fill="#5b6b78" text-anchor="start">the router</text><text x="635" y="222" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">DNS</text><text x="635" y="242" font-size="16.2" fill="#5b6b78" text-anchor="start">name lookups</text><text x="380" y="288" font-size="18.2" fill="#5b6b78" text-anchor="middle">Devices whose addresses start with the same network part can talk directly;</text><text x="380" y="308" font-size="18.2" fill="#5b6b78" text-anchor="middle">everything else goes via the gateway.</text></svg>
+            <div class="diagram-caption">The four values in <code class="code-lesson-il">wlan.ifconfig()</code>. The subnet mask decides which part of the address names the network and which part names the device.</div>
+        </div>
+
+        <h3>Part 2. TCP: Reliable, Ordered Delivery</h3>
+        <p><strong>TCP</strong> (Transmission Control Protocol) is what most of the internet, and MQTT specifically, is built on. Two things make it the right foundation for sensor telemetry: it's <strong>reliable</strong> (data that's sent is confirmed received, and automatically resent if it's lost along the way) and <strong>ordered</strong> (bytes arrive in the same sequence they were sent, even if the underlying network delivers pieces out of order). Together, "IP" (the addressing scheme from Part 1) and "TCP" (the delivery guarantee) are almost always spoken of as one pair, <strong>TCP/IP</strong>, because essentially nothing uses one without the other.</p>
+        <p>That reliability isn't free, there's overhead in all that confirming and resending, which is part of why this matters for an embedded device with limited resources: TCP is doing real, nontrivial work on your Pico's behalf every time it talks to the broker.</p>
+
+                <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="24" width="170" height="54" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="99" y="48" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">Application</text><text x="99" y="67" font-size="17.6" fill="#5b6b78" text-anchor="middle">MQTT</text><text x="206" y="56" font-size="18.2" fill="#1f3b52" text-anchor="start">PUBLISH lab/pico01/light  {"value": 41230}</text><rect x="14" y="90" width="170" height="54" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="99" y="114" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Transport</text><text x="99" y="133" font-size="17.6" fill="#5b6b78" text-anchor="middle">TCP</text><text x="206" y="122" font-size="18.2" fill="#1f3b52" text-anchor="start">ports 1883 ← → 50342, ordering, retries</text><rect x="14" y="156" width="170" height="54" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="99" y="180" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Network</text><text x="99" y="199" font-size="17.6" fill="#5b6b78" text-anchor="middle">IP</text><text x="206" y="188" font-size="18.2" fill="#1f3b52" text-anchor="start">from 192.168.1.57 to 192.168.1.42</text><rect x="14" y="222" width="170" height="54" rx="8" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="99" y="246" font-size="19.5" fill="#5b6b78" text-anchor="middle" font-weight="bold">Link</text><text x="99" y="265" font-size="17.6" fill="#5b6b78" text-anchor="middle">WiFi (802.11)</text><text x="206" y="254" font-size="18.2" fill="#1f3b52" text-anchor="start">radio frames to the router</text><text x="380" y="298" font-size="18.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">A message is wrapped once per layer on the way out and unwrapped on the way in:</text><rect x="30" y="314" width="700" height="50" rx="6" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2"></rect><text x="66" y="344" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">WiFi</text><rect x="100" y="320" width="624" height="38" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="128" y="344" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">IP</text><rect x="156" y="326" width="562" height="26" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="184" y="344" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">TCP</text><rect x="220" y="330" width="490" height="18" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="465" y="343" font-size="13.7" fill="#8a4526" text-anchor="middle" font-weight="bold">MQTT message</text></svg>
+            <div class="diagram-caption">Network software is built in layers, each wrapping the one above it. A problem at any layer breaks everything above it, so debugging works from the bottom up.</div>
+        </div>
+
+        <h3>Part 3. Client and Server</h3>
+        <p>A TCP connection has two distinct roles, not two equal peers. A <strong>server</strong> sits and listens on a known address and port, doing nothing until someone connects to it; mosquitto on the Pi 3B+ is a server in exactly this sense. A <strong>client</strong> is the one that initiates, reaching out to a known address and port to start a connection; every Pico in this course is a client of that one broker.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d14a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d14a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#4a8a4a"></path></marker></defs><rect x="20" y="70" width="180" height="100" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="3"></rect><text x="110" y="114" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico (client)</text><text x="110" y="142" font-size="15.6" fill="#5b6b78" text-anchor="middle">starts the connection</text><rect x="560" y="70" width="180" height="100" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="3"></rect><text x="650" y="114" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Pi 3B+ (server)</text><text x="650" y="142" font-size="15.6" fill="#5b6b78" text-anchor="middle">listening on 1883</text><path d="M200,100 L556,100" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d14a0)"></path><text x="378" y="86" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">connect to 192.168.1.42:1883</text><path d="M556,146 L200,146" fill="none" stroke="#4a8a4a" stroke-width="3" stroke-linejoin="round" marker-end="url(#d14a1)"></path><text x="378" y="176" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">connection accepted</text><text x="380" y="226" font-size="16.2" fill="#5b6b78" text-anchor="middle">The server must already be listening before a client can connect.</text></svg>
+            <div class="diagram-caption">The server must already be running and listening before any client can connect to it, this is why bringing up mosquitto on the Pi happens before any Pico tries to reach it, not the other way around.</div>
+        </div>
+
+                <div class="diagram">
+<svg viewBox="0 0 760 440" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d50a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d50a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#8a4526"></path></marker></defs><rect x="76.2" y="14" width="147.6" height="34" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="150" y="37" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico (client)</text><line x1="150" y1="48" x2="150" y2="420" stroke="#9aa5af" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 5"></line><rect x="477" y="14" width="166" height="34" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="560" y="37" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">Broker (server)</text><line x1="560" y1="48" x2="560" y2="420" stroke="#9aa5af" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 5"></line><path d="M156,92 L554,92" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d50a0)"></path><text x="355" y="84" font-size="17.6" fill="#2e5a80" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">SYN   "can we talk?"</text><path d="M554,130 L156,130" fill="none" stroke="#8a4526" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d50a1)"></path><text x="355" y="122" font-size="17.6" fill="#8a4526" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">SYN-ACK   "yes, ready"</text><path d="M156,168 L554,168" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d50a0)"></path><text x="355" y="160" font-size="17.6" fill="#2e5a80" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">ACK   "great, starting"</text><path d="M156,222 L554,222" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d50a0)"></path><text x="355" y="214" font-size="17.6" fill="#2e5a80" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">data: MQTT CONNECT</text><path d="M554,252 L156,252" fill="none" stroke="#8a4526" stroke-width="2.6" stroke-linejoin="round" stroke-dasharray="7 4" marker-end="url(#d50a1)"></path><text x="355" y="244" font-size="17.6" fill="#8a4526" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">ACK   (received)</text><path d="M554,282 L156,282" fill="none" stroke="#8a4526" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d50a1)"></path><text x="355" y="274" font-size="17.6" fill="#8a4526" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">data: MQTT CONNACK</text><path d="M156,312 L554,312" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" stroke-dasharray="7 4" marker-end="url(#d50a0)"></path><text x="355" y="304" font-size="17.6" fill="#2e5a80" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">ACK</text><path d="M156,366 L554,366" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d50a0)"></path><text x="355" y="358" font-size="17.6" fill="#2e5a80" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">FIN   "I am done"</text><path d="M554,396 L156,396" fill="none" stroke="#8a4526" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d50a1)"></path><text x="355" y="388" font-size="17.6" fill="#8a4526" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">FIN-ACK</text><rect x="14" y="70" width="722" height="118" rx="8" fill="#2e9b4e" stroke="none" stroke-width="0" fill-opacity="0.07"></rect><text x="24" y="86" font-size="16.2" fill="#2d5a2d" text-anchor="start" font-weight="bold">setup</text><text x="24" y="240" font-size="16.2" fill="#1f3b52" text-anchor="start" font-weight="bold">data</text><text x="24" y="380" font-size="16.2" fill="#5b6b78" text-anchor="start" font-weight="bold">teardown</text></svg>
+            <div class="diagram-caption">A TCP connection is set up with three messages, carries data in acknowledged pieces, and is closed politely. All of this happens inside the networking library; you only see <code class="code-lesson-il">connect()</code> succeed or raise an error.</div>
+        </div>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Same Network?.</strong> With mask 255.255.255.0, split 192.168.1.57 into network and host parts. Is 192.168.2.42 on the same network? How many devices can share a /24 network?</p>
+        <p><strong>Exercise 2: Client or Server?.</strong> Label the client and server in each case: (a) your Pico connecting to the broker, (b) a browser loading a website, (c) <code class="code-lesson-il">mosquitto_sub</code> run on your laptop against the Pi.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Unpack the Tuple.</strong> Print the four values of <code class="code-lesson-il">wlan.ifconfig()</code> with labels.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Which Layer Failed?.</strong> Match each symptom to the layer that broke: (a) wrong WiFi password, (b) a typo in the broker's IP, (c) mosquitto is not running, (d) publishing to a topic nobody subscribes to.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Same Network?</summary>
+<p>Network part <strong>192.168.1</strong>, host part <strong>.57</strong>. 192.168.2.42 is on a <em>different</em> network (the third number differs). A /24 holds 254 usable addresses (0 and 255 are reserved).</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Client or Server?</summary>
+<p>(a) Pico = client, broker = server. (b) browser = client, website = server. (c) <code class="code-lesson-il">mosquitto_sub</code> = client, mosquitto on the Pi = server. The client is whoever opens the connection; a device can be a client of one service and a server of another.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Unpack the Tuple</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">ip, mask, gateway, dns = wlan.ifconfig()
+print("address:", ip)
+print("subnet mask:", mask)
+print("gateway:", gateway)
+print("dns:", dns)
+</span>
+</div><p>Tuple unpacking assigns all four in one line. The gateway is the router: anything not on your own network is sent there first.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Which Layer Failed?</summary>
+<p>(a) <strong>Link</strong> (WiFi): never joins the network. (b) <strong>Network</strong> (IP): nothing answers at that address, so a timeout. (c) <strong>Transport</strong> (TCP): the machine answers but refuses the port. (d) <strong>Application</strong> (MQTT): everything works; the message is simply delivered to nobody. Debug from the bottom up.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain what an IP address identifies versus what a port number additionally narrows down.</li>
+            <li>Explain, at a high level, the two guarantees TCP provides and why both matter for sensor data specifically.</li>
+            <li>Correctly label which device, in this course's setup, is the client and which is the server, and explain why that assignment isn't arbitrary.</li>
+        </ol>
+
+    </body>
+</html>

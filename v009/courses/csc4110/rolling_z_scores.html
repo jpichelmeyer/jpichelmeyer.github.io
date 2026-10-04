@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>How do you decide a reading is unusual when you do not know in advance what usual looks like? The z-score answers it with the signal’s own history: measure how far a reading is from the recent average, in units of the recent spread. One number, no tuning to the units of the sensor, and cheap enough for a microcontroller.</p>
+
+
+<h3>Part 1. The Idea</h3>
+<p>The <strong>z-score</strong> of a reading <em>x</em> is <span class="code-lesson-il">z = (x − mean) / std</span>: how many standard deviations it sits from the mean. A z of 0 is exactly average, +2 is two spreads above, −3 is three below. Because it is measured in units of the signal’s own variation, the same threshold works for a light sensor, a temperature and a vibration trace.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><path d="M60,280 L60,279.925 L64,279.908 L68,279.888 L72,279.864 L76,279.835 L80,279.801 L84,279.76 L88,279.712 L92,279.655 L96,279.587 L100,279.508 L104,279.414 L108,279.305 L112,279.177 L116,279.028 L120,278.856 L124,278.655 L128,278.424 L132,278.158 L136,277.851 L140,277.5 L140,280 Z" fill="#f1b8b8" stroke="#d64545" stroke-width="0.1" stroke-linejoin="round" stroke-linecap="round"></path><path d="M620,280 L620,277.5 L624,277.851 L628,278.158 L632,278.424 L636,278.655 L640,278.856 L644,279.028 L648,279.177 L652,279.305 L656,279.414 L660,279.508 L664,279.587 L668,279.655 L672,279.712 L676,279.76 L680,279.801 L684,279.835 L688,279.864 L692,279.888 L696,279.908 L700,279.925 L700,280 Z" fill="#f1b8b8" stroke="#d64545" stroke-width="0.1" stroke-linejoin="round" stroke-linecap="round"></path><path d="M60,279.925 L63.2,279.911 L66.4,279.896 L69.6,279.879 L72.8,279.859 L76,279.835 L79.2,279.808 L82.4,279.778 L85.6,279.742 L88.8,279.701 L92,279.655 L95.2,279.602 L98.4,279.541 L101.6,279.472 L104.8,279.394 L108,279.305 L111.2,279.204 L114.4,279.091 L117.6,278.962 L120.8,278.818 L124,278.655 L127.2,278.473 L130.4,278.269 L133.6,278.04 L136.8,277.785 L140,277.5 L143.2,277.184 L146.4,276.833 L149.6,276.443 L152.8,276.012 L156,275.536 L159.2,275.011 L162.4,274.433 L165.6,273.798 L168.8,273.102 L172,272.339 L175.2,271.507 L178.4,270.598 L181.6,269.609 L184.8,268.535 L188,267.37 L191.2,266.108 L194.4,264.745 L197.6,263.275 L200.8,261.693 L204,259.993 L207.2,258.17 L210.4,256.219 L213.6,254.135 L216.8,251.913 L220,249.55 L223.2,247.04 L226.4,244.38 L229.6,241.568 L232.8,238.599 L236,235.473 L239.2,232.187 L242.4,228.741 L245.6,225.134 L248.8,221.367 L252,217.442 L255.2,213.36 L258.4,209.126 L261.6,204.744 L264.8,200.218 L268,195.555 L271.2,190.763 L274.4,185.849 L277.6,180.824 L280.8,175.697 L284,170.481 L287.2,165.187 L290.4,159.831 L293.6,154.425 L296.8,148.986 L300,143.531 L303.2,138.075 L306.4,132.637 L309.6,127.235 L312.8,121.889 L316,116.616 L319.2,111.439 L322.4,106.375 L325.6,101.444 L328.8,96.6677 L332,92.0642 L335.2,87.6531 L338.4,83.4532 L341.6,79.4827 L344.8,75.7591 L348,72.2988 L351.2,69.1176 L354.4,66.2301 L357.6,63.6494 L360.8,61.3876 L364,59.4553 L367.2,57.8616 L370.4,56.6142 L373.6,55.7188 L376.8,55.1799 L380,55 L383.2,55.1799 L386.4,55.7188 L389.6,56.6142 L392.8,57.8616 L396,59.4553 L399.2,61.3876 L402.4,63.6494 L405.6,66.2301 L408.8,69.1176 L412,72.2988 L415.2,75.7591 L418.4,79.4827 L421.6,83.4532 L424.8,87.6531 L428,92.0642 L431.2,96.6677 L434.4,101.444 L437.6,106.375 L440.8,111.439 L444,116.616 L447.2,121.889 L450.4,127.235 L453.6,132.637 L456.8,138.075 L460,143.531 L463.2,148.986 L466.4,154.425 L469.6,159.831 L472.8,165.187 L476,170.481 L479.2,175.697 L482.4,180.824 L485.6,185.849 L488.8,190.763 L492,195.555 L495.2,200.218 L498.4,204.744 L501.6,209.126 L504.8,213.36 L508,217.442 L511.2,221.367 L514.4,225.134 L517.6,228.741 L520.8,232.187 L524,235.473 L527.2,238.599 L530.4,241.568 L533.6,244.38 L536.8,247.04 L540,249.55 L543.2,251.913 L546.4,254.135 L549.6,256.219 L552.8,258.17 L556,259.993 L559.2,261.693 L562.4,263.275 L565.6,264.745 L568.8,266.108 L572,267.37 L575.2,268.535 L578.4,269.609 L581.6,270.598 L584.8,271.507 L588,272.339 L591.2,273.102 L594.4,273.798 L597.6,274.433 L600.8,275.011 L604,275.536 L607.2,276.012 L610.4,276.443 L613.6,276.833 L616.8,277.184 L620,277.5 L623.2,277.785 L626.4,278.04 L629.6,278.269 L632.8,278.473 L636,278.655 L639.2,278.818 L642.4,278.962 L645.6,279.091 L648.8,279.204 L652,279.305 L655.2,279.394 L658.4,279.472 L661.6,279.541 L664.8,279.602 L668,279.655 L671.2,279.701 L674.4,279.742 L677.6,279.778 L680.8,279.808 L684,279.835 L687.2,279.859 L690.4,279.879 L693.6,279.896 L696.8,279.911 L700,279.925" fill="none" stroke="#2e5a80" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"></path><line x1="60" y1="280" x2="700" y2="280" stroke="#444" stroke-width="2" stroke-linecap="round"></line><line x1="140" y1="280" x2="140" y2="288" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="140" y="308" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">-3</text><line x1="220" y1="280" x2="220" y2="288" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="220" y="308" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">-2</text><line x1="300" y1="280" x2="300" y2="288" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="300" y="308" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">-1</text><line x1="380" y1="280" x2="380" y2="288" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="380" y="308" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">0</text><line x1="460" y1="280" x2="460" y2="288" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="460" y="308" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">1</text><line x1="540" y1="280" x2="540" y2="288" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="540" y="308" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">2</text><line x1="620" y1="280" x2="620" y2="288" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="620" y="308" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">3</text><text x="380" y="338" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">z = (x − mean) / std</text><text x="380" y="177.5" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">68 % within ±1</text><text x="380" y="212.5" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">95 % within ±2</text><text x="380" y="253" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">99.7 % within ±3</text><text x="100" y="223.75" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">rare</text><text x="660" y="223.75" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">rare</text></svg>
+            <div class="diagram-caption">What a z-score means. It counts how many standard deviations a reading is from the recent average. For well-behaved noise, nearly everything lands within three.</div>
+        </div>
+
+<p>For well-behaved, bell-shaped noise, about 68 % of readings fall within ±1, 95 % within ±2 and 99.7 % within ±3. A reading beyond ±3 is therefore rare, which makes it a reasonable definition of “unusual”.</p>
+<h3>Part 2. Rolling, So It Follows the Signal</h3>
+<p>A real signal drifts: the room warms up, daylight changes. A z-score against the average of <em>all time</em> would flag every drift. Instead the mean and spread are kept over a <strong>rolling</strong> recent past, so “usual” follows the signal and only a sudden departure stands out.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="60" y="30" width="640" height="250" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M60,126.252 L62.9224,127.273 L65.8447,126.03 L68.7671,127.1 L71.6895,128.017 L74.6119,125.852 L77.5342,126.748 L80.4566,127.222 L83.379,127.178 L86.3014,128.276 L89.2237,125.079 L92.1461,125.711 L95.0685,120.544 L97.9909,121.168 L100.913,122.419 L103.836,123.618 L106.758,123.945 L109.68,122.354 L112.603,118.583 L115.525,118.008 L118.447,119.012 L121.37,117.64 L124.292,118.891 L127.215,117.287 L130.137,118.198 L133.059,113.327 L135.982,111.135 L138.904,110.835 L141.826,112.183 L144.749,111.33 L147.671,111.045 L150.594,112.126 L153.516,113.204 L156.438,110.374 L159.361,111.408 L162.283,111.206 L165.205,108.746 L168.128,109.648 L171.05,106.297 L173.973,105.817 L176.895,107.149 L179.817,108.332 L182.74,109.308 L185.662,108.88 L188.584,107.301 L191.507,107.041 L194.429,108.092 L197.352,109.352 L200.274,110.61 L203.196,111.833 L206.119,113.008 L209.041,113.162 L211.963,113.838 L214.886,113.842 L217.808,114.256 L220.731,115.121 L223.653,116.055 L226.575,116.331 L229.498,117.257 L232.42,118.246 L235.342,117.429 L238.265,117.842 L241.187,118.098 L244.11,118.626 L247.032,118.812 L249.954,117.123 L252.877,117.266 L255.799,116.742 L258.721,116.561 L261.644,116.345 L264.566,117.681 L267.489,115.999 L270.411,114.877 L273.333,116.128 L276.256,116.685 L279.178,116.699 L282.1,114.808 L285.023,116.217 L287.945,116.688 L290.868,117.769 L293.79,117.686 L296.712,116.408 L299.635,113.878 L302.557,112.674 L305.479,114.69 L308.402,116.566 L311.324,116.823 L314.247,116.764 L317.169,118.778 L320.091,120.41 L323.014,122.311 L325.936,124.054 L328.858,125.107 L331.781,124.838 L334.703,126.747 L337.626,128.583 L340.548,130.364 L343.47,131.843 L346.393,133.304 L349.315,134.459 L352.237,135.987 L355.16,134.141 L358.082,135.608 L361.005,137.205 L363.927,138.237 L366.849,139.281 L369.772,139.987 L372.694,141.42 L375.616,141.986 L378.539,143.136 L381.461,144.452 L384.384,145.568 L387.306,146.353 L390.228,147.366 L393.151,148.272 L396.073,148.595 L398.995,147.82 L401.918,147.133 L404.84,148.313 L407.763,149.504 L410.685,150.54 L413.607,150.54 L416.53,150.54 L419.452,149.1 L422.374,149.37 L425.297,149.132 L428.219,148.525 L431.142,148.74 L434.064,147.92 L436.986,141.734 L439.909,140.999 L442.831,137.747 L445.753,135.473 L448.676,136.928 L451.598,131.667 L454.521,131.578 L457.443,132.242 L460.365,130.307 L463.288,123.883 L466.21,125.366 L469.132,126.597 L472.055,125.932 L474.977,127.511 L477.9,128.76 L480.822,127.921 L483.744,125.18 L486.667,123.34 L489.589,120.828 L492.511,117.894 L495.434,118.653 L498.356,119.139 L501.279,119.456 L504.201,119.693 L507.123,116.149 L510.046,113.894 L512.968,115.475 L515.89,113.999 L518.813,115.301 L521.735,116.534 L524.658,112.082 L527.58,108.389 L530.502,108.389 L533.425,106.989 L536.347,102.518 L539.269,104.289 L542.192,103.086 L545.114,104.531 L548.037,105.829 L550.959,107.453 L553.881,103.802 L556.804,100.187 L559.726,99.67 L562.648,101.274 L565.571,102.057 L568.493,103.683 L571.416,104.889 L574.338,102.62 L577.26,100.692 L580.183,101.225 L583.105,101.673 L586.027,103.101 L588.95,104.146 L591.872,105.509 L594.795,106.422 L597.717,107.562 L600.639,107.761 L603.562,108.955 L606.484,110.093 L609.406,111.199 L612.329,110.576 L615.251,111.319 L618.174,111.243 L621.096,111.077 L624.018,112.159 L626.941,113.204 L629.863,113.907 L632.785,114.931 L635.708,114.875 L638.63,115.36 L641.553,115.951 L644.475,115.372 L647.397,115.523 L650.32,116.414 L653.242,116.776 L656.164,116.417 L659.087,115.021 L662.009,115.54 L664.932,115.996 L667.854,116.986 L670.776,118.262 L673.699,119.441 L676.621,120.658 L679.543,121.3 L682.466,122.193 L685.388,123.19 L688.311,124.194 L691.233,125.302 L694.155,123.837 L697.078,124.649 L700,125.155 L700,180.547 L697.078,179.291 L694.155,178.635 L691.233,174.418 L688.311,174.771 L685.388,174.722 L682.466,174.606 L679.543,174.213 L676.621,173.298 L673.699,174.248 L670.776,174.445 L667.854,175.523 L664.932,175.065 L662.009,173.581 L659.087,172.245 L656.164,168.027 L653.242,165.519 L650.32,164.27 L647.397,164.078 L644.475,162.482 L641.553,159.821 L638.63,160.856 L635.708,159.947 L632.785,160.838 L629.863,161.123 L626.941,160.557 L624.018,160.814 L621.096,161.791 L618.174,159.612 L615.251,157.661 L612.329,158.751 L609.406,159.445 L606.484,159.865 L603.562,160.803 L600.639,161.286 L597.717,162.44 L594.795,162.519 L591.872,163.836 L588.95,164.835 L586.027,166.251 L583.105,167.477 L580.183,168.955 L577.26,170.494 L574.338,170.931 L571.416,171.129 L568.493,172.658 L565.571,173.583 L562.648,175.251 L559.726,176.793 L556.804,178.136 L553.881,177.708 L550.959,177.153 L548.037,177.901 L545.114,179.568 L542.192,181.27 L539.269,182.297 L536.347,183.797 L533.425,182.881 L530.502,183.752 L527.58,183.752 L524.658,183.208 L521.735,182.033 L518.813,183.531 L515.89,185.084 L512.968,185.81 L510.046,186.293 L507.123,186.594 L504.201,186.023 L501.279,187.45 L498.356,188.935 L495.434,190.506 L492.511,192.177 L489.589,192.1 L486.667,192.216 L483.744,192.685 L480.822,192.567 L477.9,193.497 L474.977,194.964 L472.055,195.741 L469.132,196.864 L466.21,198.499 L463.288,200.116 L460.365,197.669 L457.443,198.047 L454.521,199.573 L451.598,200.914 L448.676,199.111 L445.753,199.825 L442.831,199.927 L439.909,199.34 L436.986,200.189 L434.064,197.363 L431.142,197.981 L428.219,199.052 L425.297,199.803 L422.374,200.731 L419.452,199.225 L416.53,199.506 L413.607,199.506 L410.685,199.506 L407.763,200.554 L404.84,201.433 L401.918,202.502 L398.995,203.314 L396.073,200.044 L393.151,198.625 L390.228,198.35 L387.306,199.491 L384.384,200.745 L381.461,200.744 L378.539,201.701 L375.616,201.611 L372.694,202.987 L369.772,203.642 L366.849,202.421 L363.927,203.902 L361.005,205.448 L358.082,206.231 L355.16,207.767 L352.237,202.271 L349.315,203.484 L346.393,202.921 L343.47,204.423 L340.548,206.023 L337.626,206.995 L334.703,207.906 L331.781,208.93 L328.858,205.326 L325.936,204.093 L323.014,204.445 L320.091,205.255 L317.169,205.043 L314.247,205.997 L311.324,202.526 L308.402,199.694 L305.479,200.295 L302.557,201.408 L299.635,196.229 L296.712,189.445 L293.79,184.77 L290.868,182.1 L287.945,183.606 L285.023,181.845 L282.1,182.072 L279.178,176.769 L276.256,174.517 L273.333,173.257 L270.411,173.532 L267.489,174.184 L264.566,174.504 L261.644,175.212 L258.721,172.646 L255.799,170.24 L252.877,167.414 L249.954,168.48 L247.032,164.098 L244.11,162.685 L241.187,161.912 L238.265,160.67 L235.342,159.738 L232.42,160.204 L229.498,160.854 L226.575,160.976 L223.653,159.735 L220.731,160.66 L217.808,160.519 L214.886,161.582 L211.963,162.549 L209.041,161.871 L206.119,162.912 L203.196,163.693 L200.274,164.407 L197.352,165.019 L194.429,165.432 L191.507,166.754 L188.584,167.856 L185.662,163.251 L182.74,164.169 L179.817,163.846 L176.895,164.012 L173.973,164.672 L171.05,165.657 L168.128,164.929 L165.205,164.429 L162.283,164.203 L159.361,165.193 L156.438,166.414 L153.516,165.953 L150.594,167.113 L147.671,168.349 L144.749,169.392 L141.826,170.175 L138.904,171.198 L135.982,172.296 L133.059,172.373 L130.137,170.555 L127.215,171.775 L124.292,172.057 L121.37,172.734 L118.447,173.168 L115.525,174.412 L112.603,175.301 L109.68,174.21 L106.758,174.44 L103.836,175.569 L100.913,176.064 L97.9909,176.993 L95.0685,178.297 L92.1461,176.221 L89.2237,177.409 L86.3014,176.599 L83.379,176.976 L80.4566,177.967 L77.5342,176.834 L74.6119,177.995 L71.6895,177.873 L68.7671,179.02 L65.8447,179.07 L62.9224,175.232 L60,176.252 Z" fill="#fbe3cc" stroke="#c0693f" stroke-width="0.1" stroke-linejoin="round" stroke-linecap="round"></path><path d="M60,151.252 L62.9224,167.473 L65.8447,158.924 L68.7671,151.619 L71.6895,140.174 L74.6119,150.274 L77.5342,161.834 L80.4566,146.129 L83.379,156.579 L86.3014,137.514 L89.2237,147.771 L92.1461,131.653 L95.0685,145.172 L97.9909,151.085 L100.913,153.646 L103.836,144.577 L106.758,137.809 L109.68,131.535 L112.603,137.793 L115.525,144.704 L118.447,134.809 L121.37,148.774 L124.292,133.683 L127.215,142.602 L130.137,125.298 L133.059,128.666 L135.982,132.976 L138.904,143.048 L141.826,130.953 L144.749,132.066 L147.671,138.729 L150.594,139.104 L153.516,124.775 L156.438,137.226 L159.361,130.848 L162.283,123.74 L165.205,145.351 L168.128,120.895 L171.05,126.822 L173.973,139.445 L176.895,141.938 L179.817,144.204 L182.74,128.333 L185.662,154.973 L188.584,129.066 L191.507,135.208 L194.429,142.049 L197.352,141.223 L200.274,140.691 L203.196,140.225 L206.119,132.415 L209.041,145.983 L211.963,132.168 L214.886,133.661 L217.808,143.677 L220.731,137.949 L223.653,147.371 L226.575,143.682 L229.498,141.17 L232.42,131.206 L235.342,146.994 L238.265,148.617 L241.187,148.135 L244.11,150.653 L247.032,158.289 L249.954,137.029 L252.877,156.727 L255.799,157.397 L258.721,159.289 L261.644,149.706 L264.566,133.578 L267.489,134.004 L270.411,150.305 L273.333,156.051 L276.256,159.763 L279.178,168.058 L282.1,155.827 L285.023,162.979 L287.945,147.489 L290.868,166.107 L293.79,172.457 L296.712,179.521 L299.635,179.893 L302.557,162.684 L305.479,165.461 L308.402,177.437 L311.324,181 L314.247,168.001 L317.169,173.441 L320.091,169.65 L323.014,172.067 L325.936,178.366 L328.858,186.061 L331.781,172.413 L334.703,173.111 L337.626,172.843 L340.548,167.436 L343.47,167.873 L346.393,178.853 L349.315,170.942 L352.237,191.939 L355.16,170.527 L358.082,176.004 L361.005,168.116 L363.927,168.337 L366.849,182.895 L369.772,176.674 L372.694,167.139 L375.616,179.548 L378.539,174.667 L381.461,179.578 L384.384,170.23 L387.306,172.123 L390.228,180.23 L393.151,184.341 L396.073,189.913 L398.995,166.197 L401.918,175.511 L404.84,176.825 L407.763,174.952 L410.685,93.9864 L413.607,85.3557 L416.53,164.264 L419.452,185.262 L422.374,167.767 L425.297,165.978 L428.219,168.437 L431.142,164.374 L434.064,151.646 L436.986,161.055 L439.909,153.515 L442.831,153.989 L445.753,172.281 L448.676,146.405 L451.598,157.353 L454.521,160.188 L457.443,150.688 L460.365,139.132 L463.288,161.16 L466.21,159.407 L469.132,150.556 L472.055,165.847 L474.977,159.873 L477.9,150.078 L480.822,143.85 L483.744,144.505 L486.667,141.349 L489.589,138.608 L492.511,149.332 L495.434,147.802 L498.356,146.732 L501.279,146.02 L504.201,134.278 L507.123,135.397 L510.046,156.954 L512.968,136.88 L515.89,147.968 L518.813,147.764 L521.735,128.798 L524.658,127.972 L527.58,199.416 L530.502,131.871 L533.425,122.72 L536.347,144.846 L539.269,129.361 L542.192,140.569 L545.114,139.742 L548.037,147.342 L550.959,122.948 L553.881,120.838 L556.804,127.539 L559.726,138.621 L562.648,132.726 L565.571,142.202 L568.493,136.154 L571.416,122.593 L574.338,121.991 L577.26,129.305 L580.183,128.65 L583.105,135.837 L586.027,132.363 L588.95,136.762 L591.872,132.15 L594.795,141.1 L597.717,129.032 L600.639,138.972 L603.562,136.126 L606.484,139.262 L609.406,127.095 L612.329,132.495 L615.251,146.208 L618.174,148.01 L621.096,137.089 L624.018,141.414 L626.941,144.808 L629.863,142.131 L632.785,131.971 L635.708,146.119 L638.63,135.34 L641.553,150.9 L644.475,149.843 L647.397,146.565 L650.32,150.416 L653.242,154.578 L656.164,159.857 L659.087,155.228 L662.009,156.691 L664.932,154.571 L667.854,147.494 L670.776,152.491 L673.699,148.518 L676.621,156.702 L679.543,155.798 L682.466,155.354 L685.388,155.541 L688.311,154.202 L691.233,167.056 L694.155,160.412 L697.078,162.984 L700,156.017" fill="none" stroke="#2e5a80" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="410.685" cy="93.9864" r="6.5" fill="#d64545" stroke="#fff" stroke-width="2"></circle><circle cx="413.607" cy="85.3557" r="6.5" fill="#d64545" stroke="#fff" stroke-width="2"></circle><circle cx="527.58" cy="199.416" r="6.5" fill="#d64545" stroke="#fff" stroke-width="2"></circle><text x="68" y="314" font-size="16.9" fill="#d64545" text-anchor="start" font-weight="bold">● flagged: |z| &gt; 3</text><text x="310" y="314" font-size="16.9" fill="#8a4526" text-anchor="start" font-weight="bold">shaded: mean ± 3 std (rolling)</text></svg>
+            <div class="diagram-caption">Anomaly detection by z-score. The shaded band is the mean ± 3 standard deviations, tracked as the signal drifts; a reading that leaves the band is flagged.</div>
+        </div>
+
+<h3>Part 3. Mean and Variance One Reading at a Time</h3>
+<p>You cannot store a long history, so the statistics must be updated incrementally. Welford’s method does it with three numbers and stays accurate even in 32-bit floats, where the textbook shortcut fails:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 420" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d136a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#333"></path></marker></defs><rect x="150" y="14" width="460" height="60" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="380" y="50" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">new reading x</text><rect x="150" y="94" width="460" height="60" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="122" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">d = x − mean</text><text x="380" y="144" font-size="15.6" fill="#5b6b78" text-anchor="middle">how far from the old mean</text><path d="M380,76 L380,92" fill="none" stroke="#333" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d136a0)"></path><rect x="150" y="174" width="460" height="60" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="202" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">mean += d / n</text><text x="380" y="224" font-size="15.6" fill="#5b6b78" text-anchor="middle">update the average</text><path d="M380,156 L380,172" fill="none" stroke="#333" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d136a0)"></path><rect x="150" y="254" width="460" height="60" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="282" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">m2 += d · (x − mean)</text><text x="380" y="304" font-size="15.6" fill="#5b6b78" text-anchor="middle">update the spread sum</text><path d="M380,236 L380,252" fill="none" stroke="#333" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d136a0)"></path><rect x="150" y="334" width="460" height="60" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="380" y="362" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">std = √( m2 / (n − 1) )</text><text x="380" y="384" font-size="15.6" fill="#5b6b78" text-anchor="middle">then  z = (x − mean) / std</text><path d="M380,316 L380,332" fill="none" stroke="#333" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d136a0)"></path></svg>
+            <div class="diagram-caption">Computing mean and variance without storing the samples (Welford's method). Each new reading updates three numbers, so memory use never grows however long the device runs.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">stats.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class Welford:
+    def __init__(self):
+        self.n = 0
+        self.mean = 0.0
+        self.m2 = 0.0                      # running sum of squared deviations
+
+    def add(self, x):
+        self.n += 1
+        d = x - self.mean
+        self.mean += d / self.n
+        self.m2 += d * (x - self.mean)
+
+    def std(self):
+        return (self.m2 / (self.n - 1)) ** 0.5 if self.n &gt; 1 else 0.0
+</span>
+</div>
+<p>This grows its sample count forever, so it averages the whole history. For a <em>rolling</em> version, give old readings less weight by using an exponential average of the mean and variance, which is the subject of the next lesson. The detector below already uses that update, with <span class="code-lesson-il">alpha</span> as the forgetting rate:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">zscore.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class ZScore:
+    def __init__(self, alpha=0.05, warmup=30, floor=1.0):
+        self.alpha = alpha
+        self.warmup = warmup
+        self.floor = floor                 # smallest std we will divide by
+        self.n = 0
+        self.mean = 0.0
+        self.var = 0.0
+
+    def update(self, x):
+        """Returns the z-score of x, and learns from x unless it is an outlier."""
+        self.n += 1
+        if self.n == 1:
+            self.mean = x
+            return 0.0
+        std = max(self.var ** 0.5, self.floor)
+        z = (x - self.mean) / std
+        if self.n &gt; self.warmup and abs(z) &gt; 3:
+            return z                       # an outlier: report it, do not learn from it
+        d = x - self.mean
+        self.mean += self.alpha * d
+        self.var = (1 - self.alpha) * (self.var + self.alpha * d * d)
+        return z
+</span>
+</div>
+<h3>Part 4. Where It Goes Wrong</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 360" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="14" width="236" height="332" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.8"></rect><text x="132" y="50" font-size="16.9" fill="#d64545" text-anchor="middle" font-weight="bold">too few samples</text><text x="132" y="92" font-size="15.6" fill="#5b6b78" text-anchor="middle">the std is unreliable</text><text x="132" y="120.6" font-size="15.6" fill="#5b6b78" text-anchor="middle">early on</text><rect x="28" y="196" width="208" height="134" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="132" y="224" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">fix</text><text x="132" y="252" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">warm up: no alerts</text><text x="132" y="280.6" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">until n is at least</text><text x="132" y="309.2" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">30</text><rect x="262" y="14" width="236" height="332" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.8"></rect><text x="380" y="50" font-size="16.9" fill="#d64545" text-anchor="middle" font-weight="bold">zero variance</text><text x="380" y="92" font-size="15.6" fill="#5b6b78" text-anchor="middle">a flat signal gives</text><text x="380" y="120.6" font-size="15.6" fill="#5b6b78" text-anchor="middle">std = 0, so z explodes</text><rect x="276" y="196" width="208" height="134" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="380" y="224" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">fix</text><text x="380" y="252" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">keep a minimum std</text><text x="380" y="280.6" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">(a floor)</text><rect x="510" y="14" width="236" height="332" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.8"></rect><text x="628" y="50" font-size="16.9" fill="#d64545" text-anchor="middle" font-weight="bold">outliers poison the stats</text><text x="628" y="92" font-size="15.6" fill="#5b6b78" text-anchor="middle">one spike inflates std</text><text x="628" y="120.6" font-size="15.6" fill="#5b6b78" text-anchor="middle">and hides the next</text><rect x="524" y="196" width="208" height="134" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="628" y="224" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">fix</text><text x="628" y="252" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">do not update with</text><text x="628" y="280.6" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">flagged values</text></svg>
+            <div class="diagram-caption">Three ways a z-score detector goes wrong, and the usual fix for each. All three are about the statistics, not the code.</div>
+        </div>
+
+<p>The numbers behind “rare” deserve respect. A two-sided 3σ threshold is exceeded by pure noise about 0.27 % of the time. At 10 samples a second that is roughly <strong>97 false alarms an hour</strong>, one every 37 seconds. Real alarms must therefore usually require <strong>persistence</strong>: several anomalous readings in a row. Three in a row would, for independent Gaussian noise, happen about once in two months at that rate, and real signals are rarely that tidy, which is why you tune on recorded data. The rate is also worse than the 0.27 % figure suggests, because the standard deviation is itself <em>estimated</em> from a short history. In a test of this lesson’s detector on 270 quiet readings, 7 single readings crossed ±3 (about 2.6 %), yet no run of three did, and a genuine dip was caught within three samples. That is exactly the case for persistence.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Compute z.</strong> The recent mean is 100 and the standard deviation 5. Compute z for readings 118, 92 and 100, and say which are unusual by the |z| > 3 rule.</p>
+        <p><strong>Exercise 2: How Often Is “Rare”?.</strong> A detector uses |z| > 3 on a signal sampled at 5 Hz, with no persistence rule. Roughly how many false alarms per hour should you expect from pure noise, and what simple rule reduces them?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Welford Matches the Textbook.</strong> Write a test that feeds 200 random numbers to <span class="code-lesson-il">Welford</span> and checks that its mean and standard deviation match values computed directly from the stored list.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Adopt a New Normal.</strong> If the signal genuinely shifts to a new level, the detector above flags every reading forever because it refuses to learn from outliers. Change it so that after 20 consecutive outliers it resets its statistics to the new level.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Compute z</summary>
+<p>118: (118 − 100) / 5 = <strong>3.6</strong> (unusual). 92: (92 − 100) / 5 = <strong>−1.6</strong> (normal). 100: <strong>0</strong>. Only the first exceeds 3.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: How Often Is “Rare”?</summary>
+<p>3σ is exceeded about 0.27 % of the time: 0.0027 × 5 × 3600 ≈ <strong>49 false alarms an hour</strong>. Requiring, say, three consecutive anomalous samples makes a false alarm vastly less likely while delaying a real one by only three samples (0.6 s here).</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Welford Matches the Textbook</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_welford.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import random
+w = Welford()
+xs = [random.gauss(50, 4) for _ in range(200)]
+for x in xs:
+    w.add(x)
+
+mean = sum(xs) / len(xs)
+std = (sum((x - mean) ** 2 for x in xs) / (len(xs) - 1)) ** 0.5
+print(abs(w.mean - mean) &lt; 1e-9, abs(w.std() - std) &lt; 1e-9)      # True True
+</span>
+</div><p>Testing an incremental algorithm against the slow, obvious one on the same data is a good habit: any slip in the update shows up immediately.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Adopt a New Normal</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">zscore.py (changes)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">        # in __init__:  self.streak = 0
+        if self.n &gt; self.warmup and abs(z) &gt; 3:
+            self.streak += 1
+            if self.streak &gt;= 20:          # the "outlier" is the new normal
+                self.mean = x
+                self.var = 0.0
+                self.n = 1
+                self.streak = 0
+            return z
+        self.streak = 0
+</span>
+</div><p>The two safeguards pull in opposite directions: not learning from outliers protects against spikes, and the streak rule rescues the detector from a permanent change. How long the streak should be is a judgement about how long a real anomaly can last.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Compute a z-score and say what it means for a reading to have z = 3.6.</li>
+            <li>Explain why the statistics must be rolling, and why not to learn from outliers.</li>
+            <li>State the three common failure modes and the fix for each.</li>
+            <li>Explain why a single |z| > 3 reading should not usually trigger an alarm.</li>
+        </ol>
+
+    </body>
+</html>

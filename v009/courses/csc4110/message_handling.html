@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>A message arriving at a Pico is somebody else’s data landing in your program. It may be malformed, unexpected, repeated, or arrive at a bad moment. Handling messages well is mostly a matter of discipline: do very little in the callback, check everything, and never let one bad message stop the device.</p>
+
+
+<h3>Part 1. What a Callback Really Is</h3>
+<p>You register a function with <span class="code-lesson-il">client.set_callback()</span>. It is called from inside <span class="code-lesson-il">check_msg()</span> whenever a message has arrived, with the topic and payload as <strong>bytes</strong>. That has two consequences. The callback runs <em>in the middle of your main loop</em>, so anything slow in it delays everything else; and what it receives is raw, so decoding and checking are your job.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d107a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="18" y="50" width="124" height="84" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="80" y="76" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">Receive</text><text x="80" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">callback runs</text><rect x="168" y="50" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="230" y="76" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Parse</text><text x="230" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">split the topic</text><path d="M146,92 L164,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d107a0)"></path><rect x="318" y="50" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="76" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Validate</text><text x="380" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">type + range</text><path d="M296,92 L314,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d107a0)"></path><rect x="468" y="50" width="124" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="530" y="76" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Act</text><text x="530" y="98" font-size="15.7" fill="#5b6b78" text-anchor="middle">set output / state</text><path d="M446,92 L464,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d107a0)"></path><rect x="618" y="50" width="124" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="680" y="76" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Report</text><text x="680" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">publish stat</text><path d="M596,92 L614,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d107a0)"></path><text x="380" y="200" font-size="16.9" fill="#5b6b78" text-anchor="middle">A message that fails any check is ignored and logged.</text><text x="380" y="233.8" font-size="16.9" fill="#5b6b78" text-anchor="middle">One bad message must never stop the program.</text></svg>
+            <div class="diagram-caption">Handling an incoming message in five small steps. Most of the steps are checks; the actual action is the shortest part, and every check that fails ends the handling safely.</div>
+        </div>
+
+<h3>Part 2. Dispatch Instead of a Chain of ifs</h3>
+<p>A callback that grows an <span class="code-lesson-il">if</span>/<span class="code-lesson-il">elif</span> branch for every command becomes hard to read and easy to get wrong. A dispatch table maps the command name, the last level of the topic, to the function that handles it:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d108a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d108a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#4a8a4a"></path></marker></defs><rect x="14" y="150" width="190" height="100" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="109" y="192" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">incoming</text><text x="109" y="228" font-size="15.0" fill="#5b6b78" text-anchor="middle">lab/pico01/cmd/led</text><rect x="260" y="40" width="220" height="320" rx="10" fill="#f7f9fb" stroke="#2e5a80" stroke-width="2.5"></rect><text x="370" y="70" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">HANDLERS = {</text><rect x="280" y="96" width="180" height="56" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="370" y="120" font-size="15.6" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">"led"</text><text x="370" y="142" font-size="15.0" fill="#333" text-anchor="middle" style="font-family:'Courier New',monospace">→ set_led</text><rect x="280" y="168" width="180" height="56" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="370" y="192" font-size="15.6" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">"interval"</text><text x="370" y="214" font-size="15.0" fill="#333" text-anchor="middle" style="font-family:'Courier New',monospace">→ set_interval</text><rect x="280" y="240" width="180" height="56" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="370" y="264" font-size="15.6" fill="#8a4526" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">"reset"</text><text x="370" y="286" font-size="15.0" fill="#333" text-anchor="middle" style="font-family:'Courier New',monospace">→ do_reset</text><text x="370" y="330" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">}</text><path d="M204,200 L256,200" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d108a0)"></path><path d="M480,124 L560,124" fill="none" stroke="#4a8a4a" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d108a1)"></path><path d="M480,196 L560,196" fill="none" stroke="#4a8a4a" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d108a1)"></path><path d="M480,268 L560,268" fill="none" stroke="#4a8a4a" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d108a1)"></path><rect x="566" y="96" width="174" height="56" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="653" y="119.52" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">set_led</text><text x="653" y="139.68" font-size="15.0" fill="#5b6b78" text-anchor="middle">on / off</text><rect x="566" y="168" width="174" height="56" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="653" y="191.52" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">set_interval</text><text x="653" y="211.68" font-size="15.0" fill="#5b6b78" text-anchor="middle">10 to 60000</text><rect x="566" y="240" width="174" height="56" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="653" y="263.52" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">do_reset</text><text x="653" y="283.68" font-size="15.0" fill="#5b6b78" text-anchor="middle">only "now"</text><text x="500" y="382" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">unknown name: ignore and log</text></svg>
+            <div class="diagram-caption">A dispatch table. The last part of the topic picks the handler, so adding a new command is one new entry rather than another branch in a growing if/elif chain.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def set_led(msg):
+    if msg not in (b"on", b"off"):
+        return
+    led.value(1 if msg == b"on" else 0)
+
+def set_interval(msg):
+    global interval_ms
+    v = int(msg)                                  # may raise ValueError
+    if 10 &lt;= v &lt;= 60000:
+        interval_ms = v
+
+HANDLERS = {"led": set_led, "interval": set_interval}
+
+def on_message(topic, msg):
+    parts = topic.decode().split("/")
+    if len(parts) != 4 or parts[2] != "cmd":
+        return                                    # not for us
+    handler = HANDLERS.get(parts[3])
+    if handler is None:
+        print("unknown command:", parts[3])
+        return
+    try:
+        handler(msg)
+    except Exception as e:                        # one bad message must not stop the device
+        print("handler failed:", parts[3], e)
+</span>
+</div>
+<p>Adding a command is now one function and one dictionary entry. The <span class="code-lesson-il">try</span>/<span class="code-lesson-il">except</span> around the handler matters: a payload of <span class="code-lesson-il">b"banana"</span> raises <span class="code-lesson-il">ValueError</span> in <span class="code-lesson-il">int()</span>, and without it that exception would escape through <span class="code-lesson-il">check_msg()</span> and end the program.</p>
+<h3>Part 3. Validate Everything</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 370" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="210" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="115" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">check</text><rect x="220" y="16" width="250" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="345" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">example of a bad one</text><rect x="470" y="16" width="268" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="604" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">do this</text><rect x="10" y="72" width="210" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="105" font-size="15.0" fill="#1f3b52" text-anchor="start">topic recognised?</text><rect x="220" y="72" width="250" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="228" y="105" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">cmd/banana</text><rect x="470" y="72" width="268" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="604" y="105" font-size="15.0" fill="#1f3b52" text-anchor="middle">ignore + log</text><rect x="10" y="128" width="210" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="161" font-size="15.0" fill="#1f3b52" text-anchor="start">payload decodes?</text><rect x="220" y="128" width="250" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="228" y="161" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">b"\xff\xfe"</text><rect x="470" y="128" width="268" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="604" y="161" font-size="15.0" fill="#1f3b52" text-anchor="middle">ignore + log</text><rect x="10" y="184" width="210" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="217" font-size="15.0" fill="#1f3b52" text-anchor="start">value in range?</text><rect x="220" y="184" width="250" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="228" y="217" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">interval = -5</text><rect x="470" y="184" width="268" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="604" y="217" font-size="15.0" fill="#1f3b52" text-anchor="middle">reject, keep old</text><rect x="10" y="240" width="210" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="273" font-size="15.0" fill="#1f3b52" text-anchor="start">retained / duplicate?</text><rect x="220" y="240" width="250" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="228" y="273" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">a message from earlier</text><rect x="470" y="240" width="268" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="604" y="273" font-size="15.0" fill="#1f3b52" text-anchor="middle">act only if it still matters</text><rect x="10" y="296" width="210" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="329" font-size="15.0" fill="#1f3b52" text-anchor="start">allowed right now?</text><rect x="220" y="296" width="250" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="228" y="329" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">reset every 10 ms</text><rect x="470" y="296" width="268" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="604" y="329" font-size="15.0" fill="#1f3b52" text-anchor="middle">rate-limit</text></svg>
+            <div class="diagram-caption">Every incoming message is untrusted input. Check what it is, whether it makes sense, and whether it is safe, before it touches an output.</div>
+        </div>
+
+<p>Treat every message as hostile or mistaken, even from your own dashboard. Check the topic is one you know, the payload decodes, the value is in a sensible range, and the request is allowed right now. Reject and log; never "do your best" with garbage.</p>
+<h3>Part 4. Keep the Callback Tiny</h3>
+<p>If handling a message is slow (writing a file, a long calculation, publishing a reply), do not do it inside the callback. Put the message in a small queue and let the main loop deal with it when it is ready, so the network connection is never left waiting:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d109a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d109a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#4a8a4a"></path></marker></defs><rect x="14" y="100" width="170" height="100" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="99" y="142" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">callback</text><text x="99" y="178" font-size="15.0" fill="#5b6b78" text-anchor="middle">check_msg() runs it</text><rect x="250" y="120" width="260" height="60" rx="8" fill="#fff" stroke="#8a8a8a" stroke-width="2"></rect><rect x="262" y="130" width="52" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="288" y="156" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold">m1</text><rect x="322" y="130" width="52" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="348" y="156" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold">m2</text><rect x="382" y="130" width="52" height="40" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="408" y="156" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold">m3</text><rect x="442" y="130" width="52" height="40" rx="6" fill="#f4f4f4" stroke="#ccc" stroke-width="2"></rect><text x="468" y="156" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold"></text><text x="380" y="206" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">queue (capped at a few items)</text><rect x="576" y="100" width="170" height="100" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="661" y="142" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">main loop</text><text x="661" y="178" font-size="15.0" fill="#5b6b78" text-anchor="middle">handles one by one</text><path d="M184,150 L246,150" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d109a0)"></path><path d="M514,150 L572,150" fill="none" stroke="#4a8a4a" stroke-width="3" stroke-linejoin="round" marker-end="url(#d109a1)"></path><text x="380" y="270" font-size="16.9" fill="#5b6b78" text-anchor="middle">The queue has a maximum size: when it is full, drop the oldest</text><text x="380" y="303.8" font-size="16.9" fill="#5b6b78" text-anchor="middle">message rather than run out of memory.</text></svg>
+            <div class="diagram-caption">Keep the callback tiny. It only drops the message into a short queue; the main loop does the real work when it is ready, so a slow handler can never stall the network connection.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">inbox = []
+
+def on_message(topic, msg):
+    if len(inbox) &gt;= 8:
+        inbox.pop(0)                    # full: drop the oldest rather than run out of RAM
+    inbox.append((topic, msg))
+
+while True:
+    client.check_msg()                  # callbacks only enqueue: they return instantly
+    while inbox:
+        topic, msg = inbox.pop(0)
+        handle(topic, msg)              # the real work, outside the callback
+    ...
+</span>
+</div>
+<p>Two more habits. A <strong>retained</strong> message is delivered when you subscribe, possibly long after it was published, so decide whether it is still worth acting on. And <strong>rate-limit</strong> anything with side effects: a buggy dashboard sending commands every millisecond should not be able to chatter a relay.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: What Goes Wrong?.</strong> A callback does <span class="code-lesson-il">v = int(msg)</span> and then <span class="code-lesson-il">interval = v</span>. List two inputs that cause trouble and what happens.</p>
+        <p><strong>Exercise 2: Add a Command.</strong> Using the dispatch table, add a command <span class="code-lesson-il">lab/pico01/cmd/blink</span> that blinks the LED three times. What changes?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Validate a Setpoint.</strong> Write <span class="code-lesson-il">parse_setpoint(msg)</span> that returns a float between 5.0 and 35.0 from the payload, or <span class="code-lesson-il">None</span> if the payload is not a number or is out of range.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: A Rate Limiter.</strong> Allow a command to take effect at most once every 500 ms. Write a small function <span class="code-lesson-il">allowed()</span> to call at the top of the handler.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: What Goes Wrong?</summary>
+<p><span class="code-lesson-il">b"banana"</span> raises <span class="code-lesson-il">ValueError</span>, which escapes through <span class="code-lesson-il">check_msg()</span> and can end the program. <span class="code-lesson-il">b"0"</span> or <span class="code-lesson-il">b"-5"</span> converts fine but sets a nonsensical interval, so the loop could spin or never publish. Both need handling: catch the exception and check the range.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Add a Command</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def do_blink(msg):
+    for _ in range(3):
+        led.toggle(); sleep_ms(100)
+        led.toggle(); sleep_ms(100)
+
+HANDLERS["blink"] = do_blink
+</span>
+</div><p>Only a function and one dictionary entry; <span class="code-lesson-il">on_message</span> is untouched. (Blocking for 600 ms in the handler is acceptable for a demo; a production device would schedule it instead.)</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Validate a Setpoint</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def parse_setpoint(msg):
+    try:
+        v = float(msg)
+    except ValueError:
+        return None
+    return v if 5.0 &lt;= v &lt;= 35.0 else None
+
+print(parse_setpoint(b"21.5"))     # 21.5
+print(parse_setpoint(b"hot"))      # None
+print(parse_setpoint(b"99"))       # None
+</span>
+</div><p>Returning <span class="code-lesson-il">None</span> gives the caller one simple test, <span class="code-lesson-il">if v is None: return</span>, instead of exceptions leaking everywhere.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: A Rate Limiter</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import ticks_ms, ticks_diff
+
+_last = -1000000
+
+def allowed(min_gap_ms=500):
+    global _last
+    now = ticks_ms()
+    if ticks_diff(now, _last) &lt; min_gap_ms:
+        return False
+    _last = now
+    return True
+
+def set_led(msg):
+    if not allowed():
+        return
+    ...
+</span>
+</div><p>A rejected command is simply dropped. Whether to drop or queue depends on the device: for a relay, dropping is the safer choice, because a queue of old commands could fire in a burst later.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Describe what a callback receives and when it runs.</li>
+            <li>Write a dispatch table and explain why it beats an if/elif chain.</li>
+            <li>List the checks to make on every incoming message and what to do on failure.</li>
+            <li>Explain why long work belongs outside the callback, and how a queue helps.</li>
+        </ol>
+
+    </body>
+</html>

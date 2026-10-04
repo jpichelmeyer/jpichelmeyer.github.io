@@ -8,6 +8,7 @@
 
 import { esc, el, qsa } from './__utils.js';
 import { highlightLessonDoc } from './_lesson_highlight.js';
+import { addDiagramZoom } from './_lesson_diagram_zoom.js';
 
 // ===========  Declarations  =========================================
 
@@ -82,12 +83,14 @@ function buildScheduleRows(c) {
     // inline "Exam N" out of a topic string and tag-highlights it,
     // same as before.
     // Tag types, checked in order: a qualified exam ("Oral Exam 1",
-    // "Agent Exam 3") -> soft gold; a plain "Exam N" -> red; any lab
-    // ("Lab 4", "Lab Practical 2") -> blue.
+    // "Agent Exam 3") -> soft gold; a plain "Exam N" -> red; a lab
+    // practical ("Lab Practical 2") -> blue. Plain "Lab 4" entries are
+    // ordinary lesson topics (so they can be linked), not assessments,
+    // and deliberately get no tag.
     const TOPIC_TAGS = [
         [/\s*,?\s*\b((?!final\b|midterm\b)[a-z]+\s+Exam(?:\s*\d+)?)\s*,?\s*/i, 'exam-alt'],
         [/\s*,?\s*(Exam\s*\d+)\s*,?\s*/i, 'exam'],
-        [/\s*,?\s*\b(Lab(?:\s+Practical)?(?:\s*\d+)?)\b\s*,?\s*/i, 'lab'],
+        [/\s*,?\s*\b(Lab\s+Practical(?:\s*\d+)?)\b\s*,?\s*/i, 'lab'],
     ];
     function extractExamTag(name) {
         let examMatch = null, kind = null;
@@ -627,6 +630,7 @@ function mountLessonFrame(mount) {
         // swallowing real highlighter bugs too. A real failure here
         // should hit the console, not vanish.
         highlightLessonDoc(doc);
+        try { addDiagramZoom(doc); } catch (e) { console.error('diagram zoom failed', e); }
     });
     mount.appendChild(iframe);
 }
