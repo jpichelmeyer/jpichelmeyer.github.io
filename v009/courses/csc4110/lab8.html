@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lab builds the whole pipeline of the week on your Pico: smooth with an EMA, track how much the signal normally varies, score every reading with a z-score, and raise an alert only when several readings in a row are unusual. It is a real, if small, piece of edge AI, and by the end you will have measured how well it works.</p>
+
+
+<h3>The Detector</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d142a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="18" y="60" width="124" height="84" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="80" y="86" font-size="18.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">Sensor</text><text x="80" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">LDR / ADC</text><rect x="168" y="60" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="230" y="86" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">EMA</text><text x="230" y="108" font-size="15.7" fill="#5b6b78" text-anchor="middle">mean + variance</text><path d="M146,102 L164,102" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d142a0)"></path><rect x="318" y="60" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="86" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">z-score</text><text x="380" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">(x − mean) / std</text><path d="M296,102 L314,102" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d142a0)"></path><rect x="468" y="60" width="124" height="84" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="530" y="86" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">Persist</text><text x="530" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">k in a row</text><path d="M446,102 L464,102" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d142a0)"></path><rect x="618" y="60" width="124" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="680" y="86" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Publish</text><text x="680" y="108" font-size="16.2" fill="#5b6b78" text-anchor="middle">tele + alert</text><path d="M596,102 L614,102" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d142a0)"></path><text x="380" y="200" font-size="16.9" fill="#5b6b78" text-anchor="middle">Two outputs: a features packet every few seconds (mean, std),</text><text x="380" y="233.8" font-size="16.9" fill="#5b6b78" text-anchor="middle">and an alert the moment the persistence rule fires.</text></svg>
+            <div class="diagram-caption">The Lab 8 detector in one picture. Smooth with an EMA, track the spread, score each reading, require a few anomalies in a row, then publish.</div>
+        </div>
+
+<p>Use the LDR circuit from Lab 2. Your program reads the sensor (filtered by an EMA), feeds each reading to a z-score detector with warm-up and a floor on the spread, counts consecutive anomalies, and then publishes. It publishes two things: a <strong>features packet</strong> every few seconds on <span class="code-lesson-il">lab/&lt;id&gt;/tele/features</span>, and an <strong>alert</strong>, retained, on <span class="code-lesson-il">lab/&lt;id&gt;/stat/alert</span> when the persistence rule fires and again when it clears.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (outline)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">det = ZScore(alpha=0.05, warmup=30, floor=2.0)
+smooth = EMA(0.3)
+PERSIST = 3
+streak = 0
+alert = False
+win = Window(50)
+
+while True:
+    x = smooth.update(sensor.read_u16() &gt;&gt; 4)
+    z = det.update(x)
+
+    streak = streak + 1 if abs(z) &gt; 3 else 0
+    now = streak &gt;= PERSIST
+    if now != alert:
+        alert = now
+        client.publish(ALERT, b"1" if alert else b"0", retain=True, qos=1)
+
+    if win.add(int(x)):
+        client.publish(FEATURES, json.dumps(win.features()).encode())
+        win.reset()
+    client.check_msg()
+    sleep_ms(100)
+</span>
+</div>
+<h3>Watch It Work</h3>
+<p>Let the detector run undisturbed for a minute, then cover the sensor with your hand for two seconds and release. Watch the z-score, the alert topic, and the features on the Pi.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 420" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="50" y="24" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">signal</text><rect x="50" y="32" width="660" height="120" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M50,75.5494 L53.3166,67.1963 L56.6332,69.74 L59.9497,70.7446 L63.2663,63.5426 L66.5829,68.0266 L69.8995,69.7219 L73.2161,59.382 L76.5327,70.8177 L79.8492,74.6426 L83.1658,75.1964 L86.4824,70.9744 L89.799,65.0779 L93.1156,64.1134 L96.4322,62.6865 L99.7487,59.1348 L103.065,59.776 L106.382,65.0318 L109.698,61.5876 L113.015,64.928 L116.332,70.9906 L119.648,64.025 L122.965,67.8264 L126.281,69.1622 L129.598,58.0984 L132.915,64.2358 L136.231,70.5263 L139.548,68.4774 L142.864,56.3408 L146.181,69.3289 L149.497,64.3853 L152.814,64.9634 L156.131,65.5071 L159.447,65.1217 L162.764,70.5053 L166.08,70.4116 L169.397,68.8855 L172.714,69.8826 L176.03,64.0066 L179.347,60.2998 L182.663,72.5611 L185.98,65.3209 L189.296,73.022 L192.613,71.5686 L195.93,69.2827 L199.246,67.5339 L202.563,70.2863 L205.879,81.2403 L209.196,61.0891 L212.513,69.4455 L215.829,71.2852 L219.146,64.6439 L222.462,71.0933 L225.779,75.2849 L229.095,65.6051 L232.412,65.9663 L235.729,72.2478 L239.045,63.8457 L242.362,66.1943 L245.678,73.8035 L248.995,59.2429 L252.312,66.7272 L255.628,73.8073 L258.945,65.7966 L262.261,67.4412 L265.578,63.1805 L268.894,74.8894 L272.211,62.8279 L275.528,63.328 L278.844,64.5751 L282.161,65.0004 L285.477,61.4466 L288.794,64.4571 L292.111,67.4365 L295.427,72.3081 L298.744,62.4745 L302.06,63.1284 L305.377,66.5821 L308.693,67.3184 L312.01,64.4396 L315.327,80.7854 L318.643,66.4878 L321.96,80.704 L325.276,66.8763 L328.593,62.7568 L331.91,58.5308 L335.226,70.4755 L338.543,65.9262 L341.859,68.4571 L345.176,79.3308 L348.492,64.4249 L351.809,68.1906 L355.126,67.7659 L358.442,72.8698 L361.759,68.3209 L365.075,67.7011 L368.392,61.6572 L371.709,66.6347 L375.025,50.5019 L378.342,70.1774 L381.658,124.206 L384.975,123.136 L388.291,126.963 L391.608,115.244 L394.925,119.61 L398.241,129.299 L401.558,122.329 L404.874,117.068 L408.191,130.032 L411.508,122.121 L414.824,124.07 L418.141,111.097 L421.457,120.779 L424.774,124.936 L428.09,125.708 L431.407,113.334 L434.724,125.225 L438.04,111.351 L441.357,130.758 L444.673,123.842 L447.99,124.081 L451.307,126.427 L454.623,123.945 L457.94,119.384 L461.256,126.229 L464.573,75.354 L467.889,61.3307 L471.206,60.7098 L474.523,71.6004 L477.839,66.5803 L481.156,81.1014 L484.472,62.8664 L487.789,74.8366 L491.106,70.9184 L494.422,57.2031 L497.739,74.4927 L501.055,68.0164 L504.372,73.5208 L507.688,77.4496 L511.005,74.0022 L514.322,66.7552 L517.638,74.7155 L520.955,71.0992 L524.271,64.4506 L527.588,68.9251 L530.905,74.7381 L534.221,60.5671 L537.538,67.5149 L540.854,61.0328 L544.171,73.4128 L547.487,59.6106 L550.804,74.9235 L554.121,76.9273 L557.437,70.2678 L560.754,70.0011 L564.07,66.8 L567.387,70.9554 L570.704,64.9231 L574.02,61.391 L577.337,71.4203 L580.653,75.064 L583.97,70.1506 L587.286,63.9967 L590.603,64.0119 L593.92,69.8771 L597.236,73.101 L600.553,68.22 L603.869,63.2695 L607.186,71.7321 L610.503,61.5813 L613.819,66.9923 L617.136,66.669 L620.452,71.2933 L623.769,61.2604 L627.085,67.9139 L630.402,75.6479 L633.719,64.0007 L637.035,70.2496 L640.352,62.6975 L643.668,67.2858 L646.985,71.2916 L650.302,67.2711 L653.618,70.6116 L656.935,72.3048 L660.251,68.0312 L663.568,63.9337 L666.884,67.7739 L670.201,68.5699 L673.518,70.9318 L676.834,65.2537 L680.151,66.7607 L683.467,63.3031 L686.784,66.2912 L690.101,57.3918 L693.417,76.0593 L696.734,68.4056 L700.05,65.4436 L703.367,63.6139 L706.683,75.8659 L710,74.2978" fill="none" stroke="#2e5a80" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></path><text x="50" y="184" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">z-score</text><rect x="50" y="192" width="660" height="170" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><line x1="50" y1="247.75" x2="710" y2="247.75" stroke="#d64545" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="6 4"></line><line x1="50" y1="306.25" x2="710" y2="306.25" stroke="#d64545" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="6 4"></line><text x="706" y="241.75" font-size="15.6" fill="#d64545" text-anchor="end" font-weight="bold">+3</text><text x="706" y="324.25" font-size="15.6" fill="#d64545" text-anchor="end" font-weight="bold">−3</text><path d="M50,277 L53.3166,260.214 L56.6332,266.626 L59.9497,269.092 L63.2663,255.453 L66.5829,266.168 L69.8995,269.764 L73.2161,251.46 L76.5327,273.715 L79.8492,280.033 L83.1658,280.872 L86.4824,273.571 L89.799,263.399 L93.1156,262.7 L96.4322,261.383 L99.7487,256.966 L103.065,260.216 L106.382,269.268 L109.698,264.591 L113.015,270.142 L116.332,279.179 L119.648,268.782 L122.965,274.817 L126.281,276.924 L129.598,259.518 L132.915,270.38 L136.231,280.181 L139.548,276.906 L142.864,257.544 L146.181,279.099 L149.497,271.47 L152.814,272.554 L156.131,273.554 L159.447,273.025 L162.764,282.095 L166.08,281.774 L169.397,278.987 L172.714,280.701 L176.03,269.952 L179.347,263.419 L182.663,286.394 L185.98,272.903 L189.296,287.201 L192.613,284.009 L195.93,279.486 L199.246,276.082 L202.563,281.493 L205.879,303.239 L209.196,263.524 L212.513,278.836 L215.829,282.034 L219.146,269.93 L222.462,281.945 L225.779,289.572 L229.095,271.056 L232.412,271.931 L235.729,284.005 L239.045,267.6 L242.362,272.569 L245.678,287.668 L248.995,258.563 L252.312,274.309 L255.628,287.81 L258.945,272.098 L262.261,275.419 L265.578,267.048 L268.894,290.666 L272.211,266.391 L275.528,267.916 L278.844,270.747 L282.161,271.803 L285.477,264.852 L288.794,271.554 L292.111,277.737 L295.427,287.79 L298.744,266.961 L302.06,268.811 L305.377,276.325 L308.693,277.91 L312.01,271.598 L315.327,308.13 L318.643,276.33 L321.96,308.783 L325.276,277.234 L328.593,267.585 L331.91,258.109 L335.226,286.503 L338.543,275.972 L341.859,281.749 L345.176,306.803 L348.492,272.256 L351.809,281.305 L355.126,280.151 L358.442,292.669 L361.759,280.525 L365.075,278.913 L368.392,263.754 L371.709,276.862 L375.025,236.248 L378.342,285.784 L381.658,355 L384.975,355 L388.291,355 L391.608,355 L394.925,355 L398.241,355 L401.558,355 L404.874,355 L408.191,355 L411.508,355 L414.824,355 L418.141,355 L421.457,355 L424.774,355 L428.09,355 L431.407,355 L434.724,355 L438.04,355 L441.357,355 L444.673,355 L447.99,355 L451.307,355 L454.623,355 L457.94,355 L461.256,355 L464.573,298.501 L467.889,263.121 L471.206,262.695 L474.523,287.937 L477.839,276.245 L481.156,309.184 L484.472,267.845 L487.789,295.515 L491.106,285.188 L494.422,255.114 L497.739,292.3 L501.055,278.61 L504.372,289.427 L507.688,296.296 L511.005,287.903 L514.322,274.136 L517.638,289.028 L520.955,281.646 L524.271,269.018 L527.588,277.827 L530.905,289.106 L534.221,261.136 L537.538,275.343 L540.854,263.072 L544.171,287.053 L547.487,260.93 L550.804,289.664 L554.121,292.382 L557.437,279.795 L560.754,279.253 L564.07,273.473 L567.387,281.167 L570.704,269.785 L574.02,263.389 L577.337,282.892 L580.653,289.546 L583.97,279.638 L587.286,267.877 L590.603,268.326 L593.92,279.966 L597.236,286.219 L600.553,276.164 L603.869,266.17 L607.186,283.803 L610.503,262.823 L613.819,274.64 L617.136,274.043 L620.452,283.787 L623.769,262.285 L627.085,277.111 L630.402,293.447 L633.719,268.378 L637.035,281.511 L640.352,265.642 L643.668,275.777 L646.985,284.305 L650.302,275.393 L653.618,282.786 L656.935,286.38 L660.251,276.344 L663.568,266.924 L666.884,276.272 L670.201,278.171 L673.518,283.861 L676.834,269.668 L680.151,273.695 L683.467,265.002 L686.784,273.236 L690.101,250.48 L693.417,296.958 L696.734,278.607 L700.05,272.184 L703.367,268.315 L706.683,295.78 L710,290.545" fill="none" stroke="#c0693f" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="388.291" cy="355" r="8" fill="#4a8a4a" stroke="#fff" stroke-width="3"></circle><text x="374.291" y="343" font-size="16.2" fill="#2d5a2d" text-anchor="end" font-weight="bold">alert fires</text><text x="380" y="396" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">persistence rule: 3 consecutive samples with |z| &gt; 3</text></svg>
+            <div class="diagram-caption">A worked trace. The signal dips when the sensor is covered; z falls below −3 for several samples in a row, and only then does the alert fire (the green marker).</div>
+        </div>
+
+<h3>Tune It</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 370" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="210" height="64" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="115" y="54" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">dial</text><rect x="220" y="16" width="110" height="64" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="275" y="54" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">turn it</text><rect x="330" y="16" width="408" height="64" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="534" y="54" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">effect</text><rect x="10" y="80" width="210" height="64" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="117" font-size="15.0" fill="#1f3b52" text-anchor="start">alpha (smoothing)</text><rect x="220" y="80" width="110" height="64" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="117" font-size="15.0" fill="#1f3b52" text-anchor="middle">larger</text><rect x="330" y="80" width="408" height="64" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="534" y="117" font-size="15.0" fill="#1f3b52" text-anchor="middle">adapts faster, but the baseline follows a slow fault</text><rect x="10" y="144" width="210" height="64" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="181" font-size="15.0" fill="#1f3b52" text-anchor="start">threshold (|z| &gt;)</text><rect x="220" y="144" width="110" height="64" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="181" font-size="15.0" fill="#1f3b52" text-anchor="middle">smaller</text><rect x="330" y="144" width="408" height="64" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="534" y="181" font-size="15.0" fill="#1f3b52" text-anchor="middle">catches smaller changes, more false alarms</text><rect x="10" y="208" width="210" height="64" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="245" font-size="15.0" fill="#1f3b52" text-anchor="start">persistence (k in a row)</text><rect x="220" y="208" width="110" height="64" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="245" font-size="15.0" fill="#1f3b52" text-anchor="middle">larger</text><rect x="330" y="208" width="408" height="64" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="534" y="245" font-size="15.0" fill="#1f3b52" text-anchor="middle">fewer false alarms, slower to alert</text><rect x="10" y="272" width="210" height="64" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="309" font-size="15.0" fill="#1f3b52" text-anchor="start">warm-up (n)</text><rect x="220" y="272" width="110" height="64" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="275" y="309" font-size="15.0" fill="#1f3b52" text-anchor="middle">larger</text><rect x="330" y="272" width="408" height="64" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="534" y="309" font-size="15.0" fill="#1f3b52" text-anchor="middle">steadier statistics, longer before it works</text></svg>
+            <div class="diagram-caption">The detector's three dials and what each one trades. There is no setting that is fast, sensitive and never wrong; tuning is choosing which mistakes you can live with.</div>
+        </div>
+
+<p>There is no best setting, only a trade between catching real events quickly and raising false alarms. Decide which mistake is worse for this application, then tune toward it, and measure rather than guess: record at least five minutes of undisturbed signal and count how many alerts it raises on its own, then cover the sensor ten times and count how many it catches and how long each takes.</p>
+<h3>Lab Report</h3>
+<ol>
+<li>State your final <span class="code-lesson-il">alpha</span>, threshold, persistence and warm-up, and justify each in a sentence.</li>
+<li>Report your two measurements: false alerts per hour (from the undisturbed run) and the detection delay (from the cover tests), as an average and a worst case.</li>
+<li>Show one trace where the detector did something you did not expect, and explain it with a specific cause from the lessons (warm-up, floor, outlier handling, or persistence).</li>
+<li>Decide whether this belongs on the device, the edge or the cloud for a real product, and say what you would change if it ran on a battery.</li>
+</ol>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Trace the Alert.</strong> The persistence rule needs 3 consecutive readings with |z| > 3. Sampling is every 100 ms. What is the earliest delay between a real change and the alert, and what is the delay if the change only shows up as a z above 3 on the second sample after it starts?</p>
+        <p><strong>Exercise 2: Why the Floor?.</strong> Your sensor sits in a dark box and reads exactly 120 every time for a minute. What does the z-score do without a minimum standard deviation, and what happens when it reads 121?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Measure False Alerts per Hour.</strong> Add the measurement to your program: count alerts raised during an undisturbed run and print the rate per hour when you stop.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Compare Two Settings.</strong> Describe an experiment to decide between alpha 0.05 and alpha 0.2 for the detector, including what you would hold constant, what you would measure, and how you would judge.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Trace the Alert</summary>
+<p>Earliest: three samples, so about <strong>0.3 s</strong> after the first anomalous reading. If the first anomalous sample is the second after the change, the alert comes at the fourth sample, about <strong>0.4 s</strong>. Persistence always adds (k − 1) sample periods to the detection delay.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Why the Floor?</summary>
+<p>The variance decays to 0, so std = 0 and the division is by zero (or, with floats, tiny and huge z-scores). A single count of 121 would give an enormous z and trigger an alert for a trivial change. A <strong>floor</strong> on the standard deviation (here 2.0 counts, say) means a change must be genuinely larger than the sensor’s resolution to count.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Measure False Alerts per Hour</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (additions)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">alerts = 0
+started = ticks_ms()
+
+# when alert goes from False to True:
+alerts += 1
+
+# on a button press, or after N minutes:
+hours = ticks_diff(ticks_ms(), started) / 3_600_000
+print(alerts, "alerts in", round(hours, 2), "h =", round(alerts / hours, 1), "per hour")
+</span>
+</div><p>Measure over a long enough run that the number means something: with a rate near one per hour, five minutes of data tells you almost nothing. Report the length of the run with the rate.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Compare Two Settings</summary>
+<p>Hold the sensor, the room, the threshold and persistence <em>fixed</em>, and run each alpha through the same two tests: an undisturbed run of at least ten minutes (count false alerts per hour) and ten identical cover-and-release events (record detection delay and whether each was caught). Judge on both numbers together: the larger alpha adapts faster to slow drift and so produces fewer false alerts on a drifting signal, but may follow a slow real fault and miss it, while the smaller alpha is steadier but slower to forgive a legitimate change in baseline. The right choice depends on which of those failures matters more.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Describe each stage of your detector and what it protects against.</li>
+            <li>Report a measured false-alarm rate and detection delay, and explain how you got them.</li>
+            <li>Explain how changing alpha, the threshold and the persistence each trade speed against false alarms.</li>
+        </ol>
+
+    </body>
+</html>

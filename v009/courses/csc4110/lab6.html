@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>A system you have only seen working when everything goes right is a system you do not yet understand. This lab breaks things on purpose. You will add the week’s resilience features to your Pico, and then your instructor will inflict four failures on it while you watch what it does.</p>
+
+
+<h3>What Your Pico Must Do</h3>
+<ol>
+<li>Connect with a <strong>last will</strong>: <span class="code-lesson-il">offline</span> (retained) on <span class="code-lesson-il">lab/&lt;id&gt;/stat/online</span>, and publish <span class="code-lesson-il">online</span> after connecting.</li>
+<li>Restore its output state from a <strong>file in flash</strong> at boot, and apply it before connecting.</li>
+<li>Publish its output state <strong>retained</strong>, at QoS 1, on <span class="code-lesson-il">lab/&lt;id&gt;/stat/fan</span>.</li>
+<li>Obey <span class="code-lesson-il">lab/&lt;id&gt;/cmd/fan</span> with <strong>idempotent</strong> commands (<span class="code-lesson-il">on</span> / <span class="code-lesson-il">off</span>).</li>
+<li>Recover from any failure with <strong>backoff and jitter</strong>, re-subscribing and re-announcing each time.</li>
+<li>Publish telemetry with a <strong>sequence number</strong>, and keep a bounded backlog while away.</li>
+</ol>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="40" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="30" y="53" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="50" y="16" width="210" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="155" y="53" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">drill</text><rect x="260" y="16" width="240" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="380" y="53" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">Pico should</text><rect x="500" y="16" width="240" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="620" y="53" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">dashboard sees</text><rect x="10" y="78" width="40" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="114" font-size="15.0" fill="#1f3b52" text-anchor="start">1</text><rect x="50" y="78" width="210" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="155" y="114" font-size="15.0" fill="#1f3b52" text-anchor="middle">stop mosquitto for 60 s</text><rect x="260" y="78" width="240" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="380" y="114" font-size="15.0" fill="#1f3b52" text-anchor="middle">keeps sampling, retries</text><rect x="500" y="78" width="240" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="620" y="114" font-size="15.0" fill="#1f3b52" text-anchor="middle">dashboard: offline, then online</text><rect x="10" y="140" width="40" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="176" font-size="15.0" fill="#1f3b52" text-anchor="start">2</text><rect x="50" y="140" width="210" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="155" y="176" font-size="15.0" fill="#1f3b52" text-anchor="middle">switch your WiFi off/on</text><rect x="260" y="140" width="240" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="380" y="176" font-size="15.0" fill="#1f3b52" text-anchor="middle">reconnects by itself</text><rect x="500" y="140" width="240" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="620" y="176" font-size="15.0" fill="#1f3b52" text-anchor="middle">will appears, then online</text><rect x="10" y="202" width="40" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="238" font-size="15.0" fill="#1f3b52" text-anchor="start">3</text><rect x="50" y="202" width="210" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="155" y="238" font-size="15.0" fill="#1f3b52" text-anchor="middle">unplug the Pico, replug</text><rect x="260" y="202" width="240" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="380" y="238" font-size="15.0" fill="#1f3b52" text-anchor="middle">restores saved state</text><rect x="500" y="202" width="240" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="620" y="238" font-size="15.0" fill="#1f3b52" text-anchor="middle">state matches before</text><rect x="10" y="264" width="40" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="300" font-size="15.0" fill="#1f3b52" text-anchor="start">4</text><rect x="50" y="264" width="210" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="155" y="300" font-size="15.0" fill="#1f3b52" text-anchor="middle">publish a command twice</text><rect x="260" y="264" width="240" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="380" y="300" font-size="15.0" fill="#1f3b52" text-anchor="middle">acts once (idempotent)</text><rect x="500" y="264" width="240" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="620" y="300" font-size="15.0" fill="#1f3b52" text-anchor="middle">state, not a toggle</text></svg>
+            <div class="diagram-caption">The Lab 6 failure drills. Each one breaks something on purpose; your Pico passes only if it behaves as the right-hand columns describe.</div>
+        </div>
+
+<h3>Part 1. Build</h3>
+<p>Start from your Lab 5 program and your state code from the persistence lesson. Make one change at a time and test it before adding the next: it is much harder to find a bug in six new things than in one.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (structure)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">state = load_state({"fan": "off"})
+fan.value(1 if state["fan"] == "on" else 0)
+
+client.set_last_will(ONLINE, b"offline", retain=True)
+connect_broker()                     # backoff + jitter; subscribes and announces
+
+while True:
+    try:
+        client.check_msg()
+        keepalive.tick()
+        if time_to_publish():
+            publish_reading(make_packet())
+        maybe_save()
+    except OSError:
+        connect_broker()
+</span>
+</div>
+<h3>Part 2. The Drills</h3>
+<p>Watch the Pico’s serial output and, on the Pi, <span class="code-lesson-il">mosquitto_sub -v -t &#39;lab/+/stat/#&#39;</span> together. Your instructor will run each drill; record what you see.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="60" width="200" height="56" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="140" y="94" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">connected</text><rect x="240" y="60" width="260" height="56" rx="6" fill="#fff3f0" stroke="#d64545" stroke-width="2"></rect><text x="370" y="94" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">retrying (1 s, 2, 4, 8, 16...)</text><rect x="500" y="60" width="220" height="56" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="610" y="94" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">connected again</text><line x1="40" y1="140" x2="720" y2="140" stroke="#444" stroke-width="2.5" stroke-linecap="round"></line><line x1="40" y1="132" x2="40" y2="148" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="70" y="170" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">0 s</text><line x1="240" y1="132" x2="240" y2="148" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="240" y="170" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">30 s: broker stops</text><line x1="500" y1="132" x2="500" y2="148" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="500" y="170" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">90 s: broker back</text><line x1="720" y1="132" x2="720" y2="148" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="660" y="170" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold"></text><text x="380" y="236" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">recovery time = from broker back (90 s) to publishing again</text><text x="380" y="272.4" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">target: a few seconds, not minutes</text><line x1="260" y1="50" x2="260" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line><line x1="280" y1="50" x2="280" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line><line x1="320" y1="50" x2="320" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line><line x1="400" y1="50" x2="400" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line><line x1="480" y1="50" x2="480" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line></svg>
+            <div class="diagram-caption">One drill over time. The broker goes down at 30 s and returns at 90 s. A resilient Pico retries with growing gaps, recovers soon after the broker is back, and sends what it kept while away.</div>
+        </div>
+
+<h3>Part 3. Score It</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="16" width="190" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="109" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">metric</text><rect x="204" y="16" width="350" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="379" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">how to measure</text><rect x="554" y="16" width="188" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="648" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">goal</text><rect x="14" y="72" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="105" font-size="16.2" fill="#1f3b52" text-anchor="start">recovery time</text><rect x="204" y="72" width="350" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="379" y="105" font-size="16.2" fill="#1f3b52" text-anchor="middle">s from broker back to first publish</text><rect x="554" y="72" width="188" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="648" y="105" font-size="16.2" fill="#1f3b52" text-anchor="middle">smaller</text><rect x="14" y="128" width="190" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="161" font-size="16.2" fill="#1f3b52" text-anchor="start">readings lost</text><rect x="204" y="128" width="350" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="379" y="161" font-size="16.2" fill="#1f3b52" text-anchor="middle">count missing in seq numbers</text><rect x="554" y="128" width="188" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="648" y="161" font-size="16.2" fill="#1f3b52" text-anchor="middle">zero if buffered</text><rect x="14" y="184" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="217" font-size="16.2" fill="#1f3b52" text-anchor="start">duplicates</text><rect x="204" y="184" width="350" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="379" y="217" font-size="16.2" fill="#1f3b52" text-anchor="middle">same seq received twice</text><rect x="554" y="184" width="188" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="648" y="217" font-size="16.2" fill="#1f3b52" text-anchor="middle">handled, not harmful</text><rect x="14" y="240" width="190" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="273" font-size="16.2" fill="#1f3b52" text-anchor="start">state correct</text><rect x="204" y="240" width="350" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="379" y="273" font-size="16.2" fill="#1f3b52" text-anchor="middle">output matches before the drill</text><rect x="554" y="240" width="188" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="648" y="273" font-size="16.2" fill="#1f3b52" text-anchor="middle">always</text></svg>
+            <div class="diagram-caption">What to measure in Lab 6. Each metric turns "it seems to work" into a number you can compare between attempts.</div>
+        </div>
+
+<h3>Lab Report</h3>
+<ol>
+<li>Fill in a scorecard (recovery time, readings lost, duplicates, state correct) for each of the four drills.</li>
+<li>For drill 3, explain what your Pico published and what the dashboard displayed during the outage, and why.</li>
+<li>Which feature turned out to matter most, and which one did you not need after all? Justify with something you observed.</li>
+<li>Describe one failure you thought of that the instructor did not run, and what your Pico would do.</li>
+</ol>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Predict the Drill.</strong> Before running drill 2 (WiFi off for a minute), write down what the dashboard should show and when, given <span class="code-lesson-il">keepalive=30</span>.</p>
+        <p><strong>Exercise 2: Why Not Retry Fast?.</strong> Your friend’s Pico retries every 100 ms with no limit during drill 1. Name two problems this causes.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Measure Recovery Time.</strong> Add the measurement to your Pico: record the time the connection was lost and the time of the first successful publish afterwards, and publish the difference once, to <span class="code-lesson-il">lab/&lt;id&gt;/tele/recovery_ms</span>.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Test Without the Instructor.</strong> Design a way to run drill 3 (power loss) alone, with only your laptop and Pi, and say what you would check.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Predict the Drill</summary>
+<p>The dashboard should show <span class="code-lesson-il">offline</span> about 45 seconds after the WiFi dropped (1.5 × 30), when the broker publishes the will. When WiFi returns, the Pico reconnects, publishes <span class="code-lesson-il">online</span>, and the dashboard flips back.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Why Not Retry Fast?</summary>
+<p>It <strong>wastes power</strong> and keeps the radio busy, and it <strong>hammers the broker</strong> the moment it restarts, from every student at once. It can also starve the rest of the program of time. Backoff with jitter avoids all three.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Measure Recovery Time</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">lost_at = None
+
+# in the except OSError branch of the main loop:
+lost_at = ticks_ms()
+connect_broker()
+client.publish(TELE, payload)
+if lost_at is not None:
+    took = ticks_diff(ticks_ms(), lost_at)
+    client.publish(RECOVERY, str(took).encode())
+    lost_at = None
+</span>
+</div><p>This measures from detection to recovery on the Pico’s own clock. It does not include the time before the failure was noticed, which is why the keep-alive also matters.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Test Without the Instructor</summary>
+<p>Run <span class="code-lesson-il">mosquitto_sub -v -t &#39;lab/+/stat/#&#39;</span> on the Pi, then unplug the Pico, wait 1.5 × keep-alive, and watch for the retained <span class="code-lesson-il">offline</span>. Replug it and check three things: <span class="code-lesson-il">online</span> returns, the fan’s <span class="code-lesson-il">stat</span> matches its state before the unplug (restored from flash), and the sequence number continues from a sensible value, noting whether it restarted from 1.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain how each of last will, retained state, flash state and backoff contributes to recovery.</li>
+            <li>State what you measured and what number you would want to improve first.</li>
+            <li>Describe a failure your design still does not handle.</li>
+        </ol>
+
+    </body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>How does a dashboard know a Pico has died? The Pico cannot tell it, because the whole problem is that it can no longer speak. MQTT’s answer is the last will and testament: before it disappears, the Pico leaves a message with the broker to be published on its behalf if it ever vanishes without saying goodbye.</p>
+
+
+<h3>Part 1. The Will</h3>
+<p>When a client connects it can include a <strong>will</strong>: a topic, a payload, a retain flag and a QoS. The broker stores it. If the connection later ends <em>without</em> a proper DISCONNECT (a dropped network, a crash, a power cut, a keep-alive timeout), the broker publishes the will itself.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 540" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d96a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d96a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#8a4526"></path></marker><marker id="d96a2" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#d64545"></path></marker></defs><rect x="38" y="14" width="124" height="34" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="100" y="37" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico</text><line x1="100" y1="48" x2="100" y2="520" stroke="#9aa5af" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 5"></line><rect x="318" y="14" width="124" height="34" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="37" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">Broker</text><line x1="380" y1="48" x2="380" y2="520" stroke="#9aa5af" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 5"></line><rect x="598" y="14" width="124" height="34" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="660" y="37" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Dashboard</text><line x1="660" y1="48" x2="660" y2="520" stroke="#9aa5af" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 5"></line><path d="M106,96 L374,96" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d96a0)"></path><text x="240" y="88" font-size="17.6" fill="#2e5a80" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">CONNECT + will: stat/online="offline" (retained)</text><path d="M374,128 L106,128" fill="none" stroke="#8a4526" stroke-width="2.6" stroke-linejoin="round" stroke-dasharray="7 4" marker-end="url(#d96a1)"></path><text x="240" y="120" font-size="17.6" fill="#8a4526" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">CONNACK</text><path d="M106,172 L374,172" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d96a0)"></path><text x="240" y="164" font-size="17.6" fill="#2e5a80" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">PUBLISH stat/online "online" (retained)</text><path d="M386,204 L654,204" fill="none" stroke="#8a4526" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d96a1)"></path><text x="520" y="196" font-size="17.6" fill="#8a4526" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">PUBLISH stat/online "online"</text><path d="M386,392 L654,392" fill="none" stroke="#d64545" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d96a2)"></path><text x="520" y="384" font-size="17.6" fill="#d64545" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">PUBLISH stat/online "offline"</text><rect x="14" y="250" width="230" height="40" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2"></rect><text x="129" y="276" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">WiFi lost / power cut</text><rect x="250" y="318" width="260" height="40" rx="8" fill="#fff7e0" stroke="#d9b44a" stroke-width="2"></rect><text x="380" y="344" font-size="16.2" fill="#7a5a00" text-anchor="middle" font-weight="bold">no keep-alive for 45 s: closed</text><text x="380" y="446" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">The broker, not the Pico, publishes the will.</text><text x="380" y="477.2" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">The dashboard learns the Pico is gone within</text><text x="380" y="508.4" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">about 1.5 × keepalive.</text></svg>
+            <div class="diagram-caption">Last will and testament. The Pico hands the broker a message to publish on its behalf if it vanishes; the broker publishes it when the connection dies without a goodbye.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">ID = "pico01"
+ONLINE = ("lab/%s/stat/online" % ID).encode()
+
+client = MQTTClient(ID, BROKER_IP, user=ID, password=PASSWORD, keepalive=30)
+client.set_last_will(ONLINE, b"offline", retain=True)   # BEFORE connect()
+client.connect()
+client.publish(ONLINE, b"online", retain=True)
+</span>
+</div>
+<p><span class="code-lesson-il">set_last_will()</span> only works if called <em>before</em> <span class="code-lesson-il">connect()</span>, because the will is sent as part of the connection request. Notice the pair: the will says "offline", and the first thing the Pico does after connecting is to overwrite it with "online". Both are retained, so the topic always holds the latest truth.</p>
+<h3>Part 2. When Is It Sent?</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 370" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="60" y="16" width="420" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="270" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">how the connection ended</text><rect x="480" y="16" width="200" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="580" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">will published?</text><rect x="60" y="72" width="420" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="68" y="105" font-size="16.2" fill="#1f3b52" text-anchor="start">client.disconnect() called</text><rect x="480" y="72" width="200" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="580" y="106" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text><rect x="60" y="128" width="420" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="68" y="161" font-size="16.2" fill="#1f3b52" text-anchor="start">WiFi connection lost</text><rect x="480" y="128" width="200" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="580" y="162" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="60" y="184" width="420" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="68" y="217" font-size="16.2" fill="#1f3b52" text-anchor="start">power cut or crash</text><rect x="480" y="184" width="200" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="580" y="218" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="60" y="240" width="420" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="68" y="273" font-size="16.2" fill="#1f3b52" text-anchor="start">keep-alive time exceeded</text><rect x="480" y="240" width="200" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="580" y="274" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><text x="380" y="334" font-size="16.9" fill="#5b6b78" text-anchor="middle">A deliberate shutdown should publish "offline"</text><text x="380" y="365.2" font-size="16.9" fill="#5b6b78" text-anchor="middle">itself before it disconnects.</text></svg>
+            <div class="diagram-caption">When the will is sent. Only a connection that ends without a proper DISCONNECT triggers it, which is exactly what you want from a failure alarm.</div>
+        </div>
+
+<p>A clean <span class="code-lesson-il">client.disconnect()</span> does <em>not</em> send the will. That is deliberate: a planned shutdown is not an emergency. If you want a planned shutdown to show as offline as well, publish "offline" yourself first.</p>
+<h3>Part 3. An Availability Dashboard</h3>
+<p>Because the status is retained, one subscription gives a complete and current picture of the whole room, even to a dashboard that has only just started:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 360" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="226" height="150" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.8"></rect><text x="133" y="66" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">pico01</text><rect x="63" y="84" width="140" height="40" rx="20" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.2"></rect><circle cx="86" cy="104" r="8" fill="#4a8a4a" stroke="#4a8a4a" stroke-width="1"></circle><text x="148" y="110" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">online</text><text x="133" y="156" font-size="15.0" fill="#5b6b78" text-anchor="middle" style="font-family:'Courier New',monospace">lab/pico01/stat/online</text><rect x="266" y="30" width="226" height="150" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.8"></rect><text x="379" y="66" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">pico02</text><rect x="309" y="84" width="140" height="40" rx="20" fill="#fff3f0" stroke="#d64545" stroke-width="2.2"></rect><circle cx="332" cy="104" r="8" fill="#d64545" stroke="#d64545" stroke-width="1"></circle><text x="394" y="110" font-size="18.2" fill="#d64545" text-anchor="middle" font-weight="bold">offline</text><text x="379" y="156" font-size="15.0" fill="#5b6b78" text-anchor="middle" style="font-family:'Courier New',monospace">lab/pico02/stat/online</text><rect x="512" y="30" width="226" height="150" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.8"></rect><text x="625" y="66" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">pico03</text><rect x="555" y="84" width="140" height="40" rx="20" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.2"></rect><circle cx="578" cy="104" r="8" fill="#4a8a4a" stroke="#4a8a4a" stroke-width="1"></circle><text x="640" y="110" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">online</text><text x="625" y="156" font-size="15.0" fill="#5b6b78" text-anchor="middle" style="font-family:'Courier New',monospace">lab/pico03/stat/online</text><text x="380" y="246" font-size="16.9" fill="#1f3b52" text-anchor="middle">Each Pico publishes "online" (retained) after connecting,</text><text x="380" y="282.4" font-size="16.9" fill="#1f3b52" text-anchor="middle">and sets "offline" (retained) as its will.</text><text x="380" y="318.8" font-size="16.9" fill="#1f3b52" text-anchor="middle">One subscription, lab/+/stat/online, shows all of them.</text></svg>
+            <div class="diagram-caption">An availability dashboard built from retained stat/online topics. A dashboard that starts late still sees every device's last known status immediately.</div>
+        </div>
+
+<div class="code-block" data-lang="shell">
+<div class="code-block-header">
+<span class="code-block-filename">Pi terminal</span>
+<span class="code-block-lang">Shell</span>
+</div>
+<span class="code-lesson-bl">mosquitto_sub -h localhost -u dashboard -P pw -v -t 'lab/+/stat/online'
+# lab/pico01/stat/online online
+# lab/pico02/stat/online offline
+</span>
+</div>
+<h3>Part 4. How Fast Is It?</h3>
+<p>The broker notices a dead connection when the keep-alive runs out, which is up to one and a half times the keep-alive you set. A short keep-alive finds failures quickly but means more pings; a long one is cheap but slow to notice. The default of 0 (no keep-alive) means the broker may <em>never</em> notice, and the will will not fire for a long time.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="28" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">worst-case time until the will is published</text><text x="20" y="90" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">keepalive 10 s</text><rect x="190" y="56" width="81" height="50" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="283" y="90" font-size="19.5" fill="#1f3b52" text-anchor="start" font-weight="bold">15 s</text><text x="20" y="174" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">keepalive 30 s</text><rect x="190" y="140" width="243" height="50" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="445" y="174" font-size="19.5" fill="#1f3b52" text-anchor="start" font-weight="bold">45 s</text><text x="20" y="258" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">keepalive 60 s</text><rect x="190" y="224" width="486" height="50" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="688" y="258" font-size="19.5" fill="#1f3b52" text-anchor="start" font-weight="bold">90 s</text></svg>
+            <div class="diagram-caption">How long it takes to notice. Detection takes up to one and a half times the keep-alive time, so a shorter keep-alive finds failures faster but costs more pings.</div>
+        </div>
+
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Will or No Will?.</strong> For each, say whether the broker publishes the will: (a) <span class="code-lesson-il">client.disconnect()</span>, (b) the Pico is unplugged, (c) the WiFi router is switched off, (d) the Pico calls <span class="code-lesson-il">machine.reset()</span>.</p>
+        <p><strong>Exercise 2: How Long?.</strong> A Pico connects with <span class="code-lesson-il">keepalive=15</span> and is then unplugged. By roughly when will the dashboard show it as offline? What if keepalive had been left at 0?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Announce a Clean Shutdown.</strong> Write <span class="code-lesson-il">shutdown()</span> so that a planned stop is also shown as offline, then disconnects.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Build the Status Table.</strong> Write the dashboard callback that keeps a dictionary of each device’s status from <span class="code-lesson-il">lab/+/stat/online</span> and prints a line only when a device’s status <em>changes</em>.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Will or No Will?</summary>
+<p>(a) <strong>no</strong>: a clean disconnect. (b) <strong>yes</strong>, after the keep-alive timeout. (c) <strong>yes</strong>: the connection simply dies. (d) <strong>yes</strong>: the reset drops the connection without a DISCONNECT packet.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: How Long?</summary>
+<p>The broker gives up at 1.5 × 15 = about <strong>22 seconds</strong> of silence, then publishes the will. With <span class="code-lesson-il">keepalive=0</span> there is no timeout, so the broker may not notice for a very long time, depending on when TCP itself gives up.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Announce a Clean Shutdown</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def shutdown():
+    client.publish(ONLINE, b"offline", retain=True)
+    client.disconnect()
+</span>
+</div><p>Without the first line, a clean disconnect would leave the retained "online" message in place, and the dashboard would show a device that has gone as still present.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Build the Status Table</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">dashboard.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">status = {}
+
+def on_message(topic, msg):
+    device = topic.decode().split("/")[1]
+    now = msg.decode()
+    if status.get(device) != now:
+        status[device] = now
+        print(device, "is now", now)
+</span>
+</div><p>Because the messages are retained, a dashboard that starts late receives one for every device immediately, so the table fills in without waiting for anything to change.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain what a last will is and who publishes it.</li>
+            <li>State two ways a connection can end that do publish the will, and one that does not.</li>
+            <li>Show the online/offline pair of messages and why both are retained.</li>
+            <li>Estimate how long the broker takes to notice a dead Pico for a given keep-alive.</li>
+        </ol>
+
+    </body>
+</html>

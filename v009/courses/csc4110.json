@@ -15,37 +15,37 @@
       "num": 1,
       "action": "Understand",
       "detail": "the architectures and devices which comprise Internet of Things systems.",
-      "blooms" : 2
+      "blooms": 2
     },
     {
       "num": 2,
       "action": "Analyze",
       "detail": "the structural alignment between physical processing constraints and sensor data throughput in real-timme edge applications.",
-      "blooms" : 4
+      "blooms": 4
     },
     {
       "num": 3,
       "action": "Develop",
       "detail": "IoT systems by combining physical sensors, actuators, and microcontroller-integrated software and hardware components.",
-      "blooms" : 6
+      "blooms": 6
     },
     {
       "num": 4,
       "action": "Program",
       "detail": "edge devices to collect, serialize, and transmit operational data across a local network to coordinate system behavior.",
-      "blooms" : 4
+      "blooms": 4
     },
     {
       "num": 5,
       "action": "Configure",
       "detail": "IoT system architectures, distinguishing between edge node operations and a central hub.",
-      "blooms" : 4
+      "blooms": 4
     },
     {
       "num": 6,
       "action": "Validate",
       "detail": "collaborative, network IoT system design requirements through physical testing.",
-      "blooms" : 5
+      "blooms": 5
     }
   ],
   "courseColor": "#91d9ba",
@@ -64,41 +64,41 @@
       "theme": "Single-Node Telemetry",
       "trs": [
         {
-          "Thonny" : "",
-          "Microcontrollers" : "",
-          "Circuits and GPIO" : "",
-          "Lab 1" : ""
+          "Thonny": "csc4110/thonny.html",
+          "Microcontrollers": "csc4110/microcontrollers.html",
+          "Circuits and GPIO": "csc4110/circuits_gpio.html",
+          "Lab 1": "csc4110/lab1.html"
         },
         {
-          "ADC" : "",
-          "Quantization" : "",
-          "Sampling rates" : "",
-          "Noise filtering" : "",
-          "Nyquist-Shannon sampling thrm" : "",
-          "Moving average filters" : "",
-          "Lab 2" : ""
+          "ADC": "csc4110/adc_quantization.html",
+          "Quantization": "csc4110/quantization.html",
+          "Sampling rates": "csc4110/sampling_nyquist.html",
+          "Noise filtering": "csc4110/noise_filtering.html",
+          "Nyquist-Shannon sampling thrm": "csc4110/nyquist_shannon.html",
+          "Moving average filters": "csc4110/moving_average_filters.html",
+          "Lab 2": "csc4110/lab2.html"
         },
         {
-          "WiFi provisioning" : "",
-          "CYW43439 network arch." : "",
-          "TCP / IP" : "",
-          "Publish-subscribe" : "",
-          "Non-blocking loops" : "",
-          "Lab 3" : ""
+          "WiFi provisioning": "csc4110/wifi_cyw43439.html",
+          "CYW43439 network arch.": "csc4110/cyw43439_architecture.html",
+          "TCP / IP": "csc4110/tcp_ip.html",
+          "Publish-subscribe": "csc4110/pubsub_nonblocking.html",
+          "Non-blocking loops": "csc4110/non_blocking_loops.html",
+          "Lab 3": "csc4110/lab3.html"
         },
         {
-          "Payload serialization" : "",
-          "MQTT" : "",
-          "Topic naming" : "",
-          "Data streaming" : "",
-          "Telemetry packets" : "",
-          "Lab 4" : ""
+          "Payload serialization": "csc4110/payload_serialization.html",
+          "MQTT": "csc4110/mqtt_broker.html",
+          "Topic naming": "csc4110/topics_serialization.html",
+          "Data streaming": "csc4110/data_streaming.html",
+          "Telemetry packets": "csc4110/telemetry_streaming.html",
+          "Lab 4": "csc4110/lab4.html"
         },
         {
-          "Flex" : "",
-          "Review" : "",
+          "Flex": "",
+          "Review": "",
           "Lab Practical 1": "",
-          "Exam 1" : ""
+          "Exam 1": ""
         }
       ]
     },
@@ -106,39 +106,39 @@
       "theme": "Distributed Messaging",
       "trs": [
         {
-          "Topic trees" : "",
-          "Wildcards" : "",
-          "Mosquitto broker" : "",
-          "Bi-Dir. message routing" : "",
-          "Advanced MQTT" : "",
-          "Lab 5" : ""
+          "Topic trees": "csc4110/topic_trees.html",
+          "Wildcards": "csc4110/wildcards.html",
+          "Mosquitto broker": "csc4110/mosquitto_broker.html",
+          "Bi-Dir. message routing": "csc4110/bidirectional_routing.html",
+          "Advanced MQTT": "csc4110/advanced_mqtt.html",
+          "Lab 5": "csc4110/lab5.html"
         },
         {
-          "QoS" : "",
-          "State persistence" : "",
-          "LWT" : "",
-          "Network resilience" : "",
-          "Lab 6" : ""
+          "QoS": "csc4110/qos.html",
+          "State persistence": "csc4110/state_persistence.html",
+          "LWT": "csc4110/lwt.html",
+          "Network resilience": "csc4110/network_resilience.html",
+          "Lab 6": "csc4110/lab6.html"
         },
         {
-          "Message handling" : "",
-          "Asynch. loops" : "",
-          "FETs" : "",
-          "Remote triggering" : "",
-          "Lab 7" : ""
+          "Message handling": "csc4110/message_handling.html",
+          "Asynch. loops": "csc4110/async_loops.html",
+          "FETs": "csc4110/fets.html",
+          "Remote triggering": "csc4110/remote_triggering.html",
+          "Lab 7": "csc4110/lab7.html"
         },
         {
-          "Edge AI, TinyML, and Cloud ML" : "",
-          "Feature extraction" : "",
-          "Rolling Z-scores" : "",
-          "EMA" : "",
-          "Lab 8" : ""
+          "Edge AI, TinyML, and Cloud ML": "csc4110/edge_ai.html",
+          "Feature extraction": "csc4110/feature_extraction.html",
+          "Rolling Z-scores": "csc4110/rolling_z_scores.html",
+          "EMA": "csc4110/ema.html",
+          "Lab 8": "csc4110/lab8.html"
         },
         {
-          "Flex" : "",
-          "Review" : "",
+          "Flex": "",
+          "Review": "",
           "Lab Practical 2": "",
-          "Exam 2" : ""
+          "Exam 2": ""
         }
       ]
     },
@@ -146,65 +146,86 @@
       "theme": "Multi-Agent Systems",
       "trs": [
         {
-          "Multi-agent systems (MAS)" : "",
-          "Distributed state machines" : "",
-          "Role specialization" : "",
-          "Message contracts and payloads for MAS" : "",
-          "Lab 9" : ""
+          "Multi-agent systems (MAS)": "",
+          "Distributed state machines": "",
+          "Role specialization": "",
+          "Message contracts and payloads for MAS": "",
+          "Lab 9": ""
         },
         {
-          "PWM" : "",
-          "H-bridge motor drivers" : "",
-          "Resource management" : "",
-          "Lab 10" : ""
+          "PWM": "",
+          "H-bridge motor drivers": "",
+          "Resource management": "",
+          "Lab 10": ""
         },
         {
-          "P2P" : "",
-          "Inter-node subscription" : "",
-          "PID" : "",
-          "Sensor fusion" : "",
-          "Lab 11" : ""
+          "P2P": "",
+          "Inter-node subscription": "",
+          "PID": "",
+          "Sensor fusion": "",
+          "Lab 11": ""
         },
         {
-          "Latency" : "",
-          "Systemic collision avoidance" : "",
-          "Message starvation" : "",
-          "State tracking" : "",
-          "Lab 12" : ""
+          "Latency": "",
+          "Systemic collision avoidance": "",
+          "Message starvation": "",
+          "State tracking": "",
+          "Lab 12": ""
         },
         {
-          "Flex" : "",
-          "Review" : "",
+          "Flex": "",
+          "Review": "",
           "Lab Practical 3": "",
-          "Exam 3" : ""
+          "Exam 3": ""
         }
       ]
     }
   ],
   "assess": [
     {
-        "name": "Lab reports",
-        "type": "report",
-        "description": "Handwritten, live report of what was accomplished during lab.",
-        "percentage": "10",
-        "colorbg": "#ffe4a6",
-        "colorfont": "#1f1f1f"
+      "name": "Lab reports",
+      "type": "report",
+      "description": "Handwritten, live report of what was accomplished during lab.",
+      "percentage": "20",
+      "colorbg": "#ffe4a6",
+      "colorfont": "#1f1f1f"
     },
     {
-        "name": "Lab practicals",
-        "type": "labpractical",
-        "description": "Lab practical of physical system, graded according to live performance of task.",
-        "percentage": "20",
-        "colorbg": "#ffe4a6",
-        "colorfont": "#1f1f1f"
+      "name": "Lab practical 1",
+      "type": "labpractical",
+      "description": "Lab practical of physical system, graded according to live performance of task. For this practical, students will need to setup a physical prototype from scratch on their own, and write/run MicroPython code that successfully publishes to a central MQTT broker.",
+      "percentage": "10"
     },
     {
-        "name": "Exams",
-        "type": "exam",
-        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
-        "percentage": "50",
-        "colorbg": "#7cbf8e",
-        "colorfont": "#1f1f1f"
+      "name": "Lab practical 2",
+      "type": "labpractical",
+      "description": "Lab practical of physical system, graded according to live performance of task. For this practical, students will need to setup a physical prototype from scratch on their own, and write/run MicroPython code that successfully publishes to a central MQTT broker AND successfully subscribes to a particular Edge node and receives a custom message.",
+      "percentage": "10"
+    },
+    {
+      "name": "Lab practical 3",
+      "type": "labpractical",
+      "description": "Lab practical of physical system, graded according to live performance of task. For this practical, each student will bring in an edge device that they have pre-built and pre-programmed to act as a member of a class-wide team in completing a pre-announced scenario mission.",
+      "percentage": "10"
+      
+    },
+    {
+      "name": "Exam 1",
+      "type": "exam",
+      "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the first module of the course.",
+      "percentage": "5"
+    },
+    {
+      "name": "Exam 2",
+      "type": "exam",
+      "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers the first and second module of the course.",
+      "percentage": "10"
+    },
+    {
+      "name": "Exam 3",
+      "type": "exam",
+      "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
+      "percentage": "15"
     },
     {
       "name": "Quizzes",
@@ -214,13 +235,9 @@
     }
   ],
   "instructions": {
-    "Presentation 1": "Here is an <b>HTML-syntax</b> string",
-    "Presentation 2": "Here is an <b>HTML-syntax</b> string",
-    "Presentation 3": "Here is an <b>HTML-syntax</b> string",
-    "Progress reports": "Here is an <b>HTML-syntax</b> string"
+    "Lab reports": "Here is an <b>HTML-syntax</b> string"
   },
   "materials": "Laptop, writing utensils, paper",
   "credits": "4",
-  "files" : [
-  ]
+  "files": []
 }

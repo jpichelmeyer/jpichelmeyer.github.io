@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Unit 1 built a program as one loop with a timer for each job. That works, but as jobs multiply the loop turns into bookkeeping. MicroPython offers a tidier model, <span class="code-lesson-il">asyncio</span>, where each job is written as its own simple loop and a scheduler interleaves them. It is the same idea as before, with the bookkeeping moved into the language.</p>
+
+
+<h3>Part 1. Cooperative Multitasking</h3>
+<p><span class="code-lesson-il">asyncio</span> runs several <strong>tasks</strong> on one processor. A task runs until it reaches an <span class="code-lesson-il">await</span>, where it says "I am waiting, someone else can go". The scheduler then runs another ready task. Nothing interrupts a task: a task that never awaits keeps the processor to itself.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="28" font-size="17.6" fill="#1f3b52" text-anchor="start" font-weight="bold">what the processor runs, in order</text><rect x="20" y="40" width="720" height="50" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><rect x="24" y="44" width="54" height="42" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="51" y="72" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">S</text><rect x="83.5" y="44" width="54" height="42" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="110.5" y="72" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><rect x="143" y="44" width="54" height="42" rx="4" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="170" y="72" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">B</text><rect x="202.5" y="44" width="54" height="42" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="229.5" y="72" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">S</text><rect x="262" y="44" width="54" height="42" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="289" y="72" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><rect x="321.5" y="44" width="54" height="42" rx="4" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="348.5" y="72" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">B</text><rect x="381" y="44" width="54" height="42" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="408" y="72" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">S</text><rect x="440.5" y="44" width="54" height="42" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="467.5" y="72" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><rect x="500" y="44" width="54" height="42" rx="4" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="527" y="72" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">B</text><rect x="559.5" y="44" width="54" height="42" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="586.5" y="72" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">S</text><rect x="619" y="44" width="54" height="42" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="646" y="72" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><rect x="678.5" y="44" width="54" height="42" rx="4" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="705.5" y="72" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">B</text><text x="20" y="140" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">sensor task</text><rect x="20" y="150" width="720" height="14" rx="7" fill="#eef1f4" stroke="none" stroke-width="0"></rect><rect x="24" y="150" width="54" height="14" rx="3" fill="#2e5a80" stroke="none" stroke-width="0"></rect><line x1="51" y1="92" x2="51" y2="150" stroke="#2e5a80" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="202.5" y="150" width="54" height="14" rx="3" fill="#2e5a80" stroke="none" stroke-width="0"></rect><line x1="229.5" y1="92" x2="229.5" y2="150" stroke="#2e5a80" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="381" y="150" width="54" height="14" rx="3" fill="#2e5a80" stroke="none" stroke-width="0"></rect><line x1="408" y1="92" x2="408" y2="150" stroke="#2e5a80" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="559.5" y="150" width="54" height="14" rx="3" fill="#2e5a80" stroke="none" stroke-width="0"></rect><line x1="586.5" y1="92" x2="586.5" y2="150" stroke="#2e5a80" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><text x="20" y="204" font-size="16.9" fill="#8a4526" text-anchor="start" font-weight="bold">mqtt task</text><rect x="20" y="214" width="720" height="14" rx="7" fill="#eef1f4" stroke="none" stroke-width="0"></rect><rect x="83.5" y="214" width="54" height="14" rx="3" fill="#c0693f" stroke="none" stroke-width="0"></rect><line x1="110.5" y1="92" x2="110.5" y2="214" stroke="#c0693f" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="262" y="214" width="54" height="14" rx="3" fill="#c0693f" stroke="none" stroke-width="0"></rect><line x1="289" y1="92" x2="289" y2="214" stroke="#c0693f" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="440.5" y="214" width="54" height="14" rx="3" fill="#c0693f" stroke="none" stroke-width="0"></rect><line x1="467.5" y1="92" x2="467.5" y2="214" stroke="#c0693f" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="619" y="214" width="54" height="14" rx="3" fill="#c0693f" stroke="none" stroke-width="0"></rect><line x1="646" y1="92" x2="646" y2="214" stroke="#c0693f" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><text x="20" y="268" font-size="16.9" fill="#2d5a2d" text-anchor="start" font-weight="bold">blink task</text><rect x="20" y="278" width="720" height="14" rx="7" fill="#eef1f4" stroke="none" stroke-width="0"></rect><rect x="143" y="278" width="54" height="14" rx="3" fill="#4a8a4a" stroke="none" stroke-width="0"></rect><line x1="170" y1="92" x2="170" y2="278" stroke="#4a8a4a" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="321.5" y="278" width="54" height="14" rx="3" fill="#4a8a4a" stroke="none" stroke-width="0"></rect><line x1="348.5" y1="92" x2="348.5" y2="278" stroke="#4a8a4a" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="500" y="278" width="54" height="14" rx="3" fill="#4a8a4a" stroke="none" stroke-width="0"></rect><line x1="527" y1="92" x2="527" y2="278" stroke="#4a8a4a" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><rect x="678.5" y="278" width="54" height="14" rx="3" fill="#4a8a4a" stroke="none" stroke-width="0"></rect><line x1="705.5" y1="92" x2="705.5" y2="278" stroke="#4a8a4a" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3 3"></line><text x="380" y="350" font-size="16.2" fill="#5b6b78" text-anchor="middle">S = sensor, M = mqtt, B = blink: each runs briefly, then awaits.</text></svg>
+            <div class="diagram-caption">Cooperative multitasking. One processor runs one task at a time, and a task only hands over at an await. While one task waits, the others get their turn.</div>
+        </div>
+
+<p>That is why the central rule is: <strong>never block</strong>. Blocking calls hold everyone up, while <span class="code-lesson-il">await</span> yields.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="34" font-size="18.2" fill="#d64545" text-anchor="start" font-weight="bold" style="font-family:'Courier New',monospace">time.sleep(1) inside a task</text><rect x="20" y="50" width="720" height="56" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><rect x="24" y="54" width="70" height="48" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><rect x="94" y="54" width="430" height="48" rx="4" fill="#ffe3e3" stroke="#d64545" stroke-width="2"></rect><text x="309" y="86" font-size="16.9" fill="#d64545" text-anchor="middle" font-weight="bold">everything frozen for 1 s</text><rect x="524" y="54" width="70" height="48" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="380" y="132" font-size="16.9" fill="#d64545" text-anchor="middle" font-weight="bold">messages and other tasks wait</text><text x="20" y="224" font-size="18.2" fill="#2d5a2d" text-anchor="start" font-weight="bold" style="font-family:'Courier New',monospace">await asyncio.sleep(1)</text><rect x="20" y="240" width="720" height="56" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><rect x="24" y="244" width="54" height="48" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="51" y="274" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">S</text><rect x="83.5" y="244" width="54" height="48" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="110.5" y="274" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><rect x="143" y="244" width="54" height="48" rx="4" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="170" y="274" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">B</text><rect x="202.5" y="244" width="54" height="48" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="229.5" y="274" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">S</text><rect x="262" y="244" width="54" height="48" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="289" y="274" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><rect x="321.5" y="244" width="54" height="48" rx="4" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="348.5" y="274" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">B</text><rect x="381" y="244" width="54" height="48" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="408" y="274" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">S</text><rect x="440.5" y="244" width="54" height="48" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="467.5" y="274" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><rect x="500" y="244" width="54" height="48" rx="4" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="527" y="274" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">B</text><rect x="559.5" y="244" width="54" height="48" rx="4" fill="#eef4f9" stroke="#2e5a80" stroke-width="2"></rect><text x="586.5" y="274" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">S</text><rect x="619" y="244" width="54" height="48" rx="4" fill="#fbf1ea" stroke="#c0693f" stroke-width="2"></rect><text x="646" y="274" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><rect x="678.5" y="244" width="54" height="48" rx="4" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="705.5" y="274" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">B</text><text x="380" y="322" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">other tasks keep running during the wait</text></svg>
+            <div class="diagram-caption">The one rule of async code: never block. time.sleep() freezes every task for its whole duration; await asyncio.sleep() pauses only the task that asked.</div>
+        </div>
+
+<h3>Part 2. The Shape of a Program</h3>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">try:
+    import asyncio                  # MicroPython 1.21 and newer
+except ImportError:
+    import uasyncio as asyncio      # older firmware: same API
+
+async def sensor_task():
+    while True:
+        latest["value"] = read_sensor()
+        await asyncio.sleep_ms(100)
+
+async def mqtt_task():
+    while True:
+        client.check_msg()
+        await asyncio.sleep_ms(20)
+
+async def blink_task():
+    while True:
+        led.toggle()
+        await asyncio.sleep_ms(500)
+
+async def main():
+    asyncio.create_task(sensor_task())
+    asyncio.create_task(mqtt_task())
+    asyncio.create_task(blink_task())
+    while True:
+        await asyncio.sleep(1)       # keep main alive
+
+asyncio.run(main())
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 360" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d113a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d113a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#8a8a8a"></path></marker></defs><rect x="14" y="14" width="230" height="70" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="129" y="43.4" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">asyncio.run(main())</text><text x="129" y="68.6" font-size="15.0" fill="#5b6b78" text-anchor="middle">starts the scheduler</text><rect x="330" y="14" width="200" height="70" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="430" y="43.4" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">main()</text><text x="430" y="68.6" font-size="15.0" fill="#5b6b78" text-anchor="middle">creates the tasks</text><path d="M244,49 L326,49" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d113a0)"></path><line x1="430" y1="84" x2="430" y2="126" stroke="#8a8a8a" stroke-width="2.5" stroke-linecap="round"></line><line x1="100" y1="126" x2="660" y2="126" stroke="#8a8a8a" stroke-width="2.5" stroke-linecap="round"></line><text x="560" y="112" font-size="15.6" fill="#5b6b78" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">asyncio.create_task(...)</text><rect x="14" y="150" width="172" height="84" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="100" y="185.28" font-size="15.6" fill="#1f3b52" text-anchor="middle" font-weight="bold">sensor_task</text><text x="100" y="215.52" font-size="15.0" fill="#5b6b78" text-anchor="middle">read + filter</text><path d="M100,126 L100,146" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#d113a1)"></path><rect x="200" y="150" width="172" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="286" y="185.28" font-size="15.6" fill="#8a4526" text-anchor="middle" font-weight="bold">mqtt_task</text><text x="286" y="215.52" font-size="15.0" fill="#5b6b78" text-anchor="middle">check_msg()</text><path d="M286,126 L286,146" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#d113a1)"></path><rect x="386" y="150" width="172" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="472" y="185.28" font-size="15.6" fill="#2d5a2d" text-anchor="middle" font-weight="bold">publish_task</text><text x="472" y="215.52" font-size="15.0" fill="#5b6b78" text-anchor="middle">send / 10 s</text><path d="M472,126 L472,146" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#d113a1)"></path><rect x="572" y="150" width="172" height="84" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="658" y="185.28" font-size="15.6" fill="#5b6b78" text-anchor="middle" font-weight="bold">blink_task</text><text x="658" y="215.52" font-size="15.0" fill="#5b6b78" text-anchor="middle">heartbeat</text><path d="M658,126 L658,146" fill="none" stroke="#8a8a8a" stroke-width="2.4" stroke-linejoin="round" marker-end="url(#d113a1)"></path><text x="380" y="290" font-size="16.2" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">each task:   while True:  do a little work,</text><text x="380" y="316" font-size="16.2" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">await asyncio.sleep_ms(...)</text></svg>
+            <div class="diagram-caption">The shape of an asyncio program. main() starts one task per job and then lets the scheduler run them; each task is an endless loop with an await in it.</div>
+        </div>
+
+<p>Each task is a plain loop with an <span class="code-lesson-il">await</span> in it. Compare this with Unit 1: there you wrote the "is it my turn?" test yourself for every job; here the scheduler wakes each task when its wait is over.</p>
+<h3>Part 3. Sharing Data Between Tasks</h3>
+<p>Because only one task runs at a time and switching happens only at an <span class="code-lesson-il">await</span>, tasks can share ordinary variables safely, provided no await sits in the middle of an update. To make a task wait for something rather than polling for it, use an <span class="code-lesson-il">Event</span>:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d114a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d114a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#4a8a4a"></path></marker></defs><rect x="14" y="100" width="190" height="110" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="109" y="146.2" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">sensor_task</text><text x="109" y="185.8" font-size="15.6" fill="#5b6b78" text-anchor="middle">writes value</text><rect x="290" y="100" width="180" height="110" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="146.2" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">shared state</text><text x="380" y="185.8" font-size="15.6" fill="#5b6b78" text-anchor="middle">value + Event</text><rect x="556" y="100" width="190" height="110" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="651" y="146.2" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">publish_task</text><text x="651" y="185.8" font-size="15.6" fill="#5b6b78" text-anchor="middle">await event.wait()</text><path d="M204,155 L286,155" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d114a0)"></path><path d="M470,155 L552,155" fill="none" stroke="#4a8a4a" stroke-width="3" stroke-linejoin="round" marker-end="url(#d114a1)"></path><text x="245" y="140" font-size="15.0" fill="#1f3b52" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">set()</text><text x="511" y="140" font-size="15.0" fill="#2d5a2d" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">wake</text><text x="380" y="268" font-size="16.9" fill="#5b6b78" text-anchor="middle">No polling, no busy loop: the publisher sleeps until the</text><text x="380" y="301.8" font-size="16.9" fill="#5b6b78" text-anchor="middle">sensor has something new, then clears the Event and sends.</text></svg>
+            <div class="diagram-caption">Passing data between tasks. One task writes the latest value and sets an Event; the task that publishes waits on that Event, so it wakes only when there is something new.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">new_reading = asyncio.Event()
+
+async def sensor_task():
+    while True:
+        latest["value"] = read_sensor()
+        new_reading.set()                   # "there is something new"
+        await asyncio.sleep_ms(1000)
+
+async def publish_task():
+    while True:
+        await new_reading.wait()            # sleeps until set()
+        new_reading.clear()
+        client.publish(TELE, json.dumps(latest).encode())
+</span>
+</div>
+<h3>Part 4. Where It Bites</h3>
+<ul>
+<li><strong>Blocking library calls.</strong> <span class="code-lesson-il">umqtt.simple</span> uses ordinary blocking sockets. <span class="code-lesson-il">check_msg()</span> is quick when nothing is waiting, but <span class="code-lesson-il">connect()</span> and a QoS 1 <span class="code-lesson-il">publish()</span> can stall every task for as long as the network does. (Third-party libraries such as <span class="code-lesson-il">mqtt_as</span> are written to be fully asynchronous.)</li>
+<li><strong>Silent task death.</strong> An exception inside a task ends that task without stopping the program. Wrap the body of each task’s loop in <span class="code-lesson-il">try</span>/<span class="code-lesson-il">except</span> and log, otherwise a sensor can quietly stop being read.</li>
+<li><strong>Long computations.</strong> A task that computes for 200 ms without awaiting freezes the rest for 200 ms. Split the work and <span class="code-lesson-il">await asyncio.sleep_ms(0)</span> between pieces to let others run.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Spot the Bug.</strong> This task is meant to blink an LED every half second while the other tasks run. What is wrong? <span class="code-lesson-il">async def blink(): while True: led.toggle(); time.sleep(0.5)</span></p>
+        <p><strong>Exercise 2: Who Runs When?.</strong> Three tasks each do about 1 ms of work and then <span class="code-lesson-il">await asyncio.sleep_ms(10)</span>. Roughly how much of the time is the processor busy, and what does that suggest about how many such tasks fit?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Convert a Timer Loop.</strong> Rewrite this Unit 1 loop as two asyncio tasks: toggle the LED every 250 ms, and print "alive" every 2 seconds. <span class="code-lesson-il">while True: if blink.ready(): led.toggle(); if report.ready(): print("alive")</span></p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Guard a Task.</strong> Make <span class="code-lesson-il">sensor_task</span> robust so that an exception while reading is logged and the task carries on, rather than dying silently.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Spot the Bug</summary>
+<p><span class="code-lesson-il">time.sleep(0.5)</span> blocks the whole processor, so for half a second <em>no</em> other task runs. It should be <span class="code-lesson-il">await asyncio.sleep_ms(500)</span>, which pauses only this task.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Who Runs When?</summary>
+<p>About 3 ms of work per 10 ms is roughly <strong>30 % busy</strong>. A processor can run several light tasks like this, but once the total work per cycle approaches the cycle length, tasks start to run late, so keep each task’s work short.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Convert a Timer Loop</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import asyncio
+
+async def blink():
+    while True:
+        led.toggle()
+        await asyncio.sleep_ms(250)
+
+async def report():
+    while True:
+        print("alive")
+        await asyncio.sleep(2)
+
+async def main():
+    asyncio.create_task(blink())
+    asyncio.create_task(report())
+    while True:
+        await asyncio.sleep(1)
+
+asyncio.run(main())
+</span>
+</div><p>The timer objects disappear: each loop describes only its own rhythm. This is the same behaviour as before with less code to get wrong.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Guard a Task</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">async def sensor_task():
+    while True:
+        try:
+            latest["value"] = read_sensor()
+        except Exception as e:
+            print("sensor read failed:", e)       # log it, then keep going
+        await asyncio.sleep_ms(100)
+</span>
+</div><p>The <span class="code-lesson-il">await</span> sits outside the <span class="code-lesson-il">try</span> so the task always yields, even after an error. Without this guard one failed read would end the task with no visible sign.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain cooperative multitasking and when a task gives up control.</li>
+            <li>Write the skeleton of an asyncio program with three tasks.</li>
+            <li>Explain why <code class="code-lesson-il">time.sleep()</code> inside a task is a bug.</li>
+            <li>Use an Event to make one task wait for another, and name two pitfalls of asyncio with umqtt.</li>
+        </ol>
+
+    </body>
+</html>

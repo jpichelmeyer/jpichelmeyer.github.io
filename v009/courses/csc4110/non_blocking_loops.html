@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>The publish-subscribe lesson introduced the idea of replacing <span class="code-lesson-il">sleep()</span> with elapsed-time checks. This lesson turns that idea into a complete way of structuring a program, because almost every real embedded device is, in the end, one loop that never blocks.</p>
+
+
+<h3>Part 1. The Super-Loop</h3>
+<p>A microcontroller program usually has one <span class="code-lesson-il">while True</span> loop, and every job the device has gets a short turn on each pass. A job that is not due simply returns at once. Seen over time, several jobs with different periods interleave without ever stopping each other:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="14" y="24" font-size="20.8" fill="#1f3b52" text-anchor="start" font-weight="bold">Three periodic jobs sharing one loop (time →)</text><text x="14" y="74" font-size="18.2" fill="#1f3b52" text-anchor="start" font-weight="bold">read sensor</text><rect x="130" y="50" width="470" height="36" rx="0" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><rect x="128" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="175" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="222" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="269" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="316" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="363" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="410" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="457" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="504" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><rect x="551" y="56" width="6" height="24" rx="0" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><text x="610" y="72" font-size="16.2" fill="#5b6b78" text-anchor="start">every 100 ms</text><text x="14" y="138" font-size="18.2" fill="#1f3b52" text-anchor="start" font-weight="bold">publish</text><rect x="130" y="114" width="470" height="36" rx="0" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><rect x="128" y="120" width="6" height="24" rx="0" fill="#e8801a" stroke="none" stroke-width="0"></rect><rect x="363" y="120" width="6" height="24" rx="0" fill="#e8801a" stroke="none" stroke-width="0"></rect><text x="610" y="136" font-size="16.2" fill="#5b6b78" text-anchor="start">every 500 ms</text><text x="14" y="202" font-size="18.2" fill="#1f3b52" text-anchor="start" font-weight="bold">blink LED</text><rect x="130" y="178" width="470" height="36" rx="0" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><rect x="128" y="184" width="6" height="24" rx="0" fill="#2f6fd0" stroke="none" stroke-width="0"></rect><rect x="245.5" y="184" width="6" height="24" rx="0" fill="#2f6fd0" stroke="none" stroke-width="0"></rect><rect x="363" y="184" width="6" height="24" rx="0" fill="#2f6fd0" stroke="none" stroke-width="0"></rect><rect x="480.5" y="184" width="6" height="24" rx="0" fill="#2f6fd0" stroke="none" stroke-width="0"></rect><text x="610" y="200" font-size="16.2" fill="#5b6b78" text-anchor="start">every 250 ms</text><text x="130" y="262" font-size="16.2" fill="#5b6b78" text-anchor="middle">0</text><text x="365" y="262" font-size="16.2" fill="#5b6b78" text-anchor="middle">500 ms</text><text x="600" y="262" font-size="16.2" fill="#5b6b78" text-anchor="middle">1000 ms</text><text x="380" y="290" font-size="16.7" fill="#5b6b78" text-anchor="middle">Each job asks "has my interval elapsed?" and otherwise does nothing, so jobs never block each other.</text></svg>
+            <div class="diagram-caption">Three jobs with different periods sharing one loop. Each job only checks whether its interval has passed, so they never hold each other up.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d40a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><text x="380" y="26" font-size="19.3" fill="#1f3b52" text-anchor="middle" font-weight="bold">One pass of a non-blocking main loop (it repeats thousands of times per second)</text><rect x="20" y="70" width="150" height="70" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="95" y="96" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">read inputs</text><text x="95" y="118" font-size="16.2" fill="#5b6b78" text-anchor="middle">button, sensors</text><rect x="210" y="70" width="150" height="70" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="285" y="96" font-size="19.5" fill="#8a4526" text-anchor="middle" font-weight="bold">timers due?</text><text x="285" y="118" font-size="16.2" fill="#5b6b78" text-anchor="middle">run only those jobs</text><path d="M174,105 L206,105" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d40a0)"></path><rect x="400" y="70" width="150" height="70" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="475" y="96" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">check_msg()</text><text x="475" y="118" font-size="15.2" fill="#5b6b78" text-anchor="middle">handle any message</text><path d="M364,105 L396,105" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d40a0)"></path><rect x="590" y="70" width="150" height="70" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="665" y="96" font-size="19.5" fill="#5b6b78" text-anchor="middle" font-weight="bold">back to top</text><text x="665" y="118" font-size="16.2" fill="#5b6b78" text-anchor="middle">no sleeping</text><path d="M554,105 L586,105" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d40a0)"></path><path d="M665,142 L665,188 L95,188 L95,144" fill="none" stroke="#8a8a8a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="7 5"></path><path d="M88,152 L95,142 L102,152" fill="none" stroke="#8a8a8a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path><text x="380" y="212" font-size="18.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">Every job is a quick "is it my turn?" check; none of them waits.</text><text x="380" y="236" font-size="17.6" fill="#5b6b78" text-anchor="middle">A pass that takes 5 ms still leaves the loop running ~200 times per second.</text></svg>
+            <div class="diagram-caption">The shape of every non-blocking main loop: look at inputs, run whichever timed jobs are due, handle messages, repeat immediately.</div>
+        </div>
+
+<h3>Part 2. The Millisecond Clock</h3>
+<p>MicroPython provides a free-running counter for this: <span class="code-lesson-il">ticks_ms()</span> in milliseconds and <span class="code-lesson-il">ticks_us()</span> in microseconds. It is not wall-clock time; it counts from an arbitrary starting point and <strong>wraps around</strong> after about 12.4 days:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d39a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#c0693f"></path></marker><marker id="d39a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><circle cx="170" cy="150" r="100" fill="#f7f9fb" stroke="#2e5a80" stroke-width="3"></circle><line x1="170" y1="58" x2="170" y2="50" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="216" y1="70.3257" x2="220" y2="63.3975" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="249.674" y1="104" x2="256.603" y2="100" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="262" y1="150" x2="270" y2="150" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="249.674" y1="196" x2="256.603" y2="200" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="216" y1="229.674" x2="220" y2="236.603" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="170" y1="242" x2="170" y2="250" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="124" y1="229.674" x2="120" y2="236.603" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="90.3257" y1="196" x2="83.3975" y2="200" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="78" y1="150" x2="70" y2="150" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="90.3257" y1="104" x2="83.3975" y2="100" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><line x1="124" y1="70.3257" x2="120" y2="63.3975" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"></line><text x="170" y="38" font-size="17.6" fill="#d64545" text-anchor="middle" font-weight="bold">0  (wraps here)</text><path d="M170,150 L130,80.718" fill="none" stroke="#c0693f" stroke-width="3.5" stroke-linejoin="round" marker-end="url(#d39a0)"></path><path d="M170,150 L210,80.718" fill="none" stroke="#2e5a80" stroke-width="3.5" stroke-linejoin="round" marker-end="url(#d39a1)"></path><text x="170" y="156" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">ticks_ms()</text><text x="340" y="70" font-size="19.5" fill="#1f3b52" text-anchor="start">ticks_ms() counts milliseconds,</text><text x="340" y="98.6" font-size="19.5" fill="#1f3b52" text-anchor="start">but the counter wraps back to</text><text x="340" y="127.2" font-size="19.5" fill="#1f3b52" text-anchor="start">zero after about 12.4 days</text><text x="340" y="155.8" font-size="19.5" fill="#1f3b52" text-anchor="start">(2³⁰ ms).</text><rect x="340" y="176" width="380" height="92" rx="8" fill="#fff7f2" stroke="#c0693f" stroke-width="2"></rect><text x="354" y="204" font-size="16.1" fill="#8a4526" text-anchor="start">now − last  gives a huge negative</text><text x="354" y="226" font-size="16.1" fill="#8a4526" text-anchor="start">number when the counter wrapped between them.</text><text x="354" y="254" font-size="18.9" fill="#2d5a2d" text-anchor="start" font-weight="bold">ticks_diff(now, last) is always right.</text></svg>
+            <div class="diagram-caption">The millisecond counter wraps back to zero after about 12.4 days. ticks_diff() is written to give the right answer across the wrap.</div>
+        </div>
+
+<ul>
+<li><span class="code-lesson-il">ticks_diff(a, b)</span> subtracts two readings correctly even across a wrap.</li>
+<li><span class="code-lesson-il">ticks_add(t, n)</span> adds an offset to a reading, also wrap-safe, which is handy for scheduling a future time.</li>
+</ul>
+<p>Never compare tick values with plain <span class="code-lesson-il">&gt;</span> or <span class="code-lesson-il">&lt;</span> or subtract them with <span class="code-lesson-il">-</span>. The code works for twelve days and then misbehaves once, which is the worst kind of bug to find.</p>
+<h3>Part 3. A Tiny Scheduler</h3>
+<p>Writing the same "has my interval elapsed?" test over and over gets messy. Wrap it once and give each periodic job its own timer:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import ticks_ms, ticks_diff
+
+class Every:
+    def __init__(self, ms):
+        self.ms = ms
+        self.last = ticks_ms()
+
+    def ready(self):
+        now = ticks_ms()
+        if ticks_diff(now, self.last) &gt;= self.ms:
+            self.last = now
+            return True
+        return False
+
+read_sensor = Every(100)
+publish     = Every(1000)
+blink       = Every(250)
+
+while True:
+    if read_sensor.ready():
+        sample()
+    if publish.ready():
+        send()
+    if blink.ready():
+        led.toggle()
+    client.check_msg()          # runs on every pass
+</span>
+</div>
+<h3>Part 4. Rules of Thumb</h3>
+<ul>
+<li><strong>Keep every pass short.</strong> A job that takes 200 ms (a long calculation, a slow print) delays everything else by 200 ms.</li>
+<li><strong>Beware hidden blocking.</strong> Network calls can wait a long time for a reply. Give sockets a timeout so one dead connection cannot freeze the loop.</li>
+<li><strong>Know when to ask for help.</strong> Once a program has many timed jobs, MicroPython's <span class="code-lesson-il">asyncio</span> library manages the interleaving for you (Unit 2 covers it).</li>
+<li><strong>Guard against a stuck loop.</strong> A <em>watchdog timer</em> reboots the board if the program stops proving it is alive:</li>
+</ul>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import WDT
+
+wdt = WDT(timeout=5000)        # reboot if not fed for 5 s (see the docs for the maximum)
+
+while True:
+    # ... normal work ...
+    wdt.feed()                 # "I am still running"
+</span>
+</div>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: When Does It Wrap?.</strong> <code class="code-lesson-il">ticks_ms()</code> wraps after 2<sup>30</sup> ms. How many days is that?</p>
+        <p><strong>Exercise 2: Spot the Blockers.</strong> Which of these block the whole program? <code class="code-lesson-il">sleep(1)</code>; <code class="code-lesson-il">while not wlan.isconnected(): pass</code>; <code class="code-lesson-il">button.value()</code>; <code class="code-lesson-il">client.check_msg()</code>; <code class="code-lesson-il">sock.recv(100)</code> on a default socket.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Debounce Without Sleeping.</strong> Rewrite the button handling so it toggles an LED on each clean press, using timestamps instead of <code class="code-lesson-il">sleep</code> for the debounce, so the loop stays free.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Measure Your Loop.</strong> Count how many passes per second an empty loop makes, then repeat with a <code class="code-lesson-il">sleep_ms(10)</code> inside. What does it tell you about how responsive each version can be?</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: When Does It Wrap?</summary>
+<p>2<sup>30</sup> = 1,073,741,824 ms &divide; 86,400,000 ms per day &asymp; <strong>12.4 days</strong>. A device left running for weeks will definitely cross the wrap point, so always use <code class="code-lesson-il">ticks_diff</code>.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Spot the Blockers</summary>
+<p><strong>Blocking:</strong> <code class="code-lesson-il">sleep(1)</code> (waits a fixed time), the <code class="code-lesson-il">while not ...: pass</code> loop (waits for an event), and <code class="code-lesson-il">sock.recv()</code> on a default socket (waits for data to arrive). <strong>Non-blocking:</strong> <code class="code-lesson-il">button.value()</code> (reads the pin and returns at once) and <code class="code-lesson-il">check_msg()</code> (returns immediately whether or not anything arrived).</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Debounce Without Sleeping</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin
+from time import ticks_ms, ticks_diff
+
+button = Pin(14, Pin.IN, Pin.PULL_UP)
+led = Pin(15, Pin.OUT)
+
+stable = 1             # the last settled state of the button
+last_raw = 1           # what we saw on the previous pass
+changed_at = ticks_ms()
+
+while True:
+    raw = button.value()
+    now = ticks_ms()
+    if raw != last_raw:                    # it moved: restart the clock
+        last_raw = raw
+        changed_at = now
+    elif raw != stable and ticks_diff(now, changed_at) &gt;= 30:
+        stable = raw                       # held steady for 30 ms: believe it
+        if stable == 0:                    # a clean press
+            led.toggle()
+</span>
+</div><p>The loop never waits; it just keeps checking "has the reading been the same for 30 ms yet?".</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Measure Your Loop</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import ticks_ms, ticks_diff, sleep_ms
+
+def passes_per_second(delay_ms):
+    n = 0
+    start = ticks_ms()
+    while ticks_diff(ticks_ms(), start) &lt; 1000:
+        n += 1
+        if delay_ms:
+            sleep_ms(delay_ms)
+    return n
+
+print("no delay :", passes_per_second(0))
+print("10 ms    :", passes_per_second(10))
+</span>
+</div><p>The empty loop manages tens of thousands of passes per second; with a 10 ms sleep it is capped just under 100. Everything the loop must notice (a button, a message) is noticed at that rate, so the sleeping version can be up to 10 ms late every time.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Describe a super-loop and explain how several jobs with different periods share it.</li>
+            <li>Explain why a millisecond tick counter wraps and why <code class="code-lesson-il">ticks_diff</code> is required.</li>
+            <li>Write a small timer class from memory and use two instances in one loop.</li>
+            <li>List three ways a loop can become accidentally blocking and a way to protect against each.</li>
+        </ol>
+
+    </body>
+</html>

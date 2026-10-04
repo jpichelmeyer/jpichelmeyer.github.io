@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Now you can switch a load from a pin, and you can receive messages from anywhere on the network. Joining the two creates something with real consequences: someone, or some bug, can switch a physical object on remotely. This lesson is about doing that responsibly. The theme is simple: decide in advance what the safe state is, and make the system return to it whenever anything goes wrong.</p>
+
+
+<h3>Part 1. A Command Is Not an Action</h3>
+<p>Between a command arriving and an output changing, a well-built device does several things in order. It checks the command is one it knows and that the value is sensible; it checks that it is allowed right now; only then does it drive the pin; and finally it reads back what it really did and reports that.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d119a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="18" y="50" width="124" height="84" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="80" y="76" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">Command</text><text x="80" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">arrives on cmd/</text><rect x="168" y="50" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="230" y="76" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Validate</text><text x="230" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">in range?</text><path d="M146,92 L164,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d119a0)"></path><rect x="318" y="50" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="76" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Authorise</text><text x="380" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">not too soon</text><path d="M296,92 L314,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d119a0)"></path><rect x="468" y="50" width="124" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="530" y="76" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Drive output</text><text x="530" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">set the pin</text><path d="M446,92 L464,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d119a0)"></path><rect x="618" y="50" width="124" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="680" y="76" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Confirm</text><text x="680" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">publish stat</text><path d="M596,92 L614,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d119a0)"></path><text x="380" y="200" font-size="16.9" fill="#5b6b78" text-anchor="middle">Report the state you actually measured or set,</text><text x="380" y="233.8" font-size="16.9" fill="#5b6b78" text-anchor="middle">not just an echo of the command you received.</text></svg>
+            <div class="diagram-caption">A safe remote command, step by step. The device checks the request, changes the output, then reads back and reports what it really did.</div>
+        </div>
+
+<h3>Part 2. Decide the Safe State First</h3>
+<p>For every way things can go wrong, write down what the output should do, before writing any code. For a load that could cause harm, the safe state is almost always <strong>off</strong>.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="250" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="135" y="53" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">event</text><rect x="260" y="16" width="170" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="345" y="53" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">output</text><rect x="430" y="16" width="308" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="584" y="53" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">why</text><rect x="10" y="78" width="250" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="114" font-size="15.0" fill="#1f3b52" text-anchor="start">Pico boots / resets</text><rect x="260" y="78" width="170" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="345" y="114" font-size="15.0" fill="#1f3b52" text-anchor="middle">OFF</text><rect x="430" y="78" width="308" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="584" y="114" font-size="15.0" fill="#1f3b52" text-anchor="middle">until a valid command arrives</text><rect x="10" y="140" width="250" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="176" font-size="15.0" fill="#1f3b52" text-anchor="start">broker unreachable &gt; 30 s</text><rect x="260" y="140" width="170" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="345" y="176" font-size="15.0" fill="#1f3b52" text-anchor="middle">OFF</text><rect x="430" y="140" width="308" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="584" y="176" font-size="15.0" fill="#1f3b52" text-anchor="middle">do not run unsupervised</text><rect x="10" y="202" width="250" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="238" font-size="15.0" fill="#1f3b52" text-anchor="start">timed command ("on 10 s")</text><rect x="260" y="202" width="170" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="345" y="238" font-size="15.0" fill="#1f3b52" text-anchor="middle">OFF after timeout</text><rect x="430" y="202" width="308" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="584" y="238" font-size="15.0" fill="#1f3b52" text-anchor="middle">a lost "off" cannot strand it</text><rect x="10" y="264" width="250" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="300" font-size="15.0" fill="#1f3b52" text-anchor="start">invalid or unknown command</text><rect x="260" y="264" width="170" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="345" y="300" font-size="15.0" fill="#1f3b52" text-anchor="middle">unchanged</text><rect x="430" y="264" width="308" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="584" y="300" font-size="15.0" fill="#1f3b52" text-anchor="middle">ignore, log, report</text><rect x="10" y="326" width="250" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="362" font-size="15.0" fill="#1f3b52" text-anchor="start">same command repeated</text><rect x="260" y="326" width="170" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="345" y="362" font-size="15.0" fill="#1f3b52" text-anchor="middle">unchanged</text><rect x="430" y="326" width="308" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="584" y="362" font-size="15.0" fill="#1f3b52" text-anchor="middle">idempotent</text></svg>
+            <div class="diagram-caption">Decide the safe state in advance. For each way things can go wrong, the output should return to a state that cannot cause harm, and a boot or reconnect should never switch something on by itself.</div>
+        </div>
+
+<p>Two of these deserve emphasis. A <strong>timed command</strong> ("on for 10 seconds") means a lost "off" cannot leave something running forever. And a <strong>silence timeout</strong> turns the load off if the device has lost contact with whoever is supposed to be supervising it.</p>
+<h3>Part 3. The Output as a State Machine</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d121a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#8a8a8a"></path></marker><marker id="d121a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d121a2" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#d64545"></path></marker></defs><rect x="20" y="170" width="170" height="90" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="105" y="207.8" font-size="20.8" fill="#5b6b78" text-anchor="middle" font-weight="bold">OFF</text><text x="105" y="240.2" font-size="15.6" fill="#5b6b78" text-anchor="middle">safe default</text><rect x="330" y="20" width="190" height="90" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="425" y="57.8" font-size="20.8" fill="#2d5a2d" text-anchor="middle" font-weight="bold">ON</text><text x="425" y="90.2" font-size="15.6" fill="#5b6b78" text-anchor="middle">until told otherwise</text><rect x="330" y="300" width="190" height="90" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="425" y="337.8" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">ON (timed)</text><text x="425" y="370.2" font-size="15.6" fill="#5b6b78" text-anchor="middle">"on 10 s"</text><path d="M190,200 L326,80" fill="none" stroke="#8a8a8a" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d121a0)" marker-start="url(#d121a0)"></path><text x="236" y="108" font-size="15.6" fill="#5b6b78" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">cmd on  /  cmd off</text><path d="M160,264 L326,336" fill="none" stroke="#2e5a80" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d121a1)"></path><text x="168" y="322" font-size="15.6" fill="#1f3b52" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">cmd on 10 s</text><path d="M326,380 L190,268" fill="none" stroke="#d64545" stroke-width="2.8" stroke-linejoin="round" marker-end="url(#d121a2)"></path><text x="258" y="372" font-size="15.6" fill="#d64545" text-anchor="middle" font-weight="bold" stroke="#f7f9fb" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">timer ends</text><rect x="560" y="150" width="180" height="130" rx="10" fill="#fff3f0" stroke="#d64545" stroke-width="2.2"></rect><text x="650" y="190" font-size="15.6" fill="#d64545" text-anchor="middle" font-weight="bold">any state → OFF</text><text x="650" y="223.8" font-size="15.6" fill="#d64545" text-anchor="middle" font-weight="bold">when the broker</text><text x="650" y="257.6" font-size="15.6" fill="#d64545" text-anchor="middle" font-weight="bold">is silent &gt; 30 s</text></svg>
+            <div class="diagram-caption">The output as a state machine. Every arrow is a deliberate rule: commands move it, timers and silence move it back to OFF.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import ticks_ms, ticks_add, ticks_diff
+
+out = Pin(15, Pin.OUT, value=0)
+state = "off"
+off_at = None                        # a deadline for a timed "on", or None
+last_contact = ticks_ms()            # last time we heard from the broker
+
+def apply(cmd):
+    """cmd is b"on", b"off", or b"on 10"."""
+    global state, off_at
+    parts = cmd.split()
+    if not parts or parts[0] not in (b"on", b"off"):
+        return
+    if parts[0] == b"off":
+        out.value(0); state = "off"; off_at = None
+    else:
+        out.value(1); state = "on"; off_at = None
+        if len(parts) == 2:
+            try:
+                secs = int(parts[1])
+            except ValueError:
+                return
+            if 1 &lt;= secs &lt;= 300:                       # a sane limit
+                off_at = ticks_add(ticks_ms(), secs * 1000)
+    client.publish(b"lab/pico01/stat/out", state.encode(), retain=True)
+
+def supervise():
+    global state, off_at
+    now = ticks_ms()
+    if off_at is not None and ticks_diff(now, off_at) &gt;= 0:
+        out.value(0); state = "off"; off_at = None            # the timer ran out
+    if ticks_diff(now, last_contact) &gt; 30000 and state == "on":
+        out.value(0); state = "off"; off_at = None            # the broker went quiet
+</span>
+</div>
+<p><span class="code-lesson-il">supervise()</span> runs on every pass of the main loop, and <span class="code-lesson-il">last_contact</span> is refreshed whenever a message or ping response arrives. The commands can be repeated safely: <span class="code-lesson-il">on</span> twice is the same as once.</p>
+<h3>Part 4. Layers of Protection</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="14" width="732" height="352" rx="12" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="380" y="40" font-size="16.9" fill="#5b6b78" text-anchor="middle" font-weight="bold">network: WiFi password</text><rect x="64" y="64" width="632" height="252" rx="12" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="380" y="90" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">broker: login + topic permissions</text><rect x="114" y="114" width="532" height="152" rx="12" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="380" y="140" font-size="16.9" fill="#8a4526" text-anchor="middle" font-weight="bold">device: validate, range, rate-limit</text><rect x="164" y="164" width="432" height="52" rx="12" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="380" y="190" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">hardware: pull-down, fuse, limited supply</text></svg>
+            <div class="diagram-caption">Defence in depth. A command passes four independent barriers; each one assumes the one before it failed.</div>
+        </div>
+
+<p>No single layer is enough. The WiFi password can leak; a login can be guessed or reused; code can have a bug. Each barrier assumes the one outside it has failed, and the innermost, the hardware, should keep working even if everything else is wrong: the pull-down keeps the load off at power-up, the supply limits the damage, a fuse covers the rest.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Choose the Safe State.</strong> Give the safe state and a reason: (a) a heater, (b) a door lock for a fire exit, (c) a water valve filling a tank, (d) a status LED.</p>
+        <p><strong>Exercise 2: Idempotent or Not?.</strong> Which of these commands are safe to receive twice: (a) <span class="code-lesson-il">on</span>, (b) <span class="code-lesson-il">toggle</span>, (c) <span class="code-lesson-il">on 10</span>, (d) <span class="code-lesson-il">increase by 1</span>?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Add a Maximum Run Time.</strong> Make every <span class="code-lesson-il">on</span> (even with no time given) switch off automatically after at most 5 minutes, so a forgotten "on" cannot run forever.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Report What Is Real.</strong> Make the stat message reflect the actual output pin, not the variable <span class="code-lesson-il">state</span>, and publish it again whenever <span class="code-lesson-il">supervise()</span> switches the output off by itself.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Choose the Safe State</summary>
+<p>(a) <strong>off</strong>: an unattended heater is a fire risk. (b) <strong>unlocked</strong>: people must be able to leave; “safe” depends on the harm, not on “off”. (c) <strong>closed</strong> (off): a stuck-open valve overflows. (d) <strong>either</strong>: there is no harm; pick the one that makes a fault visible. The lesson of (b) is to decide per device.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Idempotent or Not?</summary>
+<p>(a) <strong>safe</strong>: setting it on twice is the same as once. (b) <strong>unsafe</strong>: the second one flips it back. (c) <strong>safe</strong>: it restarts the same 10-second window. (d) <strong>unsafe</strong>: it counts twice. A repeated QoS 1 delivery makes this matter.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Add a Maximum Run Time</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (in apply)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">MAX_ON_MS = 5 * 60 * 1000
+
+    ...
+    else:
+        out.value(1); state = "on"
+        limit = MAX_ON_MS
+        if len(parts) == 2:
+            try:
+                limit = min(MAX_ON_MS, int(parts[1]) * 1000)
+            except ValueError:
+                return
+        off_at = ticks_add(ticks_ms(), limit)       # always set a deadline
+</span>
+</div><p>Every path now ends with a deadline. The maximum is a property of the device, not of the sender, so no command can override it.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Report What Is Real</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def report():
+    actual = b"on" if out.value() else b"off"
+    client.publish(b"lab/pico01/stat/out", actual, retain=True)
+
+def supervise():
+    ...
+    if just_turned_off:                     # set inside the branches that switch it off
+        report()
+</span>
+</div><p>Reading <span class="code-lesson-il">out.value()</span> reports what the pin is doing. Publishing again after an automatic shut-off matters: otherwise the dashboard keeps showing "on" for a load that stopped on its own.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>List the steps between a command arriving and the output changing.</li>
+            <li>State the safe state for a load and three events that must return the device to it.</li>
+            <li>Explain what a timed command and a silence timeout protect against.</li>
+            <li>Describe the layers that protect a remote output and why more than one is needed.</li>
+        </ol>
+
+    </body>
+</html>

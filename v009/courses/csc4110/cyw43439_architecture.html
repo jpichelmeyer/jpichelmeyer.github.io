@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>The WiFi lesson treated the radio as a black box that <span class="code-lesson-il">network.WLAN</span> controls. This lesson opens the box far enough to explain behaviour you will otherwise find baffling: why four of your GPIO pins are missing, why the LED is addressed by name, what the status numbers mean, and why a connection can silently drop.</p>
+
+
+<h3>Part 1. A Second Computer on the Board</h3>
+<p>The CYW43439 is a complete, separate chip: a 2.4 GHz WiFi radio (802.11n) and a Bluetooth radio, with its own small processor and its own firmware. The RP2040 does not drive the radio signals directly. It sends commands and data over an internal serial link, much like talking to a modem.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 420" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="40" width="260" height="340" rx="12" fill="#3b9a68" stroke="#1f6a45" stroke-width="3"></rect><text x="144" y="70" font-size="23.4" fill="#fff" text-anchor="middle" font-weight="bold">RP2040</text><text x="144" y="92" font-size="17.6" fill="#e9fff1" text-anchor="middle">runs your MicroPython</text><rect x="486" y="40" width="260" height="340" rx="12" fill="#eceff2" stroke="#6c747c" stroke-width="3"></rect><text x="616" y="70" font-size="23.4" fill="#2a2f35" text-anchor="middle" font-weight="bold">CYW43439</text><text x="616" y="92" font-size="17.6" fill="#444" text-anchor="middle">WiFi + Bluetooth radio</text><rect x="26" y="118" width="100" height="30" rx="6" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><text x="76" y="139" font-size="18.9" fill="#fff" text-anchor="middle" font-weight="bold">GP24</text><line x1="126" y1="134" x2="486" y2="134" stroke="#555" stroke-width="3" stroke-linecap="round"></line><text x="306" y="126" font-size="17.6" fill="#1f3b52" text-anchor="middle" font-weight="bold" stroke="#fff" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">data in/out + interrupt</text><rect x="498" y="118" width="100" height="30" rx="6" fill="#fff" stroke="#888" stroke-width="1.5"></rect><text x="548" y="139" font-size="16.9" fill="#444" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">wl_data</text><rect x="26" y="164" width="100" height="30" rx="6" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><text x="76" y="185" font-size="18.9" fill="#fff" text-anchor="middle" font-weight="bold">GP25</text><line x1="126" y1="180" x2="486" y2="180" stroke="#555" stroke-width="3" stroke-linecap="round"></line><text x="306" y="172" font-size="17.6" fill="#1f3b52" text-anchor="middle" font-weight="bold" stroke="#fff" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">chip select</text><rect x="498" y="164" width="100" height="30" rx="6" fill="#fff" stroke="#888" stroke-width="1.5"></rect><text x="548" y="185" font-size="16.9" fill="#444" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">wl_cs</text><rect x="26" y="210" width="100" height="30" rx="6" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><text x="76" y="231" font-size="18.9" fill="#fff" text-anchor="middle" font-weight="bold">GP29</text><line x1="126" y1="226" x2="486" y2="226" stroke="#555" stroke-width="3" stroke-linecap="round"></line><text x="306" y="218" font-size="17.6" fill="#1f3b52" text-anchor="middle" font-weight="bold" stroke="#fff" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">clock (shares ADC3)</text><rect x="498" y="210" width="100" height="30" rx="6" fill="#fff" stroke="#888" stroke-width="1.5"></rect><text x="548" y="231" font-size="16.9" fill="#444" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">wl_clk</text><rect x="26" y="256" width="100" height="30" rx="6" fill="#2e9b4e" stroke="none" stroke-width="0"></rect><text x="76" y="277" font-size="18.9" fill="#fff" text-anchor="middle" font-weight="bold">GP23</text><line x1="126" y1="272" x2="486" y2="272" stroke="#555" stroke-width="3" stroke-linecap="round"></line><text x="306" y="264" font-size="17.6" fill="#1f3b52" text-anchor="middle" font-weight="bold" stroke="#fff" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke">power on / off</text><rect x="498" y="256" width="100" height="30" rx="6" fill="#fff" stroke="#888" stroke-width="1.5"></rect><text x="548" y="277" font-size="16.9" fill="#444" text-anchor="middle" font-weight="bold" style="font-family:'Courier New',monospace">wl_on</text><rect x="498" y="330" width="248" height="36" rx="6" fill="#fff7d6" stroke="#d99a00" stroke-width="2"></rect><text x="622" y="353" font-size="16.2" fill="#7a5a00" text-anchor="middle" font-weight="bold">WL_GPIO0  →  the onboard LED</text><text x="144" y="332" font-size="17.6" fill="#e9fff1" text-anchor="middle">GP23–GP25 and GP29 are</text><text x="144" y="350" font-size="17.6" fill="#e9fff1" text-anchor="middle">spoken for: not free GPIOs</text><text x="380" y="404" font-size="18.2" fill="#5b6b78" text-anchor="middle">At boot the driver sends the radio its firmware over this link, then WiFi and Bluetooth work.</text></svg>
+            <div class="diagram-caption">The radio talks to the RP2040 over an internal link that uses four of the Pico's GPIO pins, which is why those pins are not available for your own projects.</div>
+        </div>
+
+<p>The firmware the radio runs is stored inside the MicroPython firmware you flashed in the first lesson, and is loaded into the radio each time the WiFi is switched on. That is part of why enabling WiFi takes a moment and uses a chunk of the Pico's memory.</p>
+<h3>Part 2. Shared Pins and the Onboard LED</h3>
+<p>The link between the two chips uses GP23, GP24, GP25 and GP29, which is why those are unavailable on a Pico W/WH (and why GP29 also doubles as a supply-voltage monitor input). The onboard LED is connected to one of the radio chip's own spare outputs, not to a GPIO pin of the RP2040:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">shell</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin
+led = Pin("LED", Pin.OUT)     # the name "LED" tells MicroPython to go via the radio chip
+led.toggle()
+</span>
+</div>
+<p>This has a subtle consequence: switching the LED means sending a message to the radio chip, so it is slightly slower than a normal pin, and it only works once the radio driver is running.</p>
+<h3>Part 3. Reading the Connection Status</h3>
+<p><span class="code-lesson-il">wlan.isconnected()</span> only tells you yes or no. <span class="code-lesson-il">wlan.status()</span> gives a code that says how far the connection got and, if it failed, why:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 336" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d48a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d48a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#d64545"></path></marker></defs><rect x="10" y="20" width="176" height="58" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="2.5"></rect><text x="98" y="45" font-size="19.5" fill="#5b6b78" text-anchor="middle" font-weight="bold">0  IDLE</text><text x="98" y="65" font-size="14.2" fill="#5b6b78" text-anchor="middle">not connected</text><rect x="240" y="20" width="176" height="58" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="328" y="45" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">1  CONNECTING</text><text x="328" y="65" font-size="16.2" fill="#5b6b78" text-anchor="middle">handshake running</text><rect x="470" y="20" width="176" height="58" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="558" y="45" font-size="19.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">2  LINK UP</text><text x="558" y="65" font-size="16.2" fill="#5b6b78" text-anchor="middle">waiting for an IP</text><rect x="490" y="140" width="176" height="58" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="578" y="165" font-size="19.5" fill="#2d5a2d" text-anchor="middle" font-weight="bold">3  GOT IP</text><text x="578" y="185" font-size="16.2" fill="#5b6b78" text-anchor="middle">ready to use</text><path d="M186,49 L236,49" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d48a0)"></path><path d="M416,49 L466,49" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d48a0)"></path><path d="M558,80 L578,136" fill="none" stroke="#2e5a80" stroke-width="2.6" stroke-linejoin="round" marker-end="url(#d48a0)"></path><rect x="10" y="230" width="176" height="58" rx="10" fill="#fff3f0" stroke="#d64545" stroke-width="2.5"></rect><text x="98" y="255" font-size="19.5" fill="#d64545" text-anchor="middle" font-weight="bold">-2  NO AP FOUND</text><text x="98" y="275" font-size="14.2" fill="#5b6b78" text-anchor="middle">wrong name / out of range</text><rect x="240" y="230" width="176" height="58" rx="10" fill="#fff3f0" stroke="#d64545" stroke-width="2.5"></rect><text x="328" y="255" font-size="15" fill="#d64545" text-anchor="middle" font-weight="bold">-3  WRONG PASSWORD</text><text x="328" y="275" font-size="16.2" fill="#5b6b78" text-anchor="middle">handshake rejected</text><rect x="470" y="230" width="176" height="58" rx="10" fill="#fff3f0" stroke="#d64545" stroke-width="2.5"></rect><text x="558" y="255" font-size="19.5" fill="#d64545" text-anchor="middle" font-weight="bold">-1  CONNECT FAIL</text><text x="558" y="275" font-size="16.2" fill="#5b6b78" text-anchor="middle">other failure</text><path d="M328,78 L328,226" fill="none" stroke="#d64545" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="7 4" marker-end="url(#d48a1)"></path><path d="M270,78 L100,226" fill="none" stroke="#d64545" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="7 4" marker-end="url(#d48a1)"></path><path d="M380,78 L520,226" fill="none" stroke="#d64545" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="7 4" marker-end="url(#d48a1)"></path><text x="380" y="318" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">wlan.status() returns these numbers: poll it instead of just waiting forever.</text></svg>
+            <div class="diagram-caption">The status codes returned by <code class="code-lesson-il">wlan.status()</code>. Positive numbers are progress, negative numbers are specific failures, so polling the number tells you not just whether it failed but why.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import network
+from time import sleep
+
+NAMES = {0: "idle", 1: "connecting", 2: "link up, no IP yet", 3: "got IP",
+         -1: "connect failed", -2: "no access point found", -3: "wrong password"}
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect(SSID, PASSWORD)
+
+last = None
+while True:
+    s = wlan.status()
+    if s != last:
+        print(s, NAMES.get(s, "unknown"))
+        last = s
+    if s == 3 or s &lt; 0:
+        break
+    sleep(0.25)
+</span>
+</div>
+<p>A wrong password (&minus;3) will never fix itself, so retrying forever is pointless; &minus;2 can be temporary (out of range, router restarting), so a retry is reasonable.</p>
+<h3>Part 4. Signal Strength</h3>
+<p><span class="code-lesson-il">wlan.scan()</span> reports each network's <strong>RSSI</strong>, the received signal strength in dBm. It is a negative number, and a value nearer zero is stronger. The Pico's tiny printed antenna is weaker than a laptop's, so a spot where your laptop is happy may be marginal for the Pico.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 230" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="28" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">WiFi signal strength (RSSI, in dBm; closer to 0 is stronger)</text><rect x="40" y="60" width="136" height="84" rx="8" fill="#d8f0d8" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="108" y="92" font-size="22.1" fill="#4a8a4a" text-anchor="middle" font-weight="bold">excellent</text><text x="108" y="118" font-size="17.6" fill="#1f3b52" text-anchor="middle">&gt; −50 dBm</text><rect x="180" y="60" width="136" height="84" rx="8" fill="#e6f1d2" stroke="#7fae4a" stroke-width="2.5"></rect><text x="248" y="92" font-size="22.1" fill="#7fae4a" text-anchor="middle" font-weight="bold">good</text><text x="248" y="118" font-size="17.6" fill="#1f3b52" text-anchor="middle">−50 to −60 dBm</text><rect x="320" y="60" width="136" height="84" rx="8" fill="#f7efcf" stroke="#d9b44a" stroke-width="2.5"></rect><text x="388" y="92" font-size="22.1" fill="#d9b44a" text-anchor="middle" font-weight="bold">fair</text><text x="388" y="118" font-size="17.6" fill="#1f3b52" text-anchor="middle">−60 to −70 dBm</text><rect x="460" y="60" width="136" height="84" rx="8" fill="#f9e3d4" stroke="#c0693f" stroke-width="2.5"></rect><text x="528" y="92" font-size="22.1" fill="#c0693f" text-anchor="middle" font-weight="bold">weak</text><text x="528" y="118" font-size="17.6" fill="#1f3b52" text-anchor="middle">−70 to −80 dBm</text><rect x="600" y="60" width="136" height="84" rx="8" fill="#f8d9d9" stroke="#d64545" stroke-width="2.5"></rect><text x="668" y="92" font-size="22.1" fill="#d64545" text-anchor="middle" font-weight="bold">unusable</text><text x="668" y="118" font-size="17.6" fill="#1f3b52" text-anchor="middle">&lt; −80 dBm</text><text x="380" y="176" font-size="18.2" fill="#5b6b78" text-anchor="middle">wlan.scan() returns (ssid, bssid, channel, RSSI, security, hidden) for every network in range.</text><text x="380" y="202" font-size="18.2" fill="#5b6b78" text-anchor="middle">Below about −75 dBm a connection may drop and reconnect over and over.</text></svg>
+            <div class="diagram-caption">Rough guide to RSSI. WiFi range is not a fixed distance: walls, other networks and the Pico's small antenna all move these boundaries.</div>
+        </div>
+
+<h3>Part 5. Connections Drop</h3>
+<p>Routers restart, people walk between the antennas, and channels get crowded. MicroPython does not promise to rejoin automatically in every situation, so a program meant to run unattended should check and repair the connection itself:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">wifi.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def ensure_wifi():
+    if wlan.isconnected():
+        return True
+    wlan.disconnect()
+    wlan.connect(SSID, PASSWORD)
+    for _ in range(40):                  # wait up to ~10 s
+        if wlan.isconnected():
+            return True
+        sleep(0.25)
+    return False
+</span>
+</div>
+<p>Call it from the main loop (every few seconds is plenty), and treat a <span class="code-lesson-il">False</span> as "carry on, try again later" rather than as a fatal error.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Spoken-For Pins.</strong> Which GPIO numbers does the Pico WH reserve for the radio, and what does that mean for a project that wanted to use GP25?</p>
+        <p><strong>Exercise 2: Read the Status.</strong> You poll <code class="code-lesson-il">wlan.status()</code> and see 1, 1, 1, 2, 3. Another run shows 1, 1, &minus;3. Interpret both.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Identify Your Radio.</strong> Print the Pico's MAC address (as colon-separated hex) and, once connected, its IP address.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Power Versus Latency.</strong> The radio can sleep between router beacons to save power. Explain the trade-off for (a) a battery sensor that reports once a minute, and (b) a mains-powered node that must react to commands within a fraction of a second.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Spoken-For Pins</summary>
+<p><strong>GP23, GP24, GP25 and GP29</strong> are used by the CYW43439 link (power-on, data, chip select, clock). A design needing GP25 must use another pin; the headers do not even expose all of these.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Read the Status</summary>
+<p>First run: connecting, connecting, connecting, link up but no IP yet, then got an IP: <strong>success</strong>. Second run: connecting, then &minus;3: <strong>the password was rejected</strong>; retrying with the same password will never work.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Identify Your Radio</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import network, binascii
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+
+mac = wlan.config("mac")                       # 6 raw bytes
+print("MAC:", binascii.hexlify(mac, ":").decode())
+
+# ... connect as in the previous lesson, then:
+print("IP :", wlan.ifconfig()[0])
+</span>
+</div><p>The MAC address is burned into the radio and is how a router recognises a particular device (and how it keeps assigning the same IP).</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Power Versus Latency</summary>
+<p>(a) Power-saving suits the battery node: it only needs the radio awake briefly each minute, and a little added latency is irrelevant. (b) The mains node should keep the radio fully awake, since sleeping adds delay before it can hear a command. Look up the power-management option of <code class="code-lesson-il">wlan.config()</code> in the docs for your firmware version to see how to choose.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain why the Pico W is effectively two computers, and what they pass to each other.</li>
+            <li>Name the four pins reserved for the radio and explain what that means for pin choices in your own designs.</li>
+            <li>Explain how the onboard LED is controlled differently from a normal pin.</li>
+            <li>Interpret a sequence of <code class="code-lesson-il">wlan.status()</code> values and decide whether a retry is worthwhile.</li>
+            <li>Explain why a long-running node must check <code class="code-lesson-il">isconnected()</code> itself.</li>
+        </ol>
+
+    </body>
+</html>

@@ -15,8 +15,8 @@
             "name": "AI Usage",
             "description": [
                 "<p> AI, like any technology, carries risks and benefits. It is to your advantage to understand both clearly.</p>",
-                "<p> <b>Risks</b>: heavy, <i>unreflective</i> AI use is linked to <i>cognitive offloading.</i> Research suggests that relying on AI to produce answers, rather than to support your own reasoning, can reduce engagement with the thinking process itself and may weaken independent problem-solving over time. <a href='https://link.springer.com/article/10.1186/s40561-024-00316-7'>[1]</a> <a href='https://www.nature.com/articles/s41599-026-06621-5'>[2]</a> </p>",
-                "<p> <b>Benefits</b>: When used as a Socratic partner, debugger, or explainer rather than an answer generator, AI has been shown to improve critical thinking, argumentation, and conceptual understanding. Students who actively critique AI output rather than accepting it at face value tend to learn more than students who simply defer to it. <a href='https://link.springer.com/article/10.1186/s40561-024-00347-0'>[1]</a> <a href='https://doi.org/10.1111/ejed.12804'>[2]</a> </p>",
+                "<div style='padding:10px;'> <p> <div style='background-color:#ffc7d520; padding:20px; border-radius:10px;'> <b>Risks</b>: Heavy, <i>unreflective</i> AI use is linked to <i>cognitive offloading.</i> Research suggests that relying on AI to produce answers, rather than to support your own reasoning, can reduce engagement with the thinking process itself and may weaken independent problem-solving over time. <br><a href='https://link.springer.com/article/10.1186/s40561-024-00316-7'>[1]</a> <a href='https://www.nature.com/articles/s41599-026-06621-5'>[2]</a> <a href='https://doi.org/10.1007/s10639-023-12186-w'>[3]</a> <a href='https://doi.org/10.1016/j.caeo.2023.100134'>[4]</a> </div> </p> </div>",
+                "<div style='padding:10px;'> <p> <div style='background-color:#c7e5ff20; padding:20px; border-radius:10px;'> <b>Benefits</b>: When used as a Socratic partner, debugger, or explainer rather than an answer generator, AI has been shown to improve critical thinking, argumentation, and conceptual understanding. Students who actively critique AI output rather than accepting it at face value tend to learn more than students who simply defer to it. <br> <a href='https://link.springer.com/article/10.1186/s40561-024-00347-0'>[1]</a> <a href='https://doi.org/10.1111/ejed.12804'>[2]</a> <a href='https://doi.org/10.1007/s40692-023-00290-7'>[3]</a> <a href='https://doi.org/10.1186/s40561-023-00258-0'>[4]</a> </div> </p> </div>",
                 "<p> Learning to use AI well is a valuable skill, but it cannot replace your independent reasoning, judgment, and creativity. While companies use AI to automate routine knowledge work, human value lies in the ability to critique these tools, know when to question them, and go beyond what they can produce. This class is your opportunity to develop those unique, non-automated strengths. Ultimately, your worth is not defined by economic productivity or outperforming a machine. Rather, the goal for this class is to cultivate a deep conceptual understanding and human agency that algorithms will struggle to replicate.</p>",
                 "<p> All work you turn in is expected to be your own. In order to earn full points on assessments, you must be able to fully and clearly explain all aspects of your work.</p>"
             ]
@@ -36,7 +36,7 @@
         {
             "name": "Attendance Policy",
             "description": [
-                "<p>Students are expected to attend class. Though no formal attendance will be taken, many days will feature a microquiz, which will act as a form of attendance for that day.</p>"
+                "<p>Students are expected to attend class. Though no formal attendance will be taken, there may be daily assessments that act as a form of attendance for that day.</p>"
             ]
         }
     ],
@@ -44,6 +44,10 @@
         "colors" : {
             "exam" : {
                 "colorbg": "#7cbf8e",
+                "colorfont": "#1f1f1f"
+            },
+            "labpractical" : {
+                "colorbg" : "#c8b3ff",
                 "colorfont": "#1f1f1f"
             },
             "microquiz" : {
