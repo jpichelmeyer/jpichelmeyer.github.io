@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>A GPIO pin has only two outputs: on and off. Yet you want to dim an LED, slow a motor, or position a servo, which all need something in between. The trick is to switch the pin on and off so fast that the load only notices the average. It is called pulse-width modulation, PWM, and the Pico has hardware that does it for you, without any of your code running.</p>
+
+
+<h3>Part 1. Fast On and Off</h3>
+<p>A PWM signal repeats a fixed <strong>period</strong> and spends a chosen fraction of it high: the <strong>duty cycle</strong>. At 25 % duty the pin is on a quarter of the time. Anything that cannot follow the rapid switching, such as the human eye, a motor’s inertia, or a filter, responds to the average, which is the duty cycle times the supply voltage.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 470" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="20" width="500" height="100" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M30,106 L30,34 L55,34 L55,106 L130,106 L130,34 L155,34 L155,106 L230,106 L230,34 L255,34 L255,106 L330,106 L330,34 L355,34 L355,106 L430,106 L430,34 L455,34 L455,106 L530,106" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><line x1="30" y1="88" x2="530" y2="88" stroke="#c0693f" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="7 4"></line><text x="560" y="60" font-size="19.5" fill="#1f3b52" text-anchor="start" font-weight="bold">25 % duty</text><text x="560" y="88" font-size="18.2" fill="#8a4526" text-anchor="start" font-weight="bold">average 0.83 V</text><rect x="30" y="170" width="500" height="100" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M30,256 L30,184 L80,184 L80,256 L130,256 L130,184 L180,184 L180,256 L230,256 L230,184 L280,184 L280,256 L330,256 L330,184 L380,184 L380,256 L430,256 L430,184 L480,184 L480,256 L530,256" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><line x1="30" y1="220" x2="530" y2="220" stroke="#c0693f" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="7 4"></line><text x="560" y="210" font-size="19.5" fill="#1f3b52" text-anchor="start" font-weight="bold">50 % duty</text><text x="560" y="238" font-size="18.2" fill="#8a4526" text-anchor="start" font-weight="bold">average 1.65 V</text><rect x="30" y="320" width="500" height="100" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M30,406 L30,334 L105,334 L105,406 L130,406 L130,334 L205,334 L205,406 L230,406 L230,334 L305,334 L305,406 L330,406 L330,334 L405,334 L405,406 L430,406 L430,334 L505,334 L505,406 L530,406" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><line x1="30" y1="352" x2="530" y2="352" stroke="#c0693f" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="7 4"></line><text x="560" y="360" font-size="19.5" fill="#1f3b52" text-anchor="start" font-weight="bold">75 % duty</text><text x="560" y="388" font-size="18.2" fill="#8a4526" text-anchor="start" font-weight="bold">average 2.48 V</text><text x="30" y="456" font-size="16.2" fill="#5b6b78" text-anchor="start">dashed line: the average voltage seen by a slow load (3.3 V supply)</text></svg>
+            <div class="diagram-caption">Pulse-width modulation: switch an output fully on and fully off, very fast, and vary the fraction of time it is on (the duty cycle). A load that cannot follow the fast switching responds to the average, which is the duty cycle times the supply voltage.</div>
+        </div>
+
+<h3>Part 2. PWM in MicroPython</h3>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">pwm.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin, PWM
+
+pwm = PWM(Pin(15))
+pwm.freq(1000)                 # 1000 cycles per second
+pwm.duty_u16(32768)            # 0..65535: this is 50 %
+
+def set_percent(pwm, pct):
+    pwm.duty_u16(int(max(0, min(100, pct)) / 100 * 65535))
+
+set_percent(pwm, 25)
+pwm.deinit()                   # stop PWM and release the pin
+</span>
+</div>
+<p>Once set, the hardware keeps producing the waveform with no help from your program; you only write when you want to change it. Constructor keywords work too: <span class="code-lesson-il">PWM(Pin(15), freq=1000, duty_u16=32768)</span>.</p>
+<h3>Part 3. Which Pins, and What They Share</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 430" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="12" width="110" height="46" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="65" y="41" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold"></text><rect x="120" y="12" width="308" height="46" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="274" y="41" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">channel A (even pins)</text><rect x="428" y="12" width="308" height="46" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="582" y="41" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">channel B (odd pins)</text><rect x="10" y="58" width="110" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="86" font-size="15.0" fill="#1f3b52" text-anchor="start">slice 0</text><rect x="120" y="58" width="308" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="128" y="86" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP0 / GP16</text><rect x="428" y="58" width="308" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="436" y="86" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP1 / GP17</text><rect x="10" y="104" width="110" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="132" font-size="15.0" fill="#1f3b52" text-anchor="start">slice 1</text><rect x="120" y="104" width="308" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="128" y="132" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP2 / GP18</text><rect x="428" y="104" width="308" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="436" y="132" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP3 / GP19</text><rect x="10" y="150" width="110" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="178" font-size="15.0" fill="#1f3b52" text-anchor="start">slice 2</text><rect x="120" y="150" width="308" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="128" y="178" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP4 / GP20</text><rect x="428" y="150" width="308" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="436" y="178" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP5 / GP21</text><rect x="10" y="196" width="110" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="224" font-size="15.0" fill="#1f3b52" text-anchor="start">slice 3</text><rect x="120" y="196" width="308" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="128" y="224" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP6 / GP22</text><rect x="428" y="196" width="308" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="436" y="224" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP7 / GP23</text><rect x="10" y="242" width="110" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="270" font-size="15.0" fill="#1f3b52" text-anchor="start">slice 4</text><rect x="120" y="242" width="308" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="128" y="270" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP8 / GP24</text><rect x="428" y="242" width="308" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="436" y="270" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP9 / GP25</text><rect x="10" y="288" width="110" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="316" font-size="15.0" fill="#1f3b52" text-anchor="start">slice 5</text><rect x="120" y="288" width="308" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="128" y="316" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP10 / GP26</text><rect x="428" y="288" width="308" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="436" y="316" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP11 / GP27</text><rect x="10" y="334" width="110" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="362" font-size="15.0" fill="#1f3b52" text-anchor="start">slice 6</text><rect x="120" y="334" width="308" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="128" y="362" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP12 / GP28</text><rect x="428" y="334" width="308" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="436" y="362" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP13</text><rect x="10" y="380" width="110" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="408" font-size="15.0" fill="#1f3b52" text-anchor="start">slice 7</text><rect x="120" y="380" width="308" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="128" y="408" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP14</text><rect x="428" y="380" width="308" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="436" y="408" font-size="15.0" fill="#222" text-anchor="start" style="font-family:'Courier New',monospace">GP15</text></svg>
+            <div class="diagram-caption">How the RP2040 organises its 16 PWM outputs. Pins come in pairs that share one slice: both channels of a slice always use the same frequency, but each has its own duty cycle. Plan pin choices so loads needing different frequencies sit in different slices. (On a Pico W, GP23, GP24, GP25 and GP29 are used by the WiFi chip.)</div>
+        </div>
+
+<p>The RP2040 has eight PWM <strong>slices</strong>, each with two channels (A and B), and any GPIO can be connected to one. The catch is that both channels of a slice share a single counter, so they share one <strong>frequency</strong> and differ only in duty. If you want a 50 Hz servo and a 20 kHz motor, put them in different slices; if you set a different frequency on a pin in the same slice, you will change the other one too.</p>
+<h3>Part 4. Choosing the Frequency</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 540" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="12" width="170" height="50" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="95" y="43" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">load</text><rect x="180" y="12" width="200" height="50" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="280" y="43" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">typical frequency</text><rect x="380" y="12" width="358" height="50" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="559" y="43" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">why</text><rect x="10" y="62" width="170" height="50" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="92" font-size="15.0" fill="#1f3b52" text-anchor="start">LED dimming</text><rect x="180" y="62" width="200" height="50" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="280" y="92" font-size="15.0" fill="#1f3b52" text-anchor="middle">500 Hz – 2 kHz</text><rect x="380" y="62" width="358" height="50" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="559" y="92" font-size="15.0" fill="#1f3b52" text-anchor="middle">above the flicker you can see</text><rect x="10" y="112" width="170" height="50" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="142" font-size="15.0" fill="#1f3b52" text-anchor="start">DC motor speed</text><rect x="180" y="112" width="200" height="50" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="280" y="142" font-size="15.0" fill="#1f3b52" text-anchor="middle">1 – 20 kHz</text><rect x="380" y="112" width="358" height="50" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="559" y="142" font-size="15.0" fill="#1f3b52" text-anchor="middle">higher is quieter (above hearing is ~20 kHz)</text><rect x="10" y="162" width="170" height="50" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="192" font-size="15.0" fill="#1f3b52" text-anchor="start">hobby servo</text><rect x="180" y="162" width="200" height="50" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="280" y="192" font-size="15.0" fill="#1f3b52" text-anchor="middle">50 Hz</text><rect x="380" y="162" width="358" height="50" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="559" y="192" font-size="15.0" fill="#1f3b52" text-anchor="middle">a 20 ms frame; the pulse width is the angle</text><rect x="10" y="212" width="170" height="50" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="242" font-size="15.0" fill="#1f3b52" text-anchor="start">buzzer / tone</text><rect x="180" y="212" width="200" height="50" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="280" y="242" font-size="15.0" fill="#1f3b52" text-anchor="middle">the note’s frequency</text><rect x="380" y="212" width="358" height="50" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="559" y="242" font-size="15.0" fill="#1f3b52" text-anchor="middle">50 % duty</text><text x="380" y="306" font-size="17.6" fill="#1f3b52" text-anchor="middle" font-weight="bold">duty-cycle resolution at each frequency</text><rect x="110" y="320" width="170" height="34" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="195" y="343" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">frequency</text><rect x="280" y="320" width="170" height="34" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="365" y="343" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">steps (about)</text><rect x="450" y="320" width="160" height="34" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="530" y="343" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">resolution</text><rect x="110" y="354" width="170" height="34" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="118" y="376" font-size="15.0" fill="#1f3b52" text-anchor="start">50 Hz</text><rect x="280" y="354" width="170" height="34" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="365" y="376" font-size="15.0" fill="#1f3b52" text-anchor="middle">65,536</text><rect x="450" y="354" width="160" height="34" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="530" y="376" font-size="15.0" fill="#1f3b52" text-anchor="middle">16.0 bits</text><rect x="110" y="388" width="170" height="34" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="118" y="410" font-size="15.0" fill="#1f3b52" text-anchor="start">1,000 Hz</text><rect x="280" y="388" width="170" height="34" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="365" y="410" font-size="15.0" fill="#1f3b52" text-anchor="middle">65,536</text><rect x="450" y="388" width="160" height="34" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="530" y="410" font-size="15.0" fill="#1f3b52" text-anchor="middle">16.0 bits</text><rect x="110" y="422" width="170" height="34" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="118" y="444" font-size="15.0" fill="#1f3b52" text-anchor="start">20,000 Hz</text><rect x="280" y="422" width="170" height="34" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="365" y="444" font-size="15.0" fill="#1f3b52" text-anchor="middle">6,250</text><rect x="450" y="422" width="160" height="34" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="530" y="444" font-size="15.0" fill="#1f3b52" text-anchor="middle">12.6 bits</text><rect x="110" y="456" width="170" height="34" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="118" y="478" font-size="15.0" fill="#1f3b52" text-anchor="start">100,000 Hz</text><rect x="280" y="456" width="170" height="34" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="365" y="478" font-size="15.0" fill="#1f3b52" text-anchor="middle">1,250</text><rect x="450" y="456" width="160" height="34" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="530" y="478" font-size="15.0" fill="#1f3b52" text-anchor="middle">10.3 bits</text></svg>
+            <div class="diagram-caption">Choosing a frequency. Too slow and you see flicker or hear the motor buzz; too fast and the counter has fewer steps to divide the period into, so the duty cycle becomes coarser. The step counts below assume the RP2040’s 125 MHz clock and are approximate.</div>
+        </div>
+
+<p>Too low and you see flicker or hear a buzz; too high and the counter has fewer steps to divide the period into, so the duty cycle becomes coarser. For LEDs, a kilohertz or two is plenty. For motors, higher than about 15 kHz is silent to most people, at the cost of resolution and slightly more switching loss.</p>
+<h3>Part 5. Dimming That Looks Linear</h3>
+<p>Eyes do not respond linearly: doubling the duty does not look twice as bright, and 10 % looks surprisingly bright. A <strong>gamma</strong> curve corrects it, so equal steps in your number look like equal steps in brightness:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">pwm.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def gamma_duty(level, gamma=2.2):
+    """level 0..255 -&gt; a 16-bit duty that looks evenly spaced to the eye."""
+    return int((level / 255) ** gamma * 65535)
+
+for level in (0, 64, 128, 192, 255):
+    print(level, gamma_duty(level))     # 0 0,  64 3130,  128 14386,  192 35103,  255 65535
+</span>
+</div>
+<h3>Part 6. Servos</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="24" width="500" height="92" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M30,102 L30,38 L92.5,38 L92.5,102 L280,102 L280,38 L342.5,38 L342.5,102 L530,102" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><text x="560" y="78" font-size="18.2" fill="#1f3b52" text-anchor="start" font-weight="bold">1.0 ms: one end</text><rect x="30" y="142" width="500" height="92" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M30,220 L30,156 L123.75,156 L123.75,220 L280,220 L280,156 L373.75,156 L373.75,220 L530,220" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><text x="560" y="196" font-size="18.2" fill="#1f3b52" text-anchor="start" font-weight="bold">1.5 ms: centre</text><rect x="30" y="260" width="500" height="92" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"></rect><path d="M30,338 L30,274 L155,274 L155,338 L280,338 L280,274 L405,274 L405,338 L530,338" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><text x="560" y="314" font-size="18.2" fill="#1f3b52" text-anchor="start" font-weight="bold">2.0 ms: other end</text><text x="380" y="386" font-size="16.2" fill="#5b6b78" text-anchor="middle">the whole frame is 20 ms; the pulse is only 5–10 % of it (drawn stretched so you can see it)</text></svg>
+            <div class="diagram-caption">A hobby servo is commanded by the width of a pulse repeated every 20 ms (50 Hz): about 1 ms for one end of travel, 1.5 ms for the middle, 2 ms for the other end. Many servos accept a slightly wider range; check yours before driving it to the limits.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">servo.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">servo = PWM(Pin(14))
+servo.freq(50)                           # a 20 ms frame
+
+def angle(deg):
+    deg = max(0, min(180, deg))
+    servo.duty_ns(1_000_000 + int(deg / 180 * 1_000_000))   # 1.0 ms .. 2.0 ms pulse
+
+angle(90)                                # the middle
+</span>
+</div>
+<p>Many servos accept a wider range than 1 to 2 ms, but driving one to the end of its travel against a mechanical stop makes it strain and heat; check your servo and stay inside what it is rated for.</p>
+<h3>Powering a Servo</h3>
+<p>A hobby servo is a small motor, a gearbox and a control circuit in one case. Moving or pushing against a load, it can draw a few hundred milliamps, and more for an instant when it starts or stalls. Neither the Pico’s 3V3 pin nor a laptop’s USB port should supply that: the dips in voltage reset the Pico (a <strong>brownout</strong>), and the usual symptom is a board that reboots every time the servo moves. One unloaded servo on the bench sometimes works from USB, which is exactly why the failure is a surprise once you add load or a second servo.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 450" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="170" height="100" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2.5"/><text x="105" y="62" font-size="16.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">Pico W</text><text x="105" y="90" font-size="15" fill="#1f3b52" text-anchor="middle">GP14 = signal</text><text x="105" y="114" font-size="15" fill="#1f3b52" text-anchor="middle">GND</text><rect x="560" y="80" width="180" height="120" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="650" y="116.362" font-size="15.5" fill="#1f3b52" text-anchor="middle">Servo</text><text x="650" y="135.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">red = power</text><text x="650" y="155.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">brown = ground</text><text x="650" y="174.488" font-size="15.5" fill="#1f3b52" text-anchor="middle">orange = signal</text><rect x="20" y="230" width="150" height="100" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="95" y="266.5" font-size="15" fill="#1f3b52" text-anchor="middle">Battery holder</text><text x="95" y="285.25" font-size="15" fill="#1f3b52" text-anchor="middle">(AA cells)</text><text x="95" y="304" font-size="15" fill="#1f3b52" text-anchor="middle">+ top, − bottom</text><line x1="190" y1="100" x2="560" y2="100" stroke="#c0693f" stroke-width="3.2" stroke-linecap="round"/><text x="375" y="90" font-size="15" fill="#8a4526" text-anchor="middle" font-weight="bold">GP14 to orange (signal)</text><line x1="170" y1="255" x2="620" y2="255" stroke="#b3261e" stroke-width="3.2" stroke-linecap="round"/><line x1="620" y1="255" x2="620" y2="200" stroke="#b3261e" stroke-width="3.2" stroke-linecap="round"/><text x="395" y="245" font-size="15" fill="#b3261e" text-anchor="middle" font-weight="bold">battery + to red (power)</text><line x1="170" y1="305" x2="680" y2="305" stroke="#1f3b52" stroke-width="3.2" stroke-linecap="round"/><line x1="680" y1="305" x2="680" y2="200" stroke="#1f3b52" stroke-width="3.2" stroke-linecap="round"/><text x="525" y="326" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">battery − to brown (ground)</text><line x1="150" y1="130" x2="150" y2="190" stroke="#1f3b52" stroke-width="3.2" stroke-linecap="round"/><line x1="150" y1="190" x2="390" y2="190" stroke="#1f3b52" stroke-width="3.2" stroke-linecap="round"/><line x1="390" y1="190" x2="390" y2="305" stroke="#1f3b52" stroke-width="3.2" stroke-linecap="round"/><circle cx="390" cy="305" r="4" fill="#1f3b52"/><text x="270" y="182" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico GND joins the same ground</text><rect x="20" y="356" width="350" height="80" rx="8" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="195" y="391.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">Never power a servo from</text><text x="195" y="411.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">the Pico 3V3 pin or a laptop’s USB port</text><rect x="390" y="356" width="350" height="80" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="565" y="391.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">Signs of a power problem: the board</text><text x="565" y="411.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">resets, the servo jitters, USB drops</text></svg>
+            <div class="diagram-caption">Powering a servo. The servo’s power comes from its own battery pack, the signal comes from the Pico, and all three share one ground so that the signal has a reference. The battery’s negative terminal, the servo’s brown wire and a Pico GND pin are all joined.</div>
+        </div>
+<p>Use the battery holder from your kit: choose the number of cells so that the voltage is within the servo’s rating (the common 9 g servo is rated for roughly 4.8 to 6 V; three alkaline cells give about 4.5 V, a little below that but usually enough, and four cells give about 6 V, the top of the range, so check the markings on your servo). Join the battery’s negative terminal to a Pico GND pin as well as to the servo, because the signal wire only means something relative to a shared ground. Moving in small steps instead of one big jump also lowers the peak current.</p>
+<p>When a servo is holding position but you no longer need force, you can stop its signal with <span class="code-lesson-il">servo.duty_ns(0)</span>: it goes limp, stops drawing holding current and stops buzzing, and you start the pulses again when you want it to move.</p>
+<p>One last point connects to the next lesson: a PWM pin still only supplies a few milliamps. To dim anything bigger than an LED, or to run a fan, a pump or a motor, the pin must control a <em>switch</em> that carries the real current. The PWM frequency then matters too, because the switch has to turn on and off cleanly at that rate.</p>
+
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Average Voltage.</strong> A 3.3 V pin runs at 20 %, 60 % and 90 % duty. What average voltage does a slow load see?</p>
+        <p><strong>Exercise 2: Slice Conflict.</strong> A servo on GP14 needs 50 Hz and a motor driver input on GP15 wants 2 kHz. Why is there a problem, and how do you fix it?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: A Smooth Fade.</strong> Write <span class="code-lesson-il">fade(pwm, start, end, ms)</span> that moves the duty from a start percentage to an end percentage in 50 equal steps over the given time.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Servo Mapping.</strong> Write <span class="code-lesson-il">angle_to_ns(deg, lo_ns=1_000_000, hi_ns=2_000_000)</span> that clamps the angle to 0–180 and returns the pulse width, then give the width for 0°, 45°, 90° and 200°.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Average Voltage</summary>
+<p>Average = duty × 3.3 V: 0.2 × 3.3 = <strong>0.66 V</strong>, 0.6 × 3.3 = <strong>1.98 V</strong>, 0.9 × 3.3 = <strong>2.97 V</strong>.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Slice Conflict</summary>
+<p>GP14 and GP15 are the A and B channels of the <strong>same slice</strong> (slice 7), so they share one frequency: setting one changes the other. Move one signal to a pin in a different slice, for example the motor input to GP12 (slice 6) or GP16 (slice 0).</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: A Smooth Fade</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">fade.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import sleep_ms
+
+def fade(pwm, start, end, ms):
+    steps = 50
+    for i in range(steps + 1):
+        pct = start + (end - start) * i / steps
+        set_percent(pwm, pct)
+        sleep_ms(ms // steps)
+
+fade(pwm, 0, 100, 1000)            # up over one second
+fade(pwm, 100, 0, 1000)            # and back down
+</span>
+</div><p>Fifty steps is smooth to the eye. Note that <span class="code-lesson-il">sleep_ms</span> blocks; in an agent with other work to do you would advance one step per call from the main loop instead.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Servo Mapping</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">servo.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def angle_to_ns(deg, lo_ns=1_000_000, hi_ns=2_000_000):
+    deg = max(0, min(180, deg))
+    return lo_ns + int((hi_ns - lo_ns) * deg / 180)
+
+for d in (0, 45, 90, 200):
+    print(d, angle_to_ns(d))           # 0 1000000, 45 1250000, 90 1500000, 200 2000000
+</span>
+</div><p>The 200° request is clamped to 180°, giving 2.0 ms. Putting the limits in parameters lets you narrow them to your own servo’s safe range without changing the function.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Define duty cycle and say what a slow load sees.</li>
+            <li>Set a pin to 25 % duty at 1 kHz.</li>
+            <li>Explain what pins in the same PWM slice share.</li>
+            <li>Choose a sensible frequency for an LED, a motor and a servo.</li>
+        </ol>
+
+    </body>
+</html>

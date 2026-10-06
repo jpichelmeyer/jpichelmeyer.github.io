@@ -15,122 +15,246 @@
     </head>
 
     <body>
-        <p>A system you have only seen working when everything goes right is a system you do not yet understand. This lab breaks things on purpose. You will add the week’s resilience features to your Pico, and then your instructor will inflict four failures on it while you watch what it does.</p>
+        <p>Lab 6 builds the robot node from the week’s lessons and attacks it. You run the command logic with ownership, acknowledgements, rate limits and a deadman on real hardware, command it from your laptop, and then take away its network and its power while recording how long each safeguard takes.</p>
 
-
-<h3>What Your Pico Must Do</h3>
-<ol>
-<li>Connect with a <strong>last will</strong>: <span class="code-lesson-il">offline</span> (retained) on <span class="code-lesson-il">lab/&lt;id&gt;/stat/online</span>, and publish <span class="code-lesson-il">online</span> after connecting.</li>
-<li>Restore its output state from a <strong>file in flash</strong> at boot, and apply it before connecting.</li>
-<li>Publish its output state <strong>retained</strong>, at QoS 1, on <span class="code-lesson-il">lab/&lt;id&gt;/stat/fan</span>.</li>
-<li>Obey <span class="code-lesson-il">lab/&lt;id&gt;/cmd/fan</span> with <strong>idempotent</strong> commands (<span class="code-lesson-il">on</span> / <span class="code-lesson-il">off</span>).</li>
-<li>Recover from any failure with <strong>backoff and jitter</strong>, re-subscribing and re-announcing each time.</li>
-<li>Publish telemetry with a <strong>sequence number</strong>, and keep a bounded backlog while away.</li>
-</ol>
+<h3>What You Will Build</h3>
+<p>A robot node that obeys commands from the broker and stays safe when things go wrong. It has a pan servo and a drive output, the logic from the routing lesson (ownership, validation, acknowledgements, a deadman timer), a last will, and a retained state topic. It lives in your own subtree, so you can command it from your laptop with <span class="code-lesson-il">mosquitto_pub</span>, and you can pull its network away and watch each safeguard work. This is the node that your agent in Lab Practical 2 will talk to, in its instructor-built form.</p>
         <div class="diagram">
-<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="40" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="30" y="53" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="50" y="16" width="210" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="155" y="53" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">drill</text><rect x="260" y="16" width="240" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="380" y="53" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">Pico should</text><rect x="500" y="16" width="240" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="620" y="53" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">dashboard sees</text><rect x="10" y="78" width="40" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="114" font-size="15.0" fill="#1f3b52" text-anchor="start">1</text><rect x="50" y="78" width="210" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="155" y="114" font-size="15.0" fill="#1f3b52" text-anchor="middle">stop mosquitto for 60 s</text><rect x="260" y="78" width="240" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="380" y="114" font-size="15.0" fill="#1f3b52" text-anchor="middle">keeps sampling, retries</text><rect x="500" y="78" width="240" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="620" y="114" font-size="15.0" fill="#1f3b52" text-anchor="middle">dashboard: offline, then online</text><rect x="10" y="140" width="40" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="176" font-size="15.0" fill="#1f3b52" text-anchor="start">2</text><rect x="50" y="140" width="210" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="155" y="176" font-size="15.0" fill="#1f3b52" text-anchor="middle">switch your WiFi off/on</text><rect x="260" y="140" width="240" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="380" y="176" font-size="15.0" fill="#1f3b52" text-anchor="middle">reconnects by itself</text><rect x="500" y="140" width="240" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="620" y="176" font-size="15.0" fill="#1f3b52" text-anchor="middle">will appears, then online</text><rect x="10" y="202" width="40" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="238" font-size="15.0" fill="#1f3b52" text-anchor="start">3</text><rect x="50" y="202" width="210" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="155" y="238" font-size="15.0" fill="#1f3b52" text-anchor="middle">unplug the Pico, replug</text><rect x="260" y="202" width="240" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="380" y="238" font-size="15.0" fill="#1f3b52" text-anchor="middle">restores saved state</text><rect x="500" y="202" width="240" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="620" y="238" font-size="15.0" fill="#1f3b52" text-anchor="middle">state matches before</text><rect x="10" y="264" width="40" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="300" font-size="15.0" fill="#1f3b52" text-anchor="start">4</text><rect x="50" y="264" width="210" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="155" y="300" font-size="15.0" fill="#1f3b52" text-anchor="middle">publish a command twice</text><rect x="260" y="264" width="240" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="380" y="300" font-size="15.0" fill="#1f3b52" text-anchor="middle">acts once (idempotent)</text><rect x="500" y="264" width="240" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="620" y="300" font-size="15.0" fill="#1f3b52" text-anchor="middle">state, not a toggle</text></svg>
-            <div class="diagram-caption">The Lab 6 failure drills. Each one breaks something on purpose; your Pico passes only if it behaves as the right-hand columns describe.</div>
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="160" height="70" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="100" y="70.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">laptop</text><text x="100" y="90.1125" font-size="15.5" fill="#1f3b52" text-anchor="middle">cmd() and watch()</text><rect x="300" y="40" width="160" height="70" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="80.6" font-size="16" fill="#1f3b52" text-anchor="middle">broker</text><rect x="560" y="20" width="180" height="110" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="650" y="61.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">Pico: hub.py</text><text x="650" y="80.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">robot.py</text><text x="650" y="99.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">controller.py</text><rect x="560" y="190" width="180" height="60" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="650" y="225.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">pan servo (GP14)</text><rect x="560" y="260" width="180" height="56" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="650" y="293.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">drive: LED or motor</text><line x1="189" y1="75" x2="291" y2="75" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="300.0,75.0 289.0,69.5 289.0,80.5" fill="#1f3b52"/><polygon points="180.0,75.0 191.0,80.5 191.0,69.5" fill="#1f3b52"/><line x1="469" y1="75" x2="551" y2="75" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="560.0,75.0 549.0,69.5 549.0,80.5" fill="#1f3b52"/><polygon points="460.0,75.0 471.0,80.5 471.0,69.5" fill="#1f3b52"/><line x1="650" y1="130" x2="650" y2="181" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="650.0,190.0 655.5,179.0 644.5,179.0" fill="#1f3b52"/><text x="240" y="62" font-size="14.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">cmd/#</text><text x="240" y="98" font-size="14.5" fill="#3c8a5a" text-anchor="middle" font-weight="bold">evt/#  stat/#</text><rect x="20" y="150" width="500" height="76.55" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="270" y="175.225" font-size="14.5" fill="#1f3b52" text-anchor="middle">The Pico also runs a loopback self-test: a Controller on the same</text><text x="270" y="193.35" font-size="14.5" fill="#1f3b52" text-anchor="middle">board sends a scripted sequence through the broker to its own</text><text x="270" y="211.475" font-size="14.5" fill="#1f3b52" text-anchor="middle">robot logic. The laptop does the manual tests.</text></svg>
+            <div class="diagram-caption">The Lab 6 setup. The robot logic and the broker are the same as in the lesson; only the actuators are yours.</div>
         </div>
 
-<h3>Part 1. Build</h3>
-<p>Start from your Lab 5 program and your state code from the persistence lesson. Make one change at a time and test it before adding the next: it is much harder to find a bug in six new things than in one.</p>
+<h3>Step 1. Build and Power</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 324.5" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="250" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="145" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Part</text><rect x="270" y="14" width="170" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="355" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Pico pin</text><rect x="440" y="14" width="300" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="590" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Notes</text><rect x="20" y="62" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="start">servo signal (orange)</text><rect x="270" y="62" width="170" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="start">GP14</text><rect x="440" y="62" width="300" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="84.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">power the servo from its own battery</text><text x="449" y="102.263" font-size="14.5" fill="#1f3b52" text-anchor="start">pack, ground joined</text><rect x="20" y="114.25" width="250" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">LED + 220 Ω (drive stand-in)</text><rect x="270" y="114.25" width="170" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">GP16</text><rect x="440" y="114.25" width="300" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">if you have no motor driver set up</text><rect x="20" y="162.25" width="250" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">TA6586 inputs (optional)</text><rect x="270" y="162.25" width="170" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">GP10, GP11</text><rect x="440" y="162.25" width="300" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">then use Actuators(motor=True)</text><rect x="20" y="210.25" width="250" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="239.325" font-size="14.5" fill="#1f3b52" text-anchor="start">battery pack +</text><rect x="270" y="210.25" width="170" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="239.325" font-size="14.5" fill="#1f3b52" text-anchor="start">servo red</text><rect x="440" y="210.25" width="300" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="239.325" font-size="14.5" fill="#1f3b52" text-anchor="start">never from the Pico’s 3V3</text><rect x="20" y="258.25" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="289.45" font-size="14.5" fill="#1f3b52" text-anchor="start">battery pack −</text><rect x="270" y="258.25" width="170" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="280.387" font-size="14.5" fill="#1f3b52" text-anchor="start">servo brown, Pico</text><text x="279" y="298.512" font-size="14.5" fill="#1f3b52" text-anchor="start">GND</text><rect x="440" y="258.25" width="300" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="289.45" font-size="14.5" fill="#1f3b52" text-anchor="start">one common ground</text></svg>
+            <div class="diagram-caption">Lab 6 wiring, using the servo power rules of the PWM lesson. With the LED as the drive output, brightness stands in for motor speed, and you lose nothing: the safeguards act on the command, not on the motor.</div>
+        </div>
+
+<p>Copy to the Pico: <span class="code-lesson-il">net.py</span>, <span class="code-lesson-il">config.py</span>, <span class="code-lesson-il">hub.py</span>, <span class="code-lesson-il">robot.py</span>, <span class="code-lesson-il">controller.py</span>, <span class="code-lesson-il">actuators.py</span> (below), and <span class="code-lesson-il">motor.py</span> if you use the driver. The first four are in the lessons of this week.</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
-<span class="code-block-filename">main.py (structure)</span>
+<span class="code-block-filename">actuators.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">state = load_state({"fan": "off"})
-fan.value(1 if state["fan"] == "on" else 0)
+<span class="code-lesson-bl"># actuators.py -- the hardware behind the Robot logic
+from machine import Pin, PWM
 
-client.set_last_will(ONLINE, b"offline", retain=True)
-connect_broker()                     # backoff + jitter; subscribes and announces
+class Actuators:
+    """A pan servo on GP14, and a 'drive' output: the TA6586 motor driver on GP10/GP11
+    (motor=True), or an LED on GP16 whose brightness stands in for speed (motor=False)."""
+    def __init__(self, motor=False):
+        self.servo = PWM(Pin(14), freq=50)
+        self.pan(0)
+        if motor:
+            from motor import Motor            # from the Switching Loads lesson
+            self.motor, self.led = Motor(10, 11), None
+        else:
+            self.motor, self.led = None, PWM(Pin(16), freq=1000, duty_u16=0)
 
-while True:
-    try:
-        client.check_msg()
-        keepalive.tick()
-        if time_to_publish():
-            publish_reading(make_packet())
-        maybe_save()
-    except OSError:
-        connect_broker()
+    def pan(self, deg):
+        deg = max(-90, min(90, deg))
+        self.servo.duty_ns(1_000_000 + int((deg + 90) / 180 * 1_000_000))   # 1.0 to 2.0 ms
+
+    def drive(self, pct):
+        if self.motor:
+            self.motor.speed(pct)
+        else:
+            self.led.duty_u16(int(abs(pct) / 100 * 65535))
+
+    def stop(self):
+        self.drive(0)
 </span>
 </div>
-<h3>Part 2. The Drills</h3>
-<p>Watch the Pico’s serial output and, on the Pi, <span class="code-lesson-il">mosquitto_sub -v -t &#39;lab/+/stat/#&#39;</span> together. Your instructor will run each drill; record what you see.</p>
-        <div class="diagram">
-<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="60" width="200" height="56" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="140" y="94" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">connected</text><rect x="240" y="60" width="260" height="56" rx="6" fill="#fff3f0" stroke="#d64545" stroke-width="2"></rect><text x="370" y="94" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">retrying (1 s, 2, 4, 8, 16...)</text><rect x="500" y="60" width="220" height="56" rx="6" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2"></rect><text x="610" y="94" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">connected again</text><line x1="40" y1="140" x2="720" y2="140" stroke="#444" stroke-width="2.5" stroke-linecap="round"></line><line x1="40" y1="132" x2="40" y2="148" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="70" y="170" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">0 s</text><line x1="240" y1="132" x2="240" y2="148" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="240" y="170" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">30 s: broker stops</text><line x1="500" y1="132" x2="500" y2="148" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="500" y="170" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">90 s: broker back</text><line x1="720" y1="132" x2="720" y2="148" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="660" y="170" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold"></text><text x="380" y="236" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">recovery time = from broker back (90 s) to publishing again</text><text x="380" y="272.4" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">target: a few seconds, not minutes</text><line x1="260" y1="50" x2="260" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line><line x1="280" y1="50" x2="280" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line><line x1="320" y1="50" x2="320" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line><line x1="400" y1="50" x2="400" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line><line x1="480" y1="50" x2="480" y2="60" stroke="#d64545" stroke-width="2.5" stroke-linecap="round"></line></svg>
-            <div class="diagram-caption">One drill over time. The broker goes down at 30 s and returns at 90 s. A resilient Pico retries with growing gaps, recovers soon after the broker is back, and sends what it kept while away.</div>
-        </div>
-
-<h3>Part 3. Score It</h3>
-        <div class="diagram">
-<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="16" width="190" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="109" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">metric</text><rect x="204" y="16" width="350" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="379" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">how to measure</text><rect x="554" y="16" width="188" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="648" y="50" font-size="16.9" fill="#fff" text-anchor="middle" font-weight="bold">goal</text><rect x="14" y="72" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="105" font-size="16.2" fill="#1f3b52" text-anchor="start">recovery time</text><rect x="204" y="72" width="350" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="379" y="105" font-size="16.2" fill="#1f3b52" text-anchor="middle">s from broker back to first publish</text><rect x="554" y="72" width="188" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="648" y="105" font-size="16.2" fill="#1f3b52" text-anchor="middle">smaller</text><rect x="14" y="128" width="190" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="161" font-size="16.2" fill="#1f3b52" text-anchor="start">readings lost</text><rect x="204" y="128" width="350" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="379" y="161" font-size="16.2" fill="#1f3b52" text-anchor="middle">count missing in seq numbers</text><rect x="554" y="128" width="188" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="648" y="161" font-size="16.2" fill="#1f3b52" text-anchor="middle">zero if buffered</text><rect x="14" y="184" width="190" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="217" font-size="16.2" fill="#1f3b52" text-anchor="start">duplicates</text><rect x="204" y="184" width="350" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="379" y="217" font-size="16.2" fill="#1f3b52" text-anchor="middle">same seq received twice</text><rect x="554" y="184" width="188" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="648" y="217" font-size="16.2" fill="#1f3b52" text-anchor="middle">handled, not harmful</text><rect x="14" y="240" width="190" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="273" font-size="16.2" fill="#1f3b52" text-anchor="start">state correct</text><rect x="204" y="240" width="350" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="379" y="273" font-size="16.2" fill="#1f3b52" text-anchor="middle">output matches before the drill</text><rect x="554" y="240" width="188" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="648" y="273" font-size="16.2" fill="#1f3b52" text-anchor="middle">always</text></svg>
-            <div class="diagram-caption">What to measure in Lab 6. Each metric turns "it seems to work" into a number you can compare between attempts.</div>
-        </div>
-
-<h3>Lab Report</h3>
-<ol>
-<li>Fill in a scorecard (recovery time, readings lost, duplicates, state correct) for each of the four drills.</li>
-<li>For drill 3, explain what your Pico published and what the dashboard displayed during the outage, and why.</li>
-<li>Which feature turned out to matter most, and which one did you not need after all? Justify with something you observed.</li>
-<li>Describe one failure you thought of that the instructor did not run, and what your Pico would do.</li>
-</ol>
-
-                <h3>Exercises</h3>
-        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
-        <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Predict the Drill.</strong> Before running drill 2 (WiFi off for a minute), write down what the dashboard should show and when, given <span class="code-lesson-il">keepalive=30</span>.</p>
-        <p><strong>Exercise 2: Why Not Retry Fast?.</strong> Your friend’s Pico retries every 100 ms with no limit during drill 1. Name two problems this causes.</p>
-        <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Measure Recovery Time.</strong> Add the measurement to your Pico: record the time the connection was lost and the time of the first successful publish afterwards, and publish the difference once, to <span class="code-lesson-il">lab/&lt;id&gt;/tele/recovery_ms</span>.</p>
-        <h4>Advanced</h4>
-        <p><strong>Exercise 4: Test Without the Instructor.</strong> Design a way to run drill 3 (power loss) alone, with only your laptop and Pi, and say what you would check.</p>
-
-        <h3>Solutions</h3>
-        <p>Give each exercise an honest try before opening its solution.</p>
-        <h4>Warm Up</h4>
-        <details>
-        <summary>Exercise 1: Predict the Drill</summary>
-<p>The dashboard should show <span class="code-lesson-il">offline</span> about 45 seconds after the WiFi dropped (1.5 × 30), when the broker publishes the will. When WiFi returns, the Pico reconnects, publishes <span class="code-lesson-il">online</span>, and the dashboard flips back.</p>
-        </details>
-        <details>
-        <summary>Exercise 2: Why Not Retry Fast?</summary>
-<p>It <strong>wastes power</strong> and keeps the radio busy, and it <strong>hammers the broker</strong> the moment it restarts, from every student at once. It can also starve the rest of the program of time. Backoff with jitter avoids all three.</p>
-        </details>
-        <h4>Intermediate</h4>
-        <details>
-        <summary>Exercise 3: Measure Recovery Time</summary>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">main.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">lost_at = None
+<span class="code-lesson-bl"># main.py for Lab 6: a robot node in your own subtree, with a loopback self-test
+import hub
+from robot import Robot
+from controller import Controller
+from actuators import Actuators
+from time import ticks_ms, ticks_diff
 
-# in the except OSError branch of the main loop:
-lost_at = ticks_ms()
-connect_broker()
-client.publish(TELE, payload)
-if lost_at is not None:
-    took = ticks_diff(ticks_ms(), lost_at)
-    client.publish(RECOVERY, str(took).encode())
-    lost_at = None
+h = hub.Hub()
+h.presence()
+robot = Robot(Actuators(), allow_spin=True)       # Lab 6 only: the spin command exercises the deadman
+
+def on_cmd(topic, payload):
+    kind = topic.rsplit("/", 1)[-1]
+    h.publish("evt/ack", robot.command(kind, hub.decode(payload), ticks_ms()))
+
+h.on(h.mine("cmd/#"), on_cmd)
+
+# The loopback test: this same board also plays the controller, through the real broker.
+ctl = Controller(h, h.root, "me")                 # h.root is "lab/&lt;you&gt;/"
+script = [(2000, "claim", {}), (3000, "pan", {"deg": 30}), (3600, "pan", {"deg": -30}),
+          (4400, "drive", {"pct": 60, "ms": 800}), (6000, "spin", {"pct": 40}), (9000, "stop", {})]
+t0, nxt, shown, reported = ticks_ms(), 0, None, set()
+
+while True:
+    h.poll()
+    now = ticks_ms()
+    for why in robot.tick(now):
+        h.publish("evt/stopped", {"why": why})
+        print("stopped:", why)
+    st = robot.state()
+    if st != shown:
+        h.publish("stat/state", {"state": st[0], "owner": st[1]}, retain=True)
+        shown = st
+        print("state:", st)
+    if nxt &lt; len(script) and ticks_diff(now, t0) &gt;= script[nxt][0]:
+        kind, fields = script[nxt][1], script[nxt][2]
+        print("send", kind, fields, "id", ctl.send(kind, now, **fields))
+        nxt += 1
+    ctl.tick(now)
+    for cid in list(ctl.done):
+        if cid not in reported:
+            reported.add(cid)
+            print("ack", cid, ctl.done[cid])
 </span>
-</div><p>This measures from detection to recovery on the Pico’s own clock. It does not include the time before the failure was noticed, which is why the keep-alive also matters.</p>
+</div>
+<h3>Step 2. Run the Self-Test</h3>
+<p>Start the program with the board connected to Thonny. The script plays out over about ten seconds, and you should see something like this (the simulated run below used the same logic, so the order and the reasons are exactly what you should get):</p>
+<div class="code-block" data-lang="text">
+<div class="code-block-header">
+<span class="code-block-filename">console</span>
+<span class="code-block-lang">Text</span>
+</div>
+<span class="code-lesson-bl">state: ('IDLE', None)
+send claim {} id 1
+state: ('READY', 'me')
+ack 1 {... 'cmd_id': 1, 'ok': True, 'why': ''}
+send pan {'deg': 30} id 2
+ack 2 {... 'ok': True}
+send pan {'deg': -30} id 3
+ack 3 {... 'ok': True}
+send drive {'pct': 60, 'ms': 800} id 4
+state: ('BUSY', 'me')
+stopped: time up              &lt;- 800 ms later, by itself
+state: ('READY', 'me')
+send spin {'pct': 40} id 5
+state: ('BUSY', 'me')
+stopped: deadman              &lt;- 2 s after the spin command, nothing renewed it
+send stop {} id 6
+ack 6 {... 'ok': True}
+</span>
+</div>
+<p>Watch the servo and the LED at the same time. Then, from the laptop, run <span class="code-lesson-il">watch</span> and see the same traffic from outside: the acks on <span class="code-lesson-il">evt/ack</span>, the retained <span class="code-lesson-il">stat/state</span>, and <span class="code-lesson-il">stat/online</span>.</p>
+<div class="code-block" data-lang="shell">
+<div class="code-block-header">
+<span class="code-block-filename">laptop.sh</span>
+<span class="code-block-lang">Shell</span>
+</div>
+<span class="code-lesson-bl"># on the laptop. Put your details in the first four lines, then paste the function.
+HOST=192.168.1.50; U=jsmith; PW=your-broker-password; n=0
+
+cmd() {   # usage:  cmd pan '"deg":30'      cmd claim ''      cmd stop ''
+  n=$((n+1))
+  mosquitto_pub -h $HOST -u $U -P $PW -t "lab/$U/cmd/$1" \
+    -m "{\"v\":1,\"seq\":$n,\"t\":0,\"id\":$n,\"user\":\"$U\"${2:+,$2}}"
+}
+
+watch() { mosquitto_sub -h $HOST -u $U -P $PW -v -t "lab/$U/#" -F "%I %t %p"; }
+</span>
+</div>
+<h3>Step 3. The Test Matrix</h3>
+<p>Using <span class="code-lesson-il">cmd</span> and <span class="code-lesson-il">watch</span>, run each test below in order and record what the node published and what the hardware did. Reset between tests by sending <span class="code-lesson-il">cmd stop</span> and, when ownership matters, by waiting for the lease. Keep the <span class="code-lesson-il">watch</span> window open all the time. For spin, which exists only in this lab, the controller must keep repeating the command to hold the motor on.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 480.25" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="50" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="45" y="39.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="70" y="14" width="340" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="240" y="39.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">You do</text><rect x="410" y="14" width="330" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="575" y="39.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">You expect</text><rect x="20" y="54" width="50" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="85.2" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="70" y="54" width="340" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="85.2" font-size="14.5" fill="#1f3b52" text-anchor="start">pan 30 before any claim</text><rect x="410" y="54" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="76.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">ack not ok: “not owner”; servo does not</text><text x="419" y="94.2625" font-size="14.5" fill="#1f3b52" text-anchor="start">move</text><rect x="20" y="106.25" width="50" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="131.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">2</text><rect x="70" y="106.25" width="340" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="131.325" font-size="14.5" fill="#1f3b52" text-anchor="start">claim</text><rect x="410" y="106.25" width="330" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="131.325" font-size="14.5" fill="#1f3b52" text-anchor="start">ack ok; stat/state READY, owner jsmith</text><rect x="20" y="146.25" width="50" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="171.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">3</text><rect x="70" y="146.25" width="340" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="171.325" font-size="14.5" fill="#1f3b52" text-anchor="start">pan 30, then pan −30 after a second</text><rect x="410" y="146.25" width="330" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="171.325" font-size="14.5" fill="#1f3b52" text-anchor="start">servo moves each time; acks ok</text><rect x="20" y="186.25" width="50" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="211.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">4</text><rect x="70" y="186.25" width="340" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="211.325" font-size="14.5" fill="#1f3b52" text-anchor="start">pan 10 and pan 20 within 100 ms</text><rect x="410" y="186.25" width="330" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="211.325" font-size="14.5" fill="#1f3b52" text-anchor="start">second is refused “too fast”</text><rect x="20" y="226.25" width="50" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="251.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">5</text><rect x="70" y="226.25" width="340" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="251.325" font-size="14.5" fill="#1f3b52" text-anchor="start">pan 200</text><rect x="410" y="226.25" width="330" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="251.325" font-size="14.5" fill="#1f3b52" text-anchor="start">ack not ok: out of range; servo stays</text><rect x="20" y="266.25" width="50" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="291.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">6</text><rect x="70" y="266.25" width="340" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="291.325" font-size="14.5" fill="#1f3b52" text-anchor="start">drive pct 60, ms 800</text><rect x="410" y="266.25" width="330" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="291.325" font-size="14.5" fill="#1f3b52" text-anchor="start">runs 0.8 s; evt/stopped “time up”</text><rect x="20" y="306.25" width="50" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="331.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">7</text><rect x="70" y="306.25" width="340" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="331.325" font-size="14.5" fill="#1f3b52" text-anchor="start">spin 50 once</text><rect x="410" y="306.25" width="330" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="331.325" font-size="14.5" fill="#1f3b52" text-anchor="start">runs 2 s, then evt/stopped “deadman”</text><rect x="20" y="346.25" width="50" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="371.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">8</text><rect x="70" y="346.25" width="340" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="371.325" font-size="14.5" fill="#1f3b52" text-anchor="start">spin 50 every 500 ms for 5 s</text><rect x="410" y="346.25" width="330" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="371.325" font-size="14.5" fill="#1f3b52" text-anchor="start">keeps running; stops 2 s after the last</text><rect x="20" y="386.25" width="50" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="411.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">9</text><rect x="70" y="386.25" width="340" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="411.325" font-size="14.5" fill="#1f3b52" text-anchor="start">send the same drive twice (same id)</text><rect x="410" y="386.25" width="330" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="411.325" font-size="14.5" fill="#1f3b52" text-anchor="start">same ack twice; one motion only</text><rect x="20" y="426.25" width="50" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="451.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">10</text><rect x="70" y="426.25" width="340" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="451.325" font-size="14.5" fill="#1f3b52" text-anchor="start">claim, then wait 35 s without commands</text><rect x="410" y="426.25" width="330" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="451.325" font-size="14.5" fill="#1f3b52" text-anchor="start">evt/stopped “lease expired”; state IDLE</text></svg>
+            <div class="diagram-caption">Tests 1 to 10. For test 9 use <span class="code-lesson-il">mosquitto_pub</span> directly with a fixed id; the <span class="code-lesson-il">cmd</span> function increments the id every time, so it cannot repeat one. The duplicate-id exercise below shows the same thing on the Pico.</div>
+        </div>
+
+<h3>Step 4. Failure Drills</h3>
+<p>Now the part that matters. For each drill, write down the time each event happened (the <span class="code-lesson-il">-F "%I"</span> option on <span class="code-lesson-il">mosquitto_sub</span> gives timestamps) and compute the delays.</p>
+<ul>
+<li><strong>Drill A, network lost during a spin.</strong> Start <span class="code-lesson-il">spin 50</span> repeated from the laptop for a few seconds, then turn the WiFi access point (or your hotspot) off. Does the motor stop? When? Where did the decision to stop get made: on the Pico, or at the broker? What does the broker’s <span class="code-lesson-il">stat/online</span> show, and when?</li>
+<li><strong>Drill B, power pulled.</strong> Unplug the Pico. How long until <span class="code-lesson-il">stat/online</span> says false? Compare with the 30 to 45 s window for keepalive 30.</li>
+<li><strong>Drill C, recovery.</strong> Restore power or WiFi. How long until the node is online again? What retained messages were republished, and in what order? (The <span class="code-lesson-il">hello</span> message is put first in the queue by <span class="code-lesson-il">Hub.connect</span>.)</li>
+<li><strong>Drill D, retained command.</strong> Publish <span class="code-lesson-il">cmd/pan</span> with <span class="code-lesson-il">-r</span> and a valid payload. Reboot the Pico, claim the robot, and see what it does when the broker redelivers the old command. Then delete the stored message with an empty retained publish (<span class="code-lesson-il">-n -r</span>) and repeat.</li>
+</ul>
+        <div class="diagram">
+<svg viewBox="0 0 760 316" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="230" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="135" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Drill</text><rect x="250" y="14" width="150" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="325" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Event time</text><rect x="400" y="14" width="150" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="475" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Delay (s)</text><rect x="550" y="14" width="190" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="645" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Which mechanism</text><rect x="20" y="62" width="230" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="start">A: AP off, spin stops</text><rect x="250" y="62" width="150" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="400" y="62" width="150" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="550" y="62" width="190" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="110" width="230" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="start">A: online false published</text><rect x="250" y="110" width="150" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="400" y="110" width="150" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="550" y="110" width="190" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="158" width="230" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="start">B: power pulled, will</text><rect x="250" y="158" width="150" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="400" y="158" width="150" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="550" y="158" width="190" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="206" width="230" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="start">C: power back, online true</text><rect x="250" y="206" width="150" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="400" y="206" width="150" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="550" y="206" width="190" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="254" width="230" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="283.075" font-size="14.5" fill="#1f3b52" text-anchor="start">D: stale command executed</text><rect x="250" y="254" width="150" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="400" y="254" width="150" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="550" y="254" width="190" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/></svg>
+            <div class="diagram-caption">The drill results table for your report. Expect Drill A’s stop at about 2 s and Drill B’s will at 30 to 45 s, and be ready to explain every number.</div>
+        </div>
+
+<h3>Lab Report</h3>
+<ol>
+<li>Your wiring photo, the console output of the self-test, and the completed test matrix (10 rows, with observed results).</li>
+<li>The drill table, with the mechanism behind each delay. For Drill A say which part of the system made the decision to stop, and why it still worked with the network down.</li>
+<li>Draw a timeline of one drill with the node, the broker and your laptop as three lanes and every message marked.</li>
+<li>Test 4 and test 9 refuse or ignore a command for different reasons. State each rule and say what a user would see if each rule were missing.</li>
+<li>Drill D: what did the node do with the retained command, why, and which rule from the lesson does it demonstrate?</li>
+</ol>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Read the Script.</strong> From the script in <span class="code-lesson-il">main.py</span>, at what time (in ms after the loop starts) is the spin command sent, and when does the deadman stop it? What is the state at 8,500 ms?</p>
+        <p><strong>Exercise 2: Why Rejected?.</strong> The robot answers “missing user” to this payload: <span class="code-lesson-il">{"v":1,"seq":4,"t":0,"id":4,"deg":30}</span>. Fix the payload, and say why the robot insists on the field.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Owner “me”.</strong> In the self-test the owner is “me”, not your user name, and it works. Explain, and say what would happen if a second controller on the same broker used the name “me” as well.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Same Id Twice.</strong> Write the test that proves a repeated command is answered twice but carried out once, and that a <em>new</em> command 100 ms later is refused by the pan rate rule. Run it against the Robot class with a stand-in actuator that only counts.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Read the Script</summary>
+<p>The spin is sent at <strong>6,000 ms</strong>. The deadman allows 2,000 ms from the last command, so it fires just after <strong>8,000 ms</strong> (at the first <span class="code-lesson-il">tick</span> past that moment). At 8,500 ms the robot has stopped but still has an owner whose lease (30 s) has not expired, so the state is <strong>READY</strong> with the owner. The stop at 9,000 ms is then only a formality.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Why Rejected?</summary>
+<p>Add <span class="code-lesson-il">"user":"jsmith"</span>: <span class="code-lesson-il">{"v":1,"seq":4,"t":0,"id":4,"user":"jsmith","deg":30}</span>. The robot needs it to apply the ownership rule, because MQTT 3.1.1 does not tell a subscriber who published a message. The field is a <em>claim</em>, not proof; the proof is the access list, which decides who can publish on the topic at all.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Owner “me”</summary>
+<p>The robot checks only that the <span class="code-lesson-il">user</span> field of each command equals the owner stored by the <span class="code-lesson-il">claim</span>. The name is arbitrary. A second controller that also called itself “me” would be treated as the same owner: it could command the robot, and renew its lease, with no protection. That is acceptable in your own subtree where only you can publish, and exactly why the real protection against an impostor is the broker’s access list. For the practical, the instructor grants write access to one user at a time.</p>
         </details>
         <h4>Advanced</h4>
         <details>
-        <summary>Exercise 4: Test Without the Instructor</summary>
-<p>Run <span class="code-lesson-il">mosquitto_sub -v -t &#39;lab/+/stat/#&#39;</span> on the Pi, then unplug the Pico, wait 1.5 × keep-alive, and watch for the retained <span class="code-lesson-il">offline</span>. Replug it and check three things: <span class="code-lesson-il">online</span> returns, the fan’s <span class="code-lesson-il">stat</span> matches its state before the unplug (restored from flash), and the sequence number continues from a sensible value, noting whether it restarted from 1.</p>
+        <summary>Exercise 4: Same Id Twice</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">dup_test.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class Counting:
+    """A stand-in actuator that only counts what it is told."""
+    def __init__(self):
+        self.pans = 0
+    def pan(self, deg):
+        self.pans += 1
+    def drive(self, pct):
+        pass
+    def stop(self):
+        pass
+
+act = Counting()
+robot = Robot(act)
+robot.command("claim", {"id": 1, "user": "me"}, 1000)
+fields = {"id": 77, "user": "me", "deg": 45}
+a1 = robot.command("pan", fields, 2000)
+a2 = robot.command("pan", fields, 2050)      # the same command again: a retry
+print(a1 == a2, act.pans)                    # True 1: answered twice, done once
+fields2 = {"id": 78, "user": "me", "deg": 45}
+a3 = robot.command("pan", fields2, 2100)     # a NEW id only 100 ms later
+print(a3)                                    # refused: too fast
+</span>
+</div><p>The first line prints <span class="code-lesson-il">True 1</span>: the two acks are identical (the second came from the table of recent ids) and the actuator was told to pan once. The second print shows that a different id 100 ms later gets “too fast”. These two rules are independent: ids protect against <em>retransmission</em>, the rate rule against <em>a different command arriving too soon</em>. A real controller that retries correctly never trips the second.</p>
         </details>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>Explain how each of last will, retained state, flash state and backoff contributes to recovery.</li>
-            <li>State what you measured and what number you would want to improve first.</li>
-            <li>Describe a failure your design still does not handle.</li>
+            <li>Build a node that obeys cmd topics and answers on evt/ack with the command id.</li>
+            <li>Test ownership, validation, rate limits and duplicate ids with a controlled sequence of commands.</li>
+            <li>Show that the deadman and bounded commands stop the robot with the network down.</li>
+            <li>Measure the detection time of a last will and connect it to the keepalive.</li>
+            <li>Demonstrate the retained-command hazard and clear a retained message.</li>
         </ol>
 
     </body>

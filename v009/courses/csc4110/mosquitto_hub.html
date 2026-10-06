@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson opens the class broker. You learn what Mosquitto is, how its configuration, password and access-list files decide who may connect and what each user may read and write, how to watch it with the command-line tools and its <span class="code-lesson-il">$SYS</span> statistics, and how to read its log when a node cannot connect or a message never arrives.</p>
+
+<p>Up to now the broker was somebody else’s machine. This lesson opens it: what Mosquitto is, how its three small files decide who may connect and what each user may read and write, and how to watch it work. Students normally only use the instructor’s broker, but you will run your own on a laptop in Lab 5, and a robot team that cannot read a broker log cannot find its own faults.</p>
+<h3>Part 1. A Hub in Three Files</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="250" y="60" width="260" height="210" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="86" font-size="16" fill="#8a4526" text-anchor="middle" font-weight="bold">Raspberry Pi: Mosquitto</text><rect x="270" y="100" width="220" height="44" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="126.9" font-size="14" fill="#1f3b52" text-anchor="middle">mosquitto.conf  (what to run)</text><rect x="270" y="152" width="220" height="44" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="179.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">passwd  (who you are)</text><rect x="270" y="204" width="220" height="44" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="231.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">acl  (what you may touch)</text><rect x="20" y="40" width="150" height="50" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="95" y="70.25" font-size="15" fill="#1f3b52" text-anchor="middle">Pico  jsmith</text><rect x="20" y="120" width="150" height="50" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="95" y="150.25" font-size="15" fill="#1f3b52" text-anchor="middle">Pico  bob</text><rect x="20" y="200" width="150" height="50" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="95" y="230.25" font-size="15" fill="#1f3b52" text-anchor="middle">laptop (logger)</text><rect x="590" y="120" width="150" height="50" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="665" y="140.875" font-size="15" fill="#1f3b52" text-anchor="middle">instructor</text><text x="665" y="159.625" font-size="15" fill="#1f3b52" text-anchor="middle">robot</text><line x1="177.844" y1="69.4124" x2="242.156" y2="105.588" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="250.0,110.0 243.1,99.8 237.7,109.4" fill="#1f3b52"/><polygon points="170.0,65.0 176.9,75.2 182.3,65.6" fill="#1f3b52"/><line x1="178.982" y1="145.561" x2="241.018" y2="149.439" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="250.0,150.0 239.4,143.8 238.7,154.8" fill="#1f3b52"/><polygon points="170.0,145.0 180.6,151.2 181.3,140.2" fill="#1f3b52"/><line x1="178.59" y1="222.316" x2="241.41" y2="202.684" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="250.0,200.0 237.9,198.0 241.1,208.5" fill="#1f3b52"/><polygon points="170.0,225.0 182.1,227.0 178.9,216.5" fill="#1f3b52"/><line x1="519" y1="145" x2="581" y2="145" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="590.0,145.0 579.0,139.5 579.0,150.5" fill="#1f3b52"/><polygon points="510.0,145.0 521.0,150.5 521.0,139.5" fill="#1f3b52"/><text x="380" y="306" font-size="14.5" fill="#5b6b78" text-anchor="middle">port 1883, plain text, on the class network only</text></svg>
+            <div class="diagram-caption">The class hub. Every client talks only to the broker. Three files decide its behavior: the configuration, the list of users and passwords, and the access list. Change any of them and restart (or reload) the service.</div>
+        </div>
+
+<p>Mosquitto is a small, open-source MQTT broker that runs happily on a Raspberry Pi. It starts as a system service, reads its configuration, and from then on does nothing but accept connections and move messages. It stores nothing except retained messages and the sessions of clients that asked for them.</p>
+<h3>Part 2. Installing and Configuring</h3>
+<p>On the Pi (or any Debian machine) the package is called <span class="code-lesson-il">mosquitto</span>, and the command-line tools you used in Unit 1 come in <span class="code-lesson-il">mosquitto-clients</span>. On a Mac, <span class="code-lesson-il">brew install mosquitto</span> installs both; on Windows use the installer from the Mosquitto website. Then write a configuration file:</p>
+<div class="code-block" data-lang="shell">
+<div class="code-block-header">
+<span class="code-block-filename">install</span>
+<span class="code-block-lang">Shell</span>
+</div>
+<span class="code-lesson-bl">sudo apt update
+sudo apt install mosquitto mosquitto-clients
+sudo systemctl enable --now mosquitto
+</span>
+</div>
+<div class="code-block" data-lang="conf">
+<div class="code-block-header">
+<span class="code-block-filename">class.conf</span>
+<span class="code-block-lang">Config</span>
+</div>
+<span class="code-lesson-bl"># /etc/mosquitto/conf.d/class.conf
+listener 1883                       # without this, Mosquitto 2.x listens on localhost only
+allow_anonymous false               # everyone must log in
+password_file /etc/mosquitto/passwd
+acl_file /etc/mosquitto/acl
+
+persistence true                    # keep retained messages across a restart
+persistence_location /var/lib/mosquitto/
+
+message_size_limit 1024             # refuse payloads over 1 kB
+max_queued_messages 200             # per offline client with a persistent session
+
+connection_messages true            # log every connect and disconnect
+log_type error
+log_type warning
+log_type notice
+</span>
+</div>
+<p>Two lines deserve attention. Since version 2.0 Mosquitto will not accept connections from other machines unless you declare a <span class="code-lesson-il">listener</span>, a deliberate default meant to stop accidental exposure. And <span class="code-lesson-il">allow_anonymous false</span> forces a login: without it, anybody who can reach the port can publish to anything. The class network is private, but a broker reachable from the internet with no login is found by scanners within hours.</p>
+<h3>Part 3. Users and the Access List</h3>
+<div class="code-block" data-lang="shell">
+<div class="code-block-header">
+<span class="code-block-filename">users.sh</span>
+<span class="code-block-lang">Shell</span>
+</div>
+<span class="code-lesson-bl"># on the Pi (creates the file with the first user; -c would erase an existing file, so use it only once)
+sudo mosquitto_passwd -c /etc/mosquitto/passwd instructor
+sudo mosquitto_passwd /etc/mosquitto/passwd jsmith          # prompts for jsmith's password
+sudo mosquitto_passwd -D /etc/mosquitto/passwd jsmith       # removes a user
+
+# after any change to the files:
+sudo systemctl restart mosquitto
+sudo journalctl -u mosquitto -f                             # watch the log
+</span>
+</div>
+<p>Passwords are stored as salted hashes, not as text, so the file does not reveal them (but it should still be readable only by the broker). The next file says what each logged-in user may do. Lines starting with <span class="code-lesson-il">pattern</span> apply to every user, with <span class="code-lesson-il">%u</span> replaced by the user’s name; lines under a <span class="code-lesson-il">user</span> heading apply to that user alone.</p>
+<div class="code-block" data-lang="conf">
+<div class="code-block-header">
+<span class="code-block-filename">acl</span>
+<span class="code-block-lang">Config</span>
+</div>
+<span class="code-lesson-bl"># /etc/mosquitto/acl
+# The instructor can do anything.
+user instructor
+topic readwrite #
+
+# Everyone else (patterns apply to every logged-in user; %u is the user name):
+pattern write lab/%u/#              # write only inside your own subtree
+pattern read  lab/#                 # read everyone's data
+pattern read  robot/#               # read the instructor's robot
+pattern read  $SYS/#                # read the broker's own statistics
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 336" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="200" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="120" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">User jsmith does this</text><rect x="220" y="14" width="300" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="370" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Topic</text><rect x="520" y="14" width="220" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="630" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Result</text><rect x="20" y="58" width="200" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="85.25" font-size="15" fill="#1f3b52" text-anchor="start">publish</text><rect x="220" y="58" width="300" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="85.25" font-size="15" fill="#1f3b52" text-anchor="start">lab/jsmith/tele/imu</text><rect x="520" y="58" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="85.25" font-size="15" fill="#1f3b52" text-anchor="start">allowed</text><rect x="20" y="102" width="200" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="129.25" font-size="15" fill="#1f3b52" text-anchor="start">publish</text><rect x="220" y="102" width="300" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="129.25" font-size="15" fill="#1f3b52" text-anchor="start">lab/bob/tele/imu</text><rect x="520" y="102" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="129.25" font-size="15" fill="#1f3b52" text-anchor="start">dropped silently</text><rect x="20" y="146" width="200" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="173.25" font-size="15" fill="#1f3b52" text-anchor="start">subscribe</text><rect x="220" y="146" width="300" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="173.25" font-size="15" fill="#1f3b52" text-anchor="start">lab/+/tele/#</text><rect x="520" y="146" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="173.25" font-size="15" fill="#1f3b52" text-anchor="start">allowed (read lab/#)</text><rect x="20" y="190" width="200" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="217.25" font-size="15" fill="#1f3b52" text-anchor="start">subscribe</text><rect x="220" y="190" width="300" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="217.25" font-size="15" fill="#1f3b52" text-anchor="start">robot/tele/pose</text><rect x="520" y="190" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="217.25" font-size="15" fill="#1f3b52" text-anchor="start">allowed (read robot/#)</text><rect x="20" y="234" width="200" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="261.25" font-size="15" fill="#1f3b52" text-anchor="start">publish</text><rect x="220" y="234" width="300" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="261.25" font-size="15" fill="#1f3b52" text-anchor="start">robot/cmd/move</text><rect x="520" y="234" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="261.25" font-size="15" fill="#1f3b52" text-anchor="start">dropped silently</text><rect x="20" y="278" width="200" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="305.25" font-size="15" fill="#1f3b52" text-anchor="start">subscribe</text><rect x="220" y="278" width="300" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="305.25" font-size="15" fill="#1f3b52" text-anchor="start">other/anything</text><rect x="520" y="278" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="305.25" font-size="15" fill="#1f3b52" text-anchor="start">nothing is ever delivered</text></svg>
+            <div class="diagram-caption">What the access list above allows for the user jsmith. The most important property is the second row: a publish that the ACL denies is not an error the client sees. The message simply never arrives.</div>
+        </div>
+
+<p>That last point causes more lost afternoons than any other. With MQTT 3.1.1, the version <span class="code-lesson-il">umqtt</span> speaks, the broker has no way to say “not authorised” to a publisher, so it quietly discards the message (it may even acknowledge it at QoS 1). The same applies to a subscription to a forbidden topic: you are subscribed, and you will hear nothing. The only evidence is the broker’s log, and a message that never shows up at a subscriber. When a publish does not arrive, check the topic’s spelling against the access list <em>before</em> you debug your code.</p>
+<h3>Part 4. Watching the Broker</h3>
+<p>Two tools, both in <span class="code-lesson-il">mosquitto-clients</span>, are enough for nearly everything:</p>
+<div class="code-block" data-lang="shell">
+<div class="code-block-header">
+<span class="code-block-filename">cheatsheet.sh</span>
+<span class="code-block-lang">Shell</span>
+</div>
+<span class="code-lesson-bl"># watch everything in the class, with topic names (-v)
+mosquitto_sub -h BROKER -u USER -P PASS -v -t "lab/#"
+
+# only five messages, then stop (-C), give up after ten seconds (-W)
+mosquitto_sub -h BROKER -u USER -P PASS -v -t "lab/+/tele/#" -C 5 -W 10
+
+# publish once; -r makes it retained
+mosquitto_pub -h BROKER -u USER -P PASS -t "lab/USER/stat/note" -m "hello" -r
+
+# clear a retained message: publish an empty one
+mosquitto_pub -h BROKER -u USER -P PASS -t "lab/USER/stat/note" -n -r
+
+# show the packets (PINGREQ and all) as they happen
+mosquitto_sub -h BROKER -u USER -P PASS -d -t "lab/USER/#"
+
+# the broker's own statistics
+mosquitto_sub -h BROKER -u USER -P PASS -v -t "$SYS/broker/clients/connected" -t "$SYS/broker/load/messages/received/1min"
+</span>
+</div>
+<p>The broker also publishes statistics about itself on topics beginning with <span class="code-lesson-il">$SYS</span>. Wildcards at the first level do not match them (a plain <span class="code-lesson-il">#</span> will not show them), so you ask for them by name.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 322" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="400" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="220" y="40.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Topic</text><rect x="420" y="14" width="320" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="580" y="40.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Tells you</text><rect x="20" y="56" width="400" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="82.075" font-size="14.5" fill="#1f3b52" text-anchor="start">$SYS/broker/version</text><rect x="420" y="56" width="320" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="82.075" font-size="14.5" fill="#1f3b52" text-anchor="start">which Mosquitto this is</text><rect x="20" y="98" width="400" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="124.075" font-size="14.5" fill="#1f3b52" text-anchor="start">$SYS/broker/uptime</text><rect x="420" y="98" width="320" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="124.075" font-size="14.5" fill="#1f3b52" text-anchor="start">time since the last restart</text><rect x="20" y="140" width="400" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="166.075" font-size="14.5" fill="#1f3b52" text-anchor="start">$SYS/broker/clients/connected</text><rect x="420" y="140" width="320" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="166.075" font-size="14.5" fill="#1f3b52" text-anchor="start">how many clients are logged in now</text><rect x="20" y="182" width="400" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="208.075" font-size="14.5" fill="#1f3b52" text-anchor="start">$SYS/broker/load/messages/received/1min</text><rect x="420" y="182" width="320" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="208.075" font-size="14.5" fill="#1f3b52" text-anchor="start">messages per minute, averaged</text><rect x="20" y="224" width="400" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="250.075" font-size="14.5" fill="#1f3b52" text-anchor="start">$SYS/broker/subscriptions/count</text><rect x="420" y="224" width="320" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="250.075" font-size="14.5" fill="#1f3b52" text-anchor="start">active subscriptions</text><rect x="20" y="266" width="400" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="292.075" font-size="14.5" fill="#1f3b52" text-anchor="start">$SYS/broker/messages/stored</text><rect x="420" y="266" width="320" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="292.075" font-size="14.5" fill="#1f3b52" text-anchor="start">retained messages held</text></svg>
+            <div class="diagram-caption">Useful statistics. The first number to watch during a lab is the count of connected clients: if it is one short of what you expect, someone’s board has not reached the broker, and you have a lower-layer problem.</div>
+        </div>
+
+<p>A class shares one hub, so a node that publishes too fast hurts everyone. Mosquitto has no per-user rate limit built in; the class limit of 10 messages per second per student is an agreement, and the following program lets any student (or the instructor) see who is over it. It reads the stream from <span class="code-lesson-il">mosquitto_sub</span> on its standard input.</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">rate_watch.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># rate_watch.py: run on a laptop.
+#   mosquitto_sub -h BROKER -u USER -P PASS -v -t "lab/#" | python3 rate_watch.py
+import sys, time, select
+from collections import defaultdict, deque
+
+LIMIT = 10                              # the class limit: messages per second per user
+
+def user_of(topic):
+    parts = topic.split("/")
+    return parts[1] if len(parts) &gt; 2 and parts[0] == "lab" else None
+
+class Tally:
+    def __init__(self, window=1.0, limit=LIMIT):
+        self.window, self.limit = window, limit
+        self.q = defaultdict(deque)     # user -&gt; arrival times inside the window
+
+    def add(self, t, topic):
+        u = user_of(topic)
+        if u:
+            self.q[u].append(t)
+
+    def rates(self, now):
+        out = {}
+        for u, d in self.q.items():
+            while d and d[0] &lt;= now - self.window:
+                d.popleft()             # forget arrivals older than the window
+            out[u] = len(d) / self.window
+        return out
+
+    def over(self, now):
+        return sorted(u for u, r in self.rates(now).items() if r &gt; self.limit)
+
+if __name__ == "__main__":
+    tally, last = Tally(), time.time()
+    while True:
+        ready, _, _ = select.select([sys.stdin], [], [], 1.0)
+        now = time.time()
+        if ready:
+            line = sys.stdin.readline()
+            if not line:
+                break                   # the pipe closed
+            tally.add(now, line.split(" ", 1)[0])
+        if now - last &gt;= 1.0:
+            last = now
+            rates = tally.rates(now)
+            print("  ".join("%s:%.0f" % (u, r) for u, r in sorted(rates.items())),
+                  "  TOO FAST: " + ",".join(tally.over(now)) if tally.over(now) else "")
+</span>
+</div>
+<h3>Part 5. Reading the Log</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 381.0" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="330" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="185" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Log line (journalctl -u mosquitto)</text><rect x="350" y="14" width="390" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="545" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">What happened</text><rect x="20" y="62" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="84.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">New client connected from 192.168.1.57</text><text x="29" y="102.263" font-size="14.5" fill="#1f3b52" text-anchor="start">as pico-jsmith</text><rect x="350" y="62" width="390" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="359" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="start">a normal connect</text><rect x="20" y="114.25" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="136.387" font-size="14.5" fill="#1f3b52" text-anchor="start">Client pico-jsmith already connected,</text><text x="29" y="154.512" font-size="14.5" fill="#1f3b52" text-anchor="start">closing old connection</text><rect x="350" y="114.25" width="390" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="359" y="145.45" font-size="14.5" fill="#1f3b52" text-anchor="start">two clients share one id (or a quick reboot)</text><rect x="20" y="166.5" width="330" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="195.575" font-size="14.5" fill="#1f3b52" text-anchor="start">Client pico-jsmith closed its connection</text><rect x="350" y="166.5" width="390" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="359" y="195.575" font-size="14.5" fill="#1f3b52" text-anchor="start">a clean disconnect</text><rect x="20" y="214.5" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="236.637" font-size="14.5" fill="#1f3b52" text-anchor="start">Client pico-jsmith has exceeded timeout,</text><text x="29" y="254.762" font-size="14.5" fill="#1f3b52" text-anchor="start">disconnecting</text><rect x="350" y="214.5" width="390" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="359" y="245.7" font-size="14.5" fill="#1f3b52" text-anchor="start">keepalive expired: the last will fires</text><rect x="20" y="266.75" width="330" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="295.825" font-size="14.5" fill="#1f3b52" text-anchor="start">Connection refused: not authorised</text><rect x="350" y="266.75" width="390" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="359" y="295.825" font-size="14.5" fill="#1f3b52" text-anchor="start">wrong user or password (CONNACK code 5)</text><rect x="20" y="314.75" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="336.887" font-size="14.5" fill="#1f3b52" text-anchor="start">Socket error on client pico-jsmith,</text><text x="29" y="355.012" font-size="14.5" fill="#1f3b52" text-anchor="start">disconnecting</text><rect x="350" y="314.75" width="390" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="359" y="345.95" font-size="14.5" fill="#1f3b52" text-anchor="start">the network dropped under it</text></svg>
+            <div class="diagram-caption">Common log lines, paraphrased (the exact wording differs between versions). With <span class="code-lesson-il">connection_messages true</span> every connect and disconnect appears, which makes the log a timeline of your class’s network.</div>
+        </div>
+
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Read the ACL.</strong> With the access list above, say whether each action by user <span class="code-lesson-il">bob</span> succeeds: (a) publish to <span class="code-lesson-il">lab/bob/evt/door</span>, (b) publish to <span class="code-lesson-il">lab/jsmith/cmd/led</span>, (c) subscribe to <span class="code-lesson-il">lab/jsmith/tele/#</span>, (d) subscribe to <span class="code-lesson-il">#</span>, (e) publish to <span class="code-lesson-il">robot/stat/online</span>.</p>
+        <p><strong>Exercise 2: Why Hash?.</strong> The password file stores hashes, not passwords. Name one thing that protects, and one thing it does not.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Diagnose.</strong> A student’s node connects (the broker log shows it) and publishes to <span class="code-lesson-il">lab/jsmith/tele/imu</span> five times a second, but a subscriber on <span class="code-lesson-il">lab/+/tele/#</span> hears nothing. The same subscriber hears other students fine. List the three most likely causes in the order you would check them.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Who Is Flooding?.</strong> Using <span class="code-lesson-il">Tally</span>, feed it 25 messages from jsmith spread over one second, 5 from bob, and one from the robot, and show who is over the limit at three moments. Why does the rate halve when you ask 0.5 s later? Why is <span class="code-lesson-il">robot/tele/pose</span> ignored?</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Read the ACL</summary>
+<p>(a) <strong>yes</strong>: it is inside lab/bob/. (b) <strong>no</strong>, silently dropped: only lab/bob/ is writable. (c) <strong>yes</strong>: everything under lab/ is readable. (d) The subscription is accepted, but he only receives messages on topics he may read: lab/, robot/ and $SYS; a plain <span class="code-lesson-il">#</span> does not match $SYS in any case. (e) <strong>no</strong>: robot/ is read-only for students.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Why Hash?</summary>
+<p>It protects against someone who <em>reads the file</em> (a stolen SD card, a backup) learning the passwords. It does <strong>not</strong> protect passwords on the wire: with <span class="code-lesson-il">listener 1883</span> and no TLS, the CONNECT packet carries the user name and password as plain text, so anyone who can capture traffic on the network sees them. That is acceptable on a private classroom network and is why <span class="code-lesson-il">config.py</span> must never hold a password that you also use anywhere else.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Diagnose</summary>
+<p>First, <strong>the user name in the topic</strong>: the node’s MQTT user may be <span class="code-lesson-il">jsmith2</span> while the topic says <span class="code-lesson-il">jsmith</span>, so the ACL silently drops every message. Second, <strong>the topic itself</strong>: a typo, a leading slash (<span class="code-lesson-il">/lab/...</span> is a different topic), or capitals. Third, <strong>a subscriber problem</strong> specific to this student’s node: the callback never runs because <span class="code-lesson-il">check_msg()</span> is not called, or the client id collides with another and the first is being kicked off (the log will say “already connected”). The broker log and <span class="code-lesson-il">mosquitto_sub -d</span> separate these quickly.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Who Is Flooding?</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_tally.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">t = Tally()
+for i in range(25):
+    t.add(100 + i * 0.04, "lab/jsmith/tele/imu")       # 25 messages in about a second
+for i in range(5):
+    t.add(100 + i * 0.2, "lab/bob/tele/imu")
+t.add(100.5, "robot/tele/pose")
+print(t.rates(101.0), t.over(101.0))   # {'jsmith': 24.0, 'bob': 4.0} ['jsmith']
+print(t.rates(101.5), t.over(101.5))   # {'jsmith': 12.0, 'bob': 2.0} ['jsmith']
+print(t.rates(103.0), t.over(103.0))   # {'jsmith': 0.0, 'bob': 0.0} []
+</span>
+</div><p>The window is one second wide, so each reading counts only arrivals in the last second. At 101.0 it holds 24 of jsmith’s messages (the one at exactly 100.0 has just left the window); half a second later only the second half of the burst is inside, so the rate is 12, and by 103 the burst has gone. jsmith is flagged twice, because even 12 per second is over the limit of 10. <span class="code-lesson-il">user_of</span> returns None for topics that do not start with <span class="code-lesson-il">lab/&lt;user&gt;/…</span>, so the robot’s traffic is not charged to a student.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Describe the three files that control a Mosquitto broker and what each one decides.</li>
+            <li>Read an access list and say which publishes and subscriptions succeed.</li>
+            <li>Explain why a denied publish is silent, and what to check first when one goes missing.</li>
+            <li>Use <span class="code-lesson-il">mosquitto_sub</span> and <span class="code-lesson-il">mosquitto_pub</span> with credentials, retained messages and <span class="code-lesson-il">-d</span>.</li>
+            <li>Read a broker log line and say what happened to the client.</li>
+        </ol>
+
+    </body>
+</html>

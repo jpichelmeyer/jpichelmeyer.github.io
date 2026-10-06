@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson covers learning from recorded sensor data in the smallest useful way. You fit a calibration curve by least squares and choose its degree by testing on new data, see overfitting in numbers, classify motion with nearest centroid after scaling the features, read a confusion matrix, and ship the result as a file of numbers.</p>
+
+<p>“Machine learning” sounds like something that needs a data centre. In a robot it mostly means two small things done carefully: <strong>fitting a curve</strong> to turn a raw sensor value into a physical one (calibration), and <strong>choosing a label</strong> from a few measured features (is the robot still, walking or being shaken?). Both fit in a few lines of code, both are trained on a laptop from recorded data, and both are run on the Pico as a handful of numbers. The part that decides whether they work is not the code but the discipline around it: separate data for testing, honest error, and distrust of a model that looks too good.</p>
+<h3>Part 1. Learning a Calibration</h3>
+<p>A thermistor divider gives an ADC reading that is a smooth but <em>nonlinear</em> function of temperature. A straight line is a poor fit; a curve is better. <strong>Least squares</strong> finds the polynomial that minimises the sum of the squared differences between the curve and your reference measurements. You do this once, on the laptop, against a trusted thermometer; the node only evaluates the result.</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">fit.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># fit.py -- run on the laptop: least-squares polynomial through (x, y) points
+def fit_poly(xs, ys, deg):
+    """Coefficients c[0] + c[1] x + c[2] x^2 ... that minimise the squared error.
+    Solves the normal equations by Gaussian elimination: fine for degree up to about 4."""
+    n = deg + 1
+    # A[i][j] = sum x^(i+j), b[i] = sum y x^i
+    A = [[sum(x ** (i + j) for x in xs) for j in range(n)] for i in range(n)]
+    b = [sum(y * x ** i for x, y in zip(xs, ys)) for i in range(n)]
+    for col in range(n):                              # forward elimination with pivoting
+        piv = max(range(col, n), key=lambda r: abs(A[r][col]))
+        A[col], A[piv], b[col], b[piv] = A[piv], A[col], b[piv], b[col]
+        for r in range(col + 1, n):
+            f = A[r][col] / A[col][col]
+            for c in range(col, n):
+                A[r][c] -= f * A[col][c]
+            b[r] -= f * b[col]
+    coef = [0.0] * n
+    for i in range(n - 1, -1, -1):                    # back substitution
+        coef[i] = (b[i] - sum(A[i][j] * coef[j] for j in range(i + 1, n))) / A[i][i]
+    return coef
+
+def predict(coef, x):
+    y = 0.0
+    for c in reversed(coef):                          # Horner's rule: few multiplications
+        y = y * x + c
+    return y
+
+def rms(coef, xs, ys):
+    return (sum((predict(coef, x) - y) ** 2 for x, y in zip(xs, ys)) / len(xs)) ** 0.5
+</span>
+</div>
+<p>That code, checked against <span class="code-lesson-il">numpy.polyfit</span> on the same data, returned identical coefficients. Now to the question that matters: <strong>how complicated a curve?</strong> Twelve reference points were simulated from a 10 kΩ thermistor (β = 3950) in a divider, with the ADC noise of the lab (about 60 counts) and a reference thermometer good to 0.3 °C. Polynomials of degree 1, 3 and 7 were fitted, and then tested against 500 <em>new</em> points the fit had never seen:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="60" y="20" width="680" height="250" rx="2" fill="#ffffff" stroke="#5b6b78" stroke-width="1"/><line x1="60" y1="245" x2="740" y2="245" stroke="#e3e3e3" stroke-width="1" stroke-linecap="round"/><text x="52" y="250" font-size="14" fill="#5b6b78" text-anchor="end">10</text><line x1="60" y1="195" x2="740" y2="195" stroke="#e3e3e3" stroke-width="1" stroke-linecap="round"/><text x="52" y="200" font-size="14" fill="#5b6b78" text-anchor="end">20</text><line x1="60" y1="145" x2="740" y2="145" stroke="#e3e3e3" stroke-width="1" stroke-linecap="round"/><text x="52" y="150" font-size="14" fill="#5b6b78" text-anchor="end">30</text><line x1="60" y1="95" x2="740" y2="95" stroke="#e3e3e3" stroke-width="1" stroke-linecap="round"/><text x="52" y="100" font-size="14" fill="#5b6b78" text-anchor="end">40</text><line x1="60" y1="45" x2="740" y2="45" stroke="#e3e3e3" stroke-width="1" stroke-linecap="round"/><text x="52" y="50" font-size="14" fill="#5b6b78" text-anchor="end">50</text><polyline points="60.0,45.2 63.4,46.3 66.8,47.3 70.2,48.4 73.6,49.4 77.0,50.5 80.4,51.5 83.8,52.6 87.2,53.6 90.6,54.7 94.0,55.7 97.4,56.8 100.8,57.8 104.2,58.9 107.6,60.0 111.0,61.0 114.4,62.1 117.8,63.1 121.2,64.2 124.6,65.2 128.0,66.3 131.4,67.3 134.8,68.4 138.2,69.4 141.6,70.5 145.0,71.5 148.4,72.6 151.8,73.6 155.2,74.7 158.6,75.7 162.0,76.8 165.4,77.8 168.8,78.9 172.2,79.9 175.6,81.0 179.0,82.0 182.4,83.1 185.8,84.2 189.2,85.2 192.6,86.3 196.0,87.3 199.4,88.4 202.8,89.4 206.2,90.5 209.6,91.5 213.0,92.6 216.4,93.6 219.8,94.7 223.2,95.7 226.6,96.8 230.0,97.8 233.4,98.9 236.8,99.9 240.2,101.0 243.6,102.0 247.0,103.1 250.4,104.1 253.8,105.2 257.2,106.3 260.6,107.3 264.0,108.4 267.4,109.4 270.8,110.5 274.2,111.5 277.6,112.6 281.0,113.6 284.4,114.7 287.8,115.7 291.2,116.8 294.6,117.8 298.0,118.9 301.4,119.9 304.8,121.0 308.2,122.0 311.6,123.1 315.0,124.1 318.4,125.2 321.8,126.2 325.2,127.3 328.6,128.3 332.0,129.4 335.4,130.5 338.8,131.5 342.2,132.6 345.6,133.6 349.0,134.7 352.4,135.7 355.8,136.8 359.2,137.8 362.6,138.9 366.0,139.9 369.4,141.0 372.8,142.0 376.2,143.1 379.6,144.1 383.0,145.2 386.4,146.2 389.8,147.3 393.2,148.3 396.6,149.4 400.0,150.4 403.4,151.5 406.8,152.5 410.2,153.6 413.6,154.7 417.0,155.7 420.4,156.8 423.8,157.8 427.2,158.9 430.6,159.9 434.0,161.0 437.4,162.0 440.8,163.1 444.2,164.1 447.6,165.2 451.0,166.2 454.4,167.3 457.8,168.3 461.2,169.4 464.6,170.4 468.0,171.5 471.4,172.5 474.8,173.6 478.2,174.6 481.6,175.7 485.0,176.8 488.4,177.8 491.8,178.9 495.2,179.9 498.6,181.0 502.0,182.0 505.4,183.1 508.8,184.1 512.2,185.2 515.6,186.2 519.0,187.3 522.4,188.3 525.8,189.4 529.2,190.4 532.6,191.5 536.0,192.5 539.4,193.6 542.8,194.6 546.2,195.7 549.6,196.7 553.0,197.8 556.4,198.8 559.8,199.9 563.2,201.0 566.6,202.0 570.0,203.1 573.4,204.1 576.8,205.2 580.2,206.2 583.6,207.3 587.0,208.3 590.4,209.4 593.8,210.4 597.2,211.5 600.6,212.5 604.0,213.6 607.4,214.6 610.8,215.7 614.2,216.7 617.6,217.8 621.0,218.8 624.4,219.9 627.8,220.9 631.2,222.0 634.6,223.1 638.0,224.1 641.4,225.2 644.8,226.2 648.2,227.3 651.6,228.3 655.0,229.4 658.4,230.4 661.8,231.5 665.2,232.5 668.6,233.6 672.0,234.6 675.4,235.7 678.8,236.7 682.2,237.8 685.6,238.8 689.0,239.9 692.4,240.9 695.8,242.0 699.2,243.0 702.6,244.1 706.0,245.1 709.4,246.2 712.8,247.3 716.2,248.3 719.6,249.4 723.0,250.4 726.4,251.5 729.8,252.5 733.2,253.6 736.6,254.6 740.0,255.7" fill="none" stroke="#c0693f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><polyline points="60.0,29.9 63.4,31.4 66.8,32.9 70.2,34.5 73.6,36.0 77.0,37.5 80.4,39.0 83.8,40.5 87.2,42.0 90.6,43.5 94.0,44.9 97.4,46.4 100.8,47.9 104.2,49.3 107.6,50.8 111.0,52.2 114.4,53.6 117.8,55.0 121.2,56.5 124.6,57.9 128.0,59.3 131.4,60.7 134.8,62.1 138.2,63.4 141.6,64.8 145.0,66.2 148.4,67.6 151.8,68.9 155.2,70.3 158.6,71.6 162.0,72.9 165.4,74.3 168.8,75.6 172.2,76.9 175.6,78.2 179.0,79.5 182.4,80.9 185.8,82.1 189.2,83.4 192.6,84.7 196.0,86.0 199.4,87.3 202.8,88.5 206.2,89.8 209.6,91.1 213.0,92.3 216.4,93.5 219.8,94.8 223.2,96.0 226.6,97.3 230.0,98.5 233.4,99.7 236.8,100.9 240.2,102.1 243.6,103.3 247.0,104.5 250.4,105.7 253.8,106.9 257.2,108.1 260.6,109.3 264.0,110.4 267.4,111.6 270.8,112.8 274.2,113.9 277.6,115.1 281.0,116.2 284.4,117.4 287.8,118.5 291.2,119.7 294.6,120.8 298.0,121.9 301.4,123.0 304.8,124.2 308.2,125.3 311.6,126.4 315.0,127.5 318.4,128.6 321.8,129.7 325.2,130.8 328.6,131.9 332.0,133.0 335.4,134.1 338.8,135.2 342.2,136.2 345.6,137.3 349.0,138.4 352.4,139.5 355.8,140.5 359.2,141.6 362.6,142.6 366.0,143.7 369.4,144.7 372.8,145.8 376.2,146.8 379.6,147.9 383.0,148.9 386.4,150.0 389.8,151.0 393.2,152.0 396.6,153.1 400.0,154.1 403.4,155.1 406.8,156.1 410.2,157.2 413.6,158.2 417.0,159.2 420.4,160.2 423.8,161.2 427.2,162.2 430.6,163.2 434.0,164.2 437.4,165.2 440.8,166.2 444.2,167.2 447.6,168.2 451.0,169.2 454.4,170.2 457.8,171.2 461.2,172.2 464.6,173.2 468.0,174.1 471.4,175.1 474.8,176.1 478.2,177.1 481.6,178.1 485.0,179.0 488.4,180.0 491.8,181.0 495.2,182.0 498.6,182.9 502.0,183.9 505.4,184.9 508.8,185.8 512.2,186.8 515.6,187.8 519.0,188.7 522.4,189.7 525.8,190.7 529.2,191.6 532.6,192.6 536.0,193.6 539.4,194.5 542.8,195.5 546.2,196.4 549.6,197.4 553.0,198.4 556.4,199.3 559.8,200.3 563.2,201.2 566.6,202.2 570.0,203.1 573.4,204.1 576.8,205.1 580.2,206.0 583.6,207.0 587.0,207.9 590.4,208.9 593.8,209.9 597.2,210.8 600.6,211.8 604.0,212.7 607.4,213.7 610.8,214.7 614.2,215.6 617.6,216.6 621.0,217.6 624.4,218.5 627.8,219.5 631.2,220.4 634.6,221.4 638.0,222.4 641.4,223.4 644.8,224.3 648.2,225.3 651.6,226.3 655.0,227.2 658.4,228.2 661.8,229.2 665.2,230.2 668.6,231.1 672.0,232.1 675.4,233.1 678.8,234.1 682.2,235.1 685.6,236.1 689.0,237.0 692.4,238.0 695.8,239.0 699.2,240.0 702.6,241.0 706.0,242.0 709.4,243.0 712.8,244.0 716.2,245.0 719.6,246.0 723.0,247.0 726.4,248.0 729.8,249.1 733.2,250.1 736.6,251.1 740.0,252.1" fill="none" stroke="#3c8a5a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><polyline points="60.0,20.0 63.4,20.0 66.8,20.0 70.2,20.0 73.6,20.0 77.0,20.0 80.4,20.0 83.8,20.0 87.2,20.0 90.6,20.0 94.0,20.0 97.4,20.0 100.8,21.2 104.2,26.0 107.6,30.4 111.0,34.5 114.4,38.3 117.8,41.9 121.2,45.2 124.6,48.3 128.0,51.2 131.4,53.9 134.8,56.5 138.2,58.9 141.6,61.1 145.0,63.3 148.4,65.3 151.8,67.2 155.2,69.0 158.6,70.7 162.0,72.3 165.4,73.9 168.8,75.4 172.2,76.9 175.6,78.3 179.0,79.7 182.4,81.0 185.8,82.4 189.2,83.7 192.6,84.9 196.0,86.2 199.4,87.4 202.8,88.7 206.2,89.9 209.6,91.1 213.0,92.3 216.4,93.5 219.8,94.7 223.2,95.9 226.6,97.2 230.0,98.4 233.4,99.6 236.8,100.8 240.2,102.0 243.6,103.2 247.0,104.4 250.4,105.7 253.8,106.9 257.2,108.1 260.6,109.3 264.0,110.5 267.4,111.8 270.8,113.0 274.2,114.2 277.6,115.4 281.0,116.6 284.4,117.9 287.8,119.1 291.2,120.3 294.6,121.5 298.0,122.6 301.4,123.8 304.8,125.0 308.2,126.2 311.6,127.3 315.0,128.5 318.4,129.6 321.8,130.7 325.2,131.9 328.6,133.0 332.0,134.1 335.4,135.2 338.8,136.2 342.2,137.3 345.6,138.4 349.0,139.4 352.4,140.4 355.8,141.4 359.2,142.5 362.6,143.5 366.0,144.5 369.4,145.4 372.8,146.4 376.2,147.4 379.6,148.3 383.0,149.3 386.4,150.2 389.8,151.1 393.2,152.1 396.6,153.0 400.0,153.9 403.4,154.8 406.8,155.7 410.2,156.6 413.6,157.6 417.0,158.5 420.4,159.4 423.8,160.3 427.2,161.2 430.6,162.1 434.0,163.0 437.4,163.9 440.8,164.8 444.2,165.7 447.6,166.7 451.0,167.6 454.4,168.5 457.8,169.5 461.2,170.4 464.6,171.4 468.0,172.3 471.4,173.3 474.8,174.3 478.2,175.3 481.6,176.3 485.0,177.3 488.4,178.3 491.8,179.3 495.2,180.3 498.6,181.4 502.0,182.4 505.4,183.5 508.8,184.5 512.2,185.6 515.6,186.7 519.0,187.8 522.4,188.8 525.8,189.9 529.2,191.0 532.6,192.1 536.0,193.2 539.4,194.3 542.8,195.4 546.2,196.5 549.6,197.6 553.0,198.7 556.4,199.8 559.8,200.9 563.2,201.9 566.6,203.0 570.0,204.1 573.4,205.1 576.8,206.2 580.2,207.2 583.6,208.3 587.0,209.3 590.4,210.3 593.8,211.3 597.2,212.2 600.6,213.2 604.0,214.1 607.4,215.1 610.8,216.0 614.2,216.9 617.6,217.7 621.0,218.6 624.4,219.5 627.8,220.3 631.2,221.1 634.6,221.9 638.0,222.8 641.4,223.6 644.8,224.4 648.2,225.2 651.6,226.0 655.0,226.8 658.4,227.6 661.8,228.4 665.2,229.3 668.6,230.2 672.0,231.1 675.4,232.0 678.8,233.0 682.2,234.1 685.6,235.2 689.0,236.4 692.4,237.6 695.8,239.0 699.2,240.5 702.6,242.1 706.0,243.8 709.4,245.7 712.8,247.7 716.2,249.9 719.6,252.3 723.0,255.0 726.4,257.8 729.8,261.0 733.2,264.4 736.6,268.1 740.0,270.0" fill="none" stroke="#b3261e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="619.918" cy="217.8" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="166.185" cy="73.9768" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="208.884" cy="91.2007" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="536.853" cy="193.793" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="373.718" cy="147.536" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="406.826" cy="154.434" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="275.836" cy="114.566" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="197.141" cy="86.1746" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="649.562" cy="225.904" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="692.747" cy="237.698" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="173.605" cy="77.9243" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><circle cx="414.1" cy="158.144" r="5.5" fill="#ffffff" stroke="#1f3b52" stroke-width="2.2"/><text x="52" y="16" font-size="14" fill="#5b6b78" text-anchor="end">°C</text><rect x="60" y="292" width="22" height="6" rx="1" fill="#c0693f" stroke="#c0693f" stroke-width="1"/><text x="90" y="300" font-size="14.5" fill="#1f3b52" text-anchor="start" font-weight="bold">degree 1</text><rect x="200" y="292" width="22" height="6" rx="1" fill="#3c8a5a" stroke="#3c8a5a" stroke-width="1"/><text x="230" y="300" font-size="14.5" fill="#1f3b52" text-anchor="start" font-weight="bold">degree 3</text><rect x="340" y="292" width="22" height="6" rx="1" fill="#b3261e" stroke="#b3261e" stroke-width="1"/><text x="370" y="300" font-size="14.5" fill="#1f3b52" text-anchor="start" font-weight="bold">degree 7</text><rect x="480" y="292" width="22" height="6" rx="1" fill="#1f3b52" stroke="#1f3b52" stroke-width="1"/><text x="510" y="300" font-size="14.5" fill="#1f3b52" text-anchor="start" font-weight="bold">12 reference points</text><text x="400" y="322" font-size="14.5" fill="#5b6b78" text-anchor="middle">ADC reading as a fraction of full scale</text></svg>
+            <div class="diagram-caption">Three fits through the same twelve points. The thermistor curve is only slightly bent over this range, and the straight line misses the bend by 0.7 °C RMS; the cubic follows it; the degree-7 curve passes closest to every point and then flies off at the end of the range, where it has no points to hold it.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 328" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="194.595" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="117.297" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Polynomial degree</text><rect x="214.595" y="14" width="262.703" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="345.946" y="35.0125" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Error on the 12 training</text><text x="345.946" y="53.1375" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">points</text><rect x="477.297" y="14" width="262.703" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="608.649" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Error on 500 new points</text><rect x="20" y="64" width="194.595" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="117.297" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="214.595" y="64" width="262.703" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.55 °C</text><rect x="477.297" y="64" width="262.703" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="608.649" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.70 °C</text><rect x="20" y="114" width="194.595" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="117.297" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">2</text><rect x="214.595" y="114" width="262.703" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.19 °C</text><rect x="477.297" y="114" width="262.703" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="608.649" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.24 °C</text><rect x="20" y="164" width="194.595" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="117.297" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3</text><rect x="214.595" y="164" width="262.703" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.15 °C</text><rect x="477.297" y="164" width="262.703" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="608.649" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.16 °C</text><rect x="20" y="214" width="194.595" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="117.297" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">5</text><rect x="214.595" y="214" width="262.703" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.13 °C</text><rect x="477.297" y="214" width="262.703" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="608.649" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.18 °C</text><rect x="20" y="264" width="194.595" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="117.297" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">7</text><rect x="214.595" y="264" width="262.703" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.11 °C</text><rect x="477.297" y="264" width="262.703" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="608.649" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1.32 °C</text></svg>
+            <div class="diagram-caption">Training error only ever falls as the curve gets more flexible; error on <strong>new</strong> data falls and then rises. Degree 3 is the sweet spot with this little data; degree 7 has memorised the noise (0.11 °C on its own points, <strong>1.32 °C</strong> on new ones).</div>
+        </div>
+
+<p>This is <strong>overfitting</strong>, the central danger of learning from data: a model flexible enough to follow the noise in twelve points will follow it. Two defences, both cheap. <strong>Keep some data out</strong> of the fit and judge the model on it (the test column above). And <strong>collect more data than the model has numbers</strong>: with 60 points instead of 12 the same degree-7 fit came back to 0.14 °C on new data, no worse than the cubic, because the noise averages out.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">node.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># on the node: the model is three numbers in a file, the code is four lines
+import json
+coef = json.load(open("cal.json"))["coef"]          # e.g. [12.4, -3.1, 0.7]; x is the scaled ADC value
+
+def calibrate(x):
+    y = 0.0
+    for c in reversed(coef):
+        y = y * x + c
+    return y
+</span>
+</div>
+<p>On the node the calibration is a file of four numbers and the four-line <span class="code-lesson-il">calibrate</span> above. Note that <span class="code-lesson-il">x</span> must be scaled exactly as in training (the ADC reading divided by 65,535 here): <strong>a model is only valid for the inputs it was trained on</strong>, and mismatched scaling is the most common reason a calibration “works on the laptop and not on the board”.</p>
+<h3>Part 2. Learning a Label</h3>
+<p>The second job is classification: the budgets lesson used one feature and one threshold. With two or more features, the simplest method that works is <strong>nearest centroid</strong>: the average of the training examples of each class is its centroid, and a new example gets the label of the nearest one. Training is an average; classifying is a distance. Both are cheap enough for the Pico.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">centroid.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># centroid.py -- classify by the nearest class average
+def train(samples):
+    """samples: list of (features, label). Returns {label: centroid}."""
+    sums, counts = {}, {}
+    for f, lab in samples:
+        s = sums.setdefault(lab, [0.0] * len(f))
+        for i, v in enumerate(f):
+            s[i] += v
+        counts[lab] = counts.get(lab, 0) + 1
+    return {lab: [v / counts[lab] for v in s] for lab, s in sums.items()}
+
+def classify(model, f, scale):
+    """The label whose centroid is nearest. scale[i] divides feature i first, so a feature
+    measured in big numbers does not drown the others."""
+    best, best_d = None, None
+    for lab, c in model.items():
+        d = sum(((a - b) / s) ** 2 for a, b, s in zip(f, c, scale))
+        if best_d is None or d &lt; best_d:
+            best, best_d = lab, d
+    return best
+</span>
+</div>
+<p>Features must be <strong>scaled</strong>, or the one with the biggest numbers decides alone. To show it, the test below has three motion classes whose only difference is the standard deviation of acceleration (0.01 to 0.6 g), plus a second, irrelevant feature, the room temperature (15 to 35 °C), which every class shares. With 100 training examples per class and 300 test examples per class:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 244" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="380" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="210" y="46.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Scaling</text><rect x="400" y="14" width="180" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="490" y="46.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Test accuracy</text><rect x="580" y="14" width="160" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="660" y="46.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Chance is</text><rect x="20" y="68" width="380" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="100.075" font-size="14.5" fill="#1f3b52" text-anchor="start">none: std in g next to °C</text><rect x="400" y="68" width="180" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="490" y="100.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">36 %</text><rect x="580" y="68" width="160" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="660" y="100.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">33 %</text><rect x="20" y="122" width="380" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="154.075" font-size="14.5" fill="#1f3b52" text-anchor="start">each feature divided by its typical spread</text><rect x="400" y="122" width="180" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="490" y="154.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">86 %</text><rect x="580" y="122" width="160" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="660" y="154.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">33 %</text><rect x="20" y="176" width="380" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="208.075" font-size="14.5" fill="#1f3b52" text-anchor="start">the irrelevant feature left out</text><rect x="400" y="176" width="180" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="490" y="208.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">86 %</text><rect x="580" y="176" width="160" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="660" y="208.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">33 %</text></svg>
+            <div class="diagram-caption">Scaling decides everything here. Unscaled, the temperature (range of 20) swamps the acceleration (range of 0.6) and the classifier is hardly better than guessing; scaled, it is right 86 % of the time, and removing the useless feature changes almost nothing.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 244" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="194.595" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="117.297" y="46.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">true class</text><rect x="214.595" y="14" width="175.135" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="302.162" y="46.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">said still</text><rect x="389.73" y="14" width="175.135" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="477.297" y="46.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">said walk</text><rect x="564.865" y="14" width="175.135" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="652.432" y="46.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">said shake</text><rect x="20" y="68" width="194.595" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="100.25" font-size="15" fill="#1f3b52" text-anchor="start">still</text><rect x="214.595" y="68" width="175.135" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="302.162" y="100.25" font-size="15" fill="#1f3b52" text-anchor="middle">300</text><rect x="389.73" y="68" width="175.135" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="477.297" y="100.25" font-size="15" fill="#1f3b52" text-anchor="middle">0</text><rect x="564.865" y="68" width="175.135" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="652.432" y="100.25" font-size="15" fill="#1f3b52" text-anchor="middle">0</text><rect x="20" y="122" width="194.595" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="154.25" font-size="15" fill="#1f3b52" text-anchor="start">walk</text><rect x="214.595" y="122" width="175.135" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="302.162" y="154.25" font-size="15" fill="#1f3b52" text-anchor="middle">56</text><rect x="389.73" y="122" width="175.135" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="477.297" y="154.25" font-size="15" fill="#1f3b52" text-anchor="middle">244</text><rect x="564.865" y="122" width="175.135" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="652.432" y="154.25" font-size="15" fill="#1f3b52" text-anchor="middle">0</text><rect x="20" y="176" width="194.595" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="208.25" font-size="15" fill="#1f3b52" text-anchor="start">shake</text><rect x="214.595" y="176" width="175.135" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="302.162" y="208.25" font-size="15" fill="#1f3b52" text-anchor="middle">0</text><rect x="389.73" y="176" width="175.135" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="477.297" y="208.25" font-size="15" fill="#1f3b52" text-anchor="middle">67</text><rect x="564.865" y="176" width="175.135" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="652.432" y="208.25" font-size="15" fill="#1f3b52" text-anchor="middle">233</text></svg>
+            <div class="diagram-caption">The confusion matrix of the scaled classifier on 900 test examples. Still is always recognised; walk is sometimes taken for still (56) and shake for walk (67). The errors fall between <em>neighbouring</em> classes, where the ranges of the data overlap by design.</div>
+        </div>
+
+<p>A <strong>confusion matrix</strong> tells you what a single accuracy number hides: <em>which</em> mistakes are made. For a robot the mistakes are not equal: taking “shake” for “walk” may be harmless, taking “walk” for “still” may let a motor start while someone is holding the robot. Choose the model, or the thresholds, on the cost of the mistake, not only on the count.</p>
+<ul>
+<li><strong>Always test on data the model has not seen.</strong> Record separate sessions for training and testing, not a random split of one session: neighbouring samples are nearly identical, and a random split lets the model peek.</li>
+<li><strong>Record your own data on your own robot.</strong> A model trained on someone else’s IMU, mounting and floor does not transfer.</li>
+<li><strong>Ship the numbers, not a program.</strong> The model is a JSON file of a few numbers (coefficients, centroids, scales), and an update is one message or one file copy. Publish its version on <span class="code-lesson-il">stat/</span> so you know which one is running.</li>
+<li><strong>Know when you are outside the training data.</strong> A feature value far from any centroid or training range should be reported as “unknown”, not forced into the nearest class.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Count the Numbers.</strong> A cubic calibration has four coefficients. How many reference points do you want at least, using the rule “more data than numbers”? Why would taking all twelve at a single temperature not help?</p>
+        <p><strong>Exercise 2: Read the Table.</strong> In the polynomial table, why is error on the training points lower for degree 7 than for degree 3, and why is that not a reason to prefer degree 7?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Which Mistake?.</strong> Using the confusion matrix, what fraction of true “walk” examples were called “still”? A rule says “do not start the motor if the robot is not still”. Which mistake is dangerous, and what could you change?</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Fit and Apply.</strong> Using <span class="code-lesson-il">fit_poly</span>, fit a line through the points (x, y) = (0.2, 12), (0.4, 19), (0.6, 33), (0.8, 41). Write the line as <span class="code-lesson-il">cal.json</span>, and say what the node returns for x = 0.5.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Count the Numbers</summary>
+<p>More points than coefficients: at least <strong>8 to 12</strong>, ideally spread over the whole range of temperatures you will measure (the 12 above spanned 10 to 50 °C). Twelve readings at one temperature give the <em>noise</em> at that temperature but no information about the <strong>shape</strong> of the curve elsewhere: the fit is free to do anything away from that point, and the model is only valid for inputs like those it was trained on.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Read the Table</summary>
+<p>A more flexible curve can pass closer to every training point, so training error can only fall as the degree rises. But part of what it matches is <strong>noise</strong>, which will be different next time, so on new data the curve is worse (1.32 °C against 0.16 °C). The model should be judged by its error on data it was not fitted to.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Which Mistake?</summary>
+<p>56 of 300 walking examples were called still: <strong>18.7 %</strong>. The rule starts the motor when the state is “still”, so calling a walking robot “still” is the <strong>dangerous</strong> error (someone is carrying it). Options: move the decision threshold toward “walk” so that borderline cases count as moving (accepting more false “walk” labels for still robots), require “still” for several seconds in a row (like the Stump’s hysteresis), and add a second feature that separates them better.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Fit and Apply</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">cal.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">c = fit_poly([0.2, 0.4, 0.6, 0.8], [12, 19, 33, 41], 1)
+print(c)                      # [1.0, 50.5]
+print(predict(c, 0.5))        # 26.25
+# cal.json:  {"coef": [1.0, 50.5]}
+</span>
+</div><p>The least-squares line is y = 1.0 + 50.5 x (the residuals at the four points are −0.9, 2.2, −1.7 and 0.4), so x = 0.5 gives <strong>26.25</strong>. The node needs only the file and the <span class="code-lesson-il">calibrate</span> loop.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Fit a polynomial by least squares and say how to choose the degree.</li>
+            <li>Explain overfitting and the two cheap defences against it.</li>
+            <li>Classify with the nearest centroid and say why features must be scaled.</li>
+            <li>Read a confusion matrix and judge mistakes by their cost.</li>
+            <li>Deploy a model to the node as a small file and know its limits.</li>
+        </ol>
+
+    </body>
+</html>

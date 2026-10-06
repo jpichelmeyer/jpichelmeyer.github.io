@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson covers agreeing on messages and roles. You write a contract with its seven items, enforce it with a schema checker that cannot crash, change it additively without breaking readers, and let agents announce roles and choose a leader by a rule everyone computes from the same retained messages.</p>
+
+<p>Agents written by different people, on different days, must still work together. What makes that possible is not good intentions but a <strong>contract</strong>: a precise, written description of every message, so exact that two people who never speak can each write one side and have the sides fit. You have been using one since Unit 2 (the envelope, the topic kinds, the robot interface spec for Lab Practical 2). This lesson shows what a contract contains, how to <em>enforce</em> it in code on the receiving side, how to change one without breaking anyone, and how agents announce <strong>roles</strong> so that a group can organise itself.</p>
+<h3>Part 1. What a Contract Contains</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 444.25" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="150" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="95" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Item</text><rect x="170" y="14" width="260" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="300" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Example</text><rect x="430" y="14" width="310" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="585" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Why it must be written down</text><rect x="20" y="66" width="150" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Topic</text><rect x="170" y="66" width="260" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="179" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="start">lab/s1/tele/range</text><rect x="430" y="66" width="310" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="start">who publishes, who may subscribe</text><rect x="20" y="118" width="150" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Kind</text><rect x="170" y="118" width="260" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="179" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="start">tele: a measurement</text><rect x="430" y="118" width="310" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="start">sets rate, retain and QoS by convention</text><rect x="20" y="170" width="150" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Fields</text><rect x="170" y="170" width="260" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="179" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="start">cm: float, 2 to 400</text><rect x="430" y="170" width="310" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="start">units, type and range are all needed</text><rect x="20" y="222" width="150" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Rate</text><rect x="170" y="222" width="260" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="179" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="start">5 per second at most</text><rect x="430" y="222" width="310" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="start">a receiver must survive the worst case</text><rect x="20" y="274" width="150" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="296.137" font-size="14.5" fill="#1f3b52" text-anchor="start">Meaning of</text><text x="29" y="314.262" font-size="14.5" fill="#1f3b52" text-anchor="start">silence</text><rect x="170" y="274" width="260" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="179" y="305.2" font-size="14.5" fill="#1f3b52" text-anchor="start">none for 2 s: sensor lost</text><rect x="430" y="274" width="310" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="296.137" font-size="14.5" fill="#1f3b52" text-anchor="start">what a receiver does when it hears</text><text x="439" y="314.262" font-size="14.5" fill="#1f3b52" text-anchor="start">nothing</text><rect x="20" y="326.25" width="150" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="357.325" font-size="14.5" fill="#1f3b52" text-anchor="start">Error behaviour</text><rect x="170" y="326.25" width="260" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="179" y="357.325" font-size="14.5" fill="#1f3b52" text-anchor="start">refuse: ack ok false, why</text><rect x="430" y="326.25" width="310" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="357.325" font-size="14.5" fill="#1f3b52" text-anchor="start">a rejected message must say so</text><rect x="20" y="378.25" width="150" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="409.325" font-size="14.5" fill="#1f3b52" text-anchor="start">Version</text><rect x="170" y="378.25" width="260" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="179" y="409.325" font-size="14.5" fill="#1f3b52" text-anchor="start">v: 1</text><rect x="430" y="378.25" width="310" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="409.325" font-size="14.5" fill="#1f3b52" text-anchor="start">lets the contract change one day</text></svg>
+            <div class="diagram-caption">The seven items of a contract. Almost every integration failure in Labs 9 to 12 will be one of these left unwritten: a unit (cm or mm?), a range, or what silence means.</div>
+        </div>
+
+<p>The row people forget is the fifth: <strong>the meaning of silence</strong>. A message that stops is also a message. If the contract says “no <span class="code-lesson-il">tele/range</span> for 2 seconds means the sensor is lost”, then the receiver knows what to do; if it does not, every receiver invents its own rule, and they differ.</p>
+<h3>Part 2. The Envelope</h3>
+<p>The envelope is the part every message shares, so the receiver can handle it before it understands the content. You have used it since Lab 3:</p>
+<div class="code-block" data-lang="text">
+<div class="code-block-header">
+<span class="code-block-filename">envelope</span>
+<span class="code-block-lang">Text</span>
+</div>
+<span class="code-lesson-bl">{"v": 1, "seq": 412, "t": 98234, ...fields...}
+
+v    contract version, an integer. Changes only when a field's meaning changes.
+seq  a counter per publisher, up by one for every message it sends.
+t    the sender's ticks_ms() when it made the message (a clock that restarts at every boot).
+</span>
+</div>
+<p><span class="code-lesson-il">seq</span> lets a receiver count what it missed and spot repeats, and <span class="code-lesson-il">t</span> lets it judge age. Neither requires the sender and receiver to share a clock. Fields are <strong>flat</strong>, next to the envelope, because on a 200-byte budget every nested level of <span class="code-lesson-il">{}</span> is bytes and RAM spent for nothing.</p>
+<h3>Part 3. Check Everything You Receive</h3>
+<p>Anything that arrives from the network is a stranger’s input, even from a classmate you trust, because their code may have a bug or yours may. The receiver therefore <strong>checks</strong> each message against the contract before using any of it, and the rule that matters most is that <strong>checking never raises</strong>: a malformed message must be rejected quietly, counted, and not crash the node. The cheapest way to do that for many messages is to write the contract as data and one function to check it:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">contract.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># contract.py -- one table describes a message; one function checks it
+# field: (type, low, high, required)
+RANGE_TELE = {
+    "cm":   (float, 2.0, 400.0, True),        # HC-SR04 range in centimetres
+    "ok":   (bool,  None, None, False),
+}
+LED_CMD = {
+    "to":    (str,  None, None, True),
+    "state": (int,  0, 1, True),
+    "id":    (int,  0, 2**31, True),
+}
+
+def check(schema, d):
+    """Returns (True, "") or (False, "reason"). Extra fields are allowed (they may come
+    from a newer version of the contract); a missing or wrong field is not."""
+    if not isinstance(d, dict):
+        return False, "not an object"
+    for name, (typ, lo, hi, required) in schema.items():
+        if name not in d:
+            if required:
+                return False, "missing " + name
+            continue
+        v = d[name]
+        if typ is float and isinstance(v, int) and not isinstance(v, bool):
+            v = float(v)                      # JSON writes 20.0 as 20: accept an int for a float
+        if not isinstance(v, typ) or (typ is not bool and isinstance(v, bool)):
+            return False, name + " has the wrong type"
+        if lo is not None and not (lo &lt;= v &lt;= hi):
+            return False, name + " out of range"
+    return True, ""
+</span>
+</div>
+<p>A few choices are worth a second look. Extra fields are <em>allowed</em>: a newer sender may add one, and an older receiver should ignore what it does not know (the next part uses this). A <span class="code-lesson-il">bool</span> is not accepted as a number, though in Python <span class="code-lesson-il">True</span> is the integer 1, because a <span class="code-lesson-il">state: true</span> where a 0 or 1 was agreed is a different mistake from <span class="code-lesson-il">state: 1</span> and should be noticed. And <span class="code-lesson-il">NaN</span> and infinity are both rejected by the range test, because every comparison with <span class="code-lesson-il">NaN</span> is false.</p>
+<p>To test the checker, 100,000 random inputs (<span class="code-lesson-il">None</span>, booleans, huge integers, floats, strings with braces and quotes, lists, dictionaries with some of the right keys and random values) were fed to both schemas. <strong>No input raised an exception</strong>, and none was accepted. Then ten hand-written cases were checked, including an <span class="code-lesson-il">int</span> where a <span class="code-lesson-il">float</span> is expected (accepted: JSON drops the <span class="code-lesson-il">.0</span>), a <span class="code-lesson-il">bool</span> (rejected), <span class="code-lesson-il">{"cm": 500.0}</span> (out of range), and a message with an extra field and a newer <span class="code-lesson-il">v</span> (accepted). Write a test like this for every contract you publish: the cases you think of are the cases you already handle.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 230" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="160" height="60" rx="6" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="100" y="76" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">arrives</text><line x1="180" y1="70" x2="196" y2="70" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="205.0,70.0 194.0,64.5 194.0,75.5" fill="#1f3b52"/><rect x="205" y="40" width="160" height="60" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="285" y="76" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">decode (v, seq, t)</text><line x1="365" y1="70" x2="381" y2="70" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="390.0,70.0 379.0,64.5 379.0,75.5" fill="#1f3b52"/><rect x="390" y="40" width="160" height="60" rx="6" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="470" y="76" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">check the fields</text><line x1="550" y1="70" x2="566" y2="70" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="575.0,70.0 564.0,64.5 564.0,75.5" fill="#1f3b52"/><rect x="575" y="40" width="160" height="60" rx="6" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="655" y="76" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">use it</text><rect x="205" y="140" width="160" height="50" rx="8" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="285" y="161.012" font-size="14.5" fill="#1f3b52" text-anchor="middle">reject, count,</text><text x="285" y="179.137" font-size="14.5" fill="#1f3b52" text-anchor="middle">report once</text><rect x="390" y="140" width="160" height="50" rx="8" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="470" y="161.012" font-size="14.5" fill="#1f3b52" text-anchor="middle">reject, count,</text><text x="470" y="179.137" font-size="14.5" fill="#1f3b52" text-anchor="middle">report once</text><line x1="285" y1="100" x2="285" y2="131" stroke="#b3261e" stroke-width="2.2" stroke-linecap="round"/><polygon points="285.0,140.0 290.5,129.0 279.5,129.0" fill="#b3261e"/><line x1="470" y1="100" x2="470" y2="131" stroke="#b3261e" stroke-width="2.2" stroke-linecap="round"/><polygon points="470.0,140.0 475.5,129.0 464.5,129.0" fill="#b3261e"/></svg>
+            <div class="diagram-caption">The receive path. A message passes two gates before anything acts on it; at each gate the failure is the same: reject, count, report once (not on every message, which would flood your own log).</div>
+        </div>
+
+<h3>Part 4. Changing a Contract Without Breaking Anyone</h3>
+<p>Contracts change, and the agents using them will not all be updated on the same day. Two kinds of change need different handling. An <strong>additive</strong> change adds a field: old receivers ignore it, because <span class="code-lesson-il">check</span> allows extra fields, and nothing breaks. A <strong>breaking</strong> change alters the meaning of an existing field (centimetres become millimetres) or removes one; every receiver must change, so the version number changes, and for a time the sender publishes <strong>both</strong> (<span class="code-lesson-il">tele/range</span> with <span class="code-lesson-il">v: 1</span>, and a new topic or field for the new meaning).</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 308" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="260" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="150" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Change</text><rect x="280" y="14" width="150" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="355" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Kind</text><rect x="430" y="14" width="310" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="585" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">What to do</text><rect x="20" y="70" width="260" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="start">add a field “quality”</text><rect x="280" y="70" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="289" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="start">additive</text><rect x="430" y="70" width="310" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="start">nothing; old readers ignore it</text><rect x="20" y="126" width="260" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="start">make “ok” required</text><rect x="280" y="126" width="150" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="289" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="start">tightening</text><rect x="430" y="126" width="310" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="start">old senders break: avoid, or bump v</text><rect x="20" y="182" width="260" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="start">cm becomes mm</text><rect x="280" y="182" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="289" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="start">breaking</text><rect x="430" y="182" width="310" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="206.012" font-size="14.5" fill="#1f3b52" text-anchor="start">new topic or v 2; publish both for a</text><text x="439" y="224.137" font-size="14.5" fill="#1f3b52" text-anchor="start">while</text><rect x="20" y="238" width="260" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="start">rename “cm” to “range”</text><rect x="280" y="238" width="150" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="289" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="start">breaking</text><rect x="430" y="238" width="310" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="start">same: it is a removal plus an addition</text></svg>
+            <div class="diagram-caption">Four changes and how to treat them. The safest rule: <strong>never change the meaning of a name</strong>; add a new name.</div>
+        </div>
+
+<h3>Part 5. Roles, and a Leader Without a Boss</h3>
+<p>A group of agents often needs to know <em>who does what</em>: “who is the coordinator?”, “which agents are scan heads?”. Rather than configure this by hand, each agent <strong>announces its role</strong>, retained, so that a late joiner finds out at once, and the last will from Unit 2 retracts it when the agent dies. Roles in this course are few: <strong>sensor</strong> (publishes measurements), <strong>actuator</strong> (obeys commands and reports the real state), <strong>coordinator</strong> (reads sensors, commands actuators) and <strong>observer</strong> (reads only, for example a logger or dashboard).</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">roles.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># roles.py -- announce what I am, and agree who leads without a boss
+import json
+
+def announce(hub, role, caps):
+    """Retained: a late joiner learns the role at once. The will (hub.presence) retracts it."""
+    hub.publish("stat/role", {"role": role, "caps": caps}, retain=True)
+
+class Roster:
+    """Who is alive and what they are, learned from lab/+/stat/role and lab/+/stat/online."""
+    def __init__(self):
+        self.role = {}                       # name -&gt; role
+        self.online = {}                     # name -&gt; True / False
+
+    def on_role(self, name, d):
+        self.role[name] = d.get("role")
+
+    def on_online(self, name, d):
+        self.online[name] = bool(d.get("online"))
+
+    def alive(self, role=None):
+        out = [n for n, up in self.online.items() if up and (role is None or self.role.get(n) == role)]
+        return sorted(out)
+
+    def leader(self, role):
+        """The lowest name among the live agents of this role. Everyone computes the same answer
+        from the same retained messages, so there is no vote and no boss."""
+        a = self.alive(role)
+        return a[0] if a else None
+</span>
+</div>
+<p>When there are several coordinators and only one should act, they must agree who. A group with no boss can still agree if every member follows the <strong>same rule</strong> on the <strong>same information</strong>: here, the live coordinator with the lowest name leads. With <span class="code-lesson-il">c1</span> and <span class="code-lesson-il">c2</span> both live, <span class="code-lesson-il">c1</span> leads; when <span class="code-lesson-il">c1</span>’s will says it is offline, <span class="code-lesson-il">c2</span> leads, with no message sent and no vote taken; when both are gone, there is no leader (<span class="code-lesson-il">None</span>) and the actuators’ fail-safe is what remains. In the test, those three answers came out exactly so.</p>
+<ul>
+<li><strong>It is only as good as the shared information.</strong> If <span class="code-lesson-il">c2</span> has not yet heard that <span class="code-lesson-il">c1</span> is back, for a moment both lead. The actuator’s rule (obey only the most recent leader, or only the leader it chose) must make that harmless.</li>
+<li><strong>A silent but online agent</strong> is not covered by the will. Combine with the age rule of the previous lesson: a leader that has not published for <span class="code-lesson-il">stale_ms</span> is treated as gone.</li>
+<li><strong>Keep roles few.</strong> Each role is a promise that others can rely on; an agent that is “sensor, but sometimes coordinator” is a contract nobody can state.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Spot the Violation.</strong> Which of these <span class="code-lesson-il">tele/range</span> messages violate the contract of Part 1? (a) <span class="code-lesson-il">{"v":1,"seq":4,"t":9,"cm":21.5}</span> (b) <span class="code-lesson-il">{"v":1,"seq":5,"t":9,"cm":"21.5"}</span> (c) <span class="code-lesson-il">{"v":1,"seq":6,"t":9,"cm":0}</span> (d) <span class="code-lesson-il">{"v":1,"seq":7,"t":9,"cm":21.5,"quality":0.9}</span></p>
+        <p><strong>Exercise 2: Breaking or Not?.</strong> Decide additive or breaking, and what you would do: (a) adding <span class="code-lesson-il">temp</span> to <span class="code-lesson-il">tele/imu</span>, (b) changing <span class="code-lesson-il">deg</span> in the pan command from degrees to radians, (c) removing <span class="code-lesson-il">why</span> from the ack.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Write the Contract.</strong> Write a schema in the style of <span class="code-lesson-il">contract.py</span> for <span class="code-lesson-il">evt/stopped</span> of the robot: a required string <span class="code-lesson-il">why</span> of at most 20 characters (checked separately) and an optional integer <span class="code-lesson-il">cmd_id</span>. Then say what <span class="code-lesson-il">check</span> returns for <span class="code-lesson-il">{"why": 5}</span> and for <span class="code-lesson-il">{"why": "deadman"}</span>.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Who Leads?.</strong> Agents <span class="code-lesson-il">c3</span>, <span class="code-lesson-il">c1</span> and <span class="code-lesson-il">c2</span> are coordinators, all online. <span class="code-lesson-il">c1</span> crashes, restarts and for two seconds has not yet published its role. What does <span class="code-lesson-il">c2</span> compute as the leader, and what do <span class="code-lesson-il">c3</span> and the actuators see? Suggest a rule that makes the double-leader moment harmless.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Spot the Violation</summary>
+<p>(a) valid. (b) <strong>violates</strong>: a string, not a number. (c) <strong>violates</strong>: 0 is below the 2 cm minimum of the sensor; it more likely means a timeout, and the contract says it must not be sent as a distance (use <span class="code-lesson-il">ok: false</span> or send nothing). (d) valid: extra fields are allowed, so this is how a contract grows.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Breaking or Not?</summary>
+<p>(a) <strong>additive</strong>: old receivers ignore <span class="code-lesson-il">temp</span>. (b) <strong>breaking</strong>, and nasty, because the same number now means something else and no check can catch it (30 degrees is 0.52 radians, and both are legal numbers). Use a new field name (<span class="code-lesson-il">rad</span>) or a new version. (c) <strong>breaking</strong> for any receiver that prints or logs <span class="code-lesson-il">why</span>; add it back, or version the ack.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Write the Contract</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">stopped_schema.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">STOPPED = {
+    "why":    (str, None, None, True),
+    "cmd_id": (int, 0, 2**31, False),
+}
+print(check(STOPPED, {"why": 5}))          # (False, 'why has the wrong type')
+print(check(STOPPED, {"why": "deadman"}))  # (True, '')
+</span>
+</div><p>The length limit is not expressible in this schema (it handles ranges of numbers); a string-length check is a natural extension, <span class="code-lesson-il">(str, 0, 20, True)</span> with <span class="code-lesson-il">len(v)</span> compared, or a separate test. Note what the schema does <strong>not</strong> say: what the receiver does with <span class="code-lesson-il">why = "lease expired"</span> or an unknown reason. That belongs in the written contract.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Who Leads?</summary>
+<p>When <span class="code-lesson-il">c1</span> crashes its will fires (<span class="code-lesson-il">online: false</span>), so <span class="code-lesson-il">c2</span> and <span class="code-lesson-il">c3</span> compute <strong><span class="code-lesson-il">c2</span></strong> as leader. When <span class="code-lesson-il">c1</span> returns, its hello (<span class="code-lesson-il">online: true</span>) arrives immediately, so <span class="code-lesson-il">c2</span> and <span class="code-lesson-il">c3</span> switch back to <span class="code-lesson-il">c1</span>; <span class="code-lesson-il">c1</span> itself, restarting, may also think it leads before it has received the retained roles of the others. For a short moment two agents command. A harmless rule: <strong>actuators obey only a command whose sender they currently believe is leader, and refuse a command with an older <span class="code-lesson-il">t</span> than the last they accepted</strong> from the same leader; and a new leader first observes for a second or two (the actuators’ lease expires) before acting.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>List what a message contract must contain.</li>
+            <li>Write a schema and a checker that never raises, and test it with bad input.</li>
+            <li>Tell an additive change from a breaking one and say how to handle each.</li>
+            <li>Announce a role retained and explain what the last will does to it.</li>
+            <li>Choose a leader without a boss and state the failure mode of the rule.</li>
+        </ol>
+
+    </body>
+</html>

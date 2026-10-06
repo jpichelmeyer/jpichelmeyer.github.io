@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson introduces agents. You model every node as a sense, decide, act and tell cycle, write a complete small agent against a base class, compare centralised, hierarchical and peer organisations, and use the broker, with its access list, as a shared bus on which each agent writes only to its own subtree.</p>
+
+<p>Until now one board did one job and everything else was infrastructure. This unit changes the question from “what can one Pico do?” to “what can several do together, with nobody in charge of all of them?” A system built from independent, communicating decision-makers is a <strong>multi-agent system</strong>, and it behaves differently from any single program, however clever. The robot you built in Units 1 and 2 (senses, acts, reports, obeys commands, survives outages) already <em>is</em> an agent. The new part is that other agents listen to it and decide what to do because of what it says.</p>
+<h3>Part 1. What Makes Something an Agent</h3>
+<p>An <strong>agent</strong> is a program with its own sensors, its own outputs and its own decision-making, which acts on its own view of the world and tells others what it saw and did. It runs one cycle, forever: <strong>sense, decide, act, tell</strong>. A collection of agents becomes a system when what each one tells shapes what the others decide.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="150" height="110" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="95" y="76" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">sense</text><text x="95" y="104" font-size="14" fill="#5b6b78" text-anchor="middle">read sensors,</text><text x="95" y="121.5" font-size="14" fill="#5b6b78" text-anchor="middle">read the inbox</text><line x1="170" y1="95" x2="196" y2="95" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="205.0,95.0 194.0,89.5 194.0,100.5" fill="#1f3b52"/><rect x="205" y="40" width="150" height="110" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="280" y="76" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">decide</text><text x="280" y="104" font-size="14" fill="#5b6b78" text-anchor="middle">local rules and</text><text x="280" y="121.5" font-size="14" fill="#5b6b78" text-anchor="middle">remembered state</text><line x1="355" y1="95" x2="381" y2="95" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="390.0,95.0 379.0,89.5 379.0,100.5" fill="#1f3b52"/><rect x="390" y="40" width="150" height="110" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="465" y="76" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">act</text><text x="465" y="104" font-size="14" fill="#5b6b78" text-anchor="middle">drive outputs</text><line x1="540" y1="95" x2="566" y2="95" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="575.0,95.0 564.0,89.5 564.0,100.5" fill="#1f3b52"/><rect x="575" y="40" width="150" height="110" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="650" y="76" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">tell</text><text x="650" y="104" font-size="14" fill="#5b6b78" text-anchor="middle">publish what we</text><text x="650" y="121.5" font-size="14" fill="#5b6b78" text-anchor="middle">saw and did</text><text x="380" y="190" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">the same four steps in every agent in the course, from a light switch to a robot</text><text x="380" y="218" font-size="14.5" fill="#5b6b78" text-anchor="middle">only “tell” is new in this unit: it is what turns separate programs into a system</text></svg>
+            <div class="diagram-caption">The agent cycle. Each agent repeats these steps at its own pace, with no knowledge of how many others exist.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">agent.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># agent.py -- the four-step cycle, and a loop that runs several agents
+from time import ticks_ms, ticks_diff
+
+class Agent:
+    def __init__(self, name, hub, period_ms=100):
+        self.name, self.hub, self.period = name, hub, period_ms
+        self.last = ticks_ms()
+        self.steps = 0
+
+    def sense(self):            return None        # read sensors, or look at what arrived
+    def decide(self, obs):      return None        # apply local rules (and remembered state)
+    def act(self, decision):    pass               # drive outputs
+    def tell(self, obs, dec):   pass               # publish what we saw and did
+
+    def step(self):
+        obs = self.sense()
+        dec = self.decide(obs)
+        self.act(dec)
+        self.tell(obs, dec)
+        self.steps += 1
+
+    def tick(self, now):
+        if ticks_diff(now, self.last) &gt;= self.period:
+            self.last = now
+            self.step()
+
+def run(hub, agents, wdt=None):
+    """The whole program: poll the network, then give every agent its turn."""
+    while True:
+        hub.poll()
+        now = ticks_ms()
+        for a in agents:
+            a.tick(now)
+        if wdt:
+            wdt.feed()
+</span>
+</div>
+<p>A concrete agent overrides the four methods and nothing else. The loop around them never changes, which is what makes agents easy to combine on one board: <span class="code-lesson-il">run</span> polls the hub (the message handling of Unit 2) and then gives every agent its turn. Here is a complete small one, a <strong>sentry</strong> with an HC-SR04 and an LED:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">sentry.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># sentry.py -- one concrete agent: reports distance, lights an LED when something is near
+from agent import Agent
+
+class Sentry(Agent):
+    NEAR, FAR = 20.0, 30.0                     # centimetres: a band, so it does not flicker
+
+    def __init__(self, hub, read_cm, led):
+        super().__init__("sentry", hub, period_ms=100)
+        self.read_cm, self.led = read_cm, led
+        self.near = False
+        self.last_sent = None
+
+    def sense(self):
+        return self.read_cm()                   # None if the echo timed out
+
+    def decide(self, cm):
+        if cm is None:
+            return self.near                    # no reading: keep the last decision
+        if cm &lt; self.NEAR:
+            self.near = True
+        elif cm &gt; self.FAR:
+            self.near = False
+        return self.near
+
+    def act(self, near):
+        self.led.value(1 if near else 0)
+
+    def tell(self, cm, near):
+        if near != self.last_sent:              # tell only when the decision changes
+            self.hub.publish("stat/sentry", {"near": near, "cm": cm}, retain=True)
+            self.last_sent = near
+</span>
+</div>
+<p>Note what each method does <em>not</em> do. <span class="code-lesson-il">sense</span> does not decide; <span class="code-lesson-il">decide</span> does not touch hardware; <span class="code-lesson-il">tell</span> publishes a <strong>decision</strong>, not a stream of readings, and only when the decision changes. The sentry was run on the test fixture with the distance script 50, 25, 15, 25, 35 and then sensor failure, a second apart. The LED came on at 15 cm, stayed on at 25 cm (inside the 20 to 30 band), went off at 35 cm, and ignored the timeout. The broker saw exactly three retained messages: <span class="code-lesson-il">near: false</span> at start, <span class="code-lesson-il">near: true</span> at 3 s and <span class="code-lesson-il">near: false</span> at 5 s, while <span class="code-lesson-il">step()</span> ran 80 times in eight seconds. Eighty cycles, three messages.</p>
+<h3>Part 2. Why Several Agents</h3>
+<ul>
+<li><strong>Distribution.</strong> Sensors and actuators are in different places, and each needs a processor nearby. A scan head on one side of a table cannot share a wire with one on the other.</li>
+<li><strong>Specialisation.</strong> A Pico has 264 kB of RAM. One job per board keeps each program small enough to understand and to test.</li>
+<li><strong>Robustness.</strong> One agent failing need not stop the rest, <em>if</em> the others notice and respond (the watchdog, will and lease of Unit 2 are how they notice).</li>
+<li><strong>Scale.</strong> More capacity means one more agent, not a rewrite.</li>
+</ul>
+<p>The price is <strong>coordination</strong>. Agents share no memory, only messages that take time, can be lost, and can arrive twice. Every agent therefore works from an incomplete and slightly out-of-date picture of the others. Most of the rest of this unit is about living with that honestly.</p>
+<h3>Part 3. How to Organise Them</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="92" y="32" width="76" height="36" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="130" y="55.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">coord</text><line x1="130" y1="68" x2="60" y2="128" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="38" y="128" width="44" height="32" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="60" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">a</text><line x1="130" y1="68" x2="110" y2="128" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="88" y="128" width="44" height="32" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="110" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">b</text><line x1="130" y1="68" x2="160" y2="128" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="138" y="128" width="44" height="32" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="160" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">c</text><line x1="130" y1="68" x2="210" y2="128" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="188" y="128" width="44" height="32" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="210" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">d</text><text x="130" y="200" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">centralised</text><text x="130" y="224" font-size="14" fill="#5b6b78" text-anchor="middle">simple; one point of failure</text><rect x="352" y="22" width="76" height="36" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="390" y="45.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">top</text><line x1="390" y1="58" x2="330" y2="90" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="292" y="90" width="76" height="36" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="330" y="113.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">sub</text><line x1="390" y1="58" x2="450" y2="90" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="412" y="90" width="76" height="36" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="450" y="113.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">sub</text><line x1="330" y1="126" x2="300" y2="150" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="278" y="150" width="44" height="32" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="300" y="171.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">a</text><line x1="330" y1="126" x2="360" y2="150" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="338" y="150" width="44" height="32" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="360" y="171.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">a</text><line x1="450" y1="126" x2="420" y2="150" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="398" y="150" width="44" height="32" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="420" y="171.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">a</text><line x1="450" y1="126" x2="480" y2="150" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="458" y="150" width="44" height="32" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="480" y="171.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">a</text><text x="390" y="212" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">hierarchy</text><text x="390" y="236" font-size="14" fill="#5b6b78" text-anchor="middle">damage is contained to a branch</text><line x1="679.231" y1="115.367" x2="620.878" y2="151.995" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="679.231" y1="115.367" x2="561.312" y2="116.767" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="679.231" y1="115.367" x2="582.851" y2="58.3681" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="679.231" y1="115.367" x2="655.729" y2="57.5026" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="620.878" y1="151.995" x2="561.312" y2="116.767" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="620.878" y1="151.995" x2="582.851" y2="58.3681" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="620.878" y1="151.995" x2="655.729" y2="57.5026" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="561.312" y1="116.767" x2="582.851" y2="58.3681" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="561.312" y1="116.767" x2="655.729" y2="57.5026" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="582.851" y1="58.3681" x2="655.729" y2="57.5026" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><circle cx="679.231" cy="115.367" r="14" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><circle cx="620.878" cy="151.995" r="14" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><circle cx="561.312" cy="116.767" r="14" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><circle cx="582.851" cy="58.3681" r="14" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><circle cx="655.729" cy="57.5026" r="14" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="620" y="200" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">peers</text><text x="620" y="224" font-size="14" fill="#5b6b78" text-anchor="middle">nothing single to lose; hard to follow</text></svg>
+            <div class="diagram-caption">Three ways to organise the same agents. In this course the lines are never real wires: every agent talks only to the broker, and the organisation is a matter of <strong>who listens to whom</strong>.</div>
+        </div>
+
+<p>In a centralised design one coordinator collects reports and issues instructions. It is the easiest to build, and when the coordinator stops, everything stops (Lab 9 deliberately tests that). A hierarchy limits the damage to a branch. A peer design has no single point of failure, but nobody sees the whole picture, so agreement has to be built in (Lab 11 builds a small piece of it). You will meet all three in Labs 9 to 12; the instructor’s robot in Lab Practical 3 is a <em>shared resource</em> that peers must take turns with.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 258" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="190" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><rect x="210" y="14" width="180" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="300" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Centralised</text><rect x="390" y="14" width="180" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="480" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Hierarchy</text><rect x="570" y="14" width="170" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="655" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Peers</text><rect x="20" y="60" width="190" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Easy to build</text><rect x="210" y="60" width="180" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">yes</text><rect x="390" y="60" width="180" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="480" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">medium</text><rect x="570" y="60" width="170" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="655" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">no</text><rect x="20" y="106" width="190" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="134.075" font-size="14.5" fill="#1f3b52" text-anchor="start">If one agent fails</text><rect x="210" y="106" width="180" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="134.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">coordinator: all stop</text><rect x="390" y="106" width="180" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="480" y="134.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">a branch stops</text><rect x="570" y="106" width="170" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="655" y="134.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">the rest carry on</text><rect x="20" y="152" width="190" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="180.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Needs agreement rules</text><rect x="210" y="152" width="180" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="180.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">no, it decides</text><rect x="390" y="152" width="180" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="480" y="180.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">at each level</text><rect x="570" y="152" width="170" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="655" y="180.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">yes, everywhere</text><rect x="20" y="198" width="190" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="226.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Scales to many agents</text><rect x="210" y="198" width="180" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="226.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">to its capacity</text><rect x="390" y="198" width="180" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="480" y="226.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">better</text><rect x="570" y="198" width="170" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="655" y="226.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">best, in principle</text></svg>
+            <div class="diagram-caption">The honest comparison. Decentralising removes the single point of failure, and moves its cost into the rules for agreeing.</div>
+        </div>
+
+<h3>Part 4. The Broker as the Shared Bus</h3>
+<p>Agents never talk to each other directly. Each publishes into its own part of the topic tree (<span class="code-lesson-il">lab/&lt;user&gt;/{tele,evt,cmd,stat}/&lt;name&gt;</span>, from Unit 2) and subscribes to the parts it needs. The broker is a shared bus, sometimes called a <strong>blackboard</strong>: agents write what they know where others can read it. The access list that you have had since Lab 5 already does the job: everyone may <strong>read</strong> <span class="code-lesson-il">lab/#</span>, and everyone may <strong>write</strong> only their own <span class="code-lesson-il">lab/&lt;user&gt;/#</span>. So a misbehaving agent can only damage its own corner.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="300" y="140" width="160" height="60" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="175.95" font-size="17" fill="#1f3b52" text-anchor="middle">broker</text><rect x="40" y="20" width="160" height="84" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="120" y="58.0125" font-size="14.5" fill="#1f3b52" text-anchor="middle">s1  sensor</text><text x="120" y="76.1375" font-size="14.5" fill="#1f3b52" text-anchor="middle">writes lab/s1/tele</text><line x1="120" y1="104" x2="331.118" y2="138.547" stroke="#3c8a5a" stroke-width="2.4" stroke-linecap="round"/><polygon points="340.0,140.0 330.0,132.8 328.3,143.7" fill="#3c8a5a"/><rect x="300" y="20" width="160" height="84" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="380" y="58.0125" font-size="14.5" fill="#1f3b52" text-anchor="middle">c1  coordinator</text><text x="380" y="76.1375" font-size="14.5" fill="#1f3b52" text-anchor="middle">writes lab/c1/cmd</text><line x1="380" y1="104" x2="380" y2="131" stroke="#3c8a5a" stroke-width="2.4" stroke-linecap="round"/><polygon points="380.0,140.0 385.5,129.0 374.5,129.0" fill="#3c8a5a"/><rect x="560" y="20" width="160" height="84" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="640" y="58.0125" font-size="14.5" fill="#1f3b52" text-anchor="middle">a1  actuator</text><text x="640" y="76.1375" font-size="14.5" fill="#1f3b52" text-anchor="middle">writes lab/a1/stat</text><line x1="640" y1="104" x2="428.882" y2="138.547" stroke="#3c8a5a" stroke-width="2.4" stroke-linecap="round"/><polygon points="420.0,140.0 431.7,143.7 430.0,132.8" fill="#3c8a5a"/><text x="380" y="245" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">everyone reads lab/#, but writes only lab/&lt;own name&gt;/#</text><text x="380" y="275" font-size="14.5" fill="#5b6b78" text-anchor="middle">so the coordinator commands the actuator by publishing in ITS OWN cmd subtree,</text><text x="380" y="300" font-size="14.5" fill="#5b6b78" text-anchor="middle">and the actuator subscribes to lab/c1/cmd/# and checks the field "to"</text></svg>
+            <div class="diagram-caption">Who writes where in a three-agent system. A command is a message <strong>in the sender’s subtree, addressed by a field</strong>; the receiver listens to its sender. (The instructor’s robot is the exception: the instructor grants write on <span class="code-lesson-il">robot/r1/cmd/#</span> to one user at a time.)</div>
+        </div>
+
+<p>This has a consequence that surprises people: “sending a command to the actuator” and “the actuator receiving a command” are two separate acts joined only by a subscription. If the actuator subscribes to the wrong coordinator, nothing is received and nothing is reported as wrong. Good agents therefore <strong>say what they are listening to</strong> (in their retained <span class="code-lesson-il">stat/online</span> or a <span class="code-lesson-il">stat/subs</span> message), and good tests check it.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Is It an Agent?.</strong> Say which are agents and why: (a) a Pico that reads a thermistor and publishes it, (b) a Pico that reads a thermistor, switches a fan and publishes both, (c) a laptop running <span class="code-lesson-il">mosquitto_sub</span>, (d) the instructor’s robot node.</p>
+        <p><strong>Exercise 2: Pick an Organisation.</strong> Which arrangement would you choose, and why: (a) five sensors and one valve in one room, (b) a building with a hundred rooms, each with its own sensors and heating, (c) a swarm of identical robots that must keep working if some fail?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Wrong Subscription.</strong> The actuator <span class="code-lesson-il">a1</span> subscribes to <span class="code-lesson-il">lab/s1/cmd/#</span> instead of <span class="code-lesson-il">lab/c1/cmd/#</span>. What does each of the three agents publish and see, and how would you find the mistake?</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Write a Light Agent.</strong> Subclass <span class="code-lesson-il">Agent</span> to make <span class="code-lesson-il">LightAgent</span>: it reads a function <span class="code-lesson-il">read_light()</span> (0 to 65535), decides <span class="code-lesson-il">"dark"</span> below 15,000 and <span class="code-lesson-il">"ok"</span> above 17,000 (keeping its last decision in between), switches an LED when dark, and publishes <span class="code-lesson-il">stat/light</span> (retained) only when the decision changes.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Is It an Agent?</summary>
+<p>(a) Barely: it senses and tells, but decides nothing and acts on nothing. (b) Yes: it runs the whole cycle. (c) No: it only displays; it has no decision or output of its own. (d) <strong>Yes</strong>, and a richer one than (b): it senses (range, pan), decides (validates and arbitrates commands), acts (servo, motor), and tells (pose, state, acks).</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Pick an Organisation</summary>
+<p>(a) <strong>Centralised</strong>: small and simple, and one coordinator is easy to test. (b) <strong>Hierarchy</strong>: a controller per floor or per wing, so one failure affects a branch, and the top level sees summaries. (c) <strong>Peers</strong>: no single point of failure, with explicit agreement rules; the price is that the design must tolerate stale information about the others.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Wrong Subscription</summary>
+<p>The sensor publishes <span class="code-lesson-il">tele</span>; the coordinator sees it and publishes <span class="code-lesson-il">cmd/led</span> in <strong>its own</strong> subtree; the actuator, listening elsewhere, receives nothing and its LED never changes. The broker shows no error, and the coordinator sees no acknowledgement. Find it by looking at the traffic (<span class="code-lesson-il">mosquitto_sub -v -t "lab/#"</span> shows the command was published), then at the actuator’s subscriptions. The defence is the pattern of Unit 2: the actuator publishes the filters it listens to, and the coordinator retries and reports “no answer” after a timeout.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Write a Light Agent</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">lightagent.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from agent import Agent
+
+class LightAgent(Agent):
+    def __init__(self, hub, read_light, led):
+        super().__init__("light", hub, period_ms=100)
+        self.read_light, self.led = read_light, led
+        self.state = "ok"
+        self.sent = None
+
+    def sense(self):
+        return self.read_light()
+
+    def decide(self, level):
+        if level &lt; 15000:
+            self.state = "dark"
+        elif level &gt; 17000:
+            self.state = "ok"
+        return self.state
+
+    def act(self, state):
+        self.led.value(1 if state == "dark" else 0)
+
+    def tell(self, level, state):
+        if state != self.sent:
+            self.hub.publish("stat/light", {"state": state, "level": level}, retain=True)
+            self.sent = state
+</span>
+</div><p>The band between 15,000 and 17,000 is the same device as <span class="code-lesson-il">Sentry</span>: remembered state turns a threshold into a band, so a reading that wobbles around one value cannot make the output flicker.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Define an agent and name the four steps of its cycle.</li>
+            <li>Write a concrete agent that overrides only the four methods.</li>
+            <li>Compare three organisations and say when each fits.</li>
+            <li>Say who writes where in a multi-agent system on the class broker.</li>
+            <li>Explain why a command is a message in the sender’s subtree with an address field.</li>
+        </ol>
+
+    </body>
+</html>

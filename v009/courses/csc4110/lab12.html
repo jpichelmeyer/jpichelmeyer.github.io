@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This capstone lab joins the course into one system. Two scan heads follow a target and take turns to ping on a leased schedule, a fuser crosses their bearings into a position with a quality, and you validate the result with a test plan that includes faults. You measure what the geometry, the schedule and the faults do to the answer, and report the system as it is, with the evidence.</p>
+
+<h3>What You Will Build</h3>
+<p>Two ultrasonic scan heads, each on a servo, 60 cm apart. Each one finds a cardboard tube in front of it and follows it as it is moved. Neither head knows where the tube <strong>is</strong>, only the <strong>direction</strong> it lies in. A third node takes the two directions, crosses them, and publishes a position. That is <strong>triangulation</strong>, and it is a small version of what a multi-robot system does whenever several cheap, partial views are combined into one useful fact.</p>
+<p>This is the capstone because nothing in it is new. The scan head is the <strong>tracker</strong> of Week 12 (Stop, Track and Search behaviours under an arbiter) with an <strong>alpha-beta filter</strong> on its bearing (Week 13). The two heads share the air by <strong>taking turns</strong> to ping, on a schedule that the third node keeps in step by message, and that schedule is a <strong>lease</strong>: it is trusted for a limited time and then given up. The third node <strong>fuses</strong> the bearings with the geometry of Week 12 and keeps <strong>beliefs with ages</strong> (Week 13). The heads, the fuser and the contract between them are the <strong>agents</strong> and <strong>messages</strong> of Week 11. What is new is that you must show, with a <strong>test plan</strong> (Week 14), that the whole thing works, and say honestly where it does not.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="300" y="20" width="160" height="60" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="55.6" font-size="16" fill="#1f3b52" text-anchor="middle">broker</text><rect x="20" y="150" width="210" height="110" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="125" y="191.5" font-size="15" fill="#1f3b52" text-anchor="middle">HEAD A (student 1)</text><text x="125" y="210.25" font-size="15" fill="#1f3b52" text-anchor="middle">tracker + alpha-beta</text><text x="125" y="229" font-size="15" fill="#1f3b52" text-anchor="middle">ping in slot 0</text><rect x="530" y="150" width="210" height="110" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="635" y="191.5" font-size="15" fill="#1f3b52" text-anchor="middle">HEAD B (student 2)</text><text x="635" y="210.25" font-size="15" fill="#1f3b52" text-anchor="middle">tracker + alpha-beta</text><text x="635" y="229" font-size="15" fill="#1f3b52" text-anchor="middle">ping in slot 1</text><rect x="270" y="150" width="220" height="110" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="191.5" font-size="15" fill="#1f3b52" text-anchor="middle">FUSER (student 3)</text><text x="380" y="210.25" font-size="15" fill="#1f3b52" text-anchor="middle">intersect, quality,</text><text x="380" y="229" font-size="15" fill="#1f3b52" text-anchor="middle">doubt, sync</text><line x1="125" y1="150" x2="321.483" y2="82.9083" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><polygon points="330.0,80.0 317.8,78.3 321.4,88.8" fill="#2e5a80"/><line x1="635" y1="150" x2="438.517" y2="82.9083" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><polygon points="430.0,80.0 438.6,88.8 442.2,78.3" fill="#2e5a80"/><line x1="380" y1="141" x2="380" y2="89" stroke="#b8860b" stroke-width="2.2" stroke-linecap="round"/><polygon points="380.0,80.0 374.5,91.0 385.5,91.0" fill="#b8860b"/><polygon points="380.0,150.0 385.5,139.0 374.5,139.0" fill="#b8860b"/><text x="172" y="108" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">tele/bearing</text><text x="590" y="108" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">tele/bearing</text><text x="392" y="124" font-size="14" fill="#b8860b" text-anchor="start" font-weight="bold">evt/sync, tele/target</text><text x="392" y="142" font-size="14" fill="#b8860b" text-anchor="start" font-weight="bold">stat/fuser</text><text x="125" y="292" font-size="14" fill="#5b6b78" text-anchor="middle">ping, echo</text><text x="635" y="292" font-size="14" fill="#5b6b78" text-anchor="middle">ping, echo</text><text x="380" y="340" font-size="14.5" fill="#5b6b78" text-anchor="middle">the target is a cardboard tube moved by hand; the heads never talk to each other, only to the broker</text></svg>
+            <div class="diagram-caption">The Lab 12 system. Bearings go up to the fuser; the fuser sends a time reference down (<span class="code-lesson-il">evt/sync</span>) and publishes the position. Each head reads the others’ messages only through the broker.</div>
+        </div>
+
+<h3>The Layout</h3>
+<p>Stand the heads on a straight edge <strong>60 cm</strong> apart, each with its servo arm pointing <strong>perpendicular</strong> to the edge when the pan angle is 0, and its sensor at the same height. Call head A the origin and put <strong>x</strong> along the edge toward B and <strong>y</strong> straight out from it. Measure these with a ruler, because every error in them is an error in the answer.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 360" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="65" y1="310" x2="615" y2="310" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><rect x="172" y="306" width="36" height="18" rx="3" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><rect x="472" y="306" width="36" height="18" rx="3" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="190" y="348" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">A (0, 0)</text><text x="490" y="348" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">B (60, 0)</text><line x1="190" y1="310" x2="340" y2="130" stroke="#2e5a80" stroke-width="2.6" stroke-linecap="round"/><line x1="490" y1="310" x2="340" y2="130" stroke="#2e5a80" stroke-width="2.6" stroke-linecap="round"/><circle cx="340" cy="130" r="10" fill="#fbece3" stroke="#c0693f" stroke-width="2.5"/><text x="358" y="124" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">target (30, 50)</text><line x1="190" y1="302" x2="190" y2="203.8" stroke="#b8860b" stroke-width="2.4" stroke-linecap="round"/><polygon points="190.0,194.8 184.5,205.8 195.5,205.8" fill="#b8860b"/><text x="180" y="198.8" font-size="14" fill="#b8860b" text-anchor="end" font-weight="bold">pan 0</text><line x1="490" y1="302" x2="490" y2="203.8" stroke="#b8860b" stroke-width="2.4" stroke-linecap="round"/><polygon points="490.0,194.8 484.5,205.8 495.5,205.8" fill="#b8860b"/><text x="500" y="198.8" font-size="14" fill="#b8860b" text-anchor="start" font-weight="bold">pan 0</text><text x="340" y="245.2" font-size="15" fill="#c0693f" text-anchor="middle" font-weight="bold">spread 62°</text><text x="340" y="348" font-size="15" fill="#5b6b78" text-anchor="middle" font-weight="bold">60 cm</text><line x1="210" y1="334" x2="470" y2="334" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round"/><text x="130" y="209.2" font-size="14.5" fill="#5b6b78" text-anchor="end">x →</text><text x="130" y="166" font-size="14.5" fill="#5b6b78" text-anchor="end">y ↑</text></svg>
+            <div class="diagram-caption">Top view. Each head measures only the direction of the target (blue rays). The fuser intersects them. The angle between the rays, the <strong>spread</strong>, decides how much a small bearing error is magnified: 62° here, which is a good crossing; 20° would be a poor one.</div>
+        </div>
+
+<div class="code-block" data-lang="text">
+<div class="code-block-header">
+<span class="code-block-filename">layout</span>
+<span class="code-block-lang">Text</span>
+</div>
+<span class="code-lesson-bl">HEADS = {"amy": (0.0, 0.0, 90.0), "jsmith": (60.0, 0.0, 90.0)}
+#          user    x cm   y cm  direction of pan 0, in degrees counter-clockwise from +x
+# Pan 0 points along +y, so the direction is 90. Put YOUR user names and measured positions here.
+</span>
+</div>
+<h3>Step 1. One Head Alone</h3>
+<p>Load the files of the earlier weeks: <span class="code-lesson-il">agent.py</span>, <span class="code-lesson-il">behaviors.py</span>, <span class="code-lesson-il">tracker.py</span> (add <span class="code-lesson-il">from behaviors import Behavior</span> as its first line, which the lesson showed without), <span class="code-lesson-il">alphabeta.py</span>, <span class="code-lesson-il">slots.py</span>, <span class="code-lesson-il">servo.py</span> and your <span class="code-lesson-il">Ranger</span> from the pulse lesson, plus <span class="code-lesson-il">hub.py</span> and <span class="code-lesson-il">net.py</span>. Then add the new file below. The head is an agent with one rule for each situation: <strong>if</strong> a range has come back, update the tracker, move the servo, publish the bearing; <strong>otherwise</strong>, if the servo has had time to settle and it is this head’s turn, send a ping.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">head.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># head.py -- one scan head: finds the target, follows it, takes its turn to ping, publishes a bearing
+import random
+from time import ticks_ms, ticks_diff, ticks_add
+import hub
+from agent import Agent
+from behaviors import Arbiter
+from tracker import Stop, Track, Search
+from alphabeta import AlphaBeta
+from slots import Slots
+
+SETTLE_MS = 80             # time for the servo to arrive before we ping
+LEASE_MS = 30000           # the slot schedule is trusted for this long after the last sync
+FRAME_MS = 200             # two slots of 100 ms; this head owns slot `me`
+
+class Head(Agent):
+    def __init__(self, h, ranger, servo, me, fuser):
+        super().__init__("head", h, period_ms=10)
+        self.r, self.servo = ranger, servo
+        self.slots = Slots(me, 2, slot_ms=100, guard_ms=30)
+        self.t_sync = None                          # when the leader last told us the time
+        self.track = Track()
+        self.arb = Arbiter([Stop(), self.track, Search()])
+        self.s = {"pan": 0.0, "range": None, "halt": False, "found": None, "aimed": False}
+        self.filt = AlphaBeta(0.3, 0.05)            # smooths the bearing and estimates its speed
+        self.t_step = self.settle_until = self.next_free = ticks_ms()
+        h.on("lab/%s/evt/sync" % fuser, self.on_sync)
+
+    def on_sync(self, topic, payload):
+        d = hub.decode(payload)
+        if d and isinstance(d.get("pos"), int) and 0 &lt;= d["pos"] &lt; FRAME_MS:
+            self.slots.sync(ticks_add(ticks_ms(), -(d["pos"] + 15)))    # frame began pos ms ago, plus ~15 ms in the network
+            self.t_sync = ticks_ms()
+
+    def scheduled(self, now):
+        return self.t_sync is not None and ticks_diff(now, self.t_sync) &lt; LEASE_MS
+
+    def may_ping(self, now):
+        if self.scheduled(now):
+            return self.slots.may_ping(now)         # our slot, away from its edges
+        return ticks_diff(now, self.next_free) &gt;= 0 # no schedule: slow down, at random times
+
+    def step(self):
+        now = ticks_ms()
+        if self.r.busy:
+            if not self.r.update():
+                return                              # still listening for the echo
+            self.s["range"] = self.r.cm             # the range at the pan we are holding
+            dt = ticks_diff(now, self.t_step) / 1000.0
+            self.t_step = now
+            self.s["pan"] = self.arb.step(self.s)
+            self.servo.angle(self.s["pan"])
+            self.settle_until = ticks_add(now, SETTLE_MS)
+            locked = self.arb.winner == "track"
+            if locked:
+                est = self.filt.update(self.track.c, dt)
+            else:
+                self.filt.x, self.filt.v = None, 0.0   # a lost target: forget its speed too
+                est = None
+            self.hub.publish("tele/bearing", {"deg": est, "lock": locked, "pan": self.s["pan"],
+                                              "cm": self.s["range"], "sched": self.scheduled(now)})
+        elif ticks_diff(now, self.settle_until) &gt;= 0 and self.may_ping(now):
+            self.r.start()
+            self.next_free = ticks_add(now, 400 + random.randint(0, 400))
+</span>
+</div>
+<p>Read it for the decisions. A head <strong>does not wait</strong> for an echo: it starts a ping and comes back later, so the loop keeps running (the non-blocking <span class="code-lesson-il">Ranger</span> of Week 3). The result is used for <strong>one</strong> decision, then the servo moves, then the head waits <span class="code-lesson-il">SETTLE_MS</span> before pinging again, because a ping taken while the servo is still moving measures the wrong direction. The published <span class="code-lesson-il">deg</span> is the <strong>filtered</strong> bearing, not the dithered pan angle, and a head that has lost the target publishes <span class="code-lesson-il">lock: false</span> and <strong>forgets its speed estimate</strong> (otherwise it would coast away on old information when it finds something new).</p>
+<p>Start only head A, with no fuser. It has no schedule, so it falls back to pinging at random intervals, about once or twice a second. Put the tube about 50 cm in front of it and watch <span class="code-lesson-il">lab/&lt;you&gt;/tele/bearing</span> with <span class="code-lesson-il">mosquitto_sub</span>. It should find the tube (<span class="code-lesson-il">lock: true</span>) within one or two sweeps. Check three bearings against a protractor, and <strong>record the bias</strong>: the average of (published minus true). Fix a consistent offset by adjusting the servo <span class="code-lesson-il">trim</span>, not by editing the filter.</p>
+<h3>Step 2. The Fuser</h3>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">fuser.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># fuser.py -- two bearings in, one position out, with an honest account of how good it is
+from time import ticks_ms, ticks_diff
+from math import atan2, degrees
+import hub
+from agent import Agent
+from belief import Belief
+from geometry import intersect
+
+HEADS = {"amy": (0.0, 0.0, 90.0), "jsmith": (60.0, 0.0, 90.0)}   # who, x cm, y cm, direction of pan 0 (measure yours!)
+JUMP_CM = 25.0                                                     # a fix that jumps further than this is doubted
+FRAME_MS = 200
+
+class Fuser(Agent):
+    def __init__(self, h, heads=HEADS):
+        super().__init__("fuser", h, period_ms=200)
+        self.heads = heads
+        self.b = {u: Belief(stale_ms=800) for u in heads}          # the newest bearing from each head
+        self.fix = None                                            # last accepted (x, y) and its time
+        self.rejected = self.in_a_row = 0
+        self.state = "?"
+        self.frame0 = ticks_ms()
+        self.t_sync = ticks_ms()
+        for u in heads:
+            h.on("lab/%s/tele/bearing" % u, self.on_bearing)
+
+    def on_bearing(self, topic, payload):
+        u = topic.split("/")[1]
+        d = hub.decode(payload)
+        if u in self.b and d and isinstance(d.get("lock"), bool) and (d.get("deg") is None or isinstance(d["deg"], (int, float))):
+            self.b[u].update(d)
+
+    def sense(self):
+        out = []
+        for u, (x, y, hd) in self.heads.items():
+            m, age, fresh = self.b[u].get()
+            if m and fresh and m["lock"] and m["deg"] is not None:
+                out.append(((x, y), hd + m["deg"], age))           # a point and a world direction
+        return out
+
+    def decide(self, rays):
+        if len(rays) &lt; 2:
+            return ("one" if rays else "lost"), None
+        (p1, a1, _), (p2, a2, _) = rays
+        xy = intersect(p1, a1, p2, a2)
+        if xy is None:
+            return "poor", None                                    # nearly parallel: no answer worth having
+        spread = abs((a1 - a2 + 180) % 360 - 180)                  # angle between the rays
+        if self.fix is not None and ticks_diff(ticks_ms(), self.fix[2]) &lt; 1500:
+            jump = ((xy[0] - self.fix[0]) ** 2 + (xy[1] - self.fix[1]) ** 2) ** 0.5
+            if jump &gt; JUMP_CM and self.in_a_row &lt; 2:               # doubt it twice, then believe it
+                self.rejected += 1
+                self.in_a_row += 1
+                return "doubt", None
+        self.in_a_row = 0
+        self.fix = (xy[0], xy[1], ticks_ms())
+        return ("tracking" if spread &gt;= 30 else "poor"), (xy[0], xy[1], spread)
+
+    def act(self, decision):
+        pass
+
+    def tell(self, rays, decision):
+        state, fix = decision
+        now = ticks_ms()
+        if fix:
+            self.hub.publish("tele/target", {"x": round(fix[0], 1), "y": round(fix[1], 1), "spread": round(fix[2])})
+        if state != self.state:
+            self.state = state
+            self.hub.publish("stat/fuser", {"state": state, "rejected": self.rejected}, retain=True)
+        if ticks_diff(now, self.t_sync) &gt;= 1000:                   # the leader's job: keep the heads in step
+            self.t_sync = now
+            self.hub.publish("evt/sync", {"pos": ticks_diff(now, self.frame0) % FRAME_MS})
+</span>
+</div>
+<p>The fuser is deliberately cautious. It publishes a position only when <strong>two</strong> heads, each with a <strong>fresh</strong> bearing (less than 0.8 s old), report a lock. If only one does, it says <span class="code-lesson-il">one</span>; if none, <span class="code-lesson-il">lost</span>. If the rays are nearly parallel (<span class="code-lesson-il">intersect</span> returns <span class="code-lesson-il">None</span>) it says <span class="code-lesson-il">poor</span> and publishes nothing. If the new position is more than 25 cm from the last in under 1.5 s, it <strong>doubts</strong> it and waits: it rejects two such fixes in a row and believes the third, because by then the target has probably really moved (or one head locked onto something else, and the doubt has done its job). The <span class="code-lesson-il">spread</span> is published with every position so that a reader can judge it: one of the rules of this course is that a number without an indication of its quality is only half a message.</p>
+<p>Notice the other job of the fuser: every second it publishes <span class="code-lesson-il">evt/sync</span> with its position in a 200 ms frame. That is the <strong>time reference</strong> the heads use to take turns, and it is the one place where the leader is a single point of failure. The next step shows what the heads do without it.</p>
+<h3>Step 3. Taking Turns</h3>
+<p>Ultrasonic sensors in the same room hear each other. A ping from head B arriving while head A is listening gives A a false, short echo, and A’s tracker will happily follow it. The cure is the one from the collision lesson: two <strong>slots</strong> in a 200 ms frame, 100 ms each, with 30 ms of guard at each end of a slot; head A pings only in the middle of slot 0 and head B in slot 1. The heads have no shared clock, so each aligns its frame to the fuser’s <span class="code-lesson-il">evt/sync</span>, adding a typical 15 ms for the time the message spent in the network.</p>
+<p>That schedule is a <strong>lease</strong>. It is trusted for <span class="code-lesson-il">LEASE_MS</span> (30 s) after the last sync, because two crystals drift apart by a few parts in 100,000 and the guard can absorb that for a while, but not for ever. After 30 s without a sync a head stops trusting its schedule, says so (<span class="code-lesson-il">sched: false</span> in its bearing) and pings <strong>less often, at random times</strong>, which reduces collisions without needing agreement. Both choices have a price, which the simulation below measures.</p>
+<p>The system was simulated (a fake broker, a fake clock, a target moving in a 10 cm circle at 4 cm/s centred on (30, 50), the heads and the fuser as given, a link delay of 5 to 40 ms; a reading counts as corrupted if the other head started a ping within 30 ms before it or during its 6 ms wait for the echo). In 90 s, ignoring the first 15 s of acquisition:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 276" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="220" height="62" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="130" y="50.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Schedule</text><rect x="240" y="14" width="120" height="62" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="300" y="50.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Fixes per s</text><rect x="360" y="14" width="150" height="62" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="435" y="41.0125" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Readings</text><text x="435" y="59.1375" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">corrupted</text><rect x="510" y="14" width="120" height="62" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="570" y="50.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">RMS error</text><rect x="630" y="14" width="110" height="62" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="685" y="50.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Worst</text><rect x="20" y="76" width="220" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="112.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Slots, kept in step by sync</text><rect x="240" y="76" width="120" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="112.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">5.0</text><rect x="360" y="76" width="150" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="435" y="112.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.2 %</text><rect x="510" y="76" width="120" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="570" y="112.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4.2 cm</text><rect x="630" y="76" width="110" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="685" y="112.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">6.8 cm</text><rect x="20" y="138" width="220" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="165.012" font-size="14.5" fill="#1f3b52" text-anchor="start">No coordination (ping when</text><text x="29" y="183.137" font-size="14.5" fill="#1f3b52" text-anchor="start">ready)</text><rect x="240" y="138" width="120" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="174.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4.9</text><rect x="360" y="138" width="150" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="435" y="174.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">22.5 %</text><rect x="510" y="138" width="120" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="570" y="174.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">26.4 cm</text><rect x="630" y="138" width="110" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="685" y="174.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">159 cm</text><rect x="20" y="200" width="220" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="227.012" font-size="14.5" fill="#1f3b52" text-anchor="start">Free-running (no schedule</text><text x="29" y="245.137" font-size="14.5" fill="#1f3b52" text-anchor="start">at all)</text><rect x="240" y="200" width="120" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="236.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3.3</text><rect x="360" y="200" width="150" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="435" y="236.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">7.1 %</text><rect x="510" y="200" width="120" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="570" y="236.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">13.5 cm</text><rect x="630" y="200" width="110" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="685" y="236.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">21 cm</text></svg>
+            <div class="diagram-caption">The same target and the same code with three ways of sharing the air (simulated). Without coordination a fifth of the readings are corrupted and the position is often 1 m wrong. The free-running fallback is much better, but it still loses half the quality and a third of the fixes: it is a <strong>safe</strong> mode, not a good one.</div>
+        </div>
+
+<p>Then the lease itself: the fuser was stopped from syncing at 20 s, in a 110 s run. Until the lease ended (49.6 s, about 30 s after the last sync) there was <strong>no</strong> corrupted reading at all, and the heads still pinged 9.7 times a second between them; after that the heads announced <span class="code-lesson-il">sched: false</span>, the readings fell to 3.3 a second, 4.1 % were corrupted and the RMS error of the position rose from 4.1 cm to 13.0 cm. Check on your hardware that the flag changes, and when.</p>
+<p><strong>Empty-scene test (hardware).</strong> Remove the tube and anything else within a metre of the heads. Anything a head reports as a lock is a false one, from crosstalk or a reflection. Count the false readings per 100 pings with the schedule working, and again with it disabled (set <span class="code-lesson-il">self.may_ping = lambda now: True</span> in the head). Your numbers will differ from the simulation: the question is whether the schedule makes them smaller.</p>
+<h3>Step 4. How Accurate?</h3>
+<p>Mark five points on the table with a ruler, hold the tube still for 20 s at each, and record the fuser’s mean position and the spread. A rough prediction of the error you should expect is:</p>
+<div class="code-block" data-lang="text">
+<div class="code-block-header">
+<span class="code-block-filename">error estimate</span>
+<span class="code-block-lang">Text</span>
+</div>
+<span class="code-lesson-bl">error  ≈  sqrt(r1² + r2²) × σ / sin(spread)
+
+r1, r2   distances from the two heads to the target (cm)
+σ        the typical error of one head's bearing, in radians (measure it in Step 1)
+spread   the angle between the two rays
+</span>
+</div>
+<p>In the simulation each head’s published bearing had an RMS error of 2.7° (0.047 rad). At the centre point (30, 50) both distances are 58.3 cm and the spread is 62°, so the prediction is 82.5 × 0.047 / 0.88 = <strong>4.4 cm</strong>, and the simulated RMS position error was 4.2 cm. The formula says what the geometry does: the error grows in proportion to the distance, and it grows steeply as the rays become parallel. With a <strong>still</strong> target and the same code the simulated errors were:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 364" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="180" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="110" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Target at (cm)</text><rect x="200" y="14" width="220" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="310" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Distance from A / B</text><rect x="420" y="14" width="150" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="495" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Spread</text><rect x="570" y="14" width="150" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="645" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Position error</text><rect x="20" y="70" width="180" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="110" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">(30, 30)</text><rect x="200" y="70" width="220" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="310" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">42 cm / 42 cm</text><rect x="420" y="70" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="495" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">90°</text><rect x="570" y="70" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="645" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">2.7 cm</text><rect x="20" y="126" width="180" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="110" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">(30, 50)</text><rect x="200" y="126" width="220" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="310" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">58 cm / 58 cm</text><rect x="420" y="126" width="150" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="495" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">62°</text><rect x="570" y="126" width="150" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="645" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1.1 cm</text><rect x="20" y="182" width="180" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="110" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">(75, 45)</text><rect x="200" y="182" width="220" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="310" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">87 cm / 47 cm</text><rect x="420" y="182" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="495" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">41°</text><rect x="570" y="182" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="645" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3.3 cm</text><rect x="20" y="238" width="180" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="110" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">(-10, 60)</text><rect x="200" y="238" width="220" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="310" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">61 cm / 92 cm</text><rect x="420" y="238" width="150" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="495" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">40°</text><rect x="570" y="238" width="150" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="645" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4.8 cm</text><rect x="20" y="294" width="180" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="110" y="327.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">(30, 80)</text><rect x="200" y="294" width="220" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="310" y="327.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">85 cm / 85 cm</text><rect x="420" y="294" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="495" y="327.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">41°</text><rect x="570" y="294" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="645" y="327.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">9.7 cm</text></svg>
+            <div class="diagram-caption">Position error of a still target (simulated, 45 s after the first 20 s). It is a <strong>steady offset</strong>, not noise: the tracker settles with its 3° steps on one side or the other of the true direction. The farthest point has the largest error, as the formula says. Your table should have the same columns, with your own numbers.</div>
+        </div>
+
+<p>Two cautions. The errors of a still target are mostly a <strong>bias</strong> (the tracker stopped on one side of the target) and so they are not reduced by averaging; the errors of a moving target are mostly <strong>lag</strong>, and grow with speed. In the simulation the RMS error of the fused position was 4.2, 5.6, 8.0, 10.3 and 12.5 cm for a target moving at 4, 6, 8, 10 and 12 cm/s. And the heads can only see what is within 100 cm (<span class="code-lesson-il">SEE_CM</span>) and within ±60° of straight ahead: a target outside that region is not an error of the system but of the test.</p>
+<h3>Step 5. The Test Plan</h3>
+<p>The requirements are fixed; the method and the evidence are yours. Fill in one row for each, using the lessons of Week 14: write the pass rule <strong>before</strong> you run, run enough trials to justify the claim, report <strong>all</strong> runs, and keep the log of each. The last column holds what the simulation gave, for comparison, <strong>not</strong> a target: where yours differs, find the line of code or the piece of hardware responsible.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 644.5" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="14" width="39.8904" height="66" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="31.9452" y="52.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">ID</text><rect x="51.8904" y="14" width="269.26" height="66" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="186.521" y="52.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">You do</text><rect x="321.151" y="14" width="269.26" height="66" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="455.781" y="52.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Pass rule</text><rect x="590.411" y="14" width="149.589" height="66" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="665.205" y="52.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Simulated</text><rect x="12" y="80" width="39.8904" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="31.9452" y="117.9" font-size="14" fill="#1f3b52" text-anchor="middle">T1</text><rect x="51.8904" y="80" width="269.26" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="60.8904" y="109.15" font-size="14" fill="#1f3b52" text-anchor="start">Cold start, tube at (30, 50): power</text><text x="60.8904" y="126.65" font-size="14" fill="#1f3b52" text-anchor="start">everything on in any order</text><rect x="321.151" y="80" width="269.26" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="330.151" y="109.15" font-size="14" fill="#1f3b52" text-anchor="start">Position published within 15 s, in 5</text><text x="330.151" y="126.65" font-size="14" fill="#1f3b52" text-anchor="start">of 5 starts</text><rect x="590.411" y="80" width="149.589" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599.411" y="109.15" font-size="14" fill="#1f3b52" text-anchor="start">8.0 s, 12 of 12</text><text x="599.411" y="126.65" font-size="14" fill="#1f3b52" text-anchor="start">seeds</text><rect x="12" y="146" width="39.8904" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="31.9452" y="183.9" font-size="14" fill="#1f3b52" text-anchor="middle">T2</text><rect x="51.8904" y="146" width="269.26" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="60.8904" y="175.15" font-size="14" fill="#1f3b52" text-anchor="start">Still tube at the five points of Step</text><text x="60.8904" y="192.65" font-size="14" fill="#1f3b52" text-anchor="start">4, 20 s each</text><rect x="321.151" y="146" width="269.26" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="330.151" y="175.15" font-size="14" fill="#1f3b52" text-anchor="start">Error ≤ 5 cm where r &lt; 60 cm and</text><text x="330.151" y="192.65" font-size="14" fill="#1f3b52" text-anchor="start">the spread ≥ 40°; report the others</text><rect x="590.411" y="146" width="149.589" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="599.411" y="175.15" font-size="14" fill="#1f3b52" text-anchor="start">1.1 to 4.8 cm; 9.7</text><text x="599.411" y="192.65" font-size="14" fill="#1f3b52" text-anchor="start">at 85 cm</text><rect x="12" y="212" width="39.8904" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="31.9452" y="249.9" font-size="14" fill="#1f3b52" text-anchor="middle">T3</text><rect x="51.8904" y="212" width="269.26" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="60.8904" y="241.15" font-size="14" fill="#1f3b52" text-anchor="start">Tube moved in a 10 cm circle at</text><text x="60.8904" y="258.65" font-size="14" fill="#1f3b52" text-anchor="start">about 4 cm/s for 60 s</text><rect x="321.151" y="212" width="269.26" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="330.151" y="241.15" font-size="14" fill="#1f3b52" text-anchor="start">RMS error ≤ 6 cm and ≥ 4 fixes per</text><text x="330.151" y="258.65" font-size="14" fill="#1f3b52" text-anchor="start">s</text><rect x="590.411" y="212" width="149.589" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599.411" y="249.9" font-size="14" fill="#1f3b52" text-anchor="start">4.2 cm, 5.0 per s</text><rect x="12" y="278" width="39.8904" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="31.9452" y="315.9" font-size="14" fill="#1f3b52" text-anchor="middle">T4</text><rect x="51.8904" y="278" width="269.26" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="60.8904" y="307.15" font-size="14" fill="#1f3b52" text-anchor="start">Empty scene, both heads running,</text><text x="60.8904" y="324.65" font-size="14" fill="#1f3b52" text-anchor="start">100 pings each</text><rect x="321.151" y="278" width="269.26" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="330.151" y="315.9" font-size="14" fill="#1f3b52" text-anchor="start">False readings ≤ 2 %</text><rect x="590.411" y="278" width="149.589" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="599.411" y="315.9" font-size="14" fill="#1f3b52" text-anchor="start">0.2 %</text><rect x="12" y="344" width="39.8904" height="86" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="31.9452" y="391.9" font-size="14" fill="#1f3b52" text-anchor="middle">T5</text><rect x="51.8904" y="344" width="269.26" height="86" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="60.8904" y="383.15" font-size="14" fill="#1f3b52" text-anchor="start">Disconnect head B for 5 s during</text><text x="60.8904" y="400.65" font-size="14" fill="#1f3b52" text-anchor="start">T3</text><rect x="321.151" y="344" width="269.26" height="86" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="330.151" y="374.4" font-size="14" fill="#1f3b52" text-anchor="start">No position published after 1 s of</text><text x="330.151" y="391.9" font-size="14" fill="#1f3b52" text-anchor="start">silence; fix back within 10 s of its</text><text x="330.151" y="409.4" font-size="14" fill="#1f3b52" text-anchor="start">return</text><rect x="590.411" y="344" width="149.589" height="86" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599.411" y="365.65" font-size="14" fill="#1f3b52" text-anchor="start">silent by 0.8 s;</text><text x="599.411" y="383.15" font-size="14" fill="#1f3b52" text-anchor="start">last fix 25.6 s,</text><text x="599.411" y="400.65" font-size="14" fill="#1f3b52" text-anchor="start">steady again 34.0</text><text x="599.411" y="418.15" font-size="14" fill="#1f3b52" text-anchor="start">s (fault 25 to 30 s)</text><rect x="12" y="430" width="39.8904" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="31.9452" y="467.9" font-size="14" fill="#1f3b52" text-anchor="middle">T6</text><rect x="51.8904" y="430" width="269.26" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="60.8904" y="459.15" font-size="14" fill="#1f3b52" text-anchor="start">Stop the fuser’s sync during T3 and</text><text x="60.8904" y="476.65" font-size="14" fill="#1f3b52" text-anchor="start">run 60 s</text><rect x="321.151" y="430" width="269.26" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="330.151" y="459.15" font-size="14" fill="#1f3b52" text-anchor="start">sched: false within 5 s of the lease</text><text x="330.151" y="476.65" font-size="14" fill="#1f3b52" text-anchor="start">ending; still a fix at ≥ 3 per s</text><rect x="590.411" y="430" width="149.589" height="66" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="599.411" y="459.15" font-size="14" fill="#1f3b52" text-anchor="start">at 49.6 s; 5.0 per</text><text x="599.411" y="476.65" font-size="14" fill="#1f3b52" text-anchor="start">s, 13.0 cm</text><rect x="12" y="496" width="39.8904" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="31.9452" y="533.9" font-size="14" fill="#1f3b52" text-anchor="middle">T7</text><rect x="51.8904" y="496" width="269.26" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="60.8904" y="525.15" font-size="14" fill="#1f3b52" text-anchor="start">Lose 20 % of the messages each</text><text x="60.8904" y="542.65" font-size="14" fill="#1f3b52" text-anchor="start">node sends (Flaky)</text><rect x="321.151" y="496" width="269.26" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="330.151" y="533.9" font-size="14" fill="#1f3b52" text-anchor="start">≥ 3.5 fixes per s and RMS ≤ 6 cm</text><rect x="590.411" y="496" width="149.589" height="66" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599.411" y="533.9" font-size="14" fill="#1f3b52" text-anchor="start">4.1 per s, 4.3 cm</text><rect x="12" y="562" width="39.8904" height="68.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="31.9452" y="601.15" font-size="14" fill="#1f3b52" text-anchor="middle">T8</text><rect x="51.8904" y="562" width="269.26" height="68.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="60.8904" y="592.4" font-size="14" fill="#1f3b52" text-anchor="start">Hold the tube at (30, 50), then</text><text x="60.8904" y="609.9" font-size="14" fill="#1f3b52" text-anchor="start">move it 40 cm in 1 s</text><rect x="321.151" y="562" width="269.26" height="68.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="330.151" y="583.65" font-size="14" fill="#1f3b52" text-anchor="start">The new position is reported after</text><text x="330.151" y="601.15" font-size="14" fill="#1f3b52" text-anchor="start">at most two doubted fixes, and</text><text x="330.151" y="618.65" font-size="14" fill="#1f3b52" text-anchor="start">never a fix between</text><rect x="590.411" y="562" width="149.589" height="68.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="599.411" y="592.4" font-size="14" fill="#1f3b52" text-anchor="start">doubt twice,</text><text x="599.411" y="609.9" font-size="14" fill="#1f3b52" text-anchor="start">believe the third</text></svg>
+            <div class="diagram-caption">The test plan. Each row is a requirement with a stimulus, a limit, a condition and a pass rule, in the form of the validation lesson. T5 and T6 are the failure drills of this lab; T4 and T7 are the fault-injection tests.</div>
+        </div>
+
+<p>A few hints. <strong>T1</strong> is mostly the search sweep: a head covers its 120° at 6° per ping, about 5 pings a second. <strong>T5</strong>: the simulated head that returned after 5 s found its tracker still locked on where the target <em>had been</em>, reported a lock for about 1.8 s, and then had to search again, which is why the fix took four seconds after its return to settle. A head that restarts should not claim a lock it did not earn. <strong>T7</strong>: <span class="code-lesson-il">Flaky</span> is the class from the validation lesson; wrap every node’s hub in it, and flush it in your main loop. <strong>T8</strong> tests the fuser’s doubt rule, so you may need to move the tube quickly, or simulate the jump by feeding <span class="code-lesson-il">decide</span> two bearing pairs by hand.</p>
+<h3>What to Hand In</h3>
+<ul>
+<li>The test plan with every row filled in: your method, the number of trials, <strong>all</strong> the results, and where the evidence is (a log, a screenshot, a count). A failed row is a good row if it is explained.</li>
+<li>The accuracy table of Step 4, with the predicted error from the formula next to each measured one, and a sentence on any point where they disagree by more than a factor of two.</li>
+<li>The measured bearing bias and RMS error of each head, and the trim you used.</li>
+<li>One <strong>failure analysis</strong>: choose the test that went worst, say what the system did, what you believe caused it (with evidence, such as the log line that shows it), what you changed, and the repeat of the test with the number of trials.</li>
+<li>Your <span class="code-lesson-il">head.py</span>, <span class="code-lesson-il">fuser.py</span> and any change to the others, and a note of who ran what.</li>
+<li>A short paragraph: of everything in the course, which single design decision (slots, the lease, the doubt rule, the age of a belief, the filter) mattered most to the result, and what test showed it?</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Why Send a Position in the Frame?.</strong> The fuser sends <span class="code-lesson-il">evt/sync</span> with <span class="code-lesson-il">pos</span>, its position within a 200 ms frame, rather than its clock time <span class="code-lesson-il">ticks_ms()</span>. Why, and why does the head add 15 ms?</p>
+        <p><strong>Exercise 2: Why Does the Spread Matter?.</strong> The fuser publishes <span class="code-lesson-il">spread</span> with every position. A student argues that <span class="code-lesson-il">tracking</span> or <span class="code-lesson-il">poor</span> is enough. What does the number add?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: The Cost of Taking Turns.</strong> With slots, each head can ping at most 5 times a second. The tracker needs two pings (left and right of its estimate) for each correction of 3°. What is the largest angular speed it can follow, and how fast is that for a tube 60 cm away? What would change if STEP were 6°?</p>
+        <p><strong>Exercise 4: Which Failure Is Worse?.</strong> During T5, head B is silent for 5 s. List the states the fuser should show, in order, and decide whether it is better for the fuser to publish no position, or the last one.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 5: An Error Estimate to Publish.</strong> Write a function <span class="code-lesson-il">sigma_cm(r1, r2, spread_deg, sigma_deg=2.7)</span> that returns the estimate of the position error from the formula in Step 4, and say where in the fuser you would use it.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Why Send a Position in the Frame?</summary>
+<p>The Picos have different clocks: <span class="code-lesson-il">ticks_ms()</span> counts from each board’s own power-on, so a value from another board means nothing. What <em>is</em> shared is the <strong>phase</strong> of a repeating frame, which the receiver can use to place its own frame start: it began <span class="code-lesson-il">pos</span> ms before the message was <strong>sent</strong>, and the message took some time to arrive, so the head adds an estimate of that delay. 15 ms is a typical one-way time here (with delays between 5 and 40 ms, the error of the estimate is at most about 25 ms, which the 30 ms guard is sized to survive). A better design would send several syncs and trust the one that arrived first, since it is the one with the least delay.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Why Does the Spread Matter?</summary>
+<p>The label is a threshold on one quantity (30°); the number lets the <strong>reader</strong> apply its own threshold, and discount the position in proportion. From the formula the error grows as 1/sin(spread): 62° gives a factor 1.13, 40° gives 1.56 and 30° gives 2.0, so the position at 31° is about twice as uncertain as at 62° while both are labelled <span class="code-lesson-il">tracking</span>. A consumer such as a planner or a display can weight, smooth, or refuse, depending on need. Publishing the evidence together with the conclusion is a general habit.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: The Cost of Taking Turns</summary>
+<p>5 pings a second give 2.5 corrections a second, so at most 2.5 × 3° = <strong>7.5°/s</strong>; at 60 cm that is 60 × 7.5 × π/180 = <strong>7.9 cm/s</strong>. With a 6° step the limit doubles to 15°/s (about 16 cm/s), at the price of coarser steering (the estimate wanders in steps of 6° around the target). In the simulation the error grew with speed rather than failing outright: RMS 8.0 cm at 8 cm/s and 12.5 cm at 12 cm/s, with the heads still locked, because the tracker lags behind the target rather than losing it. The limit is a <em>lag</em> limit; the pass rule decides how much lag is tolerable.</p>
+        </details>
+        <details>
+        <summary>Exercise 4: Which Failure Is Worse?</summary>
+<p>Expected states: <span class="code-lesson-il">tracking</span>, then <span class="code-lesson-il">one</span> when B’s last bearing is older than 0.8 s, then (once B returns and, if it must, searches again) <span class="code-lesson-il">tracking</span>. Publishing the <strong>last</strong> position would be wrong for a moving target: the position goes stale and grows more wrong each second while looking confident. Publishing <strong>nothing</strong> says “I do not know”, which a consumer can act on (stop, search, use its own belief with an age). Where a consumer needs something, publish a position with a flag, and the age, and let it decide; never let a stale value look fresh. This is the same rule as for <span class="code-lesson-il">Belief</span> and for the alpha-beta coast limit.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 5: An Error Estimate to Publish</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">sigma.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from math import sqrt, sin, radians
+
+def sigma_cm(r1, r2, spread_deg, sigma_deg=2.7):
+    """Expected position error in cm, given the two ranges, the spread and one head's bearing error."""
+    s = sin(radians(spread_deg))
+    if s &lt; 0.05:                       # rays nearly parallel: no meaningful answer
+        return None
+    return sqrt(r1 * r1 + r2 * r2) * radians(sigma_deg) / s
+</span>
+</div><p>For the centre point, <span class="code-lesson-il">sigma_cm(58.3, 58.3, 62)</span> gives 4.4 cm. In <span class="code-lesson-il">Fuser.decide</span>, after the intersection, compute <span class="code-lesson-il">r1</span> and <span class="code-lesson-il">r2</span> as the distances from each head to the fix and add <span class="code-lesson-il">"sigma": round(sigma_cm(...), 1)</span> to <span class="code-lesson-il">tele/target</span>; then replace the fixed 30° threshold for <span class="code-lesson-il">tracking</span> with “sigma below your requirement”. That turns a rule about an angle into a rule about what you actually care about, the size of the error, and it also catches the case of a far target with a good spread.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Build a scan head from a tracker, a filter and a leased time-slot schedule, and a fuser from beliefs and triangulation.</li>
+            <li>Share an ultrasonic channel by taking turns, and measure what coordination, and its loss, cost.</li>
+            <li>Predict the position error of a triangulation from the geometry, and check the prediction.</li>
+            <li>Write and run a test plan with faults, and report all the results, including the failures.</li>
+            <li>Find the cause of a failure in a distributed system, fix it, and show the repeat test.</li>
+        </ol>
+
+    </body>
+</html>

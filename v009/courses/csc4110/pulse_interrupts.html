@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>A processor that can only do one thing at a time still has to notice many things that happen at their own pace: an echo returns, a magnet passes, someone walks by. This lesson covers how to time pulses, how interrupts let the hardware watch for them, and how to arrange a main loop so that nothing in it ever waits.</p>
+
+<h3>Part 1. When the Information Is in the Timing</h3>
+<p>Not every sensor reports a voltage or a number. Many just produce a <strong>pulse</strong>, and the information is in <em>when</em> it happens or <em>how long</em> it lasts. An ultrasonic rangefinder reports distance as the length of a pulse; a magnet passing a reed switch makes one pulse per turn; a motion detector raises a pin when someone moves; an infrared receiver encodes a button as a pattern of pulse lengths. Reading these needs a different tool from the ADC: a clock fast enough to time microseconds.</p>
+<h3>Part 2. The HC-SR04 Ultrasonic Rangefinder</h3>
+<p>The HC-SR04 measures distance by echo, as a bat does. You raise its <strong>TRIG</strong> pin for 10 µs; it sends a burst of 40 kHz sound from one transducer; the sound bounces off an object and returns to the other transducer; the <strong>ECHO</strong> pin is held high from the moment the burst is sent until the echo arrives. The pulse width is the round-trip time.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="62" font-size="15.5" fill="#c0693f" text-anchor="start" font-weight="bold">TRIG</text><text x="20" y="142" font-size="15.5" fill="#5b6b78" text-anchor="start" font-weight="bold">sound</text><text x="20" y="232" font-size="15.5" fill="#2e5a80" text-anchor="start" font-weight="bold">ECHO</text><polyline points="150.0,80.0 180.0,80.0 180.0,44.0 210.0,44.0 210.0,80.0 720.0,80.0" fill="none" stroke="#c0693f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="195" y="30" font-size="14.5" fill="#8a4526" text-anchor="middle" font-weight="bold">10 µs</text><polyline points="240.0,150.0 240.0,126.0 247.0,126.0 247.0,150.0" fill="none" stroke="#5b6b78" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="254.0,150.0 254.0,126.0 261.0,126.0 261.0,150.0" fill="none" stroke="#5b6b78" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="268.0,150.0 268.0,126.0 275.0,126.0 275.0,150.0" fill="none" stroke="#5b6b78" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="282.0,150.0 282.0,126.0 289.0,126.0 289.0,150.0" fill="none" stroke="#5b6b78" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="296.0,150.0 296.0,126.0 303.0,126.0 303.0,150.0" fill="none" stroke="#5b6b78" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="310.0,150.0 310.0,126.0 317.0,126.0 317.0,150.0" fill="none" stroke="#5b6b78" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="324.0,150.0 324.0,126.0 331.0,126.0 331.0,150.0" fill="none" stroke="#5b6b78" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="338.0,150.0 338.0,126.0 345.0,126.0 345.0,150.0" fill="none" stroke="#5b6b78" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><text x="300" y="112" font-size="14.5" fill="#5b6b78" text-anchor="middle">8 bursts of 40 kHz</text><polyline points="150.0,250.0 280.0,250.0 280.0,214.0 630.0,214.0 630.0,250.0 720.0,250.0" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><line x1="289" y1="282" x2="621" y2="282" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="630.0,282.0 619.0,276.5 619.0,287.5" fill="#1f3b52"/><polygon points="280.0,282.0 291.0,287.5 291.0,276.5" fill="#1f3b52"/><text x="455" y="306" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">echo width t = round-trip time</text><line x1="280" y1="150" x2="280" y2="214" stroke="#c9d4dc" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4"/><line x1="630" y1="214" x2="630" y2="280" stroke="#c9d4dc" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4"/></svg>
+            <div class="diagram-caption">The HC-SR04 timing. A 10 µs pulse on TRIG starts a burst of eight 40 kHz pulses. ECHO goes high as the burst leaves and falls when the echo returns; its width is the sound’s round-trip time. Wait at least 60 ms between measurements so one echo cannot be mistaken for the next.</div>
+        </div>
+
+<p>Sound travels at about 343 m/s in room-temperature air, which is 0.0343 cm per microsecond. The sound goes out and back, so the distance is half of speed × time, or <strong>t / 58.3 centimetres</strong> with t in microseconds. A 200 cm object returns an echo 11 660 µs wide. The speed of sound depends on temperature, about 331.3 + 0.606 × T m/s (T in °C), which is why a thermistor and a rangefinder make a better pair than either alone.</p>
+<p>The module measures between about 2 cm and 4 m. Soft or angled surfaces (fabric, a surface tilted away) reflect little sound back and may read nothing or far too much, which is the first thing to try when a reading seems wrong.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 350" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="120" height="130" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="80" y="91.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">HC-SR04</text><text x="80" y="110.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">VCC, GND</text><text x="80" y="129.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">TRIG, ECHO</text><line x1="140" y1="62" x2="330" y2="62" stroke="#5b6b78" stroke-width="2.5" stroke-linecap="round"/><text x="340" y="67" font-size="15" fill="#1f3b52" text-anchor="start">VCC to VBUS (5 V), GND to GND</text><line x1="140" y1="98" x2="330" y2="98" stroke="#c0693f" stroke-width="2.5" stroke-linecap="round"/><text x="340" y="103" font-size="15" fill="#1f3b52" text-anchor="start">TRIG to GP10</text><line x1="140" y1="150" x2="360" y2="150" stroke="#2e5a80" stroke-width="2.5" stroke-linecap="round"/><text x="250" y="142" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">ECHO is a 5 V signal</text><polyline points="360.0,150.0 368.0,150.0 374.2,144.0 386.5,156.0 398.8,144.0 411.2,156.0 423.5,144.0 435.8,156.0 442.0,150.0 450.0,150.0" fill="none" stroke="#1f3b52" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><text x="405" y="136" font-size="15" fill="#1f3b52" text-anchor="middle">1 kΩ</text><line x1="450" y1="150" x2="640" y2="150" stroke="#2e5a80" stroke-width="2.5" stroke-linecap="round"/><circle cx="540" cy="150" r="4" fill="#2e5a80"/><rect x="640" y="126" width="100" height="48" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="690" y="155.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">GP11</text><polyline points="540.0,150.0 540.0,158.0 534.0,163.0 546.0,173.0 534.0,183.0 546.0,193.0 534.0,203.0 546.0,213.0 540.0,218.0 540.0,226.0" fill="none" stroke="#1f3b52" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><text x="554" y="193" font-size="15" fill="#1f3b52" text-anchor="start">2 kΩ</text><line x1="540" y1="226" x2="540" y2="240" stroke="#1f3b52" stroke-width="2.5" stroke-linecap="round"/><line x1="540" y1="240" x2="540" y2="248" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><line x1="528" y1="248" x2="552" y2="248" stroke="#1f3b52" stroke-width="2.5" stroke-linecap="round"/><line x1="532" y1="253" x2="548" y2="253" stroke="#1f3b52" stroke-width="2.5" stroke-linecap="round"/><line x1="536" y1="258" x2="544" y2="258" stroke="#1f3b52" stroke-width="2.5" stroke-linecap="round"/><rect x="220" y="276" width="520" height="56" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="480" y="309.6" font-size="16" fill="#1f3b52" text-anchor="middle">Voltage at GP11 = 5 V × 2 kΩ / (1 kΩ + 2 kΩ) = 3.33 V</text></svg>
+            <div class="diagram-caption">The echo wire needs a voltage divider. The HC-SR04 is a 5 V module, so its ECHO output swings to 5 V, more than a Pico pin should see. Two kit resistors (1 kΩ in series, 2 kΩ to ground) bring it to 3.3 V. TRIG is driven by the Pico’s 3.3 V, which the module accepts.</div>
+        </div>
+
+<p><strong>Do not connect ECHO directly to the Pico.</strong> The RP2040 pins are not rated for 5 V inputs; it may work for a while and then fail. The divider costs two resistors and a minute of wiring. If your kit contains the 3.3 V version of the module (it may be labelled HC-SR04P or "3 V"), no divider is needed, but it does not hurt.</p>
+<p>The simplest way to read the pulse is the built-in <span class="code-lesson-il">time_pulse_us</span>, which waits for a pin to reach a level and times how long it stays there:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">ranger_blocking.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin, time_pulse_us
+from time import sleep_us
+
+trig = Pin(10, Pin.OUT, value=0)
+echo = Pin(11, Pin.IN)
+
+def distance_cm(temp_c=20, timeout_us=30_000):
+    """Blocking range measurement. Returns centimetres, or None if no echo came back."""
+    trig.value(0)
+    sleep_us(2)
+    trig.value(1)                              # a 10 microsecond pulse starts a measurement
+    sleep_us(10)
+    trig.value(0)
+    t = time_pulse_us(echo, 1, timeout_us)     # microseconds ECHO stays high; -1 or -2 on timeout
+    if t &lt; 0:
+        return None
+    speed = 331.3 + 0.606 * temp_c             # speed of sound in m/s, corrected for temperature
+    return t * speed / 20000                   # round trip: halve it. (m/s * us / 20000 = cm)
+</span>
+</div>
+<p>It works, but notice what it does to your program: for up to 30 ms the processor can do nothing else, which is a long time if you are also sampling a sensor 100 times a second or reading a button. For a robot that has to keep its balance or respond to a stop command, that wait is not acceptable. The fix is to let the hardware tell you when the echo ends, which is what an interrupt does.</p>
+<h3>Part 3. Interrupts</h3>
+<p>There are two ways to notice that a pin changed. <strong>Polling</strong> means asking over and over: "has it changed yet?" It is simple, but if your loop is busy elsewhere when a short pulse arrives and ends, you miss it. An <strong>interrupt</strong> reverses the arrangement: you tell the chip which pin and which edge (rising, falling or both) to watch, and what function to run. The chip then does the watching in hardware. When the edge happens it pauses your main program, runs your <strong>handler</strong> immediately, and returns to exactly where it was.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="40" font-size="16" fill="#2e5a80" text-anchor="start" font-weight="bold">Polling</text><rect x="120" y="22" width="620" height="40" rx="4" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.5"/><rect x="130" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="190" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="250" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="310" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="370" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="430" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="490" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="550" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="610" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="670" y="28" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><text x="735" y="82" font-size="14.5" fill="#5b6b78" text-anchor="end">the loop is busy with other jobs</text><polyline points="250.0,118.0 250.0,100.0 300.0,100.0 300.0,118.0" fill="none" stroke="#b3261e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="275" y="96" font-size="14.5" fill="#b3261e" text-anchor="middle" font-weight="bold">short pulse</text><text x="320" y="114" font-size="15" fill="#b3261e" text-anchor="start" font-weight="bold">missed if no check lands in here</text><text x="20" y="190" font-size="16" fill="#c0693f" text-anchor="start" font-weight="bold">Interrupt</text><rect x="120" y="172" width="620" height="40" rx="4" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.5"/><rect x="130" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="190" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="250" y="178" width="50" height="28" rx="4" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><rect x="310" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="370" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="430" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="490" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="550" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="610" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><rect x="670" y="178" width="50" height="28" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="1.6"/><polyline points="250.0,268.0 250.0,250.0 300.0,250.0 300.0,268.0" fill="none" stroke="#b3261e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><line x1="250" y1="250" x2="250" y2="223" stroke="#c0693f" stroke-width="2.4" stroke-linecap="round"/><polygon points="250.0,214.0 244.5,225.0 255.5,225.0" fill="#c0693f"/><rect x="310" y="232" width="330" height="56" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="475" y="255.875" font-size="15" fill="#1f3b52" text-anchor="middle">edge → handler runs at once</text><text x="475" y="274.625" font-size="15" fill="#1f3b52" text-anchor="middle">(a few microseconds), then loop resumes</text><text x="380" y="324" font-size="15" fill="#5b6b78" text-anchor="middle">time →</text></svg>
+            <div class="diagram-caption">Polling versus an interrupt. A loop that checks the pin only between other jobs can miss a pulse that rises and falls in between. An interrupt makes the chip watch the pin continuously and run a handler the moment the edge happens, whatever the main program was doing.</div>
+        </div>
+
+<p>The cost is that a handler runs <em>in the middle of</em> your other code, so it has strict rules:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="350" height="40" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="195" y="45.95" font-size="17" fill="True" text-anchor="middle">Do</text><rect x="390" y="20" width="350" height="40" rx="8" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="565" y="45.95" font-size="17" fill="True" text-anchor="middle">Do not</text><rect x="20" y="74" width="350" height="42" rx="6" fill="#fff" stroke="#3c8a5a" stroke-width="2"/><text x="195" y="100.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Be very short (microseconds)</text><rect x="390" y="74" width="350" height="42" rx="6" fill="#fff" stroke="#b3261e" stroke-width="2"/><text x="565" y="100.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">print() or sleep</text><rect x="20" y="126" width="350" height="42" rx="6" fill="#fff" stroke="#3c8a5a" stroke-width="2"/><text x="195" y="152.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Read a pin or the clock</text><rect x="390" y="126" width="350" height="42" rx="6" fill="#fff" stroke="#b3261e" stroke-width="2"/><text x="565" y="152.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Do floating-point maths</text><rect x="20" y="178" width="350" height="42" rx="6" fill="#fff" stroke="#3c8a5a" stroke-width="2"/><text x="195" y="204.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Set a flag or store a number</text><rect x="390" y="178" width="350" height="42" rx="6" fill="#fff" stroke="#b3261e" stroke-width="2"/><text x="565" y="204.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Build lists, strings or objects</text><rect x="20" y="230" width="350" height="42" rx="6" fill="#fff" stroke="#3c8a5a" stroke-width="2"/><text x="195" y="256.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Add 1 to a counter</text><rect x="390" y="230" width="350" height="42" rx="6" fill="#fff" stroke="#b3261e" stroke-width="2"/><text x="565" y="256.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Wait for anything else</text><text x="380" y="292" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">the handler records; the main loop reacts</text></svg>
+            <div class="diagram-caption">Rules for an interrupt handler. Anything slow, or anything that allocates memory (floats, strings and lists are all objects), can corrupt the program it interrupted. The standard pattern: the handler stores a number or sets a flag, and the main loop does the real work when it next looks.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">ranger.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin
+from time import ticks_us, ticks_ms, ticks_diff, sleep_us
+
+class Ranger:
+    """HC-SR04 measured with an interrupt, so the main loop never waits for the echo."""
+    def __init__(self, trig_pin=10, echo_pin=11):
+        self.trig = Pin(trig_pin, Pin.OUT, value=0)
+        self.echo = Pin(echo_pin, Pin.IN)
+        self.t_rise = 0
+        self.width = None              # echo width in microseconds, set by the interrupt
+        self.busy = False
+        self.started = 0
+        self.cm = None                 # the latest result (None = nothing came back)
+        self.echo.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=self._edge)
+
+    def _edge(self, pin):              # interrupt handler: tiny, no printing, no floats
+        now = ticks_us()
+        if pin.value():
+            self.t_rise = now
+        else:
+            self.width = ticks_diff(now, self.t_rise)
+
+    def start(self):
+        self.width = None
+        self.started = ticks_ms()
+        self.busy = True
+        self.trig.value(1)
+        sleep_us(10)
+        self.trig.value(0)
+
+    def update(self):
+        """Call every loop. Returns True once when a new result is ready in self.cm."""
+        if not self.busy:
+            return False
+        if self.width is not None:
+            self.cm = self.width / 58.3       # about 58.3 microseconds per cm at 20 C
+        elif ticks_diff(ticks_ms(), self.started) &gt; 40:
+            self.cm = None                    # 40 ms with no echo: nothing in range
+        else:
+            return False
+        self.busy = False
+        return True
+</span>
+</div>
+<p>Read it from the bottom up. <span class="code-lesson-il">start()</span> fires the trigger and notes the time, then returns <em>immediately</em>. The <span class="code-lesson-il">_edge</span> handler stamps the clock when ECHO rises and subtracts when it falls, leaving the width in <span class="code-lesson-il">self.width</span>. <span class="code-lesson-il">update()</span> is called on every pass of the main loop: a cheap check that returns True once when a result (or a timeout) is ready. Nothing waits.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">ranger_demo.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin
+from time import ticks_ms, ticks_diff
+
+r = Ranger()
+r.start()
+last = ticks_ms()
+while True:
+    if r.update():
+        print("distance:", None if r.cm is None else round(r.cm, 1))
+    if not r.busy and ticks_diff(ticks_ms(), last) &gt;= 60:     # a new measurement every 60 ms
+        last = ticks_ms()
+        r.start()
+    # ...everything else the node does goes here, and keeps running...
+</span>
+</div>
+<h3>Part 4. Counting Events</h3>
+<p>A reed switch closes when a magnet passes it; one pulse per pass. Counting pulses over a time window gives a rate: rotations per second, or any "number of times per interval". (A wheel encoder, if you add one later, is counted exactly the same way.) Because the reed switch is mechanical, it <strong>bounces</strong> like a button, so the handler ignores any edge that comes too soon after the last good one:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">pulsecounter.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin, disable_irq, enable_irq
+from time import ticks_us, ticks_diff
+
+class PulseCounter:
+    """Count falling edges on a pin (reed switch, encoder, flow sensor) and ignore bounce."""
+    def __init__(self, pin, min_gap_us=5000):
+        self.pin = Pin(pin, Pin.IN, Pin.PULL_UP)
+        self.min_gap = min_gap_us
+        self.n = 0
+        self.last = ticks_us()
+        self.pin.irq(trigger=Pin.IRQ_FALLING, handler=self._edge)
+
+    def _edge(self, pin):
+        now = ticks_us()
+        if ticks_diff(now, self.last) &gt; self.min_gap:     # too soon after the last one = bounce
+            self.n += 1
+            self.last = now
+
+    def count(self):
+        state = disable_irq()          # read it with interrupts off so it cannot change mid-read
+        n = self.n
+        enable_irq(state)
+        return n
+</span>
+</div>
+<p><span class="code-lesson-il">count()</span> turns interrupts off for an instant while it reads the number. Without that, a pulse arriving halfway through the read could leave the program with an inconsistent value. Wire the reed switch between GP12 and ground, like a button, and the same class counts passes. To get a <strong>rate</strong>, compare the count now with the count a fixed time ago and divide:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">rate.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">counter = PulseCounter(12)
+prev, prev_t = 0, ticks_ms()
+
+def pulses_per_second():
+    global prev, prev_t
+    now_t, n = ticks_ms(), counter.count()
+    dt = ticks_diff(now_t, prev_t)
+    rate = (n - prev) * 1000 / dt
+    prev, prev_t = n, now_t
+    return rate
+</span>
+</div>
+<p>Two more pulse sensors in your kit work the same way. The <strong>PIR motion sensor</strong> raises its output while it sees movement, so attach an interrupt on the rising edge and record the time of the last event (it needs about a minute to settle after power-up, and it holds the output high for a few seconds after each trigger). The <strong>infrared receiver</strong> idles high and goes low during the 38 kHz bursts a remote control sends; the first low pulse of a Sony-style or NEC-style remote button press is distinctive and long, so you can check that it works by timing it:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">ir_leader.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">ir = Pin(12, Pin.IN, Pin.PULL_UP)          # receiver output: high when idle, low during a burst
+
+def ir_leader_us(timeout_us=100_000):
+    """Width of the first LOW pulse after a button press on a remote, in microseconds."""
+    return time_pulse_us(ir, 0, timeout_us)          # a NEC remote starts with about 9000 us
+</span>
+</div>
+<h3>Part 5. A Loop That Never Waits</h3>
+<p>Put these ideas together and a node has several jobs running at different rates: range every 60 ms, a status LED every 500 ms, a report once a second. The trick is that none of them ever sleeps. Each asks "is it my turn?" and, if not, the loop moves straight on. A tiny timer class does the asking:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">every.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import ticks_ms, ticks_diff, ticks_add
+
+class Every:
+    """A timer you ask, not wait for: if every.due(): ..."""
+    def __init__(self, ms):
+        self.ms = ms
+        self.last = ticks_ms()
+
+    def due(self):
+        now = ticks_ms()
+        if ticks_diff(now, self.last) &lt; self.ms:
+            return False
+        self.last = ticks_add(self.last, self.ms)         # keep a steady rhythm ...
+        if ticks_diff(now, self.last) &gt;= self.ms:         # ... but if we fell far behind,
+            self.last = now                               # skip the missed ones, do not burst
+        return True
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><circle cx="380" cy="150" r="110" fill="#fff" stroke="#5b6b78" stroke-width="2.5"/><text x="380" y="120" font-size="16" fill="#5b6b78" text-anchor="middle" font-weight="bold">one pass of the</text><text x="380" y="144" font-size="16" fill="#5b6b78" text-anchor="middle" font-weight="bold">main loop</text><text x="380" y="178" font-size="15" fill="#5b6b78" text-anchor="middle">thousands per second</text><rect x="20" y="40" width="200" height="62" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="120" y="66.875" font-size="15" fill="#1f3b52" text-anchor="middle">Ranger.update()</text><text x="120" y="85.625" font-size="15" fill="#1f3b52" text-anchor="middle">every pass</text><rect x="520" y="40" width="200" height="62" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="620" y="66.875" font-size="15" fill="#1f3b52" text-anchor="middle">range timer</text><text x="620" y="85.625" font-size="15" fill="#1f3b52" text-anchor="middle">Every(60).due()</text><rect x="20" y="230" width="200" height="62" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="120" y="256.875" font-size="15" fill="#1f3b52" text-anchor="middle">heartbeat LED</text><text x="120" y="275.625" font-size="15" fill="#1f3b52" text-anchor="middle">Every(500).due()</text><rect x="520" y="230" width="200" height="62" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="620" y="256.875" font-size="15" fill="#1f3b52" text-anchor="middle">report</text><text x="620" y="275.625" font-size="15" fill="#1f3b52" text-anchor="middle">Every(1000).due()</text><line x1="220" y1="71" x2="267.039" y2="95.8023" stroke="#5b6b78" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/><polygon points="275.0,100.0 267.8,90.0 262.7,99.7" fill="#5b6b78"/><line x1="520" y1="71" x2="491.93" y2="94.2578" stroke="#5b6b78" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/><polygon points="485.0,100.0 497.0,97.2 490.0,88.7" fill="#5b6b78"/><line x1="220" y1="261" x2="268.973" y2="206.684" stroke="#5b6b78" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/><polygon points="275.0,200.0 263.5,204.5 271.7,211.9" fill="#5b6b78"/><line x1="520" y1="261" x2="489.479" y2="207.806" stroke="#5b6b78" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/><polygon points="485.0,200.0 485.7,212.3 495.2,206.8" fill="#5b6b78"/></svg>
+            <div class="diagram-caption">A cooperative loop. Every job is a quick yes-or-no check followed by a small amount of work if it is due. Because no job waits, the loop keeps coming around, and each timer fires at its own rate. If you add a sensor, you add one more box.</div>
+        </div>
+
+<p>There is no multitasking magic: the jobs take turns, so each must be short. If one of them takes 30 ms, every other job is late by up to 30 ms. That is why <span class="code-lesson-il">time_pulse_us</span> had to go, and why the reading, filtering and sending of Lab 3 are written as small pieces.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Echo to Distance.</strong> An HC-SR04 reports an echo 5830 µs wide. How far away is the object? What would be the error if the air were at 0 °C instead of 20 °C?</p>
+        <p><strong>Exercise 2: The Divider.</strong> A student builds the echo divider with the resistors swapped: 2 kΩ in series and 1 kΩ to ground. What voltage reaches GP11, and does it work?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Bounce Filter.</strong> A reed switch produces falling edges at 10 000, 11 000, 12 500, 40 000, 41 200 and 90 000 µs. With the 5000 µs minimum gap, how many pulses does <span class="code-lesson-il">PulseCounter</span> count, and which edges does it reject?</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Three Jobs, One Loop.</strong> Run three <span class="code-lesson-il">Every</span> timers (60 ms, 500 ms and 1000 ms) in a loop that steps one millisecond at a time for three seconds, and count how often each fires. What do you expect?</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Echo to Distance</summary>
+<p>At 20 °C: 5830 / 58.3 = <strong>100 cm</strong>. At 0 °C sound travels at 331.3 m/s instead of 343.4 m/s, so the same echo corresponds to 5830 × 331.3 / 20000 = <strong>96.6 cm</strong>. Using 20 °C when the air is at 0 °C would read 3.5 % too far. Temperature correction matters only if you need better than a few percent.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: The Divider</summary>
+<p>V = 5 × 1 / (2 + 1) = <strong>1.67 V</strong>. That is below the Pico’s high threshold (about 2 V), so the pin may read the echo as low all the time and the rangefinder never seems to answer. Safe for the pin, wrong for the circuit. The 1 kΩ must be the one in series (nearest the ECHO wire) and the 2 kΩ the one to ground.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Bounce Filter</summary>
+<p>It starts with <span class="code-lesson-il">last</span> = 0. The edge at 10 000 is 10 000 µs after, so it is counted. The edges at 11 000 (1 ms later) and 12 500 (2.5 ms after the counted one) are rejected as bounce. 40 000 is counted. 41 200 is rejected. 90 000 is counted. The total is <strong>3</strong>.</p><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_counter.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">us = [0]
+ticks_us = lambda: us[0]                 # a clock we control (replaces the one the class looks up)
+c = PulseCounter(12)                     # needs a real or stand-in Pin
+us[0] = 0
+c.last = 0
+for t in (10_000, 11_000, 12_500, 40_000, 41_200, 90_000):
+    us[0] = t
+    c._edge(c.pin)                       # call the handler directly, as the interrupt would
+print(c.count())                         # 3
+</span>
+</div>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Three Jobs, One Loop</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_every.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">us = [0]
+ticks_ms = lambda: us[0]
+timers = {60: Every(60), 500: Every(500), 1000: Every(1000)}
+for e in timers.values():
+    e.last = 0
+fired = {n: 0 for n in timers}
+for ms in range(0, 3001):
+    us[0] = ms
+    for n, e in timers.items():
+        if e.due():
+            fired[n] += 1
+print(fired)                             # {60: 50, 500: 6, 1000: 3}
+</span>
+</div><p>Three seconds is 50 periods of 60 ms, 6 of 500 ms and 3 of 1000 ms, and the counts agree. Because each timer advances its <span class="code-lesson-il">last</span> by exactly one period rather than resetting to "now", a loop that is a little late on one pass does not stretch the rhythm: the next one is still on schedule.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain how the HC-SR04 reports distance and compute it from a pulse width.</li>
+            <li>Say why its ECHO wire needs a divider and compute the divider voltage.</li>
+            <li>Explain polling versus an interrupt, and the rules for a handler.</li>
+            <li>Count pulses with bounce rejection and turn them into a rate.</li>
+            <li>Write a loop of several jobs on different timers that never sleeps.</li>
+        </ol>
+
+    </body>
+</html>

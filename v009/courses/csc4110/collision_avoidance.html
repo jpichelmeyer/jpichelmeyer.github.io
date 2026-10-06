@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson covers three ways to avoid collisions. You compute a stopping distance from speed, latency and braking and see how an underestimated latency defeats it, reserve angular sectors with claims that expire, and share the ultrasonic medium by slots with a guard sized to the measured sync jitter, backing each scheme with a simulation.</p>
+
+<p>Two things collide when they want the same place at the same time. In this course the “things” are mostly not wheeled robots: they are scan heads whose arms sweep into each other’s reach, ultrasonic sensors whose pings corrupt each other’s echoes, and the occasional hand or object that closes on a moving part. The ideas are the same ones a fleet of vehicles needs, and they come in three families: <strong>predict</strong> a collision from how fast a gap is closing; <strong>reserve</strong> the space so that two agents never plan the same place; and <strong>schedule</strong> the time so that agents share a medium by taking turns.</p>
+<h3>Part 1. Stopping in Time</h3>
+<p>Distance alone is the wrong test. Whether a gap of 30 cm is safe depends on how fast it is closing. The distance a thing needs to stop is the distance it covers during the <strong>delay</strong> before it starts to brake, plus the distance it covers while braking:</p>
+<div class="code-block" data-lang="text">
+<div class="code-block-header">
+<span class="code-block-filename">formula</span>
+<span class="code-block-lang">Text</span>
+</div>
+<span class="code-lesson-bl">stop distance = v × latency  +  v² / (2 × deceleration)  +  margin
+
+v          closing speed (cm/s), from successive range readings
+latency    from the object moving to the brakes acting: the sensor period,
+           the filter's lag, the processing, the command, the actuator's delay
+deceleration   how hard you can brake (measure it)
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="50" width="252" height="50" rx="3" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="166" y="82" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">latency 18 cm</text><rect x="292" y="50" width="74.6667" height="50" rx="3" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="329.333" y="42" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">braking 5.3 cm</text><rect x="366.667" y="50" width="42" height="50" rx="3" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="418.667" y="82" font-size="14.5" fill="#1f3b52" text-anchor="start" font-weight="bold">+ 3 cm margin (green)</text><text x="40" y="130" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">at 40 cm/s: 40 × 0.45 + 40² / 300 + 3 = 26.3 cm</text><text x="40" y="168" font-size="15" fill="#1f3b52" text-anchor="start">at 80 cm/s: 80 × 0.45 + 80² / 300 + 3 = 60.3 cm  (twice the speed, 2.3 times the distance)</text><text x="40" y="204" font-size="14.5" fill="#5b6b78" text-anchor="start">most of the distance at low speed is latency, which is why filters and slow loops cost safety</text></svg>
+            <div class="diagram-caption">Where the stopping distance goes (a thing closing at 40 cm/s, braking at 150 cm/s², with 0.45 s of delay). The latency part grows with speed, the braking part with its square.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">guard.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># guard.py -- stop in time, using how fast the gap is closing, not just how big it is
+class Guard:
+    def __init__(self, decel_cm_s2=400.0, latency_s=0.35, margin_cm=5.0):
+        self.decel = decel_cm_s2        # how hard the thing can brake (measure it!)
+        self.latency = latency_s        # sensing + filtering + command + actuator delay
+        self.margin = margin_cm
+        self.prev = None
+
+    def stop_distance(self, closing_cm_s):
+        v = max(closing_cm_s, 0.0)
+        return v * self.latency + v * v / (2 * self.decel) + self.margin
+
+    def update(self, range_cm, dt):
+        """Returns True if the thing must brake NOW."""
+        if range_cm is None:
+            return False
+        closing = 0.0 if self.prev is None else (self.prev - range_cm) / dt
+        self.prev = range_cm
+        return range_cm &lt;= self.stop_distance(closing)
+</span>
+</div>
+<p><span class="code-lesson-il">Guard</span> estimates the closing speed from two readings and compares the <em>current</em> gap with the stop distance for <em>that</em> speed. Everything depends on the <span class="code-lesson-il">latency_s</span> you give it. To test it, an object was approached at various speeds (a 5 Hz range sensor with 0.5 cm of noise, an EMA filter with α = 0.5, a 0.1 s actuator delay and a braking limit of 150 cm/s²). The table shows the <strong>final gap</strong> in centimetres (zero means contact):</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 288" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="155.676" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="97.8378" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Closing speed</text><rect x="175.676" y="14" width="184.865" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="268.108" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Fixed limit 30 cm</text><rect x="360.541" y="14" width="184.865" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="452.973" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Fixed limit 60 cm</text><rect x="545.405" y="14" width="194.595" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="642.703" y="36.0125" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Guard (latency 0.55</text><text x="642.703" y="54.1375" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">s)</text><rect x="20" y="66" width="155.676" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="97.8378" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">10 cm/s</text><rect x="175.676" y="66" width="184.865" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="268.108" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">25 cm</text><rect x="360.541" y="66" width="184.865" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">55 cm</text><rect x="545.405" y="66" width="194.595" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="642.703" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3 cm</text><rect x="20" y="118" width="155.676" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="97.8378" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">30 cm/s</text><rect x="175.676" y="118" width="184.865" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="268.108" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">12 cm</text><rect x="360.541" y="118" width="184.865" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">42 cm</text><rect x="545.405" y="118" width="194.595" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="642.703" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">6 cm</text><rect x="20" y="170" width="155.676" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="97.8378" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">60 cm/s</text><rect x="175.676" y="170" width="184.865" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="268.108" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0 cm</text><rect x="360.541" y="170" width="184.865" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">24 cm</text><rect x="545.405" y="170" width="194.595" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="642.703" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">12 cm</text><rect x="20" y="222" width="155.676" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="97.8378" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">100 cm/s</text><rect x="175.676" y="222" width="184.865" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="268.108" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0 cm</text><rect x="360.541" y="222" width="184.865" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0 cm</text><rect x="545.405" y="222" width="194.595" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="642.703" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">7 cm</text></svg>
+            <div class="diagram-caption">Final gap (cm). A fixed limit that is right at one speed is wrong at another: 30 cm hits at 60 cm/s, and 60 cm hits at 100 cm/s, while at 10 cm/s it stops 25 to 55 cm too early. The guard scales its limit with the speed.</div>
+        </div>
+
+<p>The result that matters is hidden in the <span class="code-lesson-il">latency_s</span> argument. The delays in that simulation add up to about 0.5 s (up to 0.2 s waiting for the next sample, about 0.2 s of filter lag, 0.1 s of actuator). With <span class="code-lesson-il">latency_s = 0.45</span> the guard was <strong>13 times out of 30</strong> too late at 60 cm/s (contact); with <span class="code-lesson-il">0.55</span>, <strong>none</strong> of 30 touched, the smallest gap being 12 cm. A guard configured with a latency <em>smaller than the real one</em> is a fixed limit in disguise. Measure the real latency (Lab 5 gives you the network part; the profiler of Week 9 the code part) and then add some margin.</p>
+<h3>Part 2. Reserving Space</h3>
+<p>Prediction helps one agent avoid something it can sense. When two agents of the same system may move into the same region, <strong>agreement in advance</strong> is better. Each claims the region it is about to use; a claim that overlaps another live claim is refused; claims expire, so a crashed agent cannot block the space for ever. It is the lease of the last lesson applied to an <em>area</em>: here, a range of pan angles on a shared table.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">sectors.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># sectors.py -- reserve a slice of angle so two heads never sweep into each other
+class Sectors:
+    def __init__(self, hold_ms=5000):
+        self.hold_ms = hold_ms
+        self.held = {}                       # name -&gt; (lo, hi, expires)
+
+    def _live(self, now):
+        self.held = {n: v for n, v in self.held.items() if v[2] - now &gt; 0}
+
+    def claim(self, name, lo, hi, now):
+        """Reserve [lo, hi] degrees. Granted if it overlaps nobody else's live claim.
+        Returns (True, "") or (False, the name of a claim in the way)."""
+        self._live(now)
+        for other, (a, b, _) in self.held.items():
+            if other != name and lo &lt;= b and a &lt;= hi:
+                return False, other
+        self.held[name] = (lo, hi, now + self.hold_ms)       # a renewal moves the expiry
+        return True, ""
+
+    def release(self, name):
+        self.held.pop(name, None)
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><polygon points="380.0,270.0 189.5,160.0 197.6,147.0 206.6,134.6 216.5,122.8 227.2,111.7 238.6,101.5 250.7,92.0 263.4,83.4 276.7,75.8 290.5,69.0 304.8,63.3 319.4,58.5 334.3,54.8 349.4,52.1 364.7,50.5 380.0,50.0" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><polygon points="380.0,270.0 490.0,79.5 503.0,87.6 515.4,96.6 527.2,106.5 538.3,117.2 548.5,128.6 558.0,140.7 566.6,153.4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><text x="311.8" y="151.874" font-size="15" fill="#2e5a80" text-anchor="middle" font-weight="bold">a: −60 to 0</text><text x="476.449" y="173.551" font-size="15" fill="#3c8a5a" text-anchor="middle" font-weight="bold">b: 30 to 60</text><circle cx="380" cy="270" r="8" fill="#fbece3" stroke="#c0693f" stroke-width="3"/><text x="380" y="296" font-size="14" fill="#5b6b78" text-anchor="middle">table seen from above, the head at the bottom; angles measured from straight ahead</text></svg>
+            <div class="diagram-caption">Two claims that do not overlap: <span class="code-lesson-il">a</span> has −60 to 0 degrees and <span class="code-lesson-il">b</span> has 30 to 60. A claim by <span class="code-lesson-il">b</span> of −10 to 40 would be refused, with <span class="code-lesson-il">a</span> named as the reason.</div>
+        </div>
+
+<p>In the test, <span class="code-lesson-il">a</span> claimed −60 to 0 and was granted; <span class="code-lesson-il">b</span>’s claim of −10 to 40 was <strong>refused</strong> (<span class="code-lesson-il">a</span> in the way); <span class="code-lesson-il">b</span>’s claim of 10 to 60 was granted; <span class="code-lesson-il">a</span> renewed at 3 s (granted), and <span class="code-lesson-il">b</span>’s first, refused claim of −10 to 40, repeated at 9 s after <span class="code-lesson-il">a</span>’s 5 s hold had lapsed, was granted. Two design points. The check and the grant are <strong>one operation</strong> in the manager, so two simultaneous claims cannot both pass: whichever the manager handles first wins and the other is refused, a fact that depends only on the order messages reach the manager, not on anybody’s clock. And the <em>refused</em> agent must do something sensible with the answer (wait, try a smaller region, or ask again after the hold time) rather than moving anyway.</p>
+<h3>Part 3. Taking Turns on the Air</h3>
+<p>Two ultrasonic sensors in the same room hear each other’s pings. When one sensor’s 40 kHz burst arrives while the other is listening for its own echo, the reading is nonsense: the <strong>crosstalk</strong> is a collision in <em>time</em>. If each of two heads measures every 200 ms for about 30 ms at random phases, the chance that a measurement overlaps the other’s is 2 × 30 / 200 = 30 %. In a simulation of unsynchronised heads, <strong>30.0 %</strong> of measurements collided. The fix is a schedule: divide the time into slots and let each agent measure only in its own.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">slots.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># slots.py -- take turns pinging, so two ultrasonic sensors never talk at once
+from time import ticks_ms, ticks_diff
+
+class Slots:
+    """n agents share the air. Each owns slot `me` of a repeating frame. The clock is
+    aligned by a periodic 'sync' message from a leader; `guard_ms` at each end of the slot
+    absorbs the network's jitter."""
+    def __init__(self, me, n, slot_ms=100, guard_ms=30):
+        self.me, self.n, self.slot, self.guard = me, n, slot_ms, guard_ms
+        self.t0 = ticks_ms()                  # the start of a frame, as the leader announced it
+
+    def sync(self, frame_start_ms_local):
+        self.t0 = frame_start_ms_local         # call on receiving the leader's message
+
+    def may_ping(self, now=None):
+        now = ticks_ms() if now is None else now
+        pos = ticks_diff(now, self.t0) % (self.n * self.slot)
+        start = self.me * self.slot + self.guard
+        end = (self.me + 1) * self.slot - self.guard
+        return start &lt;= pos &lt; end
+</span>
+</div>
+<p>The agents have no shared clock, so a leader publishes a <span class="code-lesson-il">sync</span> message at the start of each frame and each agent sets its slot clock when it arrives. But a message takes time: between 5 and 40 ms in the test network, differently for each agent. That error shifts the slots, so each slot has a <strong>guard</strong> at both ends. The question is how big the guard must be:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 288" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="145.946" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="92.973" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Guard</text><rect x="165.946" y="14" width="165.405" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="248.649" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Usable window</text><rect x="331.351" y="14" width="214.054" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="438.378" y="36.0125" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Collisions (sync jitter 5</text><text x="438.378" y="54.1375" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">to 40 ms)</text><rect x="545.405" y="14" width="194.595" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="642.703" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Jitter 5 to 80 ms</text><rect x="20" y="66" width="145.946" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="92.973" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0 ms</text><rect x="165.946" y="66" width="165.405" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="248.649" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">100 ms</text><rect x="331.351" y="66" width="214.054" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="438.378" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">11.1 %</text><rect x="545.405" y="66" width="194.595" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="642.703" y="97.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">17.4 %</text><rect x="20" y="118" width="145.946" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="92.973" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">10 ms</text><rect x="165.946" y="118" width="165.405" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="248.649" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">80 ms</text><rect x="331.351" y="118" width="214.054" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="438.378" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4.4 %</text><rect x="545.405" y="118" width="194.595" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="642.703" y="149.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">12.2 %</text><rect x="20" y="170" width="145.946" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="92.973" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">20 ms</text><rect x="165.946" y="170" width="165.405" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="248.649" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">60 ms</text><rect x="331.351" y="170" width="214.054" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="438.378" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.8 %</text><rect x="545.405" y="170" width="194.595" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="642.703" y="201.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">7.5 %</text><rect x="20" y="222" width="145.946" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="92.973" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">30 ms</text><rect x="165.946" y="222" width="165.405" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="248.649" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">40 ms</text><rect x="331.351" y="222" width="214.054" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="438.378" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.0 %</text><rect x="545.405" y="222" width="194.595" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="642.703" y="253.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3.9 %</text></svg>
+            <div class="diagram-caption">Two heads, 100 ms slots, 30 ms measurements, simulated 40,000 times. A guard of 30 ms brings crosstalk from 30 % to 0.01 % when the sync jitter is under 40 ms, but with the jitter at 80 ms the same guard still collides 3.9 % of the time: <strong>the guard must cover the jitter you actually have.</strong></div>
+        </div>
+
+<ul>
+<li><strong>Cost.</strong> The guard is paid for in rate: with a 30 ms guard, a 100 ms slot allows a measurement every 200 ms, and no faster.</li>
+<li><strong>Measure the jitter.</strong> Compare the arrival times of the sync message at two boards (Lab 5’s RTT test, run to both). Then set the guard from the data.</li>
+<li><strong>Resynchronise often.</strong> Each board’s clock drifts a little; a sync every few seconds keeps the error to the network’s jitter.</li>
+<li><strong>Detect, do not trust.</strong> A reading wildly different from the last three, or a failed echo, may be crosstalk: reject it, and count it.</li>
+</ul>
+<h3>Part 4. When Two Claims Arrive Together</h3>
+<p>Every scheme above relies on <em>one judge</em>. The sector manager or the lease manager receives claims in some order and decides one at a time, and the order is whatever the broker delivered. That is deterministic enough for correctness, though not for fairness: an agent whose messages happen to arrive first always wins a tie. If fairness matters, break ties by a rule everyone can check (the lowest name, or the agent that has waited longest), and write the rule in the contract. If there is <em>no</em> judge (peers), the rule must be computed by everyone from the same information, as in the leader election of the contracts lesson, and the cost is that during a disagreement of views two agents may both believe they are allowed; so even then each agent keeps its own last line of defence, the stopping guard of Part 1.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Stop Distance.</strong> A robot closes on a wall at 50 cm/s, can brake at 200 cm/s², and has 0.4 s of delay in the loop. What stop distance should it assume, with a 4 cm margin? At what range should it start braking at 25 cm/s?</p>
+        <p><strong>Exercise 2: Who Is in the Way?.</strong> The sector table holds <span class="code-lesson-il">a</span> at −60 to 0 and <span class="code-lesson-il">b</span> at 30 to 60. Which of these claims by <span class="code-lesson-il">c</span> are granted? (a) −20 to −10, (b) 5 to 25, (c) 0 to 10, (d) 60 to 90.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Too Good to Be True.</strong> A reading arrives at 150 cm when the previous three were 22, 21 and 23 cm. Give two possible causes and say what a robust receiver should do before acting on it.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Three Heads.</strong> Three heads share the air with 90 ms slots and a 20 ms guard. How long is the frame, and how often can each head measure? What is the largest measurement that fits the window?</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Stop Distance</summary>
+<p>At 50 cm/s: 50 × 0.4 + 50² / (2 × 200) + 4 = 20 + 6.25 + 4 = <strong>30.3 cm</strong>. At 25 cm/s: 25 × 0.4 + 25² / 400 + 4 = 10 + 1.56 + 4 = <strong>15.6 cm</strong>. Halving the speed cut the distance by half, not by three quarters, because at these speeds the latency term (proportional to speed) dominates the braking term (proportional to its square).</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Who Is in the Way?</summary>
+<p>(a) refused: overlaps <span class="code-lesson-il">a</span> (−60 to 0). (b) <strong>granted</strong>: 5 to 25 touches neither. (c) refused: 0 touches the end of <span class="code-lesson-il">a</span> (the test <span class="code-lesson-il">lo &lt;= b and a &lt;= hi</span> treats shared end points as overlapping, which is the cautious choice for hardware that overshoots). (d) refused: 60 touches the end of <span class="code-lesson-il">b</span>.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Too Good to Be True</summary>
+<p>Possible causes: <strong>crosstalk</strong> (another sensor’s ping arrived and the true echo was missed or confused), or a <strong>genuine</strong> change (the object moved away, or the sensor lost the echo and returns its maximum). A robust receiver does not act on a single outlier in either direction: it compares with the recent readings (a median of three), counts the rejection, and waits for a second consistent reading before treating the gap as having opened, while treating a <em>sudden closer</em> reading with more suspicion for a safety stop (stopping on a false reading is cheap; not stopping on a true one is not).</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Three Heads</summary>
+<p>The frame is 3 × 90 = <strong>270 ms</strong>, so each head measures at most every 270 ms (about 3.7 Hz). The usable window is 90 − 2 × 20 = <strong>50 ms</strong>, so a measurement of up to 50 ms fits (the HC-SR04’s longest, about 38 ms for an echo from the far end of its range, fits with 12 ms to spare, which the sync jitter has to be smaller than). Adding a head lengthens every head’s frame: four heads would mean 360 ms.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Compute a stopping distance and say what is in the latency term.</li>
+            <li>Explain why a fixed distance threshold fails at different speeds.</li>
+            <li>Reserve a region with an expiring claim and handle a refusal.</li>
+            <li>Explain acoustic crosstalk and design time slots with a guard.</li>
+            <li>Say how ties are broken, and what remains when there is no judge.</li>
+        </ol>
+
+    </body>
+</html>

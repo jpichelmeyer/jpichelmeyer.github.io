@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>A smart light, a fan that starts when the room warms, a small robot that follows a wall: they all look different but are built from the same few parts. Before we wire anything, this lesson gives you the picture to hang the rest of the course on: what a node is, what a hub is, where each job belongs, and what a small processor has to work with.</p>
+
+<h3>Part 1. Sense, Think, Act</h3>
+<p>Strip any robot or IoT device down and it is the same loop. <strong>Sensors</strong> turn something physical (light, distance, tilt, a pressed button) into a number. A <strong>processor with memory</strong> runs your program and decides what to do with the numbers. <strong>Actuators</strong> turn a decision back into something physical (an LED, a servo, a fan, a pump, a motor). The actions change the world, the sensors see the change, and the loop closes.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 360" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="270" y="14" width="220" height="46" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="32.875" font-size="15" fill="#1f3b52" text-anchor="middle">Network</text><text x="380" y="51.625" font-size="15" fill="#1f3b52" text-anchor="middle">other nodes, a hub</text><rect x="30" y="120" width="200" height="100" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="130" y="155.6" font-size="16" fill="#1f3b52" text-anchor="middle">SENSE</text><text x="130" y="175.6" font-size="16" fill="#1f3b52" text-anchor="middle">button, light, distance,</text><text x="130" y="195.6" font-size="16" fill="#1f3b52" text-anchor="middle">motion</text><rect x="280" y="120" width="200" height="100" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="155.6" font-size="16" fill="#1f3b52" text-anchor="middle">THINK</text><text x="380" y="175.6" font-size="16" fill="#1f3b52" text-anchor="middle">processor + memory</text><text x="380" y="195.6" font-size="16" fill="#1f3b52" text-anchor="middle">(your program)</text><rect x="530" y="120" width="200" height="100" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="630" y="155.6" font-size="16" fill="#1f3b52" text-anchor="middle">ACT</text><text x="630" y="175.6" font-size="16" fill="#1f3b52" text-anchor="middle">LED, servo, fan,</text><text x="630" y="195.6" font-size="16" fill="#1f3b52" text-anchor="middle">pump, motor</text><line x1="230" y1="170" x2="271" y2="170" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="280.0,170.0 269.0,164.5 269.0,175.5" fill="#1f3b52"/><line x1="480" y1="170" x2="521" y2="170" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="530.0,170.0 519.0,164.5 519.0,175.5" fill="#1f3b52"/><line x1="380" y1="111" x2="380" y2="69" stroke="#b8860b" stroke-width="2.4" stroke-linecap="round"/><polygon points="380.0,60.0 374.5,71.0 385.5,71.0" fill="#b8860b"/><polygon points="380.0,120.0 385.5,109.0 374.5,109.0" fill="#b8860b"/><rect x="250" y="290" width="260" height="52" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="380" y="321.6" font-size="16" fill="#1f3b52" text-anchor="middle">The physical world</text><line x1="630" y1="220" x2="630" y2="316" stroke="#5b6b78" stroke-width="2.4" stroke-linecap="round"/><line x1="630" y1="316" x2="519" y2="316" stroke="#5b6b78" stroke-width="2.4" stroke-linecap="round"/><polygon points="510.0,316.0 521.0,321.5 521.0,310.5" fill="#5b6b78"/><line x1="250" y1="316" x2="130" y2="316" stroke="#5b6b78" stroke-width="2.4" stroke-linecap="round"/><line x1="130" y1="316" x2="130" y2="229" stroke="#5b6b78" stroke-width="2.4" stroke-linecap="round"/><polygon points="130.0,220.0 124.5,231.0 135.5,231.0" fill="#5b6b78"/><text x="646" y="262" font-size="15" fill="#5b6b78" text-anchor="start">changes it</text><text x="114" y="262" font-size="15" fill="#5b6b78" text-anchor="end">measures it</text></svg>
+            <div class="diagram-caption">Every node in this course, and every robot, runs the same loop: sense the world, think about what was sensed, act on the world, and sense again. The network adds a second way out of the thinking step: sending what was sensed or decided to other devices, and receiving what they send.</div>
+        </div>
+
+<p>The only thing the <em>Internet of Things</em> adds to this loop is a network connection around the thinking step. A node can now report what it senses, and take instructions from somewhere else. A robot is the same kind of node with actuators that move: a robot is an IoT thing, and a group of robots is a group of IoT things that talk to each other.</p>
+<h3>Part 2. Nodes, Hubs and the Edge</h3>
+<p>Real systems divide the work. A <strong>node</strong> is a small, cheap, low-power device placed where the physical thing is. A <strong>hub</strong> (also called a gateway) is one more capable computer that the nodes connect to. In this course the nodes are Raspberry Pi Pico W boards and the hub is a Raspberry Pi running an MQTT broker.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 390" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="24" y="50" width="200" height="80" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="124" y="85.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">Sensor node</text><text x="124" y="105.112" font-size="15.5" fill="#1f3b52" text-anchor="middle">Pico + light, distance</text><rect x="24" y="160" width="200" height="80" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="124" y="195.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">Robot node</text><text x="124" y="215.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">Pico + servo, motor</text><rect x="24" y="270" width="200" height="80" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="124" y="305.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">Actuator node</text><text x="124" y="325.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">Pico + fan, pump</text><rect x="300" y="120" width="190" height="160" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="395" y="175.6" font-size="16" fill="#1f3b52" text-anchor="middle">HUB</text><text x="395" y="195.6" font-size="16" fill="#1f3b52" text-anchor="middle">Raspberry Pi</text><text x="395" y="215.6" font-size="16" fill="#1f3b52" text-anchor="middle">MQTT broker</text><text x="395" y="235.6" font-size="16" fill="#1f3b52" text-anchor="middle">logging, dashboard</text><rect x="560" y="60" width="176" height="80" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="648" y="95.875" font-size="15" fill="#1f3b52" text-anchor="middle">Your laptop</text><text x="648" y="114.625" font-size="15" fill="#1f3b52" text-anchor="middle">dashboard, notebook</text><rect x="560" y="260" width="176" height="80" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="648" y="295.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">Another student</text><text x="648" y="315.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">agent, program</text><line x1="229.116" y1="97.4046" x2="294.884" y2="192.595" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="300.0,200.0 298.3,187.8 289.2,194.1" fill="#1f3b52"/><polygon points="224.0,90.0 225.7,102.2 234.8,95.9" fill="#1f3b52"/><line x1="233" y1="200" x2="291" y2="200" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="300.0,200.0 289.0,194.5 289.0,205.5" fill="#1f3b52"/><polygon points="224.0,200.0 235.0,205.5 235.0,194.5" fill="#1f3b52"/><line x1="229.116" y1="302.595" x2="294.884" y2="207.405" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="300.0,200.0 289.2,205.9 298.3,212.2" fill="#1f3b52"/><polygon points="224.0,310.0 234.8,304.1 225.7,297.8" fill="#1f3b52"/><line x1="496.364" y1="163.636" x2="553.636" y2="106.364" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="560.0,100.0 548.3,103.9 556.1,111.7" fill="#1f3b52"/><polygon points="490.0,170.0 501.7,166.1 493.9,158.3" fill="#1f3b52"/><line x1="496.364" y1="236.364" x2="553.636" y2="293.636" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="560.0,300.0 556.1,288.3 548.3,296.1" fill="#1f3b52"/><polygon points="490.0,230.0 493.9,241.7 501.7,233.9" fill="#1f3b52"/><text x="124" y="30" font-size="16" fill="#5b6b78" text-anchor="middle" font-weight="bold">edge nodes</text><text x="395" y="30" font-size="16" fill="#5b6b78" text-anchor="middle" font-weight="bold">the hub</text><text x="648" y="30" font-size="16" fill="#5b6b78" text-anchor="middle" font-weight="bold">everything else</text><text x="262" y="220" font-size="15" fill="#5b6b78" text-anchor="middle">WiFi</text></svg>
+            <div class="diagram-caption">A small IoT system. Edge nodes (each a Pico) sense and act. They talk over WiFi to a hub, which relays messages, remembers data and serves anything that wants to look in: a dashboard, a laptop, or another student’s agent.</div>
+        </div>
+
+<p>The word <em>edge</em> means the devices at the boundary between the network and the physical world: the ones with sensors and actuators. Nodes talk to the hub, and not directly to each other, because that keeps each node simple: it only needs to know where the hub is. The hub can then pass messages along, store them, and let other programs join in. Later in the course your own programs become extra <em>agents</em> on the same network.</p>
+<h3>Part 3. What Goes Where</h3>
+<p>A good rule: <strong>a node should be able to do its safety-critical job with the network cut.</strong> If commands to a motor go quiet, the motor must stop, and only the node can guarantee that. Storage, history and decisions that need several nodes belong on the hub, because the node does not have the memory or the view.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 412.25" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="260" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="150" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Job</text><rect x="280" y="14" width="130" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="345" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Where</text><rect x="410" y="14" width="330" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="575" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Why there</text><rect x="20" y="58" width="260" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="85.425" font-size="15.5" fill="#1f3b52" text-anchor="start">Read a sensor, drive a pin</text><rect x="280" y="58" width="130" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="85.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Edge node</text><rect x="410" y="58" width="330" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="85.425" font-size="15.5" fill="#1f3b52" text-anchor="start">Only the node is wired to the hardware</text><rect x="20" y="102" width="260" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="125.113" font-size="15.5" fill="#1f3b52" text-anchor="start">Stop a motor if commands go</text><text x="29" y="144.488" font-size="15.5" fill="#1f3b52" text-anchor="start">quiet</text><rect x="280" y="102" width="130" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="134.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">Edge node</text><rect x="410" y="102" width="330" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="134.8" font-size="15.5" fill="#1f3b52" text-anchor="start">Must still work if the network is gone</text><rect x="20" y="156.75" width="260" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="184.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Filter noise, hold a setpoint</text><rect x="280" y="156.75" width="130" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="184.175" font-size="15.5" fill="#1f3b52" text-anchor="middle">Edge node</text><rect x="410" y="156.75" width="330" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="184.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Loops that run in milliseconds</text><rect x="20" y="200.75" width="260" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="223.863" font-size="15.5" fill="#1f3b52" text-anchor="start">Pass messages between</text><text x="29" y="243.238" font-size="15.5" fill="#1f3b52" text-anchor="start">devices</text><rect x="280" y="200.75" width="130" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="233.55" font-size="15.5" fill="#1f3b52" text-anchor="middle">Hub</text><rect x="410" y="200.75" width="330" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="233.55" font-size="15.5" fill="#1f3b52" text-anchor="start">One always-on place everyone can find</text><rect x="20" y="255.5" width="260" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="282.925" font-size="15.5" fill="#1f3b52" text-anchor="start">Keep a history of readings</text><rect x="280" y="255.5" width="130" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="282.925" font-size="15.5" fill="#1f3b52" text-anchor="middle">Hub</text><rect x="410" y="255.5" width="330" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="282.925" font-size="15.5" fill="#1f3b52" text-anchor="start">The node has little memory</text><rect x="20" y="299.5" width="260" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="322.613" font-size="15.5" fill="#1f3b52" text-anchor="start">Show a dashboard, run</text><text x="29" y="341.988" font-size="15.5" fill="#1f3b52" text-anchor="start">analysis</text><rect x="280" y="299.5" width="130" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="332.3" font-size="15.5" fill="#1f3b52" text-anchor="middle">Hub or laptop</text><rect x="410" y="299.5" width="330" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="332.3" font-size="15.5" fill="#1f3b52" text-anchor="start">Needs a screen and more computing</text><rect x="20" y="354.25" width="260" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="381.675" font-size="15.5" fill="#1f3b52" text-anchor="start">Decide across several nodes</text><rect x="280" y="354.25" width="130" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="381.675" font-size="15.5" fill="#1f3b52" text-anchor="middle">Hub or agents</text><rect x="410" y="354.25" width="330" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="381.675" font-size="15.5" fill="#1f3b52" text-anchor="start">Needs data from more than one node</text></svg>
+            <div class="diagram-caption">Edge versus hub. Put anything that touches hardware, or must keep working without the network, on the node. Put anything that needs memory, storage or a view across many nodes on the hub. You will keep revisiting where each job belongs.</div>
+        </div>
+
+<h3>Part 4. What a Node Has to Work With</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 334.75" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="190" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="115" y="40.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Resource</text><rect x="210" y="14" width="230" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="325" y="40.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Raspberry Pi Pico W</text><rect x="440" y="14" width="300" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="590" y="40.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">What it means for you</text><rect x="20" y="56" width="190" height="54.75" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="88.8" font-size="15.5" fill="#1f3b52" text-anchor="start">Processor</text><rect x="210" y="56" width="230" height="54.75" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="79.1125" font-size="15.5" fill="#1f3b52" text-anchor="middle">RP2040, two cores,</text><text x="325" y="98.4875" font-size="15.5" fill="#1f3b52" text-anchor="middle">125 MHz by default</text><rect x="440" y="56" width="300" height="54.75" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="79.1125" font-size="15.5" fill="#1f3b52" text-anchor="start">Plenty for control, slow for</text><text x="449" y="98.4875" font-size="15.5" fill="#1f3b52" text-anchor="start">heavy maths on big arrays</text><rect x="20" y="110.75" width="190" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="137.175" font-size="15.5" fill="#1f3b52" text-anchor="start">RAM</text><rect x="210" y="110.75" width="230" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="137.175" font-size="15.5" fill="#1f3b52" text-anchor="middle">264 kB</text><rect x="440" y="110.75" width="300" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="137.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Buffers and lists must be small</text><rect x="20" y="152.75" width="190" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="179.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Program storage</text><rect x="210" y="152.75" width="230" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="179.175" font-size="15.5" fill="#1f3b52" text-anchor="middle">2 MB flash</text><rect x="440" y="152.75" width="300" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="179.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Room for programs, not for logs</text><rect x="20" y="194.75" width="190" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="221.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Pins</text><rect x="210" y="194.75" width="230" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="221.175" font-size="15.5" fill="#1f3b52" text-anchor="middle">26 GPIO, 3 analog inputs</text><rect x="440" y="194.75" width="300" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="221.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Choose carefully what to connect</text><rect x="20" y="236.75" width="190" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="263.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Voltage</text><rect x="210" y="236.75" width="230" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="263.175" font-size="15.5" fill="#1f3b52" text-anchor="middle">3.3 V logic</text><rect x="440" y="236.75" width="300" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="263.175" font-size="15.5" fill="#1f3b52" text-anchor="start">5 V signals can damage a pin</text><rect x="20" y="278.75" width="190" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="305.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Radio</text><rect x="210" y="278.75" width="230" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="305.175" font-size="15.5" fill="#1f3b52" text-anchor="middle">2.4 GHz WiFi</text><rect x="440" y="278.75" width="300" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="305.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Needs the network set up first</text></svg>
+            <div class="diagram-caption">The budget of one node. None of this is a problem for a single sensor, but every limit shows up once you sample fast, send many values, or run several jobs at once. The course keeps returning to these numbers.</div>
+        </div>
+
+<p>These limits are the reason for one of the course outcomes: aligning what the hardware can process with how much sensor data arrives. A quick way to reason about it is a <strong>data rate</strong>, the number of bytes per second a sensor produces.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">rates.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def bytes_per_second(channels, bytes_each, hz):
+    return channels * bytes_each * hz
+
+print(bytes_per_second(1, 2, 100))     # one light sensor at 100 Hz:          200 B/s
+print(bytes_per_second(6, 2, 100))     # accelerometer + gyro (6 values), 100 Hz: 1200 B/s
+print(bytes_per_second(1, 2, 20))      # ultrasonic distance at 20 Hz:          40 B/s
+</span>
+</div>
+<p>Those are small next to what a WiFi link can carry. The real limits are usually your program loop and the message overhead: a text message such as <span class="code-lesson-il">{"v":1,"seq":7,"ax":0.02}</span> is dozens of bytes even when the value inside is two. You will measure this in Lab 3.</p>
+<h3>Part 5. The Smallest Possible Node</h3>
+<p>Your Pico already has a sensor and an actuator on board: an internal temperature sensor (analog channel 4) and an LED. That is enough for a complete sense, think, act program with nothing wired:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">first_node.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import ADC, Pin
+from time import sleep_ms
+
+adc = ADC(4)                      # channel 4 = the chip's internal temperature sensor
+led = Pin("LED", Pin.OUT)         # the Pico W's on-board LED
+
+def read_temp_c():
+    volts = adc.read_u16() * 3.3 / 65535
+    return 27 - (volts - 0.706) / 0.001721   # formula from the RP2040 datasheet
+
+THRESHOLD = 30.0                  # degrees C
+
+while True:
+    temp = read_temp_c()          # SENSE
+    hot = temp &gt; THRESHOLD        # THINK
+    led.value(hot)                # ACT
+    print(round(temp, 1), hot)
+    sleep_ms(500)
+</span>
+</div>
+<p>The chip reads the temperature of its own silicon, so it runs a few degrees above the room. Warm the board with a finger and watch the number climb; when it crosses the threshold the LED lights. The code is only a few lines, but each one maps to a box in the loop diagram, and that mapping is what to look for in every program this term.</p>
+<h3>Part 6. Where the Course Goes</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 270" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="220" height="240" rx="10" fill="#fff" stroke="#2e5a80" stroke-width="2.5"/><text x="130" y="44" font-size="17" fill="#2e5a80" text-anchor="middle" font-weight="bold">Weeks 1 to 5</text><text x="130" y="70" font-size="16" fill="#1f3b52" text-anchor="middle">One node</text><rect x="270" y="14" width="220" height="240" rx="10" fill="#fff" stroke="#c0693f" stroke-width="2.5"/><text x="380" y="44" font-size="17" fill="#c0693f" text-anchor="middle" font-weight="bold">Weeks 6 to 10</text><text x="380" y="70" font-size="16" fill="#1f3b52" text-anchor="middle">Nodes and a hub</text><rect x="520" y="14" width="220" height="240" rx="10" fill="#fff" stroke="#3c8a5a" stroke-width="2.5"/><text x="630" y="44" font-size="17" fill="#3c8a5a" text-anchor="middle" font-weight="bold">Weeks 11 to 15</text><text x="630" y="70" font-size="16" fill="#1f3b52" text-anchor="middle">Many agents</text><rect x="70" y="100" width="120" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="130" y="133.6" font-size="16" fill="#1f3b52" text-anchor="middle">Pico</text><line x1="100" y1="188" x2="115.23" y2="163.632" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><polygon points="120.0,156.0 109.5,162.4 118.8,168.2" fill="#5b6b78"/><line x1="140" y1="156" x2="155.23" y2="180.368" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><polygon points="160.0,188.0 158.8,175.8 149.5,181.6" fill="#5b6b78"/><text x="100" y="214" font-size="15" fill="#5b6b78" text-anchor="middle">sensors</text><text x="160" y="236" font-size="15" fill="#5b6b78" text-anchor="middle">actuators</text><rect x="295" y="100" width="80" height="40" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="335" y="125.25" font-size="15" fill="#1f3b52" text-anchor="middle">node</text><rect x="405" y="100" width="80" height="40" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="445" y="125.25" font-size="15" fill="#1f3b52" text-anchor="middle">node</text><rect x="345" y="184" width="90" height="44" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="390" y="211.25" font-size="15" fill="#1f3b52" text-anchor="middle">hub</text><line x1="341.054" y1="146.659" x2="368.946" y2="177.341" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="375.0,184.0 371.7,172.2 363.5,179.6" fill="#1f3b52"/><polygon points="335.0,140.0 338.3,151.8 346.5,144.4" fill="#1f3b52"/><line x1="438.946" y1="146.659" x2="411.054" y2="177.341" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="405.0,184.0 416.5,179.6 408.3,172.2" fill="#1f3b52"/><polygon points="445.0,140.0 433.5,144.4 441.7,151.8" fill="#1f3b52"/><line x1="630" y1="120" x2="687.063" y2="155.931" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="630" y1="120" x2="665.267" y2="214.069" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="630" y1="120" x2="594.733" y2="214.069" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="630" y1="120" x2="572.937" y2="155.931" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="687.063" y1="155.931" x2="665.267" y2="214.069" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="687.063" y1="155.931" x2="594.733" y2="214.069" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="687.063" y1="155.931" x2="572.937" y2="155.931" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="665.267" y1="214.069" x2="594.733" y2="214.069" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="665.267" y1="214.069" x2="572.937" y2="155.931" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><line x1="594.733" y1="214.069" x2="572.937" y2="155.931" stroke="#9cc7ad" stroke-width="1.4" stroke-linecap="round"/><circle cx="630" cy="120" r="14" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><circle cx="687.063" cy="155.931" r="14" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><circle cx="665.267" cy="214.069" r="14" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><circle cx="594.733" cy="214.069" r="14" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><circle cx="572.937" cy="155.931" r="14" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/></svg>
+            <div class="diagram-caption">The shape of the term. First you build one complete node (sensing, filtering, driving outputs, and a first report to the network). Then you connect many nodes through a hub. Finally the nodes become agents that coordinate with each other without anyone in charge.</div>
+        </div>
+
+<p>Three lab practicals mark the way. In Lab Practical 1 your robot unit senses, acts and transmits to the class broker. In Lab Practical 2 your agent exchanges messages with the instructor’s robot. Lab Practical 3 is a multi-agent mission. Everything in the weekly lessons builds toward one of them.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Edge or Hub.</strong> For each of these say whether it belongs on an edge node, on the hub, or either, and why: (a) turning a fan on when the light level drops, (b) keeping a month of temperature readings, (c) stopping a servo if the network drops, (d) a web dashboard.</p>
+        <p><strong>Exercise 2: Name the Loop.</strong> A hobby robot follows a line on the floor. Name its sensor, what the thinking step must decide, and its actuator. Then name one thing it could send to a hub.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: A Data Rate.</strong> An IMU gives 6 values (3 accelerations and 3 rotations) at 200 Hz, each 2 bytes. How many bytes per second is that? If you wrap each sample as a text message of about 90 bytes and send every one, how many bytes per second go on the network?</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Warm-up Alarm.</strong> Change <span class="code-lesson-il">first_node.py</span> so the LED turns on when the temperature is more than 2 °C above the value measured at start-up, and turns off only when it falls below 1.5 °C above it (so it does not flicker). Write the decision as a function so you can test it without hardware.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Edge or Hub</summary>
+<p>(a) <strong>Edge</strong>: it reads a sensor and drives an output, and should work without the network. (b) <strong>Hub</strong>: a node has too little memory and storage for a month of data. (c) <strong>Edge</strong>: only the node can act when the network is gone. (d) <strong>Hub or laptop</strong>: it needs a screen and a view over many nodes, which a Pico cannot serve well.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Name the Loop</summary>
+<p>Sensor: a reflectance (brightness) sensor under the robot. Thinking: is the line to the left, centred or to the right, and how hard to steer. Actuator: the drive motors or a steering servo. It could report battery level, speed, or how often it lost the line. The loop is sense, decide, steer, repeat.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: A Data Rate</summary>
+<p>Raw: 6 × 2 × 200 = <strong>2400 B/s</strong>. As 90-byte text messages at 200 per second: 90 × 200 = <strong>18 000 B/s</strong>, 7.5 times more. Text is convenient but costly, so later you will batch or filter before sending.</p><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">rates.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">print(bytes_per_second(6, 2, 200))      # 2400
+print(90 * 200)                        # 18000
+</span>
+</div>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Warm-up Alarm</summary>
+<p>The start-up value is the reference. Two thresholds make a <strong>hysteresis</strong> band: on above +2.0, off below +1.5, and unchanged in between.</p><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">alarm.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def decide(temp, ref, was_on):
+    if temp &gt; ref + 2.0:
+        return True
+    if temp &lt; ref + 1.5:
+        return False
+    return was_on                  # inside the band: keep the old decision
+
+ref = read_temp_c()                # measured once at start-up
+on = False
+while True:
+    on = decide(read_temp_c(), ref, on)
+    led.value(on)
+    sleep_ms(500)
+</span>
+</div><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_alarm.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">print(decide(27.2, 25.0, False))    # True   (more than 2.0 above)
+print(decide(26.7, 25.0, True))    # True   (inside the band: stays on)
+print(decide(26.7, 25.0, False))   # False  (inside the band: stays off)
+print(decide(26.4, 25.0, True))    # False  (below +1.5: switches off)
+</span>
+</div><p>Testing the same input with two different histories (the second and third lines) is the point of hysteresis: the answer depends on what happened before.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Draw the sense, think, act loop and say where the network connects.</li>
+            <li>Explain the difference between an edge node and a hub, and say which one handles a given job.</li>
+            <li>Say why a node must be able to do its safety job with the network cut.</li>
+            <li>Compute a sensor’s data rate in bytes per second.</li>
+            <li>Name the main limits of the Pico W (RAM, pins, voltage, ADC channels).</li>
+        </ol>
+
+    </body>
+</html>

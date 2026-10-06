@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Most of the interesting sensors in a robot are not analog at all. A motion sensor, a touch pad and a character display all talk to the Pico over a shared two-wire bus called I2C. This lesson shows how the bus works, how to find a device on it, and how to use the three I2C devices in your kit: the MPU6050 motion sensor, the LCD1602 display and the MPR121 touch sensor.</p>
+
+<h3>Part 1. Two Wires, Many Devices</h3>
+<p>Analog pins are scarce (three on the Pico) and many useful sensors, such as a motion sensor, already contain their own converter and send you finished numbers. <strong>I2C</strong> (pronounced "I squared C") is a two-wire bus made for exactly this. One wire, <strong>SDA</strong>, carries data; the other, <strong>SCL</strong>, carries a clock. Any number of devices share the same two wires, and each has its own <strong>address</strong>, so the Pico can talk to them one at a time.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="170" height="190" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2.5"/><text x="105" y="74" font-size="16.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">Pico W</text><text x="105" y="110" font-size="15.5" fill="#5b6b78" text-anchor="middle">controller</text><text x="105" y="160" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">GP4 = SDA</text><text x="105" y="190" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">GP5 = SCL</text><line x1="190" y1="140" x2="735" y2="140" stroke="#2e5a80" stroke-width="3.5" stroke-linecap="round"/><line x1="190" y1="170" x2="735" y2="170" stroke="#c0693f" stroke-width="3.5" stroke-linecap="round"/><text x="310" y="30" font-size="15" fill="#5b6b78" text-anchor="middle">3.3 V</text><line x1="250" y1="40" x2="370" y2="40" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><line x1="250" y1="40" x2="250" y2="56" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><polyline points="250.0,56.0 250.0,64.0 244.0,67.7 256.0,75.0 244.0,82.3 256.0,89.7 244.0,97.0 256.0,104.3 250.0,108.0 250.0,116.0" fill="none" stroke="#1f3b52" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><line x1="250" y1="116" x2="250" y2="140" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><circle cx="250" cy="140" r="4" fill="#2e5a80"/><line x1="370" y1="40" x2="370" y2="56" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><polyline points="370.0,56.0 370.0,64.0 364.0,70.2 376.0,82.5 364.0,94.8 376.0,107.2 364.0,119.5 376.0,131.8 370.0,138.0 370.0,146.0" fill="none" stroke="#1f3b52" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><line x1="370" y1="146" x2="370" y2="170" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><circle cx="370" cy="170" r="4" fill="#c0693f"/><text x="268" y="92" font-size="14.5" fill="#1f3b52" text-anchor="start">4.7 kΩ</text><text x="388" y="106" font-size="14.5" fill="#1f3b52" text-anchor="start">4.7 kΩ</text><rect x="390" y="250" width="100" height="76" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="440" y="283.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">LCD</text><text x="440" y="303.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">0x27</text><line x1="426" y1="140" x2="426" y2="250" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><circle cx="426" cy="140" r="4" fill="#2e5a80"/><line x1="454" y1="170" x2="454" y2="250" stroke="#c0693f" stroke-width="2.2" stroke-linecap="round"/><circle cx="454" cy="170" r="4" fill="#c0693f"/><rect x="510" y="250" width="100" height="76" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="560" y="283.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">MPU6050</text><text x="560" y="303.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">0x68</text><line x1="546" y1="140" x2="546" y2="250" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><circle cx="546" cy="140" r="4" fill="#2e5a80"/><line x1="574" y1="170" x2="574" y2="250" stroke="#c0693f" stroke-width="2.2" stroke-linecap="round"/><circle cx="574" cy="170" r="4" fill="#c0693f"/><rect x="630" y="250" width="100" height="76" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="680" y="283.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">MPR121</text><text x="680" y="303.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">0x5A</text><line x1="666" y1="140" x2="666" y2="250" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><circle cx="666" cy="140" r="4" fill="#2e5a80"/><line x1="694" y1="170" x2="694" y2="250" stroke="#c0693f" stroke-width="2.2" stroke-linecap="round"/><circle cx="694" cy="170" r="4" fill="#c0693f"/><text x="380" y="366" font-size="15.5" fill="#5b6b78" text-anchor="middle">all devices share the same two wires; the address picks who answers</text><text x="200" y="160" font-size="14.5" fill="#2e5a80" text-anchor="start" font-weight="bold">SDA</text><text x="200" y="196" font-size="14.5" fill="#8a4526" text-anchor="start" font-weight="bold">SCL</text></svg>
+            <div class="diagram-caption">An I2C bus. The Pico (the controller) drives the clock on SCL and shares SDA with whoever it is talking to. Two pull-up resistors hold both wires high; devices only ever pull them low. Each device answers to one address, shown here in hexadecimal.</div>
+        </div>
+
+<p>The Pico has two I2C blocks. We use bus 0 on <strong>GP4 (SDA)</strong> and <strong>GP5 (SCL)</strong>. The clock runs at 100 kHz (standard) or 400 kHz (fast); the modules in the kit accept 400 kHz. The wires are <em>open-drain</em>: a device can pull a line down, but only the <strong>pull-up resistors</strong> can raise it. Most breakout modules include them (4.7 kΩ is common), which is why you rarely add your own.</p>
+<p>One practical consequence: every module adds its own pull-up in parallel with the others. Three 4.7 kΩ resistors in parallel make 1.57 kΩ. That is fine, because the bus specification wants roughly 1 kΩ or more (a device is only required to sink 3 mA, and (3.3 V − 0.4 V) / 3 mA ≈ 970 Ω). A bus with a dozen modules can end up too strongly pulled up and stop working; the cure is to remove or de-solder a few pull-ups.</p>
+<h3>Part 2. Find What Is There: the Scan</h3>
+<p>Wire a device to GP4 and GP5 (plus power and ground), and run a scan. The scan asks every possible address whether anyone answers:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">scan.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import I2C, Pin
+
+i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400_000)    # I2C bus 0 on GP4 (SDA) and GP5 (SCL)
+print([hex(a) for a in i2c.scan()])                   # e.g. ['0x27', '0x5a', '0x68']
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 225.5" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="200" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="120" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Device in the kit</text><rect x="220" y="14" width="160" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="300" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Address</text><rect x="380" y="14" width="380" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="570" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Note</text><rect x="20" y="58" width="200" height="54.75" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="81.1125" font-size="15.5" fill="#1f3b52" text-anchor="start">LCD1602 + I2C</text><text x="29" y="100.487" font-size="15.5" fill="#1f3b52" text-anchor="start">backpack</text><rect x="220" y="58" width="160" height="54.75" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="90.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">0x27 (or 0x3F)</text><rect x="380" y="58" width="380" height="54.75" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="389" y="90.8" font-size="15.5" fill="#1f3b52" text-anchor="start">Depends on the backpack chip: try both</text><rect x="20" y="112.75" width="200" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="135.863" font-size="15.5" fill="#1f3b52" text-anchor="start">MPU6050 motion</text><text x="29" y="155.238" font-size="15.5" fill="#1f3b52" text-anchor="start">sensor</text><rect x="220" y="112.75" width="160" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="145.55" font-size="15.5" fill="#1f3b52" text-anchor="middle">0x68</text><rect x="380" y="112.75" width="380" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="389" y="145.55" font-size="15.5" fill="#1f3b52" text-anchor="start">0x69 if its AD0 pin is tied high</text><rect x="20" y="167.5" width="200" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="194.925" font-size="15.5" fill="#1f3b52" text-anchor="start">MPR121 touch sensor</text><rect x="220" y="167.5" width="160" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="194.925" font-size="15.5" fill="#1f3b52" text-anchor="middle">0x5A</text><rect x="380" y="167.5" width="380" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="389" y="194.925" font-size="15.5" fill="#1f3b52" text-anchor="start">Can be moved by its ADDR pin</text></svg>
+            <div class="diagram-caption">The usual addresses. The scan is the first test for every I2C device you wire: an empty list means a wiring problem (swapped SDA and SCL, no power or ground, a loose jumper), not a software problem.</div>
+        </div>
+
+<p>An empty scan is the most common beginner problem and has three usual causes: SDA and SCL swapped, a missing ground or power connection, or the wrong pins in the <span class="code-lesson-il">I2C(...)</span> call. Check those before suspecting the module.</p>
+<h3>Part 3. What Travels on the Wires</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="26" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Step 1: tell the device which register you want (a write)</text><rect x="20" y="40" width="76" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="58" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">START</text><rect x="100" y="40" width="96" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="148" y="67.0125" font-size="14.5" fill="#1f3b52" text-anchor="middle">0x68</text><text x="148" y="85.1375" font-size="14.5" fill="#1f3b52" text-anchor="middle">write</text><rect x="200" y="40" width="70" height="62" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="235" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">ACK</text><rect x="274" y="40" width="96" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="322" y="67.0125" font-size="14.5" fill="#1f3b52" text-anchor="middle">register</text><text x="322" y="85.1375" font-size="14.5" fill="#1f3b52" text-anchor="middle">0x3B</text><rect x="374" y="40" width="70" height="62" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="409" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">ACK</text><rect x="448" y="40" width="94" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="495" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">RESTART</text><rect x="546" y="40" width="96" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="594" y="67.0125" font-size="14.5" fill="#1f3b52" text-anchor="middle">0x68</text><text x="594" y="85.1375" font-size="14.5" fill="#1f3b52" text-anchor="middle">read</text><rect x="646" y="40" width="76" height="62" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="684" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">ACK</text><text x="380" y="146" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Step 2: the device sends bytes, one per register, starting there (a read)</text><rect x="20" y="160" width="90" height="62" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="65" y="196.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">byte 1</text><rect x="114" y="160" width="70" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="149" y="196.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">ACK</text><rect x="188" y="160" width="90" height="62" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="233" y="196.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">byte 2</text><rect x="282" y="160" width="70" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="317" y="196.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">ACK</text><rect x="356" y="160" width="66" height="62" rx="6" fill="#fff" stroke="#5b6b78" stroke-width="2"/><text x="389" y="196.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">...</text><rect x="426" y="160" width="96" height="62" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="474" y="196.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">byte 14</text><rect x="526" y="160" width="80" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="566" y="196.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">NACK</text><rect x="610" y="160" width="80" height="62" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="650" y="196.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">STOP</text><rect x="20" y="250" width="14" height="14" rx="3" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="42" y="263" font-size="15" fill="#1f3b52" text-anchor="start">sent by the Pico</text><rect x="220" y="250" width="14" height="14" rx="3" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="242" y="263" font-size="15" fill="#1f3b52" text-anchor="start">sent by the device</text><text x="380" y="306" font-size="15" fill="#5b6b78" text-anchor="middle">ACK = "got it": the receiver pulls SDA low for one clock</text></svg>
+            <div class="diagram-caption">One complete register read of 14 bytes from the MPU6050. Every byte is acknowledged, and the last one is refused (NACK) to say "no more", then the Pico releases the bus with a STOP. MicroPython does all of this inside one call, but knowing the shape helps when a device behaves oddly.</div>
+        </div>
+
+<p>MicroPython wraps this pattern into three calls you will use again and again:</p>
+<ul>
+<li><span class="code-lesson-il">i2c.readfrom_mem(addr, reg, n)</span>: read <em>n</em> bytes starting at register <em>reg</em>.</li>
+<li><span class="code-lesson-il">i2c.writeto_mem(addr, reg, data)</span>: write bytes to a register.</li>
+<li><span class="code-lesson-il">i2c.writeto(addr, data)</span>: send bytes with no register address at all (the LCD backpack works this way).</li>
+</ul>
+<p>Each transaction takes real time. A byte is 9 clock cycles (8 data bits and an acknowledge), so at 400 kHz one byte takes 22.5 µs. Reading 14 bytes with the three extra bytes of overhead (address, register, address) takes 9 × 17 = 153 clocks, which is <strong>0.38 ms</strong> at 400 kHz and <strong>1.53 ms</strong> at 100 kHz. That matters when your whole sample period is 10 ms.</p>
+<h3>Part 4. The MPU6050 Motion Sensor</h3>
+<p>The MPU6050 is an <strong>inertial measurement unit (IMU)</strong>: a 3-axis accelerometer (which senses the direction and size of acceleration, including gravity), a 3-axis gyroscope (which senses rotation rate), and a temperature sensor, on one chip. It is the heart of any self-balancing or orientation-aware robot, and it will return in the Unit 3 weeks.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 318" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="26" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">registers 0x3B to 0x48: 14 bytes, two per value (high byte first)</text><rect x="24" y="44" width="92" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="70" y="77.6" font-size="16" fill="True" text-anchor="middle">ax</text><text x="70" y="120" font-size="14.5" fill="#5b6b78" text-anchor="middle">0x3B</text><rect x="124" y="44" width="92" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="170" y="77.6" font-size="16" fill="True" text-anchor="middle">ay</text><text x="170" y="120" font-size="14.5" fill="#5b6b78" text-anchor="middle">0x3D</text><rect x="224" y="44" width="92" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="270" y="77.6" font-size="16" fill="True" text-anchor="middle">az</text><text x="270" y="120" font-size="14.5" fill="#5b6b78" text-anchor="middle">0x3F</text><rect x="324" y="44" width="92" height="56" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="370" y="77.6" font-size="16" fill="True" text-anchor="middle">temp</text><text x="370" y="120" font-size="14.5" fill="#5b6b78" text-anchor="middle">0x41</text><rect x="424" y="44" width="92" height="56" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="470" y="77.6" font-size="16" fill="True" text-anchor="middle">gx</text><text x="470" y="120" font-size="14.5" fill="#5b6b78" text-anchor="middle">0x43</text><rect x="524" y="44" width="92" height="56" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="570" y="77.6" font-size="16" fill="True" text-anchor="middle">gy</text><text x="570" y="120" font-size="14.5" fill="#5b6b78" text-anchor="middle">0x45</text><rect x="624" y="44" width="92" height="56" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="670" y="77.6" font-size="16" fill="True" text-anchor="middle">gz</text><text x="670" y="120" font-size="14.5" fill="#5b6b78" text-anchor="middle">0x47</text><text x="380" y="166" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">raw value = signed 16-bit integer, range −32768 to 32767</text><rect x="20" y="184" width="180" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="110" y="209.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Quantity</text><rect x="200" y="184" width="200" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="300" y="209.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Raw → real unit</text><rect x="400" y="184" width="180" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="490" y="209.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Range setting</text><rect x="580" y="184" width="160" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="660" y="209.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">At rest, flat</text><rect x="20" y="224" width="180" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="110" y="249.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">acceleration</text><rect x="200" y="224" width="200" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="249.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">raw / 16384 = g</text><rect x="400" y="224" width="180" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="490" y="249.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">± 2 g (default)</text><rect x="580" y="224" width="160" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="660" y="249.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">az ≈ +1 g</text><rect x="20" y="264" width="180" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="110" y="289.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">rotation rate</text><rect x="200" y="264" width="200" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="300" y="289.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">raw / 131 = deg/s</text><rect x="400" y="264" width="180" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="490" y="289.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">± 250 deg/s</text><rect x="580" y="264" width="160" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="660" y="289.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">g ≈ 0 (plus bias)</text></svg>
+            <div class="diagram-caption">The MPU6050 data block. One 14-byte read returns acceleration, temperature and rotation rate together, taken at the same moment, which is better than reading them separately. The scale factors follow from the default measurement ranges; a smaller range gives finer steps.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">mpu6050.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import struct
+from math import atan2, degrees
+
+class MPU6050:
+    ACCEL_LSB_PER_G = 16384.0          # at the default +-2 g range
+    GYRO_LSB_PER_DPS = 131.0           # at the default +-250 deg/s range
+
+    def __init__(self, i2c, addr=0x68):
+        self.i2c, self.addr = i2c, addr
+        self.i2c.writeto_mem(addr, 0x6B, b'\x00')     # PWR_MGMT_1: clear the sleep bit
+        self.bias = (0.0, 0.0, 0.0)                    # gyro offsets, degrees per second
+
+    def who_am_i(self):
+        return self.i2c.readfrom_mem(self.addr, 0x75, 1)[0]    # 0x68 on a genuine part
+
+    def read(self):
+        """Return (ax, ay, az) in g, temperature in C, (gx, gy, gz) in deg/s."""
+        d = self.i2c.readfrom_mem(self.addr, 0x3B, 14)         # one read: 14 bytes in a row
+        ax, ay, az, t, gx, gy, gz = struct.unpack('&gt;hhhhhhh', d)   # big-endian signed 16-bit
+        k, s = self.ACCEL_LSB_PER_G, self.GYRO_LSB_PER_DPS
+        b = self.bias
+        return ((ax / k, ay / k, az / k), t / 340 + 36.53,
+                (gx / s - b[0], gy / s - b[1], gz / s - b[2]))
+
+    def calibrate(self, n=200):
+        """Hold the board still: average the gyro and remember it as the zero."""
+        from time import sleep_ms
+        sx = sy = sz = 0.0
+        self.bias = (0.0, 0.0, 0.0)
+        for _ in range(n):
+            g = self.read()[2]
+            sx += g[0]; sy += g[1]; sz += g[2]
+            sleep_ms(5)
+        self.bias = (sx / n, sy / n, sz / n)
+
+def roll_deg(ax, ay, az):
+    """Tilt about the x axis, from the direction gravity points."""
+    return degrees(atan2(ay, az))
+</span>
+</div>
+<p>Two details deserve attention. First, the chip starts <strong>asleep</strong>, so the constructor clears the sleep bit; reading a sleeping MPU6050 returns zeros. Second, the gyroscope never reads exactly zero at rest: it has a small constant <strong>bias</strong> (maybe half a degree per second), so <span class="code-lesson-il">calibrate()</span> averages it while the board is still and subtracts it afterwards. Skipping this makes a robot appear to rotate slowly all the time.</p>
+<p>At rest, flat on the desk, gravity points straight down, so az reads about +1 g and ax, ay about 0. Tilt the board and the gravity is shared among the axes. The <strong>tilt angle</strong> can be found from where gravity points: <span class="code-lesson-il">roll_deg(ax, ay, az)</span> returns the rotation about the x axis. Hold the board still when you use it: acceleration from motion adds to gravity and fools the estimate. (Combining it with the gyroscope to fix that is <em>sensor fusion</em>, in Unit 3.)</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">imu_demo.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400_000)
+imu = MPU6050(i2c)
+print("WHO_AM_I:", hex(imu.who_am_i()))          # 0x68 for a genuine MPU6050
+imu.calibrate()                                   # keep the board still for a second
+while True:
+    (ax, ay, az), temp, (gx, gy, gz) = imu.read()
+    print("roll %.1f deg  gyro_x %.1f deg/s" % (roll_deg(ax, ay, az), gx))
+    sleep_ms(100)
+</span>
+</div>
+<p>Some inexpensive modules carry a clone chip whose identity register returns a different value (0x70 and 0x72 are seen). They usually work with this code. The <span class="code-lesson-il">identify</span> helper below reports it so you are not surprised.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">identify.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">KNOWN = {0x27: "LCD backpack", 0x3F: "LCD backpack", 0x68: "MPU6050", 0x69: "MPU6050 (AD0 high)",
+         0x5A: "MPR121 touch"}
+
+def identify(i2c):
+    """Scan the bus and name what answers, checking the MPU6050's identity register."""
+    found = {}
+    for a in i2c.scan():
+        name = KNOWN.get(a, "unknown device")
+        if a in (0x68, 0x69):
+            who = i2c.readfrom_mem(a, 0x75, 1)[0]
+            if who != 0x68:
+                name += " (clone? WHO_AM_I = %s)" % hex(who)
+        found[hex(a)] = name
+    return found
+</span>
+</div>
+<h3>Part 5. The LCD1602 Display</h3>
+<p>A two-line, 16-character display gives your node a way to show status without a laptop. The display itself (an HD44780-type controller) normally needs about ten wires. The little board on its back, a <strong>PCF8574 port expander</strong>, turns that into I2C: each byte you send to it sets eight output pins at once, wired to the display.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="26" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">one byte to the backpack sets eight pins on the display</text><rect x="40" y="50" width="78" height="54" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="79" y="82.6" font-size="16" fill="True" text-anchor="middle">D7</text><text x="79" y="124" font-size="14.5" fill="#5b6b78" text-anchor="middle">bit 7</text><rect x="124" y="50" width="78" height="54" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="163" y="82.6" font-size="16" fill="True" text-anchor="middle">D6</text><text x="163" y="124" font-size="14.5" fill="#5b6b78" text-anchor="middle">bit 6</text><rect x="208" y="50" width="78" height="54" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="247" y="82.6" font-size="16" fill="True" text-anchor="middle">D5</text><text x="247" y="124" font-size="14.5" fill="#5b6b78" text-anchor="middle">bit 5</text><rect x="292" y="50" width="78" height="54" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="331" y="82.6" font-size="16" fill="True" text-anchor="middle">D4</text><text x="331" y="124" font-size="14.5" fill="#5b6b78" text-anchor="middle">bit 4</text><rect x="376" y="50" width="78" height="54" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="415" y="82.6" font-size="16" fill="True" text-anchor="middle">BL</text><text x="415" y="124" font-size="14.5" fill="#5b6b78" text-anchor="middle">bit 3</text><rect x="460" y="50" width="78" height="54" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="499" y="82.6" font-size="16" fill="True" text-anchor="middle">E</text><text x="499" y="124" font-size="14.5" fill="#5b6b78" text-anchor="middle">bit 2</text><rect x="544" y="50" width="78" height="54" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="583" y="82.6" font-size="16" fill="True" text-anchor="middle">RW</text><text x="583" y="124" font-size="14.5" fill="#5b6b78" text-anchor="middle">bit 1</text><rect x="628" y="50" width="78" height="54" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="667" y="82.6" font-size="16" fill="True" text-anchor="middle">RS</text><text x="667" y="124" font-size="14.5" fill="#5b6b78" text-anchor="middle">bit 0</text><text x="370" y="160" font-size="15.5" fill="#2e5a80" text-anchor="end" font-weight="bold">upper half: 4 data bits</text><text x="382" y="160" font-size="15.5" fill="#8a4526" text-anchor="start" font-weight="bold">control bits</text><text x="380" y="210" font-size="15" fill="#1f3b52" text-anchor="middle">RS: 0 = command, 1 = character    E: the "read it now" strobe    BL: backlight</text><rect x="20" y="236" width="720" height="62" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="380" y="262.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">To send one byte: send its high nibble, then its low nibble.</text><text x="380" y="282.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">For each nibble pulse E high then low; the display reads on the fall.</text></svg>
+            <div class="diagram-caption">How the backpack maps a byte to the display’s pins (the common wiring; some backpacks differ, which shows up as garbage characters). The display works in 4-bit mode, so each character is sent as two nibbles, each framed by a pulse on E.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">lcd1602.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import sleep_ms
+
+class LCD:
+    """HD44780 16x2 character display behind a PCF8574 I2C backpack (the common wiring)."""
+    RS, RW, E, BL = 0x01, 0x02, 0x04, 0x08     # bits of the expander byte; D4..D7 are bits 4..7
+
+    def __init__(self, i2c, addr=0x27, cols=16, rows=2):
+        self.i2c, self.addr, self.cols, self.rows = i2c, addr, cols, rows
+        self.light = self.BL
+        sleep_ms(50)                           # let the display power up
+        for n in (0x30, 0x30, 0x30, 0x20):     # wake it, then switch it to 4-bit mode
+            self._nibble(n)
+            sleep_ms(5)
+        self._cmd(0x28)                        # 4-bit, two lines, 5x8 font
+        self._cmd(0x0C)                        # display on, cursor off
+        self._cmd(0x06)                        # cursor moves right after each character
+        self.clear()
+
+    def _put(self, b):
+        self.i2c.writeto(self.addr, bytes([b | self.light]))
+
+    def _nibble(self, n, rs=0):                # n holds the 4 data bits in its upper half
+        self._put(n | rs)
+        self._put(n | rs | self.E)             # raise E ...
+        self._put(n | rs)                      # ... and drop it: the display reads on the fall
+
+    def _byte(self, b, rs=0):
+        self._nibble(b &amp; 0xF0, rs)             # high half first
+        self._nibble((b &lt;&lt; 4) &amp; 0xF0, rs)      # then the low half
+
+    def _cmd(self, c):
+        self._byte(c)
+        sleep_ms(2)
+
+    def clear(self):
+        self._cmd(0x01)
+
+    def text(self, s, col=0, row=0):
+        self._cmd(0x80 | (col + (0x40 if row else 0x00)))    # set the cursor position
+        for ch in s[:self.cols - col]:
+            self._byte(ord(ch), self.RS)                     # RS = 1 means "this is a character"
+
+    def line(self, s, row):
+        self.text('{:&lt;{w}}'.format(s, w=self.cols), 0, row)  # pad with spaces to wipe old text
+
+    def backlight(self, on):
+        self.light = self.BL if on else 0
+        self._put(0)
+</span>
+</div>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">lcd_demo.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">lcd = LCD(i2c)                        # address 0x27; use LCD(i2c, 0x3F) if the scan shows 0x3F
+lcd.line("Hello robot", 0)
+lcd.line("dist 23 cm", 1)
+</span>
+</div>
+<p><span class="code-lesson-il">line</span> pads the string with spaces so a short message fully replaces a longer old one: the display does not clear itself. If the backlight is on but no characters appear, turn the small blue contrast screw on the backpack; if you see rows of solid blocks, the display powered up but never received its initialisation, so check the address.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="40" width="200" height="100" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="130" y="76.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">LCD backpack VCC</text><text x="130" y="95.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">to Pico 3V3</text><text x="130" y="114.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">(safe choice)</text><rect x="280" y="40" width="210" height="100" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="385" y="77.4" font-size="14" fill="#1f3b52" text-anchor="middle">LCD backpack VCC</text><text x="385" y="94.9" font-size="14" fill="#1f3b52" text-anchor="middle">to VBUS (5 V)</text><text x="385" y="112.4" font-size="14" fill="#1f3b52" text-anchor="middle">only with pull-ups removed</text><rect x="540" y="40" width="190" height="100" rx="8" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="635" y="76.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">VBUS + pull-ups</text><text x="635" y="95.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">still fitted:</text><text x="635" y="114.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">SDA, SCL at 5 V</text><text x="130" y="178" font-size="15.5" fill="#3c8a5a" text-anchor="middle">dimmer display,</text><text x="130" y="198" font-size="15.5" fill="#3c8a5a" text-anchor="middle">adjust contrast</text><text x="385" y="178" font-size="15.5" fill="#8a4526" text-anchor="middle">brighter display;</text><text x="385" y="198" font-size="15.5" fill="#8a4526" text-anchor="middle">ask first</text><text x="635" y="178" font-size="15.5" fill="#b3261e" text-anchor="middle" font-weight="bold">can damage</text><text x="635" y="198" font-size="15.5" fill="#b3261e" text-anchor="middle" font-weight="bold">the GPIO pins</text><text x="380" y="250" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico pins are 3.3 V devices and are not rated for 5 V on an input.</text></svg>
+            <div class="diagram-caption">Powering the LCD backpack. Many backpacks have pull-up resistors tied to their own supply pin. If that pin is 5 V, the I2C wires idle at 5 V, which the Pico’s pins cannot take. Power the backpack from 3V3 first; the instructor will show you how to check for and remove its pull-ups if you want the 5 V version.</div>
+        </div>
+
+<p>Check before you wire: with the backpack unpowered, a multimeter on resistance between SDA and the VCC pin will read about 4.7 kΩ if the backpack carries a pull-up to VCC.</p>
+<h3>Part 6. The MPR121 Touch Sensor</h3>
+<p>The MPR121 senses touch with no moving parts: it measures the small change in capacitance when a finger approaches one of its 12 pads, and tells you which are touched. It needs a little configuration (thresholds that say how big a change counts as a touch) and then a two-byte read:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">mpr121.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import sleep_ms
+
+class MPR121:
+    """12-channel capacitive touch sensor."""
+    def __init__(self, i2c, addr=0x5A):
+        self.i2c, self.addr = i2c, addr
+        i2c.writeto_mem(addr, 0x80, b'\x63')            # soft reset
+        sleep_ms(5)
+        i2c.writeto_mem(addr, 0x5E, b'\x00')            # stop mode: settings can be changed
+        for e in range(12):                              # thresholds for each electrode
+            i2c.writeto_mem(addr, 0x41 + 2 * e, b'\x0C')    # touch threshold
+            i2c.writeto_mem(addr, 0x42 + 2 * e, b'\x06')    # release threshold
+        i2c.writeto_mem(addr, 0x5E, b'\x8F')            # run: electrodes enabled
+
+    def touched(self):
+        """Bit n of the result is 1 while pad n is touched."""
+        lo, hi = self.i2c.readfrom_mem(self.addr, 0x00, 2)
+        return ((hi &lt;&lt; 8) | lo) &amp; 0x0FFF
+</span>
+</div>
+<p>Wire it like any I2C device and print <span class="code-lesson-il">bin(pad.touched())</span> while you touch a pad. The thresholds above (12 to touch, 6 to release) are common starting values; if a pad flickers, raise them. Check the datasheet or your module’s documentation for anything specific to your board.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Read the Scan.</strong> A scan prints <span class="code-lesson-il">['0x27', '0x5a', '0x68']</span>. Which device is each address? A student plugs in a second MPU6050 and the scan shows only the same three addresses. Why, and what is the fix?</p>
+        <p><strong>Exercise 2: Bus Timing.</strong> How long does it take to read 6 bytes (just the accelerometer) at 400 kHz, using 9 × (bytes + 3) clocks? Compare with the 14-byte read.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Tilt From Raw Numbers.</strong> The raw accelerometer values are ay = 8192 and az = 14189. What are ay and az in g, and what roll angle is that? Check it in code.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Name the Bus.</strong> Test <span class="code-lesson-il">identify</span> without hardware by giving it a fake I2C object that reports addresses 0x27, 0x68 and 0x50, where the device at 0x68 answers 0x70 to the WHO_AM_I read. What does it return?</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Read the Scan</summary>
+<p>0x27 is the LCD backpack, 0x5A the MPR121 and 0x68 the MPU6050. Two MPU6050s at the same address 0x68 cannot be told apart: both answer at once and the bus fails or returns garbage. Tie one module’s <strong>AD0</strong> pin to 3.3 V to move it to <strong>0x69</strong>, and then both appear on the scan.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Bus Timing</summary>
+<p>6 bytes: 9 × 9 = 81 clocks, which is 81 / 400 000 = <strong>0.20 ms</strong>. The 14-byte read takes 0.38 ms, only 1.9 times as long for 2.3 times as many bytes, because the fixed overhead is shared. Reading everything in one transaction is cheaper than three separate ones.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Tilt From Raw Numbers</summary>
+<p>ay = 8192 / 16384 = <strong>0.5 g</strong> and az = 14189 / 16384 = <strong>0.866 g</strong>. The roll is atan2(0.5, 0.866) = <strong>30°</strong>, as the sine of 30° is 0.5 and the cosine is 0.866: the board is tilted 30° about the x axis.</p><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_roll.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">ay, az = 8192 / 16384, 14189 / 16384
+print(ay, round(az, 3), round(roll_deg(0, ay, az), 1))    # 0.5 0.866 30.0
+</span>
+</div>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Name the Bus</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_identify.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class FakeI2C:
+    def scan(self):
+        return [0x27, 0x68, 0x50]
+    def readfrom_mem(self, addr, reg, n):
+        return bytes([0x70])            # the "MPU6050" claims to be a 0x70 clone
+
+print(identify(FakeI2C()))
+# {'0x27': 'LCD backpack', '0x68': 'MPU6050 (clone? WHO_AM_I = 0x70)', '0x50': 'unknown device'}
+</span>
+</div><p>The fake class has only the two methods <span class="code-lesson-il">identify</span> calls. Replacing hardware with a small object like this is how you test code that you cannot run on your laptop, and it is the same trick you used on the button in the first week.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Say what SDA, SCL, pull-ups and an address are.</li>
+            <li>Run a scan and read the result, and name three usual causes of an empty scan.</li>
+            <li>Read several registers in one call and convert the raw numbers to g and degrees per second.</li>
+            <li>Show text on the LCD, and explain why the backpack must not be powered so that the I2C wires idle at 5 V.</li>
+            <li>Estimate how long an I2C transaction takes at 100 kHz and 400 kHz.</li>
+        </ol>
+
+    </body>
+</html>
