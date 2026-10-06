@@ -43,6 +43,15 @@
     cursor: pointer;
 }
 .curric-clear-btn:hover { border-color: var(--ink); color: var(--ink); }
+.curric-btn-pair { display: flex; gap: 4px; }
+.curric-dept-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.15);
+    flex-shrink: 0;
+}
 
 .curric-control-title {
     font-weight: bold;
@@ -349,6 +358,9 @@
 .curric-cell-elective {
     color: #4a3b0f;
 }
+/* Star (required) / hollow circle (elective) in a program cell. */
+.curric-mark { font-size: calc(17px * var(--mod-font-size)); line-height: 1; color: var(--ink); }
+.curric-col-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
 .curric-cell-blank {
     background: transparent;
 }

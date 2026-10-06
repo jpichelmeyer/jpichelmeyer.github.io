@@ -5,12 +5,12 @@
 // Three static subpages: Teaching, Scholarship, Service.
 //
 // Prefix pill colors are read from the same data file the Curriculum
-// Planner uses (data/csc_curriculum.json -> prefixColors) and rendered
+// Planner uses (data/curriculum.json -> prefixColors) and rendered
 // with its .curric-prefix-pill class, so the two always match.
 
 import { esc } from './__utils.js';
 
-const CURRICULUM_URL = './data/csc_curriculum.json';
+const CURRICULUM_URL = './data/curriculum.json';
 const FALLBACK_PREFIX_COLOR = '#d8d5cf';
 
 // ---------------------------------------------------------------------
