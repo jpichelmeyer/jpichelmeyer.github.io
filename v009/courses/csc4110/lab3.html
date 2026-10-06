@@ -15,149 +15,219 @@
     </head>
 
     <body>
-        <p>Before layering MQTT on top of anything next week, this lab confirms the plumbing underneath it actually works: your Pico on WiFi, the Pi 3B+ reachable at a known address and port, and a real TCP connection succeeding between them. No MQTT yet, deliberately, so that if something goes wrong next week, you'll already know the network path itself isn't the problem.</p>
+        <p>Lab 3 is where the first four weeks meet. You assemble a node from the parts you have built (an IMU, an ultrasonic rangefinder, an event switch, a display, and a network link), run them as one cooperative loop, and measure how much it sends, how fast its loop runs, and what happens when the network disappears.</p>
 
+<h3>What You Will Build</h3>
+<p>Your first complete node: it <strong>senses</strong> (tilt from the IMU, distance from the ultrasonic sensor, magnet passes from the reed switch), <strong>thinks</strong> (filters each reading and decides when to report), shows its state on the <strong>LCD</strong>, and <strong>reports</strong> to the class broker. Then you will deliberately break its network and measure how it copes. This is the kind of node that Lab Practical 1 tests.</p>
         <div class="diagram">
-<svg viewBox="0 0 760 306" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d4a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="30" y="70" width="160" height="110" rx="12" fill="#eef4f9" stroke="#2e5a80" stroke-width="3"></rect><text x="110" y="104" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">Your Pico</text><text x="110" y="132" font-size="15.6" fill="#5b6b78" text-anchor="middle">on the WiFi</text><text x="110" y="160.6" font-size="15.6" fill="#5b6b78" text-anchor="middle">network</text><rect x="300" y="70" width="160" height="110" rx="12" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="3"></rect><text x="380" y="104" font-size="20.8" fill="#5b6b78" text-anchor="middle" font-weight="bold">Router</text><text x="380" y="132" font-size="15.6" fill="#5b6b78" text-anchor="middle">carries the</text><text x="380" y="160.6" font-size="15.6" fill="#5b6b78" text-anchor="middle">traffic</text><rect x="570" y="70" width="160" height="110" rx="12" fill="#fbf1ea" stroke="#c0693f" stroke-width="3"></rect><text x="650" y="104" font-size="20.8" fill="#8a4526" text-anchor="middle" font-weight="bold">Pi 3B+</text><text x="650" y="132" font-size="15.6" fill="#5b6b78" text-anchor="middle">mosquitto running,</text><text x="650" y="160.6" font-size="15.6" fill="#5b6b78" text-anchor="middle">listening on :1883</text><path d="M194,125 L296,125" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d4a0)" marker-start="url(#d4a0)"></path><path d="M464,125 L566,125" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d4a0)" marker-start="url(#d4a0)"></path><circle cx="30" cy="64" r="16" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><text x="30" y="70" font-size="18.2" fill="#fff" text-anchor="middle" font-weight="bold">1</text><circle cx="570" cy="64" r="16" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><text x="570" y="70" font-size="18.2" fill="#fff" text-anchor="middle" font-weight="bold">2</text><circle cx="245" cy="64" r="16" fill="#c0693f" stroke="#fff" stroke-width="2.5"></circle><text x="245" y="70" font-size="18.2" fill="#fff" text-anchor="middle" font-weight="bold">3</text><text x="380" y="216" font-size="16.2" fill="#5b6b78" text-anchor="middle">1   your Pico joined the network</text><text x="380" y="247.104" font-size="16.2" fill="#5b6b78" text-anchor="middle">2   the broker is up and listening</text><text x="380" y="278.208" font-size="16.2" fill="#5b6b78" text-anchor="middle">3   nothing blocks the path (wrong IP, other network, firewall)</text></svg>
-            <div class="diagram-caption">Three separate things have to be true for this to work: your Pico actually on the network, the Pi's broker software actually running and listening, and nothing (a firewall, a typo'd IP) blocking the path between them. Testing with plain TCP isolates that from any MQTT-specific issue next week.</div>
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="290" y="100" width="180" height="100" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="135.6" font-size="16" fill="#1f3b52" text-anchor="middle">Pico W</text><text x="380" y="155.6" font-size="16" fill="#1f3b52" text-anchor="middle">main loop of</text><text x="380" y="175.6" font-size="16" fill="#1f3b52" text-anchor="middle">small jobs</text><rect x="20" y="30" width="180" height="60" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="110" y="55.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">MPU6050</text><text x="110" y="75.1125" font-size="15.5" fill="#1f3b52" text-anchor="middle">tilt (I2C)</text><rect x="20" y="120" width="180" height="60" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="110" y="145.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">HC-SR04</text><text x="110" y="165.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">distance (pulses)</text><rect x="20" y="210" width="180" height="60" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="110" y="235.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">Reed switch</text><text x="110" y="255.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">magnet events</text><rect x="560" y="30" width="180" height="60" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="650" y="55.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">LCD1602</text><text x="650" y="75.1125" font-size="15.5" fill="#1f3b52" text-anchor="middle">status (I2C)</text><rect x="560" y="120" width="180" height="60" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="650" y="145.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">net.py</text><text x="650" y="165.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">WiFi + MQTT</text><rect x="560" y="210" width="180" height="60" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="650" y="235.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">class broker</text><text x="650" y="255.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">your laptop</text><line x1="200" y1="60" x2="283.636" y2="143.636" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="290.0,150.0 286.1,138.3 278.3,146.1" fill="#1f3b52"/><line x1="200" y1="150" x2="281" y2="150" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="290.0,150.0 279.0,144.5 279.0,155.5" fill="#1f3b52"/><line x1="200" y1="240" x2="283.636" y2="156.364" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="290.0,150.0 278.3,153.9 286.1,161.7" fill="#1f3b52"/><line x1="470" y1="130" x2="552.896" y2="65.5255" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="560.0,60.0 547.9,62.4 554.7,71.1" fill="#1f3b52"/><line x1="470" y1="150" x2="551" y2="150" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="560.0,150.0 549.0,144.5 549.0,155.5" fill="#1f3b52"/><line x1="650" y1="180" x2="650" y2="201" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="650.0,210.0 655.5,199.0 644.5,199.0" fill="#1f3b52"/></svg>
+            <div class="diagram-caption">The Lab 3 node. Three sensors feed one program; the program drives a display and a network link. Nothing in it is new: every piece comes from the first three weeks.</div>
         </div>
 
-                <div class="diagram">
-<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d54a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="14" y="14" width="732" height="300" rx="10" fill="#f7f9fb" stroke="#d0dae2" stroke-width="1.5"></rect><text x="380" y="42" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">The classroom network, with the addresses that matter</text><rect x="40" y="130" width="170" height="90" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="3"></rect><text x="125" y="166" font-size="20.8" fill="#1f3b52" text-anchor="middle" font-weight="bold">Your Pico WH</text><text x="125" y="190" font-size="19.5" fill="#1f3b52" text-anchor="middle" style="font-family:'Courier New',monospace">192.168.1.57</text><text x="125" y="210" font-size="16.2" fill="#5b6b78" text-anchor="middle">(from DHCP)</text><rect x="295" y="130" width="170" height="90" rx="10" fill="#f3f3ef" stroke="#8a8a8a" stroke-width="3"></rect><text x="380" y="166" font-size="20.8" fill="#5b6b78" text-anchor="middle" font-weight="bold">Router / AP</text><text x="380" y="190" font-size="19.5" fill="#5b6b78" text-anchor="middle" style="font-family:'Courier New',monospace">192.168.1.1</text><text x="380" y="210" font-size="15.2" fill="#5b6b78" text-anchor="middle">(the gateway)</text><rect x="550" y="130" width="180" height="90" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="3"></rect><text x="640" y="166" font-size="20.8" fill="#8a4526" text-anchor="middle" font-weight="bold">Pi 3B+ broker</text><text x="640" y="190" font-size="17" fill="#8a4526" text-anchor="middle" style="font-family:'Courier New',monospace">192.168.1.42:1883</text><text x="640" y="210" font-size="16.2" fill="#5b6b78" text-anchor="middle">mosquitto listening</text><path d="M210,175 L291,175" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d54a0)" marker-start="url(#d54a0)"></path><path d="M465,175 L546,175" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d54a0)" marker-start="url(#d54a0)"></path><text x="250" y="160" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">WiFi</text><text x="505" y="160" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">Ethernet or WiFi</text><text x="380" y="270" font-size="15.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">Lab 3 asks one question: can a TCP connection from the left box reach port 1883 on the right box?</text><text x="380" y="294" font-size="15.2" fill="#5b6b78" text-anchor="middle">Everything MQTT does next week depends on the answer being yes.</text></svg>
-            <div class="diagram-caption">The three devices in this lab and the addresses that matter. The lab's single question is whether a connection from the left box can reach port 1883 on the right box.</div>
+<h3>Wiring</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 461.5" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="220" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="130" y="38.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Device and pin</text><rect x="240" y="14" width="190" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="335" y="38.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Pico pin</text><rect x="430" y="14" width="310" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="585" y="38.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Notes</text><rect x="20" y="52" width="220" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="84" font-size="15" fill="#1f3b52" text-anchor="start">LCD backpack VCC</text><rect x="240" y="52" width="190" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="84" font-size="15" fill="#1f3b52" text-anchor="start">3V3 (pin 36)</text><rect x="430" y="52" width="310" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="74.625" font-size="15" fill="#1f3b52" text-anchor="start">Powered from 3V3: safe for the I2C</text><text x="439" y="93.375" font-size="15" fill="#1f3b52" text-anchor="start">wires</text><rect x="20" y="105.5" width="220" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="129.75" font-size="15" fill="#1f3b52" text-anchor="start">LCD backpack SDA / SCL</text><rect x="240" y="105.5" width="190" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="129.75" font-size="15" fill="#1f3b52" text-anchor="start">GP4 / GP5</text><rect x="430" y="105.5" width="310" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="129.75" font-size="15" fill="#1f3b52" text-anchor="start">Shared I2C bus 0</text><rect x="20" y="143.5" width="220" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="167.75" font-size="15" fill="#1f3b52" text-anchor="start">MPU6050 VCC</text><rect x="240" y="143.5" width="190" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="167.75" font-size="15" fill="#1f3b52" text-anchor="start">3V3 (pin 36)</text><rect x="430" y="143.5" width="310" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="181.5" width="220" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="205.75" font-size="15" fill="#1f3b52" text-anchor="start">MPU6050 SDA / SCL</text><rect x="240" y="181.5" width="190" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="205.75" font-size="15" fill="#1f3b52" text-anchor="start">GP4 / GP5</text><rect x="430" y="181.5" width="310" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="205.75" font-size="15" fill="#1f3b52" text-anchor="start">Same two wires as the LCD</text><rect x="20" y="219.5" width="220" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="243.75" font-size="15" fill="#1f3b52" text-anchor="start">Both modules GND</text><rect x="240" y="219.5" width="190" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="243.75" font-size="15" fill="#1f3b52" text-anchor="start">any GND</text><rect x="430" y="219.5" width="310" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="243.75" font-size="15" fill="#1f3b52" text-anchor="start">One common ground</text><rect x="20" y="257.5" width="220" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="281.75" font-size="15" fill="#1f3b52" text-anchor="start">HC-SR04 VCC</text><rect x="240" y="257.5" width="190" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="281.75" font-size="15" fill="#1f3b52" text-anchor="start">VBUS (pin 40)</text><rect x="430" y="257.5" width="310" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="281.75" font-size="15" fill="#1f3b52" text-anchor="start">5 V from USB</text><rect x="20" y="295.5" width="220" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="319.75" font-size="15" fill="#1f3b52" text-anchor="start">HC-SR04 TRIG</text><rect x="240" y="295.5" width="190" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="319.75" font-size="15" fill="#1f3b52" text-anchor="start">GP10</text><rect x="430" y="295.5" width="310" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="333.5" width="220" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="357.75" font-size="15" fill="#1f3b52" text-anchor="start">HC-SR04 ECHO</text><rect x="240" y="333.5" width="190" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="357.75" font-size="15" fill="#1f3b52" text-anchor="start">1 kΩ, then GP11</text><rect x="430" y="333.5" width="310" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="357.75" font-size="15" fill="#1f3b52" text-anchor="start">2 kΩ from that point to GND (divider)</text><rect x="20" y="371.5" width="220" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="395.75" font-size="15" fill="#1f3b52" text-anchor="start">HC-SR04 GND</text><rect x="240" y="371.5" width="190" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="395.75" font-size="15" fill="#1f3b52" text-anchor="start">any GND</text><rect x="430" y="371.5" width="310" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="409.5" width="220" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="433.75" font-size="15" fill="#1f3b52" text-anchor="start">Reed switch, one leg</text><rect x="240" y="409.5" width="190" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="433.75" font-size="15" fill="#1f3b52" text-anchor="start">GP12</text><rect x="430" y="409.5" width="310" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="439" y="433.75" font-size="15" fill="#1f3b52" text-anchor="start">The other leg to GND</text></svg>
+            <div class="diagram-caption">The Lab 3 wire list. Build and test one device at a time: scan the I2C bus first, then add the rangefinder, then the reed switch. If something breaks, remove the newest wire.</div>
         </div>
 
-        <h3>Before You Start</h3>
-        <p>You'll need the Pi 3B+'s IP address on the classroom network, get this from your instructor or read it directly off the Pi if you have access to it (<span class="code-lesson-il">hostname -I</span> at a Pi terminal). Confirm the Pi's mosquitto service is installed and running, <span class="code-lesson-il">sudo systemctl status mosquitto</span> should show <span class="code-lesson-il">active (running)</span>; this course's broker setup is covered separately, today you're just a client confirming it's reachable.</p>
-
-        <h3>Procedure</h3>
-        <ol>
-            <li>Connect your Pico to the classroom WiFi (last lesson's script) and confirm you get a valid IP address back.</li>
-            <li>Using MicroPython's built-in <span class="code-lesson-il">socket</span> module, a lower-level networking tool than anything used so far, open a raw TCP connection to the Pi's IP address on port 1883.</li>
-            <li>Confirm the connection succeeds without error, and then cleanly close it.</li>
-            <li>Deliberately connect to the wrong port (try 9999, almost certainly nothing is listening there) and observe what error MicroPython raises. Compare that error to what happened when you connected to the correct port.</li>
-        </ol>
+<p>Two checks before powering on. With a multimeter in resistance mode, confirm that the ECHO divider node is 1 kΩ from the module and 2 kΩ to ground. And confirm the LCD backpack is wired to 3V3 and not to VBUS, as explained in the I2C lesson.</p>
+<h3>Step 1. Test Each Device Alone</h3>
+<ol>
+<li>Run <span class="code-lesson-il">scan.py</span>: you should see the LCD (0x27 or 0x3F) and the MPU6050 (0x68). Fix the wiring until you do.</li>
+<li>Run <span class="code-lesson-il">imu_demo.py</span> and tilt the board: the roll should change smoothly and read near 0° when flat. Compare against a phone’s level app to within about 5°.</li>
+<li>Run the blocking <span class="code-lesson-il">distance_cm()</span> against a ruler at 10, 20 and 40 cm. Note the error. Then switch to the <span class="code-lesson-il">Ranger</span> class and repeat.</li>
+<li>Run the <span class="code-lesson-il">PulseCounter</span> on GP12 and pass a magnet by the reed switch once, slowly and then quickly. One pass must count exactly once.</li>
+<li>Copy <span class="code-lesson-il">net.py</span> and <span class="code-lesson-il">config.py</span> and publish the temperature example. See your message on the laptop.</li>
+</ol>
+<h3>Step 2. The Node Program</h3>
+<p>All the pieces are in the files you have already written; the node program only arranges them. Read it before you run it: each <span class="code-lesson-il">Every(...)</span> is a job with its own period, and notice that <strong>sampling</strong> rates (how often we measure) are different from <strong>publishing</strong> rates (how often we report).</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 363.0" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="200" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="120" y="38.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Job</text><rect x="220" y="14" width="120" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="280" y="38.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Period</text><rect x="340" y="14" width="120" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="400" y="38.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Rate</text><rect x="460" y="14" width="280" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="600" y="38.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">What it does</text><rect x="20" y="52" width="200" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="76.25" font-size="15" fill="#1f3b52" text-anchor="start">Read IMU, filter roll</text><rect x="220" y="52" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="280" y="76.25" font-size="15" fill="#1f3b52" text-anchor="middle">50 ms</text><rect x="340" y="52" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="400" y="76.25" font-size="15" fill="#1f3b52" text-anchor="middle">20 Hz</text><rect x="460" y="52" width="280" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="76.25" font-size="15" fill="#1f3b52" text-anchor="start">EMA(0.3) on the roll angle</text><rect x="20" y="90" width="200" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="112.625" font-size="15" fill="#1f3b52" text-anchor="start">Start a range</text><text x="29" y="131.375" font-size="15" fill="#1f3b52" text-anchor="start">measurement</text><rect x="220" y="90" width="120" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="280" y="122" font-size="15" fill="#1f3b52" text-anchor="middle">100 ms</text><rect x="340" y="90" width="120" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="400" y="122" font-size="15" fill="#1f3b52" text-anchor="middle">10 Hz</text><rect x="460" y="90" width="280" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="112.625" font-size="15" fill="#1f3b52" text-anchor="start">Interrupt gives the width;</text><text x="469" y="131.375" font-size="15" fill="#1f3b52" text-anchor="start">EMA(0.4)</text><rect x="20" y="143.5" width="200" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="167.75" font-size="15" fill="#1f3b52" text-anchor="start">Publish tele/imu</text><rect x="220" y="143.5" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="280" y="167.75" font-size="15" fill="#1f3b52" text-anchor="middle">200 ms</text><rect x="340" y="143.5" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="400" y="167.75" font-size="15" fill="#1f3b52" text-anchor="middle">5 Hz</text><rect x="460" y="143.5" width="280" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="167.75" font-size="15" fill="#1f3b52" text-anchor="start">Latest filtered roll</text><rect x="20" y="181.5" width="200" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="205.75" font-size="15" fill="#1f3b52" text-anchor="start">Publish tele/range</text><rect x="220" y="181.5" width="120" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="280" y="205.75" font-size="15" fill="#1f3b52" text-anchor="middle">500 ms</text><rect x="340" y="181.5" width="120" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="400" y="205.75" font-size="15" fill="#1f3b52" text-anchor="middle">2 Hz</text><rect x="460" y="181.5" width="280" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="205.75" font-size="15" fill="#1f3b52" text-anchor="start">Latest filtered distance</text><rect x="20" y="219.5" width="200" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="243.75" font-size="15" fill="#1f3b52" text-anchor="start">Update the LCD</text><rect x="220" y="219.5" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="280" y="243.75" font-size="15" fill="#1f3b52" text-anchor="middle">500 ms</text><rect x="340" y="219.5" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="400" y="243.75" font-size="15" fill="#1f3b52" text-anchor="middle">2 Hz</text><rect x="460" y="219.5" width="280" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="243.75" font-size="15" fill="#1f3b52" text-anchor="start">Roll, distance, network status</text><rect x="20" y="257.5" width="200" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="281.75" font-size="15" fill="#1f3b52" text-anchor="start">Publish tele/node</text><rect x="220" y="257.5" width="120" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="280" y="281.75" font-size="15" fill="#1f3b52" text-anchor="middle">5 s</text><rect x="340" y="257.5" width="120" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="400" y="281.75" font-size="15" fill="#1f3b52" text-anchor="middle">0.2 Hz</text><rect x="460" y="257.5" width="280" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="281.75" font-size="15" fill="#1f3b52" text-anchor="start">Message counts and longest loop</text><rect x="20" y="295.5" width="200" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="327.5" font-size="15" fill="#1f3b52" text-anchor="start">Reed event</text><rect x="220" y="295.5" width="120" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="280" y="318.125" font-size="15" fill="#1f3b52" text-anchor="middle">when it</text><text x="280" y="336.875" font-size="15" fill="#1f3b52" text-anchor="middle">happens</text><rect x="340" y="295.5" width="120" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="400" y="327.5" font-size="15" fill="#1f3b52" text-anchor="middle">event</text><rect x="460" y="295.5" width="280" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="327.5" font-size="15" fill="#1f3b52" text-anchor="start">Publish evt/reed once per pass</text></svg>
+            <div class="diagram-caption">The job table of the Lab 3 node. Sampling faster than you publish lets the filters work on many readings and sends only the result, which keeps the network quiet: about 7 messages per second in total, under the class limit of 10.</div>
+        </div>
 
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">main.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">import network, socket
-from time import sleep
+<span class="code-lesson-bl"># main.py for Lab 3: an instrumented node
+import net
+from machine import I2C, Pin
+from time import ticks_ms, ticks_diff
+from mpu6050 import MPU6050, roll_deg      # from the I2C lesson
+from lcd1602 import LCD                    # from the I2C lesson
+from ranger import Ranger                  # from the Pulses lesson
+from pulsecounter import PulseCounter      # from the Pulses lesson
+from every import Every                    # from the Pulses lesson
+from filters import EMA                    # from the Filtering lesson
 
-SSID = "your-network-name"
-PASSWORD = "your-network-password"
-BROKER_IP = "192.168.1.42"   # replace with your Pi's actual address
-BROKER_PORT = 1883
+i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400_000)
+imu = MPU6050(i2c)
+imu.calibrate()                            # keep the board still for this second
+lcd = LCD(i2c)
+ranger = Ranger()
+reed = PulseCounter(12)
 
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(SSID, PASSWORD)
-while not wlan.isconnected():
-    sleep(0.5)
-print("on WiFi, IP:", wlan.ifconfig()[0])
+roll_f, cm_f = EMA(0.3), EMA(0.4)
+every_imu, every_range = Every(50), Every(100)            # sampling: 20 Hz and 10 Hz
+pub_imu, pub_range = Every(200), Every(500)               # publishing: 5 Hz and 2 Hz
+every_lcd, every_stats = Every(500), Every(5000)
 
-addr_info = socket.getaddrinfo(BROKER_IP, BROKER_PORT)[0][-1]
-s = socket.socket()
+roll, cm = 0.0, None
+reed_seen = 0
+loop_max, last = 0, ticks_ms()
 
-try:
-    s.connect(addr_info)
-    print("connected to broker machine on port", BROKER_PORT)
-except OSError as e:
-    print("connection failed:", e)
-finally:
-    s.close()
+def on_status(s):
+    lcd.line("net " + s, 1)
+net.link().on_status = on_status
+ranger.start()
+
+def step():
+    global roll, cm, reed_seen, loop_max, last
+    now = ticks_ms()
+    loop_max = max(loop_max, ticks_diff(now, last))        # the longest gap between passes
+    last = now
+
+    if every_imu.due():
+        (ax, ay, az), _, _ = imu.read()
+        roll = roll_f.update(roll_deg(ax, ay, az))
+
+    if ranger.update() and ranger.cm is not None:
+        cm = cm_f.update(ranger.cm)
+    if every_range.due() and not ranger.busy:
+        ranger.start()
+
+    if pub_imu.due():
+        net.publish("tele/imu", {"roll": round(roll, 1)})
+    if pub_range.due() and cm is not None:
+        net.publish("tele/range", {"cm": round(cm, 1)})
+
+    n = reed.count()
+    if n != reed_seen:                                      # an event: publish it when it happens
+        reed_seen = n
+        net.publish("evt/reed", {"n": n})
+
+    if every_lcd.due():
+        lcd.line("r%6.1f d%s" % (roll, "---" if cm is None else "%5.1f" % cm), 0)
+
+    if every_stats.due():
+        lk = net.link()
+        net.publish("tele/node", {"sent": lk.sent, "queued": len(lk.log),
+                                  "dropped": lk.dropped, "loop_max_ms": loop_max})
+        loop_max = 0
+
+while True:
+    step()
 </span>
 </div>
-
-        <p>A successful run here doesn't mean MQTT is working, a raw TCP connection carries no MQTT-specific information at all yet, it just proves the broker's listening socket is reachable from your Pico over the actual classroom network. That's exactly the layer this lab is isolating: next week's <span class="code-lesson-il">umqtt.simple</span> library builds its MQTT logic on top of a socket connection very much like this one.</p>
-
-        <h3>If It Doesn't Connect</h3>
-        <ul>
-            <li><strong>Double-check the IP address.</strong> A typo'd digit is the single most common cause.</li>
-            <li><strong>Confirm the Pi and Pico are on the same network.</strong> A Pico connected to a phone hotspot, say, can't reach a Pi on the classroom WiFi, there's no path between them regardless of how correct the IP is.</li>
-            <li><strong>Confirm mosquitto is actually running</strong> on the Pi (see "Before You Start" above). A correct address and port with nothing listening behaves identically, from the Pico's side, to a wrong address.</li>
-        </ul>
-
-                <div class="diagram">
-<svg viewBox="0 0 760 320" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="30" font-size="22.1" fill="#1f3b52" text-anchor="middle" font-weight="bold">Three possible results of s.connect((ip, port))</text><rect x="20" y="52" width="720" height="72" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="36" y="82" font-size="20.8" fill="#4a8a4a" text-anchor="start" font-weight="bold" style="font-family:'Courier New',monospace">connects, no error</text><text x="36" y="106" font-size="16.6" fill="#1f3b52" text-anchor="start">the address is right and mosquitto is listening</text><rect x="20" y="138" width="720" height="72" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="36" y="168" font-size="20.8" fill="#c0693f" text-anchor="start" font-weight="bold" style="font-family:'Courier New',monospace">OSError: [Errno 111] ECONNREFUSED</text><text x="36" y="192" font-size="16.6" fill="#1f3b52" text-anchor="start">the machine answered, but nothing is listening on that port (broker not running, or wrong port)</text><rect x="20" y="224" width="720" height="72" rx="10" fill="#fff3f0" stroke="#d64545" stroke-width="2.5"></rect><text x="36" y="254" font-size="20.8" fill="#d64545" text-anchor="start" font-weight="bold" style="font-family:'Courier New',monospace">OSError: [Errno 110] ETIMEDOUT</text><text x="36" y="278" font-size="16.6" fill="#1f3b52" text-anchor="start">no answer at all: wrong IP address, different network, or the device is off</text><text x="380" y="312" font-size="16.9" fill="#5b6b78" text-anchor="middle">The exact error text differs a little between MicroPython versions; the meaning does not.</text></svg>
-            <div class="diagram-caption">The three outcomes of a TCP connection attempt and what each one means. Reading the error is half of debugging a network problem.</div>
+<p>The loop body is a function <span class="code-lesson-il">step()</span>, called forever. That makes it testable (you can call <span class="code-lesson-il">step()</span> yourself with a simulated clock) and keeps the structure plain: one pass is one trip around the cooperative loop of the Pulses lesson. <span class="code-lesson-il">loop_max</span> records the longest gap between passes, which is the figure that tells you whether the node is keeping up.</p>
+<h3>Step 3. Measure Your Budget</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="34" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">messages per second</text><rect x="150" y="52" width="240" height="44" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1"/><text x="270" y="80" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">tele/imu</text><rect x="390" y="52" width="96" height="44" rx="3" fill="#c0693f" stroke="#c0693f" stroke-width="1"/><text x="438" y="80" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">tele/range</text><rect x="486" y="52" width="9.6" height="44" rx="3" fill="#3c8a5a" stroke="#3c8a5a" stroke-width="1"/><text x="507.6" y="80" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">7.2 total</text><line x1="630" y1="40" x2="630" y2="112" stroke="#b3261e" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4"/><text x="630" y="132" font-size="15" fill="#b3261e" text-anchor="middle" font-weight="bold">class limit: 10 per second</text><rect x="20" y="160" width="720" height="70" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="380" y="190.875" font-size="15" fill="#1f3b52" text-anchor="middle">Wire size: roughly 70 bytes per message (topic about 20, payload about 45,</text><text x="380" y="209.625" font-size="15" fill="#1f3b52" text-anchor="middle">MQTT header about 5), so 7.2 messages per second is about 500 bytes per second.</text></svg>
+            <div class="diagram-caption">The Lab 3 network budget. The messages are small, and the total stays under the class limit with room for event messages (reed passes, and later commands).</div>
         </div>
 
-        <h3>Lab Report</h3>
-        <ol>
-            <li>Report your Pico's IP address and the Pi's IP address you connected to.</li>
-            <li>Report what happened connecting to port 1883 versus port 9999, including the exact error text for the failed attempt.</li>
-            <li>If you hit a connection problem before resolving it, describe what it was and which of the three checks above (or something else) fixed it. "Connected on the first try" is a completely fine answer too.</li>
-        </ol>
+<p>Collect these numbers from your own node over two minutes: the messages per second on the broker (count them with <span class="code-lesson-il">mosquitto_sub</span>), the typical and the worst <span class="code-lesson-il">loop_max_ms</span> from <span class="code-lesson-il">tele/node</span>, and how long the LCD update takes (time it with <span class="code-lesson-il">profile</span> from the sampling lesson; writing 16 characters is about a hundred small I2C writes).</p>
+<h3>Step 4. The Offline Drill</h3>
+<p>Now break it. With your node publishing normally, take the network away: turn off your phone hotspot that the Pico is on, or ask the instructor to pause the class access point. Leave it off for 20 seconds, then restore it. Watch three things: the LCD, the <span class="code-lesson-il">loop_max_ms</span> figure, and the message numbers arriving at the broker.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 407.75" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="60" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="50" y="39.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="80" y="14" width="400" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="280" y="39.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Do this</text><rect x="480" y="14" width="260" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="610" y="39.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Expect</text><rect x="20" y="54" width="60" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="86" font-size="15" fill="#1f3b52" text-anchor="middle">1</text><rect x="80" y="54" width="400" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="86" font-size="15" fill="#1f3b52" text-anchor="start">Cut the network for 20 s</text><rect x="480" y="54" width="260" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="76.625" font-size="15" fill="#1f3b52" text-anchor="start">LCD shows NO WIFI (or NO</text><text x="489" y="95.375" font-size="15" fill="#1f3b52" text-anchor="start">BROKER) within about 20 s</text><rect x="20" y="107.5" width="60" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="139.5" font-size="15" fill="#1f3b52" text-anchor="middle">2</text><rect x="80" y="107.5" width="400" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="139.5" font-size="15" fill="#1f3b52" text-anchor="start">Watch the sensor readings on the LCD</text><rect x="480" y="107.5" width="260" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="130.125" font-size="15" fill="#1f3b52" text-anchor="start">Display still updates; one long</text><text x="489" y="148.875" font-size="15" fill="#1f3b52" text-anchor="start">stall when a reconnect is tried</text><rect x="20" y="161" width="60" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="193" font-size="15" fill="#1f3b52" text-anchor="middle">3</text><rect x="80" y="161" width="400" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="193" font-size="15" fill="#1f3b52" text-anchor="start">Read loop_max_ms after recovery</text><rect x="480" y="161" width="260" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="183.625" font-size="15" fill="#1f3b52" text-anchor="start">A spike of several seconds: the</text><text x="489" y="202.375" font-size="15" fill="#1f3b52" text-anchor="start">reconnect attempt blocked</text><rect x="20" y="214.5" width="60" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="246.5" font-size="15" fill="#1f3b52" text-anchor="middle">4</text><rect x="80" y="214.5" width="400" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="246.5" font-size="15" fill="#1f3b52" text-anchor="start">Restore the network</text><rect x="480" y="214.5" width="260" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="237.125" font-size="15" fill="#1f3b52" text-anchor="start">LCD returns to ONLINE; queued</text><text x="489" y="255.875" font-size="15" fill="#1f3b52" text-anchor="start">messages arrive, oldest first</text><rect x="20" y="268" width="60" height="72.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="309.375" font-size="15" fill="#1f3b52" text-anchor="middle">5</text><rect x="80" y="268" width="400" height="72.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="309.375" font-size="15" fill="#1f3b52" text-anchor="start">Check seq numbers at the broker</text><rect x="480" y="268" width="260" height="72.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="290.625" font-size="15" fill="#1f3b52" text-anchor="start">Continuous if the outage was</text><text x="489" y="309.375" font-size="15" fill="#1f3b52" text-anchor="start">short; a gap if the queue</text><text x="489" y="328.125" font-size="15" fill="#1f3b52" text-anchor="start">overflowed</text><rect x="20" y="340.25" width="60" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="372.25" font-size="15" fill="#1f3b52" text-anchor="middle">6</text><rect x="80" y="340.25" width="400" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="372.25" font-size="15" fill="#1f3b52" text-anchor="start">Repeat with a 60 s outage</text><rect x="480" y="340.25" width="260" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="362.875" font-size="15" fill="#1f3b52" text-anchor="start">dropped &gt; 0: the queue held</text><text x="489" y="381.625" font-size="15" fill="#1f3b52" text-anchor="start">only the newest 40 messages</text></svg>
+            <div class="diagram-caption">The offline drill and what you should observe. Each result has an explanation in the lessons: the stall is the blocking reconnect, the queue is <span class="code-lesson-il">net.py</span>’s log, and the gap is a bounded buffer doing its job.</div>
+        </div>
+
+<p>Record every number. The questions in the report ask you to explain each one, and to say what you would change to make the node better at surviving an outage. (Unit 2 shows how.)</p>
+<h3>Lab Report</h3>
+<ol>
+<li>Paste your wire-up photo or diagram and your scan output. List the error you measured for the rangefinder at 10, 20 and 40 cm.</li>
+<li>Give your measured message rate, loop_max_ms (typical and worst) and wire bytes per second, and compare them with the budget figures above.</li>
+<li>For the offline drill: what did the LCD show, how long was the loop stalled, how many messages were queued, delivered late, and dropped?</li>
+<li>The queue holds 40 messages and the node publishes about 7 messages per second. How long an outage can it absorb without losing data? What would you change to survive a minute, and what limits you?</li>
+<li>Which part of the node would you move to the hub if you could, and which must stay on the node? Explain with one example of each.</li>
+</ol>
 
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Read the Error.</strong> Your connection attempt prints <em>OSError: [Errno 111] ECONNREFUSED</em>. A teammate's prints <em>[Errno 110] ETIMEDOUT</em>. What does each one tell you about where to look?</p>
-        <p><strong>Exercise 2: Why Raw TCP First?.</strong> Why does the lab test a plain TCP connection before trying any MQTT?</p>
+        <p><strong>Exercise 1: How Long Can It Wait?.</strong> The queue holds 40 messages and the node generates 7.2 messages per second. How many seconds of outage can the queue hold before it starts discarding the oldest?</p>
+        <p><strong>Exercise 2: Budget Check.</strong> Adding a PIR sensor can produce up to 2 event messages per second. Does the node stay under the class limit of 10 messages per second? What is the margin?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Reachability Test.</strong> Write <code class="code-lesson-il">can_reach(ip, port, timeout=3)</code> that returns <code class="code-lesson-il">True</code> or <code class="code-lesson-il">False</code> and always closes the socket.</p>
+        <p><strong>Exercise 3: Size of a Message.</strong> Compute the number of bytes in one <span class="code-lesson-il">tele/imu</span> message, using the topic and the JSON payload <span class="code-lesson-il">{"v": 1, "seq": 17, "t": 34120, "roll": 12.3}</span> plus 5 bytes of MQTT header, and from that the bytes per second for 5 messages per second.</p>
         <h4>Advanced</h4>
-        <p><strong>Exercise 4: Poke a Few Ports.</strong> Using <code class="code-lesson-il">can_reach</code>, test ports 22, 80, 1883 and 9999 on the Pi and print which are open. Which would you expect? (Only ever do this to devices you own.)</p>
+        <p><strong>Exercise 4: Find the Gaps.</strong> Write <span class="code-lesson-il">find_gaps(seqs)</span> for the receiving side: given the sequence numbers in arrival order, return the numbers that never arrived and the ones that arrived late (out of order). Test it with [1, 2, 3, 7, 8] and with [1, 2, 3, 6, 4, 5, 7].</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
         <h4>Warm Up</h4>
         <details>
-        <summary>Exercise 1: Read the Error</summary>
-<p><strong>111 (refused):</strong> the Pi answered, so the network path works; look at the broker (is mosquitto running? right port?). <strong>110 (timed out):</strong> nothing answered at all; look at the address, whether both devices are on the same network, and whether the Pi is powered on.</p>
+        <summary>Exercise 1: How Long Can It Wait?</summary>
+<p>40 / 7.2 = <strong>5.6 seconds</strong>. After that, every new message pushes the oldest one out and <span class="code-lesson-il">dropped</span> starts counting up. A one-minute outage loses about 7.2 × 60 − 40 = <strong>392</strong> messages unless you reduce the rate while offline or store more.</p>
         </details>
         <details>
-        <summary>Exercise 2: Why Raw TCP First?</summary>
-<p>To separate problems. If a raw connection to port 1883 works, the network, address and broker are all fine, so any later failure must be in the MQTT code. Testing everything at once leaves too many possible culprits.</p>
+        <summary>Exercise 2: Budget Check</summary>
+<p>7.2 + 2 = <strong>9.2 per second</strong>, under 10 with a margin of 0.8. It is a thin margin: another event type could push it over, so you might lower <span class="code-lesson-il">tele/imu</span> to 2 Hz when events are busy.</p>
         </details>
         <h4>Intermediate</h4>
         <details>
-        <summary>Exercise 3: Reachability Test</summary>
+        <summary>Exercise 3: Size of a Message</summary>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
-<span class="code-block-filename">net.py</span>
+<span class="code-block-filename">size.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">import socket
-
-def can_reach(ip, port, timeout=3):
-    s = socket.socket()
-    s.settimeout(timeout)
-    try:
-        s.connect(socket.getaddrinfo(ip, port)[0][-1])
-        return True
-    except OSError:
-        return False
-    finally:
-        s.close()
-
-print(can_reach("192.168.1.42", 1883))
+<span class="code-lesson-bl">import json
+topic = "lab/jsmith/tele/imu"
+payload = json.dumps({"v": 1, "seq": 17, "t": 34120, "roll": 12.3})
+size = len(topic) + len(payload) + 5
+print(len(topic), len(payload), size, size * 5)      # 19 45 69 345
 </span>
-</div><p>The timeout stops a dead address from freezing your program for a long time, and <code class="code-lesson-il">finally</code> guarantees the socket is closed on every path.</p>
+</div><p>About <strong>69 bytes</strong> per message, or <strong>345 B/s</strong> at 5 Hz. Almost all of it is the same text every time (the topic and the key names). Unit 2 shows how to shrink this with compact payloads.</p>
         </details>
         <h4>Advanced</h4>
         <details>
-        <summary>Exercise 4: Poke a Few Ports</summary>
+        <summary>Exercise 4: Find the Gaps</summary>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
-<span class="code-block-filename">net.py (continued)</span>
+<span class="code-block-filename">gaps.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">for port in (22, 80, 1883, 9999):
-    state = "open" if can_reach("192.168.1.42", port) else "closed"
-    print(port, state)
+<span class="code-lesson-bl">def find_gaps(seqs):
+    """Given the seq numbers a receiver saw (in arrival order), return what is missing
+    and which numbers arrived out of order."""
+    missing, late = [], []
+    top = None
+    for s in seqs:
+        if top is None:
+            top = s
+        elif s &gt; top + 1:
+            missing.extend(range(top + 1, s))        # we skipped some
+            top = s
+        elif s &gt; top:
+            top = s
+        else:
+            late.append(s)                           # at or below the highest seen already
+    missing = [m for m in missing if m not in seqs]  # a "missing" one that arrived later is not missing
+    return missing, late
 </span>
-</div><p>Expect <strong>1883 open</strong> (mosquitto), <strong>22 probably open</strong> (SSH, if enabled on the Pi), and 80 and 9999 closed unless something else is running. Which ports are open is a quick fingerprint of what a machine is doing.</p>
+</div><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_gaps.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">print(find_gaps([1, 2, 3, 7, 8]))         # ([4, 5, 6], [])   lost
+print(find_gaps([1, 2, 3, 6, 4, 5, 7]))   # ([], [4, 5])      arrived late, none lost
+</span>
+</div><p>The first call is a loss: 4, 5 and 6 never came. The second is only reordering: 4 and 5 arrive after 6 but arrive. This is exactly what you see at the broker after an outage: the queued messages come back late and in order, so a receiver that looks at <span class="code-lesson-il">seq</span> can tell an outage from real loss.</p>
         </details>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>Explain what this lab did and did not prove about MQTT readiness.</li>
-            <li>Explain, given everything that has to be true (Pico on WiFi, Pi running mosquitto, correct address and port), why a failed connection has more than one possible cause and isn't automatically a code bug.</li>
+            <li>Wire and test an I2C bus, a pulse sensor and an event input one at a time.</li>
+            <li>Arrange sensing, filtering, display and reporting as jobs on separate timers.</li>
+            <li>Compute a node’s message rate and byte rate and compare with a limit.</li>
+            <li>Run an offline drill and explain the stall, the queue and any gaps in <span class="code-lesson-il">seq</span>.</li>
+            <li>Say which functions belong on the node and which on the hub.</li>
         </ol>
 
     </body>

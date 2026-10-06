@@ -15,170 +15,207 @@
     </head>
 
     <body>
-        <p>A device that forgets everything when power blips is a toy; one that picks up where it left off is a tool. "State" is anything the system should remember: whether the fan was on, the interval someone set, the last calibration. The question is where to keep it, and the answer depends on which failures you want to survive.</p>
+        <p>This lesson covers what a node keeps across a restart. You decide what to remember and what to forget, write state to flash rarely and atomically, use <span class="code-lesson-il">reset_cause()</span> to start safely, and treat retained messages as a second, network-side memory.</p>
 
-
-<h3>Part 1. Where State Can Live</h3>
-<p>There are four places, each surviving a different set of failures:</p>
+<p>When a node restarts, RAM is gone: the mode, the calibration offsets, the count of resets, the position the servo was in. A restart is not an exotic event. The watchdog causes one on purpose, a brownout causes one by accident, and every power-up is one. This lesson is about what a node should remember across a restart, where it keeps it, how to write it so that a reset in the middle of a write cannot ruin it, and, just as important, what it should deliberately <em>forget</em>.</p>
+<h3>Part 1. What to Remember, What to Forget</h3>
         <div class="diagram">
-<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="16" width="260" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="144" y="50" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">where the state lives</text><rect x="274" y="16" width="160" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="354" y="50" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">Pico reboot</text><rect x="434" y="16" width="170" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="519" y="50" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">Pico replaced</text><rect x="604" y="16" width="140" height="56" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="674" y="50" font-size="15.6" fill="#fff" text-anchor="middle" font-weight="bold">broker restart</text><rect x="14" y="72" width="260" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="105" font-size="16.2" fill="#1f3b52" text-anchor="start">variable in RAM</text><rect x="274" y="72" width="160" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="354" y="106" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text><rect x="434" y="72" width="170" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="519" y="106" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text><rect x="604" y="72" width="140" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="674" y="106" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="14" y="128" width="260" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="161" font-size="16.2" fill="#1f3b52" text-anchor="start">file in flash</text><rect x="274" y="128" width="160" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="354" y="162" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="434" y="128" width="170" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="519" y="162" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text><rect x="604" y="128" width="140" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="674" y="162" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="14" y="184" width="260" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="217" font-size="16.2" fill="#1f3b52" text-anchor="start">retained message</text><rect x="274" y="184" width="160" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="354" y="218" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="434" y="184" width="170" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="519" y="218" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="604" y="184" width="140" height="56" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="674" y="218" font-size="20.8" fill="#d64545" text-anchor="middle" font-weight="bold">✗</text><rect x="14" y="240" width="260" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="22" y="273" font-size="16.2" fill="#1f3b52" text-anchor="start">retained + broker persistence</text><rect x="274" y="240" width="160" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="354" y="274" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="434" y="240" width="170" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="519" y="274" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><rect x="604" y="240" width="140" height="56" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="674" y="274" font-size="20.8" fill="#4a8a4a" text-anchor="middle" font-weight="bold">✓</text><text x="380" y="320" font-size="16.9" fill="#5b6b78" text-anchor="middle">Retained messages survive a broker restart only if the broker has</text><text x="380" y="351.2" font-size="16.9" fill="#5b6b78" text-anchor="middle">"persistence true" in its config.</text></svg>
-            <div class="diagram-caption">Where a piece of state can live, and what it survives. Choosing a layer is choosing which failures you are protecting against.</div>
+<svg viewBox="0 0 760 381.25" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="200" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="120" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">State</text><rect x="220" y="14" width="190" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="315" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Survive a restart?</text><rect x="410" y="14" width="330" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="575" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Why</text><rect x="20" y="60" width="200" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Calibration offsets</text><rect x="220" y="60" width="190" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">yes: flash</text><rect x="410" y="60" width="330" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">measured once; costly to repeat</text><rect x="20" y="106" width="200" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="128.137" font-size="14.5" fill="#1f3b52" text-anchor="start">Reset count, last reset</text><text x="29" y="146.262" font-size="14.5" fill="#1f3b52" text-anchor="start">cause</text><rect x="220" y="106" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="137.2" font-size="14.5" fill="#1f3b52" text-anchor="start">yes: flash</text><rect x="410" y="106" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="137.2" font-size="14.5" fill="#1f3b52" text-anchor="start">a diagnosis that must outlive the fault</text><rect x="20" y="158.25" width="200" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="180.387" font-size="14.5" fill="#1f3b52" text-anchor="start">Mode (IDLE, READY,</text><text x="29" y="198.512" font-size="14.5" fill="#1f3b52" text-anchor="start">BUSY)</text><rect x="220" y="158.25" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="189.45" font-size="14.5" fill="#1f3b52" text-anchor="start">restore, but safe</text><rect x="410" y="158.25" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="189.45" font-size="14.5" fill="#1f3b52" text-anchor="start">resume only modes that cannot hurt</text><rect x="20" y="210.5" width="200" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="232.637" font-size="14.5" fill="#1f3b52" text-anchor="start">Motor output, servo</text><text x="29" y="250.762" font-size="14.5" fill="#1f3b52" text-anchor="start">target</text><rect x="220" y="210.5" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="241.7" font-size="14.5" fill="#1f3b52" text-anchor="start">no: start at zero</text><rect x="410" y="210.5" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="232.637" font-size="14.5" fill="#1f3b52" text-anchor="start">a node that wakes up and moves is</text><text x="419" y="250.762" font-size="14.5" fill="#1f3b52" text-anchor="start">dangerous</text><rect x="20" y="262.75" width="200" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="284.887" font-size="14.5" fill="#1f3b52" text-anchor="start">Filter state, rolling</text><text x="29" y="303.012" font-size="14.5" fill="#1f3b52" text-anchor="start">window</text><rect x="220" y="262.75" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="293.95" font-size="14.5" fill="#1f3b52" text-anchor="start">no</text><rect x="410" y="262.75" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="293.95" font-size="14.5" fill="#1f3b52" text-anchor="start">a few seconds of data; rebuild it</text><rect x="20" y="315" width="200" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="337.137" font-size="14.5" fill="#1f3b52" text-anchor="start">Pending command,</text><text x="29" y="355.262" font-size="14.5" fill="#1f3b52" text-anchor="start">lease</text><rect x="220" y="315" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="346.2" font-size="14.5" fill="#1f3b52" text-anchor="start">no</text><rect x="410" y="315" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="337.137" font-size="14.5" fill="#1f3b52" text-anchor="start">the world has moved on while you were</text><text x="419" y="355.262" font-size="14.5" fill="#1f3b52" text-anchor="start">off</text></svg>
+            <div class="diagram-caption">A decision table for state. The test for each item is “what is the cost of being wrong?” A stale calibration is a nuisance; a stale <strong>motor command</strong> moves a robot that nobody expects to move.</div>
         </div>
 
-<ul>
-<li><strong>RAM.</strong> Fast and free, but gone at every reset.</li>
-<li><strong>A file in the Pico’s flash.</strong> Survives reboots and power loss, but belongs to <em>that</em> board, and flash wears out if written too often.</li>
-<li><strong>A retained message.</strong> Lives on the broker, so it survives losing the Pico entirely (a replacement board can read it). It survives a broker restart only if persistence is enabled.</li>
-</ul>
-<p>Often you want two of them: a file for the device’s own settings, and a retained stat message so the rest of the system can see them.</p>
-<h3>Part 2. Writing a File Safely</h3>
-<p>Flash writes take time, and power can be cut in the middle. If you overwrite <span class="code-lesson-il">state.json</span> in place, a cut mid-write leaves it empty or half written. The standard fix is to write a <em>new</em> file and then rename it over the old one, so the real file is only ever replaced whole:</p>
-        <div class="diagram">
-<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="36" font-size="19.5" fill="#d64545" text-anchor="start" font-weight="bold">Unsafe: overwrite in place</text><rect x="20" y="54" width="222" height="56" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2.2"></rect><text x="131" y="88" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">open state.json "w"</text><rect x="256" y="54" width="222" height="56" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2.2"></rect><text x="367" y="88" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">write data</text><rect x="492" y="54" width="222" height="56" rx="8" fill="#fff3f0" stroke="#d64545" stroke-width="2.2"></rect><text x="603" y="88" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">close</text><path d="M367,118 L367,144" fill="none" stroke="#d64545" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><text x="367" y="170" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">power cut here</text><text x="560" y="170" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">file is corrupt or empty</text><text x="20" y="236" font-size="19.5" fill="#2d5a2d" text-anchor="start" font-weight="bold">Safe: write, then rename</text><rect x="20" y="254" width="222" height="56" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.2"></rect><text x="131" y="288" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">write state.tmp</text><rect x="256" y="254" width="222" height="56" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.2"></rect><text x="367" y="288" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">rename to state.json</text><rect x="492" y="254" width="222" height="56" rx="8" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.2"></rect><text x="603" y="288" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">(old copy valid until here)</text><path d="M367,318 L367,344" fill="none" stroke="#d64545" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path><text x="367" y="370" font-size="16.2" fill="#d64545" text-anchor="middle" font-weight="bold">power cut here</text><text x="560" y="370" font-size="16.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">old state.json is intact</text></svg>
-            <div class="diagram-caption">Writing a file safely. Overwriting the real file in place can leave it half-written if power is cut. Writing a temporary file and then renaming it means the old good copy is replaced in one step.</div>
-        </div>
-
+<p>The rule that follows: restore what is <em>descriptive</em> (it describes the node), and re-derive what is <em>active</em> (it makes the node do something). After a watchdog reset especially, the node should wake up in a safe, quiet state, announce itself, and wait to be told what to do.</p>
+<h3>Part 2. Flash Is Not RAM</h3>
+<p>The Pico keeps files in flash memory. Flash survives power loss, but it has two properties that RAM does not. It wears out: each block can be erased and rewritten only a limited number of times (on the order of tens of thousands to a hundred thousand, and the file system spreads writes around, which helps but does not remove the limit). And a write takes real time, tens of milliseconds, during which your control loop is not running and the watchdog is counting. The consequence is a habit: <strong>write rarely, and only when something changed</strong>.</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">state.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">import json, os
+<span class="code-lesson-bl"># state.py -- remember a little, write rarely
+import time
+import store
 
-STATE = "state.json"
-TMP = "state.tmp"
+class State:
+    def __init__(self, path, default, min_gap_ms=60000):
+        self.path = path
+        self.data = store.load(path, default)
+        self.min_gap = min_gap_ms
+        self.last = time.ticks_ms()
+        self.dirty = False
+        self.writes = 0
 
-def save_state(state):
-    with open(TMP, "w") as f:
-        json.dump(state, f)
-    os.rename(TMP, STATE)               # replaces the old file in one step
+    def set(self, key, value):
+        if self.data.get(key) != value:
+            self.data[key] = value
+            self.dirty = True
 
-def load_state(default):
+    def tick(self, force=False):
+        now = time.ticks_ms()
+        if self.dirty and (force or time.ticks_diff(now, self.last) &gt;= self.min_gap):
+            store.save(self.path, self.data)
+            self.last = now
+            self.dirty = False
+            self.writes += 1
+</span>
+</div>
+<p><span class="code-lesson-il">State</span> writes only when a value really changed (<span class="code-lesson-il">set</span> compares) and not more often than <span class="code-lesson-il">min_gap_ms</span>. A simulated hour in which one value changes every ten seconds (360 changes) produced <strong>60 writes</strong> with a one-minute gap, instead of 360, and the last value was still saved by the next write. Writing a sensor reading to flash every second would be 86,400 writes a day.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="46" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">every change</text><rect x="250" y="20" width="300" height="36" rx="3" fill="#c0693f" stroke="#1f3b52" stroke-width="1"/><text x="560" y="46" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">360 writes / h</text><text x="20" y="106" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">at most once a minute</text><rect x="250" y="80" width="50" height="36" rx="3" fill="#2e5a80" stroke="#1f3b52" stroke-width="1"/><text x="310" y="106" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">60 writes / h</text><text x="20" y="166" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">at most every 5 minutes</text><rect x="250" y="140" width="10" height="36" rx="3" fill="#3c8a5a" stroke="#1f3b52" stroke-width="1"/><text x="270" y="166" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">12 writes / h</text><text x="380" y="215" font-size="14.5" fill="#5b6b78" text-anchor="middle">the same signal, three save policies; flash wear scales with the writes</text></svg>
+            <div class="diagram-caption">Write policy changes flash wear by a factor of thirty for the same information. (Each policy is simply a minimum gap between saves: none, 1 minute, 5 minutes.)</div>
+        </div>
+
+<h3>Part 3. A Write That Survives a Reset</h3>
+<p>Suppose power fails while <span class="code-lesson-il">state.json</span> is being rewritten. The file is half old, half new, or empty, and the next boot finds invalid JSON. The standard defence is the <strong>atomic write</strong>: never modify the real file in place. Write the new content to a temporary file, make sure it is complete, then <em>rename</em> it over the old one. A rename is one small operation, so the file is always either the complete old version or the complete new version.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">store.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># store.py -- save a small dict so that a reset can never leave half a file
+import json, os
+
+def save(path, data):
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        f.write(json.dumps(data))
+        f.flush()
     try:
-        with open(STATE) as f:
-            return json.load(f)
-    except (OSError, ValueError):       # missing, or corrupt: fall back safely
-        return default
+        os.remove(path)
+    except OSError:
+        pass
+    os.rename(tmp, path)
+
+def load(path, default):
+    for p in (path, path + ".tmp"):
+        try:
+            with open(p) as f:
+                return json.loads(f.read())
+        except (OSError, ValueError):
+            pass
+    return default
 </span>
 </div>
-<p>On the Pico’s default filesystem (littlefs), renaming over an existing file replaces it. Check this on your own firmware before relying on it for anything important.</p>
-<h3>Part 3. Do Not Wear It Out</h3>
-<p>Flash memory survives a limited number of erase cycles (often quoted around 100,000 per block). The filesystem spreads writes around, but a program that saves every second can still shorten its life. Save <em>when something changes</em>, and no more than every few seconds:</p>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">state.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">from time import ticks_ms, ticks_diff
-
-last_saved = ticks_ms()
-dirty = False
-
-def set_state(key, value):
-    global dirty
-    if state.get(key) != value:
-        state[key] = value
-        dirty = True
-
-def maybe_save():
-    global dirty, last_saved
-    if dirty and ticks_diff(ticks_ms(), last_saved) &gt; 5000:
-        save_state(state)
-        dirty = False
-        last_saved = ticks_ms()
-</span>
-</div>
-<h3>Part 4. A Start-Up That Remembers</h3>
         <div class="diagram">
-<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d95a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker></defs><rect x="18" y="50" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="80" y="76" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Load</text><text x="80" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">state.json</text><rect x="168" y="50" width="124" height="84" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.5"></rect><text x="230" y="76" font-size="18.2" fill="#8a4526" text-anchor="middle" font-weight="bold">Apply</text><text x="230" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">safe outputs</text><path d="M146,92 L164,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d95a0)"></path><rect x="318" y="50" width="124" height="84" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="380" y="76" font-size="18.2" fill="#1f3b52" text-anchor="middle" font-weight="bold">Connect</text><text x="380" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">WiFi + broker</text><path d="M296,92 L314,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d95a0)"></path><rect x="468" y="50" width="124" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="530" y="76" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Publish</text><text x="530" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">stat (retained)</text><path d="M446,92 L464,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d95a0)"></path><rect x="618" y="50" width="124" height="84" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="680" y="76" font-size="18.2" fill="#2d5a2d" text-anchor="middle" font-weight="bold">Subscribe</text><text x="680" y="98" font-size="16.2" fill="#5b6b78" text-anchor="middle">cmd topics</text><path d="M596,92 L614,92" fill="none" stroke="#2e5a80" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#d95a0)"></path><text x="380" y="200" font-size="16.9" fill="#5b6b78" text-anchor="middle">If the file is missing or corrupt, fall back to a safe default,</text><text x="380" y="233.8" font-size="16.9" fill="#5b6b78" text-anchor="middle">never crash. A reboot should never decide to switch something ON.</text></svg>
-            <div class="diagram-caption">A sensible start-up order for a device that must remember. Restore and apply the saved state first, then connect, then tell the world what you are doing.</div>
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="170" height="100" rx="6" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="105" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">1  write</text><text x="105" y="72.125" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">state.json.tmp</text><text x="105" y="112" font-size="14" fill="#5b6b78" text-anchor="middle">old file untouched</text><line x1="190" y1="80" x2="191" y2="80" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="200.0,80.0 189.0,74.5 189.0,85.5" fill="#1f3b52"/><rect x="200" y="30" width="170" height="100" rx="6" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="285" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">2  flush</text><text x="285" y="72.125" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">tmp is complete</text><text x="285" y="112" font-size="14" fill="#5b6b78" text-anchor="middle">old file still intact</text><line x1="370" y1="80" x2="371" y2="80" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="380.0,80.0 369.0,74.5 369.0,85.5" fill="#1f3b52"/><rect x="380" y="30" width="170" height="100" rx="6" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="465" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">3  remove</text><text x="465" y="72.125" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">state.json</text><text x="465" y="112" font-size="14" fill="#5b6b78" text-anchor="middle">only tmp is complete</text><line x1="550" y1="80" x2="551" y2="80" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="560.0,80.0 549.0,74.5 549.0,85.5" fill="#1f3b52"/><rect x="560" y="30" width="170" height="100" rx="6" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="645" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">4  rename tmp</text><text x="645" y="72.125" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">to state.json</text><text x="645" y="112" font-size="14" fill="#5b6b78" text-anchor="middle">new file in place</text><text x="380" y="170" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">a reset at any step leaves one complete copy on the flash</text><text x="380" y="200" font-size="14.5" fill="#5b6b78" text-anchor="middle">load tries state.json first, then state.json.tmp, then the default</text><text x="380" y="228" font-size="14.5" fill="#5b6b78" text-anchor="middle">a half-written tmp does not parse, so it is skipped</text></svg>
+            <div class="diagram-caption">The four steps of an atomic save. The only dangerous gap is between steps 3 and 4, and <span class="code-lesson-il">load</span> covers it by reading the temporary file as a fallback.</div>
         </div>
 
-<p>The order matters. Restore and apply the saved state <em>before</em> connecting, so the device behaves sensibly even if the network is down. Only then announce it with a retained stat message. And a reboot should never decide to switch a load ON by itself: if the saved state is missing or damaged, fall back to the safe default.</p>
+<p>The test below plays the failures: a normal save, a crash after step 3 (only the <span class="code-lesson-il">.tmp</span> exists), a torn temporary file next to a good original, and no file at all. Each case printed a usable value:</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
-<span class="code-block-filename">main.py</span>
+<span class="code-block-filename">test_store.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">state = load_state({"fan": "off", "interval": 1000})
-fan.value(1 if state["fan"] == "on" else 0)          # apply before touching the network
-
-connect_wifi(); connect_broker()
-client.publish(b"lab/pico01/stat/fan", state["fan"].encode(), retain=True)
-client.subscribe(b"lab/pico01/cmd/#")
+<span class="code-lesson-bl">store.save("s.json", {"a": 1});               print(store.load("s.json", {}))      # {'a': 1}
+open("c.json.tmp", "w").write('{"b": 2}');    print(store.load("c.json", {}))      # {'b': 2}
+store.save("t.json", {"ok": 1})
+open("t.json.tmp", "w").write('{"x": ');      print(store.load("t.json", {}))      # {'ok': 1}
+print(store.load("none.json", {"d": 0}))                                            # {'d': 0}
 </span>
 </div>
-<p>To find out <em>why</em> the board restarted, <span class="code-lesson-il">machine.reset_cause()</span> returns a code such as <span class="code-lesson-il">machine.PWRON_RESET</span> or <span class="code-lesson-il">machine.WDT_RESET</span>. A watchdog reset is a sign that something hung, and is worth reporting.</p>
+<h3>Part 4. Starting Safely</h3>
+<p><span class="code-lesson-il">machine.reset_cause()</span> tells the program <em>why</em> it started. Use it to choose the starting behaviour: after a power-on, restore the saved mode; after a watchdog reset, count it, and start idle with every output off.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (start of)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># boot.py part of main.py -- decide how to start
+from machine import reset_cause, PWRON_RESET, WDT_RESET
+import state
+
+st = state.State("state.json", {"resets": 0, "mode": "IDLE", "pan": 0})
+cause = reset_cause()
+if cause == WDT_RESET:
+    st.set("resets", st.data.get("resets", 0) + 1)
+    st.set("mode", "IDLE")      # never resume a motion after a hang
+    st.set("pan", 0)
+st.tick(force=True)
+print("start:", st.data, "cause:", cause)
+</span>
+</div>
+<p>That script, run in the test environment with a saved state of <span class="code-lesson-il">mode BUSY, pan 40</span> and a watchdog cause, printed <span class="code-lesson-il">{'resets': 1, 'mode': 'IDLE', 'pan': 0}</span>: the reset was counted, and the node did not resume the motion that was in progress when it hung.</p>
+<h3>Part 5. The Broker as Memory</h3>
+<p>A node that restarts often has another place to look: the <strong>retained</strong> messages the broker kept for it. If your node publishes its <span class="code-lesson-il">stat/state</span> retained, then right after reconnecting and subscribing to its own <span class="code-lesson-il">stat</span> topic it receives the last state it announced, without any flash write at all. The broker is useful as memory for <em>descriptive, non-critical</em> state: the last mode, the last calibration identifier.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">restore.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># Restoring from the broker: ask for the retained stat topic you published before
+def on_stat(topic, data):
+    if topic.endswith("/stat/state") and not restored["done"]:
+        restored["done"] = True
+        mode = data.get("mode", "IDLE")
+        # trust it only if it is recent and the mode is safe to resume
+        if mode in ("IDLE", "READY"):
+            robot_mode[0] = mode
+
+restored = {"done": False}
+robot_mode = ["IDLE"]
+hub.on("lab/jsmith/stat/state", on_stat)   # retained: arrives right after subscribing
+</span>
+</div>
+<ul>
+<li><strong>Flash</strong> survives a power cut with no network, but wears out; use it for calibration and counters.</li>
+<li><strong>Retained messages</strong> cost no wear and are visible to others, but need the network and trust the broker; use them for what the <em>rest of the system</em> should also see.</li>
+<li><strong>Neither</strong> should store the thing that makes a motor move. Re-derive it from fresh commands.</li>
+</ul>
 
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Pick the Layer.</strong> Where would you keep each, and why: (a) a loop counter, (b) the fan’s last state, (c) a calibration offset a technician measured, (d) the latest reading for a dashboard?</p>
-        <p><strong>Exercise 2: What Survives?.</strong> For each event say whether a value stored only in a flash file survives: (a) <span class="code-lesson-il">machine.reset()</span>, (b) the USB cable being pulled, (c) replacing the Pico with a new board, (d) the broker restarting.</p>
+        <p><strong>Exercise 1: Keep or Forget.</strong> For a robot with a servo, a motor, a filtered range reading, a calibration offset for the IMU, and a count of reboots, say for each whether it should be restored after a watchdog reset.</p>
+        <p><strong>Exercise 2: Wear Arithmetic.</strong> A node saves a value every 5 seconds, all day. How many writes is that in a day? If a block survives 50,000 writes and one block were rewritten every time, how long would it last? Why is the real life better, and why is it still a bad design?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Load With a Default.</strong> Write <span class="code-lesson-il">load_state(default)</span> that returns the saved dictionary, but returns <span class="code-lesson-il">default</span> if the file is missing, empty or not valid JSON, and also if it lacks a key the program needs.</p>
+        <p><strong>Exercise 3: Where Is the Gap?.</strong> The <span class="code-lesson-il">save</span> function removes the old file and then renames the temporary file. Suppose the board loses power right after the <span class="code-lesson-il">os.remove</span>. Walk through the next boot. Which file does <span class="code-lesson-il">load</span> use, and is anything lost?</p>
         <h4>Advanced</h4>
-        <p><strong>Exercise 4: Prove the Rename Trick.</strong> Write a test that saves a state, then simulates a crash <em>during</em> a save by writing garbage to the temporary file without renaming, and shows <span class="code-lesson-il">load_state</span> still returns the good state.</p>
+        <p><strong>Exercise 4: Wake Up Quiet.</strong> Extend the start-up script so that after any reset <em>other than</em> a watchdog reset, the node restores the saved <span class="code-lesson-il">mode</span> only if it is <span class="code-lesson-il">IDLE</span> or <span class="code-lesson-il">READY</span>, and sets <span class="code-lesson-il">pan</span> to 0 in every case. Then say what the node should publish first when it connects.</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
         <h4>Warm Up</h4>
         <details>
-        <summary>Exercise 1: Pick the Layer</summary>
-<p>(a) <strong>RAM</strong>: it is meaningless after a reset. (b) a <strong>file</strong> (so the device resumes) plus a <strong>retained stat</strong> (so the system sees it). (c) a <strong>file</strong>: it belongs to this board and must survive power loss. (d) <strong>RAM</strong> and a normal publish; a retained reading would replay a stale value to latecomers.</p>
+        <summary>Exercise 1: Keep or Forget</summary>
+<p><strong>Restore:</strong> the IMU offset (descriptive, costly to remeasure) and the reboot count (a diagnosis). <strong>Forget:</strong> the motor and servo targets (restart with outputs off) and the filtered reading (a few seconds of data; the filter refills itself).</p>
         </details>
         <details>
-        <summary>Exercise 2: What Survives?</summary>
-<p>(a) <strong>yes</strong>. (b) <strong>yes</strong>: flash keeps its contents without power. (c) <strong>no</strong>: the file stayed on the old board. (d) <strong>yes</strong>: the file is on the Pico, so the broker restarting does not touch it.</p>
+        <summary>Exercise 2: Wear Arithmetic</summary>
+<p>86,400 / 5 = <strong>17,280</strong> writes a day; 50,000 / 17,280 is about <strong>2.9 days</strong> if one block took every write. The file system spreads writes across free blocks, so the real life is much longer, but it is still a bad design: every write also stalls the loop for tens of milliseconds, and the information could be written once a minute, or only when it changes, at no loss.</p>
         </details>
         <h4>Intermediate</h4>
         <details>
-        <summary>Exercise 3: Load With a Default</summary>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">state.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">import json
-
-def load_state(default):
-    try:
-        with open("state.json") as f:
-            data = json.load(f)
-    except (OSError, ValueError):
-        return default
-    for key in default:
-        if key not in data:               # an older file without a newer setting
-            return default
-    return data
-</span>
-</div><p>Checking for required keys matters when you add a new setting later: an old file from before the change would otherwise crash the program with a <span class="code-lesson-il">KeyError</span> at the worst moment.</p>
+        <summary>Exercise 3: Where Is the Gap?</summary>
+<p>After the remove, <span class="code-lesson-il">state.json</span> does not exist but <span class="code-lesson-il">state.json.tmp</span> is complete (it was flushed in step 2). <span class="code-lesson-il">load</span> first tries <span class="code-lesson-il">state.json</span>, which raises <span class="code-lesson-il">OSError</span>, then tries <span class="code-lesson-il">state.json.tmp</span> and returns the <strong>new</strong> data. Nothing is lost. If power had failed <em>during</em> step 1, <span class="code-lesson-il">state.json</span> would still be the complete old copy, and the half-written <span class="code-lesson-il">.tmp</span> would be ignored. The next successful save overwrites the leftover <span class="code-lesson-il">.tmp</span>.</p>
         </details>
         <h4>Advanced</h4>
         <details>
-        <summary>Exercise 4: Prove the Rename Trick</summary>
+        <summary>Exercise 4: Wake Up Quiet</summary>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
-<span class="code-block-filename">state_test.py</span>
+<span class="code-block-filename">start.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">save_state({"fan": "on", "interval": 500})          # a good save
-
-with open("state.tmp", "w") as f:                  # a crash part-way through the next save
-    f.write('{"fan": "of')                          # truncated, and never renamed
-
-print(load_state({"fan": "off", "interval": 1000}))   # {'fan': 'on', 'interval': 500}
+<span class="code-lesson-bl">safe = ("IDLE", "READY")
+if cause != WDT_RESET and st.data.get("mode") in safe:
+    mode = st.data["mode"]
+else:
+    mode = "IDLE"
+st.set("pan", 0)
+st.tick(force=True)
 </span>
-</div><p>The real file was never opened for writing during the "crash", so it is untouched. Had the write gone straight to <span class="code-lesson-il">state.json</span>, the load would have hit invalid JSON and returned the default, losing the setting.</p>
+</div><p>The node should publish its <strong>retained presence and state</strong> first (<span class="code-lesson-il">stat/online</span> and <span class="code-lesson-il">stat/state</span> with the restored mode and a <span class="code-lesson-il">resets</span> count), so that every other agent learns it is back, and in which mode, before it receives anything else. A restored mode is a <em>claim</em> by the node, not an instruction.</p>
         </details>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>Name the four places state can live and which failures each survives.</li>
-            <li>Explain why overwriting a file in place is risky and how write-then-rename avoids it.</li>
-            <li>Explain why you should not save to flash on every change, and what to do instead.</li>
-            <li>Describe a sensible order of steps at start-up for a device that remembers.</li>
+            <li>Say which state to restore after a reset and which to deliberately forget.</li>
+            <li>Explain flash wear and how a save policy changes it.</li>
+            <li>Write a file atomically with a temporary file and a rename, and explain what the load does when a reset interrupts it.</li>
+            <li>Use <span class="code-lesson-il">reset_cause()</span> to choose a safe start-up.</li>
+            <li>Say what a retained <span class="code-lesson-il">stat</span> message is good for, and what it must not be used for.</li>
         </ol>
 
     </body>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Until now, outputs were set by rules: if dark, switch on. But sometimes you want an output to hold a quantity at a target, such as a light level, a temperature or a speed, even as conditions change. Feedback control does that: measure, compare with the target, adjust, repeat. The most widely used recipe for the adjusting step is the PID controller.</p>
+
+
+<h3>Part 1. The Feedback Loop</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="d203a0" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#2e5a80"></path></marker><marker id="d203a1" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,1.5 L10,6 L0,10.5 Z" fill="#d64545"></path></marker></defs><text x="30" y="150" font-size="16.9" fill="#1f3b52" text-anchor="start" font-weight="bold">setpoint</text><path d="M30,166 L98,166" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d203a0)"></path><circle cx="120" cy="166" r="22" fill="#fff" stroke="#1f3b52" stroke-width="3"></circle><text x="120" y="172" font-size="26.0" fill="#1f3b52" text-anchor="middle" font-weight="bold">−</text><text x="150" y="150" font-size="15.6" fill="#5b6b78" text-anchor="start">error</text><path d="M142,166 L210,166" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d203a0)"></path><rect x="210" y="100" width="200" height="132" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="3"></rect><text x="310" y="128" font-size="20.8" fill="#8a4526" text-anchor="middle" font-weight="bold">PID</text><text x="310" y="156" font-size="15.6" fill="#5b6b78" text-anchor="middle">P: now</text><text x="310" y="184" font-size="15.6" fill="#5b6b78" text-anchor="middle">I: the past</text><text x="310" y="212" font-size="15.6" fill="#5b6b78" text-anchor="middle">D: the trend</text><path d="M410,166 L470,166" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d203a0)"></path><rect x="470" y="126" width="110" height="80" rx="10" fill="#eef9ee" stroke="#4a8a4a" stroke-width="2.5"></rect><text x="525" y="159.6" font-size="16.9" fill="#2d5a2d" text-anchor="middle" font-weight="bold">actuator</text><text x="525" y="188.4" font-size="15.0" fill="#5b6b78" text-anchor="middle">PWM output</text><path d="M580,166 L630,166" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" marker-end="url(#d203a0)"></path><rect x="630" y="126" width="110" height="80" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.5"></rect><text x="685" y="159.6" font-size="16.9" fill="#1f3b52" text-anchor="middle" font-weight="bold">plant</text><text x="685" y="188.4" font-size="15.0" fill="#5b6b78" text-anchor="middle">LED → light</text><path d="M685,208 L685,300 L120,300 L120,190" fill="none" stroke="#d64545" stroke-width="3" stroke-linejoin="round" marker-end="url(#d203a1)"></path><text x="400" y="326" font-size="16.9" fill="#d64545" text-anchor="middle" font-weight="bold">sensor reading (feedback)</text><text x="380" y="362" font-size="16.2" fill="#5b6b78" text-anchor="middle" font-weight="bold">e = setpoint − measurement     output = Kp·e + Ki·∫e + Kd·(rate of change)</text></svg>
+            <div class="diagram-caption">The feedback loop. The controller compares what you want (the setpoint) with what the sensor reports, and turns the difference, the error, into an output that pushes the plant toward the setpoint.</div>
+        </div>
+
+<p>The <strong>setpoint</strong> is what you want; the <strong>measurement</strong> is what the sensor says you have; their difference is the <strong>error</strong>. The controller turns the error into an output (a PWM duty cycle) that pushes the system toward the setpoint, and the sensor then reports the result, closing the loop. We will use an LED shining on an LDR: the PWM duty controls the LED, and the LDR reading is the thing to hold.</p>
+<h3>Part 2. Three Ideas in One Formula</h3>
+<ul>
+<li><strong>P (proportional): act on the error now.</strong> Bigger error, bigger push. On its own it always settles <em>short</em> of the target, because a small error produces too small a push to remove itself.</li>
+<li><strong>I (integral): act on the error accumulated so far.</strong> A persistent small error builds up until it forces the output high enough to remove it. It removes the leftover error, but its memory makes the response overshoot.</li>
+<li><strong>D (derivative): act on how fast things are changing.</strong> It brakes the output as the measurement approaches the target, reducing overshoot, but it amplifies noise.</li>
+</ul>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">pid.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class PID:
+    def __init__(self, kp, ki, kd, out_min=0.0, out_max=1.0):
+        self.kp, self.ki, self.kd = kp, ki, kd
+        self.out_min, self.out_max = out_min, out_max
+        self.i = 0.0
+        self.prev = None
+
+    def update(self, setpoint, measurement, dt):
+        error = setpoint - measurement
+        d = 0.0 if self.prev is None else -(measurement - self.prev) / dt   # on the measurement
+        self.prev = measurement
+        i_new = self.i + self.ki * error * dt
+        out = self.kp * error + i_new + self.kd * d
+        if out &gt; self.out_max:
+            out = self.out_max               # saturated: do not let the integral grow
+        elif out &lt; self.out_min:
+            out = self.out_min
+        else:
+            self.i = i_new
+        return out
+</span>
+</div>
+<p>Two details matter. The derivative is taken on the <em>measurement</em>, not the error, so a sudden change of setpoint does not produce a violent spike. And the integral is updated only when the output is <em>not</em> saturated; the reason is in Part 4.</p>
+<h3>Part 3. What the Three Terms Do</h3>
+<p>Here is the same step change in the setpoint, handled three ways, on a simulated plant with the sluggishness of an LED and a sensor filter (try your own gains in simulation before you touch hardware; the code is below):</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 440" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="70" y1="290" x2="710" y2="290" stroke="#444" stroke-width="2" stroke-linecap="round"></line><line x1="70" y1="30" x2="70" y2="290" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="390" y="328" font-size="18.2" fill="#5b6b78" text-anchor="middle">time (s)  →</text><text x="32" y="160" font-size="18.2" fill="#5b6b78" text-anchor="middle" transform="rotate(-90 32 160)">output</text><line x1="70" y1="95" x2="710" y2="95" stroke="#8a8a8a" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="6 4"></line><text x="706" y="87" font-size="15.6" fill="#5b6b78" text-anchor="end">setpoint 0.3</text><path d="M70,283.5 L75.3782,272.45 L80.7563,258.54 L86.1345,243.18 L91.5126,227.502 L96.8908,212.368 L102.269,198.399 L107.647,186.002 L113.025,175.405 L118.403,166.686 L123.782,159.813 L129.16,154.668 L134.538,151.075 L139.916,148.827 L145.294,147.699 L150.672,147.469 L156.05,147.923 L161.429,148.867 L166.807,150.131 L172.185,151.573 L177.563,153.076 L182.941,154.55 L188.319,155.927 L193.697,157.164 L199.076,158.233 L204.454,159.124 L209.832,159.835 L215.21,160.377 L220.588,160.765 L225.966,161.017 L231.345,161.156 L236.723,161.202 L242.101,161.176 L247.479,161.098 L252.857,160.985 L258.235,160.851 L263.613,160.707 L268.992,160.565 L274.37,160.429 L279.748,160.306 L285.126,160.199 L290.504,160.108 L295.882,160.035 L301.261,159.978 L306.639,159.937 L312.017,159.909 L317.395,159.892 L322.773,159.885 L328.151,159.886 L333.529,159.892 L338.908,159.902 L344.286,159.914 L349.664,159.928 L355.042,159.942 L360.42,159.955 L365.798,159.967 L371.176,159.978 L376.555,159.987 L381.933,159.995 L387.311,160.001 L392.689,160.005 L398.067,160.008 L403.445,160.01 L408.824,160.011 L414.202,160.011 L419.58,160.011 L424.958,160.01 L430.336,160.009 L435.714,160.007 L441.092,160.006 L446.471,160.005 L451.849,160.003 L457.227,160.002 L462.605,160.001 L467.983,160.001 L473.361,160 L478.739,160 L484.118,159.999 L489.496,159.999 L494.874,159.999 L500.252,159.999 L505.63,159.999 L511.008,159.999 L516.387,159.999 L521.765,159.999 L527.143,159.999 L532.521,160 L537.899,160 L543.277,160 L548.655,160 L554.034,160 L559.412,160 L564.79,160 L570.168,160 L575.546,160 L580.924,160 L586.303,160 L591.681,160 L597.059,160 L602.437,160 L607.815,160 L613.193,160 L618.571,160 L623.95,160 L629.328,160 L634.706,160 L640.084,160 L645.462,160 L650.84,160 L656.218,160 L661.597,160 L666.975,160 L672.353,160 L677.731,160 L683.109,160 L688.487,160 L693.866,160 L699.244,160 L704.622,160 L710,160" fill="none" stroke="#4a8a4a" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70,282.85 L75.3782,270.069 L80.7563,253.12 L86.1345,233.365 L91.5126,212.033 L96.8908,190.194 L102.269,168.75 L107.647,148.428 L113.025,129.785 L118.403,113.219 L123.782,98.9775 L129.16,87.178 L134.538,77.8263 L139.916,70.8352 L145.294,66.0447 L150.672,63.2407 L156.05,62.1725 L161.429,62.5692 L166.807,64.1527 L172.185,66.65 L177.563,69.8023 L182.941,73.3722 L188.319,77.1489 L193.697,80.9513 L199.076,84.6298 L204.454,88.066 L209.832,91.1717 L215.21,93.8871 L220.588,96.1776 L225.966,98.0311 L231.345,99.454 L236.723,100.468 L242.101,101.106 L247.479,101.411 L252.857,101.428 L258.235,101.208 L263.613,100.799 L268.992,100.251 L274.37,99.6084 L279.748,98.9109 L285.126,98.1945 L290.504,97.489 L295.882,96.8187 L301.261,96.2022 L306.639,95.6529 L312.017,95.1792 L317.395,94.7855 L322.773,94.472 L328.151,94.2362 L333.529,94.0729 L338.908,93.9753 L344.286,93.9353 L349.664,93.944 L355.042,93.9923 L360.42,94.0713 L365.798,94.1725 L371.176,94.2879 L376.555,94.4107 L381.933,94.5348 L387.311,94.6552 L392.689,94.768 L398.067,94.8702 L403.445,94.9599 L408.824,95.0357 L414.202,95.0972 L419.58,95.1447 L424.958,95.1787 L430.336,95.2003 L435.714,95.211 L441.092,95.2121 L446.471,95.2053 L451.849,95.1923 L457.227,95.1745 L462.605,95.1536 L467.983,95.1308 L473.361,95.1073 L478.739,95.0841 L484.118,95.0619 L489.496,95.0416 L494.874,95.0233 L500.252,95.0076 L505.63,94.9944 L511.008,94.9839 L516.387,94.976 L521.765,94.9704 L527.143,94.967 L532.521,94.9655 L537.899,94.9657 L543.277,94.9671 L548.655,94.9696 L554.034,94.9729 L559.412,94.9766 L564.79,94.9806 L570.168,94.9846 L575.546,94.9886 L580.924,94.9923 L586.303,94.9956 L591.681,94.9986 L597.059,95.0011 L602.437,95.0031 L607.815,95.0047 L613.193,95.0059 L618.571,95.0066 L623.95,95.007 L629.328,95.007 L634.706,95.0068 L640.084,95.0064 L645.462,95.0058 L650.84,95.0051 L656.218,95.0044 L661.597,95.0036 L666.975,95.0028 L672.353,95.0021 L677.731,95.0014 L683.109,95.0008 L688.487,95.0003 L693.866,94.9999 L699.244,94.9995 L704.622,94.9992 L710,94.9991" fill="none" stroke="#d64545" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70,282.85 L75.3782,270.546 L80.7563,254.749 L86.1345,236.823 L91.5126,217.866 L96.8908,198.743 L102.269,180.116 L107.647,162.477 L113.025,146.168 L118.403,131.415 L123.782,118.34 L129.16,106.988 L134.538,97.3417 L139.916,89.3346 L145.294,82.8671 L150.672,77.8156 L156.05,74.0415 L161.429,71.3988 L166.807,69.7401 L172.185,68.9209 L177.563,68.8033 L182.941,69.2583 L188.319,70.1676 L193.697,71.4247 L199.076,72.9351 L204.454,74.6167 L209.832,76.3992 L215.21,78.2234 L220.588,80.0409 L225.966,81.8127 L231.345,83.5088 L236.723,85.1065 L242.101,86.5902 L247.479,87.9498 L252.857,89.1801 L258.235,90.2799 L263.613,91.2513 L268.992,92.0989 L274.37,92.8292 L279.748,93.4501 L285.126,93.9702 L290.504,94.399 L295.882,94.746 L301.261,95.0205 L306.639,95.2317 L312.017,95.3883 L317.395,95.4985 L322.773,95.5698 L328.151,95.609 L333.529,95.6224 L338.908,95.6153 L344.286,95.5926 L349.664,95.5583 L355.042,95.516 L360.42,95.4686 L365.798,95.4186 L371.176,95.3678 L376.555,95.3178 L381.933,95.2699 L387.311,95.2248 L392.689,95.1831 L398.067,95.1453 L403.445,95.1116 L408.824,95.0819 L414.202,95.0561 L419.58,95.0343 L424.958,95.016 L430.336,95.001 L435.714,94.9891 L441.092,94.9798 L446.471,94.9729 L451.849,94.9681 L457.227,94.965 L462.605,94.9634 L467.983,94.9629 L473.361,94.9635 L478.739,94.9648 L484.118,94.9667 L489.496,94.969 L494.874,94.9715 L500.252,94.9742 L505.63,94.977 L511.008,94.9797 L516.387,94.9824 L521.765,94.9849 L527.143,94.9872 L532.521,94.9894 L537.899,94.9913 L543.277,94.9931 L548.655,94.9946 L554.034,94.996 L559.412,94.9971 L564.79,94.9981 L570.168,94.9989 L575.546,94.9996 L580.924,95.0001 L586.303,95.0005 L591.681,95.0008 L597.059,95.0011 L602.437,95.0012 L607.815,95.0013 L613.193,95.0013 L618.571,95.0013 L623.95,95.0013 L629.328,95.0012 L634.706,95.0011 L640.084,95.001 L645.462,95.0009 L650.84,95.0008 L656.218,95.0007 L661.597,95.0006 L666.975,95.0005 L672.353,95.0004 L677.731,95.0004 L683.109,95.0003 L688.487,95.0002 L693.866,95.0002 L699.244,95.0001 L704.622,95.0001 L710,95" fill="none" stroke="#2e5a80" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"></path><text x="70" y="350" font-size="16.2" fill="#2d5a2d" text-anchor="start" font-weight="bold">● P: stops at 0.20 (error 0.10)</text><text x="320" y="350" font-size="16.2" fill="#d64545" text-anchor="start" font-weight="bold">● PI: overshoot 17 %, settles 2.0 s</text><text x="320" y="378" font-size="16.2" fill="#2e5a80" text-anchor="start" font-weight="bold">● PID: overshoot 13 %, settles 1.8 s</text></svg>
+            <div class="diagram-caption">The same step, three controllers (simulated on a two-lag plant). P alone settles short of the target; adding I removes that error but overshoots; adding D trims the overshoot and settles sooner.</div>
+        </div>
+
+<p><strong>P alone</strong> (Kp = 2) stops at 0.20 when the target is 0.30: one third short. <strong>PI</strong> (adding Ki = 4) reaches the target but overshoots by about 17 %. <strong>PID</strong> (adding Kd = 0.2) overshoots by about 13 % and settles a little sooner. The derivative term helps, but modestly here, which is typical: it is the first thing to leave out if your sensor is noisy.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 380" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="190" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="105" y="51" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">raise the gain</text><rect x="200" y="14" width="130" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="265" y="51" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">rise time</text><rect x="330" y="14" width="120" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="390" y="51" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">overshoot</text><rect x="450" y="14" width="140" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="520" y="51" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">settling</text><rect x="590" y="14" width="148" height="62" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"></rect><text x="664" y="51" font-size="15.0" fill="#fff" text-anchor="middle" font-weight="bold">steady error</text><rect x="10" y="76" width="190" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="112" font-size="15.0" fill="#1f3b52" text-anchor="start">Kp (proportional)</text><rect x="200" y="76" width="130" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="265" y="112" font-size="15.0" fill="#1f3b52" text-anchor="middle">faster</text><rect x="330" y="76" width="120" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="390" y="112" font-size="15.0" fill="#1f3b52" text-anchor="middle">more</text><rect x="450" y="76" width="140" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="520" y="112" font-size="15.0" fill="#1f3b52" text-anchor="middle">small change</text><rect x="590" y="76" width="148" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="664" y="112" font-size="15.0" fill="#1f3b52" text-anchor="middle">smaller</text><rect x="10" y="138" width="190" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="174" font-size="15.0" fill="#1f3b52" text-anchor="start">Ki (integral)</text><rect x="200" y="138" width="130" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="265" y="174" font-size="15.0" fill="#1f3b52" text-anchor="middle">faster</text><rect x="330" y="138" width="120" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="390" y="174" font-size="15.0" fill="#1f3b52" text-anchor="middle">more</text><rect x="450" y="138" width="140" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="520" y="174" font-size="15.0" fill="#1f3b52" text-anchor="middle">slower</text><rect x="590" y="138" width="148" height="62" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"></rect><text x="664" y="174" font-size="15.0" fill="#1f3b52" text-anchor="middle">removes it</text><rect x="10" y="200" width="190" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="18" y="236" font-size="15.0" fill="#1f3b52" text-anchor="start">Kd (derivative)</text><rect x="200" y="200" width="130" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="265" y="236" font-size="15.0" fill="#1f3b52" text-anchor="middle">small change</text><rect x="330" y="200" width="120" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="390" y="236" font-size="15.0" fill="#1f3b52" text-anchor="middle">less</text><rect x="450" y="200" width="140" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="520" y="236" font-size="15.0" fill="#1f3b52" text-anchor="middle">faster</text><rect x="590" y="200" width="148" height="62" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"></rect><text x="664" y="236" font-size="15.0" fill="#1f3b52" text-anchor="middle">no effect</text><text x="380" y="296" font-size="16.9" fill="#5b6b78" text-anchor="middle">Too much of any of them makes the loop oscillate.</text><text x="380" y="329.8" font-size="16.9" fill="#5b6b78" text-anchor="middle">Derivative also amplifies sensor noise: filter the measurement first.</text></svg>
+            <div class="diagram-caption">What increasing each gain does, in general. These are tendencies, not guarantees, and they interact; the table is a guide for which way to nudge a setting, not a recipe.</div>
+        </div>
+
+<h3>Part 4. Integral Windup</h3>
+<p>The output of a real actuator is limited: a PWM duty cannot exceed 100 %. Suppose the target is unreachable for a while. The error stays large, so the integral keeps growing, far beyond what the output can use. When the target becomes reachable again, that huge stored value keeps the output pinned at its limit long after it should have backed off. This is <strong>windup</strong>:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 440" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="70" y1="290" x2="710" y2="290" stroke="#444" stroke-width="2" stroke-linecap="round"></line><line x1="70" y1="30" x2="70" y2="290" stroke="#444" stroke-width="2" stroke-linecap="round"></line><text x="390" y="328" font-size="18.2" fill="#5b6b78" text-anchor="middle">time (s)  →</text><text x="32" y="160" font-size="18.2" fill="#5b6b78" text-anchor="middle" transform="rotate(-90 32 160)">output</text><path d="M70,73.3333 L310,73.3333" fill="none" stroke="#8a8a8a" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"></path><text x="78" y="65.3333" font-size="15.6" fill="#5b6b78" text-anchor="start">the most the plant can reach: 1.0</text><path d="M70,286.389 L74.0252,280.13 L78.0503,271.989 L82.0755,262.572 L86.1006,252.355 L90.1258,241.709 L94.1509,230.918 L98.1761,220.199 L102.201,209.712 L106.226,199.573 L110.252,189.865 L114.277,180.642 L118.302,171.936 L122.327,163.763 L126.352,156.127 L130.377,149.019 L134.403,142.427 L138.428,136.332 L142.453,130.71 L146.478,125.538 L150.503,120.788 L154.528,116.435 L158.553,112.452 L162.579,108.813 L166.604,105.492 L170.629,102.465 L174.654,99.7098 L178.679,97.2036 L182.704,94.9261 L186.73,92.8581 L190.755,90.9817 L194.78,89.2802 L198.805,87.7384 L202.83,86.3419 L206.855,85.0777 L210.881,83.9338 L214.906,82.8993 L218.931,81.9639 L222.956,81.1185 L226.981,80.3547 L231.006,79.6649 L235.031,79.042 L239.057,78.4796 L243.082,77.9721 L247.107,77.5142 L251.132,77.101 L255.157,76.7284 L259.182,76.3923 L263.208,76.0892 L267.233,75.816 L271.258,75.5698 L275.283,75.3478 L279.308,75.1477 L283.333,74.9674 L287.358,74.805 L291.384,74.6586 L295.409,74.5267 L299.434,74.4079 L303.459,74.3009 L307.484,74.2046 L311.509,74.1178 L315.535,74.0396 L319.56,73.9692 L323.585,73.9058 L327.61,73.8487 L331.635,73.7973 L335.66,73.751 L339.686,73.7093 L343.711,73.6718 L347.736,73.638 L351.761,73.6076 L355.786,73.5802 L359.811,73.5556 L363.836,73.5334 L367.862,73.5134 L371.887,73.4954 L375.912,73.4792 L379.937,73.4646 L383.962,73.4515 L387.987,73.4397 L392.013,73.4291 L396.038,73.4195 L400.063,73.4109 L404.088,73.4032 L408.113,73.3962 L412.138,73.3899 L416.164,73.3842 L420.189,73.3792 L424.214,73.3746 L428.239,73.3704 L432.264,73.3667 L436.289,73.3634 L440.314,73.3604 L444.34,73.3577 L448.365,73.3553 L452.39,73.3531 L456.415,73.3511 L460.44,73.3493 L464.465,73.5644 L468.491,74.4218 L472.516,76.1771 L476.541,78.9544 L480.566,82.7778 L484.591,87.5991 L488.616,93.3192 L492.642,99.8064 L496.667,106.911 L500.692,114.475 L504.717,122.344 L508.742,130.37 L512.767,138.418 L516.792,146.366 L520.818,154.111 L524.843,161.566 L528.868,168.662 L532.893,175.346 L536.918,181.579 L540.943,187.337 L544.969,192.608 L548.994,197.391 L553.019,201.694 L557.044,205.53 L561.069,208.921 L565.094,211.892 L569.119,214.471 L573.145,216.688 L577.17,218.575 L581.195,220.163 L585.22,221.484 L589.245,222.567 L593.27,223.443 L597.296,224.138 L601.321,224.678 L605.346,225.085 L609.371,225.382 L613.396,225.586 L617.421,225.716 L621.447,225.786 L625.472,225.808 L629.497,225.794 L633.522,225.754 L637.547,225.695 L641.572,225.624 L645.597,225.546 L649.623,225.466 L653.648,225.386 L657.673,225.309 L661.698,225.238 L665.723,225.172 L669.748,225.114 L673.774,225.063 L677.799,225.019 L681.824,224.982 L685.849,224.952 L689.874,224.928 L693.899,224.91 L697.925,224.898 L701.95,224.889 L705.975,224.885 L710,224.883" fill="none" stroke="#d64545" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"></path><path d="M70,286.389 L74.0252,280.13 L78.0503,271.989 L82.0755,262.572 L86.1006,252.355 L90.1258,241.709 L94.1509,230.918 L98.1761,220.199 L102.201,209.712 L106.226,199.573 L110.252,189.865 L114.277,180.642 L118.302,171.936 L122.327,163.763 L126.352,156.127 L130.377,149.019 L134.403,142.427 L138.428,136.332 L142.453,130.71 L146.478,125.538 L150.503,120.788 L154.528,116.435 L158.553,112.452 L162.579,108.813 L166.604,105.492 L170.629,102.465 L174.654,99.7098 L178.679,97.2036 L182.704,94.9261 L186.73,92.8581 L190.755,90.9817 L194.78,89.2802 L198.805,87.7384 L202.83,86.3498 L206.855,85.0915 L210.881,83.9517 L214.906,82.92 L218.931,81.9864 L222.956,81.1419 L226.981,80.3785 L231.006,79.6885 L235.031,79.065 L239.057,78.5019 L243.082,77.9935 L247.107,77.5344 L251.132,77.1202 L255.157,76.7463 L259.182,76.4091 L263.208,76.111 L267.233,75.8412 L271.258,75.597 L275.283,75.3761 L279.308,75.1764 L283.333,74.9959 L287.358,74.8329 L291.384,74.6856 L295.409,74.5525 L299.434,74.4325 L303.459,74.3241 L307.484,74.2263 L311.509,77.7492 L315.535,83.9289 L319.56,91.9981 L323.585,101.35 L327.61,111.508 L331.635,122.102 L335.66,132.845 L339.686,143.522 L343.711,153.971 L347.736,164.075 L351.761,173.751 L355.786,182.946 L359.811,191.627 L363.836,199.777 L367.862,207.138 L371.887,213.653 L375.912,219.3 L379.937,224.092 L383.962,228.063 L387.987,231.263 L392.013,233.757 L396.038,235.614 L400.063,236.907 L404.088,237.71 L408.113,238.097 L412.138,238.136 L416.164,237.891 L420.189,237.422 L424.214,236.782 L428.239,236.017 L432.264,235.169 L436.289,234.272 L440.314,233.356 L444.34,232.445 L448.365,231.558 L452.39,230.71 L456.415,229.911 L460.44,229.171 L464.465,228.493 L468.491,227.88 L472.516,227.332 L476.541,226.849 L480.566,226.428 L484.591,226.065 L488.616,225.757 L492.642,225.5 L496.667,225.288 L500.692,225.116 L504.717,224.981 L508.742,224.877 L512.767,224.8 L516.792,224.746 L520.818,224.712 L524.843,224.693 L528.868,224.687 L532.893,224.691 L536.918,224.703 L540.943,224.721 L544.969,224.742 L548.994,224.766 L553.019,224.791 L557.044,224.817 L561.069,224.842 L565.094,224.866 L569.119,224.889 L573.145,224.909 L577.17,224.928 L581.195,224.945 L585.22,224.96 L589.245,224.973 L593.27,224.983 L597.296,224.993 L601.321,225 L605.346,225.006 L609.371,225.01 L613.396,225.014 L617.421,225.016 L621.447,225.018 L625.472,225.018 L629.497,225.019 L633.522,225.018 L637.547,225.018 L641.572,225.017 L645.597,225.015 L649.623,225.014 L653.648,225.013 L657.673,225.011 L661.698,225.01 L665.723,225.009 L669.748,225.008 L673.774,225.006 L677.799,225.005 L681.824,225.004 L685.849,225.003 L689.874,225.003 L693.899,225.002 L697.925,225.001 L701.95,225.001 L705.975,225.001 L710,225" fill="none" stroke="#4a8a4a" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"></path><line x1="310" y1="30" x2="310" y2="290" stroke="#444" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="4 4"></line><text x="318" y="50" font-size="15.6" fill="#444" text-anchor="start" font-weight="bold">target drops to 0.3</text><text x="70" y="350" font-size="16.2" fill="#d64545" text-anchor="start" font-weight="bold">● no anti-windup: back within 2 % after 3.6 s</text><text x="70" y="378" font-size="16.2" fill="#2d5a2d" text-anchor="start" font-weight="bold">● integral clamped: back within 2 % after 2.1 s</text></svg>
+            <div class="diagram-caption">Integral windup. While the output is saturated the integral keeps growing, and when the target finally becomes reachable that stored-up error drives the output the wrong way for a long time. Clamping the integral while saturated fixes it.</div>
+        </div>
+
+<p>In the simulation, the PID that keeps integrating needed 3.6 s to come back within 2 % of the new target; the one that stops integrating while saturated needed 2.1 s. The fix is the one line in <span class="code-lesson-il">update</span>: only accept the new integral when the output is inside its limits.</p>
+<h3>Part 5. Tuning on Real Hardware</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 440" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="14" width="732" height="70" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.2"></rect><circle cx="48" cy="49" r="18" fill="#2e5a80" stroke="#fff" stroke-width="2"></circle><text x="48" y="55" font-size="19.5" fill="#fff" text-anchor="middle" font-weight="bold">1</text><text x="90" y="44" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">Ki = 0, Kd = 0</text><text x="90" y="70" font-size="15.6" fill="#5b6b78" text-anchor="start">start with proportional only</text><rect x="14" y="98" width="732" height="70" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.2"></rect><circle cx="48" cy="133" r="18" fill="#2e5a80" stroke="#fff" stroke-width="2"></circle><text x="48" y="139" font-size="19.5" fill="#fff" text-anchor="middle" font-weight="bold">2</text><text x="90" y="128" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">raise Kp</text><text x="90" y="154" font-size="15.6" fill="#5b6b78" text-anchor="start">until it just starts to oscillate, then back off to about half</text><rect x="14" y="182" width="732" height="70" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.2"></rect><circle cx="48" cy="217" r="18" fill="#2e5a80" stroke="#fff" stroke-width="2"></circle><text x="48" y="223" font-size="19.5" fill="#fff" text-anchor="middle" font-weight="bold">3</text><text x="90" y="212" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">raise Ki</text><text x="90" y="238" font-size="15.6" fill="#5b6b78" text-anchor="start">slowly, until the leftover error is removed in a reasonable time</text><rect x="14" y="266" width="732" height="70" rx="10" fill="#fbf1ea" stroke="#c0693f" stroke-width="2.2"></rect><circle cx="48" cy="301" r="18" fill="#2e5a80" stroke="#fff" stroke-width="2"></circle><text x="48" y="307" font-size="19.5" fill="#fff" text-anchor="middle" font-weight="bold">4</text><text x="90" y="296" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">raise Kd</text><text x="90" y="322" font-size="15.6" fill="#5b6b78" text-anchor="start">only if there is too much overshoot, and filter the input</text><rect x="14" y="350" width="732" height="70" rx="10" fill="#eef4f9" stroke="#2e5a80" stroke-width="2.2"></rect><circle cx="48" cy="385" r="18" fill="#2e5a80" stroke="#fff" stroke-width="2"></circle><text x="48" y="391" font-size="19.5" fill="#fff" text-anchor="middle" font-weight="bold">5</text><text x="90" y="380" font-size="18.9" fill="#1f3b52" text-anchor="start" font-weight="bold">test and adjust</text><text x="90" y="406" font-size="15.6" fill="#5b6b78" text-anchor="start">step the setpoint, then disturb the system</text></svg>
+            <div class="diagram-caption">A tuning procedure that works on real hardware. Change one thing at a time, always from a safe starting point, and test with a step change in the setpoint and with a disturbance (for example, covering the sensor).</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">simulate.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def simulate(gains, setpoint=0.3, seconds=8, dt=0.05, tau1=0.5, tau2=0.3):
+    """A two-lag plant: output -&gt; y1 -&gt; y2 (what the sensor sees). Try gains here first."""
+    pid = PID(*gains)
+    y1 = y2 = 0.0
+    ys = []
+    for _ in range(int(seconds / dt)):
+        u = pid.update(setpoint, y2, dt)
+        y1 += dt / tau1 * (u - y1)
+        y2 += dt / tau2 * (y1 - y2)
+        ys.append(y2)
+    return ys
+
+print(round(simulate((2.0, 0.0, 0.0))[-1], 2))      # 0.2: P alone stops short
+print(round(simulate((2.0, 4.0, 0.2))[-1], 2))      # 0.3: PID reaches the target
+</span>
+</div>
+<p>Run the loop at a <strong>fixed period</strong> (use <span class="code-lesson-il">ticks_ms</span> to keep it steady, and pass the real <span class="code-lesson-il">dt</span>), filter the sensor with the EMA from the Noise Filtering lesson before it reaches the controller, and scale the measurement and setpoint to the same range (for example 0 to 1). Your plant is not the simulated one, so treat the simulation as a place to understand the behaviour, not as a source of final gains.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: One Update by Hand.</strong> Kp = 2, Ki = 4, Kd = 0.2, dt = 0.05 s. The setpoint is 0.30, the measurement 0.20 (it was 0.18 a step ago) and the stored integral is 0.10. Compute the output.</p>
+        <p><strong>Exercise 2: Which Gain?.</strong> For each symptom, say which gain to change and which way: (a) it settles short of the target, (b) it overshoots and rings, (c) it is slow to approach the target.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Check the Simulation.</strong> Run the simulator with P-only, PI and PID gains and report the final value and the peak for each.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Demonstrate Windup.</strong> Write a test that holds an unreachable setpoint of 1.4 for 3 seconds, then drops it to 0.3, and compares the time to settle for a PID that clamps its integral and one that does not.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: One Update by Hand</summary>
+<p>error = 0.10. Integral: 0.10 + 4 × 0.10 × 0.05 = <strong>0.12</strong>. Derivative (on the measurement): −(0.20 − 0.18) / 0.05 = −0.4, so the D term is 0.2 × (−0.4) = <strong>−0.08</strong>. Output = 2 × 0.10 + 0.12 − 0.08 = <strong>0.24</strong>. The D term subtracts because the measurement is rising, which is exactly its braking effect.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Which Gain?</summary>
+<p>(a) steady error: <strong>raise Ki</strong> (or Kp a little). (b) overshoot and ringing: <strong>lower Ki</strong> or Kp, or add a little <strong>Kd</strong>. (c) slow: <strong>raise Kp</strong>. Change one at a time and retest, because the gains interact.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Check the Simulation</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">sim_check.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">for name, g in (("P", (2.0, 0, 0)), ("PI", (2.0, 4.0, 0)), ("PID", (2.0, 4.0, 0.2))):
+    ys = simulate(g)
+    print(name, round(ys[-1], 3), round(max(ys), 3))
+# P   0.2   0.2
+# PI  0.3   0.351     (peak 17 % over the 0.3 target)
+# PID 0.3   0.340     (13 % over)
+</span>
+</div><p>The P-only run ends at 0.2, the one-third error described above. The two peaks give the overshoot figures quoted in the lesson, which you can now reproduce yourself and then vary.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Demonstrate Windup</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">windup_test.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class NaivePID(PID):
+    def update(self, setpoint, measurement, dt):
+        error = setpoint - measurement
+        d = 0.0 if self.prev is None else -(measurement - self.prev) / dt
+        self.prev = measurement
+        self.i += self.ki * error * dt                    # always integrate
+        return max(self.out_min, min(self.out_max, self.kp * error + self.i + self.kd * d))
+
+def settle_time(pid):
+    y1 = y2 = 0.0
+    ys = []
+    for k in range(200):
+        sp = 1.4 if k * 0.05 &lt; 3 else 0.3
+        u = pid.update(sp, y2, 0.05)
+        y1 += 0.05 / 0.5 * (u - y1)
+        y2 += 0.05 / 0.3 * (y1 - y2)
+        ys.append(y2)
+    after = ys[60:]
+    return next(i * 0.05 for i in range(len(after)) if all(abs(v - 0.3) &lt;= 0.006 for v in after[i:]))
+
+print(settle_time(PID(2.0, 4.0, 0.2)), settle_time(NaivePID(2.0, 4.0, 0.2)))   # about 2.1 and 3.6 seconds
+</span>
+</div><p>Only one line differs between the two controllers, and it makes the recovery more than a second and a half slower. This is a good example of a defect that only appears when the output saturates, which is why you test saturation deliberately.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Draw the feedback loop and name its parts.</li>
+            <li>Say what each of P, I and D contributes and what goes wrong with each alone.</li>
+            <li>Write the discrete update with the integral clamped and the derivative on the measurement.</li>
+            <li>Explain windup and how to prevent it.</li>
+            <li>Describe a procedure for tuning gains on real hardware.</li>
+        </ol>
+
+    </body>
+</html>

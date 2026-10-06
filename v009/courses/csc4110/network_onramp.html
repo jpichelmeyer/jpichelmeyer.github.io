@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>A node that can sense and act is useful; a node that can also tell the network what it senses is the starting point of the Internet of Things. This lesson gets your Pico onto the class network and publishing to the class broker with a small helper, so that from this week onward every lab can end by sending its data somewhere. You do not need to understand the protocol yet; you do need to know how to use the helper and how to read what it tells you.</p>
+
+<h3>Part 1. The Path from Your Board to the Broker</h3>
+<p>Your node will report to a <strong>broker</strong>, a program on the class Raspberry Pi whose only job is to receive messages and pass them on to whoever wants them. Think of it as a post office: you drop a message into a labelled box (a <strong>topic</strong>), and anyone who has asked for that box receives it. The protocol that the Pico and the broker speak is called <strong>MQTT</strong>, and you will study it properly in Unit 2. For now it is a service you can use: the helper below hides the details.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="40" width="126" height="80" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="77" y="75.6" font-size="16" fill="#1f3b52" text-anchor="middle">Your</text><text x="77" y="95.6" font-size="16" fill="#1f3b52" text-anchor="middle">program</text><text x="77" y="156" font-size="14.5" fill="#5b6b78" text-anchor="middle">calls</text><text x="77" y="176" font-size="14.5" fill="#5b6b78" text-anchor="middle">net.publish()</text><line x1="140" y1="80" x2="155" y2="80" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="164.0,80.0 153.0,74.5 153.0,85.5" fill="#1f3b52"/><rect x="164" y="40" width="126" height="80" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="227" y="85.6" font-size="16" fill="#1f3b52" text-anchor="middle">net.py</text><text x="227" y="156" font-size="14.5" fill="#5b6b78" text-anchor="middle">the helper</text><text x="227" y="176" font-size="14.5" fill="#5b6b78" text-anchor="middle">you copy</text><line x1="290" y1="80" x2="305" y2="80" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="314.0,80.0 303.0,74.5 303.0,85.5" fill="#1f3b52"/><rect x="314" y="40" width="126" height="80" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="377" y="75.6" font-size="16" fill="#1f3b52" text-anchor="middle">Pico W</text><text x="377" y="95.6" font-size="16" fill="#1f3b52" text-anchor="middle">WiFi chip</text><text x="377" y="156" font-size="14.5" fill="#5b6b78" text-anchor="middle">joins the</text><text x="377" y="176" font-size="14.5" fill="#5b6b78" text-anchor="middle">class WiFi</text><line x1="440" y1="80" x2="455" y2="80" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="464.0,80.0 453.0,74.5 453.0,85.5" fill="#1f3b52"/><rect x="464" y="40" width="126" height="80" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="527" y="75.6" font-size="16" fill="#1f3b52" text-anchor="middle">Class</text><text x="527" y="95.6" font-size="16" fill="#1f3b52" text-anchor="middle">WiFi</text><text x="527" y="156" font-size="14.5" fill="#5b6b78" text-anchor="middle">the access</text><text x="527" y="176" font-size="14.5" fill="#5b6b78" text-anchor="middle">point</text><line x1="590" y1="80" x2="605" y2="80" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="614.0,80.0 603.0,74.5 603.0,85.5" fill="#1f3b52"/><rect x="614" y="40" width="126" height="80" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="677" y="75.6" font-size="16" fill="#1f3b52" text-anchor="middle">Pi broker</text><text x="677" y="95.6" font-size="16" fill="#1f3b52" text-anchor="middle">Mosquitto</text><text x="677" y="156" font-size="14.5" fill="#5b6b78" text-anchor="middle">checks your</text><text x="677" y="176" font-size="14.5" fill="#5b6b78" text-anchor="middle">login</text><text x="380" y="226" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">what usually goes wrong at each step</text><rect x="14" y="244" width="126" height="70" rx="6" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="77" y="275.012" font-size="14.5" fill="#1f3b52" text-anchor="middle">a typo, or the</text><text x="77" y="293.137" font-size="14.5" fill="#1f3b52" text-anchor="middle">loop blocks</text><rect x="164" y="244" width="126" height="70" rx="6" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="227" y="275.012" font-size="14.5" fill="#1f3b52" text-anchor="middle">config.py</text><text x="227" y="293.137" font-size="14.5" fill="#1f3b52" text-anchor="middle">not set up</text><rect x="314" y="244" width="126" height="70" rx="6" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="377" y="275.012" font-size="14.5" fill="#1f3b52" text-anchor="middle">wrong SSID</text><text x="377" y="293.137" font-size="14.5" fill="#1f3b52" text-anchor="middle">or password</text><rect x="464" y="244" width="126" height="70" rx="6" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="527" y="275.012" font-size="14.5" fill="#1f3b52" text-anchor="middle">out of range,</text><text x="527" y="293.137" font-size="14.5" fill="#1f3b52" text-anchor="middle">no signal</text><rect x="614" y="244" width="126" height="70" rx="6" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="677" y="275.012" font-size="14.5" fill="#1f3b52" text-anchor="middle">wrong IP, or</text><text x="677" y="293.137" font-size="14.5" fill="#1f3b52" text-anchor="middle">wrong login</text></svg>
+            <div class="diagram-caption">The path a message takes. Every step can fail in its own way, and the helper reports which one did, so you can tell a network problem from a code problem. A laptop (or another student’s program) can subscribe to the broker and see what you publish.</div>
+        </div>
+
+<h3>Part 2. What Your Instructor Gives You</h3>
+<p>Three things: the <strong>name and password of the class WiFi network</strong>, the <strong>address of the broker</strong> (an IP address on that network), and <strong>your own broker login</strong> (a user name and password). Put them in a file called <span class="code-lesson-il">config.py</span> on the Pico, in exactly this form:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">config.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># config.py -- your own settings. Never share this file or put it online.
+WIFI_SSID = "class-network-name"        # given to you in class
+WIFI_PASSWORD = "wifi-password"
+BROKER = "192.168.1.50"                 # the address of the class Raspberry Pi broker
+BROKER_PORT = 1883
+MQTT_USER = "jsmith"                    # your own login for the broker
+MQTT_PASSWORD = "your-broker-password"
+</span>
+</div>
+<p>Keep this file on your board and your laptop only. It holds passwords, so it must never be pasted into a chat, a report or a public repository. Your broker login is yours alone: the broker lets you <em>publish</em> only under <span class="code-lesson-il">lab/&lt;your user name&gt;/</span> and lets you <em>read</em> other topics, so a mistake in your program cannot damage anyone else’s.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 270" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="420" height="240" rx="8" fill="#fff" stroke="#5b6b78" stroke-width="2.5"/><text x="230" y="44" font-size="16" fill="#5b6b78" text-anchor="middle" font-weight="bold">on the Pico</text><rect x="34" y="62" width="190" height="38" rx="5" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="129" y="86.25" font-size="15" fill="#1f3b52" text-anchor="middle">main.py</text><text x="236" y="87" font-size="14.5" fill="#1f3b52" text-anchor="start">your program</text><rect x="34" y="108" width="190" height="38" rx="5" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="129" y="132.25" font-size="15" fill="#1f3b52" text-anchor="middle">net.py</text><text x="236" y="133" font-size="14.5" fill="#1f3b52" text-anchor="start">the helper (given)</text><rect x="34" y="154" width="190" height="38" rx="5" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="129" y="178.25" font-size="15" fill="#1f3b52" text-anchor="middle">config.py</text><text x="236" y="179" font-size="14.5" fill="#1f3b52" text-anchor="start">your WiFi and login</text><rect x="34" y="200" width="190" height="38" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="129" y="224.25" font-size="15" fill="#1f3b52" text-anchor="middle">lib/umqtt/simple.py</text><text x="236" y="225" font-size="14.5" fill="#1f3b52" text-anchor="start">MQTT client library</text><rect x="460" y="40" width="280" height="200" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="600" y="106.675" font-size="15.5" fill="#1f3b52" text-anchor="middle">The order to do it</text><text x="600" y="126.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">1. copy config.py and net.py</text><text x="600" y="145.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">2. check import umqtt.simple</text><text x="600" y="164.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">3. run the test program</text><text x="600" y="184.175" font-size="15.5" fill="#1f3b52" text-anchor="middle">4. watch the broker (Part 6)</text></svg>
+            <div class="diagram-caption">What lives on your board. <span class="code-lesson-il">main.py</span> is your program; <span class="code-lesson-il">net.py</span> and <span class="code-lesson-il">config.py</span> sit beside it, and the MQTT client library is in a <span class="code-lesson-il">lib</span> folder (it may already be built into the firmware: check with <span class="code-lesson-il">import umqtt.simple</span>, as in the Thonny lesson).</div>
+        </div>
+
+<h3>Part 3. The Helper: net.py</h3>
+<p>Here is the whole file. You do not have to write it, but you should read it, because Unit 2 is largely about the ideas inside it. The key design goals are that <span class="code-lesson-il">publish</span> <strong>never raises an error</strong> (a robot should not crash because the WiFi dropped) and <strong>never waits long</strong> (a lost network should not freeze your control loop):</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">net.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># net.py -- the class network helper for CSC/EGR 4110.
+# Copy it to the Pico next to main.py, and put your settings in config.py.
+#
+#     import net
+#     net.publish("tele/range", {"cm": 23.4})      # never raises, never blocks for long
+#
+import json
+import network
+from time import ticks_ms, ticks_diff, sleep_ms
+import config
+
+try:
+    from umqtt.simple import MQTTClient
+except ImportError:
+    MQTTClient = None
+
+NO_WIFI, NO_BROKER, ONLINE, NO_LIB = "NO WIFI", "NO BROKER", "ONLINE", "NO MQTT LIB"
+
+
+class Link:
+    def __init__(self, retry_s=15, wifi_timeout_s=8, log_max=40):
+        self.wlan = network.WLAN(network.STA_IF)
+        self.client = None
+        self.status = NO_WIFI
+        self.on_status = None                 # optional: a function(status) called on every change
+        self.retry_ms = retry_s * 1000        # how long to leave a dead network alone
+        self.wifi_timeout_ms = wifi_timeout_s * 1000
+        self.last_try = None
+        self.seq = 0                          # counts every message you ask to send
+        self.log = []                         # messages that could not be sent yet
+        self.log_max = log_max
+        self.sent = 0
+        self.dropped = 0
+        self.root = "lab/%s/" % config.MQTT_USER
+        self.keepalive = 0                    # seconds; 0 means "no keepalive" (Unit 2 changes this)
+        self.cid = b"pico-" + config.MQTT_USER.encode()      # the broker allows one connection per id
+
+    def _set(self, status):
+        if status != self.status:
+            self.status = status
+            if self.on_status:
+                self.on_status(status)
+
+    def _wifi_up(self):
+        if self.wlan.isconnected():
+            return True
+        self.wlan.active(True)
+        self.wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
+        t0 = ticks_ms()
+        while not self.wlan.isconnected():
+            if self.wlan.status() &lt; 0:        # negative codes mean a definite failure
+                return False
+            if ticks_diff(ticks_ms(), t0) &gt; self.wifi_timeout_ms:
+                return False
+            sleep_ms(100)
+        return True
+
+    def _make_client(self):
+        return MQTTClient(self.cid, config.BROKER, config.BROKER_PORT,
+                          config.MQTT_USER, config.MQTT_PASSWORD, keepalive=self.keepalive)
+
+    def connect(self):
+        """Try to get all the way to the broker. Returns True if online."""
+        self.last_try = ticks_ms()
+        if not self._wifi_up():
+            self.client = None
+            self._set(NO_WIFI)
+            return False
+        if MQTTClient is None:
+            self._set(NO_LIB)
+            return False
+        try:
+            c = self._make_client()
+            c.connect()
+            self.client = c
+            self._set(ONLINE)
+            return True
+        except OSError:
+            self.client = None
+            self._set(NO_BROKER)
+            return False
+
+    def _drop(self):
+        try:
+            self.client.disconnect()
+        except Exception:
+            pass
+        self.client = None
+        self._set(NO_WIFI if not self.wlan.isconnected() else NO_BROKER)
+
+    def _stash(self, topic, payload, retain):
+        self.log.append((topic, payload, retain))
+        if len(self.log) &gt; self.log_max:
+            self.log.pop(0)                   # keep the newest; forget the oldest
+            self.dropped += 1
+
+    def _flush(self, limit):
+        """Send up to `limit` queued messages, oldest first."""
+        while self.log and limit &gt; 0 and self.client:
+            topic, payload, retain = self.log[0]
+            try:
+                self.client.publish(topic, payload, retain)
+            except OSError:
+                self._drop()
+                return
+            self.log.pop(0)                   # forget it only after it was sent
+            self.sent += 1
+            limit -= 1
+
+    def publish(self, topic, data, retain=False):
+        """Send data (a dict or a single value) to lab/&lt;you&gt;/&lt;topic&gt;.
+        Returns True if everything, including any backlog, has now left the board."""
+        self.seq += 1
+        body = {"v": 1, "seq": self.seq, "t": ticks_ms()}
+        if isinstance(data, dict):
+            body.update(data)
+        else:
+            body["value"] = data
+        self._stash(self.root + topic, json.dumps(body), retain)    # everything is queued first,
+        if self.status != ONLINE:                                    # so order is always kept
+            if self.last_try is None or ticks_diff(ticks_ms(), self.last_try) &gt;= self.retry_ms:
+                self.connect()
+        if self.status == ONLINE:
+            self._flush(5)                    # a few per call: a long backlog never stalls the loop
+        return not self.log
+
+
+_link = None
+
+def link():
+    global _link
+    if _link is None:
+        _link = Link()
+    return _link
+
+def publish(topic, data, retain=False):
+    return link().publish(topic, data, retain)
+
+def status():
+    return link().status
+</span>
+</div>
+<p>Read it in three layers. At the bottom, <span class="code-lesson-il">Link.connect</span> climbs the ladder: join the WiFi, then log in to the broker, and record in <span class="code-lesson-il">status</span> how far it got. In the middle, <span class="code-lesson-il">publish</span> builds the message (a small envelope plus your data), puts it in a queue, and, if online, sends the oldest few messages. At the top, the module-level <span class="code-lesson-il">publish(topic, data)</span> creates one shared <span class="code-lesson-il">Link</span> the first time you call it, so you never construct anything.</p>
+<h3>Part 4. Using It</h3>
+<p>The smallest working node needs no extra wiring: the Pico’s own temperature sensor and LED are enough.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import net
+from machine import ADC, Pin
+from time import sleep_ms
+
+adc = ADC(4)                              # the chip's internal temperature sensor
+led = Pin("LED", Pin.OUT)
+
+def temp_c():
+    return 27 - (adc.read_u16() * 3.3 / 65535 - 0.706) / 0.001721
+
+net.link().on_status = lambda s: print("net:", s)     # print every change of network state
+
+while True:
+    delivered = net.publish("tele/temp", {"c": round(temp_c(), 1)})
+    led.value(delivered)                  # LED on = this message (and any backlog) got out
+    sleep_ms(2000)
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="26" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">a published message, as the broker sees it</text><rect x="30" y="50" width="120" height="46" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="90" y="78.95" font-size="17" fill="True" text-anchor="middle">lab</text><text x="90" y="122" font-size="14.5" fill="#5b6b78" text-anchor="middle">class prefix</text><text x="165" y="80" font-size="22" fill="#1f3b52" text-anchor="middle" font-weight="bold">/</text><rect x="180" y="50" width="140" height="46" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="250" y="78.95" font-size="17" fill="True" text-anchor="middle">jsmith</text><text x="250" y="122" font-size="14.5" fill="#5b6b78" text-anchor="middle">you</text><text x="335" y="80" font-size="22" fill="#1f3b52" text-anchor="middle" font-weight="bold">/</text><rect x="350" y="50" width="120" height="46" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="410" y="78.95" font-size="17" fill="True" text-anchor="middle">tele</text><text x="410" y="122" font-size="14.5" fill="#5b6b78" text-anchor="middle">kind of data</text><text x="485" y="80" font-size="22" fill="#1f3b52" text-anchor="middle" font-weight="bold">/</text><rect x="500" y="50" width="120" height="46" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="560" y="78.95" font-size="17" fill="True" text-anchor="middle">temp</text><text x="560" y="122" font-size="14.5" fill="#5b6b78" text-anchor="middle">which sensor</text><text x="190" y="160" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">topic: who gets the message</text><rect x="20" y="176" width="720" height="70" rx="6" fill="#1f2124" stroke="#1f2124" stroke-width="1"/><text x="40" y="206" font-size="17" fill="#f0c674" text-anchor="start">{"v": 1, "seq": 17, "t": 34120, "c": 27.4}</text><text x="40" y="232" font-size="14.5" fill="#9aa5b1" text-anchor="start">format version, count, ms since boot, your data</text><text x="380" y="275" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">payload: what the message says (JSON text)</text><text x="380" y="306" font-size="15" fill="#5b6b78" text-anchor="middle">v and seq let a receiver notice a lost message or a changed format</text></svg>
+            <div class="diagram-caption">Topic and payload. <span class="code-lesson-il">net.publish("tele/temp", {"c": 27.4})</span> sends this message to <span class="code-lesson-il">lab/jsmith/tele/temp</span>. The helper adds <span class="code-lesson-il">v</span> (format version), <span class="code-lesson-il">seq</span> (a counter that rises with every call) and <span class="code-lesson-il">t</span> (milliseconds since the board started); your own fields come after them.</div>
+        </div>
+
+<p>The <span class="code-lesson-il">tele/</span> in the topic is a convention that we keep all term: <strong>tele</strong>metry, readings that a node <em>reports</em>. Later you will use <span class="code-lesson-il">cmd/</span> for commands sent <em>to</em> a node and <span class="code-lesson-il">stat/</span> for state it announces. Following the convention means other people’s programs can find your data without asking you.</p>
+<p>Show the network state on the node itself. A robot in a field has no laptop beside it:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">status_lcd.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># with the LCD from the I2C lesson already created as `lcd`
+def show(status):
+    lcd.line("net " + status, 1)          # second line of the display
+
+net.link().on_status = show
+</span>
+</div>
+<h3>Part 5. What Happens When It Fails</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="110" width="170" height="70" rx="8" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="105" y="151.3" font-size="18" fill="True" text-anchor="middle">NO WIFI</text><rect x="295" y="110" width="170" height="70" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="151.3" font-size="18" fill="True" text-anchor="middle">NO BROKER</text><rect x="570" y="110" width="170" height="70" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="655" y="151.3" font-size="18" fill="True" text-anchor="middle">ONLINE</text><line x1="190" y1="130" x2="286" y2="130" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="295.0,130.0 284.0,124.5 284.0,135.5" fill="#1f3b52"/><text x="242" y="120" font-size="14.5" fill="#1f3b52" text-anchor="middle">WiFi joined</text><line x1="465" y1="130" x2="561" y2="130" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="570.0,130.0 559.0,124.5 559.0,135.5" fill="#1f3b52"/><text x="517" y="120" font-size="14.5" fill="#1f3b52" text-anchor="middle">login accepted</text><line x1="570" y1="162" x2="474" y2="162" stroke="#b3261e" stroke-width="2.4" stroke-linecap="round"/><polygon points="465.0,162.0 476.0,167.5 476.0,156.5" fill="#b3261e"/><text x="517" y="188" font-size="14.5" fill="#b3261e" text-anchor="middle">send fails</text><line x1="295" y1="162" x2="199" y2="162" stroke="#b3261e" stroke-width="2.4" stroke-linecap="round"/><polygon points="190.0,162.0 201.0,167.5 201.0,156.5" fill="#b3261e"/><text x="242" y="188" font-size="14.5" fill="#b3261e" text-anchor="middle">WiFi lost</text><path d="M95,110 C95,50 175,50 175,110" fill="none" stroke="#1f3b52" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><polygon points="175,110 169,98 181,98" fill="#1f3b52"/><text x="135" y="62" font-size="14.5" fill="#1f3b52" text-anchor="middle">retry every 15 s</text><rect x="30" y="232" width="700" height="70" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="380" y="262.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">While not ONLINE, publish() puts the message in a queue (the newest 40 are kept)</text><text x="380" y="282.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">and tries to reconnect only once every 15 s, so your loop is never stuck for long.</text></svg>
+            <div class="diagram-caption">The three network states. The helper moves between them by itself. A reconnect attempt can block for up to about 8 seconds (waiting for WiFi), so a loop that must never stall needs the non-blocking style that Unit 2 develops; for now, the 15 s spacing keeps the cost small.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="30" font-size="15.5" fill="#5b6b78" text-anchor="start" font-weight="bold">network</text><rect x="100" y="14" width="180" height="28" rx="4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="190" y="33.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">ONLINE</text><rect x="280" y="14" width="240" height="28" rx="4" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="400" y="33.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">NO WIFI</text><rect x="520" y="14" width="220" height="28" rx="4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="630" y="33.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">ONLINE</text><text x="20" y="108" font-size="15.5" fill="#5b6b78" text-anchor="start" font-weight="bold">messages</text><rect x="100" y="84" width="38" height="38" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="119" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">1</text><rect x="145" y="84" width="38" height="38" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="164" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">2</text><rect x="190" y="84" width="38" height="38" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="209" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">3</text><rect x="235" y="84" width="38" height="38" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="254" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">4</text><rect x="280" y="84" width="38" height="38" rx="5" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="299" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">5</text><rect x="325" y="84" width="38" height="38" rx="5" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="344" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">6</text><rect x="370" y="84" width="38" height="38" rx="5" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="389" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">7</text><rect x="415" y="84" width="38" height="38" rx="5" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="434" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">8</text><rect x="460" y="84" width="38" height="38" rx="5" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="479" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">9</text><rect x="505" y="84" width="38" height="38" rx="5" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="524" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">10</text><rect x="550" y="84" width="38" height="38" rx="5" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="569" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">11</text><rect x="595" y="84" width="38" height="38" rx="5" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="614" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">12</text><rect x="640" y="84" width="38" height="38" rx="5" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="659" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">13</text><rect x="685" y="84" width="38" height="38" rx="5" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="704" y="108.25" font-size="15" fill="#1f3b52" text-anchor="middle">14</text><text x="190" y="150" font-size="14.5" fill="#3c8a5a" text-anchor="middle" font-weight="bold">sent at once</text><text x="400" y="150" font-size="14.5" fill="#8a4526" text-anchor="middle" font-weight="bold">queued while offline</text><text x="660" y="150" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">delivered late, in order</text><line x1="400" y1="164" x2="591" y2="164" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><polygon points="600.0,164.0 589.0,158.5 589.0,169.5" fill="#2e5a80"/><rect x="20" y="186" width="720" height="76" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="380" y="210.5" font-size="15" fill="#1f3b52" text-anchor="middle">The broker sees seq 1 to 4, then 5 to 9 arriving late (their t shows</text><text x="380" y="229.25" font-size="15" fill="#1f3b52" text-anchor="middle">when they were really taken), then 10 and on. A gap in seq means a</text><text x="380" y="248" font-size="15" fill="#1f3b52" text-anchor="middle">message was lost; a late burst means a network outage.</text></svg>
+            <div class="diagram-caption">An outage, as the broker sees it. Messages 5 to 9 were taken while the WiFi was down and were kept; when the network returned they were delivered oldest first, a few per call. Because <span class="code-lesson-il">seq</span> and <span class="code-lesson-il">t</span> travel with each message, a receiver can tell exactly what happened.</div>
+        </div>
+
+<h3>Part 6. Watching the Broker</h3>
+<p>To see your own messages, subscribe from a laptop on the class network. If you have the Mosquitto client tools installed, one command does it (<span class="code-lesson-il">#</span> means "everything below this topic"):</p>
+<div class="code-block" data-lang="shell">
+<div class="code-block-header">
+<span class="code-block-filename">shell</span>
+<span class="code-block-lang">Shell</span>
+</div>
+<span class="code-lesson-bl">mosquitto_sub -h 192.168.1.50 -u jsmith -P your-broker-password -t "lab/jsmith/#" -v
+</span>
+</div>
+<p>A desktop MQTT viewer (such as MQTT Explorer) does the same with a window and a tree of topics, and needs the same four things: the broker address, port 1883, your user name and your password. You are allowed to subscribe to the other students’ topics (<span class="code-lesson-il">lab/+/tele/#</span>, where <span class="code-lesson-il">+</span> means "any one name") but not to publish to them.</p>
+<p>Class rules: publish at most about <strong>10 messages per second</strong> from one node in total, keep payloads under about 200 bytes, and publish <em>telemetry</em> only under your own name. The broker is shared by everyone, and a program stuck in a fast loop sending thousands of messages can slow the whole class (and the lab practical) down.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Build the Topic.</strong> User <span class="code-lesson-il">ajones</span> calls <span class="code-lesson-il">net.publish("tele/range", {"cm": 23.4})</span>. What full topic does the broker see, and what keys are in the payload?</p>
+        <p><strong>Exercise 2: Read the Status.</strong> The LCD says NO BROKER. What has worked so far, and what are the likely causes?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Too Many Messages.</strong> You publish three topics (light, distance, tilt) each at 20 Hz. That is over the class limit of 10 messages per second. Redesign it so that you send under 10 per second and lose as little information as possible, and say how many bytes per second your new design uses if a combined message is about 90 bytes.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Average, Then Report.</strong> Write the logic for a node that reads a sensor 10 times per second and publishes the average of the last 5 readings twice per second. Make it testable without hardware by passing the time in as an argument, and show that it publishes 20 messages in 10 seconds.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Build the Topic</summary>
+<p>The topic is <strong><span class="code-lesson-il">lab/ajones/tele/range</span></strong>: the helper puts <span class="code-lesson-il">lab/&lt;user&gt;/</span> in front. The payload contains <strong><span class="code-lesson-il">v</span>, <span class="code-lesson-il">seq</span>, <span class="code-lesson-il">t</span> and <span class="code-lesson-il">cm</span></strong>, in that order, for example <span class="code-lesson-il">{"v": 1, "seq": 1, "t": 5120, "cm": 23.4}</span>.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Read the Status</summary>
+<p>NO BROKER means the <strong>WiFi joined</strong> (the helper only tries the broker after that) but the connection to the broker failed. Likely causes: the broker address in <span class="code-lesson-il">config.py</span> is wrong, the broker is not running or not reachable from this network, or the user name or password is wrong. It is <em>not</em> the WiFi password, which would give NO WIFI.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Too Many Messages</summary>
+<p>Combine the three readings into <strong>one message</strong> and send it at 5 Hz: <span class="code-lesson-il">net.publish("tele/all", {"light": l, "cm": d, "roll": r})</span>. That is 5 messages per second (under the limit). If you need more time resolution, include a short list for each field (the last four readings at 20 Hz) in each message. Bandwidth: 5 × 90 = <strong>450 B/s</strong>, down from 3 × 20 messages of about 75 bytes each, or 4500 B/s. Fewer, fuller messages waste less on envelope.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Average, Then Report</summary>
+<p>Take the current time as a parameter instead of reading the clock inside. Then a test can drive it with any sequence of times, and the main loop simply passes <span class="code-lesson-il">ticks_ms()</span>:</p><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">report.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class Reporter:
+    def __init__(self, publish):
+        self.publish = publish
+        self.window = []
+        self.next_sample = 0
+        self.next_report = 500
+
+    def tick(self, now, read):
+        if now &gt;= self.next_sample:
+            self.window = (self.window + [read()])[-5:]       # keep only the last five
+            self.next_sample += 100                            # 10 readings per second
+        if now &gt;= self.next_report and self.window:
+            self.publish("tele/avg", {"avg": sum(self.window) / len(self.window)})
+            self.next_report += 500                            # twice per second
+
+# on the board:
+#   r = Reporter(net.publish)
+#   while True:
+#       r.tick(ticks_ms(), adc.read_u16)
+</span>
+</div><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_report.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">sent = []
+r = Reporter(lambda topic, data: sent.append(data["avg"]))
+for now in range(0, 10_001, 10):            # ten simulated seconds in 10 ms steps
+    r.tick(now, lambda: 20)
+print(len(sent), sent[0])                   # 20 20.0
+</span>
+</div><p>Twenty messages in ten seconds, as designed. The class has two timers and no sleep, the same cooperative-loop shape as the Pulses lesson, and because time is an argument the test needs no hardware and no waiting.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Name the steps between your program and the broker, and what can fail at each one.</li>
+            <li>Fill in <span class="code-lesson-il">config.py</span> and publish a reading with <span class="code-lesson-il">net.publish</span>.</li>
+            <li>Say what topic and payload a call produces.</li>
+            <li>Read the three network states and say what each means.</li>
+            <li>Explain why a failed network must not crash or freeze the node.</li>
+            <li>Subscribe to your own topic from a laptop.</li>
+        </ol>
+
+    </body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lab joins the multi-agent lesson, the state machines and the contract into one working system of three boards. You write each agent against a written contract, test it alone and together, and then break the system on purpose to see which agent decides what when a sensor or a coordinator disappears.</p>
+
+<p>This lab builds a small multi-agent system out of <strong>three boards</strong>, one per student, written to the same contract. A sensor agent measures distance, a coordinator decides, and an actuator obeys and reports. The point is not the LED, which is trivial, but making three independent programs cooperate through nothing except an agreed set of messages, and then seeing what happens when one of them lies, stops, or disappears.</p>
+<h3>The System</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 290" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="200" height="90" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="120" y="61.5" font-size="15" fill="#1f3b52" text-anchor="middle">sensor agent</text><text x="120" y="80.25" font-size="15" fill="#1f3b52" text-anchor="middle">HC-SR04 on GP10/GP11</text><text x="120" y="99" font-size="15" fill="#1f3b52" text-anchor="middle">(student 1)</text><rect x="280" y="30" width="200" height="90" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="61.5" font-size="15" fill="#1f3b52" text-anchor="middle">coordinator</text><text x="380" y="80.25" font-size="15" fill="#1f3b52" text-anchor="middle">decides near / far</text><text x="380" y="99" font-size="15" fill="#1f3b52" text-anchor="middle">(student 2)</text><rect x="540" y="30" width="200" height="90" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="640" y="61.5" font-size="15" fill="#1f3b52" text-anchor="middle">actuator agent</text><text x="640" y="80.25" font-size="15" fill="#1f3b52" text-anchor="middle">LED on GP16</text><text x="640" y="99" font-size="15" fill="#1f3b52" text-anchor="middle">(student 3)</text><rect x="280" y="190" width="200" height="56" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="223.6" font-size="16" fill="#1f3b52" text-anchor="middle">broker (class Pi)</text><line x1="120" y1="120" x2="331.424" y2="187.271" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="340.0,190.0 331.2,181.4 327.9,191.9" fill="#1f3b52"/><line x1="380" y1="120" x2="380" y2="181" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="380.0,190.0 385.5,179.0 374.5,179.0" fill="#1f3b52"/><line x1="640" y1="120" x2="428.576" y2="187.271" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="420.0,190.0 432.1,191.9 428.8,181.4" fill="#1f3b52"/><text x="130" y="160" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">tele/range</text><text x="372" y="158" font-size="14" fill="#b8860b" text-anchor="end" font-weight="bold">cmd/led</text><text x="650" y="160" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">stat/led</text></svg>
+            <div class="diagram-caption">The Lab 9 system. Each student writes only into their own subtree; the coordinator listens to the sensor’s <span class="code-lesson-il">tele</span>, and the actuator listens to the coordinator’s <span class="code-lesson-il">cmd</span>.</div>
+        </div>
+
+<p>Work in a group of three, one agent each. With fewer students, run the missing agents as the simulated peers further down. Everything in this lab uses what you have already built: <span class="code-lesson-il">hub.py</span>, <span class="code-lesson-il">agent.py</span> (the multi-agent lesson), <span class="code-lesson-il">ranger.py</span> (pulse lesson), and the schema checker <span class="code-lesson-il">contract.py</span> and the state machine files of this week. The broker and its access list are those of Lab 5 and need <strong>no change</strong>: everyone may read <span class="code-lesson-il">lab/#</span>, and each user writes only to <span class="code-lesson-il">lab/&lt;own name&gt;/#</span>.</p>
+<h3>The Contract</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 458.55" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="140" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="90" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Topic</text><rect x="160" y="14" width="160" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="240" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Kind</text><rect x="320" y="14" width="270" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="455" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Fields</text><rect x="590" y="14" width="150" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="665" y="47.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Rate</text><rect x="20" y="70" width="140" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="start">tele/range</text><rect x="160" y="70" width="160" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="169" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="start">sensor, 1 student</text><rect x="320" y="70" width="270" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="329" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="start">cm 2..400; ok bool</text><rect x="590" y="70" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="103.075" font-size="14.5" fill="#1f3b52" text-anchor="start">5 per second</text><rect x="20" y="126" width="140" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="start">cmd/led</text><rect x="160" y="126" width="160" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="169" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="start">coordinator</text><rect x="320" y="126" width="270" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="329" y="159.075" font-size="14.5" fill="#1f3b52" text-anchor="start">to str; state 0 or 1; id int</text><rect x="590" y="126" width="150" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="150.012" font-size="14.5" fill="#1f3b52" text-anchor="start">on change +</text><text x="599" y="168.137" font-size="14.5" fill="#1f3b52" text-anchor="start">every 2 s</text><rect x="20" y="182" width="140" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="start">stat/led</text><rect x="160" y="182" width="160" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="169" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="start">actuator, retained</text><rect x="320" y="182" width="270" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="329" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="start">state 0 or 1 (the real one)</text><rect x="590" y="182" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="215.075" font-size="14.5" fill="#1f3b52" text-anchor="start">on change</text><rect x="20" y="238" width="140" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="start">evt/warn</text><rect x="160" y="238" width="160" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="169" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="start">coordinator</text><rect x="320" y="238" width="270" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="329" y="271.075" font-size="14.5" fill="#1f3b52" text-anchor="start">what str</text><rect x="590" y="238" width="150" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="262.012" font-size="14.5" fill="#1f3b52" text-anchor="start">rare, once per</text><text x="599" y="280.137" font-size="14.5" fill="#1f3b52" text-anchor="start">event</text><rect x="20" y="294" width="140" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="327.075" font-size="14.5" fill="#1f3b52" text-anchor="start">stat/online</text><rect x="160" y="294" width="160" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="169" y="318.012" font-size="14.5" fill="#1f3b52" text-anchor="start">every agent,</text><text x="169" y="336.137" font-size="14.5" fill="#1f3b52" text-anchor="start">retained</text><rect x="320" y="294" width="270" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="329" y="327.075" font-size="14.5" fill="#1f3b52" text-anchor="start">online bool, with a will</text><rect x="590" y="294" width="150" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="327.075" font-size="14.5" fill="#1f3b52" text-anchor="start">at connect</text><rect x="20" y="368" width="720" height="76.55" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="393.225" font-size="14.5" fill="#1f3b52" text-anchor="middle">Silence: no tele/range for 2 s means the sensor is lost, and the coordinator commands 0. No</text><text x="380" y="411.35" font-size="14.5" fill="#1f3b52" text-anchor="middle">valid cmd/led for 5 s means the coordinator is lost, and the actuator goes to 0 by itself. No</text><text x="380" y="429.475" font-size="14.5" fill="#1f3b52" text-anchor="middle">echo from the sensor is sent as cm 400, ok false (never as 0).</text></svg>
+            <div class="diagram-caption">The Lab 9 contract. Every group in the class implements the same table, so a sensor written by one group can drive a coordinator written by another.</div>
+        </div>
+
+<p>Every message uses the envelope of the contracts lesson. Copy <span class="code-lesson-il">contract.py</span> (with <span class="code-lesson-il">RANGE_TELE</span> and <span class="code-lesson-il">LED_CMD</span>) onto every board and write your names into the constants at the top of your file: the coordinator needs the <em>names</em> of the sensor and the actuator, and the actuator needs the name of the coordinator and its own.</p>
+<h3>Part 1. Build Your Agent</h3>
+<p>Each student writes the agent for their role, using the base class of the multi-agent lesson. <strong>Test it alone first</strong> (with the simulated peers below) before you connect to the others. The three programs are given here in full, so that you read them as a specification rather than invent them; the work of the lab is to make them run on real hardware, test them, and break them.</p>
+<p><strong>Student 1: the sensor agent.</strong> It measures every 200 ms and publishes the range. It decides nothing, and knows nothing about the others.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">sensor.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># sensor.py -- agent 1: publishes the range, nothing else
+from time import ticks_ms, ticks_diff
+from agent import Agent
+
+class RangeAgent(Agent):
+    def __init__(self, hub, ranger):
+        super().__init__("range", hub, period_ms=50)
+        self.r = ranger
+        self.last_start = ticks_ms()
+
+    def sense(self):
+        if self.r.update():                        # a result arrived (None = no echo)
+            return self.r.cm, True
+        if not self.r.busy and ticks_diff(ticks_ms(), self.last_start) &gt;= 200:
+            self.last_start = ticks_ms()
+            self.r.start()                         # 5 measurements per second
+        return None, False
+
+    def tell(self, obs, dec):
+        cm, fresh = obs
+        if fresh:                                  # contract: cm is 2..400; "no echo" is cm 400, ok false
+            self.hub.publish("tele/range", {"cm": 400.0 if cm is None else float(min(max(cm, 2.0), 400.0)),
+                                            "ok": cm is not None})
+</span>
+</div>
+<p><strong>Student 2: the coordinator.</strong> It validates every message it receives, applies a band (20 and 30 cm) so the output does not flicker, treats a silent sensor as “nothing near”, and warns once.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">coordinator.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># coordinator.py -- agent 2: reads the sensor, commands the actuator
+from time import ticks_ms, ticks_diff
+import hub
+from agent import Agent
+from contract import check, RANGE_TELE
+
+SENSOR_USER, ACT_USER = "amy", "jsmith"          # the names of your two teammates: change these
+
+class Coordinator(Agent):
+    NEAR, FAR = 20.0, 30.0                       # the band, in centimetres
+    LOST_MS = 2000                               # contract: no tele/range for 2 s means the sensor is lost
+    REFRESH_MS = 2000                            # repeat the command: the actuator expects to hear it
+
+    def __init__(self, h):
+        super().__init__("coord", h, period_ms=100)
+        self.cm = None
+        self.heard = ticks_ms()
+        self.lost = False
+        self.rejected = 0
+        self.state = 0
+        self.cmd_id = 0
+        self.sent = None
+        self.sent_at = ticks_ms()
+        h.on("lab/%s/tele/range" % SENSOR_USER, self.on_range)
+
+    def on_range(self, topic, payload):          # catch only: validate, remember, return
+        d = hub.decode(payload)
+        ok, why = check(RANGE_TELE, d) if d else (False, "bad envelope")
+        if not ok:
+            self.rejected += 1
+            return
+        self.cm, self.heard = d["cm"], ticks_ms()
+        if d.get("ok") is False:
+            self.cm = None                       # no echo: nothing in range
+
+    def sense(self):
+        return self.cm, ticks_diff(ticks_ms(), self.heard) &gt; self.LOST_MS
+
+    def decide(self, obs):
+        cm, silent = obs
+        if silent:
+            return 0                             # a lost sensor is treated as "nothing near"
+        if cm is not None and cm &lt; self.NEAR:
+            self.state = 1
+        elif cm is None or cm &gt; self.FAR:
+            self.state = 0
+        return self.state
+
+    def tell(self, obs, state):
+        _, silent = obs
+        if silent and not self.lost:
+            self.hub.publish("evt/warn", {"what": "sensor lost"})     # once, not on every pass
+        self.lost = silent
+        now = ticks_ms()
+        if state != self.sent or ticks_diff(now, self.sent_at) &gt;= self.REFRESH_MS:
+            self.cmd_id += 1
+            self.hub.publish("cmd/led", {"to": ACT_USER, "state": state, "id": self.cmd_id})
+            self.sent, self.sent_at = state, now
+</span>
+</div>
+<p><strong>Student 3: the actuator.</strong> It obeys only a <em>valid</em> command addressed to it, ignores repeats, reports the real state retained, and reverts to off if nobody has spoken for five seconds.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">actuator.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># actuator.py -- agent 3: obeys the coordinator, reports the real state, fails safe
+from time import ticks_ms, ticks_diff
+import hub
+from agent import Agent
+from contract import check, LED_CMD
+
+COORD_USER, ME = "bob", "jsmith"                 # change to your teammates' names and your own
+
+class LedAgent(Agent):
+    FAILSAFE_MS = 5000                           # no valid command for this long: LED off
+
+    def __init__(self, h, led):
+        super().__init__("led", h, period_ms=100)
+        self.led = led
+        self.state, self.last_id, self.heard = 0, None, ticks_ms()
+        self.reported, self.rejected = None, 0
+        h.on("lab/%s/cmd/led" % COORD_USER, self.on_cmd)
+
+    def on_cmd(self, topic, payload):
+        d = hub.decode(payload)
+        ok, why = check(LED_CMD, d) if d else (False, "bad envelope")
+        if not ok or d["to"] != ME:              # not valid, or addressed to someone else
+            if not ok:
+                self.rejected += 1
+            return
+        self.heard = ticks_ms()                  # any valid command renews the lease
+        if d["id"] != self.last_id:              # a repeat of the last id changes nothing
+            self.last_id = d["id"]
+            self.state = d["state"]
+
+    def decide(self, obs):
+        if ticks_diff(ticks_ms(), self.heard) &gt; self.FAILSAFE_MS:
+            self.state = 0                       # nobody is talking: go safe
+        return self.state
+
+    def act(self, state):
+        self.led.value(state)
+
+    def tell(self, obs, state):
+        if state != self.reported:               # the REAL state, retained
+            self.hub.publish("stat/led", {"state": state}, retain=True)
+            self.reported = state
+</span>
+</div>
+<p>Each file ends in the same <span class="code-lesson-il">main.py</span> shape. For the sensor, for example: build <span class="code-lesson-il">hub.Hub()</span>, call <span class="code-lesson-il">h.presence()</span>, create a <span class="code-lesson-il">Ranger</span>, build the agent, and call <span class="code-lesson-il">agent.run(h, [your_agent], wdt)</span> (the watchdog from Lab 7 is optional but recommended).</p>
+<h3>Part 2. Simulated Peers</h3>
+<div class="code-block" data-lang="shell">
+<div class="code-block-header">
+<span class="code-block-filename">laptop.sh</span>
+<span class="code-block-lang">Shell</span>
+</div>
+<span class="code-lesson-bl"># a simulated sensor: needs a user of its own on the broker (here, "amy")
+n=0
+while true; do
+  n=$((n+1))
+  mosquitto_pub -h BROKER -u amy -P PASSWORD -t lab/amy/tele/range \
+    -m "{\"v\":1,\"seq\":$n,\"t\":$((n*200)),\"cm\":15.0,\"ok\":true}"
+  sleep 0.2
+done
+
+# a simulated command, to test your actuator alone (you must publish AS the coordinator's user)
+mosquitto_pub -h BROKER -u bob -P PASSWORD -t lab/bob/cmd/led \
+  -m '{"v":1,"seq":1,"t":1,"to":"jsmith","state":1,"id":1}'
+</span>
+</div>
+<h3>Part 3. Run the System and Test It</h3>
+<p>With all three connected, the trace of one test run on the test fixture (three hubs on one fake broker) was: the distance changed to 15 cm at 1.0 s and the LED came on at <strong>1.1 s</strong>; it stayed on at 25 cm (inside the band), went off at <strong>4.1 s</strong> after the range reached 35 cm at 4.0 s, and came on again at 6.1 s for 12 cm. The command went from the coordinator to the LED within one coordinator period (100 ms). Now do the tests below on real boards and compare.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 479.5" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="50" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="45" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="70" y="14" width="330" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="235" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">You do</text><rect x="400" y="14" width="340" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="570" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">You expect</text><rect x="20" y="60" width="50" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="91.2" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="70" y="60" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="91.2" font-size="14.5" fill="#1f3b52" text-anchor="start">sensor alone, in range 10 to 60 cm</text><rect x="400" y="60" width="340" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="409" y="82.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">tele/range at 5 per second; cm tracks your</text><text x="409" y="100.263" font-size="14.5" fill="#1f3b52" text-anchor="start">hand</text><rect x="20" y="112.25" width="50" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="143.45" font-size="14.5" fill="#1f3b52" text-anchor="middle">2</text><rect x="70" y="112.25" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="143.45" font-size="14.5" fill="#1f3b52" text-anchor="start">coordinator with the simulated sensor</text><rect x="400" y="112.25" width="340" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="409" y="134.387" font-size="14.5" fill="#1f3b52" text-anchor="start">cmd/led state 1 within 100 ms; repeated</text><text x="409" y="152.512" font-size="14.5" fill="#1f3b52" text-anchor="start">every 2 s</text><rect x="20" y="164.5" width="50" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="195.7" font-size="14.5" fill="#1f3b52" text-anchor="middle">3</text><rect x="70" y="164.5" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="195.7" font-size="14.5" fill="#1f3b52" text-anchor="start">actuator with a hand-sent command</text><rect x="400" y="164.5" width="340" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="409" y="186.637" font-size="14.5" fill="#1f3b52" text-anchor="start">LED follows; stat/led retained with the real</text><text x="409" y="204.762" font-size="14.5" fill="#1f3b52" text-anchor="start">state</text><rect x="20" y="216.75" width="50" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="247.95" font-size="14.5" fill="#1f3b52" text-anchor="middle">4</text><rect x="70" y="216.75" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="238.887" font-size="14.5" fill="#1f3b52" text-anchor="start">all three; move your hand through 15, 25,</text><text x="79" y="257.012" font-size="14.5" fill="#1f3b52" text-anchor="start">35 cm</text><rect x="400" y="216.75" width="340" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="409" y="238.887" font-size="14.5" fill="#1f3b52" text-anchor="start">the LED switches at 20 down and 30 up, not</text><text x="409" y="257.012" font-size="14.5" fill="#1f3b52" text-anchor="start">between</text><rect x="20" y="269" width="50" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="300.2" font-size="14.5" fill="#1f3b52" text-anchor="middle">5</text><rect x="70" y="269" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="291.137" font-size="14.5" fill="#1f3b52" text-anchor="start">send state 7, then a message “to”</text><text x="79" y="309.262" font-size="14.5" fill="#1f3b52" text-anchor="start">someone else, then text</text><rect x="400" y="269" width="340" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="409" y="300.2" font-size="14.5" fill="#1f3b52" text-anchor="start">rejected counts rise by 2; LED unchanged</text><rect x="20" y="321.25" width="50" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="349.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">6</text><rect x="70" y="321.25" width="330" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="349.325" font-size="14.5" fill="#1f3b52" text-anchor="start">unplug the sensor</text><rect x="400" y="321.25" width="340" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="409" y="349.325" font-size="14.5" fill="#1f3b52" text-anchor="start">evt/warn once after 2 s; LED goes to 0</text><rect x="20" y="367.25" width="50" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="395.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">7</text><rect x="70" y="367.25" width="330" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="395.325" font-size="14.5" fill="#1f3b52" text-anchor="start">stop the coordinator while the LED is on</text><rect x="400" y="367.25" width="340" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="409" y="395.325" font-size="14.5" fill="#1f3b52" text-anchor="start">LED off about 5 s after the last command</text><rect x="20" y="413.25" width="50" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="45" y="444.45" font-size="14.5" fill="#1f3b52" text-anchor="middle">8</text><rect x="70" y="413.25" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="79" y="435.387" font-size="14.5" fill="#1f3b52" text-anchor="start">restart the actuator while the LED should</text><text x="79" y="453.512" font-size="14.5" fill="#1f3b52" text-anchor="start">be on</text><rect x="400" y="413.25" width="340" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="409" y="435.387" font-size="14.5" fill="#1f3b52" text-anchor="start">LED returns on at the next refresh, within 2</text><text x="409" y="453.512" font-size="14.5" fill="#1f3b52" text-anchor="start">s</text></svg>
+            <div class="diagram-caption">The test plan. Tests 1 to 3 prove each agent against the contract alone; 4 proves the system; 5 to 8 prove it survives a bad message, a lost sensor, a lost coordinator and a restart.</div>
+        </div>
+
+<p>In the simulation, test 5 gave <span class="code-lesson-il">rejected = 2</span> at the actuator (the <span class="code-lesson-il">7</span> and the plain text were refused; the message for someone else was <strong>correctly ignored without being counted as an error</strong>), test 6 gave one <span class="code-lesson-il">evt/warn</span> and the LED off about 2 s after the last range message, and test 7 gave LED off at 11.2 s when the last command was at 6.1 s: about <strong>5 seconds after the last command</strong>, 3.2 s after the coordinator died at 8 s. Your numbers will vary with your 2 s refresh.</p>
+<h3>Lab Report</h3>
+<ul>
+<li>Paste your contract table and say which row you found hardest to get right and why.</li>
+<li>For test 5, show the malformed message you sent and the evidence (a log line, a counter) that your agent refused it.</li>
+<li>For tests 6 and 7, record the time from the failure to the LED going off and say <strong>which agent made the decision</strong> and from what information.</li>
+<li>For test 8, explain why the LED came back on and which message caused it.</li>
+<li>Name one thing that would break if a teammate changed the meaning of a field without changing <span class="code-lesson-il">v</span>, and one thing that would <em>not</em> break if they added a field.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Trace One Cycle.</strong> Write, in order, every message published between the range dropping below 20 cm and the LED being confirmed on.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 2: Why a Band?.</strong> The coordinator switches the LED on below 20 cm and off above 30 cm. Why not a single threshold at 25 cm, and what happens to the message count if the hand rests at 25 cm with a 1 cm wobble?</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 3: Confirm the State.</strong> Extend the coordinator so that it subscribes to <span class="code-lesson-il">lab/jsmith/stat/led</span>, and logs (once) when the actuator’s reported state differs from the commanded state for more than 1 second.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Trace One Cycle</summary>
+<p>(1) The sensor publishes <span class="code-lesson-il">lab/amy/tele/range</span> with a small <span class="code-lesson-il">cm</span>. (2) The coordinator publishes <span class="code-lesson-il">lab/bob/cmd/led</span> with <span class="code-lesson-il">state</span> 1 and a new <span class="code-lesson-il">id</span>. (3) The actuator drives its LED and publishes <span class="code-lesson-il">lab/jsmith/stat/led</span> with <span class="code-lesson-il">state</span> 1, retained. The coordinator and any dashboard now see the <strong>confirmed</strong> state, not just the request. A coordinator that wanted to be sure would also subscribe to <span class="code-lesson-il">stat/led</span> and retry if it did not match.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 2: Why a Band?</summary>
+<p>With one threshold, a reading that wobbles across it flips the decision on every wobble, so at 5 readings per second the coordinator sends up to 5 commands per second and the LED flickers; the class limit of 10 messages per second is soon in sight. The band makes the decision change only when the hand has moved clearly (more than 10 cm). At rest at 25 cm with a 1 cm wobble the band sends <strong>no</strong> new commands apart from the 2-second refresh.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 3: Confirm the State</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">confirm.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># in Coordinator.__init__:
+self.real = None
+self.mismatch_since = None
+h.on("lab/%s/stat/led" % ACT_USER, self.on_stat)
+
+def on_stat(self, topic, payload):
+    d = hub.decode(payload)
+    if d and d.get("state") in (0, 1):
+        self.real = d["state"]
+
+# in tell(): after the command logic
+if self.real is not None and self.real != state:
+    if self.mismatch_since is None:
+        self.mismatch_since = now
+    elif ticks_diff(now, self.mismatch_since) &gt; 1000 and not self.warned:
+        self.hub.publish("evt/warn", {"what": "led mismatch"})
+        self.warned = True
+else:
+    self.mismatch_since, self.warned = None, False
+</span>
+</div><p>Initialise <span class="code-lesson-il">self.warned = False</span> too. The delay of 1 second is the margin for the normal round trip (the simulation took under 100 ms), so a mismatch seen for longer than that is a real one: a lost command, a dead actuator, or the wrong name in a subscription.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Build an agent against a written contract and test it alone with a simulated peer.</li>
+            <li>Validate every incoming message and count the ones you refuse.</li>
+            <li>Show that each agent has a safe default that needs no help from the others.</li>
+            <li>Explain which agent made the decision in each failure and from what information.</li>
+            <li>Say what is and is not safe to change in a contract without changing its version.</li>
+        </ol>
+
+    </body>
+</html>

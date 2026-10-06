@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson covers computing facts from a stream of samples. You summarise a window with a mean, spread, range and slope, keep statistics with no buffer using Welford’s method, and detect unusual readings with a rolling z-score whose threshold you choose from measured false-alarm rates.</p>
+
+<p>A sensor produces numbers; a decision needs <em>facts about</em> those numbers: is it steady, is it rising, is this reading unusual? Facts like these are called <strong>features</strong>, and computing them on the node, from a short memory of recent samples, is what separates a robot that streams raw data from one that understands it. This lesson builds three tools that fit in a few lines and a few bytes: a window that summarises the last N samples, a running mean and variance that need almost no memory, and a rolling anomaly test that learns what “normal” looks like and flags what is not.</p>
+<h3>Part 1. Features of a Window</h3>
+<p>A <strong>window</strong> is the most recent N samples. Over it you can compute a mean (the level), a standard deviation (the noise or activity), a minimum and a maximum (the range), and a slope (the trend). Five numbers, perhaps 40 bytes in a message, can replace a hundred raw samples.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">window.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># window.py -- features of the last N samples, in a fixed-size ring
+class Window:
+    def __init__(self, n):
+        self.n = n
+        self.buf = [0.0] * n
+        self.i = 0
+        self.count = 0
+
+    def add(self, x):
+        self.buf[self.i] = x
+        self.i = (self.i + 1) % self.n
+        if self.count &lt; self.n:
+            self.count += 1
+
+    def values(self):                       # oldest first
+        if self.count &lt; self.n:
+            return self.buf[:self.count]
+        return self.buf[self.i:] + self.buf[:self.i]
+
+    def features(self):
+        v = self.values()
+        k = len(v)
+        if k &lt; 2:
+            return None
+        mean = sum(v) / k
+        var = sum((x - mean) ** 2 for x in v) / (k - 1)
+        return {"mean": mean, "std": var ** 0.5, "min": min(v), "max": max(v),
+                "slope": (v[-1] - v[0]) / (k - 1)}     # change per sample, end to end
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="40" width="60" height="50" rx="4" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="60" y="72" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">3</text><rect x="100" y="40" width="60" height="50" rx="4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="130" y="72" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">4</text><rect x="170" y="40" width="60" height="50" rx="4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="200" y="72" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">5</text><rect x="240" y="40" width="60" height="50" rx="4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="270" y="72" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">6</text><rect x="310" y="40" width="60" height="50" rx="4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="340" y="72" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">7</text><text x="205" y="30" font-size="14.5" fill="#5b6b78" text-anchor="middle">a window of 5, after the values 1 to 7 arrived</text><line x1="400" y1="65" x2="441" y2="65" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="450.0,65.0 439.0,59.5 439.0,70.5" fill="#1f3b52"/><rect x="460" y="30" width="280" height="100" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="600" y="66.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">mean 5.0   std 1.58</text><text x="600" y="85.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">min 3   max 7</text><text x="600" y="104.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">slope +1.0 per sample</text><text x="380" y="170" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">the ring overwrites the oldest value, so memory is fixed at N numbers</text><text x="380" y="200" font-size="14.5" fill="#5b6b78" text-anchor="middle">sample 1 and 2 have been forgotten: that is what a window is</text></svg>
+            <div class="diagram-caption">The window after seven samples, with a size of five. The values and features come from running <span class="code-lesson-il">Window</span> on the numbers 1 to 7.</div>
+        </div>
+
+<p>Choose N for the <em>time</em> you want to look back over, not for tidiness: at 20 Hz, N = 20 is one second. A short window reacts quickly and is noisy; a long window is steady and slow. That is the same trade-off as the filter lesson’s <em>α</em>, now seen from the other side.</p>
+<h3>Part 2. Statistics Without Memory</h3>
+<p>A window needs N numbers of RAM. Sometimes you want the statistics of <em>everything so far</em>, over hours, with no buffer. The standard-looking formula, variance = mean of squares minus square of mean, needs only two running sums, and <strong>fails exactly when you need it</strong>: on a microcontroller with 32-bit floats, adding squares of numbers near 1,000 loses the small differences. <strong>Welford’s algorithm</strong> updates the mean and a running sum of squared <em>deviations</em> instead, and stays accurate.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">running.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># running.py -- mean and variance of a stream with three numbers of memory
+class Running:
+    def __init__(self):
+        self.n = 0
+        self.mean = 0.0
+        self.m2 = 0.0
+
+    def add(self, x):
+        self.n += 1
+        d = x - self.mean
+        self.mean += d / self.n
+        self.m2 += d * (x - self.mean)
+
+    def std(self):
+        return (self.m2 / (self.n - 1)) ** 0.5 if self.n &gt; 1 else 0.0
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 244" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="330" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="185" y="37.0125" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Method (5,000 readings near 1,000,</text><text x="185" y="55.1375" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">noise 0.5)</text><rect x="350" y="14" width="200" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="450" y="46.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Computed std</text><rect x="550" y="14" width="190" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="645" y="46.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Result</text><rect x="20" y="68" width="330" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="100.075" font-size="14.5" fill="#1f3b52" text-anchor="start">true value (64-bit)</text><rect x="350" y="68" width="200" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="450" y="100.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.5005</text><rect x="550" y="68" width="190" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="645" y="100.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">reference</text><rect x="20" y="122" width="330" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="154.075" font-size="14.5" fill="#1f3b52" text-anchor="start">sum of squares, 32-bit floats</text><rect x="350" y="122" width="200" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="450" y="154.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">not a number</text><rect x="550" y="122" width="190" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="645" y="154.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">fails</text><rect x="20" y="176" width="330" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="208.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Welford, 32-bit floats</text><rect x="350" y="176" width="200" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="450" y="208.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.5005</text><rect x="550" y="176" width="190" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="645" y="208.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">accurate</text></svg>
+            <div class="diagram-caption">The same data, three computations. The naive formula subtracts two huge, nearly equal numbers and the result is negative: its square root is not a number. The cost of Welford is three variables.</div>
+        </div>
+
+<p>This is an instance of a rule worth remembering: <strong>subtract the typical value first, then work with the small differences.</strong> It is also why you should remove an offset (such as the IMU’s calibration bias) before you compute a feature, not after.</p>
+<h3>Part 3. What Is Unusual?</h3>
+<p>An alarm with a fixed threshold (“range below 20 cm”) is simple and often right. It is wrong when the <em>normal</em> level changes: a slow drift, a different surface, another room. A <strong>rolling z-score</strong> asks a better question: <em>is this reading unusual compared with the recent past?</em> It keeps a running mean and variance with an exponential weight (the EMA again, and its cousin for variance), and flags a reading more than <em>k</em> standard deviations from the mean.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">anomaly.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># anomaly.py -- is this reading unusual compared with the recent past?
+class Anomaly:
+    def __init__(self, alpha=0.05, k=4.0, warmup=30, floor=0.05):
+        self.alpha, self.k, self.warmup, self.floor = alpha, k, warmup, floor
+        self.mean = None
+        self.var = 0.0
+        self.n = 0
+
+    def update(self, x):
+        """Returns True if x is more than k deviations from the running mean."""
+        self.n += 1
+        if self.mean is None:
+            self.mean = x
+            return False
+        d = x - self.mean
+        sd = max(self.var ** 0.5, self.floor)
+        odd = self.n &gt; self.warmup and abs(d) &gt; self.k * sd
+        if not odd:                          # do not let a spike teach us that spikes are normal
+            self.mean += self.alpha * d
+            self.var = (1 - self.alpha) * (self.var + self.alpha * d * d)
+        return odd
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="20" width="690" height="240" rx="2" fill="#ffffff" stroke="#5b6b78" stroke-width="1"/><polyline points="50.0,190.5 51.2,178.6 52.3,201.0 53.5,181.2 54.6,194.1 55.8,194.1 56.9,171.9 58.1,189.8 59.2,191.9 60.4,183.9 61.5,179.8 62.7,191.7 63.8,185.4 65.0,201.4 66.1,195.2 67.3,195.9 68.4,205.1 69.6,206.9 70.7,208.2 71.9,193.9 73.0,193.2 74.2,194.7 75.3,190.7 76.5,205.2 77.6,192.2 78.8,189.0 79.9,183.7 81.1,200.1 82.3,195.5 83.4,212.2 84.6,196.6 85.7,214.0 86.9,206.0 88.0,180.1 89.2,214.1 90.3,183.2 91.5,188.1 92.6,194.6 93.8,186.7 94.9,186.0 96.1,180.7 97.2,193.8 98.4,197.5 99.5,197.6 100.7,201.6 101.8,191.9 103.0,199.5 104.1,180.4 105.3,210.7 106.4,202.7 107.6,201.2 108.7,213.0 109.9,171.9 111.1,216.2 112.2,194.3 113.4,196.8 114.5,174.4 115.7,211.8 116.8,180.4 118.0,199.0 119.1,193.0 120.3,198.3 121.4,184.8 122.6,203.1 123.7,192.2 124.9,187.8 126.0,172.5 127.2,216.2 128.3,175.7 129.5,181.7 130.6,196.4 131.8,188.3 132.9,196.2 134.1,174.5 135.2,189.3 136.4,193.6 137.5,193.8 138.7,193.5 139.8,193.2 141.0,200.5 142.2,170.3 143.3,211.1 144.5,228.5 145.6,192.7 146.8,192.9 147.9,187.6 149.1,193.5 150.2,193.0 151.4,188.0 152.5,181.5 153.7,196.0 154.8,195.3 156.0,171.5 157.1,186.0 158.3,201.6 159.4,167.5 160.6,183.4 161.7,197.5 162.9,203.5 164.0,188.4 165.2,200.0 166.3,202.3 167.5,204.8 168.6,196.6 169.8,180.0 171.0,195.9 172.1,206.3 173.3,184.5 174.4,190.8 175.6,182.7 176.7,179.1 177.9,193.2 179.0,192.9 180.2,191.9 181.3,203.1 182.5,184.5 183.6,177.3 184.8,189.6 185.9,193.9 187.1,194.1 188.2,199.5 189.4,199.7 190.5,195.6 191.7,200.1 192.8,195.9 194.0,207.7 195.1,187.8 196.3,190.9 197.4,203.3 198.6,215.1 199.7,191.5 200.9,180.1 202.1,199.0 203.2,196.4 204.4,197.3 205.5,184.7 206.7,200.8 207.8,181.3 209.0,194.5 210.1,181.9 211.3,191.1 212.4,193.8 213.6,206.6 214.7,198.5 215.9,194.1 217.0,184.6 218.2,188.9 219.3,198.6 220.5,187.2 221.6,181.3 222.8,90.1 223.9,195.9 225.1,195.5 226.2,183.1 227.4,185.9 228.5,201.0 229.7,187.6 230.9,196.4 232.0,199.2 233.2,178.7 234.3,183.0 235.5,198.9 236.6,190.6 237.8,186.3 238.9,198.0 240.1,192.7 241.2,184.6 242.4,209.8 243.5,188.1 244.7,183.8 245.8,186.2 247.0,205.2 248.1,188.2 249.3,200.3 250.4,185.6 251.6,185.2 252.7,189.2 253.9,199.3 255.0,197.5 256.2,182.6 257.3,200.7 258.5,186.3 259.6,186.2 260.8,194.3 262.0,166.8 263.1,190.7 264.3,169.4 265.4,212.2 266.6,214.5 267.7,181.3 268.9,184.9 270.0,194.6 271.2,192.0 272.3,211.0 273.5,197.9 274.6,202.1 275.8,193.7 276.9,182.3 278.1,190.9 279.2,187.6 280.4,198.6 281.5,195.9 282.7,190.3 283.8,194.3 285.0,178.4 286.1,200.4 287.3,172.0 288.4,201.5 289.6,180.5 290.8,199.4 291.9,174.5 293.1,190.0 294.2,187.3 295.4,183.8 296.5,198.0 297.7,202.1 298.8,212.3 300.0,178.9 301.1,198.6 302.3,197.5 303.4,191.7 304.6,171.0 305.7,209.2 306.9,188.9 308.0,195.5 309.2,186.0 310.3,209.9 311.5,195.5 312.6,182.8 313.8,175.4 314.9,175.0 316.1,200.2 317.2,190.9 318.4,192.6 319.5,205.6 320.7,206.2 321.9,183.6 323.0,188.9 324.2,192.9 325.3,178.9 326.5,201.7 327.6,186.0 328.8,191.3 329.9,192.0 331.1,186.4 332.2,189.6 333.4,188.7 334.5,188.7 335.7,171.5 336.8,194.6 338.0,181.0 339.1,185.2 340.3,195.0 341.4,183.2 342.6,200.2 343.7,179.5 344.9,199.8 346.0,196.5 347.2,188.1 348.3,182.9 349.5,182.1 350.7,182.2 351.8,193.6 353.0,201.3 354.1,185.8 355.3,188.3 356.4,201.2 357.6,181.4 358.7,189.4 359.9,201.3 361.0,186.9 362.2,205.1 363.3,200.5 364.5,187.3 365.6,207.4 366.8,191.0 367.9,205.3 369.1,183.8 370.2,198.9 371.4,189.5 372.5,206.9 373.7,195.0 374.8,181.7 376.0,186.7 377.1,210.3 378.3,181.9 379.4,182.3 380.6,195.3 381.8,176.9 382.9,202.3 384.1,192.3 385.2,180.0 386.4,178.0 387.5,178.3 388.7,202.7 389.8,209.7 391.0,187.4 392.1,206.2 393.3,192.8 394.4,204.6 395.6,180.5 396.7,182.8 397.9,185.0 399.0,190.2 400.2,189.6 401.3,192.8 402.5,185.4 403.6,186.5 404.8,184.0 405.9,192.8 407.1,168.5 408.2,184.8 409.4,173.0 410.6,173.3 411.7,195.7 412.9,203.6 414.0,173.0 415.2,189.6 416.3,184.4 417.5,187.6 418.6,183.2 419.8,196.5 420.9,184.9 422.1,188.3 423.2,183.4 424.4,206.9 425.5,174.1 426.7,178.8 427.8,199.6 429.0,189.0 430.1,180.8 431.3,174.3 432.4,180.5 433.6,165.9 434.7,179.5 435.9,189.7 437.0,186.0 438.2,171.1 439.3,184.7 440.5,169.4 441.7,167.2 442.8,171.3 444.0,166.6 445.1,178.5 446.3,176.4 447.4,182.1 448.6,181.9 449.7,191.4 450.9,180.7 452.0,185.6 453.2,189.0 454.3,172.4 455.5,168.9 456.6,176.8 457.8,158.8 458.9,162.9 460.1,161.5 461.2,178.1 462.4,186.9 463.5,165.5 464.7,167.7 465.8,163.0 467.0,165.9 468.1,156.9 469.3,172.4 470.5,162.3 471.6,178.0 472.8,192.2 473.9,172.7 475.1,152.4 476.2,184.7 477.4,156.6 478.5,173.7 479.7,170.5 480.8,165.6 482.0,163.5 483.1,175.4 484.3,163.7 485.4,160.1 486.6,155.8 487.7,171.8 488.9,147.7 490.0,143.7 491.2,138.1 492.3,176.4 493.5,160.5 494.6,181.1 495.8,157.7 496.9,155.5 498.1,172.7 499.2,176.9 500.4,158.3 501.6,153.4 502.7,167.7 503.9,161.9 505.0,184.8 506.2,165.8 507.3,156.7 508.5,156.3 509.6,141.2 510.8,168.9 511.9,180.0 513.1,151.8 514.2,162.2 515.4,152.8 516.5,148.0 517.7,148.9 518.8,139.9 520.0,140.5 521.1,171.2 522.3,154.4 523.4,132.8 524.6,157.2 525.7,142.7 526.9,152.9 528.0,156.3 529.2,135.4 530.4,140.6 531.5,153.5 532.7,141.3 533.8,60.9 535.0,157.4 536.1,140.3 537.3,148.9 538.4,159.8 539.6,143.9 540.7,144.8 541.9,134.7 543.0,137.7 544.2,150.0 545.3,151.8 546.5,147.9 547.6,148.5 548.8,130.8 549.9,129.1 551.1,131.2 552.2,140.9 553.4,147.0 554.5,134.8 555.7,147.4 556.8,141.0 558.0,160.2 559.1,147.1 560.3,127.6 561.5,152.6 562.6,157.1 563.8,143.1 564.9,123.9 566.1,125.8 567.2,144.0 568.4,144.9 569.5,140.8 570.7,148.9 571.8,138.6 573.0,141.7 574.1,153.5 575.3,143.9 576.4,140.2 577.6,146.1 578.7,148.4 579.9,127.3 581.0,116.7 582.2,138.8 583.3,139.9 584.5,130.0 585.6,137.2 586.8,142.6 587.9,119.9 589.1,144.5 590.3,141.0 591.4,140.0 592.6,141.9 593.7,134.9 594.9,126.2 596.0,116.9 597.2,124.6 598.3,130.7 599.5,143.6 600.6,131.0 601.8,139.7 602.9,130.7 604.1,119.3 605.2,126.9 606.4,130.9 607.5,136.1 608.7,128.2 609.8,126.5 611.0,136.9 612.1,132.2 613.3,117.6 614.4,143.4 615.6,130.5 616.7,137.6 617.9,109.4 619.0,118.7 620.2,119.3 621.4,120.2 622.5,120.9 623.7,120.5 624.8,139.5 626.0,120.2 627.1,116.4 628.3,136.9 629.4,113.3 630.6,114.6 631.7,136.8 632.9,125.7 634.0,123.6 635.2,125.5 636.3,115.8 637.5,132.6 638.6,121.4 639.8,116.4 640.9,110.9 642.1,117.6 643.2,120.2 644.4,110.3 645.5,137.5 646.7,107.1 647.8,119.5 649.0,128.9 650.2,120.1 651.3,134.2 652.5,136.0 653.6,118.0 654.8,122.3 655.9,106.4 657.1,122.7 658.2,126.6 659.4,122.8 660.5,94.9 661.7,112.0 662.8,118.2 664.0,121.7 665.1,122.5 666.3,112.5 667.4,106.1 668.6,98.3 669.7,98.0 670.9,106.7 672.0,115.9 673.2,117.6 674.3,132.3 675.5,118.6 676.6,103.4 677.8,110.9 678.9,103.3 680.1,120.6 681.3,97.2 682.4,103.0 683.6,105.3 684.7,101.3 685.9,128.0 687.0,110.4 688.2,113.6 689.3,85.4 690.5,105.5 691.6,108.5 692.8,94.2 693.9,113.5 695.1,87.7 696.2,109.2 697.4,102.2 698.5,110.7 699.7,92.6 700.8,122.9 702.0,93.1 703.1,108.3 704.3,99.0 705.4,111.0 706.6,96.5 707.7,96.6 708.9,92.1 710.1,94.6 711.2,91.1 712.4,86.9 713.5,100.8 714.7,108.6 715.8,109.3 717.0,88.8 718.1,99.3 719.3,84.3 720.4,94.3 721.6,104.8 722.7,84.7 723.9,73.7 725.0,95.2 726.2,102.7 727.3,101.4 728.5,83.2 729.6,98.0 730.8,95.8 731.9,84.3 733.1,90.9 734.2,89.4 735.4,95.9 736.5,96.5 737.7,87.9 738.8,87.7 740.0,82.8" fill="none" stroke="#2e5a80" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><line x1="50" y1="157.143" x2="740" y2="157.143" stroke="#b3261e" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4"/><text x="58" y="147.143" font-size="14" fill="#b3261e" text-anchor="start" font-weight="bold">fixed threshold 21</text><circle cx="222.788" cy="90.0996" r="7" fill="none" stroke="#3c8a5a" stroke-width="3"/><circle cx="533.806" cy="60.9377" r="7" fill="none" stroke="#3c8a5a" stroke-width="3"/><text x="222.788" y="76.0996" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">spike: found</text><text x="533.806" y="46.9377" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">spike: found</text><text x="625.96" y="225.714" font-size="14" fill="#5b6b78" text-anchor="middle" font-weight="bold">drift: no alarm</text><text x="380" y="300" font-size="14.5" fill="#5b6b78" text-anchor="middle">sample number (600 samples; two spikes of +3 at 150 and 420; a slow drift after 300)</text></svg>
+            <div class="diagram-caption">The rolling z-score (k = 4) on a simulated signal. It finds both spikes and follows the drift without complaint, while a fixed threshold at 21 would fire on <strong>205</strong> samples once the drift carried the signal over it. (Across eleven runs with different random noise, nine were as clean as this one and two raised a single extra alarm.)</div>
+        </div>
+
+<p>The one line that matters is the <span class="code-lesson-il">if not odd</span>: a reading flagged as unusual is <strong>not</strong> allowed to update the mean and variance. Without it, a burst of faults raises the variance, and the detector learns that faults are normal. Choosing <em>k</em> is a trade between missing real events and raising false alarms. On 100,000 samples of pure noise the test with <em>k</em> = 4 raised <strong>18</strong> false alarms (0.02 %); with <em>k</em> = 3 it raised <strong>695</strong> (0.7 %). At 20 samples a second, <em>k</em> = 3 would cry wolf every seven seconds.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 190" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="200" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="120" y="46.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">k</text><rect x="220" y="14" width="260" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="350" y="46.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">False alarms per 100,000</text><rect x="480" y="14" width="260" height="54" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="610" y="46.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">At 20 Hz, about one every</text><rect x="20" y="68" width="200" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="120" y="100.25" font-size="15" fill="#1f3b52" text-anchor="middle">3</text><rect x="220" y="68" width="260" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="350" y="100.25" font-size="15" fill="#1f3b52" text-anchor="middle">695</text><rect x="480" y="68" width="260" height="54" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="610" y="100.25" font-size="15" fill="#1f3b52" text-anchor="middle">7 seconds</text><rect x="20" y="122" width="200" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="120" y="154.25" font-size="15" fill="#1f3b52" text-anchor="middle">4</text><rect x="220" y="122" width="260" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="350" y="154.25" font-size="15" fill="#1f3b52" text-anchor="middle">18</text><rect x="480" y="122" width="260" height="54" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="610" y="154.25" font-size="15" fill="#1f3b52" text-anchor="middle">4.6 minutes</text></svg>
+            <div class="diagram-caption">The cost of sensitivity, measured on noise only. A bigger <em>k</em> trades missed small events for a much quieter detector.</div>
+        </div>
+
+<ul>
+<li><strong>Warm-up.</strong> The first samples give no estimate of the spread. The class waits <span class="code-lesson-il">warmup</span> samples, and has a <span class="code-lesson-il">floor</span> so that a perfectly steady signal (variance 0) does not flag every rounding step.</li>
+<li><strong>Features of a feature.</strong> Anomalies are events: publish them to <span class="code-lesson-il">evt/…</span> (rare, with the value and the time), not to <span class="code-lesson-il">tele</span>. The hub’s log of events then answers “when was the signal odd?”.</li>
+<li><strong>Learn on the robot, check on the bench.</strong> Replay a recorded signal through the detector offline (the data logging lesson gives you the recording) and choose <em>k</em> from data, not from hope.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Window Arithmetic.</strong> A <span class="code-lesson-il">Window(4)</span> receives 10, 12, 11, 15, 14. What does it hold, and what are the mean and the slope (end to end)?</p>
+        <p><strong>Exercise 2: Choose N.</strong> A range sensor reads at 25 Hz and you want the average over the last 0.4 s. What is N? A robot moves at 0.2 m/s: how far does it move in that time, and what does that say about the delay of the feature?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Why Not Update?.</strong> In <span class="code-lesson-il">Anomaly.update</span>, the mean and variance are not updated when a reading is flagged. Describe what happens to the detector in a long fault (say 100 readings all 5 deviations high) if they <em>are</em> updated, and one drawback of not updating.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Trend Alarm.</strong> Write a function <span class="code-lesson-il">rising(window, limit)</span> that returns True if the window is full and its slope is above <span class="code-lesson-il">limit</span> per sample. Say what number of samples N and which <span class="code-lesson-il">limit</span> you would pick to alarm when a temperature rises faster than 1 degree per minute, sampled once per second.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Window Arithmetic</summary>
+<p>After five samples a window of four holds 12, 11, 15, 14 (the 10 was overwritten). Mean = 52 / 4 = <strong>13</strong>. The slope is (14 − 12) / (4 − 1) = <strong>+0.67 per sample</strong>. Note the slope is end to end and so is sensitive to the two end samples: a more robust trend is a least-squares line, at the price of more code.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Choose N</summary>
+<p>N = 25 × 0.4 = <strong>10</strong>. In 0.4 s the robot moves 0.2 × 0.4 = <strong>0.08 m</strong>. An average over a window lags the signal by about <strong>half the window</strong> (0.2 s), so the feature describes where the robot was 4 cm ago. Fine for a gentle trend, but not for collision avoidance, which should use the latest sample.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Why Not Update?</summary>
+<p>If flagged readings update the statistics, the mean slides toward the fault and the variance grows, so after a few readings the deviation test is no longer exceeded: the detector reports the first few faults and then calls the fault <strong>normal</strong>. The drawback of not updating is the opposite: if the signal makes a real, permanent step to a new level, every later reading is flagged forever. A practical fix is to let the statistics adapt if the alarm has been on for a long time (say 5 seconds), and publish that as a different event.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Trend Alarm</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">rising.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def rising(w, limit):
+    if w.count &lt; w.n:
+        return False                  # not enough history yet
+    return w.features()["slope"] &gt; limit
+
+# 1 degree per minute = 1/60 = 0.0167 per sample at 1 Hz.
+# N = 30 (half a minute) smooths the noise; limit = 0.0167.
+</span>
+</div><p>A window of 30 s at 1 Hz covers half a minute, over which the temperature would need to rise 0.5 degrees to alarm. Note the end-to-end slope is noisy: with a sensor noise of 0.3 degrees the end samples alone can fake a slope of 0.02 per sample. Average the first and last five samples, or fit a line, before trusting a slow trend.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Compute window features and choose the window size from the time you need.</li>
+            <li>Explain why the sum-of-squares variance fails and what Welford does instead.</li>
+            <li>Describe a rolling z-score and why flagged readings must not update it.</li>
+            <li>Choose k from the false-alarm rate you can accept.</li>
+            <li>Say where an anomaly should be published.</li>
+        </ol>
+
+    </body>
+</html>

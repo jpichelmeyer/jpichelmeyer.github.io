@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>A pin cannot power anything bigger than an LED, but it can control a switch that can. This lesson covers the three switches in your kit: a transistor for fast or proportional loads, a relay for rare or isolated ones, and an H-bridge for motors that must reverse. Along the way you meet the two things that destroy beginners’ circuits: too much current through a pin, and the voltage spike from a coil.</p>
+
+<h3>Why a Pin Cannot Drive a Motor</h3>
+<p>A GPIO pin is a signal, not a power source. The Pico’s pins are meant for a few milliamps (4 mA is the default drive strength and 12 mA the most you can configure), and the whole chip has a total limit as well. An LED at 6 mA is fine. A fan, a pump, a relay coil or a motor wants ten to a hundred times more. The solution is always the same idea: let the pin control a <strong>switch</strong>, and let the switch carry the load’s current from a supply that can provide it.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 308" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="190" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="115" y="39.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Load</text><rect x="210" y="14" width="150" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="285" y="39.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Typical current</text><rect x="360" y="14" width="160" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="440" y="39.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Pin direct?</text><rect x="520" y="14" width="200" height="40" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="620" y="39.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Use</text><rect x="20" y="54" width="190" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="79.25" font-size="15" fill="#1f3b52" text-anchor="start">LED + 220 Ω</text><rect x="210" y="54" width="150" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="79.25" font-size="15" fill="#1f3b52" text-anchor="start">6 mA</text><rect x="360" y="54" width="160" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="440" y="79.25" font-size="15" fill="#1f3b52" text-anchor="middle">yes</text><rect x="520" y="54" width="200" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="79.25" font-size="15" fill="#1f3b52" text-anchor="start">pin only</text><rect x="20" y="94" width="190" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="119.25" font-size="15" fill="#1f3b52" text-anchor="start">Buzzer (active)</text><rect x="210" y="94" width="150" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="119.25" font-size="15" fill="#1f3b52" text-anchor="start">10 to 30 mA</text><rect x="360" y="94" width="160" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="440" y="119.25" font-size="15" fill="#1f3b52" text-anchor="middle">marginal</text><rect x="520" y="94" width="200" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="119.25" font-size="15" fill="#1f3b52" text-anchor="start">BJT switch</text><rect x="20" y="134" width="190" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="159.25" font-size="15" fill="#1f3b52" text-anchor="start">5 V relay coil</text><rect x="210" y="134" width="150" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="159.25" font-size="15" fill="#1f3b52" text-anchor="start">70 to 90 mA</text><rect x="360" y="134" width="160" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="440" y="159.25" font-size="15" fill="#1f3b52" text-anchor="middle">no</text><rect x="520" y="134" width="200" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="159.25" font-size="15" fill="#1f3b52" text-anchor="start">relay module</text><rect x="20" y="174" width="190" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="199.25" font-size="15" fill="#1f3b52" text-anchor="start">Small fan</text><rect x="210" y="174" width="150" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="199.25" font-size="15" fill="#1f3b52" text-anchor="start">100 to 200 mA</text><rect x="360" y="174" width="160" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="440" y="199.25" font-size="15" fill="#1f3b52" text-anchor="middle">no</text><rect x="520" y="174" width="200" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="199.25" font-size="15" fill="#1f3b52" text-anchor="start">BJT switch</text><rect x="20" y="214" width="190" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="239.25" font-size="15" fill="#1f3b52" text-anchor="start">Water pump</text><rect x="210" y="214" width="150" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="239.25" font-size="15" fill="#1f3b52" text-anchor="start">200 to 400 mA</text><rect x="360" y="214" width="160" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="440" y="239.25" font-size="15" fill="#1f3b52" text-anchor="middle">no</text><rect x="520" y="214" width="200" height="40" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="239.25" font-size="15" fill="#1f3b52" text-anchor="start">BJT, or driver</text><rect x="20" y="254" width="190" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="279.25" font-size="15" fill="#1f3b52" text-anchor="start">DC motor (stalled)</text><rect x="210" y="254" width="150" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="279.25" font-size="15" fill="#1f3b52" text-anchor="start">0.5 to 1.5 A</text><rect x="360" y="254" width="160" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="440" y="279.25" font-size="15" fill="#1f3b52" text-anchor="middle">no</text><rect x="520" y="254" width="200" height="40" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="279.25" font-size="15" fill="#1f3b52" text-anchor="start">H-bridge driver</text></svg>
+            <div class="diagram-caption">Typical currents for the loads in your kit. These are round numbers to guide the choice; the real figure for your part is on its label, or you can measure it with a multimeter in series. A motor draws several times more when it is stalled than when it is turning.</div>
+        </div>
+
+<h3>Part 1. The Transistor as a Switch</h3>
+<p>A bipolar transistor (BJT) has three leads: base, collector and emitter. A small current into the <strong>base</strong> lets a much larger current flow from the <strong>collector</strong> to the <strong>emitter</strong>. Used as a switch, you push enough base current to turn it fully on (it is then <em>saturated</em>, with only a few tenths of a volt across it) or none at all (off). Your kit has an NPN type, the S8050, and a PNP type, the S8550. We use the NPN as a <strong>low-side switch</strong>: the load connects to the supply, the transistor connects the load to ground.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 400" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="330" y1="40" x2="640" y2="40" stroke="#b3261e" stroke-width="3.2" stroke-linecap="round"/><text x="330" y="28" font-size="15" fill="#b3261e" text-anchor="start" font-weight="bold">+V: battery pack, not the Pico</text><line x1="530" y1="40" x2="530" y2="100" stroke="#b3261e" stroke-width="2.8" stroke-linecap="round"/><rect x="480" y="100" width="100" height="70" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="530" y="130.875" font-size="15" fill="#1f3b52" text-anchor="middle">Fan, pump</text><text x="530" y="149.625" font-size="15" fill="#1f3b52" text-anchor="middle">or motor</text><line x1="530" y1="170" x2="530" y2="215" stroke="#1f3b52" stroke-width="2.8" stroke-linecap="round"/><line x1="475" y1="260" x2="503" y2="260" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><line x1="503" y1="238" x2="503" y2="282" stroke="#1f3b52" stroke-width="4" stroke-linecap="round"/><line x1="503" y1="250" x2="530" y2="230" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><line x1="530" y1="230" x2="530" y2="215" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><line x1="503" y1="270" x2="530" y2="290" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><line x1="530" y1="290" x2="530" y2="305" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="529.0,289.0 518.0,287.0 524.0,279.0" fill="#1f3b52" stroke="#1f3b52" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/><line x1="530" y1="215" x2="530" y2="200" stroke="#1f3b52" stroke-width="2.8" stroke-linecap="round"/><circle cx="530" cy="40" r="4" fill="#b3261e"/><circle cx="530" cy="200" r="4" fill="#1f3b52"/><line x1="640" y1="40" x2="640" y2="105" stroke="#b3261e" stroke-width="2.8" stroke-linecap="round"/><line x1="640" y1="105" x2="640" y2="135" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><line x1="640" y1="165" x2="640" y2="195" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="628.0,165.0 652.0,165.0 640.0,135.0" fill="#fff" stroke="#1f3b52" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><line x1="627" y1="135" x2="653" y2="135" stroke="#1f3b52" stroke-width="3.2" stroke-linecap="round"/><line x1="640" y1="195" x2="640" y2="200" stroke="#1f3b52" stroke-width="2.8" stroke-linecap="round"/><line x1="640" y1="200" x2="530" y2="200" stroke="#1f3b52" stroke-width="2.8" stroke-linecap="round"/><text x="662" y="140" font-size="14.5" fill="#8a4526" text-anchor="start" font-weight="bold">flyback</text><text x="662" y="158" font-size="14.5" fill="#8a4526" text-anchor="start" font-weight="bold">diode</text><rect x="20" y="230" width="110" height="60" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="75" y="255.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">Pico</text><text x="75" y="275.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">GP15</text><line x1="130" y1="260" x2="180" y2="260" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polyline points="180.0,260.0 188.0,260.0 193.3,254.0 204.0,266.0 214.7,254.0 225.3,266.0 236.0,254.0 246.7,266.0 252.0,260.0 260.0,260.0" fill="none" stroke="#1f3b52" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><text x="220" y="246" font-size="15" fill="#1f3b52" text-anchor="middle">1 kΩ</text><line x1="260" y1="260" x2="475" y2="260" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><text x="370" y="292" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">Ib = (3.3 − 0.7) / 1 kΩ = 2.6 mA</text><text x="518" y="192" font-size="15" fill="#8a4526" text-anchor="end" font-weight="bold">Ic</text><line x1="530" y1="305" x2="530" y2="330" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><line x1="75" y1="290" x2="75" y2="330" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><line x1="75" y1="330" x2="530" y2="330" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><circle cx="530" cy="330" r="4" fill="#1f3b52"/><line x1="530" y1="330" x2="530" y2="338" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><line x1="518" y1="338" x2="542" y2="338" stroke="#1f3b52" stroke-width="2.5" stroke-linecap="round"/><line x1="522" y1="343" x2="538" y2="343" stroke="#1f3b52" stroke-width="2.5" stroke-linecap="round"/><line x1="526" y1="348" x2="534" y2="348" stroke="#1f3b52" stroke-width="2.5" stroke-linecap="round"/><text x="300" y="322" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">Pico GND and battery − joined here</text><text x="20" y="60" font-size="15.5" fill="#2e5a80" text-anchor="start" font-weight="bold">The pin supplies only Ib.</text><text x="20" y="84" font-size="15.5" fill="#b3261e" text-anchor="start" font-weight="bold">The battery supplies Ic.</text></svg>
+            <div class="diagram-caption">A transistor switch for a load that needs about 100 mA. The Pico pin pushes a small base current through a resistor; the large load current flows from the battery, through the load and the transistor, to ground. The diode across the load (stripe toward +V) is explained in Part 2.</div>
+        </div>
+
+<h3>Choosing the Base Resistor</h3>
+<p>Datasheets list a <em>current gain</em> (hFE) of a few hundred for the S8050: a base current of 1 mA could control up to a few hundred mA of collector current. But that is the gain in the amplifying region. To use the transistor as a <em>switch</em> you ignore it and push far more base current than the gain alone would need, so the transistor is driven hard into saturation. A good rule is to design for a <strong>forced gain of 20 to 50</strong>: the collector current is only that many times the base current.</p>
+<ol>
+<li>Decide the load current. A small fan: <strong>Ic = 100 mA</strong>.</li>
+<li>Choose a base current that the pin can supply. With a forced gain of 38, Ib = 100 mA / 38 = <strong>2.6 mA</strong>, well under the 4 mA drive limit.</li>
+<li>Compute the resistor. The base-emitter junction drops about 0.7 V, so Rb = (3.3 − 0.7) V / 2.6 mA = <strong>1 kΩ</strong>, a value in your kit. (With 470 Ω you get 5.5 mA, more than the default drive strength; stay at 1 kΩ.)</li>
+<li>Check the transistor: with the supply at 5 V it dissipates about Vce(sat) × Ic = 0.3 V × 100 mA = <strong>30 mW</strong>, which is nothing. The resistor wastes (3.3 − 0.7) V × 2.6 mA = 6.8 mW.</li>
+<li><strong>Measure.</strong> Put the multimeter across collector and emitter with the load on: you should read well under 0.5 V. If you read more, the transistor is not saturating; lower the resistor value, or use a transistor with more gain.</li>
+</ol>
+<p>The same calculation tells you where the method stops. A load of 500 mA with a forced gain of 38 needs 13 mA of base current, which the pin cannot give; that load needs a driver chip (the H-bridge below), or a second transistor, or a logic-level MOSFET, which we do not use in this course.</p>
+<h3>Part 2. Flyback: The Spike from a Coil</h3>
+<p>Motors, relay coils and solenoids are <strong>inductors</strong>: they store energy in a magnetic field, and an inductor resists a sudden change in its current. When the transistor turns off, the current in the coil must go somewhere. With nowhere to go, the coil’s voltage swings upward until something breaks down, often the transistor itself, and a spike of tens of volts (sometimes far more) appears at the collector. It is also noise that crosses the wiring into your Pico, causing resets and bad ADC readings.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 262" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="340" height="190" rx="6" fill="#fff" stroke="#d0dae2" stroke-width="1.5"/><text x="190" y="28" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">No diode</text><line x1="40" y1="150" x2="340" y2="150" stroke="#cfd9e1" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6 4"/><text x="46" y="144" font-size="14" fill="#5b6b78" text-anchor="start">+V</text><line x1="40" y1="210" x2="40" y2="55" stroke="#1f3b52" stroke-width="1.8" stroke-linecap="round"/><polyline points="40.0,205.0 150.0,205.0 150.0,62.0 162.0,62.0 195.0,150.0 340.0,150.0" fill="none" stroke="#b3261e" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><text x="150" y="247" font-size="14.5" fill="#5b6b78" text-anchor="middle">transistor turns off</text><rect x="400" y="40" width="340" height="190" rx="6" fill="#fff" stroke="#d0dae2" stroke-width="1.5"/><text x="570" y="28" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">With flyback diode</text><line x1="420" y1="150" x2="720" y2="150" stroke="#cfd9e1" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6 4"/><text x="426" y="144" font-size="14" fill="#5b6b78" text-anchor="start">+V</text><line x1="420" y1="210" x2="420" y2="55" stroke="#1f3b52" stroke-width="1.8" stroke-linecap="round"/><polyline points="420.0,205.0 530.0,205.0 530.0,138.0 542.0,138.0 575.0,150.0 720.0,150.0" fill="none" stroke="#3c8a5a" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/><text x="530" y="247" font-size="14.5" fill="#5b6b78" text-anchor="middle">transistor turns off</text><text x="205" y="82" font-size="14.5" fill="#b3261e" text-anchor="start" font-weight="bold">spike: tens of</text><text x="205" y="100" font-size="14.5" fill="#b3261e" text-anchor="start" font-weight="bold">volts or more</text><text x="580" y="120" font-size="14.5" fill="#3c8a5a" text-anchor="middle" font-weight="bold">clamped: about 0.7 V above +V</text></svg>
+            <div class="diagram-caption">The voltage at the transistor’s collector when the load is switched off (schematic, not to scale). Without a diode the coil makes a tall spike. With the diode the spike is clamped to one diode drop above the supply.</div>
+        </div>
+
+<p>The cure costs ten cents: a <strong>flyback diode</strong> (also called a freewheeling or snubber diode) connected across the coil, <strong>backwards</strong> relative to the supply. It does nothing while the load is on. When the transistor switches off, the coil’s current finds a path around through the diode and fades away harmlessly. Orientation matters: the <strong>stripe (the cathode) goes to the +V side</strong>. If you put it in the wrong way round you have built a short circuit from the supply to ground through the diode the moment you turn the power on, so check before you connect the battery. Any small diode in your kit is fine for these currents (a 1N4007 or a 1N4148).</p>
+<p>Motor driver modules and relay modules already include these diodes. A bare motor, fan or pump on your own transistor does not, and a PWM-driven load switches off thousands of times per second, so the diode is not optional.</p>
+<h3>Part 3. Relays</h3>
+<p>A relay is a switch operated by an electromagnet: a coil (the input side) moves a metal contact (the output side). The two sides are electrically separate, which is why relays are used for loads on a different voltage, or loads that must be isolated from the controller. Three terminals on the output: <strong>COM</strong> (common), <strong>NO</strong> (normally open: connected to COM only while the coil is on) and <strong>NC</strong> (normally closed: connected to COM while the coil is off).</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 375.0" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="190" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="115" y="43.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Property</text><rect x="210" y="14" width="250" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="335" y="43.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Relay module</text><rect x="460" y="14" width="280" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="600" y="43.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Transistor switch</text><rect x="20" y="62" width="190" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="91.25" font-size="15" fill="#1f3b52" text-anchor="start">Switching speed</text><rect x="210" y="62" width="250" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="91.25" font-size="15" fill="#1f3b52" text-anchor="start">about 10 ms, and it clicks</text><rect x="460" y="62" width="280" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="91.25" font-size="15" fill="#1f3b52" text-anchor="start">microseconds</text><rect x="20" y="110" width="190" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="139.25" font-size="15" fill="#1f3b52" text-anchor="start">PWM / speed control</text><rect x="210" y="110" width="250" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="139.25" font-size="15" fill="#1f3b52" text-anchor="start">never (contacts wear out)</text><rect x="460" y="110" width="280" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="139.25" font-size="15" fill="#1f3b52" text-anchor="start">yes</text><rect x="20" y="158" width="190" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="187.25" font-size="15" fill="#1f3b52" text-anchor="start">Lifetime</text><rect x="210" y="158" width="250" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="187.25" font-size="15" fill="#1f3b52" text-anchor="start">about 100,000 to 10 million</text><rect x="460" y="158" width="280" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="187.25" font-size="15" fill="#1f3b52" text-anchor="start">effectively unlimited</text><rect x="20" y="206" width="190" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="238" font-size="15" fill="#1f3b52" text-anchor="start">Isolation from the Pico</text><rect x="210" y="206" width="250" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="228.625" font-size="15" fill="#1f3b52" text-anchor="start">yes: separate coil and</text><text x="219" y="247.375" font-size="15" fill="#1f3b52" text-anchor="start">contacts</text><rect x="460" y="206" width="280" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="238" font-size="15" fill="#1f3b52" text-anchor="start">no: shares a ground</text><rect x="20" y="259.5" width="190" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="288.75" font-size="15" fill="#1f3b52" text-anchor="start">Pin load</text><rect x="210" y="259.5" width="250" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="288.75" font-size="15" fill="#1f3b52" text-anchor="start">2 to 5 mA (module has driver)</text><rect x="460" y="259.5" width="280" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="288.75" font-size="15" fill="#1f3b52" text-anchor="start">2.6 mA through Rb</text><rect x="20" y="307.5" width="190" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="339.5" font-size="15" fill="#1f3b52" text-anchor="start">Good for</text><rect x="210" y="307.5" width="250" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="330.125" font-size="15" fill="#1f3b52" text-anchor="start">rare on/off of a large or</text><text x="219" y="348.875" font-size="15" fill="#1f3b52" text-anchor="start">other-voltage load</text><rect x="460" y="307.5" width="280" height="53.5" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="339.5" font-size="15" fill="#1f3b52" text-anchor="start">fast, frequent or PWM loads</text></svg>
+            <div class="diagram-caption">Relay or transistor? The relay is for loads that change rarely; the transistor is for anything that changes quickly or in proportion.</div>
+        </div>
+
+<p>The kit’s relay arrives on a <strong>module</strong>: a small board with a driver transistor, a flyback diode, an indicator LED and usually an optocoupler, so the Pico pin drives it directly. Two details trip people up. First, most modules are <strong>active low</strong>: the relay turns on when the pin is <strong>low</strong>. Second, a pin that is configured as an output defaults to low, so a careless program makes the relay click on for a moment at start-up. The <span class="code-lesson-il">Relay</span> class below sets the pin’s off level in the same call that makes it an output.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">relay.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin
+
+class Relay:
+    """A relay module. Most are active low: the coil is on when the pin is low."""
+    def __init__(self, pin, active_low=True):
+        self.al = active_low
+        # Give the pin its OFF level at the moment it becomes an output,
+        # so the relay does not click when the program starts.
+        self.pin = Pin(pin, Pin.OUT, value=1 if active_low else 0)
+
+    def on(self):
+        self.pin.value(0 if self.al else 1)
+
+    def off(self):
+        self.pin.value(1 if self.al else 0)
+
+    def is_on(self):
+        return self.pin.value() == (0 if self.al else 1)
+</span>
+</div>
+<p>Only switch low voltage in this course. The module’s contacts may be printed with mains ratings, but the board is not an enclosure, the screw terminals are exposed, and wiring mains power is for a qualified electrician, not for a lab session. Use the contacts to switch your battery pack or a lamp on its own low-voltage supply, and nothing else.</p>
+<p>Because a relay clicks and wears, protect it from a program that toggles it hundreds of times a second by mistake (a sensor hovering at a threshold will do exactly that). Exercise 4 adds a minimum dwell time.</p>
+<h3>Part 4. Switching with PWM</h3>
+<p>A transistor is fast enough to follow the PWM from the previous lesson, so the average power in the load follows the duty cycle: 50 % duty gives roughly half the speed of a fan, or half the brightness of a lamp. Two choices matter. <strong>Frequency:</strong> a low frequency makes motors and fans buzz or stutter, while a very high one makes the transistor spend more time in the in-between region where it is hot; 1 kHz is a sensible starting point and 20 kHz is silent. <strong>The motor’s response:</strong> a fan will not turn at all below a minimum duty (it needs a certain torque to start), so you will find a dead zone that your control code must jump over. <span class="code-lesson-il">Load</span> wraps this, with the active-low option for relay-style boards.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">load.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin, PWM
+
+class Load:
+    """Something switched by a transistor (or a relay module): 0..100 percent."""
+    def __init__(self, pin, freq=1000, active_low=False):
+        self.inv = active_low
+        self.pwm = PWM(Pin(pin), freq=freq, duty_u16=0)
+        self.off()
+
+    def set(self, pct):
+        pct = max(0, min(100, pct))
+        duty = int(pct * 65535 / 100)
+        self.pwm.duty_u16(65535 - duty if self.inv else duty)
+
+    def off(self):
+        self.set(0)
+</span>
+</div>
+<h3>Part 5. Driving a Motor in Both Directions</h3>
+<p>A transistor switch turns a motor on and off, one direction only. To run it forward and backward you need an <strong>H-bridge</strong>: four switches arranged in an H with the motor as the crossbar. Closing the diagonal pair in one pattern pushes current through the motor one way; closing the other diagonal reverses it. You have already seen why the two switches on the same side must never close together.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 340" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="120" y="24" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">IN1=1, IN2=0</text><line x1="60" y1="50" x2="180" y2="50" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="60" y1="280" x2="180" y2="280" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><rect x="40" y="90" width="40" height="36" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><text x="60" y="114" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">S1</text><rect x="160" y="90" width="40" height="36" rx="5" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2.2"/><text x="180" y="114" font-size="14" fill="#5b6b78" text-anchor="middle" font-weight="bold">S2</text><rect x="40" y="200" width="40" height="36" rx="5" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2.2"/><text x="60" y="224" font-size="14" fill="#5b6b78" text-anchor="middle" font-weight="bold">S3</text><rect x="160" y="200" width="40" height="36" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><text x="180" y="224" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">S4</text><line x1="60" y1="50" x2="60" y2="90" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="180" y1="50" x2="180" y2="90" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="60" y1="280" x2="60" y2="236" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="180" y1="280" x2="180" y2="236" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="60" y1="126" x2="60" y2="200" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="180" y1="126" x2="180" y2="200" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="60" y1="163" x2="180" y2="163" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><rect x="95" y="148" width="50" height="30" rx="15" fill="#fbece3" stroke="#c0693f" stroke-width="2.2"/><text x="120" y="169" font-size="15" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><text x="120" y="312" font-size="14.5" fill="#8a4526" text-anchor="middle" font-weight="bold">forward</text><text x="370" y="24" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">IN1=0, IN2=1</text><line x1="310" y1="50" x2="430" y2="50" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="310" y1="280" x2="430" y2="280" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><rect x="290" y="90" width="40" height="36" rx="5" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2.2"/><text x="310" y="114" font-size="14" fill="#5b6b78" text-anchor="middle" font-weight="bold">S1</text><rect x="410" y="90" width="40" height="36" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><text x="430" y="114" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">S2</text><rect x="290" y="200" width="40" height="36" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><text x="310" y="224" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">S3</text><rect x="410" y="200" width="40" height="36" rx="5" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2.2"/><text x="430" y="224" font-size="14" fill="#5b6b78" text-anchor="middle" font-weight="bold">S4</text><line x1="310" y1="50" x2="310" y2="90" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="430" y1="50" x2="430" y2="90" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="310" y1="280" x2="310" y2="236" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="430" y1="280" x2="430" y2="236" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="310" y1="126" x2="310" y2="200" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="430" y1="126" x2="430" y2="200" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="310" y1="163" x2="430" y2="163" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><rect x="345" y="148" width="50" height="30" rx="15" fill="#fbece3" stroke="#c0693f" stroke-width="2.2"/><text x="370" y="169" font-size="15" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><text x="370" y="312" font-size="14.5" fill="#8a4526" text-anchor="middle" font-weight="bold">reverse</text><text x="620" y="24" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">IN1=1, IN2=1</text><line x1="560" y1="50" x2="680" y2="50" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="560" y1="280" x2="680" y2="280" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><rect x="540" y="90" width="40" height="36" rx="5" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2.2"/><text x="560" y="114" font-size="14" fill="#5b6b78" text-anchor="middle" font-weight="bold">S1</text><rect x="660" y="90" width="40" height="36" rx="5" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2.2"/><text x="680" y="114" font-size="14" fill="#5b6b78" text-anchor="middle" font-weight="bold">S2</text><rect x="540" y="200" width="40" height="36" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><text x="560" y="224" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">S3</text><rect x="660" y="200" width="40" height="36" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.2"/><text x="680" y="224" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">S4</text><line x1="560" y1="50" x2="560" y2="90" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="680" y1="50" x2="680" y2="90" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><line x1="560" y1="280" x2="560" y2="236" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="680" y1="280" x2="680" y2="236" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="560" y1="126" x2="560" y2="200" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="680" y1="126" x2="680" y2="200" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><line x1="560" y1="163" x2="680" y2="163" stroke="#1f3b52" stroke-width="2.6" stroke-linecap="round"/><rect x="595" y="148" width="50" height="30" rx="15" fill="#fbece3" stroke="#c0693f" stroke-width="2.2"/><text x="620" y="169" font-size="15" fill="#8a4526" text-anchor="middle" font-weight="bold">M</text><text x="620" y="312" font-size="14.5" fill="#8a4526" text-anchor="middle" font-weight="bold">brake (shorted)</text></svg>
+            <div class="diagram-caption">The three working states of an H-bridge. Diagonal switches give forward or reverse. Closing the two lower switches shorts the motor’s terminals, which resists spinning and so brakes it. With all four open (IN1=0, IN2=0) the motor coasts.</div>
+        </div>
+
+<p>Your kit’s TA6586 module contains the four switches, the logic that prevents the forbidden state, and the diodes. You give it two logic inputs and a motor supply. The truth table below is the usual one for this family of chips; <strong>verify it on your own module</strong> with the bench test, because modules differ and a wiring mix-up looks the same as a different truth table.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 248" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="120" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="80" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">IN1</text><rect x="140" y="14" width="120" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="200" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">IN2</text><rect x="260" y="14" width="220" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="370" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">Motor</text><rect x="480" y="14" width="260" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="610" y="41.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">With PWM on one input</text><rect x="20" y="58" width="120" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="80" y="85.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="140" y="58" width="120" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="85.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="260" y="58" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="269" y="85.425" font-size="15.5" fill="#1f3b52" text-anchor="start">coasts (off)</text><rect x="480" y="58" width="260" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="85.425" font-size="15.5" fill="#1f3b52" text-anchor="start">(idle)</text><rect x="20" y="102" width="120" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="80" y="129.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">PWM</text><rect x="140" y="102" width="120" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="129.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="260" y="102" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="269" y="129.425" font-size="15.5" fill="#1f3b52" text-anchor="start">forward, speed = duty</text><rect x="480" y="102" width="260" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="129.425" font-size="15.5" fill="#1f3b52" text-anchor="start">drive IN1 with PWM</text><rect x="20" y="146" width="120" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="80" y="173.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="140" y="146" width="120" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="173.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">PWM</text><rect x="260" y="146" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="269" y="173.425" font-size="15.5" fill="#1f3b52" text-anchor="start">reverse, speed = duty</text><rect x="480" y="146" width="260" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="173.425" font-size="15.5" fill="#1f3b52" text-anchor="start">drive IN2 with PWM</text><rect x="20" y="190" width="120" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="80" y="217.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="140" y="190" width="120" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="217.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="260" y="190" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="269" y="217.425" font-size="15.5" fill="#1f3b52" text-anchor="start">brakes</text><rect x="480" y="190" width="260" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="489" y="217.425" font-size="15.5" fill="#1f3b52" text-anchor="start">hold both high</text></svg>
+            <div class="diagram-caption">The H-bridge truth table. The <span class="code-lesson-il">Motor</span> class from earlier PWM work implements exactly this: one input carries the PWM and the other is held low.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">motor.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin, PWM
+
+class Motor:
+    """One motor on an H-bridge driver such as the TA6586: two inputs, IN1 and IN2."""
+    def __init__(self, in1, in2, freq=2000):
+        self.in1 = PWM(Pin(in1), freq=freq, duty_u16=0)
+        self.in2 = PWM(Pin(in2), freq=freq, duty_u16=0)
+
+    def speed(self, pct):
+        """-100 (full reverse) .. 0 (coast) .. 100 (full forward)."""
+        pct = max(-100, min(100, pct))
+        duty = int(abs(pct) / 100 * 65535)
+        if pct &gt; 0:
+            self.in1.duty_u16(duty); self.in2.duty_u16(0)
+        elif pct &lt; 0:
+            self.in1.duty_u16(0);    self.in2.duty_u16(duty)
+        else:
+            self.in1.duty_u16(0);    self.in2.duty_u16(0)       # coast
+
+    def brake(self):
+        self.in1.duty_u16(65535); self.in2.duty_u16(65535)
+</span>
+</div>
+<h3>Wiring and Power</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 399.0" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="220" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="130" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">From</text><rect x="240" y="14" width="220" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="350" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">To</text><rect x="460" y="14" width="280" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="600" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Why</text><rect x="20" y="58" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="85.25" font-size="15" fill="#1f3b52" text-anchor="start">Pico GP14</text><rect x="240" y="58" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="85.25" font-size="15" fill="#1f3b52" text-anchor="start">driver IN1</text><rect x="460" y="58" width="280" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="85.25" font-size="15" fill="#1f3b52" text-anchor="start">PWM or logic</text><rect x="20" y="102" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="129.25" font-size="15" fill="#1f3b52" text-anchor="start">Pico GP15</text><rect x="240" y="102" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="129.25" font-size="15" fill="#1f3b52" text-anchor="start">driver IN2</text><rect x="460" y="102" width="280" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="129.25" font-size="15" fill="#1f3b52" text-anchor="start">PWM or logic</text><rect x="20" y="146" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="173.25" font-size="15" fill="#1f3b52" text-anchor="start">Pico GND</text><rect x="240" y="146" width="220" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="173.25" font-size="15" fill="#1f3b52" text-anchor="start">driver GND</text><rect x="460" y="146" width="280" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="173.25" font-size="15" fill="#1f3b52" text-anchor="start">common reference</text><rect x="20" y="190" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="217.25" font-size="15" fill="#1f3b52" text-anchor="start">Battery +</text><rect x="240" y="190" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="217.25" font-size="15" fill="#1f3b52" text-anchor="start">driver motor supply</text><rect x="460" y="190" width="280" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="217.25" font-size="15" fill="#1f3b52" text-anchor="start">powers the motor</text><rect x="20" y="234" width="220" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="266" font-size="15" fill="#1f3b52" text-anchor="start">Battery −</text><rect x="240" y="234" width="220" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="256.625" font-size="15" fill="#1f3b52" text-anchor="start">driver GND (and Pico</text><text x="249" y="275.375" font-size="15" fill="#1f3b52" text-anchor="start">GND)</text><rect x="460" y="234" width="280" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="266" font-size="15" fill="#1f3b52" text-anchor="start">one shared ground</text><rect x="20" y="287.5" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="314.75" font-size="15" fill="#1f3b52" text-anchor="start">Motor leads</text><rect x="240" y="287.5" width="220" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="314.75" font-size="15" fill="#1f3b52" text-anchor="start">driver OUT1, OUT2</text><rect x="460" y="287.5" width="280" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="314.75" font-size="15" fill="#1f3b52" text-anchor="start">swap to flip direction</text><rect x="20" y="331.5" width="220" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="354.125" font-size="15" fill="#1f3b52" text-anchor="start">Pico 3V3 (if module needs</text><text x="29" y="372.875" font-size="15" fill="#1f3b52" text-anchor="start">it)</text><rect x="240" y="331.5" width="220" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="249" y="363.5" font-size="15" fill="#1f3b52" text-anchor="start">driver logic VCC</text><rect x="460" y="331.5" width="280" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="363.5" font-size="15" fill="#1f3b52" text-anchor="start">check your module</text></svg>
+            <div class="diagram-caption">Wire list for one motor. The motor has its own battery; the Pico supplies the two control signals. Place a 100 µF capacitor across the battery pins near the driver if you have one, and a 0.1 µF ceramic across the motor terminals to calm its electrical noise.</div>
+        </div>
+
+<ul>
+<li><strong>Separate supply, common ground.</strong> The same rule as the servo: the load’s current never passes through the Pico, but their grounds are joined.</li>
+<li><strong>Stall current.</strong> Check the driver’s current rating against the motor’s <em>stalled</em> current, not only its running current, and run the motor briefly when you test.</li>
+<li><strong>Supply voltage.</strong> Read the driver module’s printed voltage range and stay inside it; check what voltage the motor is rated for as well. A 3 V motor on a 6 V supply gets hot.</li>
+<li><strong>Soft start.</strong> A motor draws a surge when it starts. Ramping the speed up in steps (see the bench test) is gentler on the battery and keeps the Pico from resetting.</li>
+</ul>
+<h3>Part 6. Bench Test</h3>
+<p>Wire the module and run this on a motor with nothing attached to its shaft. The <span class="code-lesson-il">try</span>/<span class="code-lesson-il">finally</span> is a habit worth forming now: <strong>whatever happens in the program, the last thing it does is turn the motor off.</strong> A robot whose program crashes while the motor is on keeps driving. In Unit 2 you will add the same fail-safe for a lost network connection.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">bench.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import sleep_ms
+from motor import Motor
+
+def ramp(motor, target, start=0, step=5, ms=20):
+    """Change speed in small steps instead of one jump: gentler on the supply."""
+    s = start
+    while s != target:
+        if abs(target - s) &lt; step:
+            s = target
+        else:
+            s += step if target &gt; s else -step
+        motor.speed(s)
+        sleep_ms(ms)
+
+m = Motor(14, 15)
+try:
+    ramp(m, 60)             # soft start forward
+    sleep_ms(1500)
+    ramp(m, 0, start=60)    # slow down
+    sleep_ms(500)
+    ramp(m, -60)            # reverse, through zero
+    sleep_ms(1500)
+    m.brake()
+    sleep_ms(500)
+finally:
+    m.speed(0)              # whatever happens, leave the motor off
+</span>
+</div>
+<ul>
+<li>Does forward spin the way you expect? If not, swap the two motor leads or swap IN1 and IN2 in the constructor; do not edit the logic.</li>
+<li>Does the brake feel firmer than the coast? Turn the shaft by hand during each.</li>
+<li>Find the lowest speed at which the motor starts. This dead zone is why controllers that drive a motor often need a minimum output.</li>
+<li>Watch the Pico: if it resets when the motor starts, add the capacitor and a longer soft start before trying again.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Choose the Resistor.</strong> A pump needs 150 mA and your pin may supply at most 4 mA. What is the smallest resistor you may put in the base lead, what do 1 kΩ and 330 Ω each give for base current, and does 1 kΩ saturate the transistor? Use 3.3 V and a 0.7 V base-emitter drop.</p>
+        <p><strong>Exercise 2: Read the Motor Class.</strong> The <span class="code-lesson-il">Motor</span> class is created with <span class="code-lesson-il">Motor(14, 15)</span>. What duty values do IN1 and IN2 receive for <span class="code-lesson-il">speed(60)</span>, for <span class="code-lesson-il">speed(-40)</span>, and for <span class="code-lesson-il">brake()</span>?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Pick the Switch.</strong> For each load say whether you would use the pin directly, a transistor, a relay module or the H-bridge, and why: (a) a status LED, (b) a 100 mA fan that you want at three speeds, (c) a pump that runs for a minute every hour, from its own 6 V supply, (d) a robot wheel motor that must reverse, (e) a lamp on its own separate supply that you want switched by a low-current signal with no electrical connection to the Pico.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Do Not Click Too Fast.</strong> A relay controlled directly from a sensor threshold will chatter when the reading hovers at the threshold. Write <span class="code-lesson-il">SafeRelay</span>, which changes state at most once every <span class="code-lesson-il">min_ms</span> milliseconds and returns whether the relay is now in the wanted state, so that the caller can try again later. Test it: min_ms=2000; a request to turn on at t=12,100 ms, a request to turn off at 13,000 ms, and a repeat of the off request at 14,200 ms (the program starts at t=10,000).</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Choose the Resistor</summary>
+<p>The base-emitter drop leaves 3.3 − 0.7 = 2.6 V across the resistor. For no more than 4 mA you need R ≥ 2.6 / 0.004 = <strong>650 Ω</strong>. So 330 Ω is out: it would ask for 2.6 / 330 = 7.9 mA, too much for the pin. With 1 kΩ the base current is 2.6 mA, and the forced gain is 150 / 2.6 = <strong>58</strong>.</p><p>Whether 1 kΩ saturates depends on the real current gain at 150 mA, which is lower than the headline figure on the datasheet. It is plausible but with little margin, so measure the voltage across the transistor: below about 0.5 V and it is saturated. Otherwise you need a transistor with more gain, or a driver chip.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Read the Motor Class</summary>
+<p><span class="code-lesson-il">speed(60)</span>: duty = int(0.60 × 65535) = <strong>39321</strong> on IN1 and 0 on IN2: forward at 60 %. <span class="code-lesson-il">speed(-40)</span>: IN1 gets 0, IN2 gets int(0.40 × 65535) = <strong>26214</strong>: reverse at 40 %. <span class="code-lesson-il">brake()</span>: both are <strong>65535</strong> (both inputs held high), the brake row of the truth table.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Pick the Switch</summary>
+<p>(a) <strong>Pin directly</strong>, with a resistor: 6 mA is within the drive limit. (b) <strong>Transistor with PWM</strong>: it needs speeds, which a relay cannot give, and one direction only. (c) A <strong>relay</strong> works well here (rare switching, different supply, no speed control), and a transistor would also be correct; the relay isolates the supply. (d) <strong>H-bridge</strong>: only a bridge reverses the current. (e) <strong>Relay module</strong>: it is the one with electrical isolation between the Pico’s side and the lamp’s side.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Do Not Click Too Fast</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">safe_relay.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from time import ticks_ms, ticks_diff
+from relay import Relay
+
+class SafeRelay(Relay):
+    """A relay that refuses to change state more often than every min_ms."""
+    def __init__(self, pin, active_low=True, min_ms=2000):
+        super().__init__(pin, active_low)
+        self.min_ms = min_ms
+        self.last = ticks_ms()
+
+    def set(self, want):
+        """Returns True if the relay is now in the wanted state."""
+        if want == self.is_on():
+            return True
+        if ticks_diff(ticks_ms(), self.last) &lt; self.min_ms:
+            return False                      # too soon: ask again later
+        self.on() if want else self.off()
+        self.last = ticks_ms()
+        return True
+</span>
+</div><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_safe.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># fake clock; the relay was created at t = 10 000 ms
+# t=12100  set(True)  -&gt; True    (2.1 s since creation)   relay on
+# t=13000  set(False) -&gt; False   (only 0.9 s since the change)  relay stays on
+# t=14200  set(False) -&gt; True    (2.1 s since the change)       relay off
+</span>
+</div><p>The first request is allowed because more than <span class="code-lesson-il">min_ms</span> has passed since creation. The off request 0.9 s later is refused, and the relay stays on; asked again after 2.1 s it succeeds. A request that asks for the state the relay is already in always succeeds immediately. The caller keeps asking every pass of its loop, so the relay follows the sensor, but never faster than once per two seconds. Using <span class="code-lesson-il">ticks_diff</span> keeps it correct when the millisecond counter wraps.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Say why a GPIO pin cannot drive a motor, a pump or a relay coil directly.</li>
+            <li>Compute a base resistor from the load current, a forced gain and the pin’s limit, and check saturation with a multimeter.</li>
+            <li>Explain flyback, and place the diode with its stripe toward +V.</li>
+            <li>Choose between transistor, relay and H-bridge for a given load and justify it.</li>
+            <li>Wire a motor driver with a separate supply and a common ground, and end every motor program with the motor off.</li>
+        </ol>
+
+    </body>
+</html>

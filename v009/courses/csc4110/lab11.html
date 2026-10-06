@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lab builds a shared resource out of a lease, a queue and a contract. You write a manager that is the single judge of who may move the servo, and clients that ask, wait, use and give back, and then check by drills that crashes, restarts and impatient clients do not break it, and that the system recovers in a time you can state.</p>
+
+<h3>What You Will Build</h3>
+<p>One servo, several users, no collisions. One student’s Pico runs the <strong>manager</strong>: it owns a pan servo and decides, one at a time, who may move it. The other students run <strong>clients</strong> that ask for the servo, wait their turn in a queue, use it, and give it back. Everything in this lab is a combination of earlier lessons: the lease and queue of Week 13, the agent cycle, the contract, the failure habits of Week 8. The new work is making the pieces behave <strong>together</strong>, and then breaking the system the ways real systems break: a client that crashes while holding the servo, a manager that restarts, and a client that asks far too often.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="300" y="30" width="160" height="70" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="70.6" font-size="16" fill="#1f3b52" text-anchor="middle">broker</text><rect x="20" y="180" width="200" height="100" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="120" y="216.5" font-size="15" fill="#1f3b52" text-anchor="middle">client A</text><text x="120" y="235.25" font-size="15" fill="#1f3b52" text-anchor="middle">claim, pan, release</text><text x="120" y="254" font-size="15" fill="#1f3b52" text-anchor="middle">(student 2)</text><rect x="280" y="180" width="200" height="100" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="216.5" font-size="15" fill="#1f3b52" text-anchor="middle">MANAGER</text><text x="380" y="235.25" font-size="15" fill="#1f3b52" text-anchor="middle">Lease + queue + servo</text><text x="380" y="254" font-size="15" fill="#1f3b52" text-anchor="middle">(student 1)</text><rect x="540" y="180" width="200" height="100" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="640" y="216.5" font-size="15" fill="#1f3b52" text-anchor="middle">client B</text><text x="640" y="235.25" font-size="15" fill="#1f3b52" text-anchor="middle">claim, pan, release</text><text x="640" y="254" font-size="15" fill="#1f3b52" text-anchor="middle">(student 3)</text><line x1="120" y1="180" x2="321.59" y2="103.204" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><polygon points="330.0,100.0 317.8,98.8 321.7,109.1" fill="#2e5a80"/><line x1="640" y1="180" x2="438.41" y2="103.204" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><polygon points="430.0,100.0 438.3,109.1 442.2,98.8" fill="#2e5a80"/><line x1="380" y1="171" x2="380" y2="109" stroke="#b8860b" stroke-width="2.2" stroke-linecap="round"/><polygon points="380.0,100.0 374.5,111.0 385.5,111.0" fill="#b8860b"/><polygon points="380.0,180.0 385.5,169.0 374.5,169.0" fill="#b8860b"/><text x="180" y="130" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">lab/A/cmd/…</text><text x="595" y="130" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">lab/B/cmd/…</text><text x="392" y="144" font-size="14" fill="#b8860b" text-anchor="start" font-weight="bold">stat/owner, evt/ack</text><text x="380" y="315" font-size="14.5" fill="#5b6b78" text-anchor="middle">the manager listens to everyone’s cmd topics and reads only those addressed to it</text></svg>
+            <div class="diagram-caption">The Lab 11 system. Each user writes only in their own subtree, so each command carries <span class="code-lesson-il">to: manager</span>. The manager answers in its own subtree, and clients listen to it.</div>
+        </div>
+
+<h3>The Contract</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 484.4" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="160" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="100" y="44.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Topic</text><rect x="180" y="14" width="200" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="280" y="44.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Sent by</text><rect x="380" y="14" width="250" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="505" y="44.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Fields</text><rect x="630" y="14" width="110" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="685" y="44.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Rate</text><rect x="20" y="66" width="160" height="68.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="105.15" font-size="14" fill="#1f3b52" text-anchor="start">cmd/claim</text><rect x="180" y="66" width="200" height="68.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="189" y="105.15" font-size="14" fill="#1f3b52" text-anchor="start">client, in its own subtree</text><rect x="380" y="66" width="250" height="68.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="389" y="105.15" font-size="14" fill="#1f3b52" text-anchor="start">to, id</text><rect x="630" y="66" width="110" height="68.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="639" y="87.65" font-size="14" fill="#1f3b52" text-anchor="start">1 per second</text><text x="639" y="105.15" font-size="14" fill="#1f3b52" text-anchor="start">while</text><text x="639" y="122.65" font-size="14" fill="#1f3b52" text-anchor="start">waiting</text><rect x="20" y="134.5" width="160" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="165.4" font-size="14" fill="#1f3b52" text-anchor="start">cmd/release</text><rect x="180" y="134.5" width="200" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="189" y="165.4" font-size="14" fill="#1f3b52" text-anchor="start">client</text><rect x="380" y="134.5" width="250" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="389" y="165.4" font-size="14" fill="#1f3b52" text-anchor="start">to, id</text><rect x="630" y="134.5" width="110" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="639" y="165.4" font-size="14" fill="#1f3b52" text-anchor="start">once</text><rect x="20" y="186.5" width="160" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="217.4" font-size="14" fill="#1f3b52" text-anchor="start">cmd/pan</text><rect x="180" y="186.5" width="200" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="189" y="217.4" font-size="14" fill="#1f3b52" text-anchor="start">client (owner only)</text><rect x="380" y="186.5" width="250" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="389" y="217.4" font-size="14" fill="#1f3b52" text-anchor="start">to, id, deg −90..90</text><rect x="630" y="186.5" width="110" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="639" y="208.65" font-size="14" fill="#1f3b52" text-anchor="start">5 per second</text><text x="639" y="226.15" font-size="14" fill="#1f3b52" text-anchor="start">at most</text><rect x="20" y="238.5" width="160" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="269.4" font-size="14" fill="#1f3b52" text-anchor="start">evt/ack</text><rect x="180" y="238.5" width="200" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="189" y="269.4" font-size="14" fill="#1f3b52" text-anchor="start">manager</text><rect x="380" y="238.5" width="250" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="389" y="269.4" font-size="14" fill="#1f3b52" text-anchor="start">cmd_id, user, ok, why, pos</text><rect x="630" y="238.5" width="110" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="639" y="260.65" font-size="14" fill="#1f3b52" text-anchor="start">one per</text><text x="639" y="278.15" font-size="14" fill="#1f3b52" text-anchor="start">command</text><rect x="20" y="290.5" width="160" height="68.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="329.65" font-size="14" fill="#1f3b52" text-anchor="start">stat/owner</text><rect x="180" y="290.5" width="200" height="68.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="189" y="329.65" font-size="14" fill="#1f3b52" text-anchor="start">manager, retained</text><rect x="380" y="290.5" width="250" height="68.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="389" y="329.65" font-size="14" fill="#1f3b52" text-anchor="start">owner, queue</text><rect x="630" y="290.5" width="110" height="68.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="639" y="312.15" font-size="14" fill="#1f3b52" text-anchor="start">on change,</text><text x="639" y="329.65" font-size="14" fill="#1f3b52" text-anchor="start">and every 3</text><text x="639" y="347.15" font-size="14" fill="#1f3b52" text-anchor="start">s</text><rect x="20" y="375" width="720" height="95.4" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="400.587" font-size="14.5" fill="#1f3b52" text-anchor="middle">Rules: a command is only valid from the current owner. A command from the owner renews</text><text x="380" y="418.712" font-size="14.5" fill="#1f3b52" text-anchor="middle">the lease (10 s). A claim by the owner also renews it. A claim by anyone else joins the queue</text><text x="380" y="436.837" font-size="14.5" fill="#1f3b52" text-anchor="middle">(4 places) and keeps its position when repeated. When the lease ends, or the owner releases,</text><text x="380" y="454.962" font-size="14.5" fill="#1f3b52" text-anchor="middle">the first in the queue becomes owner and the servo goes to centre.</text></svg>
+            <div class="diagram-caption">The Lab 11 contract. The lease length (10 s) is a parameter of the manager; the clients assume it for their renewal and read the real owner from <span class="code-lesson-il">stat/owner</span>.</div>
+        </div>
+
+<h3>Step 1. The Manager</h3>
+<p>The student who owns the servo builds it on GP14 (power it from its own pack with a common ground, as always) and runs this. It needs <span class="code-lesson-il">hub.py</span>, <span class="code-lesson-il">agent.py</span>, <span class="code-lesson-il">contract.py</span>, and <span class="code-lesson-il">lease.py</span> from the resource management lesson. The file <span class="code-lesson-il">servo.py</span> is the one from Lab 10.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">manager.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># manager.py -- owns the servo; many users may ask, one at a time may move it
+from time import ticks_ms, ticks_diff
+import hub
+from agent import Agent
+from lease import Lease
+from contract import check
+
+KINDS = {                                             # the contract for what clients send, in THEIR cmd topics
+    "claim":   {"to": (str, None, None, True), "id": (int, 0, 2**31, True)},
+    "release": {"to": (str, None, None, True), "id": (int, 0, 2**31, True)},
+    "pan":     {"to": (str, None, None, True), "id": (int, 0, 2**31, True), "deg": (float, -90.0, 90.0, True)},
+}
+
+class Manager(Agent):
+    PAN_GAP_MS = 200                                   # at most 5 pans per second
+
+    def __init__(self, h, servo, lease_ms=10000):
+        super().__init__("manager", h, period_ms=50)
+        self.me = h.root.split("/")[1]
+        self.servo, self.lease = servo, Lease(lease_ms=lease_ms, max_queue=4)
+        self.last_pan = ticks_ms()
+        self.shown = "?"                                # not equal to any real state: the first pass publishes it
+        self.t_pub = ticks_ms()
+        self.had_owner = True                           # so the servo is centred once at start
+        self.refused = 0
+        h.on("lab/+/cmd/#", self.on_cmd)               # everyone's commands: we pick out ours
+
+    def on_cmd(self, topic, payload):
+        parts = topic.split("/")
+        user, kind = parts[1], parts[3] if len(parts) &gt; 3 else ""
+        schema = KINDS.get(kind)
+        d = hub.decode(payload)
+        if schema is None or d is None or d.get("to") != self.me:
+            return                                      # not for us: ignore, silently
+        ok, why = check(schema, d)
+        if not ok:
+            self.refused += 1
+            self.hub.publish("evt/ack", {"cmd_id": d.get("id"), "user": user, "ok": False, "why": why})
+            return
+        now = ticks_ms()
+        if kind == "claim":
+            state, pos = self.lease.claim(user, now)
+            self.hub.publish("evt/ack", {"cmd_id": d["id"], "user": user, "ok": state != "full",
+                                         "why": state, "pos": pos})
+        elif kind == "release":
+            self.lease.release(user, now)
+            self.hub.publish("evt/ack", {"cmd_id": d["id"], "user": user, "ok": True, "why": ""})
+        elif kind == "pan":
+            if not self.lease.holds(user, now):
+                self.hub.publish("evt/ack", {"cmd_id": d["id"], "user": user, "ok": False, "why": "not owner"})
+            elif ticks_diff(now, self.last_pan) &lt; self.PAN_GAP_MS:
+                self.hub.publish("evt/ack", {"cmd_id": d["id"], "user": user, "ok": False, "why": "too fast"})
+            else:
+                self.last_pan = now
+                self.servo.angle(d["deg"])
+                self.lease.claim(user, now)             # a command from the owner renews the lease
+                self.hub.publish("evt/ack", {"cmd_id": d["id"], "user": user, "ok": True, "why": ""})
+
+    def decide(self, obs):
+        self.lease.tick(ticks_ms())
+        return self.lease.owner
+
+    def act(self, owner):
+        if owner is None and self.had_owner:
+            self.servo.angle(0)                         # nobody owns it: go to centre, once
+        self.had_owner = owner is not None
+
+    def tell(self, obs, owner):
+        state = (owner, tuple(self.lease.queue))
+        if state != self.shown or ticks_diff(ticks_ms(), self.t_pub) &gt;= 3000:    # on change, and every 3 s anyway
+            self.shown = state
+            self.t_pub = ticks_ms()
+            self.hub.publish("stat/owner", {"owner": owner, "queue": list(self.lease.queue)}, retain=True)
+</span>
+</div>
+<p>Look for the decisions. The manager subscribes to <span class="code-lesson-il">lab/+/cmd/#</span>, <strong>everyone’s</strong> commands, and ignores any not addressed to it. It checks each command against a schema <em>before</em> acting. A <span class="code-lesson-il">pan</span> is accepted only if <span class="code-lesson-il">lease.holds(user, now)</span>, and it <strong>renews</strong> the lease, so an owner that is working keeps its servo without sending separate renewals. Ownership and queue changes are published retained, <strong>and the same message is repeated every 3 s even when nothing has changed</strong> (see the box below). And <span class="code-lesson-il">self.shown</span> starts as <span class="code-lesson-il">"?"</span> rather than <span class="code-lesson-il">None</span>: an earlier version started it as <span class="code-lesson-il">None</span>, and then after a manager restart it did not publish <span class="code-lesson-il">owner: none</span>, so the <strong>stale retained message</strong> went on saying that a client owned the servo, and the clients believed it.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (manager)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import hub
+from servo import Servo
+from manager import Manager
+from agent import run
+
+h = hub.Hub()
+h.presence()
+run(h, [Manager(h, Servo(14), lease_ms=10000)])
+</span>
+</div>
+<h3>Step 2. The Clients</h3>
+<p>The other students run the client, with a list of pan angles to perform. Change <span class="code-lesson-il">MANAGER</span> to the manager’s user name. A client is a small state machine (the state machines lesson): <span class="code-lesson-il">IDLE</span>, <span class="code-lesson-il">WAIT</span> for the queue, <span class="code-lesson-il">OWN</span> while it works.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">client.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># client.py -- ask for the resource, use it, give it back
+from time import ticks_ms, ticks_diff
+import hub
+from agent import Agent
+
+class Client(Agent):
+    def __init__(self, h, manager, jobs, lease_ms=10000):
+        super().__init__("client", h, period_ms=100)
+        self.me = h.root.split("/")[1]
+        self.manager, self.jobs = manager, list(jobs)    # jobs: a list of pan angles to perform
+        self.state = "IDLE"
+        self.n = 0
+        self.t_sent = ticks_ms()
+        self.t_renew = ticks_ms()
+        self.lease_ms = lease_ms
+        self.owner = None
+        self.done = []
+        h.on("lab/%s/stat/owner" % manager, self.on_owner)
+
+    def on_owner(self, topic, payload):
+        d = hub.decode(payload)
+        if d:
+            self.owner = d.get("owner")
+
+    def send(self, kind, **f):
+        self.n += 1
+        f["to"], f["id"] = self.manager, self.n
+        self.hub.publish("cmd/" + kind, f)
+        self.t_sent = ticks_ms()
+
+    def step(self):
+        now = ticks_ms()
+        if self.state == "IDLE" and self.jobs:
+            self.state = "WAIT"
+            self.send("claim")
+        elif self.state == "WAIT":
+            if self.owner == self.me:
+                self.state, self.t_renew = "OWN", now
+            elif ticks_diff(now, self.t_sent) &gt;= 1000:
+                self.send("claim")                       # asking again keeps our place in the queue
+        elif self.state == "OWN":
+            if self.owner != self.me:
+                self.state = "IDLE"                      # we lost it (lease expired): start over
+            elif self.jobs and ticks_diff(now, self.t_sent) &gt;= 300:
+                self.send("pan", deg=float(self.jobs.pop(0)))
+                self.done.append(now)
+            elif not self.jobs:
+                self.send("release")
+                self.state = "IDLE"
+            elif ticks_diff(now, self.t_renew) &gt;= self.lease_ms // 3:
+                self.send("claim")                       # renew well inside the lease
+                self.t_renew = now
+</span>
+</div>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (client)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import hub
+from client import Client
+from agent import run
+
+MANAGER = "bob"                       # the name of the student who owns the servo
+h = hub.Hub()
+h.presence()
+run(h, [Client(h, MANAGER, [10, 20, 30, 40, 50])])
+</span>
+</div>
+<p>Notice what the client does <strong>not</strong> assume. It does not assume its claim was granted: it waits until <span class="code-lesson-il">stat/owner</span> names it. It does not assume it still owns the servo: if <span class="code-lesson-il">stat/owner</span> changes to someone else (the lease ran out), it goes back to <span class="code-lesson-il">IDLE</span> and asks again. And it repeats its claim every second while waiting, which costs one message a second and keeps its place in the queue (the answer says where it stands).</p>
+<h3>Step 3. Run the System</h3>
+<p>On the test fixture (one manager, three clients, 5 pans each, a fake broker and clock), the three clients were served <strong>in the order they asked</strong>: the first was owner at 0.11 s, the second at 1.71 s and the third at 3.21 s, and all 15 pans completed by 4.7 s, when the servo returned to centre. There were 25 acknowledgements, none refused, and no pan was ever accepted from a user who was not the owner at that moment. Run yours and record the same things: the order, the time each client waited, and the total.</p>
+<p><strong>Why repeat a message that has not changed?</strong> The first version of this manager published <span class="code-lesson-il">stat/owner</span> only when the owner changed. With a perfect link that is enough. In a fault-injection test (the next week’s lesson, simulated, 20 runs per setting), a link that lost 10 % of the messages it sent left <strong>6 of 20 runs deadlocked</strong>, and at 30 % loss <strong>14 of 20</strong>: the one message that said “amy owns the servo” was lost, so every client sat in <span class="code-lesson-il">WAIT</span> listening for a state that was never repeated, while the manager thought amy owned it, and amy’s repeated <span class="code-lesson-il">claim</span> renewed her lease for ever. The fix is the three-second repeat: a lost update is now corrected within about 3 s. Afterwards all 20 runs finished at every setting tried. State that others depend on should be <strong>said again</strong>, not just said once.</p>
+<h3>Step 4. Break It</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 481.0" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="60" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="50" y="42.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="80" y="14" width="330" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="245" y="42.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">You do</text><rect x="410" y="14" width="330" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="575" y="42.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">You expect, and measure</text><rect x="20" y="62" width="60" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="92.4" font-size="14" fill="#1f3b52" text-anchor="middle">1</text><rect x="80" y="62" width="330" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="92.4" font-size="14" fill="#1f3b52" text-anchor="start">Unplug client A while it owns the servo</text><rect x="410" y="62" width="330" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="83.65" font-size="14" fill="#1f3b52" text-anchor="start">B gets the servo about 10 s after A’s last</text><text x="419" y="101.15" font-size="14" fill="#1f3b52" text-anchor="start">command (simulated: 10.75 s)</text><rect x="20" y="113" width="60" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="143.4" font-size="14" fill="#1f3b52" text-anchor="middle">2</text><rect x="80" y="113" width="330" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="143.4" font-size="14" fill="#1f3b52" text-anchor="start">Restart the manager mid-run</text><rect x="410" y="113" width="330" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="134.65" font-size="14" fill="#1f3b52" text-anchor="start">stat/owner resets to none; clients re-claim;</text><text x="419" y="152.15" font-size="14" fill="#1f3b52" text-anchor="start">all finish (simulated: yes, within 1 s)</text><rect x="20" y="164" width="60" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="194.4" font-size="14" fill="#1f3b52" text-anchor="middle">3</text><rect x="80" y="164" width="330" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="194.4" font-size="14" fill="#1f3b52" text-anchor="start">A client sends claim every 100 ms</text><rect x="410" y="164" width="330" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="185.65" font-size="14" fill="#1f3b52" text-anchor="start">its place in line does not improve; measure</text><text x="419" y="203.15" font-size="14" fill="#1f3b52" text-anchor="start">its wait</text><rect x="20" y="215" width="60" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="245.4" font-size="14" fill="#1f3b52" text-anchor="middle">4</text><rect x="80" y="215" width="330" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="245.4" font-size="14" fill="#1f3b52" text-anchor="start">A client sends pan without owning</text><rect x="410" y="215" width="330" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="236.65" font-size="14" fill="#1f3b52" text-anchor="start">ack ok false, why “not owner”; the servo</text><text x="419" y="254.15" font-size="14" fill="#1f3b52" text-anchor="start">does not move</text><rect x="20" y="266" width="60" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="296.4" font-size="14" fill="#1f3b52" text-anchor="middle">5</text><rect x="80" y="266" width="330" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="287.65" font-size="14" fill="#1f3b52" text-anchor="start">Two clients send pan within 200 ms (owner</text><text x="89" y="305.15" font-size="14" fill="#1f3b52" text-anchor="start">only)</text><rect x="410" y="266" width="330" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="296.4" font-size="14" fill="#1f3b52" text-anchor="start">the second is refused “too fast”</text><rect x="20" y="317" width="60" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="345.9" font-size="14" fill="#1f3b52" text-anchor="middle">6</text><rect x="80" y="317" width="330" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="345.9" font-size="14" fill="#1f3b52" text-anchor="start">Fill the queue with 5 clients</text><rect x="410" y="317" width="330" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="345.9" font-size="14" fill="#1f3b52" text-anchor="start">the fifth gets “full”; what should it do?</text><rect x="20" y="365" width="60" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="395.4" font-size="14" fill="#1f3b52" text-anchor="middle">7</text><rect x="80" y="365" width="330" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="395.4" font-size="14" fill="#1f3b52" text-anchor="start">Change the lease to 3 s, then 30 s</text><rect x="410" y="365" width="330" height="51" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="386.65" font-size="14" fill="#1f3b52" text-anchor="start">handover time in test 1; renewal messages</text><text x="419" y="404.15" font-size="14" fill="#1f3b52" text-anchor="start">per minute</text><rect x="20" y="416" width="60" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="446.4" font-size="14" fill="#1f3b52" text-anchor="middle">8</text><rect x="80" y="416" width="330" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="446.4" font-size="14" fill="#1f3b52" text-anchor="start">Make a link lose 30 % of what it sends</text><rect x="410" y="416" width="330" height="51" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="437.65" font-size="14" fill="#1f3b52" text-anchor="start">everyone still finishes, only slower</text><text x="419" y="455.15" font-size="14" fill="#1f3b52" text-anchor="start">(simulated median 14 s against 4.7 s)</text></svg>
+            <div class="diagram-caption">The failure drills. For each, record what happened and what you expected, and for any that surprises you, find the line of code responsible.</div>
+        </div>
+
+<p>Two of these were run in simulation, so you can compare. In drill 1 (client A unplugged 0.8 s after getting the servo, after two pans) the second client became owner at <strong>10.75 s</strong>, about 10 s after A’s last command, and the other two finished by 13.7 s; A did two of its five pans. In drill 2 (manager restarted at 2.5 s), the servo went to centre, <span class="code-lesson-il">stat/owner</span> was republished as none at 2.55 s, the client that had been waiting re-claimed and was owner again at 2.71 s, and all three clients completed 5 pans each.</p>
+<ul>
+<li><strong>Drill 3 and the lease length (drill 7)</strong> are the heart of the lab: a shorter lease recovers faster from a crash and costs more renewals; a longer one is cheaper and slower. Say which you would choose for a servo that a person is watching, and which for one that carries a load.</li>
+<li><strong>Drill 6:</strong> what should a client do when it is told “full”? Write what you chose in the report, and implement it: back off for a random time, and try again.</li>
+<li><strong>Drill 2</strong> depends on <span class="code-lesson-il">shown = "?"</span>. Change it back to <span class="code-lesson-il">None</span>, repeat the drill, and describe what the clients do. This is a real bug that survived into the first version of this lab.</li>
+</ul>
+<h3>What to Hand In</h3>
+<ul>
+<li>Your <span class="code-lesson-il">manager.py</span> and <span class="code-lesson-il">client.py</span> with the changes you made, and a note of which student ran which.</li>
+<li>The table of drills 1 to 7 with times and observations; for every difference from the simulated results, an explanation.</li>
+<li>A timeline (a table or sketch) of one full run: who owned the servo when, and how long each client waited.</li>
+<li>A short paragraph: where in this system would you add a second manager for redundancy, and what new problem would it create?</li>
+</ul>
+<p>Marking: the system works and clients are served in order (30 %); the drills with measurements (30 %); handling of “full”, “not owner” and ownership loss in the client (20 %); the timeline and explanations (20 %).</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Why the Retained Owner?.</strong> Why is <span class="code-lesson-il">stat/owner</span> retained, and what could a client that joins late do with it?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 2: Two Owners?.</strong> Describe a sequence of messages and timeouts in which two clients both <em>believe</em> they own the servo, and say why the servo itself is never moved by both.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 3: Handle “full”.</strong> Change the client so that, on an ack with <span class="code-lesson-il">why: "full"</span>, it waits a random 2 to 6 seconds before claiming again, instead of every second.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Why the Retained Owner?</summary>
+<p>A retained message is delivered to a subscriber <strong>immediately</strong> on subscribing, so a client that starts while someone else holds the servo learns the owner and queue at once, without waiting for a change. The same message is what makes the first-ever state visible. The danger is the flip side: a retained message can be <strong>stale</strong> (the manager restarted and did not republish), which is why the manager publishes the real state at start, repeats it every few seconds, and why a client treats ownership as something it must confirm.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 2: Two Owners?</summary>
+<p>Client A owns the servo, loses WiFi for 12 s, and is silent; the lease (10 s) expires and the manager grants it to B and publishes <span class="code-lesson-il">owner: B</span>. A’s link returns; for a moment before A’s next incoming <span class="code-lesson-il">stat/owner</span> arrives, A still believes it owns the servo and may send a <span class="code-lesson-il">pan</span>. The manager checks <span class="code-lesson-il">lease.holds(user, now)</span> and refuses it (“not owner”), so the servo is never moved by both: <strong>the manager is the single judge, and the clients’ beliefs are only hints.</strong> The refusal also tells A it lost, and A returns to <span class="code-lesson-il">IDLE</span>.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 3: Handle “full”</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">full.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import random
+
+class PatientClient(Client):
+    """A Client that backs off for 2 to 6 seconds when the manager says the queue is full."""
+    def __init__(self, h, manager, jobs, lease_ms=10000):
+        super().__init__(h, manager, jobs, lease_ms)
+        self.hold_off_until = None
+        h.on("lab/%s/evt/ack" % manager, self.on_ack)
+
+    def on_ack(self, topic, payload):
+        d = hub.decode(payload)
+        if d and d.get("user") == self.me and d.get("why") == "full":
+            self.hold_off_until = ticks_add(ticks_ms(), random.randint(2000, 6000))
+
+    def step(self):
+        now = ticks_ms()
+        waiting = self.state == "WAIT" and self.owner != self.me
+        if waiting and self.hold_off_until is not None:
+            if ticks_diff(now, self.hold_off_until) &lt; 0:
+                return                           # still backing off: say nothing
+            self.hold_off_until = None
+        super().step()                           # everything else is unchanged
+</span>
+</div><p>The random delay is <strong>jitter</strong> (the herd lesson of Week 8): without it, every client refused at the same moment would try again at the same moment. Note that <span class="code-lesson-il">on</span> takes the filter and the function; a real version would keep a single handler for <span class="code-lesson-il">evt/ack</span> and branch inside it.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Build a manager that grants a resource to one owner at a time, in order.</li>
+            <li>Write a client that does not assume a grant and recovers when it loses ownership.</li>
+            <li>Measure handover time after an owner crashes and relate it to the lease length.</li>
+            <li>Explain why a stale retained message is dangerous and how the manager avoids it.</li>
+            <li>Show that a client cannot gain by asking more often.</li>
+        </ol>
+
+    </body>
+</html>

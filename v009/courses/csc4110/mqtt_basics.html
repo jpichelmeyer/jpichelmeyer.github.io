@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson introduces publish and subscribe, the broker’s role and the six packets a sensor node uses. You write a subscriber with a callback and a publisher without <span class="code-lesson-il">net.py</span>, learn why <span class="code-lesson-il">umqtt.simple</span> needs you to ping, and build a PUBLISH packet byte by byte so that the sizes you computed in earlier labs stop being estimates.</p>
+
+<p>MQTT is the language your node has been speaking since Lab 3. It was designed in the late 1990s for tiny devices on poor links, which is a fair description of a Pico on WiFi, and it remains the most common way for IoT devices to exchange small messages. This lesson covers the idea behind it (publish and subscribe), the few packet types it uses, and the first programs that publish and subscribe on their own, without <span class="code-lesson-il">net.py</span>.</p>
+<h3>Part 1. Three Ways to Talk</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 327.0" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="130" y="22" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">Point to point</text><text x="380" y="22" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">Request and response</text><text x="630" y="22" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">Publish and subscribe</text><rect x="20" y="60" width="90" height="50" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="65" y="90.25" font-size="15" fill="#1f3b52" text-anchor="middle">sensor</text><rect x="150" y="60" width="90" height="50" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="195" y="90.25" font-size="15" fill="#1f3b52" text-anchor="middle">robot</text><line x1="110" y1="85" x2="141" y2="85" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="150.0,85.0 139.0,79.5 139.0,90.5" fill="#1f3b52"/><text x="130" y="140" font-size="14.5" fill="#5b6b78" text-anchor="middle">Sender must know the</text><text x="130" y="158" font-size="14.5" fill="#5b6b78" text-anchor="middle">receiver’s address</text><rect x="270" y="60" width="90" height="50" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="315" y="90.25" font-size="15" fill="#1f3b52" text-anchor="middle">client</text><rect x="400" y="60" width="90" height="50" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="445" y="90.25" font-size="15" fill="#1f3b52" text-anchor="middle">server</text><line x1="360" y1="75" x2="391" y2="75" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="400.0,75.0 389.0,69.5 389.0,80.5" fill="#1f3b52"/><line x1="400" y1="98" x2="369" y2="98" stroke="#c0693f" stroke-width="2.4" stroke-linecap="round"/><polygon points="360.0,98.0 371.0,103.5 371.0,92.5" fill="#c0693f"/><text x="380" y="140" font-size="14.5" fill="#5b6b78" text-anchor="middle">Every answer waits</text><text x="380" y="158" font-size="14.5" fill="#5b6b78" text-anchor="middle">for a question</text><rect x="520" y="40" width="80" height="40" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="560" y="65.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">sensor</text><rect x="520" y="100" width="80" height="40" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="560" y="125.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">camera</text><rect x="610" y="56" width="70" height="68" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="645" y="95.25" font-size="15" fill="#1f3b52" text-anchor="middle">broker</text><rect x="690" y="40" width="60" height="40" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="720" y="65.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">log</text><rect x="690" y="100" width="60" height="40" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="720" y="125.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">robot</text><line x1="600" y1="60" x2="605.975" y2="71.9502" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="610.0,80.0 610.0,67.7 600.2,72.6" fill="#1f3b52"/><line x1="600" y1="120" x2="605.975" y2="108.05" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="610.0,100.0 600.2,107.4 610.0,112.3" fill="#1f3b52"/><line x1="680" y1="80" x2="685.629" y2="69.8674" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="690.0,62.0 679.9,68.9 689.5,74.3" fill="#1f3b52"/><line x1="680" y1="100" x2="685.629" y2="110.133" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="690.0,118.0 689.5,105.7 679.9,111.1" fill="#1f3b52"/><text x="635" y="170" font-size="14.5" fill="#5b6b78" text-anchor="middle">Neither side knows</text><text x="635" y="188" font-size="14.5" fill="#5b6b78" text-anchor="middle">the other exists</text><rect x="20" y="215" width="720" height="98" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="380" y="241.125" font-size="15" fill="#1f3b52" text-anchor="middle">Publish and subscribe decouples the parties in three ways. In space: a publisher does not</text><text x="380" y="259.875" font-size="15" fill="#1f3b52" text-anchor="middle">know who, or how many, are listening. In time: with retained messages a subscriber can</text><text x="380" y="278.625" font-size="15" fill="#1f3b52" text-anchor="middle">arrive later and still see the last value. In flow: the publisher never waits for a reply, so a</text><text x="380" y="297.375" font-size="15" fill="#1f3b52" text-anchor="middle">slow reader cannot stall a fast writer.</text></svg>
+            <div class="diagram-caption">Three communication patterns. Publish and subscribe puts a broker in the middle, and the middle is what lets you add a logger, a dashboard or a second robot without touching the sensor’s code.</div>
+        </div>
+
+<p>That freedom has a price: the broker is a single point of failure, a message can have zero listeners and nobody finds out, and there is no built-in “reply to this request”. Later weeks build a request-and-answer convention out of two topics, a command and an acknowledgement, precisely because the protocol does not give you one.</p>
+<h3>Part 2. The Pieces</h3>
+<ul>
+<li><strong>Broker.</strong> The server that receives every message and forwards it to the clients that asked. Yours is Mosquitto on the class Raspberry Pi.</li>
+<li><strong>Client.</strong> Your Pico, your laptop script, the instructor’s robot. Each has a <strong>client id</strong> that must be unique: if two clients connect with the same id the broker disconnects the first, which can cause a baffling cycle of reconnects.</li>
+<li><strong>Topic.</strong> A text path such as <span class="code-lesson-il">lab/jsmith/tele/imu</span>, with <span class="code-lesson-il">/</span> between levels. Topics are not created or declared; they exist the moment someone publishes to them.</li>
+<li><strong>Payload.</strong> The bytes of the message, up to the broker’s limit. MQTT does not care what is in them. We use JSON.</li>
+<li><strong>Subscription.</strong> A <em>filter</em> that is matched against topics of published messages. A filter may contain wildcards (next lesson).</li>
+</ul>
+        <div class="diagram">
+<svg viewBox="0 0 760 368.75" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="180" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="110" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Packet</text><rect x="200" y="14" width="110" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="255" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Size</text><rect x="310" y="14" width="430" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="525" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">What it does</text><rect x="20" y="60" width="180" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">CONNECT</text><rect x="200" y="60" width="110" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="209" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">30 to 60 B</text><rect x="310" y="60" width="430" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="319" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">client id, user, password, keepalive, optional last will</text><rect x="20" y="106" width="180" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="137.2" font-size="14.5" fill="#1f3b52" text-anchor="start">CONNACK</text><rect x="200" y="106" width="110" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="209" y="137.2" font-size="14.5" fill="#1f3b52" text-anchor="start">4 B</text><rect x="310" y="106" width="430" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="319" y="128.137" font-size="14.5" fill="#1f3b52" text-anchor="start">broker says yes, or says why not (bad password, not</text><text x="319" y="146.262" font-size="14.5" fill="#1f3b52" text-anchor="start">authorised)</text><rect x="20" y="158.25" width="180" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="189.45" font-size="14.5" fill="#1f3b52" text-anchor="start">PUBLISH</text><rect x="200" y="158.25" width="110" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="209" y="180.387" font-size="14.5" fill="#1f3b52" text-anchor="start">4 B + topic</text><text x="209" y="198.512" font-size="14.5" fill="#1f3b52" text-anchor="start">+ payload</text><rect x="310" y="158.25" width="430" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="319" y="189.45" font-size="14.5" fill="#1f3b52" text-anchor="start">a message, in either direction</text><rect x="20" y="210.5" width="180" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="241.7" font-size="14.5" fill="#1f3b52" text-anchor="start">SUBSCRIBE / SUBACK</text><rect x="200" y="210.5" width="110" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="209" y="232.637" font-size="14.5" fill="#1f3b52" text-anchor="start">about 6 B +</text><text x="209" y="250.762" font-size="14.5" fill="#1f3b52" text-anchor="start">filter / 5 B</text><rect x="310" y="210.5" width="430" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="319" y="241.7" font-size="14.5" fill="#1f3b52" text-anchor="start">ask for a filter; broker confirms</text><rect x="20" y="262.75" width="180" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="290.825" font-size="14.5" fill="#1f3b52" text-anchor="start">PINGREQ / PINGRESP</text><rect x="200" y="262.75" width="110" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="209" y="290.825" font-size="14.5" fill="#1f3b52" text-anchor="start">2 B each</text><rect x="310" y="262.75" width="430" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="319" y="290.825" font-size="14.5" fill="#1f3b52" text-anchor="start">keep the connection alive when there is nothing to say</text><rect x="20" y="308.75" width="180" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="336.825" font-size="14.5" fill="#1f3b52" text-anchor="start">DISCONNECT</text><rect x="200" y="308.75" width="110" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="209" y="336.825" font-size="14.5" fill="#1f3b52" text-anchor="start">2 B</text><rect x="310" y="308.75" width="430" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="319" y="336.825" font-size="14.5" fill="#1f3b52" text-anchor="start">a clean goodbye (suppresses the last will)</text></svg>
+            <div class="diagram-caption">The packets you will meet. There are fourteen in the full protocol, but a sensor node uses these six. The sizes are small on purpose: MQTT’s fixed header is only two bytes.</div>
+        </div>
+
+<h3>Part 3. A First Subscriber and a First Publisher</h3>
+<p><span class="code-lesson-il">net.py</span> only publishes. To receive, a client subscribes to a filter and sets a <strong>callback</strong>, a function the library calls when a matching message arrives. <span class="code-lesson-il">umqtt.simple</span> calls the callback from inside <span class="code-lesson-il">check_msg()</span>, which looks at the network socket and returns immediately if nothing has arrived. That makes it safe to call every pass of a cooperative loop. Here is a subscriber for the instructor’s robot telemetry, complete with the keepalive ping explained below:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">sub.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from umqtt.simple import MQTTClient
+from time import ticks_ms, ticks_diff, sleep_ms
+import config
+
+inbox = []
+
+def on_msg(topic, payload):
+    inbox.append((topic, payload))              # the callback only remembers: it must be quick
+
+c = MQTTClient(b"pico-" + config.MQTT_USER.encode(), config.BROKER, config.BROKER_PORT,
+               config.MQTT_USER, config.MQTT_PASSWORD, keepalive=30)
+c.set_callback(on_msg)
+c.connect()
+c.subscribe(b"robot/tele/#")                    # the filter, with a wildcard
+last_ping = ticks_ms()
+
+while True:
+    c.check_msg()                               # returns at once if nothing is waiting
+    if ticks_diff(ticks_ms(), last_ping) &gt; 15000:
+        c.ping()                                # keepalive 30 s: speak at least every 15 s
+        last_ping = ticks_ms()
+    while inbox:
+        topic, payload = inbox.pop(0)
+        print(topic.decode(), payload.decode())
+    sleep_ms(10)
+</span>
+</div>
+<p>Two habits in that program matter more than the rest. <strong>The callback does not do any work:</strong> it appends to a list and returns, and the main loop handles the message when it is ready. A callback runs in the middle of <span class="code-lesson-il">check_msg()</span>, so slow work there delays every other job just as a long <span class="code-lesson-il">sleep</span> would. And <strong>the topic and the payload arrive as bytes</strong>, so decode them before comparing with strings (<span class="code-lesson-il">topic.decode()</span>).</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">pub.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import json
+from umqtt.simple import MQTTClient
+import config
+
+c = MQTTClient(b"pico-" + config.MQTT_USER.encode(), config.BROKER, config.BROKER_PORT,
+               config.MQTT_USER, config.MQTT_PASSWORD, keepalive=30)
+c.connect()
+topic = "lab/%s/evt/hello" % config.MQTT_USER     # you may only write under lab/&lt;you&gt;/
+c.publish(topic.encode(), json.dumps({"msg": "hi"}).encode())
+c.disconnect()                                     # a clean goodbye: the broker does not fire the last will
+</span>
+</div>
+<p>The <span class="code-lesson-il">disconnect()</span> at the end is a <em>clean</em> goodbye. If the program had simply stopped, the broker would eventually decide the client had died, and fire its last will (a message the client registers in advance for exactly that case; Week 7). Which of the two happened is information the rest of the system can use.</p>
+<h3>Part 4. Keepalive</h3>
+<p>A TCP connection can be dead without either side knowing: the Pico loses power, or the router reboots, and nothing tells the broker. MQTT’s answer is the <strong>keepalive</strong>: the client promises to send <em>something</em> at least once every keepalive seconds, and if it has not, the broker closes the connection after 1.5 times that interval (and fires the last will). When the node has no data to send it sends a PINGREQ, and the broker answers PINGRESP.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 270" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="40" y1="90" x2="720" y2="90" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><line x1="40" y1="82" x2="40" y2="98" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="40" y="70" font-size="14.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">CONNECT</text><text x="40" y="120" font-size="14" fill="#5b6b78" text-anchor="middle">0 s</text><line x1="167.5" y1="82" x2="167.5" y2="98" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="167.5" y="70" font-size="14.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">ping</text><text x="167.5" y="120" font-size="14" fill="#5b6b78" text-anchor="middle">15 s</text><line x1="295" y1="82" x2="295" y2="98" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="295" y="70" font-size="14.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">ping</text><text x="295" y="120" font-size="14" fill="#5b6b78" text-anchor="middle">30 s</text><line x1="380" y1="82" x2="380" y2="98" stroke="#b3261e" stroke-width="3" stroke-linecap="round"/><text x="380" y="70" font-size="14.5" fill="#b3261e" text-anchor="middle" font-weight="bold">power lost</text><text x="380" y="120" font-size="14" fill="#5b6b78" text-anchor="middle">40 s</text><line x1="677.5" y1="82" x2="677.5" y2="98" stroke="#b3261e" stroke-width="3" stroke-linecap="round"/><text x="677.5" y="70" font-size="14.5" fill="#b3261e" text-anchor="middle" font-weight="bold">last will fires</text><text x="677.5" y="120" font-size="14" fill="#5b6b78" text-anchor="middle">75 s</text><rect x="295" y="140" width="382.5" height="36" rx="4" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="486.25" y="163" font-size="14.5" fill="#b3261e" text-anchor="middle" font-weight="bold">45 s of silence (1.5 x keepalive)</text><text x="40" y="214" font-size="14.5" fill="#1f3b52" text-anchor="start" font-weight="bold">keepalive = 30 s, ping every 15 s (half the keepalive), so one lost ping is not fatal</text><text x="40" y="238" font-size="14.5" fill="#1f3b52" text-anchor="start">the broker counts from the last packet it heard (the ping at 30 s), not from when the power failed</text></svg>
+            <div class="diagram-caption">Keepalive with a 30-second setting. The node pings every 15 s. Power is lost at 40 s; the last packet the broker heard was the ping at 30 s, and 45 s after that, at 75 s, it closes the connection and publishes the last will. The failure is detected 35 s after it happened.</div>
+        </div>
+
+<p>One trap: <span class="code-lesson-il">umqtt.simple</span> does <strong>not</strong> send pings for you. If you pass <span class="code-lesson-il">keepalive=30</span> and never call <span class="code-lesson-il">ping()</span> (or publish something), the broker will disconnect you after 45 seconds of quiet. Node programs that publish at least every few seconds never notice; a node that mostly <em>listens</em> is the one that vanishes. And <span class="code-lesson-il">keepalive=0</span>, the default, switches the whole mechanism off, which <span class="code-lesson-il">net.py</span> did in Unit 1 on purpose: a node that only publishes has no need for a last will.</p>
+<h3>Part 5. What Is Actually Sent</h3>
+<p>A PUBLISH packet is easy enough to build by hand, and doing so removes the mystery. The first byte holds the packet type (3 for PUBLISH) in the high four bits and flags (retain, QoS) in the low four. Then comes the <strong>remaining length</strong> (how many bytes follow), encoded 7 bits at a time so that small values need only one byte; then a two-byte topic length, the topic, and the payload.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="60" width="90" height="60" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2.4"/><text x="65" y="98" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">30</text><text x="65" y="148" font-size="14.5" fill="#5b6b78" text-anchor="middle">type 3,</text><text x="65" y="166.125" font-size="14.5" fill="#5b6b78" text-anchor="middle">flags 0</text><rect x="110" y="60" width="120" height="60" rx="6" fill="#fff4d6" stroke="#b8860b" stroke-width="2.4"/><text x="170" y="98" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">07</text><text x="170" y="148" font-size="14.5" fill="#5b6b78" text-anchor="middle">remaining</text><text x="170" y="166.125" font-size="14.5" fill="#5b6b78" text-anchor="middle">length 7</text><rect x="230" y="60" width="120" height="60" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2.4"/><text x="290" y="98" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">00 03</text><text x="290" y="148" font-size="14.5" fill="#5b6b78" text-anchor="middle">topic</text><text x="290" y="166.125" font-size="14.5" fill="#5b6b78" text-anchor="middle">length 3</text><rect x="350" y="60" width="190" height="60" rx="6" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.4"/><text x="445" y="98" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">61 2f 62</text><text x="445" y="148" font-size="14.5" fill="#5b6b78" text-anchor="middle">topic</text><text x="445" y="166.125" font-size="14.5" fill="#5b6b78" text-anchor="middle">“a/b”</text><rect x="540" y="60" width="150" height="60" rx="6" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2.4"/><text x="615" y="98" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">68 69</text><text x="615" y="148" font-size="14.5" fill="#5b6b78" text-anchor="middle">payload</text><text x="615" y="166.125" font-size="14.5" fill="#5b6b78" text-anchor="middle">“hi”</text><text x="20" y="30" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">publish_packet("a/b", "hi")  is  9 bytes</text><line x1="230" y1="218" x2="690" y2="218" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><text x="510" y="240" font-size="14.5" fill="#1f3b52" text-anchor="middle">these 7 bytes are what “remaining length” counts</text></svg>
+            <div class="diagram-caption">The nine bytes of a PUBLISH of “hi” to the topic “a/b”. Everything except the payload is overhead: for the Lab 3 message the overhead is 4 bytes plus the topic, which is why short topics are kind to the network.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">packet.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def encode_len(n):
+    """MQTT 'remaining length': 7 bits per byte, high bit means 'more follows'."""
+    out = bytearray()
+    while True:
+        b = n &amp; 0x7F
+        n &gt;&gt;= 7
+        if n:
+            out.append(b | 0x80)
+        else:
+            out.append(b)
+            return bytes(out)
+
+def decode_len(buf):
+    """Returns (value, bytes_used)."""
+    value, shift = 0, 0
+    for i, b in enumerate(buf):
+        value |= (b &amp; 0x7F) &lt;&lt; shift
+        if not b &amp; 0x80:
+            return value, i + 1
+        shift += 7
+    raise ValueError("incomplete length")
+
+def publish_packet(topic, payload, retain=False):
+    """The bytes of a QoS 0 PUBLISH, exactly as the client sends them."""
+    t = topic.encode() if isinstance(topic, str) else topic
+    p = payload.encode() if isinstance(payload, str) else payload
+    body = len(t).to_bytes(2, "big") + t + p
+    first = 0x30 | (1 if retain else 0)
+    return bytes([first]) + encode_len(len(body)) + body
+</span>
+</div>
+<p>You can watch real packets without writing any code: <span class="code-lesson-il">mosquitto_sub -d -v -t "lab/#"</span> prints a line for every packet it sends or receives, including PINGREQ and PUBLISH with the byte counts. Match one of those lines against your calculation.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: How Big?.</strong> Use the packet layout to find the size in bytes of the PUBLISH for topic <span class="code-lesson-il">lab/jsmith/tele/imu</span> (19 characters) with the 45-byte payload from Lab 3. What fraction is overhead?</p>
+        <p><strong>Exercise 2: Ping Interval.</strong> A node uses keepalive=20 s. How often must it send something, how soon will the broker declare it dead after power loss, and at what interval should your code ping?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Missed It.</strong> Client A subscribes to <span class="code-lesson-il">lab/+/evt/#</span> at t = 10 s. Client B publishes to <span class="code-lesson-il">lab/bob/evt/door</span> at t = 5 s (not retained) and again at t = 12 s. Which messages does A receive, and what would change if the first message had been retained?</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Lengths.</strong> Write a test that confirms <span class="code-lesson-il">decode_len(encode_len(n))</span> returns n for n = 0, 127, 128, 16,383, 16,384 and 2,097,152, and prints how many bytes each needs. Why does the encoding stop being a single byte at exactly 128?</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: How Big?</summary>
+<p>1 byte (type and flags) + 1 byte (remaining length: 2 + 19 + 45 = 66, under 128) + 2 bytes (topic length) + 19 + 45 = <strong>68 bytes</strong>. Overhead is 68 − 45 = 23 bytes, <strong>34 %</strong>. (The 69 bytes you estimated in Lab 3 used “about 5”; the exact figure is 4 bytes of fixed header.) Check it: <span class="code-lesson-il">len(publish_packet("lab/jsmith/tele/imu", payload))</span>.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Ping Interval</summary>
+<p>The promise is one packet every <strong>20 s</strong>. The broker waits 1.5 × 20 = <strong>30 s</strong> of silence before it drops the connection. Ping at half the keepalive, <strong>every 10 s</strong>, so that one lost or late ping does not trigger a false death.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Missed It</summary>
+<p>A receives only the <strong>t = 12 s</strong> message: a subscription only sees messages published after it exists, and the broker keeps no history. If the t = 5 s message had been <strong>retained</strong>, the broker would store it and deliver it to A the moment A subscribed at t = 10 s, so A would receive both. That is how a late arrival learns the current state, covered in the QoS lesson.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Lengths</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_len.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">for n in (0, 127, 128, 16383, 16384, 2097152):
+    e = encode_len(n)
+    assert decode_len(e) == (n, len(e))
+    print(n, len(e))
+# 0 1 / 127 1 / 128 2 / 16383 2 / 16384 3 / 2097152 4
+</span>
+</div><p>Each byte carries 7 bits of the value and uses its top bit to say “another byte follows”. Seven bits hold 0 to 127, so 128 is the first value that needs a second byte; two bytes hold 14 bits (up to 16,383), three hold 21 (up to 2,097,151), and the protocol allows at most four. The practical meaning: a message shorter than 128 bytes costs a single length byte, which is nearly everything a sensor node sends.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain publish and subscribe and what the broker does, and name its three decouplings.</li>
+            <li>Write a subscriber whose callback only queues work, and a main loop that drains the queue.</li>
+            <li>Choose a keepalive and a ping interval, and say what the broker does if the pings stop.</li>
+            <li>Compute the exact byte size of a PUBLISH packet from its topic and payload.</li>
+            <li>Explain why a client id must be unique and why topics arrive as bytes.</li>
+        </ol>
+
+    </body>
+</html>

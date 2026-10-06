@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson covers three resources. You build a power budget and the supply layout that protects the logic from the motors, read the pack voltage with a divider, follow simple rules for mounting and enclosures, and share an actuator between agents with a lease and a first-come queue whose fairness and failure cost you measured in simulation.</p>
+
+<p>A robot is made of finite things: a battery that runs down, a supply that sags when a motor starts, a few square centimetres of enclosure, and an actuator that two agents want to use at the same moment. <strong>Resource management</strong> is the habit of counting what you have, deciding who gets it, and designing so that running short is <em>visible</em> and <em>safe</em> instead of a mystery. This lesson takes three resources in turn: electrical power (budget, supply layout and monitoring), physical space (mounting and enclosure), and shared actuators (leases, queues and fairness), the last of which Lab 11 builds.</p>
+<h3>Part 1. A Power Budget</h3>
+<p>Start with arithmetic, before building. List every load, estimate its current when idle and when active, estimate <strong>how much of the time</strong> it is active (its <em>duty cycle</em>), and add up the average. Divide the battery’s usable capacity by that average and you have the runtime. The currents below are <em>planning figures</em> of the sort found in datasheets for the parts in the kit; your own parts differ, so replace them with what you measure or read from the datasheet.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 412" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="272.432" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="156.216" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Load (planning figure)</text><rect x="292.432" y="14" width="107.027" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="345.946" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Idle</text><rect x="399.459" y="14" width="107.027" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="452.973" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Active</text><rect x="506.486" y="14" width="107.027" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="560" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Duty</text><rect x="613.514" y="14" width="126.486" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="676.757" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Average</text><rect x="20" y="62" width="272.432" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Pico W with WiFi connected</text><rect x="292.432" y="62" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">60 mA</text><rect x="399.459" y="62" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">90 mA</text><rect x="506.486" y="62" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="560" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">20 %</text><rect x="613.514" y="62" width="126.486" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="676.757" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">66 mA</text><rect x="20" y="110" width="272.432" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="start">HC-SR04 ranging</text><rect x="292.432" y="110" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">2 mA</text><rect x="399.459" y="110" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">15 mA</text><rect x="506.486" y="110" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="560" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">100 %</text><rect x="613.514" y="110" width="126.486" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="676.757" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">15 mA</text><rect x="20" y="158" width="272.432" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="start">MPU6050</text><rect x="292.432" y="158" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4 mA</text><rect x="399.459" y="158" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4 mA</text><rect x="506.486" y="158" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="560" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">100 %</text><rect x="613.514" y="158" width="126.486" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="676.757" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4 mA</text><rect x="20" y="206" width="272.432" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Servo, holding or idle</text><rect x="292.432" y="206" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">10 mA</text><rect x="399.459" y="206" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">250 mA</text><rect x="506.486" y="206" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="560" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">15 %</text><rect x="613.514" y="206" width="126.486" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="676.757" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">46 mA</text><rect x="20" y="254" width="272.432" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="283.075" font-size="14.5" fill="#1f3b52" text-anchor="start">DC motor via driver</text><rect x="292.432" y="254" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="283.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0 mA</text><rect x="399.459" y="254" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="283.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">250 mA</text><rect x="506.486" y="254" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="560" y="283.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">10 %</text><rect x="613.514" y="254" width="126.486" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="676.757" y="283.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">25 mA</text><rect x="20" y="302" width="272.432" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="331.075" font-size="14.5" fill="#1f3b52" text-anchor="start">LEDs and misc.</text><rect x="292.432" y="302" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345.946" y="331.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">5 mA</text><rect x="399.459" y="302" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="452.973" y="331.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">15 mA</text><rect x="506.486" y="302" width="107.027" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="560" y="331.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">50 %</text><rect x="613.514" y="302" width="126.486" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="676.757" y="331.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">10 mA</text><rect x="20" y="350" width="272.432" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="379.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Total average</text><rect x="292.432" y="350" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="399.459" y="350" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="506.486" y="350" width="107.027" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="613.514" y="350" width="126.486" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="676.757" y="379.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">166 mA</text></svg>
+            <div class="diagram-caption">A power budget in the form to use for your own robot. Average = idle + duty × (active − idle), added over the loads. The numbers are assumptions for illustration; check them against your own parts.</div>
+        </div>
+
+<p>Three AA alkaline cells hold about 2,000 mAh at <em>light</em> loads, and noticeably less when drained quickly, so budget <strong>70 %</strong> of the label: 1,400 mAh. At the 166 mA average above that is 1,400 / 166 = <strong>8.4 hours</strong>. The trap is the <em>peak</em>, not the average: when the servo starts or stalls it can briefly draw several times its active figure, and the pack’s internal resistance turns that peak into a <strong>voltage dip</strong> (a pack of fresh AA cells has an internal resistance of the order of an ohm, so 0.65 A pulled for an instant costs about 0.65 V). A dip on a supply shared with the Pico is the classic brownout: the board resets, and the symptom is “it reboots whenever the servo moves”.</p>
+<ul>
+<li><strong>Average sets the runtime; peak sets the supply design.</strong> Check both.</li>
+<li><strong>Measure, then replace the assumption.</strong> The simplest measurement is a long run: charge or fit fresh cells, run the robot normally, and time it (the battery monitor below logs the voltage).</li>
+<li><strong>The radio is usually the biggest steady load on the board.</strong> Sending less often, in batches, helps most (the data budgets of Week 9).</li>
+</ul>
+<h3>Part 2. Supply Layout and Grounding</h3>
+<p>The rule from the PWM lesson generalises: <strong>motors and servos get their own supply, the logic gets a clean one, and the grounds are joined at one point.</strong> The signal wires between the Pico and the driver or servo only mean something relative to a shared ground, but the heavy current must not flow through the Pico’s ground pin on its way back to the battery.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="150" height="80" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="95" y="75.875" font-size="15" fill="#1f3b52" text-anchor="middle">USB or 3 AA</text><text x="95" y="94.625" font-size="15" fill="#1f3b52" text-anchor="middle">(≤ 5.5 V)</text><rect x="250" y="40" width="150" height="80" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="325" y="75.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">Pico W</text><text x="325" y="95.1125" font-size="15.5" fill="#1f3b52" text-anchor="middle">sensors</text><rect x="20" y="200" width="150" height="80" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="95" y="235.875" font-size="15" fill="#1f3b52" text-anchor="middle">motor pack</text><text x="95" y="254.625" font-size="15" fill="#1f3b52" text-anchor="middle">(own cells)</text><rect x="250" y="200" width="150" height="80" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="325" y="235.875" font-size="15" fill="#1f3b52" text-anchor="middle">servo, motor</text><text x="325" y="254.625" font-size="15" fill="#1f3b52" text-anchor="middle">driver TA6586</text><line x1="170" y1="80" x2="241" y2="80" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><polygon points="250.0,80.0 239.0,74.5 239.0,85.5" fill="#b3261e"/><line x1="170" y1="240" x2="241" y2="240" stroke="#b3261e" stroke-width="2.6" stroke-linecap="round"/><polygon points="250.0,240.0 239.0,234.5 239.0,245.5" fill="#b3261e"/><text x="210" y="66" font-size="16" fill="#b3261e" text-anchor="middle" font-weight="bold">+</text><text x="210" y="226" font-size="16" fill="#b3261e" text-anchor="middle" font-weight="bold">+</text><line x1="325" y1="120" x2="325" y2="191" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><polygon points="325.0,200.0 330.5,189.0 319.5,189.0" fill="#2e5a80"/><text x="335" y="168" font-size="14.5" fill="#2e5a80" text-anchor="start" font-weight="bold">signals</text><line x1="10" y1="300" x2="700" y2="300" stroke="#1f3b52" stroke-width="3.5" stroke-linecap="round"/><text x="560" y="322" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">common ground: join the two packs here, once</text><line x1="10" y1="80" x2="10" y2="300" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><line x1="10" y1="80" x2="20" y2="80" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><line x1="400" y1="100" x2="440" y2="100" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><line x1="440" y1="100" x2="440" y2="300" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><line x1="60" y1="280" x2="60" y2="300" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><line x1="340" y1="280" x2="340" y2="300" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><rect x="480" y="40" width="260" height="150" rx="8" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="610" y="74.7625" font-size="14.5" fill="#1f3b52" text-anchor="middle">Never from the Pico:</text><text x="610" y="92.8875" font-size="14.5" fill="#1f3b52" text-anchor="middle">the servo’s or motor’s power.</text><text x="610" y="111.013" font-size="14.5" fill="#1f3b52" text-anchor="middle">Never from one supply:</text><text x="610" y="129.137" font-size="14.5" fill="#1f3b52" text-anchor="middle">logic and a stalling motor,</text><text x="610" y="147.262" font-size="14.5" fill="#1f3b52" text-anchor="middle">unless you have measured</text><text x="610" y="165.387" font-size="14.5" fill="#1f3b52" text-anchor="middle">the dip.</text></svg>
+            <div class="diagram-caption">A two-supply layout. The motor pack feeds only the servo and the driver; the Pico and the sensors have their own supply; the <strong>ground wires meet</strong> so the signals have a reference, but the motor’s return current goes straight back to its own pack. (Check the voltage you feed the Pico’s VSYS pin: it must stay at or below 5.5 V, so a fresh four-cell pack is too high for it; three cells are fine.)</div>
+        </div>
+
+<p>To make the supply <em>visible</em>, measure the pack. With two resistors from the kit (2 kΩ from the pack’s positive terminal to GP26 and 1 kΩ from GP26 to ground) the pin sees one third of the pack voltage, which is under 3.3 V for any pack up to 9.9 V; the code multiplies it back. Smooth it (the servo makes it jump) and judge it per cell:</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">battery.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># battery.py -- read the pack through a 2k / 1k divider on GP26 (ADC0): V = 3 x the pin voltage
+from machine import ADC
+
+class Battery:
+    def __init__(self, pin=26, cells=3, alpha=0.05):
+        self.adc = ADC(pin)
+        self.cells, self.alpha = cells, alpha
+        self.v = None
+
+    def read(self):
+        raw = self.adc.read_u16()
+        v = raw / 65535 * 3.3 * 3.0                  # undo the divider (top 2k, bottom 1k)
+        self.v = v if self.v is None else self.v + self.alpha * (v - self.v)   # smooth: the servo makes it jump
+        return self.v
+
+    def level(self):
+        """'ok', 'low' (about 20% left) or 'empty', judged per cell, for alkaline cells under light load."""
+        per = self.read() / self.cells
+        if per &gt; 1.15:
+            return "ok"
+        return "low" if per &gt; 1.0 else "empty"
+</span>
+</div>
+<p>Tested with a fake ADC at 4.8, 4.5 and 3.6 V the monitor said <span class="code-lesson-il">ok</span>; at 3.3 V (1.1 V per cell) <span class="code-lesson-il">low</span>; at 3.0 V (1.0 V per cell) <span class="code-lesson-il">empty</span>. These limits are for alkaline cells at a light load: under a heavy load the reading sags, so judge the level when the servo is idle, or log the minimum as well as the average. Publish <span class="code-lesson-il">level()</span> on <span class="code-lesson-il">stat/</span> when it changes, so the rest of the system can plan around a robot that is running down.</p>
+<h3>Part 3. Space, Mounting and the Enclosure</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 393.0" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="190" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="115" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Concern</text><rect x="210" y="14" width="290" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="355" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Rule</text><rect x="500" y="14" width="240" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="620" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">What goes wrong</text><rect x="20" y="66" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="97.2" font-size="14.5" fill="#1f3b52" text-anchor="start">IMU mounting</text><rect x="210" y="66" width="290" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="97.2" font-size="14.5" fill="#1f3b52" text-anchor="start">rigid, flat, axes along the robot’s</text><rect x="500" y="66" width="240" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="509" y="88.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">a loose board reads vibration</text><text x="509" y="106.263" font-size="14.5" fill="#1f3b52" text-anchor="start">as tilt</text><rect x="20" y="118.25" width="190" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="149.325" font-size="14.5" fill="#1f3b52" text-anchor="start">Range sensor view</text><rect x="210" y="118.25" width="290" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="149.325" font-size="14.5" fill="#1f3b52" text-anchor="start">nothing within the beam; face clear</text><rect x="500" y="118.25" width="240" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="509" y="149.325" font-size="14.5" fill="#1f3b52" text-anchor="start">the robot “sees” its own case</text><rect x="20" y="170.25" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="201.45" font-size="14.5" fill="#1f3b52" text-anchor="start">Cable strain</text><rect x="210" y="170.25" width="290" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="192.387" font-size="14.5" fill="#1f3b52" text-anchor="start">a loop and a tie before each</text><text x="219" y="210.512" font-size="14.5" fill="#1f3b52" text-anchor="start">connector</text><rect x="500" y="170.25" width="240" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="509" y="201.45" font-size="14.5" fill="#1f3b52" text-anchor="start">the wire breaks at the pin</text><rect x="20" y="222.5" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="253.7" font-size="14.5" fill="#1f3b52" text-anchor="start">Motor wires</text><rect x="210" y="222.5" width="290" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="253.7" font-size="14.5" fill="#1f3b52" text-anchor="start">twisted, short, away from signals</text><rect x="500" y="222.5" width="240" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="509" y="244.637" font-size="14.5" fill="#1f3b52" text-anchor="start">noise on the ADC and the I²C</text><text x="509" y="262.762" font-size="14.5" fill="#1f3b52" text-anchor="start">bus</text><rect x="20" y="274.75" width="190" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="305.825" font-size="14.5" fill="#1f3b52" text-anchor="start">Servo horn</text><rect x="210" y="274.75" width="290" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="305.825" font-size="14.5" fill="#1f3b52" text-anchor="start">zero position set before the screw</text><rect x="500" y="274.75" width="240" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="509" y="305.825" font-size="14.5" fill="#1f3b52" text-anchor="start">asymmetric range</text><rect x="20" y="326.75" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="357.95" font-size="14.5" fill="#1f3b52" text-anchor="start">Labels</text><rect x="210" y="326.75" width="290" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="357.95" font-size="14.5" fill="#1f3b52" text-anchor="start">name every connector and wire</text><rect x="500" y="326.75" width="240" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="509" y="348.887" font-size="14.5" fill="#1f3b52" text-anchor="start">an hour lost to a swapped</text><text x="509" y="367.012" font-size="14.5" fill="#1f3b52" text-anchor="start">cable</text></svg>
+            <div class="diagram-caption">Six mounting rules from the failures of earlier labs. None is expensive; each costs an hour when it is skipped.</div>
+        </div>
+
+<p>The enclosure is the last thing to build and the first to affect the data: a box that blocks the sensor, traps a wire against the servo or shifts the IMU by two degrees changes what the robot measures. Mount the sensors <strong>first</strong> (their fields of view and axes decide the layout), keep the battery low and central so the platform does not tip, and leave access to the USB port and the reset button. Test every sensor and actuator <em>after</em> closing the box, and again after you carry it across the room.</p>
+<h3>Part 4. Sharing an Actuator: Leases</h3>
+<p>Software resources run short too. When two agents command the same servo, the result is neither command: it twitches between them. The instructor’s robot in Lab Practical 2 is one such resource: one controller at a time, others locked out. The general tool is a <strong>lease</strong>: the owner may use the resource for a limited time, must renew to keep it, and loses it if it goes quiet. Add a <strong>queue</strong> for those waiting and you have the whole mechanism.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">lease.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># lease.py -- one shared resource, one owner at a time, a queue for the rest
+from time import ticks_diff
+
+class Lease:
+    def __init__(self, lease_ms=10000, max_queue=4):
+        self.lease_ms, self.max_queue = lease_ms, max_queue
+        self.owner = None
+        self.expires = 0
+        self.queue = []                     # users waiting, oldest first
+
+    def claim(self, user, now):
+        """Returns (state, position): "granted" / "queued" / "full"."""
+        self._expire(now)
+        if self.owner == user:
+            self.expires = now + self.lease_ms          # a renewal
+            return "granted", 0
+        if self.owner is None:
+            self._grant(user, now)
+            return "granted", 0
+        if user in self.queue:
+            return "queued", self.queue.index(user) + 1
+        if len(self.queue) &gt;= self.max_queue:
+            return "full", 0
+        self.queue.append(user)
+        return "queued", len(self.queue)
+
+    def release(self, user, now):
+        if user == self.owner:
+            self.owner = None
+            self._next(now)
+            return True
+        if user in self.queue:
+            self.queue.remove(user)               # giving up your place in the line
+        return False
+
+    def holds(self, user, now):
+        self._expire(now)
+        return self.owner == user
+
+    def tick(self, now):
+        self._expire(now)
+
+    def _grant(self, user, now):
+        self.owner, self.expires = user, now + self.lease_ms
+
+    def _next(self, now):
+        if self.queue:
+            self._grant(self.queue.pop(0), now)
+
+    def _expire(self, now):
+        if self.owner is not None and ticks_diff(now, self.expires) &gt;= 0:
+            self.owner = None                      # the owner went quiet: the resource is free
+            self._next(now)
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="66" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">u1</text><rect x="70" y="40" width="280" height="40" rx="3" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="210" y="66" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">owner</text><rect x="350" y="40" width="224" height="40" rx="3" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="20" y="126" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">u2</text><rect x="70" y="100" width="56" height="40" rx="3" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><rect x="126" y="100" width="224" height="40" rx="3" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="238" y="126" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">queued</text><rect x="350" y="100" width="336" height="40" rx="3" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="518" y="126" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">owner</text><text x="20" y="186" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">u3</text><rect x="70" y="160" width="112" height="40" rx="3" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><rect x="182" y="160" width="504" height="40" rx="3" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="434" y="186" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">queued</text><line x1="350" y1="230" x2="350" y2="214" stroke="#b3261e" stroke-width="2.4" stroke-linecap="round"/><polygon points="350.0,205.0 344.5,216.0 355.5,216.0" fill="#b3261e"/><text x="350" y="252" font-size="14.5" fill="#b3261e" text-anchor="middle" font-weight="bold">u1 releases: u2 gets it at once</text><text x="254" y="285" font-size="14.5" fill="#5b6b78" text-anchor="middle">one owner at a time; the queue is first come, first served</text></svg>
+            <div class="diagram-caption">Three clients and one resource. u1 holds it; u2 and u3 join the queue in order; when u1 releases (or its lease runs out), the first in line becomes the owner without any further message from the others.</div>
+        </div>
+
+<p>Four properties make this safe. <strong>One owner:</strong> the manager is the only judge; clients ask, and a command is accepted only from <span class="code-lesson-il">owner</span>. <strong>Expiry:</strong> a client that crashes holds the resource for at most one lease (the fail-safe of Unit 2, now for any resource). <strong>First come, first served:</strong> a client asking again while it is in the queue keeps its place (<span class="code-lesson-il">claim</span> answers with its position), so asking <em>more often</em> does not move you up. <strong>A bounded queue:</strong> when it is full the answer is <span class="code-lesson-il">"full"</span>, and the client backs off.</p>
+<p>These are simulated results, not guesses: four clients wanted the resource, each holding it for 3 to 6 seconds, over ten simulated minutes with a 10 s lease. Each got about <strong>26 %</strong> of the time, waited an average of about <strong>13 s</strong> and at worst <strong>17 s</strong>. Then a fifth, greedy client was added, asking every 200 ms instead of once a second. The result is the point of the mechanism: it took <strong>19.7 %</strong>, no more than its fair share, because it could not jump the queue. A fifth client that <em>crashed</em> while holding (never releasing, never renewing) took 34.6 % of the time with a 10 s lease and 21.3 % with a 5 s lease: <strong>the lease length is the price of a failure</strong>.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 308" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="270" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="155" y="46.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Scenario</text><rect x="290" y="14" width="200" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="390" y="46.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Share</text><rect x="490" y="14" width="120" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="550" y="46.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Average wait</text><rect x="610" y="14" width="130" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="675" y="46.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Note</text><rect x="20" y="70" width="270" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="102.9" font-size="14" fill="#1f3b52" text-anchor="start">4 polite clients</text><rect x="290" y="70" width="200" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="299" y="102.9" font-size="14" fill="#1f3b52" text-anchor="start">25 % each</text><rect x="490" y="70" width="120" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="550" y="102.9" font-size="14" fill="#1f3b52" text-anchor="middle">13 s</text><rect x="610" y="70" width="130" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="619" y="102.9" font-size="14" fill="#1f3b52" text-anchor="start">none</text><rect x="20" y="126" width="270" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="150.15" font-size="14" fill="#1f3b52" text-anchor="start">+ 1 greedy client (asks every 200</text><text x="29" y="167.65" font-size="14" fill="#1f3b52" text-anchor="start">ms)</text><rect x="290" y="126" width="200" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="299" y="150.15" font-size="14" fill="#1f3b52" text-anchor="start">19.7 % for the greedy</text><text x="299" y="167.65" font-size="14" fill="#1f3b52" text-anchor="start">one</text><rect x="490" y="126" width="120" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="550" y="158.9" font-size="14" fill="#1f3b52" text-anchor="middle">18 s</text><rect x="610" y="126" width="130" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="619" y="150.15" font-size="14" fill="#1f3b52" text-anchor="start">it cannot jump</text><text x="619" y="167.65" font-size="14" fill="#1f3b52" text-anchor="start">the queue</text><rect x="20" y="182" width="270" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="214.9" font-size="14" fill="#1f3b52" text-anchor="start">+ 1 crashed holder, lease 10 s</text><rect x="290" y="182" width="200" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="299" y="214.9" font-size="14" fill="#1f3b52" text-anchor="start">34.6 % for the crasher</text><rect x="490" y="182" width="120" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="550" y="214.9" font-size="14" fill="#1f3b52" text-anchor="middle">22 s</text><rect x="610" y="182" width="130" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="619" y="206.15" font-size="14" fill="#1f3b52" text-anchor="start">others wait</text><text x="619" y="223.65" font-size="14" fill="#1f3b52" text-anchor="start">longer</text><rect x="20" y="238" width="270" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="270.9" font-size="14" fill="#1f3b52" text-anchor="start">+ 1 crashed holder, lease 5 s</text><rect x="290" y="238" width="200" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="299" y="270.9" font-size="14" fill="#1f3b52" text-anchor="start">21.3 % for the crasher</text><rect x="490" y="238" width="120" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="550" y="270.9" font-size="14" fill="#1f3b52" text-anchor="middle">17 s</text><rect x="610" y="238" width="130" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="619" y="262.15" font-size="14" fill="#1f3b52" text-anchor="start">shorter lease,</text><text x="619" y="279.65" font-size="14" fill="#1f3b52" text-anchor="start">less harm</text></svg>
+            <div class="diagram-caption">Simulated fairness (10 simulated minutes, polite holds of 3 to 6 s). The queue gives equal shares however often a client asks; the lease bounds the damage of one that vanishes.</div>
+        </div>
+
+<ul>
+<li><strong>A short lease means more renewals;</strong> a long one means more damage from a crash. The owner’s rate of renewal must be well inside the lease (for example every third of it).</li>
+<li><strong>The queue is also information.</strong> Publish <span class="code-lesson-il">stat/owner</span> and <span class="code-lesson-il">stat/queue</span> (retained) so a client can show “you are third in line” and decide to give up.</li>
+<li><strong>Never let the resource act without an owner’s message.</strong> The manager also stops the actuator when the lease ends: the owner’s fail-safe is the resource’s fail-safe.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Runtime.</strong> A robot averages 120 mA from three AA cells of 2,000 mAh. At 70 % usable, how long does it run? What if a faulty servo makes the average 300 mA?</p>
+        <p><strong>Exercise 2: Which Wire?.</strong> The servo works on the bench but the Pico resets whenever it moves under load. List three wiring changes to try, in order, and say what each tests.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: The Crashing Owner.</strong> u1 owns the resource and its board loses power. With a 10 s lease and u2, u3 queued, when does u2 get the resource? What if u1 had published <span class="code-lesson-il">release</span> just before the crash?</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Say Who Owns It.</strong> Write the glue that publishes <span class="code-lesson-il">stat/owner</span> (retained) whenever the lease’s owner changes, with the queue length.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Runtime</summary>
+<p>1,400 mAh / 120 mA = <strong>11.7 hours</strong>; at 300 mA, 1,400 / 300 = <strong>4.7 hours</strong>. The average is what matters for runtime, so a servo that fights a load and draws far more than its duty-cycle estimate shortens the run dramatically, and the voltage dips that come with it can reset the Pico long before the cells are flat.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Which Wire?</summary>
+<p>(1) Power the servo from its <strong>own pack</strong>, with the ground joined to the Pico’s: this tests whether the dip comes from sharing a supply. (2) Check the <strong>ground joint</strong> and use a short, thick wire from the pack to the servo: a thin or loose ground raises the voltage at the servo and the logic. (3) Move the servo’s power wires away from the signal wires and shorten them, and reduce the load (smaller steps, a lower speed) to see if the peak current is the cause.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: The Crashing Owner</summary>
+<p>If u1 never released, its lease expires at most 10 s after its last renewal, then <span class="code-lesson-il">_expire</span> makes <strong>u2</strong> the owner (the queue moves up with no message from anyone), so u2 waits up to 10 s. If <span class="code-lesson-il">release</span> was published and delivered, u2 becomes owner at once. A good client publishes <span class="code-lesson-il">release</span> in its normal shutdown and its last will cannot do it (it is not a command), which is the reason the lease exists at all.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Say Who Owns It</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">owner_stat.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">last = None
+def publish_owner(h, lease):
+    global last
+    cur = (lease.owner, len(lease.queue))
+    if cur != last:
+        h.publish("stat/owner", {"owner": lease.owner, "queue": len(lease.queue)}, retain=True)
+        last = cur
+
+# in the main loop, after lease.tick(now):
+publish_owner(h, lease)
+</span>
+</div><p>Comparing against the last published pair means it publishes only when something changes, never at the loop rate. The queue <em>length</em> is included, but not the names, to keep the message small; add a <span class="code-lesson-il">queue</span> list if the clients need to know who is where.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Compute an average current and a runtime, and say why the peak matters too.</li>
+            <li>Draw a two-supply layout with a common ground and say what each rule prevents.</li>
+            <li>Read a battery through a divider and judge it per cell.</li>
+            <li>Describe how a lease, a queue and expiry give one owner at a time.</li>
+            <li>Say how lease length trades renewal traffic against harm from a crash.</li>
+        </ol>
+
+    </body>
+</html>

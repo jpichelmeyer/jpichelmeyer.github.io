@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>This lesson covers how to know that a system works. You write requirements that can fail, test the logic on a laptop with the same files as the Pico, check your tests by damaging the code, inject lost, duplicated and delayed messages, count how many trials a claim needs, keep a plan and a log, and prepare for a demonstration.</p>
+
+<p>Every lab so far ended with a check: the LED lit, the number matched, the message arrived. That is <strong>demonstration</strong>: it shows the system <em>can</em> work. <strong>Validation</strong> asks a harder question: does it work <em>when it is supposed to</em>, <em>every time that matters</em>, and <em>when things go wrong</em>? A robot that stops in 100 ms on the bench and in 600 ms in the demo has passed a demonstration and failed a validation. This lesson is about getting from the first to the second: requirements you can fail, tests that run before the hardware does, deliberate faults, honest counts of trials, and evidence you can hand to someone else. It is also how Lab Practical 3 and the capstone lab will be judged.</p>
+<p>Two words are used loosely. <strong>Verification</strong> asks “did we build it the way we said?” (the code does what the specification says). <strong>Validation</strong> asks “did we build the right thing?” (the specification, and the system built from it, serve their purpose). Both need tests; validation also needs a requirement that someone cares about.</p>
+<h3>Part 1. A Requirement You Can Fail</h3>
+<p>“The robot should respond quickly and be reliable” cannot fail, so it cannot be tested, so it can never be satisfied or violated. A testable requirement has five parts: <strong>a stimulus</strong> (what happens), <strong>a response</strong> (what the system does), <strong>a limit</strong> (how fast, how far, how accurate), <strong>a condition</strong> (load, link quality, the state it starts in), and <strong>a pass rule</strong> (how many of how many, or which percentile).</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 408" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="260" height="76" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="150" y="56.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Vague</text><rect x="280" y="14" width="440" height="76" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="500" y="56.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Testable</text><rect x="20" y="90" width="260" height="76" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="132.9" font-size="14" fill="#1f3b52" text-anchor="start">The robot should stop quickly</text><rect x="280" y="90" width="440" height="76" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="289" y="115.4" font-size="14" fill="#1f3b52" text-anchor="start">After a stop command the servo is at rest within 250 ms, in</text><text x="289" y="132.9" font-size="14" fill="#1f3b52" text-anchor="start">99 % of 100 trials, on the class WiFi with two other students</text><text x="289" y="150.4" font-size="14" fill="#1f3b52" text-anchor="start">active</text><rect x="20" y="166" width="260" height="76" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="208.9" font-size="14" fill="#1f3b52" text-anchor="start">The lease should be safe</text><rect x="280" y="166" width="440" height="76" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="289" y="200.15" font-size="14" fill="#1f3b52" text-anchor="start">In 20,000 random claims, releases and expiries, never two</text><text x="289" y="217.65" font-size="14" fill="#1f3b52" text-anchor="start">clients hold the lease at once</text><rect x="20" y="242" width="260" height="76" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="284.9" font-size="14" fill="#1f3b52" text-anchor="start">It should survive a bad network</text><rect x="280" y="242" width="440" height="76" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="289" y="276.15" font-size="14" fill="#1f3b52" text-anchor="start">With 30 % of outgoing messages lost, all three clients finish</text><text x="289" y="293.65" font-size="14" fill="#1f3b52" text-anchor="start">their 5 pans within 60 s, in 20 of 20 trials</text><rect x="20" y="318" width="260" height="76" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="360.9" font-size="14" fill="#1f3b52" text-anchor="start">The tracker should be accurate</text><rect x="280" y="318" width="440" height="76" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="289" y="352.15" font-size="14" fill="#1f3b52" text-anchor="start">Tracking error under 2° (RMS) against the recorded target</text><text x="289" y="369.65" font-size="14" fill="#1f3b52" text-anchor="start">path, with 3° of sensor noise and no missing readings</text></svg>
+            <div class="diagram-caption">Four requirements made testable. Each names a stimulus and a response, a limit, a condition and a pass rule. Notice that the second is a <em>property</em> (it must hold for all inputs) and the others are <em>measurements</em>; both are legitimate tests, and they are built differently.</div>
+        </div>
+
+<p>Write the requirement <strong>before</strong> building, and keep it next to the test. Writing it afterwards means writing what the system happens to do. If a requirement cannot be written as above, you do not yet know what you are building, and that is useful to discover on the first day, not the last.</p>
+<h3>Part 2. Test on the Laptop First</h3>
+<p>A Pico takes seconds to flash and cannot be single-stepped, and a failure on it could be the code, the wiring, the WiFi or the broker. A laptop runs the same Python in milliseconds, with a debugger, and with nothing else that can be wrong. So the order is: <strong>test the logic on the laptop, test the pieces together on the laptop with fake devices, then test on the hardware</strong>, where only hardware problems remain.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="160" height="150" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="100" y="76" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">Unit</text><text x="100" y="108" font-size="14.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">laptop</text><text x="100" y="138" font-size="14" fill="#1f3b52" text-anchor="middle">one class, one fake</text><text x="100" y="158" font-size="14" fill="#1f3b52" text-anchor="middle">clock</text><line x1="182" y1="115" x2="199" y2="115" stroke="#5b6b78" stroke-width="2.4" stroke-linecap="round"/><polygon points="208.0,115.0 197.0,109.5 197.0,120.5" fill="#5b6b78"/><rect x="210" y="40" width="160" height="150" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="290" y="76" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">Integration</text><text x="290" y="108" font-size="14.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">laptop</text><text x="290" y="138" font-size="14" fill="#1f3b52" text-anchor="middle">agents + fake</text><text x="290" y="158" font-size="14" fill="#1f3b52" text-anchor="middle">broker + faults</text><line x1="372" y1="115" x2="389" y2="115" stroke="#5b6b78" stroke-width="2.4" stroke-linecap="round"/><polygon points="398.0,115.0 387.0,109.5 387.0,120.5" fill="#5b6b78"/><rect x="400" y="40" width="160" height="150" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="480" y="76" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">Bench</text><text x="480" y="108" font-size="14.5" fill="#c0693f" text-anchor="middle" font-weight="bold">hardware</text><text x="480" y="138" font-size="14" fill="#1f3b52" text-anchor="middle">real Pico, real</text><text x="480" y="158" font-size="14" fill="#1f3b52" text-anchor="middle">broker</text><line x1="562" y1="115" x2="579" y2="115" stroke="#5b6b78" stroke-width="2.4" stroke-linecap="round"/><polygon points="588.0,115.0 577.0,109.5 577.0,120.5" fill="#5b6b78"/><rect x="590" y="40" width="160" height="150" rx="6" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="670" y="76" font-size="17" fill="#1f3b52" text-anchor="middle" font-weight="bold">System</text><text x="670" y="108" font-size="14.5" fill="#c0693f" text-anchor="middle" font-weight="bold">hardware</text><text x="670" y="138" font-size="14" fill="#1f3b52" text-anchor="middle">all agents, class</text><text x="670" y="158" font-size="14" fill="#1f3b52" text-anchor="middle">WiFi, the drill</text><text x="20" y="232" font-size="14.5" fill="#5b6b78" text-anchor="start">cheap, fast, repeatable</text><text x="740" y="232" font-size="14.5" fill="#5b6b78" text-anchor="end">slow, costly, realistic</text><text x="380" y="268" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">a bug found on the left costs minutes; the same bug found on the right can cost a week</text></svg>
+            <div class="diagram-caption">Four levels of test. Push every check as far left as it can go: what <em>can</em> be tested without hardware <em>should</em> be, because that is where tests are cheap enough to repeat after every change.</div>
+        </div>
+
+<p>The lease from Lab 11 is a good example, because it takes the time as an argument rather than reading a clock, so it can be tested with no hardware and no fake clock at all. The file below is ordinary Python. It imports the <strong>same</strong> <span class="code-lesson-il">lease.py</span> that runs on the Pico, and it runs in under a second with <span class="code-lesson-il">python3 -m unittest test_lease -v</span>.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_lease.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># test_lease.py -- run on your laptop with:  python3 -m unittest test_lease -v
+import time, random, unittest
+time.ticks_diff = lambda a, b: a - b          # MicroPython's clock helper, for ordinary Python
+from lease import Lease                       # the SAME file that runs on the Pico
+
+class LeaseTests(unittest.TestCase):
+    def setUp(self):
+        self.L = Lease(lease_ms=10000, max_queue=2)
+
+    def test_first_claim_is_granted(self):
+        self.assertEqual(self.L.claim("a", 0), ("granted", 0))
+
+    def test_second_claim_queues_in_order(self):
+        self.L.claim("a", 0)
+        self.assertEqual(self.L.claim("b", 10), ("queued", 1))
+        self.assertEqual(self.L.claim("c", 20), ("queued", 2))
+        self.assertEqual(self.L.claim("d", 30), ("full", 0))
+
+    def test_repeating_a_claim_keeps_your_place(self):
+        self.L.claim("a", 0); self.L.claim("b", 10); self.L.claim("c", 20)
+        self.assertEqual(self.L.claim("b", 30), ("queued", 1))     # not moved to the back
+
+    def test_owner_renews(self):
+        self.L.claim("a", 0)
+        self.L.claim("a", 9000)
+        self.assertTrue(self.L.holds("a", 18000))                  # 9000 + 10000 is not over yet
+
+    def test_expiry_is_exact(self):
+        self.L.claim("a", 0)
+        self.assertTrue(self.L.holds("a", 9999))
+        self.assertFalse(self.L.holds("a", 10000))                 # the lease is over AT 10 s
+
+    def test_expiry_hands_over_to_the_queue(self):
+        self.L.claim("a", 0); self.L.claim("b", 5)
+        self.L.tick(10000)
+        self.assertTrue(self.L.holds("b", 10001))
+
+    def test_release_by_a_non_owner_does_nothing(self):
+        self.L.claim("a", 0)
+        self.assertFalse(self.L.release("b", 5))
+        self.assertTrue(self.L.holds("a", 6))
+
+    def test_never_two_owners(self):                              # a property, tried 20,000 times
+        rnd = random.Random(1); now = 0
+        for _ in range(20000):
+            now += rnd.randint(0, 3000)
+            who = rnd.choice("abcde")
+            op = rnd.choice(("claim", "claim", "release", "tick"))
+            if op == "claim": self.L.claim(who, now)
+            elif op == "release": self.L.release(who, now)
+            else: self.L.tick(now)
+            holders = [u for u in "abcde" if self.L.holds(u, now)]
+            self.assertLessEqual(len(holders), 1)
+            self.assertNotIn(self.L.owner, self.L.queue)
+    def test_release_hands_over_in_order(self):
+        self.L.claim("a", 0); self.L.claim("b", 10); self.L.claim("c", 20)
+        self.assertTrue(self.L.release("a", 100))
+        self.assertTrue(self.L.holds("b", 101))               # b was first in the queue
+        self.assertEqual(self.L.claim("c", 102), ("queued", 1))   # and c moved up
+</span>
+</div>
+<p>The last test is a <strong>property test</strong>: instead of one chosen example, it tries 20,000 random operations and checks, after every one, that at most one user holds the lease and that the owner is never also in the queue. Random inputs find the case you did not think of. Fix the random seed (<span class="code-lesson-il">Random(1)</span>) so that a failure can be repeated.</p>
+<h3>A Test You Have Never Seen Fail Proves Nothing</h3>
+<p>Passing tests are reassuring only if they <em>would</em> have failed on a broken lease. One way to check is <strong>mutation</strong>: deliberately damage the code, one small change at a time, and see whether any test notices. Six mutations of the lease were tried against the tests above (the original passed all of them):</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 462" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="400" height="62" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="220" y="49.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Damage done to the lease</text><rect x="420" y="14" width="300" height="62" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="570" y="49.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Caught by (test_ …)</text><rect x="20" y="76" width="400" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="103.15" font-size="14" fill="#1f3b52" text-anchor="start">&gt;= 0 changed to &gt; 0 in the expiry check (the lease</text><text x="29" y="120.65" font-size="14" fill="#1f3b52" text-anchor="start">ends one tick late)</text><rect x="420" y="76" width="300" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="111.9" font-size="14" fill="#1f3b52" text-anchor="start">expiry_is_exact</text><rect x="20" y="138" width="400" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="173.9" font-size="14" fill="#1f3b52" text-anchor="start">No handover to the queue when a lease expires</text><rect x="420" y="138" width="300" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="173.9" font-size="14" fill="#1f3b52" text-anchor="start">expiry_hands_over, never_two_owners</text><rect x="20" y="200" width="400" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="235.9" font-size="14" fill="#1f3b52" text-anchor="start">A repeated claim moves you to the back of the queue</text><rect x="420" y="200" width="300" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="235.9" font-size="14" fill="#1f3b52" text-anchor="start">repeat_keeps_place</text><rect x="20" y="262" width="400" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="297.9" font-size="14" fill="#1f3b52" text-anchor="start">The owner’s claim no longer renews the lease</text><rect x="420" y="262" width="300" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="297.9" font-size="14" fill="#1f3b52" text-anchor="start">owner_renews</text><rect x="20" y="324" width="400" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="359.9" font-size="14" fill="#1f3b52" text-anchor="start">release no longer hands over to the next in line</text><rect x="420" y="324" width="300" height="62" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="359.9" font-size="14" fill="#1f3b52" text-anchor="start">release_hands_over, never_two_owners</text><rect x="20" y="386" width="400" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="413.15" font-size="14" fill="#1f3b52" text-anchor="start">The queue limit &gt;= changed to &gt; (room for one too</text><text x="29" y="430.65" font-size="14" fill="#1f3b52" text-anchor="start">many)</text><rect x="420" y="386" width="300" height="62" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="429" y="421.9" font-size="14" fill="#1f3b52" text-anchor="start">queues_in_order</text></svg>
+            <div class="diagram-caption">Mutation testing of the lease: every change was caught, and each by a test written for that behaviour. The one-tick-late expiry is the instructive case: no timing test with “roughly” in it would have seen it, and it is exactly the boundary where a real lease is off by one message.</div>
+        </div>
+
+<p>Notice that the boundary tests (<span class="code-lesson-il">9999</span> holds, <span class="code-lesson-il">10000</span> does not) are the ones that catch the off-by-one. <strong>Test at the edge of every limit</strong>: just inside, exactly on, just outside.</p>
+<h3>Part 3. Break It on Purpose</h3>
+<p>Unit tests check that the logic is right when everything arrives. Validation of a networked system must check what happens when it does not. <strong>Fault injection</strong> puts a deliberately bad link between the parts and watches. The class below wraps a hub so that its outgoing messages are lost, duplicated or delayed with chosen probabilities, from a fixed seed so that a failing run can be repeated.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">flaky.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># flaky.py -- a link that misbehaves on purpose, for testing (never ship it on the robot)
+import random
+
+class Flaky:
+    """Wrap a Hub. Outgoing messages may be lost, duplicated or delayed.
+    Everything else (on, poll, root, ...) is passed straight through."""
+    def __init__(self, hub, loss=0.0, dup=0.0, delay_ms=(0, 0), seed=0):
+        self.hub = hub
+        self.loss, self.dup, self.delay = loss, dup, delay_ms
+        self.rnd = random.Random(seed)       # a fixed seed makes a failure repeatable
+        self.pending = []                    # (due_ms, topic, data, retain)
+        self.lost = self.sent = 0
+
+    def __getattr__(self, name):
+        return getattr(self.hub, name)
+
+    def publish(self, topic, data, retain=False):
+        self.sent += 1
+        if self.rnd.random() &lt; self.loss:
+            self.lost += 1
+            return True                      # the sender is told nothing: that is the point
+        copies = 2 if self.rnd.random() &lt; self.dup else 1
+        for _ in range(copies):
+            lo, hi = self.delay
+            self.pending.append((self.now() + self.rnd.randint(lo, hi), topic, data, retain))
+        return True
+
+    def now(self):
+        from time import ticks_ms
+        return ticks_ms()
+
+    def flush(self):
+        """Call once per loop: really send what is due."""
+        from time import ticks_diff
+        now = self.now()
+        due = [p for p in self.pending if ticks_diff(now, p[0]) &gt;= 0]
+        self.pending = [p for p in self.pending if ticks_diff(now, p[0]) &lt; 0]
+        for _, topic, data, retain in due:
+            self.hub.publish(topic, data, retain)
+</span>
+</div>
+<p>It was applied to the Lab 11 system (one manager, three clients, 15 pans in all, simulated) with <strong>every</strong> node’s outgoing link made faulty, 20 runs per setting, each given 90 simulated seconds. The first version of the manager failed immediately:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 476" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="290" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="165" y="46.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Fault</text><rect x="310" y="14" width="110" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="365" y="38.15" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Finished</text><text x="365" y="55.65" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">before</text><rect x="420" y="14" width="110" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="475" y="38.15" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Finished</text><text x="475" y="55.65" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">after</text><rect x="530" y="14" width="100" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="580" y="46.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Median</text><rect x="630" y="14" width="100" height="56" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="680" y="46.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Worst</text><rect x="20" y="70" width="290" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="102.9" font-size="14" fill="#1f3b52" text-anchor="start">No faults</text><rect x="310" y="70" width="110" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="365" y="102.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="420" y="70" width="110" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="475" y="102.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="530" y="70" width="100" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="580" y="102.9" font-size="14" fill="#1f3b52" text-anchor="middle">4.7 s</text><rect x="630" y="70" width="100" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="102.9" font-size="14" fill="#1f3b52" text-anchor="middle">4.7 s</text><rect x="20" y="126" width="290" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="158.9" font-size="14" fill="#1f3b52" text-anchor="start">10 % of messages lost</text><rect x="310" y="126" width="110" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="365" y="158.9" font-size="14" fill="#1f3b52" text-anchor="middle">14 / 20</text><rect x="420" y="126" width="110" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="475" y="158.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="530" y="126" width="100" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="580" y="158.9" font-size="14" fill="#1f3b52" text-anchor="middle">4.7 s</text><rect x="630" y="126" width="100" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="158.9" font-size="14" fill="#1f3b52" text-anchor="middle">17.7 s</text><rect x="20" y="182" width="290" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="214.9" font-size="14" fill="#1f3b52" text-anchor="start">30 % lost</text><rect x="310" y="182" width="110" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="365" y="214.9" font-size="14" fill="#1f3b52" text-anchor="middle">6 / 20</text><rect x="420" y="182" width="110" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="475" y="214.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="530" y="182" width="100" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="580" y="214.9" font-size="14" fill="#1f3b52" text-anchor="middle">14.0 s</text><rect x="630" y="182" width="100" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="214.9" font-size="14" fill="#1f3b52" text-anchor="middle">29.3 s</text><rect x="20" y="238" width="290" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="270.9" font-size="14" fill="#1f3b52" text-anchor="start">50 % lost</text><rect x="310" y="238" width="110" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="365" y="270.9" font-size="14" fill="#1f3b52" text-anchor="middle">5 / 20</text><rect x="420" y="238" width="110" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="475" y="270.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="530" y="238" width="100" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="580" y="270.9" font-size="14" fill="#1f3b52" text-anchor="middle">27.3 s</text><rect x="630" y="238" width="100" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="270.9" font-size="14" fill="#1f3b52" text-anchor="middle">45.2 s</text><rect x="20" y="294" width="290" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="326.9" font-size="14" fill="#1f3b52" text-anchor="start">20 % duplicated</text><rect x="310" y="294" width="110" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="365" y="326.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="420" y="294" width="110" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="475" y="326.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="530" y="294" width="100" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="580" y="326.9" font-size="14" fill="#1f3b52" text-anchor="middle">4.7 s</text><rect x="630" y="294" width="100" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="326.9" font-size="14" fill="#1f3b52" text-anchor="middle">4.7 s</text><rect x="20" y="350" width="290" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="382.9" font-size="14" fill="#1f3b52" text-anchor="start">Each message delayed 0 to 400 ms</text><rect x="310" y="350" width="110" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="365" y="382.9" font-size="14" fill="#1f3b52" text-anchor="middle">16 / 20</text><rect x="420" y="350" width="110" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="475" y="382.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="530" y="350" width="100" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="580" y="382.9" font-size="14" fill="#1f3b52" text-anchor="middle">5.7 s</text><rect x="630" y="350" width="100" height="56" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="382.9" font-size="14" fill="#1f3b52" text-anchor="middle">6.1 s</text><rect x="20" y="406" width="290" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="430.15" font-size="14" fill="#1f3b52" text-anchor="start">20 % lost, 20 % duplicated, 0 to 400</text><text x="29" y="447.65" font-size="14" fill="#1f3b52" text-anchor="start">ms</text><rect x="310" y="406" width="110" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="365" y="438.9" font-size="14" fill="#1f3b52" text-anchor="middle">8 / 20</text><rect x="420" y="406" width="110" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="475" y="438.9" font-size="14" fill="#1f3b52" text-anchor="middle">20 / 20</text><rect x="530" y="406" width="100" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="580" y="438.9" font-size="14" fill="#1f3b52" text-anchor="middle">6.9 s</text><rect x="630" y="406" width="100" height="56" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="438.9" font-size="14" fill="#1f3b52" text-anchor="middle">31.3 s</text></svg>
+            <div class="diagram-caption">Runs (of 20) in which all three clients completed within 90 s, before and after the fix, and the median and worst finish time after it. Slow is acceptable under heavy loss, <strong>stuck</strong> is not. Even with half the messages lost every run finished, in a median 27 s instead of 4.7 s.</div>
+        </div>
+
+<p>The failures were not slowness; they were <strong>deadlock</strong>. The manager published <span class="code-lesson-il">stat/owner</span> only when the owner changed. If that one message was lost, every client waited in <span class="code-lesson-il">WAIT</span> for a state it never heard, while the manager believed amy owned the servo, and amy’s repeated <span class="code-lesson-il">claim</span> kept renewing her lease for ever. Nothing was broken in any single component, and on a good link it never happened. The fix is a single line: <strong>repeat the state every three seconds</strong>, even when it has not changed. The test then passed everywhere, and every run was repeatable from its seed.</p>
+<p>Two lessons beyond this one bug. First, this kind of fault is almost impossible to find by trying the system on the bench: the bug needs a message to be lost at one particular moment, which is rare on a good link and certain somewhere in a classroom of thirty. Second, <strong>the duplicate case passed without any special code</strong>, because the manager already refused a second pan within 200 ms and ignored a repeated claim: a design that is <em>idempotent</em> (repeating a message changes nothing) is tolerant of duplicates for free.</p>
+<p>Run the same kinds of fault, by hand, on the real hardware too: unplug the WiFi, restart the broker, power-cycle one Pico mid-run, hold a sensor at an impossible value, and cover the sensor. These are the drills of Labs 7, 9 and 11; this lesson is the reason they are in the labs.</p>
+<h3>Part 4. How Many Times Is Enough?</h3>
+<p>A test that passed once has shown very little. Suppose the guard of the collision lesson stopped the object in 30 runs out of 30. Can you say that it works? You can say it failed <strong>fewer than about one time in ten</strong>: if the true failure rate were higher, 30 clean runs in a row would be unlikely. With <strong>zero</strong> failures in <span class="code-lesson-il">n</span> trials, the 95 % upper bound on the failure rate is <span class="code-lesson-il">1 − 0.05^(1/n)</span>, close to <span class="code-lesson-il">3/n</span> (the “rule of three”):</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 378" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="160" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="100" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Trials, no failures</text><rect x="180" y="14" width="290" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="325" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">True failure rate is below (95 %)</text><rect x="470" y="14" width="250" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="595" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Rule of three</text><rect x="20" y="64" width="160" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="100" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">10</text><rect x="180" y="64" width="290" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">25.9 %</text><rect x="470" y="64" width="250" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="595" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3 / 10 = 30.0 %</text><rect x="20" y="114" width="160" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="100" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">20</text><rect x="180" y="114" width="290" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">13.9 %</text><rect x="470" y="114" width="250" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="595" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3 / 20 = 15.0 %</text><rect x="20" y="164" width="160" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="100" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">30</text><rect x="180" y="164" width="290" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">9.5 %</text><rect x="470" y="164" width="250" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="595" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3 / 30 = 10.0 %</text><rect x="20" y="214" width="160" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="100" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">100</text><rect x="180" y="214" width="290" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3.0 %</text><rect x="470" y="214" width="250" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="595" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3 / 100 = 3.0 %</text><rect x="20" y="264" width="160" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="100" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">300</text><rect x="180" y="264" width="290" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1.0 %</text><rect x="470" y="264" width="250" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="595" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3 / 300 = 1.0 %</text><rect x="20" y="314" width="160" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="100" y="344.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1000</text><rect x="180" y="314" width="290" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="325" y="344.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.3 %</text><rect x="470" y="314" width="250" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="595" y="344.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">3 / 1000 = 0.3 %</text></svg>
+            <div class="diagram-caption">What a clean run of trials proves. To claim “fewer than 1 in 100” takes about 300 failure-free runs, and 1 in 1000 takes 1000. A claim of “never fails” cannot be proved by testing at all, only bounded.</div>
+        </div>
+
+<p>The practical rules are these. <strong>State the number of trials with the result</strong> (“0 of 30”, never “it works”). <strong>Do not claim a rate you did not test enough to claim.</strong> If you must be better than testing can show, change the design so that the failure is <em>harmless</em> (a deadman, a lease, a limit in hardware) and test that instead; a failure that is harmless needs far fewer trials. And report <strong>every</strong> run: a test repeated until it passes, with the failures left out, is not evidence.</p>
+<h3>Part 5. Evidence You Can Hand to Someone Else</h3>
+<p>A test result is worth what someone else can do with it. Keep a <strong>test plan</strong>: one row for each requirement, written before testing, filled in after. A reader (the instructor, a teammate, you in three weeks) should be able to repeat a test from its row and compare.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 412" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="14" width="49.863" height="96" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="36.9315" y="66.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">ID</text><rect x="61.863" y="14" width="149.589" height="96" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="136.658" y="66.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Requirement</text><rect x="211.452" y="14" width="229.37" height="96" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="326.137" y="66.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Method</text><rect x="440.822" y="14" width="139.616" height="96" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="510.63" y="66.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Pass rule</text><rect x="580.438" y="14" width="159.562" height="96" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="660.219" y="66.9" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Result</text><rect x="12" y="110" width="49.863" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="36.9315" y="162.9" font-size="14" fill="#1f3b52" text-anchor="middle">T3</text><rect x="61.863" y="110" width="149.589" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="70.863" y="154.15" font-size="14" fill="#1f3b52" text-anchor="start">Stop within 250</text><text x="70.863" y="171.65" font-size="14" fill="#1f3b52" text-anchor="start">ms (R2)</text><rect x="211.452" y="110" width="229.37" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="220.452" y="145.4" font-size="14" fill="#1f3b52" text-anchor="start">100 stop commands, 1 s</text><text x="220.452" y="162.9" font-size="14" fill="#1f3b52" text-anchor="start">apart, scope on the servo</text><text x="220.452" y="180.4" font-size="14" fill="#1f3b52" text-anchor="start">signal</text><rect x="440.822" y="110" width="139.616" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449.822" y="162.9" font-size="14" fill="#1f3b52" text-anchor="start">99 of 100 in time</text><rect x="580.438" y="110" width="159.562" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="589.438" y="154.15" font-size="14" fill="#1f3b52" text-anchor="start">97 of 100; worst</text><text x="589.438" y="171.65" font-size="14" fill="#1f3b52" text-anchor="start">340 ms</text><rect x="12" y="206" width="49.863" height="96" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="36.9315" y="258.9" font-size="14" fill="#1f3b52" text-anchor="middle">T7</text><rect x="61.863" y="206" width="149.589" height="96" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="70.863" y="250.15" font-size="14" fill="#1f3b52" text-anchor="start">Never two owners</text><text x="70.863" y="267.65" font-size="14" fill="#1f3b52" text-anchor="start">(R5)</text><rect x="211.452" y="206" width="229.37" height="96" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="220.452" y="250.15" font-size="14" fill="#1f3b52" text-anchor="start">test_never_two_owners, seed</text><text x="220.452" y="267.65" font-size="14" fill="#1f3b52" text-anchor="start">1</text><rect x="440.822" y="206" width="139.616" height="96" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="449.822" y="258.9" font-size="14" fill="#1f3b52" text-anchor="start">no failure</text><rect x="580.438" y="206" width="159.562" height="96" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="589.438" y="250.15" font-size="14" fill="#1f3b52" text-anchor="start">passed, 20,000</text><text x="589.438" y="267.65" font-size="14" fill="#1f3b52" text-anchor="start">operations</text><rect x="12" y="302" width="49.863" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="36.9315" y="354.9" font-size="14" fill="#1f3b52" text-anchor="middle">T9</text><rect x="61.863" y="302" width="149.589" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="70.863" y="346.15" font-size="14" fill="#1f3b52" text-anchor="start">Survive 30 % loss</text><text x="70.863" y="363.65" font-size="14" fill="#1f3b52" text-anchor="start">(R6)</text><rect x="211.452" y="302" width="229.37" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="220.452" y="346.15" font-size="14" fill="#1f3b52" text-anchor="start">Flaky(loss=0.3), seeds 1 to</text><text x="220.452" y="363.65" font-size="14" fill="#1f3b52" text-anchor="start">20</text><rect x="440.822" y="302" width="139.616" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449.822" y="346.15" font-size="14" fill="#1f3b52" text-anchor="start">20 of 20 finish in</text><text x="449.822" y="363.65" font-size="14" fill="#1f3b52" text-anchor="start">60 s</text><rect x="580.438" y="302" width="159.562" height="96" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="589.438" y="354.9" font-size="14" fill="#1f3b52" text-anchor="start">20 of 20; worst 29 s</text></svg>
+            <div class="diagram-caption">A test plan with three rows (the figures are an illustration, not measurements). T3 <strong>fails</strong> (97 of 100): that is a valid and useful row. A plan with no failed row either has easy tests or untold results.</div>
+        </div>
+
+<p>Evidence is <strong>logged</strong>, not remembered. Have every agent keep a record of what it sent and received, with the time and the state (the ring log of the data-logging lesson is enough). When a test fails, the log is what lets you find out why. And with a log of messages you can go one better: <strong>replay</strong> it. The function below feeds a recorded log to the code under test on the laptop, advancing a fake clock in 20 ms steps, so a failure seen once on the hardware can be reproduced as many times as you like, and with a debugger.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">replay.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># replay.py -- feed a recorded log to the code under test, as if it were arriving live
+import json
+
+def replay(lines, agent, clock):
+    """lines: the text of a log with one JSON message per line: {"ms": 1200, "topic": "...", "p": {...}}.
+    agent: an object with on_message(topic, payload_bytes) and tick(now_ms).
+    clock: an object with a settable .ms that the code under test reads in place of ticks_ms()."""
+    prev = None
+    n = 0
+    for line in lines:
+        rec = json.loads(line)
+        while prev is not None and prev &lt; rec["ms"]:       # let time pass, a tick at a time
+            prev += 20
+            clock.ms = prev
+            agent.tick(prev)
+        clock.ms = prev = rec["ms"]
+        agent.on_message(rec["topic"].encode(), json.dumps(rec["p"]).encode())
+        n += 1
+    return n
+</span>
+</div>
+<p>This closes a loop that is otherwise open: a bug seen on the class WiFi at 2 p.m. becomes a laptop test by 3 p.m., and stays in the test suite as a <strong>regression test</strong>, so that it can never come back unnoticed. After every change to the code, run the whole suite again; the cost of a test is paid once, and the benefit every time.</p>
+<h3>Part 6. Before the Demonstration</h3>
+<ul>
+<li><strong>Freeze</strong> the code a day before. The version you tested is the version you demonstrate; a “small fix” on the morning has no test.</li>
+<li><strong>Run the full plan on the frozen files</strong>, on the hardware, in the room (or one like it). WiFi in an empty lab is not WiFi in a full one.</li>
+<li><strong>Start from cold.</strong> Power everything off and on, in the order you will use on the day. Many failures live in start-up: a retained message from yesterday, a lease that never expired, a clock that starts at zero.</li>
+<li><strong>Know the fail-safe.</strong> Say, before it happens, what each agent does when its partner or the network disappears. Then pull the plug and show it.</li>
+<li><strong>Have a recovery story.</strong> When something fails on the day, a calm “this is the fault, this is what the system does, this is how I recover” scores higher than silence. It is the same skill as the drills.</li>
+<li><strong>Keep the spares and the log.</strong> A second Pico already flashed, the test plan open, and the log of the last good run.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Make It Testable.</strong> Rewrite “the scan head should track the target well” as a testable requirement, with a stimulus, a limit, a condition and a pass rule.</p>
+        <p><strong>Exercise 2: How Much Does 20 of 20 Show?.</strong> A teammate says: “I ran the stop test 20 times and it worked every time, so it is reliable.” What can honestly be claimed, and what would you ask for?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Which Test Notices?.</strong> Someone changes <span class="code-lesson-il">if len(self.queue) &gt;= self.max_queue</span> to <span class="code-lesson-il">&gt;</span> in the lease. Which test catches it, and why does the property test not?</p>
+        <p><strong>Exercise 4: Design a Fault.</strong> The tracker agent publishes <span class="code-lesson-il">tele/bearing</span> at 5 Hz and the arbiter uses the latest value. Name three faults you would inject between them and the behaviour you would expect from the arbiter in each.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 5: Test a Property.</strong> Write one more test for <span class="code-lesson-il">test_lease.py</span>: a lease with <span class="code-lesson-il">lease_ms=1000</span>, one owner and three users waiting, none of whom ever renews. Check that each holds it for exactly one second, in order, and that nobody holds it after four seconds.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Make It Testable</summary>
+<p>One good answer: “When the target moves at up to 10°/s with 3° of sensor noise, the scan head’s published bearing is within 2° (RMS) of the true bearing over a 30 s run, in 5 of 5 runs, with 30 % of readings missing.” The stimulus is the moving target, the limit is 2° RMS, the condition is the speed, noise and loss, and the pass rule is 5 of 5. Any version that has a number, a condition and a count is acceptable; “well” is not.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: How Much Does 20 of 20 Show?</summary>
+<p>With 0 failures in 20 trials the 95 % upper bound on the failure rate is 1 − 0.05^(1/20) = <strong>13.9 %</strong> (the rule of three gives 15 %). So: “it failed fewer than about 1 time in 7, probably far fewer”, not “reliable”. Ask for the conditions (which network, how many other users), for more trials if a rate of 1 % matters (about 300), and for the log of all 20. Better: ask whether the <em>safe</em> behaviour depends on the stop message at all.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Which Test Notices?</summary>
+<p><span class="code-lesson-il">test_second_claim_queues_in_order</span> catches it: with <span class="code-lesson-il">max_queue=2</span> the fourth claim is expected to be “full”, but with <span class="code-lesson-il">&gt;</span> the third waiter is let in (position 3). The property test checks only that there is at most one owner and that the owner is not in the queue, which stay true when the queue is a little too long: a <strong>different</strong> property. Every test checks something specific, which is why a set of tests is needed, and why mutation shows which behaviours have no test.</p>
+        </details>
+        <details>
+        <summary>Exercise 4: Design a Fault</summary>
+<p><strong>Loss of 40 % of the messages:</strong> the arbiter still has a recent value most of the time, so it should keep tracking with a slightly larger error, and a gap longer than the stale limit must make it stop or search. <strong>A 2 s delay burst:</strong> the values are old when they arrive; the arbiter should judge staleness by <em>arrival</em> time, discount them, and not command a target the tracker has since left. <strong>Duplicates and reordering:</strong> an older message arriving after a newer one must not move the estimate backwards, so check the sequence number. Also acceptable: a stuck value (the same bearing for ever), which the arbiter should treat as a fault after a while.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 5: Test a Property</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_turns.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class TurnTests(LeaseTests):                       # added at the end of test_lease.py
+    def test_each_waiter_gets_exactly_one_turn(self):
+        L = Lease(lease_ms=1000, max_queue=3)
+        for u in "abcd":
+            L.claim(u, 0)                              # a owns it; b, c, d queue up in order
+        owners = []
+        for t in range(0, 4001, 100):
+            L.tick(t)
+            if not owners or owners[-1][1] != L.owner:
+                owners.append((t, L.owner))
+        self.assertEqual(owners, [(0, "a"), (1000, "b"), (2000, "c"), (3000, "d"), (4000, None)])
+</span>
+</div><p>The test steps a fake time in 100 ms ticks and records every change of owner. Each handover starts a new full lease at the moment of the handover, so the changes fall on exact seconds. If this test fails after an edit, the handover now starts its clock somewhere else (for example, from the end of the <em>previous</em> lease rather than from the time it was noticed).</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Write a requirement with a stimulus, a response, a limit, a condition and a pass rule.</li>
+            <li>Run unit and property tests on a laptop against the code that runs on the Pico.</li>
+            <li>Use mutation to check that tests would catch a defect, and test at the edge of every limit.</li>
+            <li>Inject loss, delay and duplication, and explain a failure that appears only under faults.</li>
+            <li>State what a number of clean trials proves, and keep evidence others can repeat.</li>
+        </ol>
+
+    </body>
+</html>

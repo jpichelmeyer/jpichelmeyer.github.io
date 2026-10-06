@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Some devices need more speed or simpler wiring than I2C offers. SPI is the other bus you will meet constantly: it moves data in both directions at once, runs at megahertz rates, and selects a device by a wire instead of an address. This lesson covers how it works, a loopback test that needs no device at all, and the two SPI parts in your kit.</p>
+
+<h3>Part 1. A Faster, Simpler Bus</h3>
+<p><strong>SPI</strong> (serial peripheral interface) is the other common chip-to-chip bus. It uses more wires than I2C but is simpler and faster: a dedicated clock, one data wire each way, and one extra "select" wire per device in place of an address. Because the two data wires are separate, the controller can send and receive at the same moment.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 420" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="190" height="350" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2.5"/><text x="115" y="64" font-size="16.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">Pico W</text><text x="115" y="88" font-size="15.5" fill="#5b6b78" text-anchor="middle">controller</text><line x1="210" y1="130" x2="725" y2="130" stroke="#c0693f" stroke-width="3" stroke-linecap="round"/><text x="200" y="135" font-size="15" fill="#1f3b52" text-anchor="end" font-weight="bold">SCK GP18</text><line x1="210" y1="170" x2="725" y2="170" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="200" y="175" font-size="15" fill="#1f3b52" text-anchor="end" font-weight="bold">MOSI GP19</text><line x1="210" y1="210" x2="725" y2="210" stroke="#3c8a5a" stroke-width="3" stroke-linecap="round"/><text x="200" y="215" font-size="15" fill="#1f3b52" text-anchor="end" font-weight="bold">MISO GP16</text><text x="200" y="270" font-size="15" fill="#1f3b52" text-anchor="end" font-weight="bold">CS GP17</text><text x="200" y="365" font-size="15" fill="#1f3b52" text-anchor="end" font-weight="bold">CS2 GP20</text><rect x="330" y="240" width="160" height="100" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="410" y="285.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">RFID reader</text><text x="410" y="305.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">MFRC522</text><line x1="360" y1="130" x2="360" y2="240" stroke="#c0693f" stroke-width="2.2" stroke-linecap="round"/><circle cx="360" cy="130" r="4" fill="#c0693f"/><line x1="392" y1="170" x2="392" y2="240" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><circle cx="392" cy="170" r="4" fill="#2e5a80"/><line x1="424" y1="210" x2="424" y2="240" stroke="#3c8a5a" stroke-width="2.2" stroke-linecap="round"/><circle cx="424" cy="210" r="4" fill="#3c8a5a"/><rect x="560" y="240" width="160" height="100" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="640" y="285.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">74HC595</text><text x="640" y="305.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">shift register</text><line x1="590" y1="130" x2="590" y2="240" stroke="#c0693f" stroke-width="2.2" stroke-linecap="round"/><circle cx="590" cy="130" r="4" fill="#c0693f"/><line x1="622" y1="170" x2="622" y2="240" stroke="#2e5a80" stroke-width="2.2" stroke-linecap="round"/><circle cx="622" cy="170" r="4" fill="#2e5a80"/><line x1="654" y1="210" x2="654" y2="240" stroke="#3c8a5a" stroke-width="2.2" stroke-linecap="round"/><circle cx="654" cy="210" r="4" fill="#3c8a5a"/><line x1="210" y1="265" x2="330" y2="265" stroke="#b3261e" stroke-width="2.8" stroke-linecap="round"/><line x1="210" y1="360" x2="640" y2="360" stroke="#b3261e" stroke-width="2.8" stroke-linecap="round"/><line x1="640" y1="360" x2="640" y2="340" stroke="#b3261e" stroke-width="2.8" stroke-linecap="round"/><text x="380" y="404" font-size="15" fill="#b3261e" text-anchor="middle" font-weight="bold">each device has its own chip-select wire (red): low means "you, listen"</text></svg>
+            <div class="diagram-caption">An SPI bus. Clock (SCK), data out (MOSI, "main out, secondary in") and data in (MISO) are shared by every device. Each device also has its own chip-select (CS) wire from the Pico; only the device whose CS is low listens and answers.</div>
+        </div>
+
+<p>Because a device is chosen by its wire and not by an address, you can add as many devices as you have spare pins, and there is nothing to scan: if it does not work, check wiring, CS and mode. A device whose CS is high ignores the bus completely, and its MISO output goes quiet so it does not fight others.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">spi_setup.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import SPI, Pin
+
+spi = SPI(0, baudrate=1_000_000, polarity=0, phase=0,
+          sck=Pin(18), mosi=Pin(19), miso=Pin(16))     # SPI bus 0
+cs = Pin(17, Pin.OUT, value=1)                         # chip select: high = "not talking to you"
+</span>
+</div>
+<p><span class="code-lesson-il">polarity</span> and <span class="code-lesson-il">phase</span> are the <strong>SPI mode</strong>: whether the clock idles low or high, and which clock edge the data is read on. Most devices use mode 0 (both 0). The mode must match the device’s datasheet, and it is the first thing to check when you read nonsense.</p>
+<h3>Part 2. What One Byte Looks Like</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 372" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="75" font-size="15.5" fill="#b3261e" text-anchor="start" font-weight="bold">CS</text><text x="20" y="155" font-size="15.5" fill="#c0693f" text-anchor="start" font-weight="bold">SCK</text><text x="20" y="245" font-size="15.5" fill="#2e5a80" text-anchor="start" font-weight="bold">MOSI</text><polyline points="60.0,52.0 110.0,52.0 110.0,88.0 732.0,88.0 732.0,52.0 730.0,52.0" fill="none" stroke="#b3261e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><polyline points="60.0,168.0 130.0,168.0 130.0,132.0 167.0,132.0 167.0,168.0 204.0,168.0 204.0,168.0 204.0,132.0 241.0,132.0 241.0,168.0 278.0,168.0 278.0,168.0 278.0,132.0 315.0,132.0 315.0,168.0 352.0,168.0 352.0,168.0 352.0,132.0 389.0,132.0 389.0,168.0 426.0,168.0 426.0,168.0 426.0,132.0 463.0,132.0 463.0,168.0 500.0,168.0 500.0,168.0 500.0,132.0 537.0,132.0 537.0,168.0 574.0,168.0 574.0,168.0 574.0,132.0 611.0,132.0 611.0,168.0 648.0,168.0 648.0,168.0 648.0,132.0 685.0,132.0 685.0,168.0 722.0,168.0 730.0,168.0" fill="none" stroke="#c0693f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="167" y="286" font-size="16.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">1</text><text x="241" y="286" font-size="16.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">0</text><text x="315" y="286" font-size="16.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">1</text><text x="389" y="286" font-size="16.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">0</text><text x="463" y="286" font-size="16.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">0</text><text x="537" y="286" font-size="16.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">1</text><text x="611" y="286" font-size="16.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">0</text><text x="685" y="286" font-size="16.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">1</text><polyline points="60.0,258.0 130.0,258.0 130.0,222.0 204.0,222.0 204.0,258.0 278.0,258.0 278.0,222.0 352.0,222.0 352.0,258.0 426.0,258.0 426.0,258.0 500.0,258.0 500.0,222.0 574.0,222.0 574.0,258.0 648.0,258.0 648.0,222.0 722.0,222.0 730.0,222.0" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><line x1="130" y1="182" x2="130" y2="201" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"/><polygon points="130.0,210.0 135.5,199.0 124.5,199.0" fill="#5b6b78"/><line x1="204" y1="182" x2="204" y2="201" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"/><polygon points="204.0,210.0 209.5,199.0 198.5,199.0" fill="#5b6b78"/><line x1="278" y1="182" x2="278" y2="201" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"/><polygon points="278.0,210.0 283.5,199.0 272.5,199.0" fill="#5b6b78"/><line x1="352" y1="182" x2="352" y2="201" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"/><polygon points="352.0,210.0 357.5,199.0 346.5,199.0" fill="#5b6b78"/><line x1="426" y1="182" x2="426" y2="201" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"/><polygon points="426.0,210.0 431.5,199.0 420.5,199.0" fill="#5b6b78"/><line x1="500" y1="182" x2="500" y2="201" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"/><polygon points="500.0,210.0 505.5,199.0 494.5,199.0" fill="#5b6b78"/><line x1="574" y1="182" x2="574" y2="201" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"/><polygon points="574.0,210.0 579.5,199.0 568.5,199.0" fill="#5b6b78"/><line x1="648" y1="182" x2="648" y2="201" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3 3"/><polygon points="648.0,210.0 653.5,199.0 642.5,199.0" fill="#5b6b78"/><text x="380" y="330" font-size="15" fill="#5b6b78" text-anchor="middle">the byte 0xA5 = 1010 0101, most significant bit first</text><text x="380" y="354" font-size="15" fill="#5b6b78" text-anchor="middle">the device reads each bit on the rising clock edge (dashed arrows)</text><text x="110" y="42" font-size="14.5" fill="#b3261e" text-anchor="start" font-weight="bold">select</text><text x="732" y="42" font-size="14.5" fill="#b3261e" text-anchor="end" font-weight="bold">release</text></svg>
+            <div class="diagram-caption">One byte over SPI in mode 0. The Pico lowers CS to start, then each clock pulse moves one bit: MOSI is set up while the clock is low, and the device reads it on the rising edge. After eight pulses the byte has been transferred, and CS goes high again. At the same moment the device has clocked a byte back out on MISO.</div>
+        </div>
+
+<p>Every SPI transfer is a <em>swap</em>: for each bit the Pico sends, a bit comes back. To read from a device you therefore send something (often zeros) just to generate the clock pulses it needs to answer. That is why the call is named <span class="code-lesson-il">write_readinto</span>, which sends and receives together.</p>
+<h3>Part 3. Testing Without a Device: Loopback</h3>
+<p>SPI problems come from three places: your code, your wiring, and the device. Separate them with a <strong>loopback test</strong>: connect MOSI (GP19) to MISO (GP16) with one jumper, so that everything sent comes straight back. If the loopback works, the Pico side of the bus is fine.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">loopback.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import SPI, Pin
+
+spi = SPI(0, baudrate=1_000_000, polarity=0, phase=0,
+          sck=Pin(18), mosi=Pin(19), miso=Pin(16))     # SPI bus 0
+cs = Pin(17, Pin.OUT, value=1)                         # chip select: high = "not talking to you"
+buf = bytearray(5)
+cs(0)                                  # select the device (here, nobody is listening)
+spi.write_readinto(b"hello", buf)      # send 5 bytes and capture 5 bytes at the same time
+cs(1)
+print(buf)                             # bytearray(b'hello') if MOSI is jumpered to MISO
+</span>
+</div>
+<p>With the jumper removed, <span class="code-lesson-il">buf</span> stays zeros (or random bits) because nothing drives MISO. Keep this test in mind: it takes ten seconds and tells you whether to look at the code or the module.</p>
+<h3>Part 4. The 74HC595: More Output Pins from Three Wires</h3>
+<p>A <strong>shift register</strong> turns a serial stream into parallel outputs. The 74HC595 has eight output pins and three control inputs: data in (fed from MOSI), shift clock (SCK) and a <strong>latch</strong> (a plain GPIO pin). Bits are shifted into an internal register as the clock ticks. Nothing changes at the output pins until the latch input is pulsed, which copies all eight bits at once. That is useful: the outputs never show a half-shifted pattern.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="120" width="150" height="80" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="95" y="155.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">SPI byte</text><text x="95" y="175.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">from the Pico</text><line x1="170" y1="160" x2="201" y2="160" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="210.0,160.0 199.0,154.5 199.0,165.5" fill="#1f3b52"/><rect x="210" y="100" width="320" height="120" rx="6" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2.5"/><text x="370" y="126" font-size="15.5" fill="#5b6b78" text-anchor="middle" font-weight="bold">shift register (8 bits)</text><rect x="220" y="140" width="34" height="40" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="237" y="165.25" font-size="15" fill="#1f3b52" text-anchor="middle">7</text><rect x="258" y="140" width="34" height="40" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="275" y="165.25" font-size="15" fill="#1f3b52" text-anchor="middle">6</text><rect x="296" y="140" width="34" height="40" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="313" y="165.25" font-size="15" fill="#1f3b52" text-anchor="middle">5</text><rect x="334" y="140" width="34" height="40" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="351" y="165.25" font-size="15" fill="#1f3b52" text-anchor="middle">4</text><rect x="372" y="140" width="34" height="40" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="389" y="165.25" font-size="15" fill="#1f3b52" text-anchor="middle">3</text><rect x="410" y="140" width="34" height="40" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="427" y="165.25" font-size="15" fill="#1f3b52" text-anchor="middle">2</text><rect x="448" y="140" width="34" height="40" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="465" y="165.25" font-size="15" fill="#1f3b52" text-anchor="middle">1</text><rect x="486" y="140" width="34" height="40" rx="4" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="503" y="165.25" font-size="15" fill="#1f3b52" text-anchor="middle">0</text><line x1="370" y1="220" x2="370" y2="241" stroke="#c0693f" stroke-width="2.4" stroke-linecap="round"/><polygon points="370.0,250.0 375.5,239.0 364.5,239.0" fill="#c0693f"/><rect x="300" y="250" width="140" height="46" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="370" y="278.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">latch pulse</text><line x1="370" y1="100" x2="370" y2="79" stroke="#c0693f" stroke-width="2.4" stroke-linecap="round"/><polygon points="370.0,70.0 364.5,81.0 375.5,81.0" fill="#c0693f"/><rect x="210" y="20" width="320" height="50" rx="6" fill="#fff" stroke="#5b6b78" stroke-width="2"/><circle cx="232" cy="45" r="11" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><circle cx="270" cy="45" r="11" fill="#fff" stroke="#5b6b78" stroke-width="2"/><circle cx="308" cy="45" r="11" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><circle cx="346" cy="45" r="11" fill="#fff" stroke="#5b6b78" stroke-width="2"/><circle cx="384" cy="45" r="11" fill="#fff" stroke="#5b6b78" stroke-width="2"/><circle cx="422" cy="45" r="11" fill="#fff" stroke="#5b6b78" stroke-width="2"/><circle cx="460" cy="45" r="11" fill="#fff" stroke="#5b6b78" stroke-width="2"/><circle cx="498" cy="45" r="11" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="550" y="40" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">outputs QA to QH:</text><text x="550" y="62" font-size="15" fill="#5b6b78" text-anchor="start">LEDs on (bit set)</text><text x="550" y="160" font-size="15.5" fill="#c0693f" text-anchor="start" font-weight="bold">SCK shifts</text><text x="550" y="182" font-size="15" fill="#5b6b78" text-anchor="start">the bits in</text></svg>
+            <div class="diagram-caption">A 74HC595. A byte is shifted in over SPI (bottom), then one latch pulse copies all eight bits to the output pins (top) at once. Chain several chips and the same three wires drive 16, 24 or more outputs.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">shiftreg.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">class ShiftReg:
+    """One 74HC595: eight output pins from three wires. Bit 0 is the first output (QA)."""
+    def __init__(self, spi, latch):
+        self.spi, self.latch, self.bits = spi, latch, 0
+        self.latch.value(0)
+        self.show()
+
+    def show(self):
+        self.spi.write(bytes([self.bits]))           # shift 8 bits in (MSB first)
+        self.latch.value(1)                          # latch pulse: copy them to the outputs
+        self.latch.value(0)
+
+    def set(self, byte):
+        self.bits = byte &amp; 0xFF
+        self.show()
+
+    def pin(self, n, on):
+        if on:
+            self.bits |= 1 &lt;&lt; n
+        else:
+            self.bits &amp;= ~(1 &lt;&lt; n) &amp; 0xFF
+        self.show()
+</span>
+</div>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">shift_demo.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">latch = Pin(20, Pin.OUT, value=0)
+bar = ShiftReg(spi, latch)
+bar.set(0b10000101)         # outputs 0, 2 and 7 on
+bar.pin(1, True)            # turn one more on, leaving the others alone
+</span>
+</div>
+<p>Wire the 74HC595 with its output-enable pin (OE) to ground and its clear pin (SRCLR) to 3.3 V, and put a resistor in series with every LED you connect to an output; a shift-register pin gives the same few milliamps as a Pico pin.</p>
+<h3>Part 5. The MFRC522 RFID Reader</h3>
+<p>The MFRC522 reads small RFID tags and cards: hold one near the reader and it reports a tag number. It talks SPI, and it has dozens of internal <strong>registers</strong> you read and write. Every transaction starts with an address byte that says which register, and in which direction:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 270" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="380" y="26" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">the first byte of every MFRC522 SPI transfer</text><rect x="20" y="44" width="94" height="56" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="67" y="77.6" font-size="16" fill="True" text-anchor="middle">R/W</text><rect x="120" y="44" width="74" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="157" y="77.6" font-size="16" fill="True" text-anchor="middle">a5</text><rect x="200" y="44" width="74" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="237" y="77.6" font-size="16" fill="True" text-anchor="middle">a4</text><rect x="280" y="44" width="74" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="317" y="77.6" font-size="16" fill="True" text-anchor="middle">a3</text><rect x="360" y="44" width="74" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="397" y="77.6" font-size="16" fill="True" text-anchor="middle">a2</text><rect x="440" y="44" width="74" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="477" y="77.6" font-size="16" fill="True" text-anchor="middle">a1</text><rect x="520" y="44" width="74" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="557" y="77.6" font-size="16" fill="True" text-anchor="middle">a0</text><rect x="600" y="44" width="74" height="56" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="637" y="77.6" font-size="16" fill="True" text-anchor="middle">0</text><text x="60" y="124" font-size="15" fill="#8a4526" text-anchor="middle">1 = read</text><text x="60" y="144" font-size="15" fill="#8a4526" text-anchor="middle">0 = write</text><text x="340" y="124" font-size="15.5" fill="#2e5a80" text-anchor="middle" font-weight="bold">6-bit register address</text><text x="700" y="124" font-size="15" fill="#5b6b78" text-anchor="middle">always 0</text><rect x="20" y="170" width="720" height="76" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="380" y="203.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">To read register 0x37:  byte = 0x80 | (0x37 &lt;&lt; 1) = 0xEE.</text><text x="380" y="223.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">Send 0xEE, then 0x00 to clock the answer out; the value arrives with the second byte.</text></svg>
+            <div class="diagram-caption">The address byte. The register number is shifted left one place, and the top bit selects read or write. Register 0x37 is the version register, which returns a fixed value (0x92 or 0x91 on a genuine chip) and makes a good "is it alive?" test.</div>
+        </div>
+
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">rc522.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import SPI, Pin
+from time import sleep_ms
+
+rst = Pin(21, Pin.OUT, value=1)          # MFRC522 reset pin held high (running)
+cs = Pin(17, Pin.OUT, value=1)
+
+def rc522_read(spi, cs, reg):
+    """Read one register. The first byte carries the address, the reply arrives with the second."""
+    buf = bytearray(2)
+    cs(0)
+    spi.write_readinto(bytes([0x80 | (reg &lt;&lt; 1), 0x00]), buf)     # bit 7 = 1 means read
+    cs(1)
+    return buf[1]
+
+def rc522_write(spi, cs, reg, val):
+    cs(0)
+    spi.write(bytes([(reg &lt;&lt; 1) &amp; 0x7E, val]))                    # bit 7 = 0 means write
+    cs(1)
+
+VERSION_REG = 0x37
+print(hex(rc522_read(spi, cs, VERSION_REG)))     # 0x92 or 0x91 on a real MFRC522 (clones differ)
+</span>
+</div>
+<p>Wire the reader’s 3.3 V (it is a 3.3 V part, never connect it to 5 V), ground, SCK, MOSI, MISO, its SDA pin (this is the chip select, on GP17) and RST (GP21). Reading the version register back as 0x91 or 0x92 proves that power, wiring, mode and chip select are all right. Reading tag numbers needs a longer sequence of register operations that a ready-made driver handles; your instructor will give you the driver file, and the version read is the part you must get working yourself.</p>
+<h3>Part 6. I2C or SPI?</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 334.75" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="170" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><rect x="190" y="14" width="270" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="325" y="40.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">I2C</text><rect x="460" y="14" width="280" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="600" y="40.425" font-size="15.5" fill="#fff" text-anchor="middle" font-weight="bold">SPI</text><rect x="20" y="56" width="170" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="82.425" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">Wires</text><rect x="190" y="56" width="270" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="82.425" font-size="15.5" fill="#1f3b52" text-anchor="start">2, shared by all devices</text><rect x="460" y="56" width="280" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="82.425" font-size="15.5" fill="#1f3b52" text-anchor="start">3 shared + 1 per device</text><rect x="20" y="98" width="170" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="121.113" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">Choosing a</text><text x="29" y="140.488" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">device</text><rect x="190" y="98" width="270" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="130.8" font-size="15.5" fill="#1f3b52" text-anchor="start">An address (scan finds it)</text><rect x="460" y="98" width="280" height="54.75" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="130.8" font-size="15.5" fill="#1f3b52" text-anchor="start">A chip-select wire</text><rect x="20" y="152.75" width="170" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="179.175" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">Speed</text><rect x="190" y="152.75" width="270" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="179.175" font-size="15.5" fill="#1f3b52" text-anchor="start">100 or 400 kHz</text><rect x="460" y="152.75" width="280" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="179.175" font-size="15.5" fill="#1f3b52" text-anchor="start">1 MHz and up (we use 1)</text><rect x="20" y="194.75" width="170" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="221.175" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">Direction</text><rect x="190" y="194.75" width="270" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="221.175" font-size="15.5" fill="#1f3b52" text-anchor="start">One way at a time</text><rect x="460" y="194.75" width="280" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="221.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Send and receive together</text><rect x="20" y="236.75" width="170" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="263.175" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">Wiring cost</text><rect x="190" y="236.75" width="270" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="263.175" font-size="15.5" fill="#1f3b52" text-anchor="start">Cheap, many devices</text><rect x="460" y="236.75" width="280" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="263.175" font-size="15.5" fill="#1f3b52" text-anchor="start">More pins as devices grow</text><rect x="20" y="278.75" width="170" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="305.175" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">In your kit</text><rect x="190" y="278.75" width="270" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="305.175" font-size="15.5" fill="#1f3b52" text-anchor="start">LCD, MPU6050, MPR121</text><rect x="460" y="278.75" width="280" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="305.175" font-size="15.5" fill="#1f3b52" text-anchor="start">MFRC522, 74HC595</text></svg>
+            <div class="diagram-caption">Choosing a bus. Mostly the device decides for you: sensors with a lot of data and displays favour SPI, small sensors and anything you want many of on two wires favour I2C. Speed difference matters when you stream data: sending 100 bytes takes about 2.3 ms over I2C at 400 kHz and 0.8 ms over SPI at 1 MHz.</div>
+        </div>
+
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Bit Order.</strong> The Pico sends the byte 0x1B over SPI, most significant bit first. In what order do the bits appear on MOSI?</p>
+        <p><strong>Exercise 2: Which Bus Is Faster?.</strong> You must move 100 bytes. Using 9 × (bytes + 3) clocks for I2C at 400 kHz and 8 clocks per byte for SPI at 1 MHz, which is quicker and by how much?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Address Bytes.</strong> Work out the first byte you send to read MFRC522 register 0x37 (done in the lesson), to write register 0x01, and to read register 0x01.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: A Scanner Light.</strong> Use <span class="code-lesson-il">ShiftReg</span> to make a light scan back and forth over eight LEDs (a "Knight Rider" sweep), one step per call, without blocking. Show that the sequence of bytes sent is correct.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Bit Order</summary>
+<p>0x1B is binary 0001 1011. Most significant bit first, the eight clock pulses carry <strong>0, 0, 0, 1, 1, 0, 1, 1</strong>. A device that expects the other order would read this as 1101 1000 = 0xD8, so a wrong bit order gives a result that is wrong but looks plausible.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Which Bus Is Faster?</summary>
+<p>I2C: 9 × 103 = 927 clocks, at 400 kHz that is <strong>2.32 ms</strong>. SPI: 100 × 8 = 800 clocks at 1 MHz is <strong>0.80 ms</strong>. SPI is about 2.9 times quicker, and it gains more at higher clock rates, because the chip can usually run at several MHz.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Address Bytes</summary>
+<p>Read 0x37: 0x80 | (0x37 &lt;&lt; 1) = 0x80 | 0x6E = <strong>0xEE</strong>. Write 0x01: (0x01 &lt;&lt; 1) &amp; 0x7E = <strong>0x02</strong>. Read 0x01: 0x80 | 0x02 = <strong>0x82</strong>. Check them with the fake SPI class in the next exercise, or in the REPL:</p><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">addr.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def rc_addr(reg, read):
+    return (0x80 if read else 0x00) | ((reg &lt;&lt; 1) &amp; 0x7E)
+
+print(hex(rc_addr(0x37, True)), hex(rc_addr(0x01, False)), hex(rc_addr(0x01, True)))   # 0xee 0x2 0x82
+</span>
+</div>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: A Scanner Light</summary>
+<p>A sweep goes 0 to 7 and back to 1, so 14 steps repeat. Make it a generator or an index into a precomputed list, and call it from the main loop on a timer so the program can keep doing other work:</p><div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">scanner.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">SWEEP = [1 &lt;&lt; i for i in range(8)] + [1 &lt;&lt; i for i in range(6, 0, -1)]
+step = 0
+
+def scanner_tick(bar):
+    global step
+    bar.set(SWEEP[step])
+    step = (step + 1) % len(SWEEP)
+
+print(SWEEP)        # [1, 2, 4, 8, 16, 32, 64, 128, 64, 32, 16, 8, 4, 2]
+</span>
+</div><p>Call <span class="code-lesson-il">scanner_tick(bar)</span> every 80 ms from a <span class="code-lesson-il">ticks_diff</span> timer. The list repeats after 14 steps, and the endpoints (1 and 128) appear once per cycle so they do not look longer than the others.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Name the four SPI signals and say what each does.</li>
+            <li>Explain what SPI mode means and what it must match.</li>
+            <li>Run a loopback test and say what it proves.</li>
+            <li>Drive a 74HC595 with a byte and a latch pulse.</li>
+            <li>Build the address byte for a read or write of an MFRC522 register.</li>
+            <li>Say when you would pick I2C and when SPI.</li>
+        </ol>
+
+    </body>
+</html>
