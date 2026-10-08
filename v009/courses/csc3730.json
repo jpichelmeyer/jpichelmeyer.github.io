@@ -237,6 +237,7 @@
   "files" : [
     "zips/csc3730_2026_10_01_a.zip",
     "zips/csc3730_2026_10_06_d_finish_grid_based_path_find_and_movement.zip",
-    "zips/csc3730_2026_10_06_g_finite_state_machine_intro.zip"
+    "zips/csc3730_2026_10_06_g_finite_state_machine_intro.zip",
+    "zips/csc3730_2026_10_08_b_fsm_with_todos.zip"
   ]
 }
