@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>Concept learning needed many examples and a careful teacher. People often learn from a <em>single</em> example, when they can explain why the example is what it is. <strong>Explanation-based learning</strong> (EBL) captures that: use background knowledge to explain an example, then keep exactly the parts of the example the explanation needed. Everything else, however vivid, is dropped as irrelevant.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_explanation_based_learning_1_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 7, §7.1.1: <i>Basic Learning through Language</i></a> <span class="reading-meta">(pp. 177–179 &middot; PDF 188–190 &middot; 3 pages)</span><br>An agent learns a new disease from one sentence because it can explain the sentence with knowledge it already has.</li><li><a href="../../pdfs/csc3530/csc3530_explanation_based_learning_2_hofstadter.pdf" target="_blank"><b>Hofstadter &amp; Sander</b>, Ch. 6: <i>Caricature Analogies Help Us Explain Things to Ourselves</i></a> <span class="reading-meta">(pp. 327–328 &middot; PDF 342–343 &middot; 2 pages)</span><br>Stripping a situation to its conceptual skeleton: the same move EBL makes when it keeps only the parts of an example that the explanation used.</li></ul>
+</div>
+
+
+<h3>Part 1. Learning by Explaining</h3>
+<div class="diagram">
+<svg viewBox="0 0 760 200" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="pp" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="30" width="150" height="60" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="95.0" y="56.7" font-size="12" text-anchor="middle" fill="#1f3b52">one example</text><text x="95.0" y="71.7" font-size="12" text-anchor="middle" fill="#1f3b52">(a red porcelain mug)</text><rect x="20" y="120" width="150" height="60" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="95.0" y="146.7" font-size="12" text-anchor="middle" fill="#1f3b52">background</text><text x="95.0" y="161.7" font-size="12" text-anchor="middle" fill="#1f3b52">knowledge (rules)</text><rect x="230" y="75" width="150" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="305.0" y="101.7" font-size="12" text-anchor="middle" fill="#1f3b52">1. Explain</text><text x="305.0" y="116.7" font-size="12" text-anchor="middle" fill="#1f3b52">prove it is a cup</text><rect x="430" y="75" width="150" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="505.0" y="94.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">2. Generalize</text><text x="505.0" y="109.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">keep what the</text><text x="505.0" y="123.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">proof used</text><rect x="620" y="75" width="120" height="60" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="680.0" y="101.7" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">new rule</text><text x="680.0" y="116.7" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">(operational)</text><line x1="172" y1="60" x2="228" y2="95" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#pp)"/><line x1="172" y1="150" x2="228" y2="118" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#pp)"/><line x1="382" y1="105" x2="428" y2="105" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#pp)"/><line x1="582" y1="105" x2="618" y2="105" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#pp)"/></svg>
+    <div class="diagram-caption">Explanation-based learning. The example is explained with rules the agent already has; the explanation decides what generalizes.</div>
+</div>
+
+<p>Goel and Joyner's example: an agent knows what a cup is <em>for</em> (it is stable and lets you drink), and it has learned a few things from other objects: a brick is stable because of its flat bottom, a glass lets you drink because you can lift it and it holds liquid, a briefcase is liftable because it is light and has a handle, a bowl holds liquid because it is concave. Now it sees a red, chipped porcelain mug with a logo. Is it a cup?</p>
+<div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="pt" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="315" y="10" width="130" height="32" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="30.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">cup</text><rect x="130" y="70" width="130" height="32" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="195.0" y="90.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">stable</text><rect x="500" y="70" width="130" height="32" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="565.0" y="90.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">enables-drinking</text><rect x="130" y="130" width="130" height="32" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="195.0" y="150.2" font-size="12" text-anchor="middle" fill="#1f3b52">flat-bottom</text><rect x="380" y="130" width="130" height="32" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="445.0" y="150.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">liftable</text><rect x="600" y="130" width="130" height="32" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="665.0" y="150.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">carries-liquids</text><rect x="300" y="190" width="130" height="32" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="365.0" y="210.2" font-size="12" text-anchor="middle" fill="#1f3b52">light</text><rect x="450" y="190" width="130" height="32" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="515.0" y="210.2" font-size="12" text-anchor="middle" fill="#1f3b52">has-handle</text><rect x="600" y="190" width="130" height="32" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="665.0" y="210.2" font-size="12" text-anchor="middle" fill="#1f3b52">has-concavity</text><line x1="380" y1="42" x2="195" y2="70" stroke="#9aa5ae" stroke-width="1.6"/><line x1="380" y1="42" x2="565" y2="70" stroke="#9aa5ae" stroke-width="1.6"/><line x1="195" y1="102" x2="195" y2="130" stroke="#9aa5ae" stroke-width="1.6"/><line x1="565" y1="102" x2="445" y2="130" stroke="#9aa5ae" stroke-width="1.6"/><line x1="565" y1="102" x2="665" y2="130" stroke="#9aa5ae" stroke-width="1.6"/><line x1="445" y1="162" x2="365" y2="190" stroke="#9aa5ae" stroke-width="1.6"/><line x1="445" y1="162" x2="515" y2="190" stroke="#9aa5ae" stroke-width="1.6"/><line x1="665" y1="162" x2="665" y2="190" stroke="#9aa5ae" stroke-width="1.6"/><text x="50" y="268" font-size="12" text-anchor="middle" fill="#9aa5ae">red</text><line x1="20" y1="264" x2="80" y2="264" stroke="#b3261e" stroke-width="1.5"/><text x="120" y="268" font-size="12" text-anchor="middle" fill="#9aa5ae">porcelain</text><line x1="90" y1="264" x2="150" y2="264" stroke="#b3261e" stroke-width="1.5"/><text x="190" y="268" font-size="12" text-anchor="middle" fill="#9aa5ae">has-logo</text><line x1="160" y1="264" x2="220" y2="264" stroke="#b3261e" stroke-width="1.5"/><text x="260" y="268" font-size="12" text-anchor="middle" fill="#9aa5ae">chipped</text><line x1="230" y1="264" x2="290" y2="264" stroke="#b3261e" stroke-width="1.5"/><text x="160" y="290" font-size="11.5" text-anchor="middle" fill="#b3261e">observed but unused: dropped</text><text x="560" y="270" font-size="11.5" text-anchor="middle" fill="#2e5a80">the leaves of the proof are</text><text x="560" y="286" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold">the new rule</text></svg>
+    <div class="diagram-caption">The explanation (proof) that the mug is a cup. Its leaves are four observations; the mug's colour, material, logo, and chip played no part.</div>
+</div>
+
+<p>EBL does not generalize from statistics. It generalizes from <em>structure</em>: the proof says which features matter, so a single example suffices. The price is that the background knowledge must already be there and must be right. EBL learns something new in one sense only: it turns knowledge the agent already had, spread across several rules, into one rule it can apply directly. That is the same compiling-for-speed that Soar's chunking does.</p>
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Michelene Chi and colleagues (1989) studied students working through physics examples. The students who learned most were the ones who <em>explained each step to themselves</em> ("this force is here because the block is on an incline"), not the ones who read more slowly or more often. The <strong>self-explanation effect</strong> has been replicated many times. This week's McShane reading shows an agent doing the same: it learns a whole new disease from one sentence, because it can interpret the sentence with what it already knows. The Hofstadter reading describes the human version of the generalization step: caricaturing a situation to strip it down to its conceptual skeleton.</p>
+</div>
+
+
+<h3>Part 2. An EBL Agent</h3>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">cup_agent.py: background knowledge</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Background rules, each learned earlier from one example (in brackets).
+RULES = {
+    &#x27;cup&#x27;:             [[&#x27;stable&#x27;, &#x27;enables-drinking&#x27;]],   # the definition of a cup
+    &#x27;stable&#x27;:          [[&#x27;flat-bottom&#x27;]],                  # [a brick]
+    &#x27;enables-drinking&#x27;: [[&#x27;liftable&#x27;, &#x27;carries-liquids&#x27;]], # [a glass]
+    &#x27;liftable&#x27;:        [[&#x27;light&#x27;, &#x27;has-handle&#x27;]],          # [a briefcase]
+    &#x27;carries-liquids&#x27;: [[&#x27;has-concavity&#x27;]],                # [a bowl]
+}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">cup_agent.py: building an explanation</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def explain(goal, facts, depth=0):
+    &quot;&quot;&quot;Backward-chain a proof. Returns the proof tree, or None.&quot;&quot;&quot;
+    if goal in facts:
+        return goal
+    for body in RULES.get(goal, []):
+        parts = [explain(g, facts, depth + 1) for g in body]
+        if all(parts):
+            return (goal, parts)
+    return None
+
+def show(tree, depth=0):
+    if isinstance(tree, str):
+        print(&#x27;    &#x27; * depth + tree + &#x27;   &lt;- observed&#x27;)
+    else:
+        print(&#x27;    &#x27; * depth + tree[0])
+        for t in tree[1]:
+            show(t, depth + 1)
+
+def leaves(tree):
+    return [tree] if isinstance(tree, str) else [l for t in tree[1] for l in leaves(t)]</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">cup_agent.py: one example</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">mug = {&#x27;light&#x27;, &#x27;has-handle&#x27;, &#x27;has-concavity&#x27;, &#x27;flat-bottom&#x27;,
+       &#x27;red&#x27;, &#x27;porcelain&#x27;, &#x27;has-logo&#x27;, &#x27;chipped&#x27;}
+proof = explain(&#x27;cup&#x27;, mug)
+print(&#x27;Why is this object a cup?&#x27;)
+show(proof)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">cup_agent.py: generalize and use the new rule</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Keep only the observations the proof actually used: that IS the new rule.
+learned = sorted(leaves(proof))
+print(&#x27;learned rule: cup &lt;-&#x27;, &#x27; AND &#x27;.join(learned))
+print(&#x27;ignored as irrelevant:&#x27;, sorted(mug - set(learned)))
+
+def is_cup_fast(obj):
+    return set(learned) &lt;= obj
+
+for name, obj in [(&#x27;blue plastic cup&#x27;, {&#x27;light&#x27;, &#x27;has-handle&#x27;, &#x27;has-concavity&#x27;, &#x27;flat-bottom&#x27;, &#x27;blue&#x27;}),
+                  (&#x27;heavy iron pot&#x27;, {&#x27;has-handle&#x27;, &#x27;has-concavity&#x27;, &#x27;flat-bottom&#x27;}),
+                  (&#x27;paper cone&#x27;, {&#x27;light&#x27;, &#x27;has-concavity&#x27;})]:
+    print(f&#x27;{name}: cup? {is_cup_fast(obj)}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">Why is this object a cup?
+cup
+    stable
+        flat-bottom   &lt;- observed
+    enables-drinking
+        liftable
+            light   &lt;- observed
+            has-handle   &lt;- observed
+        carries-liquids
+            has-concavity   &lt;- observed
+learned rule: cup &lt;- flat-bottom AND has-concavity AND has-handle AND light
+ignored as irrelevant: [&#x27;chipped&#x27;, &#x27;has-logo&#x27;, &#x27;porcelain&#x27;, &#x27;red&#x27;]
+blue plastic cup: cup? True
+heavy iron pot: cup? False
+paper cone: cup? False</code>
+</div>
+
+<p>From one mug the agent learned a rule that correctly accepts a blue plastic cup it has never seen and rejects an iron pot (not light) and a paper cone (no handle, no flat bottom). Whether rejecting the paper cone is right depends on the background knowledge: the agent only knows one way to be liftable. Knowledge gaps become learning gaps.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Explanation-based learning: prove that an object is a cup, then
+# generalize the proof into a new, directly usable rule.
+# Background rules, each learned earlier from one example (in brackets).
+RULES = {
+    'cup':             [['stable', 'enables-drinking']],   # the definition of a cup
+    'stable':          [['flat-bottom']],                  # [a brick]
+    'enables-drinking': [['liftable', 'carries-liquids']], # [a glass]
+    'liftable':        [['light', 'has-handle']],          # [a briefcase]
+    'carries-liquids': [['has-concavity']],                # [a bowl]
+}
+
+def explain(goal, facts, depth=0):
+    """Backward-chain a proof. Returns the proof tree, or None."""
+    if goal in facts:
+        return goal
+    for body in RULES.get(goal, []):
+        parts = [explain(g, facts, depth + 1) for g in body]
+        if all(parts):
+            return (goal, parts)
+    return None
+
+def show(tree, depth=0):
+    if isinstance(tree, str):
+        print('    ' * depth + tree + '   <- observed')
+    else:
+        print('    ' * depth + tree[0])
+        for t in tree[1]:
+            show(t, depth + 1)
+
+def leaves(tree):
+    return [tree] if isinstance(tree, str) else [l for t in tree[1] for l in leaves(t)]
+
+mug = {'light', 'has-handle', 'has-concavity', 'flat-bottom',
+       'red', 'porcelain', 'has-logo', 'chipped'}
+proof = explain('cup', mug)
+print('Why is this object a cup?')
+show(proof)
+
+# Keep only the observations the proof actually used: that IS the new rule.
+learned = sorted(leaves(proof))
+print('learned rule: cup <-', ' AND '.join(learned))
+print('ignored as irrelevant:', sorted(mug - set(learned)))
+
+def is_cup_fast(obj):
+    return set(learned) <= obj
+
+for name, obj in [('blue plastic cup', {'light', 'has-handle', 'has-concavity', 'flat-bottom', 'blue'}),
+                  ('heavy iron pot', {'has-handle', 'has-concavity', 'flat-bottom'}),
+                  ('paper cone', {'light', 'has-concavity'})]:
+    print(f'{name}: cup? {is_cup_fast(obj)}')</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Explaining Where a Colour Comes From</h3>
+<p>ARC gives several train pairs, but EBL suggests a different way to use them: explain the <em>first</em> pair thoroughly, then let the explanation say what should generalize. Suppose the agent finds that pair 1 is reproduced by "fill the grid with yellow." The constant <em>yellow</em> is the suspicious part. Why yellow? The agent tries to explain it from the input with a small vocabulary of <em>roles</em>:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_ebl.py: program skeletons with a colour constant</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Program skeletons with one colour constant c.
+def fill(g, c):                       # every cell becomes c
+    return [[c] * len(g[0]) for _ in g]
+
+def paint_shapes(g, c):               # every non-black cell becomes c
+    return [[c if v else 0 for v in row] for row in g]
+
+def single_cell(g, c):                # the answer is one cell of colour c
+    return [[c]]
+
+def crop_color(g, c):                 # cut out the box around colour c
+    cells = [(r, x) for r, row in enumerate(g) for x, v in enumerate(row) if v == c]
+    rs, cs = [r for r, _ in cells], [x for _, x in cells]
+    return [row[min(cs):max(cs) + 1] for row in g[min(rs):max(rs) + 1]]
+
+def keep_only(g, c):                  # erase every colour except c
+    return [[v if v == c else 0 for v in row] for row in g]
+
+SKELETONS = {&#x27;fill&#x27;: fill, &#x27;paint_shapes&#x27;: paint_shapes, &#x27;single_cell&#x27;: single_cell,
+             &#x27;crop_color&#x27;: crop_color, &#x27;keep_only&#x27;: keep_only}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_ebl.py: roles that can explain a colour</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Ways to EXPLAIN where a colour comes from, using what the input shows.
+def counts(g):
+    return Counter(v for row in g for v in row if v != 0)
+
+ROLES = {
+    &#x27;most common colour&#x27;:   lambda g: counts(g).most_common(1)[0][0],
+    &#x27;least common colour&#x27;:  lambda g: counts(g).most_common()[-1][0],
+    &#x27;colour of the largest object&#x27;:  lambda g: max(find_objects(g, bg=0), key=lambda o: o[&#x27;size&#x27;])[&#x27;color&#x27;],
+    &#x27;colour of the smallest object&#x27;: lambda g: min(find_objects(g, bg=0), key=lambda o: o[&#x27;size&#x27;])[&#x27;color&#x27;],
+    &#x27;colour in the top-left corner&#x27;: lambda g: g[0][0],
+}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_ebl.py: explaining one pair</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def explain_pair(pair):
+    &quot;&quot;&quot;Explain ONE train pair: find a skeleton and constant that reproduce
+    it, then every role that accounts for that constant.&quot;&quot;&quot;
+    found = []
+    for sname, sk in SKELETONS.items():
+        for c in range(10):
+            try:
+                fits = sk(pair[&#x27;input&#x27;], c) == pair[&#x27;output&#x27;]
+            except ValueError:              # e.g. colour c is not in the grid
+                fits = False
+            if fits:
+                for rname, role in ROLES.items():
+                    try:
+                        if role(pair[&#x27;input&#x27;]) == c:
+                            found.append((sname, c, rname))
+                    except (ValueError, IndexError):
+                        pass
+    return found</code>
+</div>
+
+<p>Each explanation is then generalized by replacing the constant with its role ("fill with <em>the most common colour</em>"), and checked on the remaining pairs.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_ebl.py: generalize and check</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def learn(task, verbose=False):
+    &quot;&quot;&quot;Explain the first pair; generalize each explanation by replacing the
+    constant with its role; keep the first one that holds on every pair.&quot;&quot;&quot;
+    chosen = None
+    for sname, c, rname in explain_pair(task[&#x27;train&#x27;][0]):
+        rule = lambda g, s=SKELETONS[sname], r=ROLES[rname]: s(g, r(g))
+        try:
+            ok = all(rule(p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;][1:])
+        except (ValueError, IndexError):
+            ok = False
+        if verbose:
+            print(f&#x27;  {sname}({COLOR_NAMES[c]}) because {COLOR_NAMES[c]} is the {rname}: &#x27;
+                  + (&#x27;holds on every pair&#x27; if ok else &#x27;fails on another pair&#x27;))
+        if ok and chosen is None:
+            chosen = rule
+    return chosen</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_ebl.py: two tasks</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    for tid in [&#x27;5582e5ca&#x27;, &#x27;be94b721&#x27;]:
+        task = load_task(f&#x27;data/training/{tid}.json&#x27;)
+        print(tid)
+        rule = learn(task, verbose=True)
+        print(&#x27;  test correct:&#x27;, rule(task[&#x27;test&#x27;][0][&#x27;input&#x27;]) == task[&#x27;test&#x27;][0][&#x27;output&#x27;])</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">5582e5ca
+  fill(yellow) because yellow is the most common colour: holds on every pair
+  fill(yellow) because yellow is the colour of the largest object: fails on another pair
+  fill(yellow) because yellow is the colour in the top-left corner: fails on another pair
+  test correct: True
+be94b721
+  crop_color(red) because red is the most common colour: holds on every pair
+  crop_color(red) because red is the colour of the largest object: holds on every pair
+  test correct: True</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 780 180" style="max-width:760px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="rl" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(30.0,40.0)"><rect x="-1" y="-1" width="80.0" height="80.0" fill="#555"/><rect x="0.0" y="0.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.0" y="0.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="52.0" y="0.0" width="26.0" height="26.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="26.0" width="26.0" height="26.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="26.0" y="26.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="52.0" y="26.0" width="26.0" height="26.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="52.0" width="26.0" height="26.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="26.0" y="52.0" width="26.0" height="26.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="52.0" y="52.0" width="26.0" height="26.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="39.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">pair 1 input</text></g><g transform="translate(160.0,40.0)"><rect x="-1" y="-1" width="80.0" height="80.0" fill="#555"/><rect x="0.0" y="0.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.0" y="0.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="52.0" y="0.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="26.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.0" y="26.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="52.0" y="26.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="52.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.0" y="52.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="52.0" y="52.0" width="26.0" height="26.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><text x="39.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">output: all yellow</text></g><text x="300" y="50" font-size="12" text-anchor="start" fill="#1f3b52">because yellow is the most common colour</text><text x="600" y="50" font-size="12" text-anchor="start" fill="#3c8a5a" font-weight="bold">holds on pairs 2, 3</text><text x="300" y="80" font-size="12" text-anchor="start" fill="#1f3b52">because yellow is the largest object&#x27;s colour</text><text x="600" y="80" font-size="12" text-anchor="start" fill="#b3261e" font-weight="bold">fails on pair 2 or 3</text><text x="300" y="110" font-size="12" text-anchor="start" fill="#1f3b52">because yellow is in the top-left corner</text><text x="600" y="110" font-size="12" text-anchor="start" fill="#b3261e" font-weight="bold">fails on pair 2 or 3</text><text x="300" y="160" font-size="12.5" text-anchor="start" fill="#8a4526" font-weight="bold">Generalized rule: fill the grid with the most common colour</text></svg>
+    <div class="diagram-caption">Explaining the constant in task 5582e5ca. Three roles explain "yellow" in pair 1, and only one survives the other pairs.</div>
+</div>
+
+<p>In <code class="code-lesson-il">be94b721</code> two explanations survive: the cropped shape is both the most common colour and the largest object. With the train pairs given, the agent cannot tell which explanation is the real one. Both happen to give the right test answer here, but an agent that keeps both and notices the ambiguity is better prepared than one that silently picks the first.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_ebl.py: sweep</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    solved = []
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        t = load_task(&#x27;data/training/&#x27; + name)
+        r = learn(t)
+        if r and all(r(p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in t[&#x27;test&#x27;]):
+            solved.append(name[:-5])
+    print(len(solved), &#x27;tasks:&#x27;, &#x27; &#x27;.join(solved))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">8 tasks: 0b148d64 1cf80156 1f85a75f 23b5c85d 5582e5ca a87f7484 be94b721 c909285e</code>
+</div>
+
+<p>Eight tasks, five of them "crop out a colour," each solved by explaining which colour. Program search from week 3 also found some of these (as <code class="code-lesson-il">largest</code> or <code class="code-lesson-il">crop_all</code>), but here each answer comes with an explanation of the <em>constant</em>, which is what makes it transfer to a test grid with different colours.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>EBL is a learning arrow that runs <em>through</em> the <strong>Decider</strong>: the proof is reasoning, and its result is written back to long-term <strong>Memory</strong> as a faster rule. The roles vocabulary (most common, largest, corner) belongs in your <strong>Perceptor</strong>: the more roles it can compute, the more constants your agent can explain.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>EBL learned from one mug, but only because it already knew a lot. Is that "learning"? What exactly is new after EBL runs?</li><li>Chi found that self-explanation helps students. Try it on an ARC task: explain each train pair in one sentence before guessing the rule. Did it change what you noticed?</li><li>Two explanations survived on <code class="code-lesson-il">be94b721</code>. If they had predicted different test outputs, which should the agent use as attempt 1, and why?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Explain the two steps of EBL: explain, then generalize.</li><li>Explain why EBL can learn from one example and what it depends on.</li><li>Describe the self-explanation effect.</li><li>Explain an ARC constant by roles and generalize the explanation across train pairs.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add a rule that a cup can also be liftable by being small and light, then test the paper cone again.</li><li>Run the ARC EBL learner verbosely on <code class="code-lesson-il">0b148d64</code> and <code class="code-lesson-il">23b5c85d</code>. Which roles explain the constant?</li></ol><h3>Intermediate</h3>
+<ol><li>Make the cup agent print the learned rule in English with its justification ("a cup must have a handle because a cup must be liftable").</li><li>Add two roles: <em>the colour that appears in only one object</em> and <em>the colour of the object touching the edge</em>. Which new tasks fall?</li></ol><h3>Advanced</h3>
+<ol><li>When several explanations survive, have the ARC agent use them as its two attempts. Over the training set, how often does attempt 2 rescue a wrong attempt 1?</li></ol><h3>For your ARC agent</h3>
+<ol><li>Add a role library to your agent's Perceptor, and an EBL step that replaces every colour constant in a found program with a role before checking the remaining pairs.</li></ol></section>
+
+
+    </body>
+</html>

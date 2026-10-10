@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>For most of AI's history the knowledge-based approach you have studied this term was the mainstream. Today the mainstream is large neural networks trained on vast amounts of data, and especially large language models (LLMs). This final lesson puts the two side by side, honestly, using the benchmark you have spent the semester on. Expect more discussion than code.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_kbai_vs_llms_1_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 10: <i>Disrupting the Dominant Paradigm</i></a> <span class="reading-meta">(pp. 281–283 &middot; PDF 292–294 &middot; 3 pages)</span><br>The authors' closing argument that machine learning is not the whole answer.</li><li><a href="../../pdfs/csc3530/csc3530_kbai_vs_llms_2_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 2, §2.7.1: <i>Thumbnail Juxtaposition with Data-Driven AI</i></a> <span class="reading-meta">(pp. 31–33 &middot; PDF 42–44 &middot; 3 pages)</span><br>Meaning and reasoning in data-driven AI compared with knowledge-based agents.</li><li><a href="../../pdfs/csc3530/csc3530_kbai_vs_llms_3_bennett.pdf" target="_blank"><b>Bennett</b>, Ch. 22: <i>GPT-4 and the missing world model</i></a> <span class="reading-meta">(PDF pp. 361–362 &middot; 2 pages)</span><br>Bennett's view: language models answer many commonsense questions but lack an inner model of the world.</li></ul>
+</div>
+
+
+<h3>Part 1. Two Traditions</h3>
+<p>A language model is trained to predict the next piece of text given everything before it. Trained at enormous scale, that single objective produces systems that write, translate, summarize, code, and answer questions across almost every domain. Since 2024, <em>reasoning models</em> also spend extra computation at answer time, generating long chains of intermediate steps before answering, which has improved them sharply on mathematics, programming, and ARC.</p>
+<p>Knowledge-based AI makes the opposite bet. Represent knowledge explicitly (semantic networks, frames, rules, cases, scripts), reason over it with general methods (search, analogy, constraint propagation), and make every step inspectable. The McShane reading argues that this is still the right foundation for systems people must trust, with machine learning plugged in where it is strongest. Bennett's reading argues that LLMs, however fluent, lack an inner model of the world that they can simulate.</p>
+
+<table class="lesson-table">
+<thead><tr><th></th><th>Knowledge-based agent (this course)</th><th>Large language model</th><th>Hybrid</th></tr></thead>
+<tbody>
+<tr><td><b>Where knowledge comes from</b></td><td>Written by people, or learned into explicit structures (rules, frames, cases)</td><td>Statistical patterns absorbed from enormous amounts of text (and images, code)</td><td>Both: the model proposes, explicit knowledge checks</td></tr>
+<tr><td><b>Data needed</b></td><td>Little; can learn from one example (EBL) or a few (concepts)</td><td>Vast pre-training; then a few examples in the prompt</td><td>Vast for the model, little for the task</td></tr>
+<tr><td><b>Explanations</b></td><td>Native: the trace of rules, cases, and proofs <em>is</em> the explanation</td><td>Fluent text that may or may not reflect how the answer was produced</td><td>The verified program or proof is the explanation</td></tr>
+<tr><td><b>Breadth</b></td><td>Narrow: only what was built in</td><td>Extremely broad</td><td>Broad proposals, narrow checks</td></tr>
+<tr><td><b>Typical failure</b></td><td>Brittle at the edges of its knowledge; nothing to say about the unforeseen</td><td>Confident errors; trouble with exactness and novel compositions</td><td>Fails when the checker cannot tell right from wrong</td></tr>
+<tr><td><b>On ARC</b></td><td>Solves what its specialists cover, cheaply and explainably</td><td>Reasoning models scored 75.7&ndash;87.5% on ARC-AGI-1 (o3, Dec 2024), at high compute cost</td><td>Program sampling plus verification reached about half of ARC-AGI-1's public evaluation set in 2024</td></tr>
+</tbody></table>
+<div class="diagram">
+<svg viewBox="0 0 760 150" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="spc" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><defs><linearGradient id="gr" x1="0" x2="1"><stop offset="0" stop-color="#e3eef8"/><stop offset="1" stop-color="#fbe6da"/></linearGradient></defs><rect x="40" y="50" width="680" height="40" rx="20" fill="url(#gr)" stroke="#5b6b78" stroke-width="1.5"/><text x="60" y="40" font-size="12" text-anchor="start" fill="#2e5a80" font-weight="bold">explicit knowledge, symbolic reasoning</text><text x="700" y="40" font-size="12" text-anchor="end" fill="#8a4526" font-weight="bold">learned statistics, neural networks</text><circle cx="90" cy="70" r="7" fill="#1f3b52"/><text x="90" y="112" font-size="11" text-anchor="middle" fill="#1f3b52">expert systems,</text><text x="90" y="127" font-size="11" text-anchor="middle" fill="#1f3b52">Soar, Cyc</text><circle cx="200" cy="70" r="7" fill="#1f3b52"/><text x="200" y="112" font-size="11" text-anchor="middle" fill="#1f3b52">this course&#x27;s</text><text x="200" y="127" font-size="11" text-anchor="middle" fill="#1f3b52">ARC agent</text><circle cx="330" cy="70" r="7" fill="#1f3b52"/><text x="330" y="112" font-size="11" text-anchor="middle" fill="#1f3b52">OntoAgent (LEIAs):</text><text x="330" y="127" font-size="11" text-anchor="middle" fill="#1f3b52">hybrid by design</text><circle cx="470" cy="70" r="7" fill="#1f3b52"/><text x="470" y="112" font-size="11" text-anchor="middle" fill="#1f3b52">LLM proposes,</text><text x="470" y="127" font-size="11" text-anchor="middle" fill="#1f3b52">symbolic verifier checks</text><circle cx="600" cy="70" r="7" fill="#1f3b52"/><text x="600" y="112" font-size="11" text-anchor="middle" fill="#1f3b52">reasoning</text><text x="600" y="127" font-size="11" text-anchor="middle" fill="#1f3b52">models</text><circle cx="690" cy="70" r="7" fill="#1f3b52"/><text x="690" y="112" font-size="11" text-anchor="middle" fill="#1f3b52">pure</text><text x="690" y="127" font-size="11" text-anchor="middle" fill="#1f3b52">LLM</text></svg>
+    <div class="diagram-caption">Not two camps but a spectrum. Most serious systems today sit somewhere in the middle.</div>
+</div>
+
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Which one is more like a person? Neither, quite. People learn language from far less data than an LLM, and can learn a new ARC rule from three examples, which looks like this course's agents. But people also have fast, intuitive pattern recognition that no hand-written rule set captures, which looks more like a neural network. Dual-process theories (Kahneman's System 1 and System 2) and the "reflexive vs deliberative" split in McShane's OntoAgent both suggest that a mind is a hybrid, and the interesting question is how the parts cooperate.</p>
+</div>
+
+
+<h3>Part 2. Interpolating Versus Inducing</h3>
+<p>Here is a deliberately simple contrast. An n-gram model predicts the next number from how often each number followed the previous two in its training data. A rule inducer finds a constant difference and extrapolates. Real language models generalize far, far better than an n-gram model, so treat this as a cartoon. But the cartoon captures the question at the heart of the debate: does the system interpolate from what it has seen, or induce a rule it can apply anywhere?</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">ngram_vs_rules.py</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Pattern statistics versus rule induction on number sequences.
+from collections import Counter, defaultdict
+
+# --- corpus ---
+# &quot;Training data&quot;: many sequences that count up by 2 or by 3, starting at 1-20.
+corpus = []
+for start in range(1, 21):
+    for step in (2, 3):
+        corpus.append([start + step * i for i in range(6)])
+
+# --- ngram ---
+# A statistical model: given the last two numbers, which number most often
+# came next in the training data?
+table = defaultdict(Counter)
+for seq in corpus:
+    for a, b, c in zip(seq, seq[1:], seq[2:]):
+        table[(a, b)][c] += 1
+
+def ngram_next(seq):
+    options = table.get(tuple(seq[-2:]))
+    return options.most_common(1)[0][0] if options else None
+
+# --- rule ---
+# An induced rule: find the constant difference, check it, extrapolate.
+def rule_next(seq):
+    d = seq[1] - seq[0]
+    if all(b - a == d for a, b in zip(seq, seq[1:])):
+        return seq[-1] + d
+    return None
+
+# --- compare ---
+tests = {&#x27;seen pattern&#x27;:          [4, 6, 8, 10],
+         &#x27;beyond the data&#x27;:       [101, 103, 105, 107],
+         &#x27;a new step size&#x27;:       [5, 12, 19, 26]}
+for name, seq in tests.items():
+    print(f&#x27;{name:18} {seq} -&gt; n-gram: {ngram_next(seq)},  rule: {rule_next(seq)}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">seen pattern       [4, 6, 8, 10] -&gt; n-gram: 12,  rule: 12
+beyond the data    [101, 103, 105, 107] -&gt; n-gram: None,  rule: 109
+a new step size    [5, 12, 19, 26] -&gt; n-gram: None,  rule: 33</code>
+</div>
+
+<p>The statistical model is perfect inside its training distribution and silent outside it. The rule extrapolates, but only for the one kind of rule it knows. Modern LLMs sit in between: they handle many novel sequences, and they still fail in ways that look like interpolation when a problem is far enough from anything they have seen. That is the bet Chollet made with ARC, and ARC-AGI-2 and -3 are attempts to keep the problems far enough away.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Pattern statistics versus rule induction on number sequences.
+from collections import Counter, defaultdict
+
+# "Training data": many sequences that count up by 2 or by 3, starting at 1-20.
+corpus = []
+for start in range(1, 21):
+    for step in (2, 3):
+        corpus.append([start + step * i for i in range(6)])
+
+# A statistical model: given the last two numbers, which number most often
+# came next in the training data?
+table = defaultdict(Counter)
+for seq in corpus:
+    for a, b, c in zip(seq, seq[1:], seq[2:]):
+        table[(a, b)][c] += 1
+
+def ngram_next(seq):
+    options = table.get(tuple(seq[-2:]))
+    return options.most_common(1)[0][0] if options else None
+
+# An induced rule: find the constant difference, check it, extrapolate.
+def rule_next(seq):
+    d = seq[1] - seq[0]
+    if all(b - a == d for a, b in zip(seq, seq[1:])):
+        return seq[-1] + d
+    return None
+
+tests = {'seen pattern':          [4, 6, 8, 10],
+         'beyond the data':       [101, 103, 105, 107],
+         'a new step size':       [5, 12, 19, 26]}
+for name, seq in tests.items():
+    print(f'{name:18} {seq} -> n-gram: {ngram_next(seq)},  rule: {rule_next(seq)}')</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: The Hybrid Loop</h3>
+<p>What does ARC look like to a language model? Text:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_hybrid.py: serializing a task for a language model</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def to_text(grid):
+    return &#x27;\n&#x27;.join(&#x27; &#x27;.join(str(v) for v in row) for row in grid)
+
+def build_prompt(task):
+    &quot;&quot;&quot;Serialize an ARC task as text, the way a language model must see it.&quot;&quot;&quot;
+    parts = [&#x27;Each example maps an input grid to an output grid. Find the rule.&#x27;,
+             &#x27;Answer with a Python function  solve(grid) -&gt; grid  (grids are lists of lists of ints).&#x27;, &#x27;&#x27;]
+    for i, p in enumerate(task[&#x27;train&#x27;], 1):
+        parts += [f&#x27;Example {i} input:&#x27;, to_text(p[&#x27;input&#x27;]), f&#x27;Example {i} output:&#x27;, to_text(p[&#x27;output&#x27;]), &#x27;&#x27;]
+    parts += [&#x27;Test input:&#x27;, to_text(task[&#x27;test&#x27;][0][&#x27;input&#x27;])]
+    return &#x27;\n&#x27;.join(parts)
+
+task = load_task(&#x27;data/training/b1948b0a.json&#x27;)
+prompt = build_prompt(task)
+print(prompt[:320] + &#x27;\n...&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">Each example maps an input grid to an output grid. Find the rule.
+Answer with a Python function  solve(grid) -&gt; grid  (grids are lists of lists of ints).
+
+Example 1 input:
+6 6 7 6
+6 6 7 7
+7 7 6 7
+Example 1 output:
+2 2 7 2
+2 2 7 7
+7 7 2 7
+
+Example 2 input:
+7 7 7 6
+6 6 7 6
+7 7 6 7
+7 6 7 7
+7 6 7 6
+6 6 6 7
+Example 2 output
+...</code>
+</div>
+
+<p>Notice what is lost. The grid's two-dimensional structure becomes a stream of numbers; "the cell below" is now dozens of tokens away. Objects, symmetry, and insideness, which your Perceptor computes directly, the model must reconstruct from a flat sequence. That is one reason LLMs found ARC so hard for so long.</p>
+<p>The most successful approaches in 2024 combined the two traditions. A language model is asked for candidate <em>programs</em>, many of them, and a symbolic verifier, exactly like your agent's Monitor, runs each program on the train pairs and keeps only those that fit. Ryan Greenblatt reached about half of ARC-AGI-1's public evaluation set this way in 2024, sampling thousands of programs per task. The ARC Prize 2024 winners instead fine-tuned a model on each task's own train pairs at test time. Here is the verification half:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_hybrid.py: the symbolic verifier</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Pretend a language model proposed these three programs as text.
+CANDIDATES = [
+    &quot;def solve(grid):\n    return [[2 if v == 6 else v for v in row] for row in grid]&quot;,
+    &quot;def solve(grid):\n    return [[2 for v in row] for row in grid]&quot;,
+    &quot;def solve(grid):\n    return grid.transpose()&quot;,
+]
+
+SAFE_BUILTINS = {&#x27;range&#x27;: range, &#x27;len&#x27;: len, &#x27;min&#x27;: min, &#x27;max&#x27;: max, &#x27;sum&#x27;: sum,
+                 &#x27;list&#x27;: list, &#x27;enumerate&#x27;: enumerate, &#x27;zip&#x27;: zip, &#x27;sorted&#x27;: sorted}
+
+def verify(source, task):
+    &quot;&quot;&quot;The symbolic half: run the proposed program on every train pair and
+    accept it only if all of them come out exactly right. (Restricting the
+    builtins limits accidents; it is NOT a security sandbox.)&quot;&quot;&quot;
+    env = {&#x27;__builtins__&#x27;: SAFE_BUILTINS}
+    try:
+        exec(source, env)
+        solve = env[&#x27;solve&#x27;]
+        return all(solve(p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;]), solve
+    except Exception as e:
+        return False, f&#x27;crashed: {type(e).__name__}&#x27;
+
+for k, src in enumerate(CANDIDATES, 1):
+    ok, result = verify(src, task)
+    status = &#x27;accepted&#x27; if ok else (&#x27;rejected&#x27; if callable(result) else result)
+    print(f&#x27;candidate {k}: {status}&#x27;)
+    if ok:
+        print(&#x27;  test correct:&#x27;, result(task[&#x27;test&#x27;][0][&#x27;input&#x27;]) == task[&#x27;test&#x27;][0][&#x27;output&#x27;])</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">candidate 1: accepted
+  test correct: True
+candidate 2: rejected
+candidate 3: crashed: AttributeError</code>
+</div>
+
+<p>The verifier does not care where a candidate came from. A generator that is broad but unreliable (a language model) and a tester that is narrow but exact (the train pairs) make a strong pair: generate and test from week 3, with a far smarter generator. To try the full loop, paste the printed prompt into any chatbot, paste back the function it writes, and verify it. You will quickly see where models do well (recolourings, flips) and where they flounder (counting, multi-step object manipulation).</p>
+
+<h3>Part 4. Where Things Stand, and the Debate</h3>
+<ul>
+    <li><strong>ARC-AGI-1</strong> (2019) resisted AI for five years, then fell largely to reasoning models in late 2024, at high compute cost per task.</li>
+    <li><strong>ARC-AGI-2</strong> (2025) was built to resist brute force. The 2025 Kaggle competition was won with 24% under strict compute limits, and its top paper award went to a tiny recursive network (Jolicoeur-Martineau, "Less is More"), not a giant model. The best frontier systems passed 50% by the end of 2025.</li>
+    <li><strong>ARC-AGI-3</strong> (2026) is interactive: explore, discover the goal, build a model, plan, and learn from mistakes. At launch, frontier AI scored under 1% while people could beat every game. Its skills are Module 3 of this course.</li>
+</ul>
+<p>Check <a href="https://arcprize.org/leaderboard" target="_blank">arcprize.org/leaderboard</a> before class; these numbers change quickly. Then, for the debate:</p>
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>McShane and colleagues claim machine learning "is not the whole answer." Make the strongest case for their position, then the strongest case against it.</li><li>The integrated agent from last week's lesson solved about 9% of the ARC-AGI-1 evaluation set with a few thousand lines of readable code and no training data beyond the task itself. A reasoning model solved most of it. What does each result tell us about intelligence? About cost? About explanation?</li><li>Bennett says LLMs lack an inner simulation of the world. ARC-AGI-3 rewards building exactly that. Predict: which approach will crack ARC-AGI-3 first, and why?</li><li>If you were to build a hybrid ARC agent next semester, which of this course's methods would you keep symbolic, and which would you hand to a learned model?</li></ol>
+</div>
+
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>In SAM terms, an LLM is a <strong>Decider</strong> with a vast, implicit long-term <strong>Memory</strong> and no explicit <strong>Monitor</strong>: nothing inside it checks an answer against the evidence unless you add one. The hybrid loop adds that Monitor back. Your semester agent has every unit explicit, which is what makes it explainable, and also what limits it to what you had time to build.</p>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Compare knowledge-based agents and LLMs on knowledge source, data needs, explanation, breadth, and failure modes.</li><li>Explain the interpolation versus induction question and why ARC is designed around it.</li><li>Describe the hybrid generate-and-verify approach to ARC and why it works.</li><li>Summarize where ARC-AGI-1, -2, and -3 stand, and what each says about current AI.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Use <code class="code-lesson-il">build_prompt</code> on three tasks your agent solves and three it does not. Paste each into a chatbot and verify the returned functions. Tabulate the results.</li><li>Write a one-paragraph answer to the first discussion question, taking the side you disagree with.</li></ol><h3>Intermediate</h3>
+<ol><li>Add a "language model" specialist to your meta level that reads candidate programs from a text file (pasted from a chatbot) and verifies them. Which tasks does it add?</li><li>Compare your agent and a chatbot on five tasks for <em>explanation quality</em>: for each, which explanation would you trust, and why?</li></ol><h3>Advanced</h3>
+<ol><li>Write a two-page position paper: "What ARC taught me about the difference between knowing and pattern-matching." Use evidence from your own agent's training and evaluation results.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Prepare your Agent Exam 3 demo: run your final agent on the evaluation set, and be ready to explain three solved tasks and one interesting failure, unit by unit.</li></ol></section>
+
+
+    </body>
+</html>

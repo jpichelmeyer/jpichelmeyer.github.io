@@ -16,6 +16,7 @@
 
     <body>
         <p>Most of the interesting sensors in a robot are not analog at all. A motion sensor, a touch pad and a character display all talk to the Pico over a shared two-wire bus called I2C. This lesson shows how the bus works, how to find a device on it, and how to use the three I2C devices in your kit: the MPU6050 motion sensor, the LCD1602 display and the MPR121 touch sensor.</p>
+        <p><strong>SAM lens.</strong> I²C widens the Perceptor (the IMU) and gives the Actuator a voice a human can read (the LCD). Each device contains its own small converter, so the Pico receives numbers that still need scaling and calibration before they are percepts.</p>
 
 <h3>Part 1. Two Wires, Many Devices</h3>
 <p>Analog pins are scarce (three on the Pico) and many useful sensors, such as a motion sensor, already contain their own converter and send you finished numbers. <strong>I2C</strong> (pronounced "I squared C") is a two-wire bus made for exactly this. One wire, <strong>SDA</strong>, carries data; the other, <strong>SCL</strong>, carries a clock. Any number of devices share the same two wires, and each has its own <strong>address</strong>, so the Pico can talk to them one at a time.</p>
@@ -26,6 +27,7 @@
 
 <p>The Pico has two I2C blocks. We use bus 0 on <strong>GP4 (SDA)</strong> and <strong>GP5 (SCL)</strong>. The clock runs at 100 kHz (standard) or 400 kHz (fast); the modules in the kit accept 400 kHz. The wires are <em>open-drain</em>: a device can pull a line down, but only the <strong>pull-up resistors</strong> can raise it. Most breakout modules include them (4.7 kΩ is common), which is why you rarely add your own.</p>
 <p>One practical consequence: every module adds its own pull-up in parallel with the others. Three 4.7 kΩ resistors in parallel make 1.57 kΩ. That is fine, because the bus specification wants roughly 1 kΩ or more (a device is only required to sink 3 mA, and (3.3 V − 0.4 V) / 3 mA ≈ 970 Ω). A bus with a dozen modules can end up too strongly pulled up and stop working; the cure is to remove or de-solder a few pull-ups.</p>
+<p>You will also see a second sensor bus, <strong>SPI</strong>, on datasheets and pin maps. It uses four wires instead of two (a clock, a data line each way, and a chip-select line per device) and runs much faster, which suits SD cards and colour screens. None of the parts in this course needs it, so we stay with I2C.</p>
 <h3>Part 2. Find What Is There: the Scan</h3>
 <p>Wire a device to GP4 and GP5 (plus power and ground), and run a scan. The scan asks every possible address whether anyone answers:</p>
 <div class="code-block" data-lang="micropython">
@@ -309,6 +311,78 @@ print(identify(FakeI2C()))
 # {'0x27': 'LCD backpack', '0x68': 'MPU6050 (clone? WHO_AM_I = 0x70)', '0x50': 'unknown device'}
 </span>
 </div><p>The fake class has only the two methods <span class="code-lesson-il">identify</span> calls. Replacing hardware with a small object like this is how you test code that you cannot run on your laptop, and it is the same trick you used on the button in the first week.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Two Wires.</strong> Name the two I2C wires and the job of each. Which pins does the course use for bus 0?</p>
+        <p><strong>P2. Open Drain.</strong> What does open-drain mean on an I2C bus, and what raises the lines?</p>
+        <p><strong>P3. Empty Scan.</strong> An I2C scan returns <span class="code-lesson-il">[]</span>. Give the three usual causes.</p>
+        <p><strong>P4. Sleeping Sensor.</strong> Every reading from a new MPU6050 is zero. What is the most likely cause, and the fix?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Parallel Pull-ups.</strong> Three modules each carry a 4.7 kΩ pull-up on SDA. What is the combined pull-up? With ten modules? Which, if either, breaks the roughly 970 Ω minimum?</p>
+        <p><strong>P6. Transaction Time.</strong> One byte on I2C takes 9 clocks. A read has 3 bytes of overhead. How long does a 6-byte read take at 400 kHz? At 100 kHz?</p>
+        <p><strong>P7. Share of a Loop.</strong> Reading the MPU6050's full 14-byte block at 100 kHz takes 1.53 ms. What fraction of a 100 Hz loop is that? And at 400 kHz?</p>
+        <p><strong>P8. Raw to Units.</strong> At the default ranges (16384 LSB per g, 131 LSB per °/s), convert raw az = 16000 and raw gx = 262.</p>
+        <p><strong>P9. Roll Angle.</strong> Flat and still, an IMU reads ax = 0, ay = 0.5 g, az = 0.866 g. Using roll = atan2(ay, az), what is the roll angle?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P10. Uncorrected Bias.</strong> A gyroscope has an uncorrected bias of 0.5 °/s, and a program integrates it to track heading. How wrong is the heading after one minute at rest? What does <span class="code-lesson-il">calibrate()</span> do about it?</p>
+        <p><strong>P11. 5 V Backpack.</strong> Explain why an LCD backpack powered from 5 V can damage a Pico even though the Pico only drives the bus at 3.3 V.</p>
+        <p><strong>P12. Two of the Same.</strong> You need two MPU6050s on one bus. Is it possible? What about three?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Two Wires</summary>
+<p>SDA carries data; SCL carries the clock driven by the controller (the Pico). Bus 0 on GP4 (SDA) and GP5 (SCL).</p>
+        </details>
+        <details>
+        <summary>P2. Open Drain</summary>
+<p>Devices can only pull a line low; they never drive it high. The pull-up resistors raise the lines when nobody pulls them down.</p>
+        </details>
+        <details>
+        <summary>P3. Empty Scan</summary>
+<p>SDA and SCL swapped; missing power or ground; the wrong pins in the <span class="code-lesson-il">I2C(...)</span> call. (A loose jumper is a variant of the second.)</p>
+        </details>
+        <details>
+        <summary>P4. Sleeping Sensor</summary>
+<p>The chip starts asleep. Write 0 to register 0x6B (power management) to clear the sleep bit, as the constructor in the lesson does.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Parallel Pull-ups</summary>
+<p>Three: 4.7 / 3 = 1.57 kΩ, fine. Ten: 470 Ω, below 970 Ω, so the bus is pulled up too strongly for a device that only has to sink 3 mA; remove some pull-ups.</p>
+        </details>
+        <details>
+        <summary>P6. Transaction Time</summary>
+<p>9 × (6 + 3) = 81 clocks: 0.20 ms at 400 kHz, 0.81 ms at 100 kHz.</p>
+        </details>
+        <details>
+        <summary>P7. Share of a Loop</summary>
+<p>1.53 / 10 = 15 % of the loop; at 400 kHz, 0.38 ms = 3.8 %.</p>
+        </details>
+        <details>
+        <summary>P8. Raw to Units</summary>
+<p>az = 16000 / 16384 = 0.977 g; gx = 262 / 131 = 2.0 °/s.</p>
+        </details>
+        <details>
+        <summary>P9. Roll Angle</summary>
+<p>atan2(0.5, 0.866) = 30°.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P10. Uncorrected Bias</summary>
+<p>0.5 × 60 = 30° of false rotation. <span class="code-lesson-il">calibrate()</span> averages the gyro while the board is still and subtracts that average from every later reading.</p>
+        </details>
+        <details>
+        <summary>P11. 5 V Backpack</summary>
+<p>Many backpacks carry pull-up resistors to their own supply pin. At 5 V the SDA and SCL lines idle at 5 V, which the Pico's pins are not rated to receive. Power the backpack from 3V3, or remove its pull-ups.</p>
+        </details>
+        <details>
+        <summary>P12. Two of the Same</summary>
+<p>Two, yes: the AD0 pin selects address 0x68 or 0x69. A third would collide with one of them on the same bus; use the Pico's second I2C bus (or a multiplexer).</p>
         </details>
 
         <h3>Checkpoint</h3>

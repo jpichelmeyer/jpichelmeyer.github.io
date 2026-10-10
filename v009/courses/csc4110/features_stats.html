@@ -16,6 +16,7 @@
 
     <body>
         <p>This lesson covers computing facts from a stream of samples. You summarise a window with a mean, spread, range and slope, keep statistics with no buffer using Welford’s method, and detect unusual readings with a rolling z-score whose threshold you choose from measured false-alarm rates.</p>
+        <p><strong>SAM lens.</strong> Features are a Perceptor stage that turns many samples into a few meaningful numbers; Welford's running statistics and the rolling z-score are Memory of what normal looks like.</p>
 
 <p>A sensor produces numbers; a decision needs <em>facts about</em> those numbers: is it steady, is it rising, is this reading unusual? Facts like these are called <strong>features</strong>, and computing them on the node, from a short memory of recent samples, is what separates a robot that streams raw data from one that understands it. This lesson builds three tools that fit in a few lines and a few bytes: a window that summarises the last N samples, a running mean and variance that need almost no memory, and a rolling anomaly test that learns what “normal” looks like and flags what is not.</p>
 <h3>Part 1. Features of a Window</h3>
@@ -135,7 +136,7 @@ class Anomaly:
 <ul>
 <li><strong>Warm-up.</strong> The first samples give no estimate of the spread. The class waits <span class="code-lesson-il">warmup</span> samples, and has a <span class="code-lesson-il">floor</span> so that a perfectly steady signal (variance 0) does not flag every rounding step.</li>
 <li><strong>Features of a feature.</strong> Anomalies are events: publish them to <span class="code-lesson-il">evt/…</span> (rare, with the value and the time), not to <span class="code-lesson-il">tele</span>. The hub’s log of events then answers “when was the signal odd?”.</li>
-<li><strong>Learn on the robot, check on the bench.</strong> Replay a recorded signal through the detector offline (the data logging lesson gives you the recording) and choose <em>k</em> from data, not from hope.</li>
+<li><strong>Learn on the robot, check on the bench.</strong> Replay a recorded signal through the detector offline (the TinyML training lesson shows how to record one) and choose <em>k</em> from data, not from hope.</li>
 </ul>
 
                 <h3>Exercises</h3>
@@ -144,7 +145,7 @@ class Anomaly:
         <p><strong>Exercise 1: Window Arithmetic.</strong> A <span class="code-lesson-il">Window(4)</span> receives 10, 12, 11, 15, 14. What does it hold, and what are the mean and the slope (end to end)?</p>
         <p><strong>Exercise 2: Choose N.</strong> A range sensor reads at 25 Hz and you want the average over the last 0.4 s. What is N? A robot moves at 0.2 m/s: how far does it move in that time, and what does that say about the delay of the feature?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Why Not Update?.</strong> In <span class="code-lesson-il">Anomaly.update</span>, the mean and variance are not updated when a reading is flagged. Describe what happens to the detector in a long fault (say 100 readings all 5 deviations high) if they <em>are</em> updated, and one drawback of not updating.</p>
+        <p><strong>Exercise 3: Why Not Update?</strong> In <span class="code-lesson-il">Anomaly.update</span>, the mean and variance are not updated when a reading is flagged. Describe what happens to the detector in a long fault (say 100 readings all 5 deviations high) if they <em>are</em> updated, and one drawback of not updating.</p>
         <h4>Advanced</h4>
         <p><strong>Exercise 4: Trend Alarm.</strong> Write a function <span class="code-lesson-il">rising(window, limit)</span> that returns True if the window is full and its slope is above <span class="code-lesson-il">limit</span> per sample. Say what number of samples N and which <span class="code-lesson-il">limit</span> you would pick to alarm when a temperature rises faster than 1 degree per minute, sampled once per second.</p>
 
@@ -181,6 +182,78 @@ class Anomaly:
 # N = 30 (half a minute) smooths the noise; limit = 0.0167.
 </span>
 </div><p>A window of 30 s at 1 Hz covers half a minute, over which the temperature would need to rise 0.5 degrees to alarm. Note the end-to-end slope is noisy: with a sensor noise of 0.3 degrees the end samples alone can fake a slope of 0.02 per sample. Average the first and last five samples, or fit a line, before trusting a slow trend.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Five Features.</strong> Name the five features the <span class="code-lesson-il">Window</span> class computes and what each one describes.</p>
+        <p><strong>P2. Welford.</strong> Why does the lesson use Welford's method instead of variance = mean of squares minus square of mean?</p>
+        <p><strong>P3. Don't Learn Faults.</strong> In the rolling z-score detector, why may a flagged reading not update the mean and variance?</p>
+        <p><strong>P4. Events, Not Telemetry.</strong> Where should anomalies be published, and why?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Window Trace.</strong> A window of size 5 has received 1, 2, 3, 4, 5, 6, 7. Give its mean, sample standard deviation (divide by k − 1), minimum, maximum and slope (change per sample, end to end).</p>
+        <p><strong>P6. Welford by Hand.</strong> Run Welford on 2, 4, 6: after each value give the count, mean and M2 (sum of squared deviations), and the final sample variance.</p>
+        <p><strong>P7. z-Score.</strong> The detector's running mean is 20.0 and its standard deviation 0.5, with k = 4. Which readings are flagged: 21.5, 22.3, 18.1?</p>
+        <p><strong>P8. False Alarm Rate.</strong> On pure noise, k = 3 flags about 0.7 % of samples and k = 4 about 0.02 %. At 20 samples per second, how often does each raise a false alarm?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Window Length.</strong> A 20 Hz IMU feeds a window used to detect whether a robot is moving. Compare N = 10 and N = 100.</p>
+        <p><strong>P10. Fixed Threshold or z-Score.</strong> When is a fixed threshold the right alarm, and when is a rolling z-score better?</p>
+        <p><strong>P11. Offset First.</strong> Why should you remove an offset (such as the IMU's bias) before computing a feature, not after?</p>
+        <p><strong>P12. Choose k.</strong> You must choose k for a vibration alarm that should not cry wolf more than once an hour at 20 Hz. Using the lesson's measured rates, is k = 4 enough? How would you check?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Five Features</summary>
+<p>Mean (level), standard deviation (noise or activity), minimum and maximum (range), slope (trend).</p>
+        </details>
+        <details>
+        <summary>P2. Welford</summary>
+<p>The naive formula subtracts two huge, nearly equal numbers; with 32-bit floats the small difference is lost and the result can even be negative. Welford updates the mean and a running sum of squared deviations, which stays accurate.</p>
+        </details>
+        <details>
+        <summary>P3. Don't Learn Faults</summary>
+<p>Otherwise a burst of faults would raise the variance, and the detector would learn that faults are normal and stop flagging them.</p>
+        </details>
+        <details>
+        <summary>P4. Events, Not Telemetry</summary>
+<p>To <span class="code-lesson-il">evt/...</span> topics: they are rare events with a value and a time, and the hub's event log then answers "when was the signal odd?".</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Window Trace</summary>
+<p>Values 3 to 7. Mean 5; deviations −2, −1, 0, 1, 2, squares sum to 10, divided by 4 gives 2.5, so sd ≈ 1.58; min 3; max 7; slope (7 − 3) / 4 = 1.0.</p>
+        </details>
+        <details>
+        <summary>P6. Welford by Hand</summary>
+<p>After 2: n 1, mean 2, M2 0. After 4: n 2, mean 3, M2 = 0 + (4 − 2)(4 − 3) = 2. After 6: n 3, mean 4, M2 = 2 + (6 − 3)(6 − 4) = 8. Sample variance 8 / 2 = 4, sd 2.</p>
+        </details>
+        <details>
+        <summary>P7. z-Score</summary>
+<p>Flag if |x − 20| &gt; 2.0: 21.5 no (1.5); 22.3 yes (2.3); 18.1 no (1.9).</p>
+        </details>
+        <details>
+        <summary>P8. False Alarm Rate</summary>
+<p>k = 3: 0.007 × 20 = 0.14 per second, one every 7 s. k = 4: 0.0002 × 20 = 0.004 per second, one every 250 s (about 4 minutes).</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Window Length</summary>
+<p>N = 10 looks back 0.5 s: reacts quickly, noisier features. N = 100 looks back 5 s: steady but slow to notice a start or stop. Choose from the time scale you care about.</p>
+        </details>
+        <details>
+        <summary>P10. Fixed Threshold or z-Score</summary>
+<p>A fixed threshold when the limit is physical and the normal level does not move (range below 20 cm means danger). A rolling z-score when the normal level drifts (temperature over a day, a different surface) and you want readings unusual relative to the recent past.</p>
+        </details>
+        <details>
+        <summary>P11. Offset First</summary>
+<p>Subtracting the typical value first keeps the numbers small, which avoids the precision loss of working with large, nearly equal values; and features such as the mean of absolute values or energy are not linear, so removing the bias afterwards does not give the same result.</p>
+        </details>
+        <details>
+        <summary>P12. Choose k</summary>
+<p>Once an hour at 20 Hz is a rate of about 1.4 × 10⁻⁵ per sample. k = 4 gave 2 × 10⁻⁴, about one false alarm every 4 minutes: not enough. Increase k (5 or more) and verify by replaying a long recording of normal operation through the detector and counting alarms.</p>
         </details>
 
         <h3>Checkpoint</h3>

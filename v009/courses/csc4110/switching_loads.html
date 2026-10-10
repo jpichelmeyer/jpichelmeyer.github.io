@@ -16,6 +16,7 @@
 
     <body>
         <p>A pin cannot power anything bigger than an LED, but it can control a switch that can. This lesson covers the three switches in your kit: a transistor for fast or proportional loads, a relay for rare or isolated ones, and an H-bridge for motors that must reverse. Along the way you meet the two things that destroy beginners’ circuits: too much current through a pin, and the voltage spike from a coil.</p>
+        <p><strong>SAM lens.</strong> The pin only signals; transistors, relays and H-bridges are the Actuator's muscles. The safety habits here (flyback diodes, separate supplies, try/finally) protect the agent from its own actions.</p>
 
 <h3>Why a Pin Cannot Drive a Motor</h3>
 <p>A GPIO pin is a signal, not a power source. The Pico’s pins are meant for a few milliamps (4 mA is the default drive strength and 12 mA the most you can configure), and the whole chip has a total limit as well. An LED at 6 mA is fine. A fan, a pump, a relay coil or a motor wants ten to a hundred times more. The solution is always the same idea: let the pin control a <strong>switch</strong>, and let the switch carry the load’s current from a supply that can provide it.</p>
@@ -270,6 +271,78 @@ class SafeRelay(Relay):
 # t=14200  set(False) -&gt; True    (2.1 s since the change)       relay off
 </span>
 </div><p>The first request is allowed because more than <span class="code-lesson-il">min_ms</span> has passed since creation. The off request 0.9 s later is refused, and the relay stays on; asked again after 2.1 s it succeeds. A request that asks for the state the relay is already in always succeeds immediately. The caller keeps asking every pass of its loop, so the relay follows the sensor, but never faster than once per two seconds. Using <span class="code-lesson-il">ticks_diff</span> keeps it correct when the millisecond counter wraps.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Pin Limits.</strong> Roughly how much current is a Pico pin meant to supply, and why can it not drive a motor directly?</p>
+        <p><strong>P2. Saturation.</strong> What does it mean for a BJT used as a switch to be saturated, and roughly what voltage is across it?</p>
+        <p><strong>P3. Relay Terminals.</strong> What are COM, NO and NC on a relay?</p>
+        <p><strong>P4. H-Bridge Table.</strong> For the usual two-input H-bridge, what do IN1/IN2 = 1/0, 0/1, 1/1 and 0/0 do?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Base Resistor.</strong> A load needs 150 mA. Using a forced gain of 40 and a 0.7 V base-emitter drop from a 3.3 V pin, compute the base current and the base resistor. Pick 680 Ω or 1 kΩ and justify.</p>
+        <p><strong>P6. Dissipation.</strong> The transistor above has Vce(sat) = 0.3 V at 150 mA. How much power does it dissipate? And the 680 Ω resistor?</p>
+        <p><strong>P7. Too Big.</strong> A 500 mA load with a forced gain of 38: how much base current is needed? What should you do instead?</p>
+        <p><strong>P8. Dead Zone.</strong> A fan does not start below 30 % duty. Write a mapping from a command c (1 to 100 %) to a duty that jumps the dead zone, with 0 meaning off.</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Flyback.</strong> Explain what happens at the transistor when a motor or relay coil is switched off without a flyback diode, how the diode fixes it, and which way round it goes.</p>
+        <p><strong>P10. Start-up Click.</strong> A relay module is active low. At start-up it clicks on briefly before the program turns it off. Why, and what is the fix?</p>
+        <p><strong>P11. Resets on Start.</strong> Every time the motor starts, the Pico resets. Give three causes and fixes.</p>
+        <p><strong>P12. Pump Switch.</strong> Design a switch for a 12 V, 80 mA pump controlled by a Pico pin: draw the circuit in words, compute the base resistor for a forced gain of 30, and list two safety details.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Pin Limits</summary>
+<p>A few milliamps (4 mA default drive, 12 mA at most). A motor wants tens to hundreds of times more; the pin must control a switch that carries the load current from a separate supply.</p>
+        </details>
+        <details>
+        <summary>P2. Saturation</summary>
+<p>Driven fully on, with enough base current that the collector current is set by the load, not the transistor; only a few tenths of a volt (about 0.2 to 0.3 V) across collector and emitter.</p>
+        </details>
+        <details>
+        <summary>P3. Relay Terminals</summary>
+<p>COM is the common contact. NO (normally open) connects to COM only while the coil is energised. NC (normally closed) connects to COM while the coil is off.</p>
+        </details>
+        <details>
+        <summary>P4. H-Bridge Table</summary>
+<p>Forward, reverse, brake (terminals shorted), coast (all switches open).</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Base Resistor</summary>
+<p>Ib = 150 / 40 = 3.75 mA; Rb = (3.3 − 0.7) / 3.75 mA = 693 Ω. Choose 680 Ω: it gives 3.8 mA, still under the 4 mA default drive. 1 kΩ gives only 2.6 mA, a forced gain of 58, which risks not saturating.</p>
+        </details>
+        <details>
+        <summary>P6. Dissipation</summary>
+<p>0.3 × 0.150 = 45 mW. The resistor: 2.6 V × 3.8 mA ≈ 10 mW.</p>
+        </details>
+        <details>
+        <summary>P7. Too Big</summary>
+<p>500 / 38 = 13 mA, more than a pin can give. Use a driver chip (the H-bridge module), a second transistor stage, or a logic-level MOSFET.</p>
+        </details>
+        <details>
+        <summary>P8. Dead Zone</summary>
+<p>duty = 0 if c == 0 else 30 + 0.7 × c (so 1 % maps to about 30.7 % and 100 % to 100 %).</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Flyback</summary>
+<p>The coil resists the sudden change in current; with nowhere to go, its voltage spikes to tens of volts or more, which can destroy the transistor and inject noise that resets the Pico. A diode across the coil, stripe (cathode) toward +V, gives the current a path to circulate and decay; the spike is clamped to one diode drop above the supply.</p>
+        </details>
+        <details>
+        <summary>P10. Start-up Click</summary>
+<p>Configuring the pin as an output defaults it to low, which turns an active-low relay on. Set the off level (high) in the same call that makes the pin an output, as the <span class="code-lesson-il">Relay</span> class does.</p>
+        </details>
+        <details>
+        <summary>P11. Resets on Start</summary>
+<p>Motor powered from the same supply as the Pico (separate the supplies, join the grounds); the start surge dips the supply (soft start: ramp the speed; add a 100 µF capacitor near the driver); electrical noise from the motor (0.1 µF across the motor terminals, short wires, flyback diodes).</p>
+        </details>
+        <details>
+        <summary>P12. Pump Switch</summary>
+<p>Low-side NPN: 12 V → pump → collector; emitter → ground; Pico pin → Rb → base; 12 V supply ground joined to Pico GND. Ib = 80 / 30 = 2.7 mA; Rb = 2.6 V / 2.7 mA ≈ 975 Ω, so 1 kΩ. Safety: a flyback diode across the pump (stripe to +12 V); a common ground; <span class="code-lesson-il">try/finally</span> that turns the pump off.</p>
         </details>
 
         <h3>Checkpoint</h3>

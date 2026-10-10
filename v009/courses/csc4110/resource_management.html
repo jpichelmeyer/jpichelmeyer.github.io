@@ -16,6 +16,7 @@
 
     <body>
         <p>This lesson covers three resources. You build a power budget and the supply layout that protects the logic from the motors, read the pack voltage with a divider, follow simple rules for mounting and enclosures, and share an actuator between agents with a lease and a first-come queue whose fairness and failure cost you measured in simulation.</p>
+        <p><strong>SAM lens.</strong> Power, space and shared actuators are resources the Actuator depends on. A lease makes a shared actuator's Memory (who owns it, until when) explicit, so it fails safe when an owner disappears.</p>
 
 <p>A robot is made of finite things: a battery that runs down, a supply that sags when a motor starts, a few square centimetres of enclosure, and an actuator that two agents want to use at the same moment. <strong>Resource management</strong> is the habit of counting what you have, deciding who gets it, and designing so that running short is <em>visible</em> and <em>safe</em> instead of a mystery. This lesson takes three resources in turn: electrical power (budget, supply layout and monitoring), physical space (mounting and enclosure), and shared actuators (leases, queues and fairness), the last of which Lab 11 builds.</p>
 <h3>Part 1. A Power Budget</h3>
@@ -159,7 +160,7 @@ class Lease:
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Runtime.</strong> A robot averages 120 mA from three AA cells of 2,000 mAh. At 70 % usable, how long does it run? What if a faulty servo makes the average 300 mA?</p>
-        <p><strong>Exercise 2: Which Wire?.</strong> The servo works on the bench but the Pico resets whenever it moves under load. List three wiring changes to try, in order, and say what each tests.</p>
+        <p><strong>Exercise 2: Which Wire?</strong> The servo works on the bench but the Pico resets whenever it moves under load. List three wiring changes to try, in order, and say what each tests.</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: The Crashing Owner.</strong> u1 owns the resource and its board loses power. With a 10 s lease and u2, u3 queued, when does u2 get the resource? What if u1 had published <span class="code-lesson-il">release</span> just before the crash?</p>
         <h4>Advanced</h4>
@@ -201,6 +202,78 @@ def publish_owner(h, lease):
 publish_owner(h, lease)
 </span>
 </div><p>Comparing against the last published pair means it publishes only when something changes, never at the loop rate. The queue <em>length</em> is included, but not the names, to keep the message small; add a <span class="code-lesson-il">queue</span> list if the clients need to know who is where.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Average and Peak.</strong> What does the average current of a robot decide, and what does the peak decide?</p>
+        <p><strong>P2. Supply Layout.</strong> State the rule for supplies and grounds from the lesson.</p>
+        <p><strong>P3. Lease Properties.</strong> Name the four properties that make the lease manager safe.</p>
+        <p><strong>P4. Brownout.</strong> What is a brownout, and its usual symptom on the robot?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Runtime.</strong> Loads average 166 mA. Three AA cells are rated 2000 mAh; budget 70 %. What runtime do you expect? With an average of 120 mA?</p>
+        <p><strong>P6. Average of a Load.</strong> A servo idles at 10 mA and draws 300 mA when moving, and moves 20 % of the time. What is its average current?</p>
+        <p><strong>P7. Voltage Dip.</strong> A pack's internal resistance is 1 Ω. The servo pulls 0.65 A for an instant. How much does the voltage dip? What if the Pico shares the pack?</p>
+        <p><strong>P8. Battery Divider.</strong> A pack is read through 2 kΩ (to GP26) and 1 kΩ (to ground). What does the pin see for a 4.8 V pack, and what does <span class="code-lesson-il">read_u16()</span> return? What is the largest pack the divider can read?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Greedy Client.</strong> A greedy client asks for the lease every 200 ms instead of once a second. Why does it not get more than its fair share?</p>
+        <p><strong>P10. Lease Length.</strong> Compare a 5 s and a 10 s lease using the simulation: a crashed client took 21.3 % and 34.6 % of the time respectively. What is the trade, and how often should a healthy owner renew?</p>
+        <p><strong>P11. VSYS Limit.</strong> Why is a fresh four-cell alkaline pack too high for the Pico's VSYS pin, but fine for the servo?</p>
+        <p><strong>P12. Enclosure Order.</strong> Give three rules for mounting and enclosures from the lesson and why each matters to the data.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Average and Peak</summary>
+<p>The average sets the runtime; the peak sets the supply design (dips, brownouts).</p>
+        </details>
+        <details>
+        <summary>P2. Supply Layout</summary>
+<p>Motors and servos get their own supply, the logic gets a clean one, and the grounds are joined at one point, so the heavy return current does not flow through the Pico's ground.</p>
+        </details>
+        <details>
+        <summary>P3. Lease Properties</summary>
+<p>One owner (the manager is the only judge); expiry (a crashed owner holds the resource for at most one lease); first come, first served (asking more often does not move you up); a bounded queue (full means "full", the client backs off).</p>
+        </details>
+        <details>
+        <summary>P4. Brownout</summary>
+<p>A supply dip below what the Pico needs, causing a reset. Symptom: the board reboots whenever the servo moves or a motor starts.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Runtime</summary>
+<p>1400 / 166 = 8.4 h; 1400 / 120 = 11.7 h.</p>
+        </details>
+        <details>
+        <summary>P6. Average of a Load</summary>
+<p>10 + 0.2 × (300 − 10) = 68 mA.</p>
+        </details>
+        <details>
+        <summary>P7. Voltage Dip</summary>
+<p>0.65 V. Shared with the Pico, that dip can cause a brownout reset.</p>
+        </details>
+        <details>
+        <summary>P8. Battery Divider</summary>
+<p>4.8 / 3 = 1.6 V; 1.6 / 3.3 × 65535 ≈ 31 775. Up to 3 × 3.3 = 9.9 V.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Greedy Client</summary>
+<p>A client asking again while in the queue keeps its place; asking more often does not move it up. The manager serves first come, first served.</p>
+        </details>
+        <details>
+        <summary>P10. Lease Length</summary>
+<p>A longer lease means fewer renewals but more damage from a crash (the resource is lost to everyone until the lease expires). Renew well inside the lease, for example every third of it.</p>
+        </details>
+        <details>
+        <summary>P11. VSYS Limit</summary>
+<p>Four fresh cells give about 6 V or more; VSYS must stay at or below 5.5 V. The servo is rated up to about 6 V. Use three cells for VSYS, or keep the four-cell pack on the servo rail only.</p>
+        </details>
+        <details>
+        <summary>P12. Enclosure Order</summary>
+<p>Mount the sensors first (their fields of view and axes decide the layout); keep the battery low and central (the platform does not tip); leave access to USB and reset; fix the IMU rigidly (a shifted IMU changes every angle); keep wires away from moving parts; test every sensor after closing the box and after carrying it. Any three, with reasons.</p>
         </details>
 
         <h3>Checkpoint</h3>

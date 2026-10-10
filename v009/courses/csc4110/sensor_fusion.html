@@ -16,6 +16,7 @@
 
     <body>
         <p>This lesson covers combining sensors and computing quantities no sensor measures. You fuse an accelerometer and a gyro with a complementary filter and choose its constant from data, blend two estimates by their variances, turn a pan angle and a range into a point, and triangulate from two bearings while keeping track of how the error depends on geometry.</p>
+        <p><strong>SAM lens.</strong> Fusion builds synthetic sensors: Perceptor stages that combine several imperfect percepts into one better one (tilt, a blended range, a triangulated position) and that say how sure they are.</p>
 
 <p>No single cheap sensor tells you everything you need. An accelerometer knows which way is down but is shaken by every vibration; a gyroscope is smooth but drifts; an ultrasonic range sensor is accurate straight ahead and blind to the side. <strong>Sensor fusion</strong> combines several imperfect measurements into one better one, and the same idea, extended, builds <strong>synthetic sensors</strong>: quantities no sensor measures directly, such as the position of an object, calculated from angles and ranges. This lesson builds three tools: the complementary filter for tilt, a way to blend two estimates by their reliability, and the geometry that turns a pan angle and a range into a point, and two bearings into a position.</p>
 <h3>Part 1. Tilt From Two Imperfect Sensors</h3>
@@ -136,7 +137,7 @@ def intersect(p1, bearing1_deg, p2, bearing2_deg):
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Which Sensor, Which Frequency?.</strong> In the complementary filter, say which sensor dominates (a) a quick jolt lasting a tenth of a second, (b) a slow tilt lasting thirty seconds, (c) a constant gyro bias.</p>
+        <p><strong>Exercise 1: Which Sensor, Which Frequency?</strong> In the complementary filter, say which sensor dominates (a) a quick jolt lasting a tenth of a second, (b) a slow tilt lasting thirty seconds, (c) a constant gyro bias.</p>
         <p><strong>Exercise 2: Blend by Hand.</strong> Estimate A is 42 cm with variance 1; estimate B is 46 cm with variance 4. What does <span class="code-lesson-il">blend</span> return, approximately, and why is it closer to A?</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: Aim the Head.</strong> A head sits at (10, 5) with its servo zero pointing along +y (heading 90°). It reads pan −30° and range 40 cm. Where is the target?</p>
@@ -163,6 +164,78 @@ def intersect(p1, bearing1_deg, p2, bearing2_deg):
         <details>
         <summary>Exercise 4: Parallel Rays</summary>
 <p>It returns <strong>None</strong>: the rays are parallel, <span class="code-lesson-il">den</span> is 0, and there is no crossing. This is the extreme case of the table above. A target far away along the middle, at bearings 88° and 92°, crosses at (30, 860)-ish: an answer exists but a 1° error moves it by hundreds of centimetres. The node should publish the position <strong>with the angle between the rays</strong> (here 4°) and a flag such as <span class="code-lesson-il">ok: false</span> below a limit, so a collision checker or a human can see that the number is not worth trusting.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Two Imperfect Sensors.</strong> Why does neither an accelerometer nor a gyroscope alone give a good tilt angle?</p>
+        <p><strong>P2. Complementary Filter.</strong> In words, what does each update of the complementary filter do?</p>
+        <p><strong>P3. Synthetic Sensor.</strong> What is a synthetic sensor? Give two examples from the course.</p>
+        <p><strong>P4. Inverse Variance.</strong> How does inverse-variance weighting combine two estimates?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. One Update.</strong> With α = 0.98 and dt = 0.02 s, the previous angle is 10.0°, the gyro reads 5 °/s and the accelerometer angle is 12.0°. What is the new estimate?</p>
+        <p><strong>P6. Time Constant.</strong> The time constant is α × dt / (1 − α). At 50 Hz, compute it for α = 0.95, 0.98 and 0.99.</p>
+        <p><strong>P7. Blend.</strong> Two range estimates: 50 cm with variance 1 cm², and 54 cm with variance 4 cm². What is the blended estimate and its standard deviation?</p>
+        <p><strong>P8. Angle and Range to a Point.</strong> A head at (0, 0) with heading 90° sees the target at pan −30° and range 40 cm. Where is the target?</p>
+        <p><strong>P9. Triangulate.</strong> Heads at A (0, 0) and B (60, 0) report world bearings of 60° and 120°. Where is the target, and what is the angle between the rays?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P10. Choosing α.</strong> A sweep of α shows an optimum. Explain why too small and too large are both bad, and what moves the optimum on your board.</p>
+        <p><strong>P11. Geometry Matters.</strong> Two heads side by side see a far target at a narrow angle between the rays. Why is the position poor, and how would you place the heads?</p>
+        <p><strong>P12. Stale Bearings.</strong> Two heads scanned at moments 400 ms apart while the target moved at 20 cm/s. What goes wrong if the fuser combines them, and what is the rule?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Two Imperfect Sensors</summary>
+<p>The accelerometer has no drift but is noisy (every vibration and acceleration disturbs it). The gyro is smooth but its small bias integrates into a growing error (drift).</p>
+        </details>
+        <details>
+        <summary>P2. Complementary Filter</summary>
+<p>It advances the previous angle by the gyro's rate × dt, then pulls the result a small fraction (1 − α) of the way toward the accelerometer's angle.</p>
+        </details>
+        <details>
+        <summary>P3. Synthetic Sensor</summary>
+<p>A computed quantity that no hardware measures directly. Examples: tilt from the complementary filter; a target position from pan angle and range; a position from two bearings; the turret's balance of two LDRs; a learned gesture label.</p>
+        </details>
+        <details>
+        <summary>P4. Inverse Variance</summary>
+<p>Each estimate is weighted by 1 / its variance: the more reliable one counts more. The combined variance is 1 / (1/σ₁² + 1/σ₂²), smaller than either.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. One Update</summary>
+<p>0.98 × (10.0 + 5 × 0.02) + 0.02 × 12.0 = 0.98 × 10.1 + 0.24 = 10.138°.</p>
+        </details>
+        <details>
+        <summary>P6. Time Constant</summary>
+<p>0.38 s, 0.98 s, 1.98 s.</p>
+        </details>
+        <details>
+        <summary>P7. Blend</summary>
+<p>Weights 1 and 0.25: (50 × 1 + 54 × 0.25) / 1.25 = 50.8 cm. Variance 1 / 1.25 = 0.8, sd ≈ 0.89 cm, better than either input.</p>
+        </details>
+        <details>
+        <summary>P8. Angle and Range to a Point</summary>
+<p>World angle 60°: x = 40 cos 60° = 20 cm, y = 40 sin 60° = 34.6 cm.</p>
+        </details>
+        <details>
+        <summary>P9. Triangulate</summary>
+<p>By symmetry x = 30; y = 30 tan 60° = 52.0 cm. The rays cross at 60°.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P10. Choosing α</summary>
+<p>Too small: too much of the accelerometer's noise comes through. Too large: the gyro's bias is corrected too slowly, so drift shows. The optimum depends on your accelerometer's noise (vibration) and your gyro's residual bias, so choose it from your own recordings.</p>
+        </details>
+        <details>
+        <summary>P11. Geometry Matters</summary>
+<p>Near-parallel rays turn a small bearing error into a large error along the rays (and below a few degrees there is no answer). Place the heads so targets are seen with rays crossing near 90°, for example facing each other across the workspace.</p>
+        </details>
+        <details>
+        <summary>P12. Stale Bearings</summary>
+<p>The rays describe the target at two different positions (8 cm apart), so the crossing is wrong. Time-stamp the bearings and refuse to combine bearings more than a fraction of a second apart.</p>
         </details>
 
         <h3>Checkpoint</h3>

@@ -253,19 +253,22 @@
     font-size: calc(8.5px * var(--mod-font-size));
     opacity: 0.85;
 }
-.tag_aseprite           { background:#ddd; color:#111; }
+.tag_aseprite           { background:#dddddd; color:#111111; }
 .tag_blender            { background:#f27718; }
-.tag_carthage           { background:#c90223; color:#fff; }
+.tag_carthage           { background:#c90223; color:#ffffff; }
 .tag_cpp                { background:#2b8068; }
 .tag_csharp             { background:#7355dd; }
 .tag_css                { background:#2e7de6; }
 .tag_gdscript           { background:#353f9c; }
-.tag_gt                 { background:#B3A369; color:#000; }
+.tag_gifted             { background:#84d0e3; color:#000000; }
+.tag_gt                 { background:#B3A369; color:#000000; }
 .tag_godot              { background:#4476b8; }
+.tag_graduate           { background:#1f1f1f; color: #f1f1f1;}
 .tag_html               { background:#f27718; }
 .tag_java               { background:#9e4941; color:#f1f1f1; }
-.tag_javascript         { background:#f5d742; color:#333; }
+.tag_javascript         { background:#f5d742; color:#333333; }
 .tag_jhu                { background:#114ebf; }
+.tag_k12                { background:#e384b5; }
 .tag_ksu                { background:#8533d6; }
 .tag_mathematica        { background:#f21818; }
 .tag_matlab             { background:#f27718; color:#18f2ef; }
@@ -274,10 +277,11 @@
 .tag_msoe               { background:#ba211c; }
 .tag_octave             { background:#1d7e8f; color:#ffa861; }
 .tag_python             { background:#f5d742; color:#001540; }
-.tag_r                  { background:#ccc; color:#003596; }
-.tag_unity              { background:#222; }
+.tag_r                  { background:#cccccc; color:#003596; }
+.tag_undergrad          { background:#cccccc; color:#000000; }
+.tag_unity              { background:#222222; }
 .tag_uwm                { background:#ffc73b; color:#1f1f1f; }
-.tag_westminster        { background:#2459c9; color:#fff; }
+.tag_westminster        { background:#2459c9; color:#ffffff; }
 
 /* ── Course-page icon indicator (courses that have a full detail page) ──
    The icon column is reserved for every course row so titles all line

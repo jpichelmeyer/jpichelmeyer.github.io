@@ -16,6 +16,7 @@
 
     <body>
         <p>A node that can sense and act is useful; a node that can also tell the network what it senses is the starting point of the Internet of Things. This lesson gets your Pico onto the class network and publishing to the class broker with a small helper, so that from this week onward every lab can end by sending its data somewhere. You do not need to understand the protocol yet; you do need to know how to use the helper and how to read what it tells you.</p>
+        <p><strong>SAM lens.</strong> Publishing is the Actuator's network voice: a message changes what other agents can observe. From this week the robot acts on two environments, the physical one and the broker.</p>
 
 <h3>Part 1. The Path from Your Board to the Broker</h3>
 <p>Your node will report to a <strong>broker</strong>, a program on the class Raspberry Pi whose only job is to receive messages and pass them on to whoever wants them. Think of it as a post office: you drop a message into a labelled box (a <strong>topic</strong>), and anyone who has asked for that box receives it. The protocol that the Pico and the broker speak is called <strong>MQTT</strong>, and you will study it properly in Unit 2. For now it is a service you can use: the helper below hides the details.</p>
@@ -330,6 +331,78 @@ for now in range(0, 10_001, 10):            # ten simulated seconds in 10 ms ste
 print(len(sent), sent[0])                   # 20 20.0
 </span>
 </div><p>Twenty messages in ten seconds, as designed. The class has two timers and no sleep, the same cooperative-loop shape as the Pulses lesson, and because time is an argument the test needs no hardware and no waiting.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. The Broker.</strong> In one sentence, what is an MQTT broker, and where does the class broker run?</p>
+        <p><strong>P2. Envelope.</strong> The helper adds <span class="code-lesson-il">v</span>, <span class="code-lesson-il">seq</span> and <span class="code-lesson-il">t</span> to every message. What does each mean, and what can a receiver do with them?</p>
+        <p><strong>P3. Topic Conventions.</strong> What do the prefixes <span class="code-lesson-il">tele/</span>, <span class="code-lesson-il">cmd/</span> and <span class="code-lesson-il">stat/</span> mean in this course?</p>
+        <p><strong>P4. Secrets.</strong> Why must <span class="code-lesson-il">config.py</span> never be pasted into a chat, report or repository?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Full Topic.</strong> User <span class="code-lesson-il">jsmith</span> calls <span class="code-lesson-il">net.publish('tele/imu', {...})</span>. On what topic does the message arrive?</p>
+        <p><strong>P6. Wildcards.</strong> Does the subscription <span class="code-lesson-il">lab/+/tele/#</span> match (a) <span class="code-lesson-il">lab/amy/tele/temp</span>, (b) <span class="code-lesson-il">lab/amy/stat/online</span>, (c) <span class="code-lesson-il">lab/amy/tele/imu/raw</span>, (d) <span class="code-lesson-il">lab/tele/temp</span>?</p>
+        <p><strong>P7. Sequence Gaps.</strong> A subscriber receives seq 40, 41, 45, 46. What does that tell you?</p>
+        <p><strong>P8. Class Limits.</strong> A node publishes three topics, each at 5 Hz, with payloads of about 150 bytes. Does it meet the class rules? What would you change?</p>
+        <p><strong>P9. Byte Rate.</strong> A message has a 20-byte topic, a 60-byte payload and about 5 bytes of header, sent at 2 Hz. What is the byte rate?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P10. Read the Ladder.</strong> A node's display shows WIFI OK but MQTT FAIL. What is wrong, most likely, and what is not? What if it shows WIFI FAIL?</p>
+        <p><strong>P11. Blocking Reconnect.</strong> The helper's reconnect can block for about 8 s. What does that do to a 50 Hz control loop, and why is it acceptable for now but not later?</p>
+        <p><strong>P12. What to Send.</strong> A light-tracking robot runs its controller at 20 Hz. Design its network messages: what does it publish, on which topics, how often, and why?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. The Broker</summary>
+<p>A program that receives published messages and passes each one to every client subscribed to its topic; it runs on the class Raspberry Pi.</p>
+        </details>
+        <details>
+        <summary>P2. Envelope</summary>
+<p>v: format version; seq: a counter that rises with each message; t: milliseconds since the board started. A receiver can detect a changed format, lost or reordered messages (gaps in seq), and when each reading was taken (t), even if delivered late.</p>
+        </details>
+        <details>
+        <summary>P3. Topic Conventions</summary>
+<p>tele: telemetry, readings a node reports. cmd: commands sent to a node. stat: state a node announces.</p>
+        </details>
+        <details>
+        <summary>P4. Secrets</summary>
+<p>It holds the WiFi password and your personal broker login; anyone with them can connect as you.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Full Topic</summary>
+<p><span class="code-lesson-il">lab/jsmith/tele/imu</span>.</p>
+        </details>
+        <details>
+        <summary>P6. Wildcards</summary>
+<p>(a) yes; (b) no (stat, not tele); (c) yes (# matches any number of levels); (d) no (+ must match exactly one level, and the next level must be tele).</p>
+        </details>
+        <details>
+        <summary>P7. Sequence Gaps</summary>
+<p>Messages 42, 43 and 44 were lost (or are still in flight and will arrive late, out of order).</p>
+        </details>
+        <details>
+        <summary>P8. Class Limits</summary>
+<p>No: 15 messages per second exceeds about 10 per second (the payload size is fine). Combine the three into one message at 5 Hz, or lower the rates.</p>
+        </details>
+        <details>
+        <summary>P9. Byte Rate</summary>
+<p>(20 + 60 + 5) × 2 = 170 B/s.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P10. Read the Ladder</summary>
+<p>The radio joined the network, so the WiFi name and password are right; suspect the broker address, port, user name or password, or the broker being down. WIFI FAIL points at the network name or password, distance from the access point, or a network the Pico cannot join.</p>
+        </details>
+        <details>
+        <summary>P11. Blocking Reconnect</summary>
+<p>The loop stalls for up to 8 s, missing up to 400 ticks. Acceptable while the node only reports (the 15 s spacing limits how often it happens), but not for a robot that must keep control; Unit 2 develops a non-blocking reconnect.</p>
+        </details>
+        <details>
+        <summary>P12. What to Send</summary>
+<p>Telemetry (<span class="code-lesson-il">tele/...</span> with setpoint, measurement, output) at a modest rate such as 2 to 5 Hz, enough to plot behaviour within the class limit; an event (<span class="code-lesson-il">evt/lock</span>) the moment it gains or loses lock, because a fixed-rate sample might miss the moment. The controller itself never waits for the network.</p>
         </details>
 
         <h3>Checkpoint</h3>

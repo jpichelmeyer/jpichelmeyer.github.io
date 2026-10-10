@@ -16,6 +16,7 @@
 
     <body>
         <p>This lab joins the multi-agent lesson, the state machines and the contract into one working system of three boards. You write each agent against a written contract, test it alone and together, and then break the system on purpose to see which agent decides what when a sensor or a coordinator disappears.</p>
+        <p><strong>SAM lens.</strong> three boards, three agents, one contract. Each agent's Actuator writes into its own subtree and each agent's Perceptor reads only the subtrees it needs; the drills show which agent decides what when a sensor or the coordinator disappears.</p>
 
 <p>This lab builds a small multi-agent system out of <strong>three boards</strong>, one per student, written to the same contract. A sensor agent measures distance, a coordinator decides, and an actuator obeys and reports. The point is not the LED, which is trivial, but making three independent programs cooperate through nothing except an agreed set of messages, and then seeing what happens when one of them lies, stops, or disappears.</p>
 <h3>The System</h3>
@@ -224,7 +225,7 @@ mosquitto_pub -h BROKER -u bob -P PASSWORD -t lab/bob/cmd/led \
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Trace One Cycle.</strong> Write, in order, every message published between the range dropping below 20 cm and the LED being confirmed on.</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 2: Why a Band?.</strong> The coordinator switches the LED on below 20 cm and off above 30 cm. Why not a single threshold at 25 cm, and what happens to the message count if the hand rests at 25 cm with a 1 cm wobble?</p>
+        <p><strong>Exercise 2: Why a Band?</strong> The coordinator switches the LED on below 20 cm and off above 30 cm. Why not a single threshold at 25 cm, and what happens to the message count if the hand rests at 25 cm with a 1 cm wobble?</p>
         <h4>Advanced</h4>
         <p><strong>Exercise 3: Confirm the State.</strong> Extend the coordinator so that it subscribes to <span class="code-lesson-il">lab/jsmith/stat/led</span>, and logs (once) when the actuator’s reported state differs from the commanded state for more than 1 second.</p>
 

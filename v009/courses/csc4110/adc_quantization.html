@@ -16,9 +16,10 @@
 
     <body>
         <p>A processor can only work with numbers, so every sensor reading starts by turning a voltage into a count. This lesson covers how the Pico’s ADC does it, what resolution and quantization mean, and how to turn counts back into volts, resistance and real units, with the two sensors you will use in Lab 2.</p>
+        <p><strong>SAM lens.</strong> This is the inside of the Perceptor: the transducer, the divider that conditions it, the converter, and the scaling that turns a count into a percept with units. A Decider should never see a raw count.</p>
 
 <h3>Part 1. From Voltage to a Number</h3>
-<p>The world is <strong>analog</strong>: light, temperature, tilt and distance vary smoothly. A processor only handles numbers. An <strong>analog-to-digital converter (ADC)</strong> measures a voltage and reports it as a whole number. Almost every sensor in the course is read this way, either directly (a light sensor) or through an I2C or SPI chip that contains its own converter.</p>
+<p>The world is <strong>analog</strong>: light, temperature, tilt and distance vary smoothly. A processor only handles numbers. An <strong>analog-to-digital converter (ADC)</strong> measures a voltage and reports it as a whole number. Almost every sensor in the course is read this way, either directly (a light sensor) or through an I2C chip that contains its own converter.</p>
 <p>Most simple sensors are <em>resistive</em>: their resistance changes with what they sense. A resistance cannot be read directly, so it is turned into a voltage with a <strong>voltage divider</strong> (two resistors in series; the voltage between them depends on the ratio), and the ADC reads that voltage.</p>
         <div class="diagram">
 <svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="70" width="136" height="100" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="82" y="115.737" font-size="15.5" fill="#1f3b52" text-anchor="middle">Light level</text><text x="82" y="135.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">or temperature</text><rect x="162" y="70" width="136" height="100" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="230" y="106.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">Sensor</text><text x="230" y="125.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">resistance</text><text x="230" y="144.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">changes</text><rect x="310" y="70" width="136" height="100" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="378" y="106.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">Divider</text><text x="378" y="125.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">resistance →</text><text x="378" y="144.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">voltage</text><rect x="458" y="70" width="136" height="100" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="526" y="106.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">ADC</text><text x="526" y="125.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">voltage →</text><text x="526" y="144.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">number</text><rect x="606" y="70" width="136" height="100" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="674" y="115.737" font-size="15.5" fill="#1f3b52" text-anchor="middle">Your code</text><text x="674" y="135.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">number → units</text><line x1="150" y1="120" x2="153" y2="120" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="162.0,120.0 151.0,114.5 151.0,125.5" fill="#1f3b52"/><line x1="298" y1="120" x2="301" y2="120" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="310.0,120.0 299.0,114.5 299.0,125.5" fill="#1f3b52"/><line x1="446" y1="120" x2="449" y2="120" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="458.0,120.0 447.0,114.5 447.0,125.5" fill="#1f3b52"/><line x1="594" y1="120" x2="597" y2="120" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="606.0,120.0 595.0,114.5 595.0,125.5" fill="#1f3b52"/><text x="380" y="36" font-size="16" fill="#5b6b78" text-anchor="middle" font-weight="bold">every analog sensor in this course follows this chain</text><text x="380" y="204" font-size="15.5" fill="#1f3b52" text-anchor="middle">0 to 3.3 V on the pin  →  0 to 4095 counts  →  your own scaling</text></svg>
@@ -103,7 +104,7 @@ print(round(ntc_celsius(32768), 1))      # 25.0: equal resistances means 25 C
         <p><strong>Exercise 1: Step Size.</strong> What voltage does one count represent on a 12-bit ADC with a 3.3 V reference? What is the largest quantization error?</p>
         <p><strong>Exercise 2: Expected Reading.</strong> The pin is at 1.0 V. What does <span class="code-lesson-il">read_u16()</span> approximately return? What is the true 12-bit count?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Which Way Does It Go?.</strong> In the LDR circuit shown above, a student swaps the two resistors (the fixed one now on top, the LDR below). Does the reading increase or decrease in bright light? Why does it matter for your code?</p>
+        <p><strong>Exercise 3: Which Way Does It Go?</strong> In the LDR circuit shown above, a student swaps the two resistors (the fixed one now on top, the LDR below). Does the reading increase or decrease in bright light? Why does it matter for your code?</p>
         <h4>Advanced</h4>
         <p><strong>Exercise 4: Check the Conversion.</strong> Use <span class="code-lesson-il">ntc_celsius</span> to find the temperature for raw readings of 40000, 32768 and 24000, and say whether warmer temperatures give larger or smaller readings with this wiring.</p>
 
@@ -143,6 +144,78 @@ print(counts, counts &lt;&lt; 4)           # 1241 19856
     print(raw, round(ntc_celsius(raw), 1))
 </span>
 </div><p>The results are about <strong>15.2 °C, 25.0 °C and 37.9 °C</strong>. Smaller raw values mean a lower voltage, which means a <em>lower</em> thermistor resistance, which means a <em>warmer</em> temperature. In this wiring the reading falls as it warms. If your numbers rise with temperature, your divider is wired the other way round.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Levels and Step.</strong> How many levels does a 12-bit ADC have, and what is the step size for a 0 to 3.3 V range?</p>
+        <p><strong>P2. Why Multiples of 16.</strong> Why does <span class="code-lesson-il">read_u16()</span> on the Pico only ever return multiples of 16?</p>
+        <p><strong>P3. Analog Inputs.</strong> Name the Pico's three external ADC inputs (both the GP number and the ADC channel), and the channel of the internal temperature sensor.</p>
+        <p><strong>P4. Effective Bits.</strong> The datasheet quotes about 8.7 effective bits for the Pico's ADC. What does that say about the last bits of a reading?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Counts to Volts.</strong> <span class="code-lesson-il">read_u16()</span> returns 20000. What is the voltage, and what is the true 12-bit count?</p>
+        <p><strong>P6. Quantization Error.</strong> What is the largest quantization error of the Pico's ADC, in millivolts? And of a 3-bit ADC over the same range?</p>
+        <p><strong>P7. Divider Voltage.</strong> An LDR is on top of a divider (3.3 V → LDR → pin → 10 kΩ → GND). What does the pin read, in volts, when the LDR is 2 kΩ? When it is 50 kΩ? Which is brighter?</p>
+        <p><strong>P8. Volts to Resistance.</strong> In the same circuit the pin reads 1.65 V. What is the LDR's resistance?</p>
+        <p><strong>P9. Thermistor.</strong> A thermistor (R0 = 10 kΩ at 25 °C, β = 3950) is at the bottom of a divider with 10 kΩ on top. The pin reads 1.20 V. Find the thermistor's resistance and its temperature, using 1/T = 1/T0 + ln(R/R0)/β with temperatures in kelvin.</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P10. Best Fixed Resistor.</strong> An LDR ranges from 1 kΩ (bright) to 100 kΩ (dark). Compare fixed resistors of 1 kΩ, 10 kΩ and 100 kΩ (LDR on top) by the voltage swing each gives between dark and bright. Which is best, and what general rule does this suggest?</p>
+        <p><strong>P11. Supply Wobble.</strong> Both the divider and the ADC reference come from the same 3.3 V supply. The supply sags to 3.2 V. Does the count from the LDR divider change? Does the voltage your code computes (assuming 3.3 V) stay correct?</p>
+        <p><strong>P12. Which Error Dominates.</strong> Near 25 °C one ADC count of the thermistor circuit is about 0.022 °C. A student proposes an external 16-bit ADC to improve temperature accuracy. Argue for or against.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Levels and Step</summary>
+<p>2^12 = 4096 levels; 3.3 V / 4096 = 0.806 mV per count.</p>
+        </details>
+        <details>
+        <summary>P2. Why Multiples of 16</summary>
+<p>It always returns a 16-bit number, but the Pico's ADC is 12-bit; the four lowest bits are padding (zero), so the value is the 12-bit count times 16.</p>
+        </details>
+        <details>
+        <summary>P3. Analog Inputs</summary>
+<p>GP26 = ADC0, GP27 = ADC1, GP28 = ADC2; the temperature sensor is channel 4.</p>
+        </details>
+        <details>
+        <summary>P4. Effective Bits</summary>
+<p>Noise and non-uniformity mean only about 8 to 9 bits are trustworthy; the last bit or two jitter. Roughly 2^8.7 ≈ 416 distinguishable levels, or about 8 mV of meaningful resolution.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Counts to Volts</summary>
+<p>20000 × 3.3 / 65535 = 1.007 V. The 12-bit count is 20000 / 16 = 1250.</p>
+        </details>
+        <details>
+        <summary>P6. Quantization Error</summary>
+<p>Half a step: 0.403 mV for 12 bits. For 3 bits: 3.3 / 8 = 0.4125 V per step, so up to 0.206 V.</p>
+        </details>
+        <details>
+        <summary>P7. Divider Voltage</summary>
+<p>V = 3.3 × 10 / (R + 10): 2 kΩ gives 2.75 V; 50 kΩ gives 0.55 V. 2 kΩ is brighter (light lowers an LDR's resistance).</p>
+        </details>
+        <details>
+        <summary>P8. Volts to Resistance</summary>
+<p>R = 10 kΩ × (3.3 / 1.65 − 1) = 10 kΩ.</p>
+        </details>
+        <details>
+        <summary>P9. Thermistor</summary>
+<p>R = 10 kΩ × 1.20 / (3.3 − 1.20) = 5.71 kΩ. 1/T = 1/298.15 + ln(0.5714)/3950 = 0.0033540 − 0.0001417 = 0.0032123, so T = 311.3 K = 38.1 °C. Warmer than 25 °C, as a lower resistance should be.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P10. Best Fixed Resistor</summary>
+<p>1 kΩ: 1.65 V to 0.033 V, swing 1.62 V. 10 kΩ: 3.00 V to 0.30 V, swing 2.70 V. 100 kΩ: 3.27 V to 1.65 V, swing 1.62 V. 10 kΩ is best: a fixed resistor near the geometric mean of the sensor's range (√(1 k × 100 k) = 10 kΩ) gives the largest swing.</p>
+        </details>
+        <details>
+        <summary>P11. Supply Wobble</summary>
+<p>The count does not change: the divider output and the reference both scale by the same factor, so the reading is ratiometric. But the computed voltage is wrong by about 3 % (the code assumes 3.3 V). Resistance computed from the ratio is still correct, which is why converting counts straight to resistance is robust.</p>
+        </details>
+        <details>
+        <summary>P12. Which Error Dominates</summary>
+<p>Against: quantization is already far smaller than the other errors (thermistor tolerance, uncertainty in β, self-heating, calibration), which are typically tenths of a degree or more. Calibrating against a reference thermometer would help much more than more bits.</p>
         </details>
 
         <h3>Checkpoint</h3>

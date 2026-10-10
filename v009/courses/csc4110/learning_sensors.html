@@ -15,10 +15,76 @@
     </head>
 
     <body>
-        <p>This lesson covers learning from recorded sensor data in the smallest useful way. You fit a calibration curve by least squares and choose its degree by testing on new data, see overfitting in numbers, classify motion with nearest centroid after scaling the features, read a confusion matrix, and ship the result as a file of numbers.</p>
+        <p>This lesson covers recording sensor data and learning from it in the smallest useful way. You log every message into a SQLite file and ask it questions with SQL, fit a calibration curve by least squares and choose its degree by testing on new data, see overfitting in numbers, classify motion with nearest centroid after scaling the features, read a confusion matrix, and ship the result as a file of numbers.</p>
+        <p><strong>SAM lens.</strong> Calibration and classification are learned Perceptor stages: fitted on the hub from recorded data, run on the robot as a file of numbers. The Decider receives a cleaner percept and never depends on the model being right for safety. The log the models learn from is long-term Memory outside the agent, and it answers questions only if you decided in advance what to record.</p>
 
 <p>“Machine learning” sounds like something that needs a data centre. In a robot it mostly means two small things done carefully: <strong>fitting a curve</strong> to turn a raw sensor value into a physical one (calibration), and <strong>choosing a label</strong> from a few measured features (is the robot still, walking or being shaken?). Both fit in a few lines of code, both are trained on a laptop from recorded data, and both are run on the Pico as a handful of numbers. The part that decides whether they work is not the code but the discipline around it: separate data for testing, honest error, and distrust of a model that looks too good.</p>
-<h3>Part 1. Learning a Calibration</h3>
+<h3>Part 1. Recording Data to Learn From</h3>
+<p>Every model in this lesson is learned from a record, so learning starts with deciding what to record. Not all records are equal:</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 340.5" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="170" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="105" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Kind</text><rect x="190" y="14" width="250" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="315" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Example</text><rect x="440" y="14" width="150" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="515" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Rate</text><rect x="590" y="14" width="150" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="665" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Keep for</text><rect x="20" y="66" width="170" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="97.2" font-size="14.5" fill="#1f3b52" text-anchor="start">Event</text><rect x="190" y="66" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="88.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">boot, link down, command,</text><text x="199" y="106.263" font-size="14.5" fill="#1f3b52" text-anchor="start">stop</text><rect x="440" y="66" width="150" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="97.2" font-size="14.5" fill="#1f3b52" text-anchor="start">rare</text><rect x="590" y="66" width="150" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="97.2" font-size="14.5" fill="#1f3b52" text-anchor="start">long</text><rect x="20" y="118.25" width="170" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="149.325" font-size="14.5" fill="#1f3b52" text-anchor="start">State change</text><rect x="190" y="118.25" width="250" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="149.325" font-size="14.5" fill="#1f3b52" text-anchor="start">IDLE to READY, owner changed</text><rect x="440" y="118.25" width="150" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="149.325" font-size="14.5" fill="#1f3b52" text-anchor="start">rare</text><rect x="590" y="118.25" width="150" height="52" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="149.325" font-size="14.5" fill="#1f3b52" text-anchor="start">long</text><rect x="20" y="170.25" width="170" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="201.325" font-size="14.5" fill="#1f3b52" text-anchor="start">Fault</text><rect x="190" y="170.25" width="250" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="201.325" font-size="14.5" fill="#1f3b52" text-anchor="start">watchdog reset, parse error</text><rect x="440" y="170.25" width="150" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="201.325" font-size="14.5" fill="#1f3b52" text-anchor="start">rare</text><rect x="590" y="170.25" width="150" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="201.325" font-size="14.5" fill="#1f3b52" text-anchor="start">longest</text><rect x="20" y="222.25" width="170" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="253.45" font-size="14.5" fill="#1f3b52" text-anchor="start">Sample</text><rect x="190" y="222.25" width="250" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="253.45" font-size="14.5" fill="#1f3b52" text-anchor="start">range 41.8 cm</text><rect x="440" y="222.25" width="150" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="253.45" font-size="14.5" fill="#1f3b52" text-anchor="start">fast</text><rect x="590" y="222.25" width="150" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="244.387" font-size="14.5" fill="#1f3b52" text-anchor="start">short, then</text><text x="599" y="262.512" font-size="14.5" fill="#1f3b52" text-anchor="start">summarise</text><rect x="20" y="274.5" width="170" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="305.575" font-size="14.5" fill="#1f3b52" text-anchor="start">Aggregate</text><rect x="190" y="274.5" width="250" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="305.575" font-size="14.5" fill="#1f3b52" text-anchor="start">one-minute mean and max</text><rect x="440" y="274.5" width="150" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="449" y="305.575" font-size="14.5" fill="#1f3b52" text-anchor="start">slow</text><rect x="590" y="274.5" width="150" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="599" y="305.575" font-size="14.5" fill="#1f3b52" text-anchor="start">long</text></svg>
+            <div class="diagram-caption">Not all records are equal. <strong>Events</strong> are rare and explain behaviour, so they are kept a long time. <strong>Samples</strong> are plentiful and cheap, so they are kept briefly and then replaced by summaries.</div>
+        </div>
+
+<p>A useful test: for each line you log, write down the question it will answer. “Why did the motor stop?” is answered by a <span class="code-lesson-il">stop,deadman</span> event. “Was the signal noisy?” is answered by a minute of samples, or by their standard deviation. A line that answers no question is storage spent on nothing.</p>
+<p>The robot itself has little room to keep anything, but a laptop (or the class hub) can keep everything and <em>query</em> it. The simplest durable logger is a program that reads the stream from <span class="code-lesson-il">mosquitto_sub</span> and writes each message to a <strong>SQLite</strong> file. SQLite is a database in one ordinary file, with SQL for asking questions, and Python includes it.</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">logger.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># logger.py -- on the laptop or the hub: every message into one SQLite file
+# mosquitto_sub -h BROKER -u USER -P PW -t 'lab/#' -v | python3 logger.py lab.db
+import sys, sqlite3, time
+
+db = sqlite3.connect(sys.argv[1])
+db.execute("""CREATE TABLE IF NOT EXISTS msgs (
+    ts REAL, user TEXT, topic TEXT, payload TEXT)""")
+db.execute("CREATE INDEX IF NOT EXISTS msgs_user_ts ON msgs (user, ts)")
+
+def user_of(topic):
+    p = topic.split("/")
+    return p[1] if len(p) &gt; 2 and p[0] == "lab" else ""
+
+n, last = 0, time.time()
+for line in sys.stdin:
+    topic, _, payload = line.rstrip("\n").partition(" ")
+    db.execute("INSERT INTO msgs VALUES (?, ?, ?, ?)",
+               (time.time(), user_of(topic), topic, payload))
+    n += 1
+    if time.time() - last &gt;= 1.0:          # commit once a second, not once a message
+        db.commit()
+        last = time.time()
+db.commit()
+print("logged", n, "messages")
+</span>
+</div>
+<p>It commits once a second, not once per message, because a commit waits for the disk and dominates the cost, and it has an index on <span class="code-lesson-il">(user, ts)</span> so that “this student, this hour” does not read the whole table. A whole class at the message limit would add about 1.5 GB a day, so a log also needs a rule for what to throw away. Once the data is in, SQL answers questions in a line or two:</p>
+<div class="code-block" data-lang="sql">
+<div class="code-block-header">
+<span class="code-block-filename">questions.sql</span>
+<span class="code-block-lang">SQL</span>
+</div>
+<span class="code-lesson-bl">-- how much did each student send in the last 10 minutes?
+SELECT user, COUNT(*) AS n, COUNT(*) / 600.0 AS per_s
+FROM msgs WHERE ts &gt; strftime('%s','now') - 600
+GROUP BY user ORDER BY n DESC;
+
+-- the last state each robot announced
+SELECT topic, payload, MAX(ts) FROM msgs
+WHERE topic LIKE '%/stat/state' GROUP BY topic;
+
+-- one-minute averages of a field (downsampling)
+SELECT CAST(ts / 60 AS INT) * 60 AS minute, AVG(json_extract(payload, '$.c')) AS mean_c, COUNT(*) AS n
+FROM msgs WHERE topic = 'lab/jsmith/tele/temp'
+GROUP BY minute ORDER BY minute;
+
+-- retention: keep seven days of raw messages
+DELETE FROM msgs WHERE ts &lt; strftime('%s','now') - 7 * 86400;
+</span>
+</div>
+<p>The three queries answer the questions of the course: who is sending too much, what state is everyone in, and what did one signal do over time. The last statement is the <strong>retention</strong> rule, run once a day. Notice that each row keeps two clocks: the logger’s own arrival time <span class="code-lesson-il">ts</span>, which is a real calendar time, and the robot’s <span class="code-lesson-il">t</span> inside the payload, which orders that robot’s messages but restarts at every boot. Keep both.</p>
+<h3>Part 2. Learning a Calibration</h3>
 <p>A thermistor divider gives an ADC reading that is a smooth but <em>nonlinear</em> function of temperature. A straight line is a poor fit; a curve is better. <strong>Least squares</strong> finds the polynomial that minimises the sum of the squared differences between the curve and your reference measurements. You do this once, on the laptop, against a trusted thermometer; the node only evaluates the result.</p>
 <div class="code-block" data-lang="python">
 <div class="code-block-header">
@@ -85,8 +151,8 @@ def calibrate(x):
 </span>
 </div>
 <p>On the node the calibration is a file of four numbers and the four-line <span class="code-lesson-il">calibrate</span> above. Note that <span class="code-lesson-il">x</span> must be scaled exactly as in training (the ADC reading divided by 65,535 here): <strong>a model is only valid for the inputs it was trained on</strong>, and mismatched scaling is the most common reason a calibration “works on the laptop and not on the board”.</p>
-<h3>Part 2. Learning a Label</h3>
-<p>The second job is classification: the budgets lesson used one feature and one threshold. With two or more features, the simplest method that works is <strong>nearest centroid</strong>: the average of the training examples of each class is its centroid, and a new example gets the label of the nearest one. Training is an average; classifying is a distance. Both are cheap enough for the Pico.</p>
+<h3>Part 3. Learning a Label</h3>
+<p>The second job is classification: the features lesson used one feature and one threshold. With two or more features, the simplest method that works is <strong>nearest centroid</strong>: the average of the training examples of each class is its centroid, and a new example gets the label of the nearest one. Training is an average; classifying is a distance. Both are cheap enough for the Pico.</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">centroid.py</span>
@@ -136,32 +202,37 @@ def classify(model, f, scale):
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Count the Numbers.</strong> A cubic calibration has four coefficients. How many reference points do you want at least, using the rule “more data than numbers”? Why would taking all twelve at a single temperature not help?</p>
-        <p><strong>Exercise 2: Read the Table.</strong> In the polynomial table, why is error on the training points lower for degree 7 than for degree 3, and why is that not a reason to prefer degree 7?</p>
+        <p><strong>Exercise 1: Pick the Kind.</strong> For each, say whether it is an event, a state change, a fault or a sample, and how long you would keep it: (a) <span class="code-lesson-il">range 41.8</span>, (b) <span class="code-lesson-il">owner changed to amy</span>, (c) <span class="code-lesson-il">reset cause WDT</span>, (d) <span class="code-lesson-il">pan command refused: too fast</span>.</p>
+        <p><strong>Exercise 2: Count the Numbers.</strong> A cubic calibration has four coefficients. How many reference points do you want at least, using the rule “more data than numbers”? Why would taking all twelve at a single temperature not help?</p>
+        <p><strong>Exercise 3: Read the Table.</strong> In the polynomial table, why is error on the training points lower for degree 7 than for degree 3, and why is that not a reason to prefer degree 7?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Which Mistake?.</strong> Using the confusion matrix, what fraction of true “walk” examples were called “still”? A rule says “do not start the motor if the robot is not still”. Which mistake is dangerous, and what could you change?</p>
+        <p><strong>Exercise 4: Which Mistake?</strong> Using the confusion matrix, what fraction of true “walk” examples were called “still”? A rule says “do not start the motor if the robot is not still”. Which mistake is dangerous, and what could you change?</p>
+        <p><strong>Exercise 5: Fit and Apply.</strong> Using <span class="code-lesson-il">fit_poly</span>, fit a line through the points (x, y) = (0.2, 12), (0.4, 19), (0.6, 33), (0.8, 41). Write the line as <span class="code-lesson-il">cal.json</span>, and say what the node returns for x = 0.5.</p>
         <h4>Advanced</h4>
-        <p><strong>Exercise 4: Fit and Apply.</strong> Using <span class="code-lesson-il">fit_poly</span>, fit a line through the points (x, y) = (0.2, 12), (0.4, 19), (0.6, 33), (0.8, 41). Write the line as <span class="code-lesson-il">cal.json</span>, and say what the node returns for x = 0.5.</p>
+        <p><strong>Exercise 6: Answer It With SQL.</strong> Write a query on <span class="code-lesson-il">msgs</span> that lists, for each topic of the form <span class="code-lesson-il">lab/&lt;user&gt;/evt/ack</span>, how many acks arrived in the last hour, most first. Then say which of the columns benefits from an index.</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
         <h4>Warm Up</h4>
         <details>
-        <summary>Exercise 1: Count the Numbers</summary>
+        <summary>Exercise 1: Pick the Kind</summary>
+<p>(a) <strong>sample</strong>: days, then a summary. (b) <strong>state change</strong>: long. (c) <strong>fault</strong>: longest, with the reset count. (d) <strong>event</strong> (a refused command): long enough to debug a client, and worth <em>counting</em> so that a client sending refused commands stands out.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Count the Numbers</summary>
 <p>More points than coefficients: at least <strong>8 to 12</strong>, ideally spread over the whole range of temperatures you will measure (the 12 above spanned 10 to 50 °C). Twelve readings at one temperature give the <em>noise</em> at that temperature but no information about the <strong>shape</strong> of the curve elsewhere: the fit is free to do anything away from that point, and the model is only valid for inputs like those it was trained on.</p>
         </details>
         <details>
-        <summary>Exercise 2: Read the Table</summary>
+        <summary>Exercise 3: Read the Table</summary>
 <p>A more flexible curve can pass closer to every training point, so training error can only fall as the degree rises. But part of what it matches is <strong>noise</strong>, which will be different next time, so on new data the curve is worse (1.32 °C against 0.16 °C). The model should be judged by its error on data it was not fitted to.</p>
         </details>
         <h4>Intermediate</h4>
         <details>
-        <summary>Exercise 3: Which Mistake?</summary>
+        <summary>Exercise 4: Which Mistake?</summary>
 <p>56 of 300 walking examples were called still: <strong>18.7 %</strong>. The rule starts the motor when the state is “still”, so calling a walking robot “still” is the <strong>dangerous</strong> error (someone is carrying it). Options: move the decision threshold toward “walk” so that borderline cases count as moving (accepting more false “walk” labels for still robots), require “still” for several seconds in a row (like the Stump’s hysteresis), and add a second feature that separates them better.</p>
         </details>
-        <h4>Advanced</h4>
         <details>
-        <summary>Exercise 4: Fit and Apply</summary>
+        <summary>Exercise 5: Fit and Apply</summary>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">cal.py</span>
@@ -174,15 +245,103 @@ print(predict(c, 0.5))        # 26.25
 </span>
 </div><p>The least-squares line is y = 1.0 + 50.5 x (the residuals at the four points are −0.9, 2.2, −1.7 and 0.4), so x = 0.5 gives <strong>26.25</strong>. The node needs only the file and the <span class="code-lesson-il">calibrate</span> loop.</p>
         </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 6: Answer It With SQL</summary>
+<div class="code-block" data-lang="sql">
+<div class="code-block-header">
+<span class="code-block-filename">acks.sql</span>
+<span class="code-block-lang">SQL</span>
+</div>
+<span class="code-lesson-bl">SELECT topic, COUNT(*) AS n
+FROM msgs
+WHERE topic LIKE 'lab/%/evt/ack' AND ts &gt; strftime('%s','now') - 3600
+GROUP BY topic
+ORDER BY n DESC;
+</span>
+</div><p>The <span class="code-lesson-il">ts</span> condition benefits from an index on time; the <span class="code-lesson-il">LIKE</span> with a leading wildcard cannot use an index on <span class="code-lesson-il">topic</span>. To make this query cheap, add an index on <span class="code-lesson-il">(ts)</span> or add a column for the <em>kind</em> (<span class="code-lesson-il">ack</span>, <span class="code-lesson-il">tele</span>, <span class="code-lesson-il">stat</span>) filled in by the logger, and filter on that. Design the table for the questions you will ask.</p>
+        </details>
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Two Jobs.</strong> Name the two small learning jobs a robot does in this lesson.</p>
+        <p><strong>P2. Overfitting.</strong> Define overfitting, and name the two cheap defences from the lesson.</p>
+        <p><strong>P3. Separate Sessions.</strong> Why should training and test data come from separate recording sessions rather than a random split of one session?</p>
+        <p><strong>P4. Events and Samples.</strong> How do events and samples differ, and how long should each be kept?</p>
+        <p><strong>P5. Two Clocks.</strong> Why does the hub log keep both its own arrival time and the node's envelope <span class="code-lesson-il">t</span>?</p>
+        <h4>Apply</h4>
+        <p><strong>P6. Train Versus Test.</strong> Fits of degree 1, 3 and 7 give training errors of 0.70, 0.25 and 0.11 °C and test errors of 0.72, 0.28 and 1.32 °C. Which degree would you choose and why?</p>
+        <p><strong>P7. Nearest Centroid by Hand.</strong> Scaled centroids are still (0, 0), walk (3, 1), shake (1, 4). Classify the point (2, 1), showing squared distances.</p>
+        <p><strong>P8. Confusion Matrix.</strong> A confusion matrix (rows = truth: still, walk, shake; columns = predicted) is [[300, 0, 0], [56, 244, 0], [0, 67, 233]]. What is the accuracy? Which mistake is most common?</p>
+        <p><strong>P9. Class Storage.</strong> 24 students publish at the limit of 10 messages per second, at about 71 bytes per row on disk. How many bytes per second and per day does the hub store?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P10. Cost of Mistakes.</strong> For a robot, why might "walk taken for still" be worse than "shake taken for walk"? What does that mean for choosing a model?</p>
+        <p><strong>P11. Works on the Laptop.</strong> A calibration works perfectly on the laptop but gives nonsense on the Pico. What is the most common cause?</p>
+        <p><strong>P12. Retention.</strong> Design a retention rule for the hub: what is kept raw, for how long, and what replaces it?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Two Jobs</summary>
+<p>Calibration (fitting a curve that turns a raw value into a physical one) and classification (choosing a label from a few features).</p>
+        </details>
+        <details>
+        <summary>P2. Overfitting</summary>
+<p>A model flexible enough to follow the noise in its training data, so it fits those points well and new data badly. Defences: test on data kept out of the fit; collect more data than the model has numbers.</p>
+        </details>
+        <details>
+        <summary>P3. Separate Sessions</summary>
+<p>Neighbouring samples are nearly identical; a random split puts near-copies in both sets, so the test measures memory, not generalisation.</p>
+        </details>
+        <details>
+        <summary>P4. Events and Samples</summary>
+<p>Events are rare and explain behaviour: keep them a long time. Samples are plentiful: keep them briefly, then replace them with summaries.</p>
+        </details>
+        <details>
+        <summary>P5. Two Clocks</summary>
+<p>The node's <span class="code-lesson-il">t</span> (milliseconds since boot) orders messages from one node but restarts at every boot and is not a calendar; the hub's clock gives calendar time accurate to the network delay. Each answers different questions.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P6. Train Versus Test</summary>
+<p>Degree 3: lowest error on new data. Degree 7's tiny training error and large test error is overfitting.</p>
+        </details>
+        <details>
+        <summary>P7. Nearest Centroid by Hand</summary>
+<p>Still: 4 + 1 = 5. Walk: 1 + 0 = 1. Shake: 1 + 9 = 10. Nearest is walk.</p>
+        </details>
+        <details>
+        <summary>P8. Confusion Matrix</summary>
+<p>(300 + 244 + 233) / 900 = 777 / 900 = 86.3 %. Most common: shake taken for walk (67), then walk taken for still (56).</p>
+        </details>
+        <details>
+        <summary>P9. Class Storage</summary>
+<p>24 × 10 × 71 ≈ 17 000 B/s; × 86 400 ≈ 1.47 GB per day.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P10. Cost of Mistakes</summary>
+<p>If "still" allows a motor to start, mistaking a carried (walking) robot for a still one could start a motor in someone's hands. Choose models and thresholds by the cost of each mistake, not only the total count.</p>
+        </details>
+        <details>
+        <summary>P11. Works on the Laptop</summary>
+<p>The input on the board is not scaled exactly as in training (for example the raw ADC value instead of value / 65535). A model is only valid for inputs scaled the same way.</p>
+        </details>
+        <details>
+        <summary>P12. Retention</summary>
+<p>For example: keep raw messages for 7 days; keep one-minute summaries (mean, min, max, count) per topic for a semester; keep events and state changes indefinitely. Run the deletion as a scheduled daily job, so the disk never fills.</p>
+        </details>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
+            <li>Say which records to keep long and which to summarise, and log messages into SQLite with batched commits and an index.</li>
+            <li>Write SQL queries that count, take the latest, and average over time.</li>
             <li>Fit a polynomial by least squares and say how to choose the degree.</li>
             <li>Explain overfitting and the two cheap defences against it.</li>
             <li>Classify with the nearest centroid and say why features must be scaled.</li>
             <li>Read a confusion matrix and judge mistakes by their cost.</li>
-            <li>Deploy a model to the node as a small file and know its limits.</li>
         </ol>
 
     </body>

@@ -13,27 +13,27 @@
   "goals": [
     {
       "num": 1,
-      "action": "Implement",
-      "detail": "state-space search algorithms to solve pathfinding problems.",
-      "blooms" : 3
+      "action": "Represent",
+      "detail": "knowledge and search spaces using symbolic AI structures and problem-solving algorithms.",
+      "blooms": 3
     },
     {
       "num": 2,
-      "action": "Model",
-      "detail": "analogical reasoning in agents by designing them to map past solutions onto new problems.",
-      "blooms" : 4
+      "action": "Analyze",
+      "detail": "human cognitive tasks, memory models, and learning mechanisms to inform artificial agent design.",
+      "blooms": 4
     },
     {
       "num": 3,
       "action": "Evaluate",
-      "detail": "how metacognitive feedback loops allow agents to correct their own errors.",
-      "blooms" : 5
+      "detail": "cognitive agent performance, case-based reasoning, and metacognitive error-correction strategies.",
+      "blooms": 5
     },
     {
       "num": 4,
       "action": "Design",
-      "detail": "an integrated cognitive agent that combines search, memory, and reasoning.",
-      "blooms" : 6
+      "detail": "an integrated cognitive agent combining search, memory, and reasoning to solve complex tasks.",
+      "blooms": 6
     }
   ],
   "courseColor": "#ffccd9",
@@ -49,98 +49,79 @@
   },
   "schedule": [
     {
-      "theme": "Structure",
+      "theme": "Representation & Search",
       "trs": [
         {
-          "Semantic networks" : "",
-          "Hofstadter Prologue" : "",
-          "McShane 1 StS" : ""
+          "ARC-AGI": "csc3530/arc_agi.html",
+          "Situated Agent Model (SAM)": "csc3530/sam.html",
+          "Setup": "csc3530/setup.html",
+          "Course readings": "csc3530/readings.html",
+          "Semantic networks": "csc3530/semantic_networks.html"
         },
         {
-          "Frames" : "",
-          "Production systems" : "",
-          "Hofstadter 1 CBOW" : "",
-          "McShane 2 CCCM" : ""
+          "Frames": "csc3530/frames.html",
+          "Production systems": "csc3530/production_systems.html"
         },
         {
-          "Generate and test" : "",
-          "Means-Ends Analysis" : "",
-          "Hofstadter 2 McwP" : "",
-          "McShane 3 KbaO" : ""
+          "Generate and test": "csc3530/generate_and_test.html",
+          "Means-ends analysis": "csc3530/means_ends_analysis.html"
         },
         {
-          "Logic" : "",
-          "Planning" : "",
-          "Hofstadter 3 AVOolA" : "",
-          "McShane 6 DraA" : ""
+          "Logic": "csc3530/logic.html",
+          "Planning": "csc3530/planning.html"
         },
         {
-          "Exam 1" : "",
-          "Agent Exam 1" : ""
+          "Exam 1": "",
+          "Agent Exam 1": ""
         }
       ]
     },
     {
-      "theme": "Analogy",
+      "theme": "Memory & Analogy",
       "trs": [
         {
-          "Learning by recording cases" : "",
-          "Incremental concept learning" : "",
-          "Hofstadter 4 AaICS" : "",
-          "McShane 7 LiCA" : ""
+          "Learning by recording cases": "csc3530/recording_cases.html",
+          "Case-based reasoning": "csc3530/case_based_reasoning.html"
         },
         {
-          "Case-based reasoning" : "",
-          "Classification" : "",
-          "Hofstadter 5 HAMU" : "",
-          "McShane 5 MTD" : ""
+          "Incremental concept learning": "csc3530/incremental_concept_learning.html",
+          "Classification": "csc3530/classification.html"
         },
         {
-          "Understanding" : "",
-          "Common sense reasonsing" : "",
-          "Scripts" : "",
-          "Hofstadter 6 HWWA" : "",
-          "McShane 4 LaCU" : ""
+          "Explanation-based learning": "csc3530/explanation_based_learning.html",
+          "Analogical reasoning": "csc3530/analogical_reasoning.html"
         },
         {
-          "Explanation-based learning" : "",
-          "Hofstadter 7 NaaHLP" : "",
-          "McShane 8 EaT" : ""
+          "Understanding": "csc3530/understanding.html",
+          "Common-sense reasoning": "csc3530/common_sense.html"
         },
         {
-          "Exam 2" : "",
-          "Agent Exam 2" : ""
+          "Exam 2": "",
+          "Agent Exam 2": ""
         }
       ]
     },
     {
-      "theme": "Metacognition",
+      "theme": "Expertise & Metacognition",
       "trs": [
         {
-          "Constraint propagation" : "",
-          "Hofstadter 8 ASW" : "",
-          "McShane 9 KA" : ""
+          "Scripts": "csc3530/scripts.html",
+          "Constraint propagation": "csc3530/constraint_propagation.html"
         },
         {
-          "Configuration" : "",
-          "Diagnoses" : "",
-          "Hofstadter Epidaig KADC" : "",
-          "McShane 10 DDP" : ""
+          "Configuration": "csc3530/configuration.html",
+          "Diagnosis": "csc3530/diagnosis.html"
         },
         {
-          "Learning by correcting mistakes" : "",
-          "Meta reasoning" : "",
-          "Hofstadter 7 (again)" : "",
-          "McShane 8 (again)" : ""
+          "Learning by correcting mistakes": "csc3530/learning_by_correcting_mistakes.html",
+          "Meta-reasoning": "csc3530/meta_reasoning.html"
         },
         {
-          "Symbolic KBAI vs modern LLMs" : "",
-          "Hofstadter Epilogue AIHaAT" : "",
-          "McShane Conclusion TAC" : ""
+          "Symbolic KBAI vs modern LLMs": "csc3530/kbai_vs_llms.html"
         },
         {
-          "Exam 3" : "",
-          "Agent Exam 3" : ""
+          "Exam 3": "",
+          "Agent Exam 3": ""
         }
       ]
     }
@@ -153,20 +134,20 @@
       "percentage": "10"
     },
     {
-        "name": "Agent Exams",
-        "type": "agentexam",
-        "description": "In class, oral explanation of agent work via questioning by instructor.",
-        "percentage": "20",
-        "colorbg": "#ffe4a6",
-        "colorfont": "#1f1f1f"
+      "name": "Agent Exams",
+      "type": "agentexam",
+      "description": "In class, oral explanation of agent work via questioning by instructor.",
+      "percentage": "20",
+      "colorbg": "#ffe4a6",
+      "colorfont": "#1f1f1f"
     },
     {
-        "name": "Exams",
-        "type": "exam",
-        "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
-        "percentage": "40",
-        "colorbg": "#7cbf8e",
-        "colorfont": "#1f1f1f"
+      "name": "Exams",
+      "type": "exam",
+      "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
+      "percentage": "40",
+      "colorbg": "#7cbf8e",
+      "colorfont": "#1f1f1f"
     },
     {
       "name": "Quizzes",
@@ -183,6 +164,8 @@
   },
   "materials": "Laptop, writing utensils, paper",
   "credits": "4",
-  "files" : [
+  "files": [
+    "zips/csc3530_starter.zip",
+    "zips/csc3530_lesson_code.zip"
   ]
 }

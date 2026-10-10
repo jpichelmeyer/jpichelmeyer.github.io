@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>How should an agent store what it knows? The first answer this course gives is the oldest structured representation in AI: the <strong>semantic network</strong>. It is a graph whose nodes stand for things or concepts and whose labelled edges stand for relations between them. Semantic networks were proposed as a model of human memory, they are easy to draw and to code, and they turn out to be a natural way to describe what changes between an ARC input and its output.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_semantic_networks_1_hofstadter.pdf" target="_blank"><b>Hofstadter &amp; Sander</b>, Ch. 1: <i>The Structure of Categories and of Conceptual Space; The Endless Chunking of Concepts</i></a> <span class="reading-meta">(pp. 49–53 &middot; PDF 64–68 &middot; 5 pages)</span><br>Concepts as nodes at different distances from each other, each one unpackable into more concepts. A psychologist's semantic network.</li></ul>
+</div>
+
+
+<h3>Part 1. Knowledge as a Network</h3>
+<p>In 1969 Allan Collins and Ross Quillian proposed that people store concepts in a hierarchy like the one below. Each concept is a node. <em>is-a</em> edges connect a concept to a more general one, and properties are stored at the most general level where they hold. Penguins are the exception: "can't fly" is stored on <em>penguin</em> itself and overrides what <em>bird</em> says.</p>
+<div class="diagram">
+<svg viewBox="0 0 720 340" style="max-width:680px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="qn" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="300" y="20" width="140" height="44" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="370.0" y="46.9" font-size="14" text-anchor="middle" fill="#1f3b52" font-weight="bold">animal</text><rect x="140" y="130" width="130" height="44" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="205.0" y="156.9" font-size="14" text-anchor="middle" fill="#1f3b52" font-weight="bold">bird</text><rect x="470" y="130" width="130" height="44" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="535.0" y="156.9" font-size="14" text-anchor="middle" fill="#1f3b52" font-weight="bold">fish</text><rect x="60" y="240" width="120" height="44" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="120.0" y="266.9" font-size="14" text-anchor="middle" fill="#1f3b52" font-weight="bold">canary</text><rect x="230" y="240" width="120" height="44" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="290.0" y="266.9" font-size="14" text-anchor="middle" fill="#1f3b52" font-weight="bold">penguin</text><line x1="205" y1="130" x2="340" y2="66" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#qn)"/><text x="255" y="92" font-size="11" text-anchor="middle" fill="#1f3b52">is-a</text><line x1="535" y1="130" x2="400" y2="66" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#qn)"/><text x="485" y="92" font-size="11" text-anchor="middle" fill="#1f3b52">is-a</text><line x1="120" y1="240" x2="190" y2="176" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#qn)"/><text x="135" y="205" font-size="11" text-anchor="middle" fill="#1f3b52">is-a</text><line x1="290" y1="240" x2="220" y2="176" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#qn)"/><text x="280" y="205" font-size="11" text-anchor="middle" fill="#1f3b52">is-a</text><text x="452" y="36" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">has skin</text><text x="452" y="56" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">breathes</text><text x="15" y="140" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">has wings</text><text x="15" y="164" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">can fly</text><text x="620" y="140" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">has fins</text><text x="620" y="164" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">swims</text><text x="15" y="300" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">is yellow</text><text x="15" y="320" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">can sing</text><text x="360" y="300" font-size="12" text-anchor="start" fill="#8a4526" font-style="italic">can&#x27;t fly</text><line x1="440" y1="38" x2="440" y2="38"/></svg>
+    <div class="diagram-caption">A Collins and Quillian style semantic network. Properties live on the most general node they apply to, so "a canary has skin" is stored two levels up.</div>
+</div>
+
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Collins and Quillian tested the model by timing people. "A canary can sing" (a property stored on <em>canary</em>) was verified faster than "a canary can fly" (one link up), which was faster than "a canary has skin" (two links up). The network predicted reaction times. Later work showed the picture is too tidy: typical members ("a robin is a bird") are verified faster than atypical ones ("a penguin is a bird") regardless of distance. Collins and Loftus (1975) replaced strict hierarchy with <em>spreading activation</em> over links of different strengths. This week's Hofstadter reading pushes further: conceptual distance is fluid and context-dependent.</p>
+</div>
+
+<p>A semantic network has three ingredients:</p>
+<ul>
+    <li><strong>Lexicon</strong>: the vocabulary of node types (circle, square; red object, blue object).</li>
+    <li><strong>Structure</strong>: nodes connected by directed, labelled edges (<em>inside</em>, <em>above</em>, <em>bigger-than</em>).</li>
+    <li><strong>Semantics</strong>: the interpretation that lets an agent draw inferences from the structure (if <em>y inside x</em> and <em>x inside z</em>, then <em>y inside z</em>).</li>
+</ul>
+<p>A representation is good when it makes the important relationships explicit and hides the unimportant ones. The same picture can be described by a dozen different networks, and the choice largely decides how hard the problem is.</p>
+
+<h3>Part 2. A Semantic-Network Agent for Visual Analogies</h3>
+<p>Here is a classic intelligence-test item, the kind found in Raven's Progressive Matrices: <em>A is to B as C is to which candidate?</em></p>
+<div class="diagram">
+<svg viewBox="0 0 800 300" style="max-width:760px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="rv" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="30" width="100" height="100" fill="#fff" stroke="#5b6b78" stroke-width="1.5"/><text x="70" y="22" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">A</text><circle cx="70" cy="80" r="38" fill="#fff" stroke="#1f3b52" stroke-width="2"/><polygon points="70,69 57,92.4 83,92.4" fill="#1f3b52" stroke="#1f3b52" stroke-width="2"/><rect x="150" y="30" width="100" height="100" fill="#fff" stroke="#5b6b78" stroke-width="1.5"/><text x="200" y="22" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">B</text><circle cx="200" cy="80" r="38" fill="#fff" stroke="#1f3b52" stroke-width="2"/><rect x="20" y="170" width="100" height="100" fill="#fff" stroke="#5b6b78" stroke-width="1.5"/><text x="70" y="162" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">C</text><rect x="34" y="184" width="72" height="72" fill="#fff" stroke="#1f3b52" stroke-width="2"/><circle cx="70" cy="220" r="12" fill="#1f3b52" stroke="#1f3b52" stroke-width="2"/><rect x="150" y="170" width="100" height="100" fill="#fff" stroke="#5b6b78" stroke-width="1.5"/><text x="200" y="162" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">?</text><text x="200" y="228" font-size="40" text-anchor="middle" fill="#7a4f9a" font-weight="bold">?</text><line x1="290" y1="20" x2="290" y2="290" stroke="#ccd6de" stroke-width="2"/><text x="520" y="150" font-size="12" text-anchor="middle" fill="#5b6b78">candidates</text><rect x="310" y="170" width="100" height="100" fill="#fff" stroke="#5b6b78" stroke-width="1.5"/><text x="360" y="162" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">1</text><rect x="430" y="170" width="100" height="100" fill="#fff" stroke="#5b6b78" stroke-width="1.5"/><text x="480" y="162" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">2</text><rect x="550" y="170" width="100" height="100" fill="#fff" stroke="#5b6b78" stroke-width="1.5"/><text x="600" y="162" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">3</text><rect x="670" y="170" width="100" height="100" fill="#fff" stroke="#5b6b78" stroke-width="1.5"/><text x="720" y="162" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">4</text><rect x="324" y="184" width="72" height="72" fill="#fff" stroke="#1f3b52" stroke-width="2"/><rect x="464" y="204" width="32" height="32" fill="#fff" stroke="#1f3b52" stroke-width="2"/><rect x="576" y="208" width="48" height="48" fill="#fff" stroke="#1f3b52" stroke-width="2"/><circle cx="600" cy="192" r="10" fill="#1f3b52" stroke="#1f3b52" stroke-width="2"/><circle cx="720" cy="220" r="36" fill="#fff" stroke="#1f3b52" stroke-width="2"/></svg>
+    <div class="diagram-caption">A 2&times;2 visual analogy. A large circle with a small filled triangle inside becomes the large circle alone. What should happen to C?</div>
+</div>
+
+<p>The agent represents each figure as a semantic network. It then builds a <strong>transformation network</strong> from A to B, describing each object's fate, and compares it with the transformation from C to each candidate. The best answer is the candidate whose transformation most resembles A&rarr;B.</p>
+<div class="diagram">
+<svg viewBox="0 0 720 215" style="max-width:680px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="nab" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><text x="170" y="22" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">network for A</text><circle cx="90" cy="110" r="42" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="90" y="100.2" font-size="12" text-anchor="middle" fill="#1f3b52">x</text><text x="90" y="114.2" font-size="12" text-anchor="middle" fill="#1f3b52">circle</text><text x="90" y="128.2" font-size="12" text-anchor="middle" fill="#1f3b52">large</text><circle cx="250" cy="110" r="42" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="250" y="100.8" font-size="11" text-anchor="middle" fill="#1f3b52">y</text><text x="250" y="113.8" font-size="11" text-anchor="middle" fill="#1f3b52">triangle</text><text x="250" y="126.8" font-size="11" text-anchor="middle" fill="#1f3b52">small, filled</text><line x1="208" y1="110" x2="134" y2="110" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#nab)"/><text x="171.0" y="100" font-size="11" text-anchor="middle" fill="#1f3b52">inside</text><text x="560" y="22" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">network for B</text><circle cx="560" cy="110" r="42" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="560" y="100.2" font-size="12" text-anchor="middle" fill="#1f3b52">x</text><text x="560" y="114.2" font-size="12" text-anchor="middle" fill="#1f3b52">circle</text><text x="560" y="128.2" font-size="12" text-anchor="middle" fill="#1f3b52">large</text><line x1="330" y1="110" x2="470" y2="110" stroke="#c0693f" stroke-width="2.5" marker-end="url(#nab)"/><text x="400" y="96" font-size="12" text-anchor="middle" fill="#8a4526" font-weight="bold">transformation</text><text x="400" y="180" font-size="12" text-anchor="middle" fill="#8a4526">x: unchanged  (weight 5)</text><text x="400" y="198" font-size="12" text-anchor="middle" fill="#8a4526">y: deleted  (weight 1)</text></svg>
+    <div class="diagram-caption">A and B as semantic networks, and the transformation between them. Objects are described by role (the first object, the second object) so that the description can transfer from A/B to C/D, where the shapes are different.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">raven_agent.py: the network</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class SemanticNet:
+    &quot;&quot;&quot;Nodes are objects (with attributes); edges are labelled relations.&quot;&quot;&quot;
+    def __init__(self):
+        self.nodes = {}            # name -&gt; {attribute: value}
+        self.edges = set()         # (from, relation, to)
+
+    def add(self, name, **attrs):
+        self.nodes[name] = attrs
+        return self
+
+    def relate(self, a, relation, b):
+        self.edges.add((a, relation, b))
+        return self
+
+    def relations_of(self, name):
+        return {(r, b) for a, r, b in self.edges if a == name}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">raven_agent.py: the figures</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">A = (SemanticNet().add(&#x27;x&#x27;, shape=&#x27;circle&#x27;, size=&#x27;large&#x27;, fill=&#x27;no&#x27;)
+                  .add(&#x27;y&#x27;, shape=&#x27;triangle&#x27;, size=&#x27;small&#x27;, fill=&#x27;yes&#x27;)
+                  .relate(&#x27;y&#x27;, &#x27;inside&#x27;, &#x27;x&#x27;))
+B = SemanticNet().add(&#x27;x&#x27;, shape=&#x27;circle&#x27;, size=&#x27;large&#x27;, fill=&#x27;no&#x27;)
+C = (SemanticNet().add(&#x27;p&#x27;, shape=&#x27;square&#x27;, size=&#x27;large&#x27;, fill=&#x27;no&#x27;)
+                  .add(&#x27;q&#x27;, shape=&#x27;circle&#x27;, size=&#x27;small&#x27;, fill=&#x27;yes&#x27;)
+                  .relate(&#x27;q&#x27;, &#x27;inside&#x27;, &#x27;p&#x27;))
+candidates = {
+    1: SemanticNet().add(&#x27;p&#x27;, shape=&#x27;square&#x27;, size=&#x27;large&#x27;, fill=&#x27;no&#x27;),
+    2: SemanticNet().add(&#x27;p&#x27;, shape=&#x27;square&#x27;, size=&#x27;small&#x27;, fill=&#x27;no&#x27;),
+    3: (SemanticNet().add(&#x27;p&#x27;, shape=&#x27;square&#x27;, size=&#x27;large&#x27;, fill=&#x27;no&#x27;)
+                     .add(&#x27;q&#x27;, shape=&#x27;circle&#x27;, size=&#x27;small&#x27;, fill=&#x27;yes&#x27;)
+                     .relate(&#x27;q&#x27;, &#x27;above&#x27;, &#x27;p&#x27;)),
+    4: SemanticNet().add(&#x27;q&#x27;, shape=&#x27;circle&#x27;, size=&#x27;large&#x27;, fill=&#x27;no&#x27;),
+}</code>
+</div>
+
+<p>To compare networks, the agent first decides which object in one figure corresponds to which object in the other. This <strong>correspondence problem</strong> is where much of the intelligence hides. Here the rule is simple (match same shapes first), but in Module 2 it becomes analogy-making.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">raven_agent.py: transformations</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># How similar each kind of change is (bigger = more similar), in the
+# spirit of the weights in Goel &amp; Joyner&#x27;s KBAI lectures.
+WEIGHTS = {&#x27;unchanged&#x27;: 5, &#x27;size changed&#x27;: 3, &#x27;fill changed&#x27;: 3,
+           &#x27;relation changed&#x27;: 2, &#x27;shape changed&#x27;: 1, &#x27;deleted&#x27;: 1, &#x27;added&#x27;: 1}
+
+def transform(net1, net2, mapping):
+    &quot;&quot;&quot;Describe how net1 becomes net2, given which object maps to which.
+    Objects are described by ROLE (their position in the mapping), not name.&quot;&quot;&quot;
+    changes = []
+    for role, (o1, o2) in enumerate(mapping):
+        if o2 is None:
+            changes.append((role, &#x27;deleted&#x27;))
+            continue
+        a, b = net1.nodes[o1], net2.nodes[o2]
+        diffs = [f&#x27;{k} changed&#x27; for k in a if a[k] != b.get(k)]
+        rel1 = {r for r, _ in net1.relations_of(o1)}
+        rel2 = {r for r, _ in net2.relations_of(o2)}
+        if rel1 != rel2:
+            diffs.append(&#x27;relation changed&#x27;)
+        changes += [(role, d) for d in diffs] or [(role, &#x27;unchanged&#x27;)]
+    return sorted(changes)
+
+def correspond(net1, net2):
+    &quot;&quot;&quot;Pair objects: same shape first, then by order; leftovers are deleted.&quot;&quot;&quot;
+    pairs, used = [], set()
+    for o1, a in net1.nodes.items():
+        match = next((o2 for o2, b in net2.nodes.items()
+                      if o2 not in used and b[&#x27;shape&#x27;] == a[&#x27;shape&#x27;]), None)
+        if match is None:
+            match = next((o2 for o2 in net2.nodes if o2 not in used), None)
+        if match:
+            used.add(match)
+        pairs.append((o1, match))
+    return pairs</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">raven_agent.py: choosing an answer</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def score(t1, t2):
+    &quot;&quot;&quot;Weighted overlap of two transformations; mismatches cost points.&quot;&quot;&quot;
+    s = sum(WEIGHTS[kind] for role, kind in t1 if (role, kind) in t2)
+    return s - len(set(t1) ^ set(t2))
+
+def solve(A, B, C, candidates):
+    ab = transform(A, B, correspond(A, B))
+    print(&#x27;A -&gt; B:&#x27;, ab)
+    best = None
+    for k, D in candidates.items():
+        cd = transform(C, D, correspond(C, D))
+        s = score(ab, cd)
+        print(f&#x27;  C -&gt; {k}: {cd}  score {s}&#x27;)
+        if best is None or s &gt; best[1]:
+            best = (k, s)
+    return best[0]
+
+print(&#x27;answer:&#x27;, solve(A, B, C, candidates))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">A -&gt; B: [(0, &#x27;unchanged&#x27;), (1, &#x27;deleted&#x27;)]
+  C -&gt; 1: [(0, &#x27;unchanged&#x27;), (1, &#x27;deleted&#x27;)]  score 6
+  C -&gt; 2: [(0, &#x27;size changed&#x27;), (1, &#x27;deleted&#x27;)]  score -1
+  C -&gt; 3: [(0, &#x27;unchanged&#x27;), (1, &#x27;relation changed&#x27;)]  score 3
+  C -&gt; 4: [(0, &#x27;shape changed&#x27;), (1, &#x27;deleted&#x27;)]  score -1
+answer: 1</code>
+</div>
+
+<p>The weights encode a judgment about which changes are "small." Keeping an object unchanged is the most similar transformation; deleting it or changing its shape is the least. Change the weights and the agent will prefer different answers, which is one way to model different people's preferences.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Semantic networks for a 2x2 visual analogy:  A is to B as C is to ?
+class SemanticNet:
+    """Nodes are objects (with attributes); edges are labelled relations."""
+    def __init__(self):
+        self.nodes = {}            # name -> {attribute: value}
+        self.edges = set()         # (from, relation, to)
+
+    def add(self, name, **attrs):
+        self.nodes[name] = attrs
+        return self
+
+    def relate(self, a, relation, b):
+        self.edges.add((a, relation, b))
+        return self
+
+    def relations_of(self, name):
+        return {(r, b) for a, r, b in self.edges if a == name}
+
+A = (SemanticNet().add('x', shape='circle', size='large', fill='no')
+                  .add('y', shape='triangle', size='small', fill='yes')
+                  .relate('y', 'inside', 'x'))
+B = SemanticNet().add('x', shape='circle', size='large', fill='no')
+C = (SemanticNet().add('p', shape='square', size='large', fill='no')
+                  .add('q', shape='circle', size='small', fill='yes')
+                  .relate('q', 'inside', 'p'))
+candidates = {
+    1: SemanticNet().add('p', shape='square', size='large', fill='no'),
+    2: SemanticNet().add('p', shape='square', size='small', fill='no'),
+    3: (SemanticNet().add('p', shape='square', size='large', fill='no')
+                     .add('q', shape='circle', size='small', fill='yes')
+                     .relate('q', 'above', 'p')),
+    4: SemanticNet().add('q', shape='circle', size='large', fill='no'),
+}
+
+# How similar each kind of change is (bigger = more similar), in the
+# spirit of the weights in Goel & Joyner's KBAI lectures.
+WEIGHTS = {'unchanged': 5, 'size changed': 3, 'fill changed': 3,
+           'relation changed': 2, 'shape changed': 1, 'deleted': 1, 'added': 1}
+
+def transform(net1, net2, mapping):
+    """Describe how net1 becomes net2, given which object maps to which.
+    Objects are described by ROLE (their position in the mapping), not name."""
+    changes = []
+    for role, (o1, o2) in enumerate(mapping):
+        if o2 is None:
+            changes.append((role, 'deleted'))
+            continue
+        a, b = net1.nodes[o1], net2.nodes[o2]
+        diffs = [f'{k} changed' for k in a if a[k] != b.get(k)]
+        rel1 = {r for r, _ in net1.relations_of(o1)}
+        rel2 = {r for r, _ in net2.relations_of(o2)}
+        if rel1 != rel2:
+            diffs.append('relation changed')
+        changes += [(role, d) for d in diffs] or [(role, 'unchanged')]
+    return sorted(changes)
+
+def correspond(net1, net2):
+    """Pair objects: same shape first, then by order; leftovers are deleted."""
+    pairs, used = [], set()
+    for o1, a in net1.nodes.items():
+        match = next((o2 for o2, b in net2.nodes.items()
+                      if o2 not in used and b['shape'] == a['shape']), None)
+        if match is None:
+            match = next((o2 for o2 in net2.nodes if o2 not in used), None)
+        if match:
+            used.add(match)
+        pairs.append((o1, match))
+    return pairs
+
+def score(t1, t2):
+    """Weighted overlap of two transformations; mismatches cost points."""
+    s = sum(WEIGHTS[kind] for role, kind in t1 if (role, kind) in t2)
+    return s - len(set(t1) ^ set(t2))
+
+def solve(A, B, C, candidates):
+    ab = transform(A, B, correspond(A, B))
+    print('A -> B:', ab)
+    best = None
+    for k, D in candidates.items():
+        cd = transform(C, D, correspond(C, D))
+        s = score(ab, cd)
+        print(f'  C -> {k}: {cd}  score {s}')
+        if best is None or s > best[1]:
+            best = (k, s)
+    return best[0]
+
+print('answer:', solve(A, B, C, candidates))</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Networks of Objects</h3>
+<p>An ARC pair is a visual analogy with one figure missing: <em>train input is to train output as test input is to ?</em>. So the same move works. Describe each grid as a network of objects, compare input with output, and read a rule off the differences. Task <code class="code-lesson-il">aabf363d</code>:</p>
+<div class="diagram">
+<svg viewBox="0 0 436 286" style="max-width:520px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr_aabf363d" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(34.0,26.0)"><rect x="-1" y="-1" width="102.0" height="102.0" fill="#555"/><rect x="0.0" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="14.3" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="14.3" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="14.3" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="28.6" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="42.9" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="42.9" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="42.9" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="42.9" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="57.1" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="57.1" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="57.1" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="71.4" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="85.7" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="50.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 1</text></g><line x1="84.0" y1="134.0" x2="84.0" y2="162.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_aabf363d)"/><g transform="translate(34.0,172.0)"><rect x="-1" y="-1" width="102.0" height="102.0" fill="#555"/><rect x="0.0" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="14.3" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="14.3" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="14.3" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="28.6" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="42.9" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="42.9" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="42.9" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="42.9" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="57.1" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="57.1" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="57.1" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="71.4" width="14.3" height="14.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(168.0,26.0)"><rect x="-1" y="-1" width="102.0" height="102.0" fill="#555"/><rect x="0.0" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="14.3" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="28.6" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="28.6" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="28.6" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="42.9" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="42.9" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="42.9" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="42.9" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="57.1" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="57.1" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="71.4" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="71.4" width="14.3" height="14.3" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="85.7" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="50.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 2</text></g><line x1="218.0" y1="134.0" x2="218.0" y2="162.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_aabf363d)"/><g transform="translate(168.0,172.0)"><rect x="-1" y="-1" width="102.0" height="102.0" fill="#555"/><rect x="0.0" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="14.3" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="28.6" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="28.6" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="28.6" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="42.9" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="42.9" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="42.9" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="42.9" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="57.1" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="57.1" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="71.4" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="71.4" width="14.3" height="14.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(302.0,26.0)"><rect x="-1" y="-1" width="102.0" height="102.0" fill="#555"/><rect x="0.0" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="14.3" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="14.3" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="14.3" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="28.6" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="28.6" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="28.6" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="28.6" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="28.6" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="42.9" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="42.9" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="42.9" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="57.1" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="57.1" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="57.1" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="71.4" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="71.4" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="71.4" width="14.3" height="14.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="71.4" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="85.7" width="14.3" height="14.3" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="85.7" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="50.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">test</text></g><line x1="352.0" y1="134.0" x2="352.0" y2="162.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_aabf363d)"/><rect x="330.6" y="172.0" width="42.9" height="42.9" rx="4" fill="#fff" stroke="#7a4f9a" stroke-width="2" stroke-dasharray="5,4"/><text x="352.0" y="202.4" font-size="26" text-anchor="middle" fill="#7a4f9a">?</text></svg>
+    <div class="diagram-caption">Task aabf363d. A large shape and a single cell in the bottom-left corner. In the output the shape takes the colour of the single cell, and the single cell disappears.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_semnet.py: build a network for a grid</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">from arc_utils import load_task, find_objects, show, COLOR_NAMES
+
+def build_net(grid):
+    &quot;&quot;&quot;A semantic network for one grid: object nodes plus relations.&quot;&quot;&quot;
+    objs = find_objects(grid, bg=0)
+    nodes = {f&#x27;o{i}&#x27;: o for i, o in enumerate(objs)}
+    edges = set()
+    for a, oa in nodes.items():
+        for b, ob in nodes.items():
+            if a == b:
+                continue
+            if oa[&#x27;size&#x27;] &gt; ob[&#x27;size&#x27;]:
+                edges.add((a, &#x27;bigger-than&#x27;, b))
+            if oa[&#x27;color&#x27;] == ob[&#x27;color&#x27;]:
+                edges.add((a, &#x27;same-color&#x27;, b))
+            if oa[&#x27;bottom&#x27;] &lt; ob[&#x27;top&#x27;]:
+                edges.add((a, &#x27;above&#x27;, b))
+            if oa[&#x27;right&#x27;] &lt; ob[&#x27;left&#x27;]:
+                edges.add((a, &#x27;left-of&#x27;, b))
+    return nodes, edges
+
+def describe(nodes, edges):
+    for n, o in nodes.items():
+        print(f&#x27;  {n}: {COLOR_NAMES[o[&quot;color&quot;]]}, size {o[&quot;size&quot;]}&#x27;)
+    for e in sorted(edges):
+        print(&#x27;  &#x27;, *e)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_semnet.py: compare input with output</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def compare(net_in, grid_out):
+    &quot;&quot;&quot;Match each input object to what is in the output at its cells.&quot;&quot;&quot;
+    nodes, _ = net_in
+    report = []
+    for n, o in nodes.items():
+        out_colors = {grid_out[r][c] for r, c in o[&#x27;cells&#x27;]}
+        if out_colors == {o[&#x27;color&#x27;]}:
+            report.append((n, &#x27;kept&#x27;, None))
+        elif out_colors == {0}:
+            report.append((n, &#x27;deleted&#x27;, None))
+        elif len(out_colors) == 1:
+            report.append((n, &#x27;recolored&#x27;, out_colors.pop()))
+        else:
+            report.append((n, &#x27;changed&#x27;, None))
+    return report
+
+task = load_task(&#x27;data/training/aabf363d.json&#x27;)
+pair = task[&#x27;train&#x27;][0]
+net = build_net(pair[&#x27;input&#x27;])
+print(&#x27;input network:&#x27;)
+describe(*net)
+print(&#x27;what happened to each node:&#x27;)
+for row in compare(net, pair[&#x27;output&#x27;]):
+    print(&#x27;  &#x27;, row)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">input network:
+  o0: red, size 12
+  o1: yellow, size 1
+   o0 above o1
+   o0 bigger-than o1
+   o1 left-of o0
+what happened to each node:
+   (&#x27;o0&#x27;, &#x27;recolored&#x27;, 4)
+   (&#x27;o1&#x27;, &#x27;deleted&#x27;, None)</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 760 180" style="max-width:720px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="an" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><circle cx="140" cy="90" r="52" fill="#ffe3e1" stroke="#2e5a80" stroke-width="1.8"/><text x="140" y="79.5" font-size="13" text-anchor="middle" fill="#1f3b52">o0</text><text x="140" y="94.5" font-size="13" text-anchor="middle" fill="#1f3b52">red</text><text x="140" y="109.5" font-size="13" text-anchor="middle" fill="#1f3b52">size 12</text><circle cx="420" cy="90" r="40" fill="#fff6c7" stroke="#2e5a80" stroke-width="1.8"/><text x="420" y="79.5" font-size="13" text-anchor="middle" fill="#1f3b52">o1</text><text x="420" y="94.5" font-size="13" text-anchor="middle" fill="#1f3b52">yellow</text><text x="420" y="109.5" font-size="13" text-anchor="middle" fill="#1f3b52">size 1</text><line x1="194" y1="76" x2="378" y2="76" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#an)"/><text x="286.0" y="68" font-size="11" text-anchor="middle" fill="#1f3b52">bigger-than</text><line x1="194" y1="104" x2="378" y2="104" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#an)"/><text x="286.0" y="122" font-size="11" text-anchor="middle" fill="#1f3b52">above</text><line x1="380" y1="132" x2="186" y2="132" stroke="#1f3b52" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#an)"/><text x="283.0" y="150" font-size="11" text-anchor="middle" fill="#1f3b52">left-of</text><text x="560" y="70" font-size="12.5" text-anchor="start" fill="#8a4526" font-weight="bold">compare with output:</text><text x="560" y="95" font-size="12" text-anchor="start" fill="#8a4526">o0  recolored to yellow</text><text x="560" y="115" font-size="12" text-anchor="start" fill="#8a4526">o1  deleted</text><text x="560" y="140" font-size="12" text-anchor="start" fill="#8a4526">new colour of o0 =</text><text x="560" y="158" font-size="12" text-anchor="start" fill="#8a4526">old colour of o1</text></svg>
+    <div class="diagram-caption">The input network for train pair 1, and what the comparison found. The important relation, "the new colour of o0 is the old colour of o1," is a relation between the input and the output networks.</div>
+</div>
+
+<p>The comparison says what happened to <em>o0</em> and <em>o1</em>, but those names mean nothing in the test grid. The rule has to be stated in terms of <strong>roles</strong> that exist in any grid, like <em>largest</em> and <em>smallest</em>, exactly as the Raven agent described objects by role.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_semnet.py: a rule stated in roles</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def roles(nodes):
+    by_size = sorted(nodes, key=lambda n: nodes[n][&#x27;size&#x27;])
+    return {&#x27;smallest&#x27;: by_size[0], &#x27;largest&#x27;: by_size[-1]}
+
+def apply_rule(grid):
+    &quot;&quot;&quot;Rule read off the network comparison: the largest object takes the
+    colour of the smallest object, and the smallest object disappears.&quot;&quot;&quot;
+    nodes, _ = build_net(grid)
+    r = roles(nodes)
+    big, small = nodes[r[&#x27;largest&#x27;]], nodes[r[&#x27;smallest&#x27;]]
+    out = [row[:] for row in grid]
+    for y, x in big[&#x27;cells&#x27;]:
+        out[y][x] = small[&#x27;color&#x27;]
+    for y, x in small[&#x27;cells&#x27;]:
+        out[y][x] = 0
+    return out
+
+print(&#x27;rule fits every train pair:&#x27;,
+      all(apply_rule(p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;]))
+print(&#x27;test correct:&#x27;, apply_rule(task[&#x27;test&#x27;][0][&#x27;input&#x27;]) == task[&#x27;test&#x27;][0][&#x27;output&#x27;])</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">rule fits every train pair: True
+test correct: True</code>
+</div>
+
+<p>Here the rule was written by hand after reading the comparison. Turning "read a rule off the comparison" into something the agent does by itself is the work of the next several weeks: production rules (week 2), generate and test (week 3), and learning concepts from examples (week 7).</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Semantic networks live in <strong>Memory</strong>. The input network is the agent's working-memory model of the grid, built by the <strong>Perceptor</strong>. Concept hierarchies (like <em>bird is-a animal</em>) are long-term semantic memory. Upgrading your Perceptor from "list of cells" to "network of objects and relations" is the single biggest improvement you can make this month.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>Why did the Raven agent describe objects by role instead of by name? What goes wrong if it uses names?</li><li>List three relations, other than the four in <code class="code-lesson-il">build_net</code>, that would be useful for ARC. Which core-knowledge prior does each one come from?</li><li>Hofstadter and Sander describe concepts as having fuzzy "distances" from each other. Can a semantic network with only labelled edges capture that? What would you add?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Define a semantic network by its lexicon, structure, and semantics.</li><li>Explain the Collins and Quillian result and one finding that complicated it.</li><li>Build a transformation network for a simple visual analogy and score candidates against it.</li><li>Explain the correspondence problem and why roles are needed to transfer a rule.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add a fifth candidate to the Raven problem that should beat candidate 1. (Hint: is there one?) If you cannot, explain why.</li><li>Run <code class="code-lesson-il">build_net</code> on train pair 2 of <code class="code-lesson-il">aabf363d</code> and draw the network on paper.</li></ol><h3>Intermediate</h3>
+<ol><li>Add a <em>touches</em> relation (two objects with cells side by side) to <code class="code-lesson-il">build_net</code>.</li><li>Make <code class="code-lesson-il">correspond</code> in the Raven agent try every possible pairing and keep the one whose transformation has the highest total weight.</li></ol><h3>Advanced</h3>
+<ol><li>Write <code class="code-lesson-il">diff_networks(net_in, net_out)</code> that also reports objects that <em>moved</em> (same shape and colour, different position). Find two training tasks where it helps.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Give your ARC agent's Perceptor a <code class="code-lesson-il">network</code> field built with <code class="code-lesson-il">build_net</code>, and print the comparison for every train pair of five tasks. Which relations would have helped you solve them?</li></ol></section>
+
+
+    </body>
+</html>

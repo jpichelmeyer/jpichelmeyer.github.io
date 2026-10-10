@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>Recording cases never generalizes; it just remembers. Most of the time we want more: from a handful of examples, a <em>concept</em> that applies to examples we have never seen. <strong>Incremental concept learning</strong> builds that concept one example at a time, generalizing when a new positive example does not fit and specializing when a negative example fits too well. It is how a toddler grows a category from one member, and how your agent can learn <em>which objects</em> a rule applies to.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_incremental_concept_learning_1_hofstadter.pdf" target="_blank"><b>Hofstadter &amp; Sander</b>, Ch. 1: <i>It All Starts with Single-member Categories; Passing from Mommy to mommy</i></a> <span class="reading-meta">(pp. 34–37 &middot; PDF 49–52 &middot; 4 pages)</span><br>A toddler grows the category mommy one example at a time, starting from a category with one member.</li><li><a href="../../pdfs/csc3530/csc3530_incremental_concept_learning_2_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 7, §7.1.5: <i>A LEIA Learns Rules of the Road</i></a> <span class="reading-meta">(pp. 192–197 &middot; PDF 203–208 &middot; 6 pages)</span><br>An agent builds the concepts four-way stop and stop sign from a few sentences and refines a property value with each new example.</li></ul>
+</div>
+
+
+<h3>Part 1. Generalize on Positives, Specialize on Near Misses</h3>
+<p>Patrick Winston's 1970 program learned the concept <em>arch</em> from a short, carefully ordered sequence of examples. It starts with the full description of the first example as its concept (as specific as possible) and adjusts:</p>
+<div class="diagram">
+<svg viewBox="0 0 770 200" style="max-width:760px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="90" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="15" y="48" width="110" height="22" fill="#FF4136" stroke="#1f3b52" stroke-width="1.5"/><line x1="10" y1="140" x2="150" y2="140" stroke="#5b6b78" stroke-width="2"/><text x="75" y="22" font-size="12" text-anchor="middle" fill="#3c8a5a" font-weight="bold">positive</text><text x="75" y="162" font-size="11" text-anchor="middle" fill="#1f3b52">first example</text><rect x="170" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="210" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="165" y="48" width="80" height="22" fill="#FF4136" stroke="#1f3b52" stroke-width="1.5"/><line x1="160" y1="140" x2="300" y2="140" stroke="#5b6b78" stroke-width="2"/><text x="225" y="22" font-size="12" text-anchor="middle" fill="#b3261e" font-weight="bold">near miss</text><text x="225" y="162" font-size="11" text-anchor="middle" fill="#1f3b52">posts touch</text><text x="225" y="177" font-size="11" text-anchor="middle" fill="#1f3b52">-&gt; forbid-link</text><rect x="320" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="366" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="400" y="118" width="48" height="22" fill="#FF4136" stroke="#1f3b52" stroke-width="1.5"/><line x1="310" y1="140" x2="450" y2="140" stroke="#5b6b78" stroke-width="2"/><text x="375" y="22" font-size="12" text-anchor="middle" fill="#b3261e" font-weight="bold">near miss</text><text x="375" y="162" font-size="11" text-anchor="middle" fill="#1f3b52">top not supported</text><text x="375" y="177" font-size="11" text-anchor="middle" fill="#1f3b52">-&gt; require-link</text><rect x="470" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="540" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><polygon points="465,70 575,70 520.0,40" fill="#FF4136" stroke="#1f3b52" stroke-width="1.5"/><line x1="460" y1="140" x2="600" y2="140" stroke="#5b6b78" stroke-width="2"/><text x="525" y="22" font-size="12" text-anchor="middle" fill="#3c8a5a" font-weight="bold">positive</text><text x="525" y="162" font-size="11" text-anchor="middle" fill="#1f3b52">wedge on top</text><text x="525" y="177" font-size="11" text-anchor="middle" fill="#1f3b52">-&gt; climb-tree</text><rect x="620" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="690" y="70" width="30" height="70" fill="#9aa5ae" stroke="#1f3b52" stroke-width="1.5"/><rect x="615" y="48" width="110" height="22" fill="#0074D9" stroke="#1f3b52" stroke-width="1.5"/><line x1="610" y1="140" x2="750" y2="140" stroke="#5b6b78" stroke-width="2"/><text x="675" y="22" font-size="12" text-anchor="middle" fill="#3c8a5a" font-weight="bold">positive</text><text x="675" y="162" font-size="11" text-anchor="middle" fill="#1f3b52">blue top</text><text x="675" y="177" font-size="11" text-anchor="middle" fill="#1f3b52">-&gt; enlarge-set</text></svg>
+    <div class="diagram-caption">Teaching "arch." Each example changes the concept in one specific way. The negative examples are near misses: they differ from an arch in exactly one important respect, so the learner knows what to blame.</div>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 760 200" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="hs" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="10" width="130" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="85.0" y="29.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">heuristic</text><rect x="150" y="10" width="270" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="285.0" y="29.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">when</text><rect x="420" y="10" width="220" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="530.0" y="29.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">what changes</text><rect x="640" y="10" width="100" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="690.0" y="29.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">direction</text><rect x="20" y="40" width="130" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="59.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">require-link</text><rect x="150" y="40" width="270" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="285.0" y="59.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">near miss lacks a link the concept has</text><rect x="420" y="40" width="220" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="530.0" y="59.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">make that link mandatory</text><rect x="640" y="40" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="690.0" y="59.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">specialize</text><rect x="20" y="70" width="130" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="89.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">forbid-link</text><rect x="150" y="70" width="270" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="285.0" y="89.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">near miss has a link the concept lacks</text><rect x="420" y="70" width="220" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="530.0" y="89.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">forbid that link</text><rect x="640" y="70" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="690.0" y="89.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">specialize</text><rect x="20" y="100" width="130" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="119.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">drop-link</text><rect x="150" y="100" width="270" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="285.0" y="119.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">positive lacks a link the concept has</text><rect x="420" y="100" width="220" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="530.0" y="119.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">the link was not essential</text><rect x="640" y="100" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="690.0" y="119.0" font-size="11.5" text-anchor="middle" fill="#3c8a5a" font-weight="bold">generalize</text><rect x="20" y="130" width="130" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="149.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">enlarge-set</text><rect x="150" y="130" width="270" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="285.0" y="149.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">positive has a new value for a feature</text><rect x="420" y="130" width="220" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="530.0" y="149.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">allow both values</text><rect x="640" y="130" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="690.0" y="149.0" font-size="11.5" text-anchor="middle" fill="#3c8a5a" font-weight="bold">generalize</text><rect x="20" y="160" width="130" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="179.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">climb-tree</text><rect x="150" y="160" width="270" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="285.0" y="179.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">positive has a sibling class (wedge vs brick)</text><rect x="420" y="160" width="220" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="530.0" y="179.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">use the common parent (block)</text><rect x="640" y="160" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="690.0" y="179.0" font-size="11.5" text-anchor="middle" fill="#3c8a5a" font-weight="bold">generalize</text></svg>
+    <div class="diagram-caption">Winston's learning heuristics. Positives push the concept toward general; near misses push it toward specific.</div>
+</div>
+
+<p>Two ideas make this work. First, <strong>background knowledge</strong>: climb-tree needs to know that bricks and wedges are both blocks. Second, a <strong>cooperative teacher</strong> who orders examples sensibly and chooses near misses that differ in just one way. With a random stream of examples, a learner cannot tell which of many differences made an example negative.</p>
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Children's word learning shows both directions. They <em>overextend</em> ("doggie" for every four-legged animal), then specialize as they meet near misses ("no, that's a cow"). They <em>underextend</em> ("bird" only for the sparrows at the feeder, not for penguins), then generalize. This week's Hofstadter reading follows a toddler, Tim, whose category <em>mommy</em> starts with exactly one member, his own Mommy, and grows by superimposing new examples until it covers other children's mothers. The McShane reading shows a working agent doing the same with stop signs, refining a learned width as each new example arrives.</p>
+</div>
+
+
+<h3>Part 2. An Arch-Learning Agent</h3>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arch_agent.py: background knowledge</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">ISA = {&#x27;brick&#x27;: &#x27;block&#x27;, &#x27;wedge&#x27;: &#x27;block&#x27;, &#x27;cylinder&#x27;: &#x27;block&#x27;, &#x27;block&#x27;: &#x27;thing&#x27;}
+
+def climb(a, b):
+    &quot;&quot;&quot;Lowest common ancestor of two classes in the is-a tree.&quot;&quot;&quot;
+    chain = [a]
+    while chain[-1] in ISA:
+        chain.append(ISA[chain[-1]])
+    while b not in chain:
+        b = ISA[b]
+    return b
+
+def is_a(x, y):
+    while x != y and x in ISA:
+        x = ISA[x]
+    return x == y</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arch_agent.py: describing scenes</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># An example: parts with types and colours, plus relations between parts.
+def scene(top, top_color, left_touches_right, supported):
+    rel = {(&#x27;left&#x27;, &#x27;supports&#x27;, &#x27;top&#x27;), (&#x27;right&#x27;, &#x27;supports&#x27;, &#x27;top&#x27;)} if supported else set()
+    if left_touches_right:
+        rel.add((&#x27;left&#x27;, &#x27;touches&#x27;, &#x27;right&#x27;))
+    return {&#x27;types&#x27;: {&#x27;left&#x27;: &#x27;brick&#x27;, &#x27;right&#x27;: &#x27;brick&#x27;, &#x27;top&#x27;: top},
+            &#x27;colors&#x27;: {&#x27;top&#x27;: top_color}, &#x27;relations&#x27;: rel}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arch_agent.py: the learner</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class Concept:
+    def __init__(self, first):
+        self.types = dict(first[&#x27;types&#x27;])
+        self.colors = {p: {c} for p, c in first[&#x27;colors&#x27;].items()}
+        self.relations = set(first[&#x27;relations&#x27;])   # may be dropped later
+        self.must, self.must_not = set(), set()
+
+    def covers(self, ex):
+        return (all(is_a(ex[&#x27;types&#x27;][p], t) for p, t in self.types.items())
+                and all(ex[&#x27;colors&#x27;][p] in cs for p, cs in self.colors.items())
+                and self.must &lt;= ex[&#x27;relations&#x27;] and not (self.must_not &amp; ex[&#x27;relations&#x27;]))
+
+    def positive(self, ex):
+        for p, t in self.types.items():               # climb-tree
+            if not is_a(ex[&#x27;types&#x27;][p], t):
+                self.types[p] = climb(t, ex[&#x27;types&#x27;][p])
+                print(f&#x27;    climb-tree: {p} can be any {self.types[p]}&#x27;)
+        for p, cs in self.colors.items():             # enlarge-set
+            if ex[&#x27;colors&#x27;][p] not in cs:
+                cs.add(ex[&#x27;colors&#x27;][p])
+                print(f&#x27;    enlarge-set: {p} colour in {sorted(cs)}&#x27;)
+        for r in self.relations - ex[&#x27;relations&#x27;] - self.must:   # drop-link
+            self.relations.discard(r)
+            print(f&#x27;    drop-link: {r} is not needed&#x27;)
+
+    def negative(self, ex):
+        for r in self.relations - ex[&#x27;relations&#x27;]:   # require-link
+            self.must.add(r)
+            print(f&#x27;    require-link: must have {r}&#x27;)
+        for r in ex[&#x27;relations&#x27;] - self.relations:   # forbid-link
+            self.must_not.add(r)
+            print(f&#x27;    forbid-link: must not have {r}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arch_agent.py: a teaching sequence</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">lessons = [
+    (&#x27;+&#x27;, scene(&#x27;brick&#x27;, &#x27;red&#x27;, False, True), &#x27;an arch&#x27;),
+    (&#x27;-&#x27;, scene(&#x27;brick&#x27;, &#x27;red&#x27;, True, True), &#x27;posts touch: not an arch&#x27;),
+    (&#x27;-&#x27;, scene(&#x27;brick&#x27;, &#x27;red&#x27;, False, False), &#x27;top lies beside the posts: not an arch&#x27;),
+    (&#x27;+&#x27;, scene(&#x27;wedge&#x27;, &#x27;red&#x27;, False, True), &#x27;a wedge on top is still an arch&#x27;),
+    (&#x27;+&#x27;, scene(&#x27;brick&#x27;, &#x27;blue&#x27;, False, True), &#x27;a blue top is still an arch&#x27;),
+]
+concept = None
+for sign, ex, note in lessons:
+    print(f&#x27;{sign} {note}&#x27;)
+    if concept is None:
+        concept = Concept(ex)
+    elif sign == &#x27;+&#x27;:
+        concept.positive(ex)
+    else:
+        concept.negative(ex)
+
+print(&#x27;test: cylinder top, green, posts apart -&gt;&#x27;,
+      concept.covers(scene(&#x27;cylinder&#x27;, &#x27;green&#x27;, False, True)))
+print(&#x27;test: cylinder top, blue, posts apart -&gt;&#x27;,
+      concept.covers(scene(&#x27;cylinder&#x27;, &#x27;blue&#x27;, False, True)))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">+ an arch
+- posts touch: not an arch
+    forbid-link: must not have (&#x27;left&#x27;, &#x27;touches&#x27;, &#x27;right&#x27;)
+- top lies beside the posts: not an arch
+    require-link: must have (&#x27;left&#x27;, &#x27;supports&#x27;, &#x27;top&#x27;)
+    require-link: must have (&#x27;right&#x27;, &#x27;supports&#x27;, &#x27;top&#x27;)
++ a wedge on top is still an arch
+    climb-tree: top can be any block
++ a blue top is still an arch
+    enlarge-set: top colour in [&#x27;blue&#x27;, &#x27;red&#x27;]
+test: cylinder top, green, posts apart -&gt; False
+test: cylinder top, blue, posts apart -&gt; True</code>
+</div>
+
+<p>The last two lines are worth a moment. A cylinder top is accepted because climb-tree generalized <em>wedge or brick</em> to <em>any block</em>. A green top is rejected, because the learner has only seen red and blue tops and enlarge-set is cautious. Is that a bug? It is the learner refusing to generalize beyond its evidence. People would probably accept green, because they bring a belief that colour rarely matters for structures. That belief is more background knowledge, and the learner does not have it.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Incremental concept learning (after Winston's arch learner).
+ISA = {'brick': 'block', 'wedge': 'block', 'cylinder': 'block', 'block': 'thing'}
+
+def climb(a, b):
+    """Lowest common ancestor of two classes in the is-a tree."""
+    chain = [a]
+    while chain[-1] in ISA:
+        chain.append(ISA[chain[-1]])
+    while b not in chain:
+        b = ISA[b]
+    return b
+
+def is_a(x, y):
+    while x != y and x in ISA:
+        x = ISA[x]
+    return x == y
+
+# An example: parts with types and colours, plus relations between parts.
+def scene(top, top_color, left_touches_right, supported):
+    rel = {('left', 'supports', 'top'), ('right', 'supports', 'top')} if supported else set()
+    if left_touches_right:
+        rel.add(('left', 'touches', 'right'))
+    return {'types': {'left': 'brick', 'right': 'brick', 'top': top},
+            'colors': {'top': top_color}, 'relations': rel}
+
+class Concept:
+    def __init__(self, first):
+        self.types = dict(first['types'])
+        self.colors = {p: {c} for p, c in first['colors'].items()}
+        self.relations = set(first['relations'])   # may be dropped later
+        self.must, self.must_not = set(), set()
+
+    def covers(self, ex):
+        return (all(is_a(ex['types'][p], t) for p, t in self.types.items())
+                and all(ex['colors'][p] in cs for p, cs in self.colors.items())
+                and self.must <= ex['relations'] and not (self.must_not & ex['relations']))
+
+    def positive(self, ex):
+        for p, t in self.types.items():               # climb-tree
+            if not is_a(ex['types'][p], t):
+                self.types[p] = climb(t, ex['types'][p])
+                print(f'    climb-tree: {p} can be any {self.types[p]}')
+        for p, cs in self.colors.items():             # enlarge-set
+            if ex['colors'][p] not in cs:
+                cs.add(ex['colors'][p])
+                print(f'    enlarge-set: {p} colour in {sorted(cs)}')
+        for r in self.relations - ex['relations'] - self.must:   # drop-link
+            self.relations.discard(r)
+            print(f'    drop-link: {r} is not needed')
+
+    def negative(self, ex):
+        for r in self.relations - ex['relations']:   # require-link
+            self.must.add(r)
+            print(f'    require-link: must have {r}')
+        for r in ex['relations'] - self.relations:   # forbid-link
+            self.must_not.add(r)
+            print(f'    forbid-link: must not have {r}')
+
+lessons = [
+    ('+', scene('brick', 'red', False, True), 'an arch'),
+    ('-', scene('brick', 'red', True, True), 'posts touch: not an arch'),
+    ('-', scene('brick', 'red', False, False), 'top lies beside the posts: not an arch'),
+    ('+', scene('wedge', 'red', False, True), 'a wedge on top is still an arch'),
+    ('+', scene('brick', 'blue', False, True), 'a blue top is still an arch'),
+]
+concept = None
+for sign, ex, note in lessons:
+    print(f'{sign} {note}')
+    if concept is None:
+        concept = Concept(ex)
+    elif sign == '+':
+        concept.positive(ex)
+    else:
+        concept.negative(ex)
+
+print('test: cylinder top, green, posts apart ->',
+      concept.covers(scene('cylinder', 'green', False, True)))
+print('test: cylinder top, blue, posts apart ->',
+      concept.covers(scene('cylinder', 'blue', False, True)))</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Which Objects Get Changed?</h3>
+<p>A very common ARC pattern: some objects are recoloured and others are not, and the solver must work out <em>which</em>. That is concept learning. Each object in each train input is an example, labelled by the colour it has in the output. Task <code class="code-lesson-il">d2abd087</code>:</p>
+<div class="diagram">
+<svg viewBox="0 0 466 306" style="max-width:520px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr_d2abd087" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(34.0,26.0)"><rect x="-1" y="-1" width="112.0" height="112.0" fill="#555"/><rect x="0.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="33.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="33.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="33.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="55.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="55.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="66.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="66.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="66.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="77.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="77.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="77.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="55.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 1</text></g><line x1="89.0" y1="144.0" x2="89.0" y2="172.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_d2abd087)"/><g transform="translate(34.0,182.0)"><rect x="-1" y="-1" width="112.0" height="112.0" fill="#555"/><rect x="0.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="22.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="33.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="33.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="33.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="55.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="55.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="66.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="66.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="66.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="77.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="77.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="77.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="88.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="88.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="88.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(178.0,26.0)"><rect x="-1" y="-1" width="112.0" height="112.0" fill="#555"/><rect x="0.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="0.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="44.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="44.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="44.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="55.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="66.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="66.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="77.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="77.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="77.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="77.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="55.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 2</text></g><line x1="233.0" y1="144.0" x2="233.0" y2="172.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_d2abd087)"/><g transform="translate(178.0,182.0)"><rect x="-1" y="-1" width="112.0" height="112.0" fill="#555"/><rect x="0.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="0.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="11.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="11.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="11.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="11.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="11.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="22.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="22.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="22.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="44.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="44.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="44.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="55.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="66.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="66.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="77.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="77.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="77.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="77.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="88.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="88.0" width="11.0" height="11.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="88.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="88.0" width="11.0" height="11.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(322.0,26.0)"><rect x="-1" y="-1" width="112.0" height="112.0" fill="#555"/><rect x="0.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="0.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="0.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="0.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="0.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="11.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="11.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="22.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="22.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="33.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="44.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="44.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="44.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="55.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="55.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="55.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="55.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="55.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="55.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="66.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="66.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="77.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="77.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="88.0" width="11.0" height="11.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="88.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="55.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="99.0" y="99.0" width="11.0" height="11.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="55.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">test</text></g><line x1="377.0" y1="144.0" x2="377.0" y2="172.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_d2abd087)"/><rect x="357.0" y="182.0" width="40.0" height="40.0" rx="4" fill="#fff" stroke="#7a4f9a" stroke-width="2" stroke-dasharray="5,4"/><text x="377.0" y="211.0" font-size="26" text-anchor="middle" fill="#7a4f9a">?</text></svg>
+    <div class="diagram-caption">Task d2abd087. Grey shapes become red or blue. What decides it?</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_icl.py: object features</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">BG = {&#x27;black&#x27;: lambda g: 0 if any(0 in row for row in g) else background(g),
+      &#x27;majority&#x27;: background}       # two theories of what the background is
+
+def features(obj, grid):
+    h, w = dims(grid)
+    solid = obj[&#x27;size&#x27;] == obj[&#x27;height&#x27;] * obj[&#x27;width&#x27;]
+    return {&#x27;color&#x27;: obj[&#x27;color&#x27;], &#x27;size&#x27;: obj[&#x27;size&#x27;], &#x27;single_cell&#x27;: obj[&#x27;size&#x27;] == 1,
+            &#x27;height&#x27;: obj[&#x27;height&#x27;], &#x27;width&#x27;: obj[&#x27;width&#x27;], &#x27;solid_rectangle&#x27;: solid,
+            &#x27;touches_edge&#x27;: obj[&#x27;top&#x27;] == 0 or obj[&#x27;left&#x27;] == 0 or
+                            obj[&#x27;bottom&#x27;] == h - 1 or obj[&#x27;right&#x27;] == w - 1}</code>
+</div>
+
+<p>The learner below starts from the first example's full description and generalizes on each new positive: enlarge-set on a second value, drop the feature on a third. (For true/false features, seeing both values drops the feature immediately.)</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_icl.py: the concept learner</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class Concept:
+    &quot;&quot;&quot;Most specific conjunction consistent with the positives so far.
+    Each feature is either a set of allowed values or dropped (None).&quot;&quot;&quot;
+    def __init__(self, first):
+        self.allowed = {f: {v} for f, v in first.items()}
+
+    def covers(self, ex):
+        return all(vals is None or ex[f] in vals for f, vals in self.allowed.items())
+
+    def positive(self, ex, log):
+        for f, vals in self.allowed.items():
+            if vals is not None and ex[f] not in vals:
+                if len(vals) &gt;= 2 or isinstance(ex[f], bool):   # every value allowed: drop it
+                    self.allowed[f] = None
+                    log.append(f&#x27;drop {f}&#x27;)
+                else:
+                    vals.add(ex[f])
+                    log.append(f&#x27;enlarge {f} to {sorted(vals)}&#x27;)
+
+    def specificity(self):
+        return sum(v is not None for v in self.allowed.values())
+
+    def describe(self):
+        return &#x27;, &#x27;.join(f&#x27;{f} in {sorted(v)}&#x27; if len(v) &gt; 1 else f&#x27;{f} = {next(iter(v))}&#x27;
+                         for f, v in self.allowed.items() if v is not None)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_icl.py: objects as labelled examples</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def labelled_objects(pair, bg):
+    &quot;&quot;&quot;Each input object, labelled with the single colour it has in the
+    output (or None if it changed in some other way).&quot;&quot;&quot;
+    out = pair[&#x27;output&#x27;]
+    for obj in find_objects(pair[&#x27;input&#x27;], bg=BG[bg](pair[&#x27;input&#x27;])):
+        cols = {out[r][c] for r, c in obj[&#x27;cells&#x27;]}
+        yield features(obj, pair[&#x27;input&#x27;]), (cols.pop() if len(cols) == 1 else None)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_icl.py: learning one concept per output colour</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def learn(task, bg=&#x27;black&#x27;, verbose=False):
+    &quot;&quot;&quot;For each new colour, incrementally learn which objects turn that colour.&quot;&quot;&quot;
+    if any(dims(p[&#x27;input&#x27;]) != dims(p[&#x27;output&#x27;]) for p in task[&#x27;train&#x27;]):
+        return None
+    concepts, negatives = {}, {}
+    for i, pair in enumerate(task[&#x27;train&#x27;]):
+        for feats, label in labelled_objects(pair, bg):
+            if label is None:
+                return None
+            if label == feats[&#x27;color&#x27;]:
+                negatives.setdefault(&#x27;kept&#x27;, []).append(feats)
+                continue
+            log = []
+            if label not in concepts:
+                concepts[label] = Concept(feats)
+                log.append(&#x27;first example&#x27;)
+            else:
+                concepts[label].positive(feats, log)
+            if verbose and log:
+                print(f&#x27;  pair {i}, an object becomes {label}: &#x27; + &#x27;; &#x27;.join(log))
+    for feats in negatives.get(&#x27;kept&#x27;, []):
+        if any(c.covers(feats) for c in concepts.values()):
+            return None                  # a concept covers an object that stayed put
+    return concepts
+
+def apply(concepts, grid, bg=&#x27;black&#x27;):
+    out = [row[:] for row in grid]
+    for obj in find_objects(grid, bg=BG[bg](grid)):
+        f = features(obj, grid)
+        hits = [k for k, c in concepts.items() if c.covers(f)]
+        if hits:   # conflict resolution: the most specific concept wins
+            k = max(hits, key=lambda k: concepts[k].specificity())
+            for r, c in obj[&#x27;cells&#x27;]:
+                out[r][c] = k
+    return out</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_icl.py: watch it learn</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    task = load_task(&#x27;data/training/d2abd087.json&#x27;)
+    concepts = learn(task, verbose=True)
+    for k, c in concepts.items():
+        print(f&#x27;objects that become {k}: {c.describe()}&#x27;)
+    print(&#x27;test correct:&#x27;, apply(concepts, task[&#x27;test&#x27;][0][&#x27;input&#x27;]) == task[&#x27;test&#x27;][0][&#x27;output&#x27;])</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">  pair 0, an object becomes 2: first example
+  pair 0, an object becomes 2: enlarge height to [2, 3]; drop solid_rectangle
+  pair 0, an object becomes 1: first example
+  pair 1, an object becomes 1: enlarge height to [2, 3]; drop touches_edge
+  pair 1, an object becomes 2: enlarge width to [3, 4]; drop touches_edge
+  pair 1, an object becomes 1: enlarge size to [4, 5]; drop height; enlarge width to [3, 4]; drop solid_rectangle
+  pair 1, an object becomes 1: drop size; drop width
+  pair 1, an object becomes 2: drop width
+  pair 2, an object becomes 2: drop height
+objects that become 2: color = 5, size = 6, single_cell = False
+objects that become 1: color = 5, single_cell = False
+test correct: True</code>
+</div>
+
+<p>The concept for red kept <code class="code-lesson-il">size = 6</code> through every example, while the concept for blue dropped size. That is the rule: shapes of six cells turn red, all others blue. When an object matches both concepts, the more specific one wins, the same specificity rule as conflict resolution in production systems.</p>
+<p>Incremental learning has a classic failure, and ARC shows it immediately:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_icl.py: a concept that is too specific</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    task = load_task(&#x27;data/training/aedd82e4.json&#x27;)
+    concepts = learn(task)
+    print(&#x27;aedd82e4, objects that become 1:&#x27;, concepts[1].describe())
+    print(&#x27;  fits train:&#x27;, all(apply(concepts, p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;]),
+          &#x27;| test correct:&#x27;, apply(concepts, task[&#x27;test&#x27;][0][&#x27;input&#x27;]) == task[&#x27;test&#x27;][0][&#x27;output&#x27;])</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">aedd82e4, objects that become 1: color = 2, size = 1, single_cell = True, height = 1, width = 1, solid_rectangle = True, touches_edge = True
+  fits train: True | test correct: False</code>
+</div>
+
+<p>In <code class="code-lesson-il">aedd82e4</code>, isolated red cells turn blue. Every isolated cell in the train pairs happened to touch the edge of the grid, so <code class="code-lesson-il">touches_edge = True</code> never got dropped. The test has an isolated cell in the middle, and the agent leaves it red. No near miss ever taught it that the edge was irrelevant. A person would not make this mistake, because a person has a prior that "touching the edge" is rarely what an ARC rule is about. Which features to ignore by default is knowledge too.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_icl.py: sweep, trying two theories of the background</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    solved = []
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        t = load_task(&#x27;data/training/&#x27; + name)
+        for bg in BG:                    # if one theory of background fails, try the other
+            cs = learn(t, bg)
+            if cs and all(apply(cs, p[&#x27;input&#x27;], bg) == p[&#x27;output&#x27;] for p in t[&#x27;train&#x27;]):
+                if all(apply(cs, p[&#x27;input&#x27;], bg) == p[&#x27;output&#x27;] for p in t[&#x27;test&#x27;]):
+                    solved.append(f&#x27;{name[:-5]} ({bg})&#x27;)
+                break
+    print(len(solved), &#x27;tasks:&#x27;, &#x27;, &#x27;.join(solved))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">3 tasks: 67385a82 (black), d2abd087 (black), e8593010 (majority)</code>
+</div>
+
+<p>Three tasks, and one of them (<code class="code-lesson-il">e8593010</code>) needed the agent to drop the usual "black is background" assumption: there, the objects are black holes in a grey sheet. Few tasks, but this learner is narrow on purpose. Its value is that it will slot into everything else: once the Decider has found a rule like "recolour", concept learning works out where to apply it.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Concepts live in long-term semantic <strong>Memory</strong>; the learner is the learning arrow. The near-miss idea is a lesson for the <strong>Monitor</strong>: when a concept fails, the useful question is "what is the smallest difference between what worked and what did not?" That question returns as credit assignment in week 13.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>Winston's learner needed a cooperative teacher. ARC train pairs are chosen by a person to teach the rule. Are they near misses? Find a task where they clearly are, and one where they are not.</li><li>The agent overfit on <code class="code-lesson-il">touches_edge</code>. Name another feature that is probably irrelevant in most ARC tasks, and one that is surprisingly often relevant.</li><li>Hofstadter's Tim builds <em>mommy</em> from one example. What background knowledge does a toddler bring that makes one example enough?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Explain incremental concept learning and the five heuristics (require-link, forbid-link, drop-link, enlarge-set, climb-tree).</li><li>Explain why near misses and a cooperative teacher matter.</li><li>Relate over- and underextension in children to generalizing and specializing.</li><li>Learn object concepts from ARC pairs and diagnose a concept that is too specific.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Reorder the arch examples so a positive comes second. Does the final concept change?</li><li>Add a <code class="code-lesson-il">wedge</code> post example: is the learned concept specific enough to reject it? Should it be?</li></ol><h3>Intermediate</h3>
+<ol><li>Give the arch learner a colour hierarchy (red, blue, green are all <em>colour</em>) and make enlarge-set climb the hierarchy after two values.</li><li>Add features to the ARC learner: <code class="code-lesson-il">is_largest</code>, <code class="code-lesson-il">is_smallest</code>, <code class="code-lesson-il">n_neighbors</code>. Which new tasks fall?</li></ol><h3>Advanced</h3>
+<ol><li>Implement a prior: the ARC learner drops <code class="code-lesson-il">touches_edge</code> unless a negative example forces it back in (forbid or require). Does <code class="code-lesson-il">aedd82e4</code> now pass? Does anything else break?</li></ol><h3>For your ARC agent</h3>
+<ol><li>Add concept learning to your agent: when program search or rules find "objects get recoloured", call the learner to decide which objects.</li></ol></section>
+
+
+    </body>
+</html>

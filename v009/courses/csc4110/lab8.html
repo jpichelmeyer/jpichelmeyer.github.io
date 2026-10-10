@@ -15,89 +15,125 @@
     </head>
 
     <body>
-        <p>This lab joins the features, the log and the budgets into one working pipeline. You turn a 50 Hz IMU stream into 2 Hz features on the node, keep a bounded log in flash and a full log in SQLite at the hub, train a threshold from your own recordings and deploy it as a small file, and check your design against measured budgets and an outage.</p>
+        <p>This lab gives your robot a learned sense. You turn a 50 Hz IMU stream into six features on the node, log them at the hub, record labelled sessions of four gestures, train a decision tree and a small neural network on the laptop, and send the network back to the robot as a file it checks before trusting. Then you measure what it costs, how well it works live (not just on the laptop), and what happens when the network goes away. Every role uses this pipeline in Lab Practical 2, with its own sensor and its own labels; this lab builds it once on the sensor every robot has.</p>
 
 <h3>What You Will Build</h3>
-<p>A node that <strong>understands its own motion</strong> and a hub that <strong>remembers it</strong>. On the Pico, the MPU6050 is sampled at 50 Hz; a window turns the samples into features (mean, spread, range); a one-number model decides <em>moving or still</em>; a z-score flags unusual readings; and a ring log in flash keeps the node’s own events. At the hub, a logger writes everything into SQLite, you ask it questions, train a better threshold from your own recording, and send it back to the node as <span class="code-lesson-il">model.json</span>. Only the features cross the network: about 2 messages a second instead of 50.</p>
+<p>A robot that <strong>recognises how it is being handled</strong> (still, tapped, shaken or tilted) and a hub that <strong>remembers and teaches</strong>. In SAM terms, the model is the last stage of the Perceptor; a small Decider only accepts a gesture that wins two verdicts in a row; the Actuator shows it on the Lab 1 LEDs and publishes it. The node publishes its features at 2 Hz as well, because the hub needs them to train the next model.</p>
         <div class="diagram">
-<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="210" height="120" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="125" y="77.125" font-size="15" fill="#1f3b52" text-anchor="middle">Pico</text><text x="125" y="95.875" font-size="15" fill="#1f3b52" text-anchor="middle">IMU 50 Hz</text><text x="125" y="114.625" font-size="15" fill="#1f3b52" text-anchor="middle">window, model, z-score</text><text x="125" y="133.375" font-size="15" fill="#1f3b52" text-anchor="middle">ring log</text><rect x="300" y="60" width="150" height="70" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="375" y="100.6" font-size="16" fill="#1f3b52" text-anchor="middle">broker</text><rect x="520" y="20" width="220" height="90" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="630" y="60.875" font-size="15" fill="#1f3b52" text-anchor="middle">laptop: logger.py</text><text x="630" y="79.625" font-size="15" fill="#1f3b52" text-anchor="middle">SQLite lab.db</text><rect x="520" y="140" width="220" height="90" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="630" y="180.875" font-size="15" fill="#1f3b52" text-anchor="middle">laptop: train.py</text><text x="630" y="199.625" font-size="15" fill="#1f3b52" text-anchor="middle">model.json</text><line x1="230" y1="85" x2="291" y2="85" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="300.0,85.0 289.0,79.5 289.0,90.5" fill="#1f3b52"/><line x1="450" y1="85" x2="511.346" y2="67.4725" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="520.0,65.0 507.9,62.7 510.9,73.3" fill="#1f3b52"/><text x="265" y="72" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">tele/imu</text><line x1="630" y1="110" x2="630" y2="131" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="630.0,140.0 635.5,129.0 624.5,129.0" fill="#1f3b52"/><line x1="520" y1="200" x2="139" y2="200" stroke="#3c8a5a" stroke-width="2.4" stroke-linecap="round"/><polygon points="130.0,200.0 141.0,205.5 141.0,194.5" fill="#3c8a5a"/><line x1="130" y1="200" x2="130" y2="169" stroke="#3c8a5a" stroke-width="2.4" stroke-linecap="round"/><polygon points="130.0,160.0 124.5,171.0 135.5,171.0" fill="#3c8a5a"/><text x="330" y="188" font-size="14" fill="#3c8a5a" text-anchor="middle" font-weight="bold">model.json copied to the board</text></svg>
-            <div class="diagram-caption">The Lab 8 loop. Data goes up as features, the model comes down as a file. Between runs, the log is the only thing that links what happened to what you changed.</div>
+<svg viewBox="0 0 760 360" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="470" height="250" rx="12" fill="#ffffff" stroke="#2e5a80" stroke-width="2.5"/><text x="34.0" y="44.0" font-size="15" fill="#2e5a80" text-anchor="start" font-weight="bold">Robot (Pico)</text><rect x="36" y="60" width="438" height="96" rx="8" fill="#f4f8fb" stroke="#2e5a80" stroke-width="1.5"/><text x="46.0" y="78.0" font-size="12" fill="#2e5a80" text-anchor="start" font-weight="bold">PERCEPTOR</text><rect x="48" y="88" width="92" height="52" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.4"/><text x="94.0" y="118.5" font-size="13" fill="#1f3b52" text-anchor="middle">IMU 50 Hz</text><line x1="140.0" y1="114.0" x2="145.0" y2="114.0" stroke="#1f3b52" stroke-width="1.8" stroke-linecap="round"/><polygon points="154.0,114.0 143.0,119.5 143.0,108.5" fill="#1f3b52"/><rect x="154" y="88" width="92" height="52" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.4"/><text x="200.0" y="118.5" font-size="13" fill="#1f3b52" text-anchor="middle">2 s window</text><line x1="246.0" y1="114.0" x2="251.0" y2="114.0" stroke="#1f3b52" stroke-width="1.8" stroke-linecap="round"/><polygon points="260.0,114.0 249.0,119.5 249.0,108.5" fill="#1f3b52"/><rect x="260" y="88" width="92" height="52" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.4"/><text x="306.0" y="118.5" font-size="13" fill="#1f3b52" text-anchor="middle">6 features</text><line x1="352.0" y1="114.0" x2="357.0" y2="114.0" stroke="#1f3b52" stroke-width="1.8" stroke-linecap="round"/><polygon points="366.0,114.0 355.0,119.5 355.0,108.5" fill="#1f3b52"/><rect x="366" y="88" width="92" height="52" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="1.4"/><text x="412.0" y="118.5" font-size="13" fill="#1f3b52" text-anchor="middle">model</text><rect x="36" y="176" width="140" height="76" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="106.0" y="210.4" font-size="13" fill="#c0693f" text-anchor="middle" font-weight="bold">Decider</text><text x="106.0" y="226.7" font-size="13" fill="#1f3b52" text-anchor="middle">two in a row</text><rect x="196" y="176" width="140" height="76" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="266.0" y="210.4" font-size="13" fill="#b8860b" text-anchor="middle" font-weight="bold">Memory</text><text x="266.0" y="226.7" font-size="13" fill="#1f3b52" text-anchor="middle">candidate, stable</text><rect x="356" y="176" width="118" height="76" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="415.0" y="210.4" font-size="13" fill="#3c8a5a" text-anchor="middle" font-weight="bold">Actuator</text><text x="415.0" y="226.7" font-size="13" fill="#1f3b52" text-anchor="middle">LEDs, publish</text><line x1="421.0" y1="140.0" x2="114.9" y2="175.0" stroke="#5b6b78" stroke-width="1.6" stroke-linecap="round"/><polygon points="106.0,176.0 116.3,169.3 117.6,180.2" fill="#5b6b78"/><line x1="185.0" y1="214.0" x2="187.0" y2="214.0" stroke="#b8860b" stroke-width="1.6" stroke-linecap="round"/><polygon points="196.0,214.0 185.0,219.5 185.0,208.5" fill="#b8860b"/><polygon points="176.0,214.0 187.0,208.5 187.0,219.5" fill="#b8860b"/><line x1="176.0" y1="236.0" x2="347.0" y2="236.0" stroke="#1f3b52" stroke-width="1.6" stroke-linecap="round"/><polygon points="356.0,236.0 345.0,241.5 345.0,230.5" fill="#1f3b52"/><rect x="560" y="20" width="180" height="250" rx="12" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="2"/><text x="650.0" y="44.0" font-size="15" fill="#6b4f9e" text-anchor="middle" font-weight="bold">Hub / laptop</text><rect x="574" y="60" width="152" height="38" rx="8" fill="#ffffff" stroke="#6b4f9e" stroke-width="1.4"/><text x="650.0" y="83.2" font-size="12" fill="#1f3b52" text-anchor="middle">logger.py → lab.db</text><line x1="650.0" y1="98.0" x2="650.0" y2="101.0" stroke="#6b4f9e" stroke-width="1.4" stroke-linecap="round"/><polygon points="650.0,110.0 644.5,99.0 655.5,99.0" fill="#6b4f9e"/><rect x="574" y="110" width="152" height="38" rx="8" fill="#ffffff" stroke="#6b4f9e" stroke-width="1.4"/><text x="650.0" y="133.2" font-size="12" fill="#1f3b52" text-anchor="middle">your notebook: labels</text><line x1="650.0" y1="148.0" x2="650.0" y2="151.0" stroke="#6b4f9e" stroke-width="1.4" stroke-linecap="round"/><polygon points="650.0,160.0 644.5,149.0 655.5,149.0" fill="#6b4f9e"/><rect x="574" y="160" width="152" height="38" rx="8" fill="#ffffff" stroke="#6b4f9e" stroke-width="1.4"/><text x="650.0" y="183.2" font-size="12" fill="#1f3b52" text-anchor="middle">train.py</text><line x1="650.0" y1="198.0" x2="650.0" y2="201.0" stroke="#6b4f9e" stroke-width="1.4" stroke-linecap="round"/><polygon points="650.0,210.0 644.5,199.0 655.5,199.0" fill="#6b4f9e"/><rect x="574" y="210" width="152" height="38" rx="8" fill="#ffffff" stroke="#6b4f9e" stroke-width="1.4"/><text x="650.0" y="233.2" font-size="12" fill="#1f3b52" text-anchor="middle">model.json v1, v2 …</text><line x1="474.0" y1="100.0" x2="565.2" y2="80.8" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"/><polygon points="574.0,79.0 564.4,86.6 562.1,75.9" fill="#2e5a80"/><text x="530.0" y="73.5" font-size="12" fill="#2e5a80" text-anchor="middle">tele/feat 2 Hz</text><line x1="474.0" y1="220.0" x2="567.0" y2="145.6" stroke="#2e5a80" stroke-width="2" stroke-linecap="round"/><polygon points="574.0,140.0 568.8,151.2 562.0,142.6" fill="#2e5a80"/><text x="534.0" y="186.0" font-size="12" fill="#2e5a80" text-anchor="middle">evt/gesture</text><line x1="650.0" y1="270.0" x2="650.0" y2="300.0" stroke="#6b4f9e" stroke-width="2" stroke-linecap="round"/><line x1="650.0" y1="300.0" x2="300.0" y2="300.0" stroke="#6b4f9e" stroke-width="2" stroke-linecap="round"/><line x1="300.0" y1="300.0" x2="300.0" y2="279.0" stroke="#6b4f9e" stroke-width="2" stroke-linecap="round"/><polygon points="300.0,270.0 305.5,281.0 294.5,281.0" fill="#6b4f9e"/><text x="470.0" y="318.0" font-size="12" fill="#6b4f9e" text-anchor="middle">model.json copied to the board; the robot checks it, then reports stat/model</text><text x="255.0" y="345.0" font-size="13" fill="#5b6b78" text-anchor="middle" font-style="italic">features go up all the time; a model comes down now and then</text></svg>
+            <div class="diagram-caption">The Lab 8 loop. Features go up to the hub at 2 Hz (plan B of the edge inference lesson, needed for training), labels go up only when the gesture changes (plan C, what the team uses), and a model comes down as a file. Between runs, the database is the only thing that links what happened to what you changed.</div>
         </div>
-
-<h3>Step 1. The Node</h3>
-<p>Copy to the Pico: <span class="code-lesson-il">net.py</span>, <span class="code-lesson-il">config.py</span>, <span class="code-lesson-il">hub.py</span>, <span class="code-lesson-il">backoff.py</span>, <span class="code-lesson-il">resilient.py</span> (Lab 7), <span class="code-lesson-il">mpu6050.py</span> (from the I²C lesson), and the four new modules of this week: <span class="code-lesson-il">window.py</span> and <span class="code-lesson-il">anomaly.py</span> (features lesson), <span class="code-lesson-il">ringlog.py</span> (data logging lesson) and <span class="code-lesson-il">profile.py</span> (budgets lesson). Wire the MPU6050 as in Lab 3 (SDA GP0, SCL GP1). Then run this <span class="code-lesson-il">main.py</span>:</p>
+<h3>Step 1. The Robot</h3>
+<p>Copy to the Pico: <span class="code-lesson-il">net.py</span>, <span class="code-lesson-il">config.py</span>, <span class="code-lesson-il">hub.py</span>, <span class="code-lesson-il">backoff.py</span>, <span class="code-lesson-il">resilient.py</span> (Lab 7), <span class="code-lesson-il">mpu6050.py</span> (I²C lesson), and <span class="code-lesson-il">profile.py</span> and <span class="code-lesson-il">mlp.py</span> (edge inference lesson). The MPU6050 is wired as in Lab 3 (SDA GP4, SCL GP5) and the LEDs are still on GP8 and GP9. Mount the IMU firmly: a loose sensor turns every movement into a tap.</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">main.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl"># main.py for Lab 8: features at the edge, a log at the hub
+<span class="code-lesson-bl"># main.py for Lab 8: a robot whose Perceptor has a learned stage
 import math, json
 from time import ticks_ms, ticks_diff
 from machine import I2C, Pin
 import resilient
 from mpu6050 import MPU6050
-from window import Window
-from anomaly import Anomaly
-from ringlog import RingLog
 from profile import Cost
+from mlp import MLP                        # edge inference lesson
 
-i2c = I2C(0, sda=Pin(0), scl=Pin(1), freq=400000)
+N, HOP = 100, 25                           # a 2 s window at 50 Hz; a new verdict every 0.5 s
+
+# ---------------- PERCEPTOR: IMU -&gt; window -&gt; features -&gt; learned label ----------------
+class GestureSense:
+    def __init__(self, imu, model):
+        self.imu, self.model = imu, model
+        self.a, self.g = [1.0] * N, [0.0] * N        # rings of |accel| (g) and |gyro| (deg/s)
+        self.i = self.count = 0
+
+    def sample(self):
+        """Read the IMU once. True when it is time for a new verdict."""
+        a, _, g = self.imu.read()
+        self.a[self.i] = math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
+        self.g[self.i] = math.sqrt(g[0] * g[0] + g[1] * g[1] + g[2] * g[2])
+        self.i = (self.i + 1) % N
+        self.count += 1
+        return self.count &gt;= N and self.count % HOP == 0
+
+    def features(self):
+        """The six features, in the SAME order and units as in training."""
+        a = self.a[self.i:] + self.a[:self.i]        # oldest first (the jerk needs the order)
+        g = self.g
+        ma, mg = sum(a) / N, sum(g) / N
+        sa = (sum((x - ma) ** 2 for x in a) / N) ** 0.5
+        sg = (sum((x - mg) ** 2 for x in g) / N) ** 0.5
+        jerk = max(abs(a[k + 1] - a[k]) for k in range(N - 1))
+        return [ma, sa, max(a) - min(a), jerk, mg, sg]
+
+    def label(self, f):
+        return self.model.predict(f)[0] if self.model else None
+
+# ---------------- MEMORY ----------------
+class Memory:
+    def __init__(self):
+        self.candidate, self.stable, self.changes = None, None, 0
+
+# ---------------- DECIDER: accept a label only when it repeats ----------------
+def decide(label, m):
+    """A gesture must win two verdicts in a row (0.5 s apart) before it counts."""
+    if label == m.candidate and label != m.stable:
+        m.stable, m.changes = label, m.changes + 1
+        return label                                  # a new gesture: report it
+    m.candidate = label
+    return None
+
+# ---------------- ACTUATOR: LEDs and the network ----------------
+SHOW = {"still": (0, 0), "tilt": (0, 1), "tap": (1, 0), "shake": (1, 1)}
+red, green = Pin(8, Pin.OUT), Pin(9, Pin.OUT)
+
+def load_model(path="model.json"):
+    """Load, then check before trusting (edge inference lesson, Part 6)."""
+    try:
+        d = json.load(open(path))
+        m = MLP(path)
+        if len(d["mu"]) != 6 or m.predict(d["test"]["f"])[0] != d["test"]["label"]:
+            return None, {"version": d.get("version", 0), "ok": False, "why": "self-test"}
+        return m, {"version": d["version"], "ok": True}
+    except (OSError, ValueError, KeyError) as e:
+        return None, {"version": 0, "ok": False, "why": str(e)}
+
+i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400000)
 imu = MPU6050(i2c)
-win = Window(10)                       # 10 samples at 50 Hz = 0.2 s
-odd = Anomaly(alpha=0.05, k=4.0)
-log = RingLog("log", seg_bytes=4096, segs=4)
+imu.calibrate()                                       # hold still for a second at boot
+model, status = load_model()
+sense, mem = GestureSense(imu, model), Memory()
 h = resilient.ResilientHub(keepalive=30, wifi_timeout_s=5)
 h.presence()
+h.publish("stat/model", status, retain=True)
 
-try:
-    threshold = json.load(open("model.json"))["threshold"]
-except (OSError, ValueError):
-    threshold = 0.05                   # a starting guess until the hub sends a trained value
-moving = 0
-
-c_read, c_feat = Cost(), Cost()
-t_sample, t_report, t_cost = ticks_ms(), ticks_ms(), ticks_ms()
-
-def note(*vals):
-    log.add(",".join(str(v) for v in (ticks_ms(),) + vals))
-
-note("boot")
+c_read, c_feat, c_model = Cost(), Cost(), Cost()
+t_sample = t_cost = ticks_ms()
 while True:
     h.poll()
     now = ticks_ms()
-    if ticks_diff(now, t_sample) &gt;= 20:                      # 50 Hz
+    if ticks_diff(now, t_sample) &gt;= 20:                           # 50 Hz
         t_sample = now
-        a, _, _ = c_read.run(imu.read)
-        mag = math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
-        win.add(mag)
-        f = c_feat.run(win.features)
-        if f:
-            if moving == 0 and f["std"] &gt; threshold * 1.1:
-                moving = 1
-                note("moving", 1)
-            elif moving == 1 and f["std"] &lt; threshold * 0.9:
-                moving = 0
-                note("moving", 0)
-        if odd.update(mag):
-            h.publish("evt/anomaly", {"mag": round(mag, 3)})
-            note("anomaly", round(mag, 3))
-    if ticks_diff(now, t_report) &gt;= 500 and win.count == win.n:   # 2 Hz of features
-        t_report = now
-        f = win.features()
-        h.publish("tele/imu", {"mean": round(f["mean"], 3), "std": round(f["std"], 4),
-                               "min": round(f["min"], 3), "max": round(f["max"], 3),
-                               "moving": moving})
-    if ticks_diff(now, t_cost) &gt;= 10000:                      # a cost report every 10 s
+        if c_read.run(sense.sample):
+            f = c_feat.run(sense.features)
+            label = c_model.run(sense.label, f)
+            h.publish("tele/feat", {"f": [round(x, 4) for x in f], "label": label})   # 2 Hz
+            new = decide(label, mem)
+            if new:
+                red.value(SHOW.get(new, (1, 1))[0]); green.value(SHOW.get(new, (1, 1))[1])
+                h.publish("evt/gesture", {"label": new, "n": mem.changes})
+    if ticks_diff(now, t_cost) &gt;= 10000:
         t_cost = now
         c_read.report("imu read", 20)
-        c_feat.report("features", 20)
+        c_feat.report("features", 500)                            # once per 0.5 s verdict
+        c_model.report("model", 500)
 </span>
 </div>
-<p>The program was run on the test fixture for 20 simulated seconds with a quiet signal, a noisier one from 6 s to 12 s, and a fake clock. It published <strong>39</strong> <span class="code-lesson-il">tele/imu</span> messages (about 2 per second, instead of 1,000 raw samples), reported <span class="code-lesson-il">moving: 1</span> from 6 s to 12 s, wrote <span class="code-lesson-il">moving,1</span> at 6,040 ms and <span class="code-lesson-il">moving,0</span> at 12,120 ms to the ring log, and raised two <span class="code-lesson-il">evt/anomaly</span> messages at the start of the movement, when the signal suddenly became livelier than the recent past. The timing report printed zeros there because the fake clock does not run during a call; on the real board you will see real numbers.</p>
-<p>Check: shake the board and watch <span class="code-lesson-il">tele/imu</span> from the laptop (<span class="code-lesson-il">mosquitto_sub -v -t "lab/YOURNAME/tele/imu"</span>). Let it lie still on the bench. The <span class="code-lesson-il">std</span> should differ by a factor of several; if it does not, <span class="code-lesson-il">calibrate()</span> and the I²C wiring are the first suspects.</p>
-<h3>Step 2. The Hub Side</h3>
-<p>On the laptop, run the logger from the data logging lesson on <strong>your own</strong> subtree, in one terminal, and leave it running while you do the next steps:</p>
+<p>Before any model exists, <span class="code-lesson-il">load_model</span> fails, the robot publishes <span class="code-lesson-il">stat/model</span> with <span class="code-lesson-il">ok: false</span>, and the label is <span class="code-lesson-il">None</span>. That is fine: the features still flow, and that is all the hub needs for Step 2. Two details deserve a second look. The features are computed exactly as in training: same order, same units, the population standard deviation, the jerk taken over the window in time order. Any difference here makes a model that works on the laptop and fails on the board. And the Decider's “two in a row” rule is the debounce of Lab 1 applied to a learned percept: a single wrong verdict never reaches the LEDs or the network.</p>
+<p>The feature function and the Decider were checked on the laptop with a fake IMU: the six features match the ones used to build the training set to within rounding, a verdict is due exactly every 25 samples once the window is full, and the label stream <span class="code-lesson-il">still, still, tap, still, tap, tap, tap, shake, shake</span> produces exactly three reported gestures (still, tap, shake).</p>
+<h3>Step 2. Record Labelled Sessions</h3>
+<p>Run the logger on your own subtree and leave it running for the whole lab:</p>
 <div class="code-block" data-lang="shell">
 <div class="code-block-header">
 <span class="code-block-filename">terminal</span>
@@ -106,55 +142,130 @@ while True:
 <span class="code-lesson-bl">mosquitto_sub -h BROKER -u YOURNAME -P PASSWORD -t "lab/YOURNAME/#" -v | python3 logger.py lab.db
 </span>
 </div>
-<p>Now record <strong>three labelled sessions</strong>, each at least 60 seconds, writing the start and stop times in a notebook: (a) the board still on the desk; (b) carried in your hand, walking; (c) held and gently shaken. Then use SQL to answer, with the query and its result in your report:</p>
+<p>Record each gesture for at least 60 seconds (120 windows) and write the start and end time of each session in your notebook. Then, <strong>later in the lab and with a different person handling the robot</strong>, record a second set: that is your test set. A test set recorded straight after the training set, by the same hands, measures how well the model memorised you; a test set from a different person and a different moment measures how well it learned the gesture.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 210" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="30.0" y="30.0" font-size="13" fill="#2e5a80" text-anchor="start" font-weight="bold">training set (you)</text><rect x="30.0" y="40" width="49.199999999999996" height="40" rx="4" fill="#f2f5f7" stroke="#5b6b78" stroke-width="1.4"/><text x="54.6" y="64.5" font-size="13" fill="#1f3b52" text-anchor="middle">still</text><rect x="91.5" y="40" width="49.199999999999996" height="40" rx="4" fill="#fbece3" stroke="#c0693f" stroke-width="1.4"/><text x="116.1" y="64.5" font-size="13" fill="#1f3b52" text-anchor="middle">tap</text><rect x="153.0" y="40" width="49.199999999999996" height="40" rx="4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.4"/><text x="177.6" y="64.5" font-size="13" fill="#1f3b52" text-anchor="middle">shake</text><rect x="214.5" y="40" width="49.199999999999996" height="40" rx="4" fill="#fff4d6" stroke="#b8860b" stroke-width="1.4"/><text x="239.1" y="64.5" font-size="13" fill="#1f3b52" text-anchor="middle">tilt</text><text x="300.6" y="30.0" font-size="13" fill="#5b6b78" text-anchor="start" font-style="italic">… lab continues …</text><text x="415.4" y="110.0" font-size="13" fill="#c0693f" text-anchor="start" font-weight="bold">test set (a partner, later)</text><rect x="374.4" y="120" width="49.199999999999996" height="40" rx="4" fill="#f2f5f7" stroke="#5b6b78" stroke-width="1.4"/><text x="399.0" y="144.6" font-size="13" fill="#1f3b52" text-anchor="middle">still</text><rect x="435.9" y="120" width="49.199999999999996" height="40" rx="4" fill="#fbece3" stroke="#c0693f" stroke-width="1.4"/><text x="460.5" y="144.6" font-size="13" fill="#1f3b52" text-anchor="middle">tap</text><rect x="497.4" y="120" width="49.199999999999996" height="40" rx="4" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.4"/><text x="522.0" y="144.6" font-size="13" fill="#1f3b52" text-anchor="middle">shake</text><rect x="558.9" y="120" width="49.199999999999996" height="40" rx="4" fill="#fff4d6" stroke="#b8860b" stroke-width="1.4"/><text x="583.5" y="144.6" font-size="13" fill="#1f3b52" text-anchor="middle">tilt</text><line x1="30.0" y1="182.0" x2="652.2" y2="182.0" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><text x="30.0" y="200.0" font-size="11" fill="#5b6b78" text-anchor="middle">0</text><text x="276.0" y="200.0" font-size="11" fill="#5b6b78" text-anchor="middle">5 min</text><text x="522.0" y="200.0" font-size="11" fill="#5b6b78" text-anchor="middle">10 min</text></svg>
+            <div class="diagram-caption">The recording protocol. Four 60-second sessions for training, and four more for testing, recorded later by someone else. Leave a few seconds between sessions and do not label them: the windows that straddle a change are neither gesture.</div>
+        </div>
+<p>Then use SQL to answer, with the query and its result in your report: how many <span class="code-lesson-il">tele/feat</span> messages arrived in each session (close to 2 per second?), and the mean of the second feature (<span class="code-lesson-il">json_extract(payload, '$.f[1]')</span>, the spread of acceleration) in each. Which gestures look easy to separate from that one number, and which do not?</p>
+<h3>Step 3. Train, Test Honestly, Export</h3>
+<p>Fill in your user name and the session times, then run <span class="code-lesson-il">python3 train.py lab.db 1</span>. It trains a depth-3 tree and a 6-8-4 network on the training sessions, reports both on the <em>test</em> sessions with a confusion matrix, and writes the network to <span class="code-lesson-il">model.json</span> with a version number and a self-test vector.</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">train.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># train.py -- on the laptop: logged features -&gt; three models -&gt; honest test -&gt; model.json
+import json, sqlite3, sys
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+USER = "YOURNAME"
+LABELS = ["still", "tap", "shake", "tilt"]
+# From your notebook: (label, start, end) as Unix times (SELECT MIN(ts), MAX(ts) helps)
+TRAIN = [("still", 0, 0), ("tap", 0, 0), ("shake", 0, 0), ("tilt", 0, 0)]
+TEST  = [("still", 0, 0), ("tap", 0, 0), ("shake", 0, 0), ("tilt", 0, 0)]
+
+def load(db, spans):
+    X, y = [], []
+    rows = db.execute("SELECT ts, payload FROM msgs WHERE user = ? AND topic LIKE '%/tele/feat'",
+                      (USER,)).fetchall()
+    for ts, payload in rows:
+        for label, t0, t1 in spans:
+            if t0 &lt;= ts &lt; t1:
+                X.append(json.loads(payload)["f"])
+                y.append(label)
+    return X, y
+
+db = sqlite3.connect(sys.argv[1])
+Xtr, ytr = load(db, TRAIN)
+Xte, yte = load(db, TEST)
+print("windows: train", len(Xtr), "test", len(Xte))
+
+scaler = StandardScaler().fit(Xtr)
+tree = DecisionTreeClassifier(max_depth=3, random_state=0).fit(Xtr, ytr)
+mlp = MLPClassifier(hidden_layer_sizes=(8,), max_iter=3000, random_state=0).fit(scaler.transform(Xtr), ytr)
+for name, pred in (("tree", tree.predict(Xte)), ("mlp", mlp.predict(scaler.transform(Xte)))):
+    print(name, "test accuracy %.3f" % accuracy_score(yte, pred))
+    print(confusion_matrix(yte, pred, labels=LABELS))      # rows: truth, columns: predicted
+
+layers = [{"n_in": W.shape[0], "n_out": W.shape[1],
+           "W": [round(float(v), 5) for v in W.T.ravel()], "b": [round(float(v), 5) for v in b]}
+          for W, b in zip(mlp.coefs_, mlp.intercepts_)]
+k = next(i for i, lab in enumerate(yte) if mlp.predict(scaler.transform([Xte[i]]))[0] == lab)
+json.dump({"version": int(sys.argv[2]), "labels": [str(c) for c in mlp.classes_],
+           "mu": list(scaler.mean_), "sd": list(scaler.scale_), "layers": layers,
+           "test": {"f": Xte[k], "label": yte[k]}}, open("model.json", "w"))
+print("wrote model.json version", sys.argv[2])
+</span>
+</div>
+<p>To check the script end to end, it was run on a synthetic database of the same shape (240 training windows and 400 test windows generated from the gesture model of the edge inference lesson). The tree scored 97.5 % on the test windows and the network 99.0 %, and the model file it wrote passed the robot's self-test, while a copy with a deliberately wrong self-test label was refused. Your own numbers will be lower, because real hands are less tidy than a simulation; that is expected, and the report should say why.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="354.0" y="24.0" font-size="13" fill="#5b6b78" text-anchor="middle">predicted</text><text x="160.0" y="159.0" font-size="13" fill="#5b6b78" text-anchor="end">truth</text><text x="276.0" y="42.0" font-size="12" fill="#5b6b78" text-anchor="middle">still</text><text x="242.0" y="81.0" font-size="12" fill="#5b6b78" text-anchor="end">still</text><text x="328.0" y="42.0" font-size="12" fill="#5b6b78" text-anchor="middle">tap</text><text x="242.0" y="133.0" font-size="12" fill="#5b6b78" text-anchor="end">tap</text><text x="380.0" y="42.0" font-size="12" fill="#5b6b78" text-anchor="middle">shake</text><text x="242.0" y="185.0" font-size="12" fill="#5b6b78" text-anchor="end">shake</text><text x="432.0" y="42.0" font-size="12" fill="#5b6b78" text-anchor="middle">tilt</text><text x="242.0" y="237.0" font-size="12" fill="#5b6b78" text-anchor="end">tilt</text><rect x="250" y="50" width="52" height="52" fill="#2e5a80" fill-opacity="1.00" stroke="#cfd9e1"/><text x="276.0" y="81.0" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="bold">100</text><rect x="302" y="50" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="328.0" y="81.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="354" y="50" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="380.0" y="81.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="406" y="50" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="432.0" y="81.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="250" y="102" width="52" height="52" fill="#c0693f" fill-opacity="0.49" stroke="#cfd9e1"/><text x="276.0" y="133.0" font-size="14" fill="#1f3b52" text-anchor="middle">2</text><rect x="302" y="102" width="52" height="52" fill="#2e5a80" fill-opacity="0.98" stroke="#cfd9e1"/><text x="328.0" y="133.0" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="bold">98</text><rect x="354" y="102" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="380.0" y="133.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="406" y="102" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="432.0" y="133.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="250" y="154" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="276.0" y="185.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="302" y="154" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="328.0" y="185.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="354" y="154" width="52" height="52" fill="#2e5a80" fill-opacity="0.99" stroke="#cfd9e1"/><text x="380.0" y="185.0" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="bold">99</text><rect x="406" y="154" width="52" height="52" fill="#c0693f" fill-opacity="0.37" stroke="#cfd9e1"/><text x="432.0" y="185.0" font-size="14" fill="#1f3b52" text-anchor="middle">1</text><rect x="250" y="206" width="52" height="52" fill="#c0693f" fill-opacity="0.37" stroke="#cfd9e1"/><text x="276.0" y="237.0" font-size="14" fill="#1f3b52" text-anchor="middle">1</text><rect x="302" y="206" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="328.0" y="237.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="354" y="206" width="52" height="52" fill="#ffffff" fill-opacity="1.00" stroke="#cfd9e1"/><text x="380.0" y="237.0" font-size="14" fill="#1f3b52" text-anchor="middle">0</text><rect x="406" y="206" width="52" height="52" fill="#2e5a80" fill-opacity="0.99" stroke="#cfd9e1"/><text x="432.0" y="237.0" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="bold">99</text><text x="560.0" y="90.0" font-size="13" fill="#2e5a80" text-anchor="start">diagonal: right answers</text><text x="560.0" y="112.0" font-size="13" fill="#c0693f" text-anchor="start">off-diagonal: which gesture</text><text x="560.0" y="130.0" font-size="13" fill="#c0693f" text-anchor="start">was taken for which</text><text x="560.0" y="170.0" font-size="13" fill="#1f3b52" text-anchor="start">Here: 2 taps read as still</text><text x="560.0" y="188.0" font-size="13" fill="#5b6b78" text-anchor="start">(a light tap, inside the noise)</text></svg>
+            <div class="diagram-caption">How to read a confusion matrix: the network's result on the synthetic test set (100 windows per gesture). Accuracy is the diagonal divided by the total, 99 %, but the matrix says more: the errors are two light taps mistaken for stillness, one shake taken for a tilt and one tilt for stillness. On your data, find your biggest off-diagonal cell and explain it physically in the report.</div>
+        </div>
+<h3>Step 4. Deploy, Check, Measure</h3>
+<p>Copy <span class="code-lesson-il">model.json</span> to the Pico and restart it. Watch <span class="code-lesson-il">stat/model</span>: it must say <span class="code-lesson-il">ok: true</span> and version 1. Then measure, on the board:</p>
 <ul>
-<li>How many <span class="code-lesson-il">tele/imu</span> messages arrived in each session, and is the rate close to 2 per second?</li>
-<li>What are the mean and the maximum of <span class="code-lesson-il">std</span> in each session? (<span class="code-lesson-il">json_extract(payload, '$.std')</span>)</li>
-<li>How many <span class="code-lesson-il">evt/anomaly</span> messages arrived, and when, relative to the start of each session?</li>
-<li>What fraction of the messages in each session said <span class="code-lesson-il">moving = 1</span>?</li>
+<li><strong>Time budget.</strong> Read the cost report every ten seconds. Record the average and worst time for the IMU read (per sample), the features and the model (per verdict). Run <span class="code-lesson-il">bench.py</span> from the edge inference lesson for the tree and the network as well. Is the heavy tick inside 20 ms?</li>
+<li><strong>Memory.</strong> <span class="code-lesson-il">gc.mem_free()</span> before and after loading the model.</li>
+<li><strong>Live accuracy.</strong> Have your partner perform each gesture ten times in a random order you write down, and count how many <span class="code-lesson-il">evt/gesture</span> messages are right. Compare with the laptop's test accuracy. Live accuracy includes things the laptop never sees: the transitions between gestures, the two-in-a-row rule, the moment you start.</li>
 </ul>
-<h3>Step 3. Train and Deploy a Threshold</h3>
-<p>Export the <span class="code-lesson-il">std</span> values and your labels for sessions (a) and (b) (still = 0, walking = 1) to a CSV, or paste them into Python, and use <span class="code-lesson-il">best_threshold</span> from the budgets lesson. Write <span class="code-lesson-il">model.json</span> with the result, copy it to the Pico (Thonny’s file panel), and restart the node. Report the threshold and its accuracy on the training sessions, <strong>then test it on session (c) and on a fresh walking session</strong> and report the accuracy there. If the test accuracy is much worse than the training accuracy, explain why, and what you would collect next.</p>
-<h3>Step 4. Budgets</h3>
-<p>Read the cost report the node prints every ten seconds. Fill in a table: the time to read the IMU, the time to compute the features, and each as a percentage of the 20 ms loop (average and worst). Then calculate your <strong>link budget</strong>: messages per second and bytes per second of <span class="code-lesson-il">tele/imu</span> (the logger gives you the payload length, <span class="code-lesson-il">LENGTH(payload)</span>), and compare with the class limits. Finally, compute what it would have cost to send every sample as its own JSON message.</p>
+        <div class="diagram">
+<svg viewBox="0 0 740 340" style="max-width:1110px;min-width:592px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="260" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="20.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Measurement</text><rect x="270" y="10" width="140" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="280.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Average</text><rect x="410" y="10" width="140" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="420.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Worst</text><rect x="550" y="10" width="180" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="560.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Notes</text><rect x="10" y="50" width="260" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="75.0" font-size="14" fill="#1f3b52" text-anchor="start">IMU read (per sample)</text><rect x="270" y="50" width="140" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="280.0" y="75.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="410" y="50" width="140" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="420.0" y="75.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="550" y="50" width="180" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="560.0" y="75.0" font-size="14" fill="#1f3b52" text-anchor="start">% of 20 ms</text><rect x="10" y="90" width="260" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="115.0" font-size="14" fill="#1f3b52" text-anchor="start">features (per verdict)</text><rect x="270" y="90" width="140" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="280.0" y="115.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="410" y="90" width="140" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="420.0" y="115.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="550" y="90" width="180" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="560.0" y="115.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="130" width="260" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="155.0" font-size="14" fill="#1f3b52" text-anchor="start">tree (bench.py)</text><rect x="270" y="130" width="140" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="280.0" y="155.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="410" y="130" width="140" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="420.0" y="155.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="550" y="130" width="180" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="560.0" y="155.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="170" width="260" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="195.0" font-size="14" fill="#1f3b52" text-anchor="start">network (per verdict)</text><rect x="270" y="170" width="140" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="280.0" y="195.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="410" y="170" width="140" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="420.0" y="195.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="550" y="170" width="180" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="560.0" y="195.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="210" width="260" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="235.0" font-size="14" fill="#1f3b52" text-anchor="start">model RAM (bytes)</text><rect x="270" y="210" width="140" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="280.0" y="235.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="410" y="210" width="140" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="420.0" y="235.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="550" y="210" width="180" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="560.0" y="235.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="250" width="260" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="275.0" font-size="14" fill="#1f3b52" text-anchor="start">test accuracy: tree / net</text><rect x="270" y="250" width="140" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="280.0" y="275.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="410" y="250" width="140" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="420.0" y="275.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="550" y="250" width="180" height="40" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="560.0" y="275.0" font-size="14" fill="#1f3b52" text-anchor="start">laptop</text><rect x="10" y="290" width="260" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="315.0" font-size="14" fill="#1f3b52" text-anchor="start">live accuracy (40 gestures)</text><rect x="270" y="290" width="140" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="280.0" y="315.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="410" y="290" width="140" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="420.0" y="315.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="550" y="290" width="180" height="40" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="560.0" y="315.0" font-size="14" fill="#1f3b52" text-anchor="start">board</text></svg>
+            <div class="diagram-caption">The results table for your report. Fill it in from the board, not from the lesson: the numbers in the edge inference lesson are expectations, and yours are the measurement.</div>
+        </div>
 <h3>Step 5. Pull the Plug</h3>
-<p>Switch off the WiFi for 30 seconds while the node is moving, then switch it on. Using the log on the <strong>node</strong> (<span class="code-lesson-il">for l in log.lines(): print(l)</span> in the Thonny shell) and the log at the <strong>hub</strong>, find: when the node noticed the link was down, which messages the hub is missing, and whether the node kept computing. State clearly which log you used to answer each part and why the other could not.</p>
+<p>Switch off the WiFi for 30 seconds while your partner performs gestures, then switch it on. Using the robot’s <strong>LEDs</strong> (they show each gesture it decides) and the database at the <strong>hub</strong>, answer: did the robot keep classifying during the outage? Which gestures does the hub know about, and which only the robot? This is the practical meaning of plan C: the decision survived, the reporting did not.</p>
+
+<h3>Step 6. Start on Your Role's Classifier</h3>
+<p>Lab Practical 2 asks your specialist robot to classify something live with its <em>own</em> sensor: a Scout's scan profile, a Watcher's colour ratios, a Signaler's gestures, a Sentinel's knocks. The pipeline is this one with a different first stage. Before you leave, write down for your role: the raw signal and its rate, the window, three to six features, the labels, and how you will record a training set and a separate test set. Record a first session if your hardware is ready.</p>
+
 <h3>What to Hand In</h3>
 <ul>
-<li><span class="code-lesson-il">main.py</span>, and <span class="code-lesson-il">model.json</span> as deployed.</li>
-<li>The three SQL results of Step 2, the threshold report of Step 3, the budget table of Step 4, and the findings of Step 5.</li>
-<li>One paragraph: where in this lab would a different split of work between the node and the hub have been better, and why?</li>
+<li><span class="code-lesson-il">main.py</span>, <span class="code-lesson-il">train.py</span> with your session times, and <span class="code-lesson-il">model.json</span> as deployed.</li>
+<li>The SQL results of Step 2; the training output of Step 3 with your confusion matrix and its explanation; the results table of Step 4; the outage findings of Step 5; your role plan from Step 6.</li>
+<li>One paragraph: the laptop test accuracy and the live accuracy differ. By how much, and why?</li>
 </ul>
-<p>Marking: node runs and publishes features correctly (30 %); the logger and the SQL answers (25 %); the trained threshold with honest train and test accuracy (20 %); the budgets (15 %); the outage analysis (10 %). A test accuracy lower than the training accuracy, explained, scores better than one that is hidden.</p>
+<p>Marking: robot runs, publishes features and checks its model (25 %); recording protocol and SQL (15 %); training with an honest test set and an explained confusion matrix (25 %); measured budgets and live accuracy (20 %); outage analysis and role plan (15 %). A live accuracy lower than the laptop's, explained, scores better than one that is hidden.</p>
 
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Count the Messages.</strong> The node publishes <span class="code-lesson-il">tele/imu</span> at 2 Hz, each message about 120 bytes. For a 5-minute session, how many messages and bytes should the logger hold? If the database has 540 rows for the session, what happened?</p>
+        <p><strong>Exercise 1: Count the Windows.</strong> The robot publishes <span class="code-lesson-il">tele/feat</span> every 0.5 s. How many windows does a 60 s session give, and how many of them overlap the session's first second? Why do neighbouring windows not count as independent examples?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 2: Still, But Flagged.</strong> The anomaly detector flags the start of every walking session even though a walking robot is not faulty. Explain why, and say whether this is a bug and what you would change so that “start of motion” is an expected event and not an anomaly.</p>
+        <p><strong>Exercise 2: Too Good to Be True.</strong> A student reports 100 % test accuracy and 55 % live accuracy. Their test set was every fifth window of the same sessions as the training set. Explain both numbers.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 3: How Long Before It Knows?</strong> A gesture starts at time 0. The window is 2 s long, a verdict is made every 0.5 s, and the Decider needs two agreeing verdicts. Assume a verdict is right once at least half of its window contains the new gesture. What is the earliest and latest time the gesture is reported? Which parameter would you change to halve the delay, and what would it cost?</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
         <h4>Warm Up</h4>
         <details>
-        <summary>Exercise 1: Count the Messages</summary>
-<p>5 × 60 × 2 = <strong>600 messages</strong>, about 72,000 bytes of payload. 540 rows means <strong>60 messages (10 %) are missing</strong>. Look for gaps in <span class="code-lesson-il">seq</span> (a query comparing each <span class="code-lesson-il">seq</span> with the previous one, using <span class="code-lesson-il">LAG</span>) and in <span class="code-lesson-il">t</span>: gaps grouped together mean an outage, scattered gaps mean loss on the link (QoS 0).</p>
+        <summary>Exercise 1: Count the Windows</summary>
+<p>About <strong>120</strong> windows (one every 0.5 s), though the first three end before the window is full of the new gesture: a 2 s window that ends 1 s into the session is half the previous activity. Neighbouring windows share 1.5 s of their 2 s of data (75 %), so two of them are much more alike than two random examples; 120 windows are worth far fewer independent samples than 120. That is one more reason the test set must come from different sessions.</p>
         </details>
         <h4>Intermediate</h4>
         <details>
-        <summary>Exercise 2: Still, But Flagged</summary>
-<p>The z-score compares the current reading with the <strong>recent past</strong>. When motion starts, the readings become suddenly more variable than the mean and variance learnt during stillness, so a few readings are many deviations out: they are <em>unusual relative to the past</em>, which is what the detector measures, so it is not a bug. To avoid treating start of motion as a fault, feed the detector the <strong>residual</strong> after the motion state is known (a separate detector per <span class="code-lesson-il">moving</span> state), or ignore anomalies for a second after a <span class="code-lesson-il">moving</span> change, or apply the detector to a feature that does not depend on the activity (such as a saturated sensor value).</p>
+        <summary>Exercise 2: Too Good to Be True</summary>
+<p>Every test window overlaps its training neighbours by 75 % and comes from the same hands at the same minute, so the test is close to a test on the training data: <strong>100 % measures memory, not learning</strong>. Live, with different handling, transitions and timing, the model meets data unlike anything it saw, and 55 % is the truthful number. The fix is a test set recorded separately, ideally by someone else, as in Step 2.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 3: How Long Before It Knows?</summary>
+<p>A window is half new gesture once it ends 1 s after the start. Verdicts fall on a 0.5 s grid whose phase relative to the gesture is random, so the first right verdict comes between <strong>1.0 and 1.5 s</strong>, and the second, which the Decider needs, 0.5 s later: the gesture is reported between <strong>1.5 and 2.0 s</strong> after it starts. Halving the window to 1 s roughly halves that (0.5 + 0.5 to 1.0 s, so 1.0 to 1.5 s), at a cost: shorter windows hold less evidence, so the features are noisier, accuracy usually falls, and slow gestures (a tilt lasting more than a second) may no longer fit in one window. Verdicts every 0.25 s instead would shave 0.25 to 0.5 s at twice the processing cost. These are the trade-offs between processing, data and latency that the course outcome asks you to analyse.</p>
         </details>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>Compute window features and publish them at a lower rate than the sampling.</li>
-            <li>Log node events in a ring and all messages in SQLite, and use SQL to answer questions.</li>
-            <li>Train a threshold at the hub, deploy it to the node, and report test accuracy honestly.</li>
-            <li>Measure the time cost on the board and the link cost of a design.</li>
-            <li>Use both logs to analyse an outage.</li>
+            <li>Put a learned stage in a robot's Perceptor and debounce its output in the Decider.</li>
+            <li>Record a labelled training set and a genuinely separate test set.</li>
+            <li>Train a tree and a small network, read a confusion matrix, and export a checked model file.</li>
+            <li>Measure a model's time and memory cost on the board and its live accuracy.</li>
+            <li>Explain why laptop accuracy and live accuracy differ, and what survives a network outage.</li>
         </ol>
 
     </body>

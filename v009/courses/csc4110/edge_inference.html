@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Last lesson you trained models on the hub from recorded data. This lesson puts them to work on the robot. You decide <strong>where inference should happen</strong> (on the node, at the hub, or split between them) by working out the link budget and measuring the time budget. You add two more model families that fit on a Pico: a <strong>decision tree</strong> written out as plain code and a <strong>small neural network</strong> run from a file of numbers. Then you measure what each one costs on your own board, and ship models from the hub to the robot safely. This is the TinyML half of Lab 8 and of Lab Practical 2.</p>
+
+<h3>Part 1. A Model Is a Stage of the Perceptor</h3>
+<p>As the architectures lesson argued, a classifier on a robot is a learned synthetic sensor: the last stage of the Perceptor. The picture to keep in mind is a <strong>funnel</strong>. Raw samples go in at a high rate, and each stage turns many numbers into fewer, more meaningful ones. By the time the label reaches the Decider (or the network), the data has shrunk by a factor of hundreds.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40.0" width="128" height="230" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="84.0" y="147.0" font-size="15" fill="#2e5a80" text-anchor="middle" font-weight="bold">IMU</text><text x="84.0" y="169.0" font-size="12" fill="#1f3b52" text-anchor="middle">50 Hz × 6 values</text><text x="84.0" y="300.0" font-size="13" fill="#5b6b78" text-anchor="middle" font-weight="bold">600 B/s raw</text><line x1="148.0" y1="155.0" x2="159.0" y2="155.0" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="168.0,155.0 157.0,160.5 157.0,149.5" fill="#1f3b52"/><rect x="168" y="60.0" width="128" height="190" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="232.0" y="147.0" font-size="15" fill="#2e5a80" text-anchor="middle" font-weight="bold">window</text><text x="232.0" y="169.0" font-size="12" fill="#1f3b52" text-anchor="middle">2 s ring buffer</text><text x="232.0" y="300.0" font-size="13" fill="#5b6b78" text-anchor="middle" font-weight="bold">100 samples held</text><line x1="296.0" y1="155.0" x2="307.0" y2="155.0" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="316.0,155.0 305.0,160.5 305.0,149.5" fill="#1f3b52"/><rect x="316" y="80.0" width="128" height="150" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="380.0" y="147.0" font-size="15" fill="#2e5a80" text-anchor="middle" font-weight="bold">features</text><text x="380.0" y="169.0" font-size="12" fill="#1f3b52" text-anchor="middle">6 numbers, 2 Hz</text><text x="380.0" y="300.0" font-size="13" fill="#5b6b78" text-anchor="middle" font-weight="bold">48 B/s</text><line x1="444.0" y1="155.0" x2="455.0" y2="155.0" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="464.0,155.0 453.0,160.5 453.0,149.5" fill="#1f3b52"/><rect x="464" y="100.0" width="128" height="110" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="528.0" y="147.0" font-size="15" fill="#b8860b" text-anchor="middle" font-weight="bold">model</text><text x="528.0" y="169.0" font-size="12" fill="#1f3b52" text-anchor="middle">label, 2 Hz</text><text x="528.0" y="300.0" font-size="13" fill="#5b6b78" text-anchor="middle" font-weight="bold">≈ 2 B/s</text><line x1="592.0" y1="155.0" x2="603.0" y2="155.0" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="612.0,155.0 601.0,160.5 601.0,149.5" fill="#1f3b52"/><rect x="612" y="120.0" width="128" height="70" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="676.0" y="147.0" font-size="15" fill="#2e5a80" text-anchor="middle" font-weight="bold">event</text><text x="676.0" y="169.0" font-size="12" fill="#1f3b52" text-anchor="middle">on change only</text><text x="676.0" y="300.0" font-size="13" fill="#5b6b78" text-anchor="middle" font-weight="bold">≈ 0.2 per s</text><text x="380.0" y="24.0" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">PERCEPTOR (all on the node)</text><text x="380.0" y="324.0" font-size="13" fill="#5b6b78" text-anchor="middle" font-style="italic">each stage keeps what the next one needs, and throws the rest away</text></svg>
+            <div class="diagram-caption">The inference funnel for a gesture classifier on a 50 Hz IMU. Box heights suggest how much data passes each stage. The model (gold) is a learned stage; the others are written by hand. Where you cut this funnel to cross the network is the placement decision of Part 2.</div>
+        </div>
+<h3>Part 2. Where Should Inference Happen?</h3>
+<p>Every computation happens somewhere: on the node (the <em>edge</em>, beside the sensor and the motor) or at the hub, which sees every node but is a network hop away. The edge is fast and keeps working without a network, but it is small. The hub is large but late. You choose where each job goes with <strong>budgets</strong>: bytes per second on the link, milliseconds per pass of the loop, bytes of RAM. Here is the link budget for three places to cut the funnel:</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">budget.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># budget.py -- the link budget of three placements for one 50 Hz IMU
+TOPIC, HDR = 20, 5                          # topic bytes, MQTT header bytes (about)
+
+def rate(msgs_per_s, payload):
+    return msgs_per_s * (TOPIC + payload + HDR)
+
+raw      = rate(50,  95)    # every sample:   {"v":1,"seq":..,"t":..,"ax":..,...,"gz":..}
+features = rate(2,  130)    # 6 features every 0.5 s
+labels   = rate(0.4, 45)    # a label when it changes (~0.2/s) + a 5 s heartbeat
+print(raw, features, labels)                # 6000 310 28.0
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="240.0" y="22.0" font-size="13" fill="#5b6b78" text-anchor="middle">where the funnel is cut</text><text x="520.0" y="22.0" font-size="13" fill="#5b6b78" text-anchor="middle">link</text><text x="610.0" y="22.0" font-size="13" fill="#5b6b78" text-anchor="middle">msgs</text><text x="700.0" y="22.0" font-size="13" fill="#5b6b78" text-anchor="middle">offline?</text><rect x="20" y="36" width="440" height="80" rx="8" fill="#ffffff" stroke="#d64545" stroke-width="2"/><text x="36.0" y="66.0" font-size="16" fill="#d64545" text-anchor="start" font-weight="bold">A  stream raw</text><text x="36.0" y="92.0" font-size="13" fill="#1f3b52" text-anchor="start">hub runs window, features, model</text><text x="520.0" y="82.0" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">6000 B/s</text><text x="610.0" y="82.0" font-size="13" fill="#1f3b52" text-anchor="middle">50 msg/s</text><text x="700.0" y="72.0" font-size="12" fill="#d64545" text-anchor="middle">no answer</text><text x="700.0" y="90.0" font-size="12" fill="#d64545" text-anchor="middle">offline</text><rect x="20" y="132" width="440" height="80" rx="8" fill="#ffffff" stroke="#b8860b" stroke-width="2"/><text x="36.0" y="162.0" font-size="16" fill="#b8860b" text-anchor="start" font-weight="bold">B  send features</text><text x="36.0" y="188.0" font-size="13" fill="#1f3b52" text-anchor="start">node: window + features; hub: model</text><text x="520.0" y="178.0" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">310 B/s</text><text x="610.0" y="178.0" font-size="13" fill="#1f3b52" text-anchor="middle">2 msg/s</text><text x="700.0" y="168.0" font-size="12" fill="#b8860b" text-anchor="middle">no answer</text><text x="700.0" y="186.0" font-size="12" fill="#b8860b" text-anchor="middle">offline</text><rect x="20" y="228" width="440" height="80" rx="8" fill="#ffffff" stroke="#3c8a5a" stroke-width="2"/><text x="36.0" y="258.0" font-size="16" fill="#3c8a5a" text-anchor="start" font-weight="bold">C  send labels</text><text x="36.0" y="284.0" font-size="13" fill="#1f3b52" text-anchor="start">node does everything; hub logs</text><text x="520.0" y="274.0" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">28 B/s</text><text x="610.0" y="274.0" font-size="13" fill="#1f3b52" text-anchor="middle">≈0.4 msg/s</text><text x="700.0" y="264.0" font-size="12" fill="#3c8a5a" text-anchor="middle">keeps working</text><text x="700.0" y="282.0" font-size="12" fill="#3c8a5a" text-anchor="middle">offline</text></svg>
+            <div class="diagram-caption">Three placements for the same gesture classifier (computed above, with the class broker's JSON envelope). Plan C sends one two-hundredth of plan A's traffic and is the only one that still classifies when the WiFi drops. Plan A is not wrong: it is the plan for collecting <em>training</em> data, when the hub needs every sample. A good system often uses both, raw bursts on request and labels all the time.</div>
+        </div>
+<p>The rule of thumb that falls out: <strong>train where the data and the compute are (the hub), infer where the decision is needed (the edge)</strong>. Plan C needs the model to fit in the node's time and memory budgets, which is what the rest of this lesson measures.</p>
+<h3>Part 3. The Time Budget, Measured</h3>
+<p>Time is the budget you cannot compute from a datasheet; you must measure it on the board. A 50 Hz loop has 20 ms per pass. This small profiler wraps any call, keeps the average and the worst case, and reports them as a share of the loop. Use it on every new piece of code you put in a loop.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">profile.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># profile.py -- measure what a piece of code costs on THIS board
+from time import ticks_us, ticks_diff
+
+class Cost:
+    def __init__(self):
+        self.n = 0
+        self.total = 0
+        self.worst = 0
+
+    def run(self, fn, *a):
+        t = ticks_us()
+        r = fn(*a)
+        d = ticks_diff(ticks_us(), t)
+        self.n += 1
+        self.total += d
+        if d &gt; self.worst:
+            self.worst = d
+        return r
+
+    def report(self, name, period_ms):
+        avg = self.total // max(self.n, 1)
+        print("%s: avg %d us, worst %d us, %.1f%% of a %d ms loop"
+              % (name, avg, self.worst, 100.0 * avg / (period_ms * 1000), period_ms))
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 260" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20.0" y="22.0" font-size="14" fill="#1f3b52" text-anchor="start" font-weight="bold">One second of a 50 Hz loop, to scale: blue = sample, gold = features + model (every 25th tick)</text><rect x="20.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="34.4" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="48.8" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="63.199999999999996" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="77.6" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="92.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="106.39999999999999" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="120.8" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="135.2" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="149.6" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="164.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="178.4" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="192.79999999999998" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="207.2" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="221.6" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="236.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="250.39999999999998" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="264.79999999999995" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="279.2" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="293.59999999999997" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="308.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="322.4" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="336.8" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="351.2" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="365.59999999999997" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="367.76" y="50" width="6.4799999999999995" height="40" rx="1" fill="#fff4d6" stroke="#b8860b" stroke-width="0.6"/><rect x="380.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="394.4" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="408.8" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="423.2" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="437.59999999999997" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="452.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="466.4" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="480.79999999999995" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="495.2" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="509.59999999999997" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="524.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="538.4" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="552.8" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="567.1999999999999" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="581.6" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="596.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="610.4" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="624.8" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="639.1999999999999" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="653.6" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="668.0" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="682.4" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="696.8" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="711.1999999999999" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="725.6" y="50" width="2.16" height="40" rx="1" fill="#eaf1f7" stroke="#2e5a80" stroke-width="0.6"/><rect x="727.76" y="50" width="6.4799999999999995" height="40" rx="1" fill="#fff4d6" stroke="#b8860b" stroke-width="0.6"/><line x1="20.0" y1="96.0" x2="740.0" y2="96.0" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><line x1="20.0" y1="96.0" x2="20.0" y2="102.0" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><text x="20.0" y="120.0" font-size="12" fill="#5b6b78" text-anchor="start">0 ms</text><line x1="164.0" y1="96.0" x2="164.0" y2="102.0" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><text x="164.0" y="120.0" font-size="12" fill="#5b6b78" text-anchor="middle">200 ms</text><line x1="308.0" y1="96.0" x2="308.0" y2="102.0" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><text x="308.0" y="120.0" font-size="12" fill="#5b6b78" text-anchor="middle">400 ms</text><line x1="452.0" y1="96.0" x2="452.0" y2="102.0" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><text x="452.0" y="120.0" font-size="12" fill="#5b6b78" text-anchor="middle">600 ms</text><line x1="596.0" y1="96.0" x2="596.0" y2="102.0" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><text x="596.0" y="120.0" font-size="12" fill="#5b6b78" text-anchor="middle">800 ms</text><line x1="740.0" y1="96.0" x2="740.0" y2="102.0" stroke="#5b6b78" stroke-width="1.5" stroke-linecap="round"/><text x="740.0" y="120.0" font-size="12" fill="#5b6b78" text-anchor="end">1000 ms</text><text x="20.0" y="160.0" font-size="14" fill="#1f3b52" text-anchor="start" font-weight="bold">Zoom on one heavy tick: fits if sample + features + model + network &lt; 20 ms</text><rect x="20" y="176" width="36.0" height="40" rx="2" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.2"/><rect x="56.0" y="176" width="108.0" height="40" rx="2" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.2"/><text x="110.0" y="200.2" font-size="12" fill="#1f3b52" text-anchor="middle">features</text><rect x="164.0" y="176" width="126.0" height="40" rx="2" fill="#fff4d6" stroke="#b8860b" stroke-width="1.2"/><text x="227.0" y="200.2" font-size="12" fill="#1f3b52" text-anchor="middle">model</text><rect x="290.0" y="176" width="108.0" height="40" rx="2" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="1.2"/><text x="344.0" y="200.2" font-size="12" fill="#1f3b52" text-anchor="middle">network</text><rect x="398.0" y="176" width="342.0" height="40" rx="2" fill="#f2f5f7" stroke="#5b6b78" stroke-width="1.2"/><text x="569.0" y="200.2" font-size="12" fill="#1f3b52" text-anchor="middle">slack</text><text x="38.0" y="232.0" font-size="11" fill="#2e5a80" text-anchor="middle">sample</text><text x="20.0" y="252.0" font-size="11" fill="#5b6b78" text-anchor="start">0 ms</text><text x="200.0" y="252.0" font-size="11" fill="#5b6b78" text-anchor="middle">5 ms</text><text x="380.0" y="252.0" font-size="11" fill="#5b6b78" text-anchor="middle">10 ms</text><text x="560.0" y="252.0" font-size="11" fill="#5b6b78" text-anchor="middle">15 ms</text><text x="740.0" y="252.0" font-size="11" fill="#5b6b78" text-anchor="end">20 ms</text></svg>
+            <div class="diagram-caption">Inference makes the loop lumpy. Most ticks only sample; every half second one tick also computes features and runs the model. The numbers in the zoom are a plan to check against your profiler, not a measurement. If the heavy tick runs past 20 ms, the next sample is taken late, and late samples are uneven samples, which the sampling lesson showed is a source of error.</div>
+        </div>
+<p>If the heavy tick does not fit, there are two fixes, in the order to try them. <strong>Shrink the work</strong>: fewer features, a smaller model (Part 4). <strong>Spread it out</strong>: update running sums on every sample so that features cost almost nothing at the end of the window, or compute features on one tick and run the model on the next.</p>
+<h3>Part 4. Models That Fit</h3>
+<p>Four model families cover almost everything a Pico should run. To compare them fairly, each was trained on the same <em>synthetic</em> gesture dataset: 2-second IMU windows of four gestures (still, tap, shake, tilt) generated with realistic noise, six features per window, 240 windows for training and 400 for testing. Your own recordings will be messier and your accuracies lower; the point is the comparison, not the numbers.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 244" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="190" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="20.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Model</text><rect x="200" y="10" width="120" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="210.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Stored</text><rect x="320" y="10" width="160" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="330.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Work per inference</text><rect x="480" y="10" width="110" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="490.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Accuracy</text><rect x="590" y="10" width="160" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="600.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">On the node</text><rect x="10" y="50" width="190" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="78.0" font-size="14" fill="#1f3b52" text-anchor="start">stump (threshold)</text><rect x="200" y="50" width="120" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="210.0" y="78.0" font-size="14" fill="#1f3b52" text-anchor="start">1</text><rect x="320" y="50" width="160" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="330.0" y="78.0" font-size="14" fill="#1f3b52" text-anchor="start">1 compare</text><rect x="480" y="50" width="110" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="490.0" y="78.0" font-size="14" fill="#1f3b52" text-anchor="start">2 classes only</text><rect x="590" y="50" width="160" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="600.0" y="78.0" font-size="14" fill="#1f3b52" text-anchor="start">Stump in model.py</text><rect x="10" y="96" width="190" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="124.0" font-size="14" fill="#1f3b52" text-anchor="start">nearest centroid</text><rect x="200" y="96" width="120" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="210.0" y="124.0" font-size="14" fill="#1f3b52" text-anchor="start">24</text><rect x="320" y="96" width="160" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="330.0" y="124.0" font-size="14" fill="#1f3b52" text-anchor="start">24 sub, mul, add</text><rect x="480" y="96" width="110" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="490.0" y="124.0" font-size="14" fill="#1f3b52" text-anchor="start">95.2 %</text><rect x="590" y="96" width="160" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="600.0" y="124.0" font-size="14" fill="#1f3b52" text-anchor="start">centroid.py, last lesson</text><rect x="10" y="142" width="190" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="170.0" font-size="14" fill="#1f3b52" text-anchor="start">decision tree, depth 3</text><rect x="200" y="142" width="120" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="210.0" y="170.0" font-size="14" fill="#1f3b52" text-anchor="start">≤ 7 tests</text><rect x="320" y="142" width="160" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="330.0" y="170.0" font-size="14" fill="#1f3b52" text-anchor="start">≤ 3 compares</text><rect x="480" y="142" width="110" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="490.0" y="170.0" font-size="14" fill="#1f3b52" text-anchor="start">97.5 %</text><rect x="590" y="142" width="160" height="46" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="600.0" y="170.0" font-size="14" fill="#1f3b52" text-anchor="start">generated code</text><rect x="10" y="188" width="190" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="216.0" font-size="14" fill="#1f3b52" text-anchor="start">network 6-8-4</text><rect x="200" y="188" width="120" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="210.0" y="216.0" font-size="14" fill="#1f3b52" text-anchor="start">92</text><rect x="320" y="188" width="160" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="330.0" y="216.0" font-size="14" fill="#1f3b52" text-anchor="start">80 mul-add</text><rect x="480" y="188" width="110" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="490.0" y="216.0" font-size="14" fill="#1f3b52" text-anchor="start">98.0 %</text><rect x="590" y="188" width="160" height="46" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="600.0" y="216.0" font-size="14" fill="#1f3b52" text-anchor="start">mlp.py + model.json</text></svg>
+            <div class="diagram-caption">Four models on the same synthetic data. The stump cannot tell four classes apart (it answers one yes-or-no question), so it has no accuracy here; it remains the right model for “moving or still”. The others are close on this easy data, which is typical: the bigger model buys a little accuracy at a cost in memory, time and readability.</div>
+        </div>
+<p>The <strong>stump</strong> is where you started: one feature, one threshold, with hysteresis against flicker. Keep it for any two-way question.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">model.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># model.py -- the smallest model: one comparison, with a margin against flicker
+import json
+
+class Stump:
+    def __init__(self, path="model.json", margin=0.1):
+        m = json.load(open(path))
+        self.t = m["threshold"]
+        self.margin = margin
+        self.state = 0
+
+    def update(self, x):
+        if self.state == 0 and x &gt; self.t * (1 + self.margin):
+            self.state = 1
+        elif self.state == 1 and x &lt; self.t * (1 - self.margin):
+            self.state = 0
+        return self.state
+</span>
+</div>
+<p>A <strong>decision tree</strong> asks a short sequence of threshold questions, choosing at each step the feature and threshold that best separate the classes. Its great virtue on a microcontroller is that it can be written out as <em>ordinary code</em>: no model file, no library, a few comparisons per inference, and a human can read exactly what it learned.</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">export_tree.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># export_tree.py -- on the laptop: train a small tree and write it out as MicroPython
+from sklearn.tree import DecisionTreeClassifier
+
+def tree_to_python(clf, names):
+    t, labels = clf.tree_, [str(c) for c in clf.classes_]
+    lines = ["def classify(f):"]
+    def leaf_label(n):              # the label if every leaf below n agrees, else None
+        if t.children_left[n] == -1:
+            return labels[int(t.value[n][0].argmax())]
+        a, b = leaf_label(t.children_left[n]), leaf_label(t.children_right[n])
+        return a if a == b else None
+    def rec(n, depth):
+        ind = "    " * depth
+        if leaf_label(n) is not None:
+            lines.append(f"{ind}return {leaf_label(n)!r}")
+        else:
+            lines.append(f"{ind}if f[{t.feature[n]}] &lt;= {t.threshold[n]:.4g}:      # {names[t.feature[n]]}")
+            rec(t.children_left[n], depth + 1)
+            lines.append(f"{ind}else:")
+            rec(t.children_right[n], depth + 1)
+    rec(0, 1)
+    return "\n".join(lines)
+
+NAMES = ["a_mean", "a_std", "a_range", "jerk_max", "g_mean", "g_std"]
+# X_train: one row of 6 features per 2 s window; y_train: 'still', 'tap', 'shake', 'tilt'
+tree = DecisionTreeClassifier(max_depth=3).fit(X_train, y_train)
+open("tree_model.py", "w").write(tree_to_python(tree, NAMES))
+</span>
+</div>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">tree_model.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def classify(f):
+    if f[2] &lt;= 0.3914:      # a_range
+        if f[5] &lt;= 5.388:      # g_std
+            return 'still'
+        else:
+            return 'tilt'
+    else:
+        if f[4] &lt;= 15.43:      # g_mean
+            if f[5] &lt;= 12.49:      # g_std
+                return 'tap'
+            else:
+                return 'tilt'
+        else:
+            return 'shake'
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 320" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="305.0" y="10" width="150" height="40" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="1.6"/><text x="380.0" y="34.5" font-size="13" fill="#1f3b52" text-anchor="middle">a_range ≤ 0.39 ?</text><rect x="125.0" y="100" width="150" height="40" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="1.6"/><text x="200.0" y="124.5" font-size="13" fill="#1f3b52" text-anchor="middle">g_std ≤ 5.4 ?</text><rect x="485.0" y="100" width="150" height="40" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="1.6"/><text x="560.0" y="124.5" font-size="13" fill="#1f3b52" text-anchor="middle">g_mean ≤ 15.4 ?</text><rect x="60.0" y="190" width="100" height="40" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.6"/><text x="110.0" y="214.6" font-size="13" fill="#1f3b52" text-anchor="middle">still</text><rect x="240.0" y="190" width="100" height="40" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.6"/><text x="290.0" y="214.6" font-size="13" fill="#1f3b52" text-anchor="middle">tilt</text><rect x="395.0" y="190" width="150" height="40" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="1.6"/><text x="470.0" y="214.6" font-size="13" fill="#1f3b52" text-anchor="middle">g_std ≤ 12.5 ?</text><rect x="610.0" y="190" width="100" height="40" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.6"/><text x="660.0" y="214.6" font-size="13" fill="#1f3b52" text-anchor="middle">shake</text><rect x="365.0" y="260" width="90" height="40" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.6"/><text x="410.0" y="284.6" font-size="13" fill="#1f3b52" text-anchor="middle">tap</text><rect x="485.0" y="260" width="90" height="40" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.6"/><text x="530.0" y="284.6" font-size="13" fill="#1f3b52" text-anchor="middle">tilt</text><line x1="330.0" y1="50.0" x2="238.0" y2="96.0" stroke="#5b6b78" stroke-width="1.8" stroke-linecap="round"/><polygon points="230.0,100.0 237.4,90.2 242.3,100.0" fill="#5b6b78"/><text x="266.0" y="75.0" font-size="11" fill="#5b6b78" text-anchor="middle">yes</text><line x1="430.0" y1="50.0" x2="522.0" y2="96.0" stroke="#5b6b78" stroke-width="1.8" stroke-linecap="round"/><polygon points="530.0,100.0 517.7,100.0 522.6,90.2" fill="#5b6b78"/><text x="494.0" y="75.0" font-size="11" fill="#5b6b78" text-anchor="middle">no</text><line x1="170.0" y1="140.0" x2="126.4" y2="183.6" stroke="#5b6b78" stroke-width="1.8" stroke-linecap="round"/><polygon points="120.0,190.0 123.9,178.3 131.7,186.1" fill="#5b6b78"/><text x="131.0" y="165.0" font-size="11" fill="#5b6b78" text-anchor="middle">yes</text><line x1="230.0" y1="140.0" x2="273.6" y2="183.6" stroke="#5b6b78" stroke-width="1.8" stroke-linecap="round"/><polygon points="280.0,190.0 268.3,186.1 276.1,178.3" fill="#5b6b78"/><text x="269.0" y="165.0" font-size="11" fill="#5b6b78" text-anchor="middle">no</text><line x1="530.0" y1="140.0" x2="495.6" y2="183.0" stroke="#5b6b78" stroke-width="1.8" stroke-linecap="round"/><polygon points="490.0,190.0 492.6,178.0 501.2,184.8" fill="#5b6b78"/><text x="496.0" y="165.0" font-size="11" fill="#5b6b78" text-anchor="middle">yes</text><line x1="600.0" y1="140.0" x2="643.6" y2="183.6" stroke="#5b6b78" stroke-width="1.8" stroke-linecap="round"/><polygon points="650.0,190.0 638.3,186.1 646.1,178.3" fill="#5b6b78"/><text x="639.0" y="165.0" font-size="11" fill="#5b6b78" text-anchor="middle">no</text><line x1="450.0" y1="230.0" x2="426.4" y2="253.6" stroke="#5b6b78" stroke-width="1.8" stroke-linecap="round"/><polygon points="420.0,260.0 423.9,248.3 431.7,256.1" fill="#5b6b78"/><text x="421.0" y="245.0" font-size="11" fill="#5b6b78" text-anchor="middle">yes</text><line x1="490.0" y1="230.0" x2="513.6" y2="253.6" stroke="#5b6b78" stroke-width="1.8" stroke-linecap="round"/><polygon points="520.0,260.0 508.3,256.1 516.1,248.3" fill="#5b6b78"/><text x="519.0" y="245.0" font-size="11" fill="#5b6b78" text-anchor="middle">no</text></svg>
+            <div class="diagram-caption">The same tree as a picture. It learned something physically sensible: a small range of acceleration means the board is not being jolted (still or slowly tilting, separated by how much it rotates), while a big range means a tap or a shake, separated by how much rotation goes with it. Reading a model like this is the best check that it learned the gesture and not an accident of your recordings.</div>
+        </div>
+<p>A <strong>small neural network</strong> (a multilayer perceptron) is a stack of layers, each computing weighted sums of its inputs followed by a simple nonlinearity. A 6-8-4 network has 6 inputs (the features), one hidden layer of 8 neurons, and 4 outputs (one score per class). It stores 92 numbers and does 80 multiply-adds per inference. It is harder to read than a tree, but it draws curved boundaries between classes where a tree can only draw axis-aligned steps, and it is the same structure that, scaled up, runs speech and image models.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 335" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="120.0" y1="40.0" x2="380.0" y2="40.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="40.0" x2="380.0" y2="74.3" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="40.0" x2="380.0" y2="108.6" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="40.0" x2="380.0" y2="142.9" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="40.0" x2="380.0" y2="177.1" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="40.0" x2="380.0" y2="211.4" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="40.0" x2="380.0" y2="245.7" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="40.0" x2="380.0" y2="280.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="88.0" x2="380.0" y2="40.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="88.0" x2="380.0" y2="74.3" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="88.0" x2="380.0" y2="108.6" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="88.0" x2="380.0" y2="142.9" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="88.0" x2="380.0" y2="177.1" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="88.0" x2="380.0" y2="211.4" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="88.0" x2="380.0" y2="245.7" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="88.0" x2="380.0" y2="280.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="136.0" x2="380.0" y2="40.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="136.0" x2="380.0" y2="74.3" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="136.0" x2="380.0" y2="108.6" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="136.0" x2="380.0" y2="142.9" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="136.0" x2="380.0" y2="177.1" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="136.0" x2="380.0" y2="211.4" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="136.0" x2="380.0" y2="245.7" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="136.0" x2="380.0" y2="280.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="184.0" x2="380.0" y2="40.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="184.0" x2="380.0" y2="74.3" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="184.0" x2="380.0" y2="108.6" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="184.0" x2="380.0" y2="142.9" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="184.0" x2="380.0" y2="177.1" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="184.0" x2="380.0" y2="211.4" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="184.0" x2="380.0" y2="245.7" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="184.0" x2="380.0" y2="280.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="232.0" x2="380.0" y2="40.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="232.0" x2="380.0" y2="74.3" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="232.0" x2="380.0" y2="108.6" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="232.0" x2="380.0" y2="142.9" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="232.0" x2="380.0" y2="177.1" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="232.0" x2="380.0" y2="211.4" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="232.0" x2="380.0" y2="245.7" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="232.0" x2="380.0" y2="280.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="280.0" x2="380.0" y2="40.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="280.0" x2="380.0" y2="74.3" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="280.0" x2="380.0" y2="108.6" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="280.0" x2="380.0" y2="142.9" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="280.0" x2="380.0" y2="177.1" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="280.0" x2="380.0" y2="211.4" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="280.0" x2="380.0" y2="245.7" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="120.0" y1="280.0" x2="380.0" y2="280.0" stroke="#d7dee5" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="40.0" x2="640.0" y2="40.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="40.0" x2="640.0" y2="120.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="40.0" x2="640.0" y2="200.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="40.0" x2="640.0" y2="280.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="74.3" x2="640.0" y2="40.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="74.3" x2="640.0" y2="120.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="74.3" x2="640.0" y2="200.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="74.3" x2="640.0" y2="280.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="108.6" x2="640.0" y2="40.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="108.6" x2="640.0" y2="120.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="108.6" x2="640.0" y2="200.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="108.6" x2="640.0" y2="280.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="142.9" x2="640.0" y2="40.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="142.9" x2="640.0" y2="120.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="142.9" x2="640.0" y2="200.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="142.9" x2="640.0" y2="280.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="177.1" x2="640.0" y2="40.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="177.1" x2="640.0" y2="120.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="177.1" x2="640.0" y2="200.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="177.1" x2="640.0" y2="280.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="211.4" x2="640.0" y2="40.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="211.4" x2="640.0" y2="120.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="211.4" x2="640.0" y2="200.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="211.4" x2="640.0" y2="280.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="245.7" x2="640.0" y2="40.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="245.7" x2="640.0" y2="120.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="245.7" x2="640.0" y2="200.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="245.7" x2="640.0" y2="280.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="280.0" x2="640.0" y2="40.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="280.0" x2="640.0" y2="120.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="280.0" x2="640.0" y2="200.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><line x1="380.0" y1="280.0" x2="640.0" y2="280.0" stroke="#e6c9b6" stroke-width="1" stroke-linecap="round"/><circle cx="120" cy="40.0" r="13" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="98.0" y="45.0" font-size="12" fill="#2e5a80" text-anchor="end">a_mean</text><circle cx="120" cy="88.0" r="13" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="98.0" y="93.0" font-size="12" fill="#2e5a80" text-anchor="end">a_std</text><circle cx="120" cy="136.0" r="13" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="98.0" y="141.0" font-size="12" fill="#2e5a80" text-anchor="end">a_range</text><circle cx="120" cy="184.0" r="13" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="98.0" y="189.0" font-size="12" fill="#2e5a80" text-anchor="end">jerk_max</text><circle cx="120" cy="232.0" r="13" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="98.0" y="237.0" font-size="12" fill="#2e5a80" text-anchor="end">g_mean</text><circle cx="120" cy="280.0" r="13" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="98.0" y="285.0" font-size="12" fill="#2e5a80" text-anchor="end">g_std</text><circle cx="380" cy="40.0" r="13" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><circle cx="380" cy="74.28571428571428" r="13" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><circle cx="380" cy="108.57142857142857" r="13" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><circle cx="380" cy="142.85714285714286" r="13" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><circle cx="380" cy="177.14285714285714" r="13" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><circle cx="380" cy="211.42857142857142" r="13" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><circle cx="380" cy="245.71428571428572" r="13" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><circle cx="380" cy="280.0" r="13" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><circle cx="640" cy="40.0" r="13" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="662.0" y="45.0" font-size="13" fill="#3c8a5a" text-anchor="start">still</text><circle cx="640" cy="120.0" r="13" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="662.0" y="125.0" font-size="13" fill="#3c8a5a" text-anchor="start">tap</text><circle cx="640" cy="200.0" r="13" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="662.0" y="205.0" font-size="13" fill="#3c8a5a" text-anchor="start">shake</text><circle cx="640" cy="280.0" r="13" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="662.0" y="285.0" font-size="13" fill="#3c8a5a" text-anchor="start">tilt</text><text x="120.0" y="324.0" font-size="13" fill="#5b6b78" text-anchor="middle">6 scaled features</text><text x="380.0" y="324.0" font-size="13" fill="#5b6b78" text-anchor="middle">8 hidden (ReLU)</text><text x="640.0" y="324.0" font-size="13" fill="#5b6b78" text-anchor="middle">4 scores: largest wins</text><text x="250.0" y="22.0" font-size="12" fill="#5b6b78" text-anchor="middle">6 × 8 weights + 8 biases</text><text x="510.0" y="22.0" font-size="12" fill="#5b6b78" text-anchor="middle">8 × 4 weights + 4 biases</text></svg>
+            <div class="diagram-caption">The 6-8-4 network. Every line is one stored weight: 48 into the hidden layer and 32 into the outputs, plus one bias per neuron, 92 numbers in all. Inference is just these weighted sums, layer by layer, which is why the whole thing fits in twenty lines of MicroPython.</div>
+        </div>
+<p>Training happens on the laptop with scikit-learn; what crosses to the node is a JSON file of numbers. Note that the <strong>scaling</strong> travels with the weights: the network was trained on standardised features, so the node must standardise them in exactly the same way, or it will be fed numbers it has never seen.</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">export_mlp.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># export_mlp.py -- on the laptop: train a 6-8-4 network and write model.json
+import json
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler().fit(X_train)                  # remember the scaling: the node needs it
+mlp = MLPClassifier(hidden_layer_sizes=(8,), max_iter=3000).fit(scaler.transform(X_train), y_train)
+
+layers = []
+for W, b in zip(mlp.coefs_, mlp.intercepts_):           # sklearn stores W as n_in x n_out
+    layers.append({"n_in": W.shape[0], "n_out": W.shape[1],
+                   "W": [round(float(v), 5) for v in W.T.ravel()],   # row j = weights into neuron j
+                   "b": [round(float(v), 5) for v in b]})
+json.dump({"version": 1, "labels": [str(c) for c in mlp.classes_], "features": NAMES,
+           "mu": list(scaler.mean_), "sd": list(scaler.scale_), "layers": layers},
+          open("model.json", "w"))
+</span>
+</div>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">mlp.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># mlp.py -- run a small trained network on the Pico (pure MicroPython, no libraries)
+import json
+from array import array
+
+class MLP:
+    def __init__(self, path="model.json"):
+        d = json.load(open(path))
+        self.version, self.labels = d["version"], d["labels"]
+        self.mu, self.sd = array("f", d["mu"]), array("f", d["sd"])   # scaling from training
+        self.layers = [(L["n_in"], L["n_out"], array("f", L["W"]), array("f", L["b"]))
+                       for L in d["layers"]]                         # 4 bytes per number
+
+    def predict(self, features):
+        x = [(f - m) / s for f, m, s in zip(features, self.mu, self.sd)]
+        last = len(self.layers) - 1
+        for k, (n_in, n_out, W, b) in enumerate(self.layers):
+            y = []
+            for j in range(n_out):
+                acc, row = b[j], j * n_in
+                for i in range(n_in):
+                    acc += W[row + i] * x[i]
+                y.append(acc if k == last or acc &gt; 0 else 0.0)        # ReLU on hidden layers
+            x = y
+        best = max(range(len(x)), key=lambda j: x[j])
+        return self.labels[best], x
+</span>
+</div>
+<p>Weights are held in <span class="code-lesson-il">array("f")</span>, 4 bytes each, rather than in Python lists, where every float is a separate object costing several times more. Run on the laptop against the 400 test windows, this class gives exactly the same labels as scikit-learn (100 % agreement), which is the check to do before trusting any hand-written inference code.</p>
+<h3>Part 5. Measure It on Your Board</h3>
+<p>Accuracy is measured on the laptop; cost must be measured on the Pico. This script reports the RAM the model takes and the time per inference for the tree and the network.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">bench.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># bench.py -- on the Pico: what does the model cost on THIS board?
+import gc
+from time import ticks_us, ticks_diff
+from mlp import MLP
+from tree_model import classify
+
+gc.collect(); free0 = gc.mem_free()
+model = MLP("model.json")
+gc.collect(); print("model RAM:", free0 - gc.mem_free(), "bytes; free now:", gc.mem_free())
+
+f = [1.0, 0.09, 0.9, 0.85, 4.3, 4.3]          # one feature vector (a 'tap')
+for name, fn in (("tree", classify), ("mlp", model.predict)):
+    t0 = ticks_us()
+    for _ in range(100):
+        fn(f)
+    print(name, ticks_diff(ticks_us(), t0) / 100, "us per inference")
+</span>
+</div>
+<p>Write your numbers into the table for Lab 8. Expect the tree to take tens of microseconds and the network somewhere around a millisecond in pure MicroPython; your measurement is the only number that counts. Then compare with the budget: one inference every 0.5 s costing 1 ms is 0.2 % of the processor, which is nothing. The same network run on <em>every</em> 20 ms sample would be 5 %, still affordable. A network ten times bigger on every sample would not be. That is the alignment between processing and data rate that this course keeps asking you to analyse.</p>
+<h3>Part 6. Shipping a Model from Hub to Robot</h3>
+<p>Models change: you record more data, retrain, and want the new version on every robot of that role. A model file is configuration, and it deserves the same care as any message that changes a robot's behaviour.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="40" width="200" height="200" rx="8" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="2"/><text x="120.0" y="109.9" font-size="14" fill="#6b4f9e" text-anchor="middle" font-weight="bold">hub</text><text x="120.0" y="127.4" font-size="14" fill="#1f3b52" text-anchor="middle"></text><text x="120.0" y="144.9" font-size="14" fill="#1f3b52" text-anchor="middle">record → train →</text><text x="120.0" y="162.4" font-size="14" fill="#1f3b52" text-anchor="middle">test → export</text><text x="120.0" y="179.9" font-size="14" fill="#1f3b52" text-anchor="middle">model.json v4</text><rect x="540" y="40" width="200" height="200" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="640.0" y="109.9" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">robot</text><text x="640.0" y="127.4" font-size="14" fill="#1f3b52" text-anchor="middle"></text><text x="640.0" y="144.9" font-size="14" fill="#1f3b52" text-anchor="middle">check, then swap;</text><text x="640.0" y="162.4" font-size="14" fill="#1f3b52" text-anchor="middle">keep v3 if v4</text><text x="640.0" y="179.9" font-size="14" fill="#1f3b52" text-anchor="middle">fails the check</text><line x1="220.0" y1="100.0" x2="531.0" y2="100.0" stroke="#6b4f9e" stroke-width="2.4" stroke-linecap="round"/><polygon points="540.0,100.0 529.0,105.5 529.0,94.5" fill="#6b4f9e"/><text x="380.0" y="90.0" font-size="13" fill="#6b4f9e" text-anchor="middle">model.json v4 (file copy or retained message)</text><line x1="540.0" y1="180.0" x2="229.0" y2="180.0" stroke="#2e5a80" stroke-width="2.4" stroke-linecap="round"/><polygon points="220.0,180.0 231.0,174.5 231.0,185.5" fill="#2e5a80"/><text x="380.0" y="170.0" font-size="13" fill="#2e5a80" text-anchor="middle">stat/model {version: 4, ok: true}</text><text x="380.0" y="212.0" font-size="12" fill="#5b6b78" text-anchor="middle">1. version newer than mine?</text><text x="380.0" y="228.0" font-size="12" fill="#5b6b78" text-anchor="middle">2. features match my Perceptor?</text><text x="380.0" y="244.0" font-size="12" fill="#5b6b78" text-anchor="middle">3. layer sizes consistent?</text><text x="380.0" y="260.0" font-size="12" fill="#5b6b78" text-anchor="middle">4. self-test vector gives the</text><text x="380.0" y="276.0" font-size="12" fill="#5b6b78" text-anchor="middle">    expected label?</text></svg>
+            <div class="diagram-caption">The model update loop. The hub trains and tests; the robot validates before it trusts. A model that fails a check is refused and the old one stays in use, so a bad upload degrades nothing. The robot announces the version it is running, so the hub (and you, in the lab report) always know which model produced which labels.</div>
+        </div>
+<p>The fourth check is the cheapest and catches the most: the hub puts one feature vector and its expected label into the file, and the robot runs it before accepting the model. A mismatch means a scaling or ordering error, the commonest TinyML bug of all (“it works on the laptop and not on the board”), and it is caught before the model ever sees a real sample.</p>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Count the Numbers.</strong> How many weights and biases does a 6-12-4 network store? How many bytes as <span class="code-lesson-il">array("f")</span>?</p>
+        <p><strong>Exercise 2: Pick a Placement.</strong> For each, choose plan A, B or C from Part 2 and say why: (a) you are recording a week of data to train next term's model; (b) the Sentinel must report a knock within half a second, even during a WiFi outage; (c) a researcher wants to try new features on the hub without reflashing any robot.</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: Does It Fit?</strong> Your profiler reports: sample 0.9 ms, features 4.2 ms, network 2.8 ms, publish 3.5 ms (worst 9 ms), in a 50 Hz loop. Does the heavy tick fit on average? In the worst case? Propose a change that makes the worst case fit without changing the model.</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Validate Before You Trust.</strong> Write <span class="code-lesson-il">accept(model, current_version, n_features)</span> that returns <span class="code-lesson-il">(ok, reason)</span> for a candidate model dictionary, applying the four checks of Part 6. The self-test is stored as <span class="code-lesson-il">model["test"] = {"f": [...], "label": "tap"}</span>.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Count the Numbers</summary>
+<p>Weights 6 × 12 + 12 × 4 = 72 + 48 = <strong>120</strong>; biases 12 + 4 = <strong>16</strong>; 136 numbers. As 4-byte floats, <strong>544 bytes</strong>. Every weight is used in every prediction, so the bigger the network, the slower it runs as well as the more memory it takes.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: Pick a Placement</summary>
+<p>(a) <strong>A</strong>: training needs every sample, and you cannot recompute raw data from features later. Record locally if the link cannot carry it. (b) <strong>C</strong>: only edge inference works offline, and it avoids a network round trip in the latency. (c) <strong>A</strong> (or B if the new features can be computed from the old ones): new features need the data they are computed from, at the hub.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: Does It Fit?</summary>
+<p>Average heavy tick: 0.9 + 4.2 + 2.8 + 3.5 = <strong>11.4 ms</strong>, under 20 ms. Worst case: 0.9 + 4.2 + 2.8 + 9 = <strong>16.9 ms</strong>, which fits but leaves only 3 ms of slack, and any other slow call breaks it. Two changes that do not touch the model: move the publish to the <em>next</em> tick (so the heavy tick is 7.9 ms and the publish tick about 10 ms), or compute the features incrementally with running sums on every sample, which removes most of the 4.2 ms from the heavy tick.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Validate Before You Trust</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">accept.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">def accept(model, current_version, n_features, predict):
+    """predict(model, f) -&gt; label. Returns (ok, reason)."""
+    if model.get("version", 0) &lt;= current_version:
+        return False, "not newer"
+    if len(model.get("mu", [])) != n_features or len(model.get("sd", [])) != n_features:
+        return False, "feature count mismatch"
+    n_in = n_features
+    for L in model.get("layers", []):
+        if L["n_in"] != n_in or len(L["W"]) != L["n_in"] * L["n_out"] or len(L["b"]) != L["n_out"]:
+            return False, "layer sizes inconsistent"
+        n_in = L["n_out"]
+    if n_in != len(model.get("labels", [])):
+        return False, "output size != number of labels"
+    t = model.get("test")
+    if not t or predict(model, t["f"]) != t["label"]:
+        return False, "self-test failed"
+    return True, "ok"
+</span>
+</div>
+<p>Here <span class="code-lesson-il">run</span> is a small function that builds an <span class="code-lesson-il">MLP</span> from the dictionary and returns its label. Load the candidate into a temporary name, check it, and only then replace the old model, so a failure leaves the robot exactly as it was.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">test_accept.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">import json
+m = json.load(open("model.json"))
+m["version"] = 4
+m["test"] = {"f": [1.0, 0.09, 0.9, 0.85, 4.3, 4.3], "label": "tap"}
+print(accept(m, 3, 6, run))                          # (True, 'ok')
+print(accept(m, 4, 6, run))                          # (False, 'not newer')
+m["test"]["label"] = "shake"
+print(accept(m, 3, 6, run))                          # (False, 'self-test failed')
+</span>
+</div>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. The Funnel.</strong> Describe the inference funnel from IMU samples to a published event, naming each stage.</p>
+        <p><strong>P2. Train Here, Infer There.</strong> State the rule of thumb for where training and inference happen.</p>
+        <p><strong>P3. Validate First.</strong> Name the four checks a robot should run on a new model file before replacing the one in use.</p>
+        <h4>Apply</h4>
+        <p><strong>P4. Parameter Count.</strong> How many weights and biases does a 6-10-3 network have? How many bytes as 4-byte floats?</p>
+        <p><strong>P5. Multiply-Adds.</strong> How many multiply-adds does one inference of a 6-8-4 network do? Of a 6-32-32-4 network?</p>
+        <p><strong>P6. Link Budgets.</strong> Topic 20 bytes, header 5 bytes. Compute bytes per second for: (a) raw samples, 95-byte payload, 50 Hz; (b) features, 130-byte payload, 2 Hz; (c) labels, 45-byte payload, 0.4 Hz.</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P7. Heavy Tick.</strong> A 50 Hz loop: sampling 0.9 ms; every 25th tick also features 4.2 ms, model 2.8 ms, publish 3.5 ms (worst 9 ms). Does the heavy tick fit on average? In the worst case? Propose a fix that leaves the model unchanged.</p>
+        <p><strong>P8. Choose a Placement.</strong> For each, choose raw, features or labels: (a) recording a week of data to train next term's model; (b) a Sentinel that must report a knock during a WiFi outage; (c) trying new features on the hub without reflashing robots.</p>
+        <p><strong>P9. Tree or Network.</strong> Give two advantages of a small decision tree over a small neural network on a Pico, and one advantage of the network.</p>
+        <p><strong>P10. Scaling Travels.</strong> Why must the scaling (mu and sd) be shipped in the same file as the network's weights?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. The Funnel</summary>
+<p>Raw samples (50 Hz) → a window (for example 2 s) → features (a few numbers, 2 Hz) → the model (a label) → an event published only when the label changes.</p>
+        </details>
+        <details>
+        <summary>P2. Train Here, Infer There</summary>
+<p>Train where the data and compute are (the hub); infer where the decision is needed (the edge).</p>
+        </details>
+        <details>
+        <summary>P3. Validate First</summary>
+<p>The version is newer; the feature count matches the Perceptor; the layer sizes are consistent; a self-test vector in the file gives the expected label.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P4. Parameter Count</summary>
+<p>Weights 6 × 10 + 10 × 3 = 90; biases 10 + 3 = 13; 103 numbers = 412 bytes.</p>
+        </details>
+        <details>
+        <summary>P5. Multiply-Adds</summary>
+<p>6 × 8 + 8 × 4 = 80. 6 × 32 + 32 × 32 + 32 × 4 = 192 + 1024 + 128 = 1344.</p>
+        </details>
+        <details>
+        <summary>P6. Link Budgets</summary>
+<p>(a) 50 × 120 = 6000 B/s. (b) 2 × 155 = 310 B/s. (c) 0.4 × 70 = 28 B/s.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P7. Heavy Tick</summary>
+<p>Average 11.4 ms, fits in 20 ms. Worst 16.9 ms, fits with only 3 ms slack. Move the publish to the next tick, or compute features incrementally with running sums so little work remains at the end of the window.</p>
+        </details>
+        <details>
+        <summary>P8. Choose a Placement</summary>
+<p>(a) Raw: training needs every sample. (b) Labels: only edge inference works offline. (c) Raw (or features if the new ones can be computed from the old).</p>
+        </details>
+        <details>
+        <summary>P9. Tree or Network</summary>
+<p>Tree: written as plain code with a few comparisons per inference (fast, no model file, no library); a human can read what it learned. Network: draws curved boundaries between classes where a tree only makes axis-aligned steps, often a little more accurate.</p>
+        </details>
+        <details>
+        <summary>P10. Scaling Travels</summary>
+<p>The network was trained on standardised features; the node must standardise them in exactly the same way. Weights without the scaling, or with a different one, feed the network numbers it has never seen.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Draw the inference funnel and say where a learned model sits in SAM.</li>
+            <li>Work out the link budget of raw, feature and label placements, and choose between them.</li>
+            <li>Measure the time cost of a piece of code on the Pico and check it against the loop budget.</li>
+            <li>Export a decision tree as code and a small network as a file of numbers, and run both on the node.</li>
+            <li>Validate a model file on the robot before replacing the one in use.</li>
+        </ol>
+
+    </body>
+</html>
