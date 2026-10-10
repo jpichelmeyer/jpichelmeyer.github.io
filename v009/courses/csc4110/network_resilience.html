@@ -15,9 +15,10 @@
     </head>
 
     <body>
-        <p>This lesson covers surviving the network. You catalogue what fails, replace a fixed retry with exponential backoff and jitter after seeing why synchronised retries are a stampede, deal with late, missing and duplicate messages after an outage, and use the hardware watchdog to restart a node that has hung without trapping it in a reboot loop.</p>
+        <p>This lesson covers keeping a robot safe and useful when the network fails. You catalogue what fails, replace a fixed retry with exponential backoff and jitter, handle the burst of messages that arrives afterwards so that a stop is never stuck behind telemetry, use the hardware watchdog to restart a node that has hung, and decide what the node should remember across that restart and what it must forget.</p>
+        <p><strong>SAM lens.</strong> The first rule here is SAM's: the network is part of the environment, not part of the agent, so the Perceptor, Decider and Actuator keep working when it disappears. The watchdog restarts an agent whose Decider has hung, and its Memory across the restart keeps what describes the agent and forgets anything that would make the Actuator move.</p>
 
-<p>A node on WiFi will lose its network. Not rarely, and not only in tests: access points restart, a microwave oven runs, someone carries the robot into a lift, the broker is updated at lunchtime. A prototype that works only while everything is fine is a demonstration; a node that notices, recovers and does not make things worse is a product. This lesson is about the second kind: what fails, how a node decides to try again, how not to flatten the broker when two dozen nodes try at once, how to deal with the messages that arrive late or twice afterwards, and how a watchdog rescues a node that has hung.</p>
+<p>A node on WiFi will lose its network. Not rarely, and not only in tests: access points restart, a microwave oven runs, someone carries the robot into a lift, the broker is updated at lunchtime. A prototype that works only while everything is fine is a demonstration; a node that notices, recovers and does not make things worse is a product. This lesson is about the second kind: what fails, how a node decides to try again, how it tries again without flattening the broker, how it handles the burst of messages afterwards, how a watchdog rescues a node that has hung, and what it should remember when it restarts.</p>
 <h3>Part 1. What Fails</h3>
         <div class="diagram">
 <svg viewBox="0 0 760 393.25" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="190" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="115" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Failure</text><rect x="210" y="14" width="250" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="335" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">What the node sees</text><rect x="460" y="14" width="280" height="52" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="600" y="45.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">What it should do</text><rect x="20" y="66" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="97.2" font-size="14.5" fill="#1f3b52" text-anchor="start">WiFi drops</text><rect x="210" y="66" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="88.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">isconnected() false; OSError on</text><text x="219" y="106.263" font-size="14.5" fill="#1f3b52" text-anchor="start">send</text><rect x="460" y="66" width="280" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="88.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">keep controlling; queue; retry the</text><text x="469" y="106.263" font-size="14.5" fill="#1f3b52" text-anchor="start">link</text><rect x="20" y="118.25" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="149.45" font-size="14.5" fill="#1f3b52" text-anchor="start">Broker restarts</text><rect x="210" y="118.25" width="250" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="140.387" font-size="14.5" fill="#1f3b52" text-anchor="start">socket error; reconnect refused</text><text x="219" y="158.512" font-size="14.5" fill="#1f3b52" text-anchor="start">for a while</text><rect x="460" y="118.25" width="280" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="149.45" font-size="14.5" fill="#1f3b52" text-anchor="start">back off; resubscribe on success</text><rect x="20" y="170.5" width="190" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="201.575" font-size="14.5" fill="#1f3b52" text-anchor="start">Broker overloaded</text><rect x="210" y="170.5" width="250" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="201.575" font-size="14.5" fill="#1f3b52" text-anchor="start">connects, then drops or is slow</text><rect x="460" y="170.5" width="280" height="52" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="201.575" font-size="14.5" fill="#1f3b52" text-anchor="start">slow down; do not retry in a burst</text><rect x="20" y="222.5" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="253.7" font-size="14.5" fill="#1f3b52" text-anchor="start">Address changes</text><rect x="210" y="222.5" width="250" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="244.637" font-size="14.5" fill="#1f3b52" text-anchor="start">old connection dead after a</text><text x="219" y="262.762" font-size="14.5" fill="#1f3b52" text-anchor="start">DHCP renewal</text><rect x="460" y="222.5" width="280" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="253.7" font-size="14.5" fill="#1f3b52" text-anchor="start">treat as a drop; reconnect</text><rect x="20" y="274.75" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="305.95" font-size="14.5" fill="#1f3b52" text-anchor="start">Brownout / reset</text><rect x="210" y="274.75" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="305.95" font-size="14.5" fill="#1f3b52" text-anchor="start">the board restarts; RAM is gone</text><rect x="460" y="274.75" width="280" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="296.887" font-size="14.5" fill="#1f3b52" text-anchor="start">start safe; restore state (next</text><text x="469" y="315.012" font-size="14.5" fill="#1f3b52" text-anchor="start">lesson)</text><rect x="20" y="327" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="358.2" font-size="14.5" fill="#1f3b52" text-anchor="start">Program hangs</text><rect x="210" y="327" width="250" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="219" y="358.2" font-size="14.5" fill="#1f3b52" text-anchor="start">nothing: the node is silent</text><rect x="460" y="327" width="280" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="469" y="349.137" font-size="14.5" fill="#1f3b52" text-anchor="start">a watchdog resets it; the last will</text><text x="469" y="367.262" font-size="14.5" fill="#1f3b52" text-anchor="start">announces it</text></svg>
@@ -80,86 +81,16 @@ class ResilientHub(hub.Hub):
             <div class="diagram-caption">The backoff schedule used by <span class="code-lesson-il">ResilientHub</span>: 1, 2, 4, 8, 16 then 30 seconds, each randomized by plus or minus a quarter.</div>
         </div>
 
-<p>What does each choice buy? Two experiments, both simulated, answer it. First, one node and a broker that disappears for a while (12 random outages for each length, measured on the test broker):</p>
-        <div class="diagram">
-<svg viewBox="0 0 760 328" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="110" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="75" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">outage</text><rect x="130" y="14" width="140" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="200" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">policy</text><rect x="270" y="14" width="210" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="375" y="35.0125" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">average wait after</text><text x="375" y="53.1375" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">return</text><rect x="480" y="14" width="150" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="555" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">attempts</text><rect x="630" y="14" width="110" height="50" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="685" y="44.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">worst wait</text><rect x="20" y="64" width="110" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="75" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">15 s</text><rect x="130" y="64" width="140" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">every 5 s</text><rect x="270" y="64" width="210" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="375" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">2.7 s</text><rect x="480" y="64" width="150" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="555" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">5.2</text><rect x="630" y="64" width="110" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="685" y="94.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4.7 s</text><rect x="20" y="114" width="110" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="75" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">15 s</text><rect x="130" y="114" width="140" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">backoff</text><rect x="270" y="114" width="210" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="375" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">9.1 s</text><rect x="480" y="114" width="150" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="555" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">6.0</text><rect x="630" y="114" width="110" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="685" y="144.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">14.0 s</text><rect x="20" y="164" width="110" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="75" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">300 s</text><rect x="130" y="164" width="140" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">every 5 s</text><rect x="270" y="164" width="210" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="375" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">2.7 s</text><rect x="480" y="164" width="150" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="555" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">62.2</text><rect x="630" y="164" width="110" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="685" y="194.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4.7 s</text><rect x="20" y="214" width="110" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="75" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">300 s</text><rect x="130" y="214" width="140" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">every 15 s</text><rect x="270" y="214" width="210" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="375" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">6.1 s</text><rect x="480" y="214" width="150" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="555" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">21.0</text><rect x="630" y="214" width="110" height="50" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="685" y="244.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">9.5 s</text><rect x="20" y="264" width="110" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="75" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">300 s</text><rect x="130" y="264" width="140" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="200" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">backoff</text><rect x="270" y="264" width="210" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="375" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">18.4 s</text><rect x="480" y="264" width="150" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="555" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">15.8</text><rect x="630" y="264" width="110" height="50" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="685" y="294.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">31.3 s</text></svg>
-            <div class="diagram-caption">One node, one broker. A short fixed delay recovers fastest and spends the most attempts, which costs battery and log lines; backoff spends the fewest and recovers slowest. For one robot on a bench the fast fixed retry is fine. The trade changes when many nodes share a broker.</div>
-        </div>
-
-<p>Second, <strong>the herd</strong>. Twenty-four nodes lose the broker at the same instant (a restart) and all use the same retry timer. The broker can accept one new connection every 250 ms. Because their timers are in step, every round of retries arrives at the same moment and only one is accepted; the rest fail and retry together again. Randomising the delay breaks the pattern. The simulation below is deliberately harsh, a worst case of perfect synchrony, but the effect is real:</p>
-<div class="code-block" data-lang="python">
-<div class="code-block-header">
-<span class="code-block-filename">herd.py</span>
-<span class="code-block-lang">Python</span>
-</div>
-<span class="code-lesson-bl"># herd.py: 24 clients lose the broker together. It accepts one new connection per 250 ms (4 a second).
-import random, heapq
-
-def wait(policy, fails):
-    if policy == "fixed":
-        return 2000
-    if policy == "jitter":
-        return int(2000 * (1 + 0.25 * (2 * random.random() - 1)))      # the same, but randomized
-    base = min(30000, 1000 * 2 ** fails)            # backoff: 1, 2, 4, 8 ... capped at 30 s
-    return int(base * (1 + 0.25 * (2 * random.random() - 1)))      # with +/- 25 % jitter
-
-def run(policy, clients=24, service_ms=250, seed=1):
-    random.seed(seed)
-    events = [(wait(policy, 0), c, 0) for c in range(clients)]     # (time, client, failures so far)
-    heapq.heapify(events)
-    last_accept, done, attempts = -service_ms, 0, []
-    while done &lt; clients:
-        t, c, fails = heapq.heappop(events)
-        attempts.append(t)
-        if t - last_accept &gt;= service_ms:
-            last_accept, done, finished = t, done + 1, t
-        else:
-            heapq.heappush(events, (t + wait(policy, fails + 1), c, fails + 1))
-    busiest = max(sum(1 for a in attempts if t0 &lt;= a &lt; t0 + 1000) for t0 in attempts)
-    return finished / 1000, len(attempts), busiest
-
-for policy in ("fixed", "jitter", "backoff"):
-    rs = [run(policy, seed=s) for s in range(50)]
-    print("%-8s all back after %5.1f s | %5.1f attempts in total | %4.1f in the busiest second" % (
-        policy, sum(r[0] for r in rs) / 50, sum(r[1] for r in rs) / 50, sum(r[2] for r in rs) / 50))
-</span>
-</div>
-        <div class="diagram">
-<svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="26" font-size="15.5" fill="#1f3b52" text-anchor="start" font-weight="bold">time until all 24 nodes are back (seconds)</text><text x="215" y="70" font-size="15" fill="#1f3b52" text-anchor="end" font-weight="bold">every 2 s, in step</text><rect x="227" y="44" width="249.6" height="36" rx="3" fill="#b3261e" stroke="#b3261e" stroke-width="1"/><text x="486.6" y="69" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">48.0 s    (300 attempts)</text><text x="215" y="122" font-size="15" fill="#1f3b52" text-anchor="end" font-weight="bold">every 2 s, with jitter</text><rect x="227" y="96" width="69.16" height="36" rx="3" fill="#3c8a5a" stroke="#3c8a5a" stroke-width="1"/><text x="306.16" y="121" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">13.3 s    (78 attempts)</text><text x="215" y="174" font-size="15" fill="#1f3b52" text-anchor="end" font-weight="bold">backoff with jitter</text><rect x="227" y="148" width="201.76" height="36" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1"/><text x="438.76" y="173" font-size="15" fill="#1f3b52" text-anchor="start" font-weight="bold">38.8 s    (78 attempts)</text></svg>
-            <div class="diagram-caption">The herd simulation, averaged over 50 runs. Jitter is what rescues the stampede: the same timer with a random spread recovers in a quarter of the time and with a quarter of the attempts. Backoff adds a ceiling on attempts for long outages, at the price of slower recovery from short ones.</div>
-        </div>
-
+<p>Why the random spread? Picture the whole class losing the broker at the same instant, when the instructor restarts it. If every node retries on the same timer, every round of retries arrives at the same moment, the broker can accept only a few, and the rest fail together and retry together again: a stampede. A random spread of a quarter either way scatters the attempts, and everyone is back in a fraction of the time.</p>
 <p>Put together: use a <strong>short first wait, a modest ceiling (10 to 30 s), and always jitter</strong>. A robot that must recover quickly can lower the ceiling; a battery sensor that sleeps most of the time can raise it.</p>
-<h3>Part 3. What Arrives Afterwards</h3>
-<p>While the link was down, <span class="code-lesson-il">net.py</span> queued the node’s messages (40 of them at most; Lab 3 measured how long that lasts). When the link returns they leave the board oldest first, five per call, so they arrive at the receiver late and in a burst, each carrying its <em>original</em> time <span class="code-lesson-il">t</span>. The receiver sees three new effects, and should deal with each deliberately.</p>
-<ul>
-<li><strong>Gaps.</strong> If the queue overflowed, the oldest messages were dropped. The <span class="code-lesson-il">seq</span> numbers show exactly how many (the <span class="code-lesson-il">find_gaps</span> function of Lab 3). Never infer loss from silence alone; read <span class="code-lesson-il">seq</span>.</li>
-<li><strong>Lateness.</strong> A message that arrives now but was made ten seconds ago is <em>history</em>, not the current state. Anything that acts (a control loop, a collision check) must look at <span class="code-lesson-il">t</span> or the age, not just at the arrival.</li>
-<li><strong>Duplicates.</strong> After a reconnect, a retry can deliver a message the receiver already has (an ack was lost). The receiver can recognise a repeat by the pair of <span class="code-lesson-il">seq</span> and <span class="code-lesson-il">t</span>, and ignore it.</li>
-</ul>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">dedupe.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">class Dedupe:
-    """Drops a message already seen. Messages are identified by (topic, seq, t), so a node that
-    reboots and starts counting again from 1 is not mistaken for a repeat."""
-    def __init__(self, keep=16):
-        self.keep = keep
-        self.recent = []
-
-    def seen(self, topic, d):
-        key = (topic, d["seq"], d["t"])
-        if key in self.recent:
-            return True
-        self.recent.append(key)
-        if len(self.recent) &gt; self.keep:
-            self.recent.pop(0)
-        return False
-</span>
-</div>
-<p>The key is <span class="code-lesson-il">(topic, seq, t)</span> and not <span class="code-lesson-il">seq</span> alone. A node that reboots restarts its sequence at 1, and a check that only looks at <span class="code-lesson-il">seq</span> would discard its first messages after every reset as “old”. Keying on time as well keeps a rebooted node distinct from a repeated message.</p>
+<h3>Part 3. Commands First</h3>
+<p>When the link comes back, two bursts happen at once. Outgoing, <span class="code-lesson-il">net.py</span>’s queue empties: the saved messages leave oldest first, a few per pass, each still carrying its original <span class="code-lesson-il">seq</span> and <span class="code-lesson-il">t</span>, so a receiver must judge them by age and sequence number, never by when they arrived. Incoming, the broker delivers whatever matched your subscriptions, including every retained message, all together. The node has to survive that without its control loop stalling and without losing the one message that matters most: a stop.</p>
+<p><span class="code-lesson-il">Hub</span> is already built for the incoming side. Three habits make it work, and you need them in any program that receives:</p>
+<ol>
+    <li><strong>Catch, do not think.</strong> The callback runs inside <span class="code-lesson-il">check_msg()</span>, in the middle of the library’s own receive code. It only appends the message to the inbox and returns. Anything slow there (parsing JSON, printing, publishing, moving a servo) delays the next receive and can break the connection.</li>
+    <li><strong>Two bounds.</strong> The inbox holds at most <span class="code-lesson-il">inbox_max</span> messages, which protects memory (an unbounded list fed by a fast publisher will crash the node), and <span class="code-lesson-il">poll()</span> handles at most five per pass, which protects the control loop. Every message the inbox has to throw away is counted in <span class="code-lesson-il">rx_dropped</span>. Publish that number: silent loss cannot be diagnosed.</li>
+    <li><strong>Subscribe to little.</strong> A first-in, first-out inbox treats every message the same, so a stop that arrives behind 200 pieces of telemetry waits its turn: at five messages per 20 ms pass that is 0.8 s, long enough for a robot to hit something. The simplest cure is a robot node that subscribes only to its own commands, so nothing can queue in front of them. A node that must also hear other robots should keep only the newest message from each of their topics, because an old reading is worthless once a newer one has arrived.</li>
+</ol>
 <h3>Part 4. The Watchdog</h3>
 <p>A program can fail by <em>stopping</em>, in a way no exception reports: a blocking call that never returns, a loop that spins, a library state that locks up. Software cannot always rescue itself from that, so the RP2040 has a hardware <strong>watchdog timer</strong>: a counter that counts down and resets the chip when it reaches zero, unless the program keeps <em>feeding</em> it. A healthy program feeds it every pass of the loop; a hung one does not, and is restarted.</p>
 <div class="code-block" data-lang="micropython">
@@ -190,7 +121,7 @@ while True:
 </div>
         <div class="diagram">
 <svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="40" y1="70" x2="720" y2="70" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><line x1="40" y1="62" x2="40" y2="78" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="40" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">start</text><line x1="135.2" y1="62" x2="135.2" y2="78" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="135.2" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">feed</text><line x1="230.4" y1="62" x2="230.4" y2="78" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="230.4" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">feed</text><line x1="325.6" y1="62" x2="325.6" y2="78" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="325.6" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">feed</text><line x1="414" y1="62" x2="414" y2="78" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="414" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">HANG</text><line x1="570.4" y1="62" x2="570.4" y2="78" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><text x="570.4" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">reset</text><rect x="346" y="100" width="224.4" height="30" rx="4" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="492.2" y="121" font-size="14.5" fill="#b3261e" text-anchor="middle" font-weight="bold">no feed for 8 s</text><text x="380" y="178" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">a healthy loop feeds the watchdog every pass, long before the timeout</text><text x="380" y="206" font-size="14.5" fill="#5b6b78" text-anchor="middle">the hang at 55 % is not noticed by the program, but the countdown is</text><text x="380" y="234" font-size="14.5" fill="#5b6b78" text-anchor="middle">the board resets, runs main.py again, and the last will has told everyone meanwhile</text></svg>
-            <div class="diagram-caption">How a watchdog saves a hung node. The restart is rough (RAM is lost), which is why state persistence is the next lesson, but a robot that restarts is better than one that sits there with its motor on. (With a motor, the restart also clears the driver inputs.)</div>
+            <div class="diagram-caption">How a watchdog saves a hung node. The restart is rough (RAM is lost), which is why the next two parts are about what to keep, but a robot that restarts is better than one that sits there with its motor on. (With a motor, the restart also clears the driver inputs.)</div>
         </div>
 
 <ul>
@@ -200,15 +131,115 @@ while True:
 <li><strong>Find out why you restarted.</strong> <span class="code-lesson-il">reset_cause()</span> returns <span class="code-lesson-il">WDT_RESET</span> after a watchdog restart. Count them and publish the count: a node that restarts twice an hour is telling you something.</li>
 </ul>
 
+<h3>Part 5. What to Remember After a Restart</h3>
+<p>When a node restarts, RAM is gone: the mode, the calibration offsets, the count of resets, the position the servo was in. A restart is not an exotic event. The watchdog causes one on purpose, a brownout causes one by accident, and every power-up is one. So decide in advance what the node keeps, and just as important, what it deliberately forgets.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 381.25" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="200" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="120" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">State</text><rect x="220" y="14" width="190" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="315" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Survive a restart?</text><rect x="410" y="14" width="330" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="575" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Why</text><rect x="20" y="60" width="200" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Calibration offsets</text><rect x="220" y="60" width="190" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">yes: flash</text><rect x="410" y="60" width="330" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">measured once; costly to repeat</text><rect x="20" y="106" width="200" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="128.137" font-size="14.5" fill="#1f3b52" text-anchor="start">Reset count, last reset</text><text x="29" y="146.262" font-size="14.5" fill="#1f3b52" text-anchor="start">cause</text><rect x="220" y="106" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="137.2" font-size="14.5" fill="#1f3b52" text-anchor="start">yes: flash</text><rect x="410" y="106" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="137.2" font-size="14.5" fill="#1f3b52" text-anchor="start">a diagnosis that must outlive the fault</text><rect x="20" y="158.25" width="200" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="180.387" font-size="14.5" fill="#1f3b52" text-anchor="start">Mode (IDLE, READY,</text><text x="29" y="198.512" font-size="14.5" fill="#1f3b52" text-anchor="start">BUSY)</text><rect x="220" y="158.25" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="189.45" font-size="14.5" fill="#1f3b52" text-anchor="start">restore, but safe</text><rect x="410" y="158.25" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="189.45" font-size="14.5" fill="#1f3b52" text-anchor="start">resume only modes that cannot hurt</text><rect x="20" y="210.5" width="200" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="232.637" font-size="14.5" fill="#1f3b52" text-anchor="start">Motor output, servo</text><text x="29" y="250.762" font-size="14.5" fill="#1f3b52" text-anchor="start">target</text><rect x="220" y="210.5" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="241.7" font-size="14.5" fill="#1f3b52" text-anchor="start">no: start at zero</text><rect x="410" y="210.5" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="232.637" font-size="14.5" fill="#1f3b52" text-anchor="start">a node that wakes up and moves is</text><text x="419" y="250.762" font-size="14.5" fill="#1f3b52" text-anchor="start">dangerous</text><rect x="20" y="262.75" width="200" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="284.887" font-size="14.5" fill="#1f3b52" text-anchor="start">Filter state, rolling</text><text x="29" y="303.012" font-size="14.5" fill="#1f3b52" text-anchor="start">window</text><rect x="220" y="262.75" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="293.95" font-size="14.5" fill="#1f3b52" text-anchor="start">no</text><rect x="410" y="262.75" width="330" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="293.95" font-size="14.5" fill="#1f3b52" text-anchor="start">a few seconds of data; rebuild it</text><rect x="20" y="315" width="200" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="337.137" font-size="14.5" fill="#1f3b52" text-anchor="start">Pending command,</text><text x="29" y="355.262" font-size="14.5" fill="#1f3b52" text-anchor="start">lease</text><rect x="220" y="315" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="229" y="346.2" font-size="14.5" fill="#1f3b52" text-anchor="start">no</text><rect x="410" y="315" width="330" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="419" y="337.137" font-size="14.5" fill="#1f3b52" text-anchor="start">the world has moved on while you were</text><text x="419" y="355.262" font-size="14.5" fill="#1f3b52" text-anchor="start">off</text></svg>
+            <div class="diagram-caption">A decision table for state. The test for each item is “what is the cost of being wrong?” A stale calibration is a nuisance; a stale <strong>motor command</strong> moves a robot that nobody expects to move.</div>
+        </div>
+
+<p>The rule that follows: restore what is <em>descriptive</em> (it describes the node), and re-derive what is <em>active</em> (it makes the node do something). After a watchdog reset especially, the node should wake up in a safe, quiet state, announce itself, and wait to be told what to do.</p>
+<p>The Pico keeps files in flash memory. Flash survives power loss, but it has two properties that RAM does not. It wears out: each block can be erased and rewritten only a limited number of times (on the order of tens of thousands to a hundred thousand, and the file system spreads writes around, which helps but does not remove the limit). And a write takes real time, tens of milliseconds, during which your control loop is not running and the watchdog is counting. The consequence is a habit: <strong>write rarely, and only when something changed</strong>.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">state.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># state.py -- remember a little, write rarely
+import time
+import store
+
+class State:
+    def __init__(self, path, default, min_gap_ms=60000):
+        self.path = path
+        self.data = store.load(path, default)
+        self.min_gap = min_gap_ms
+        self.last = time.ticks_ms()
+        self.dirty = False
+        self.writes = 0
+
+    def set(self, key, value):
+        if self.data.get(key) != value:
+            self.data[key] = value
+            self.dirty = True
+
+    def tick(self, force=False):
+        now = time.ticks_ms()
+        if self.dirty and (force or time.ticks_diff(now, self.last) &gt;= self.min_gap):
+            store.save(self.path, self.data)
+            self.last = now
+            self.dirty = False
+            self.writes += 1
+</span>
+</div>
+<p><span class="code-lesson-il">State</span> writes only when a value really changed (<span class="code-lesson-il">set</span> compares) and not more often than <span class="code-lesson-il">min_gap_ms</span>. A simulated hour in which one value changes every ten seconds (360 changes) produced <strong>60 writes</strong> with a one-minute gap, instead of 360, and the last value was still saved by the next write. Writing a sensor reading to flash every second would be 86,400 writes a day.</p>
+<h3>Part 6. Saving Safely and Starting Quietly</h3>
+<p>Suppose power fails while <span class="code-lesson-il">state.json</span> is being rewritten. The file is half old, half new, or empty, and the next boot finds invalid JSON. The standard defence is the <strong>atomic write</strong>: never modify the real file in place. Write the new content to a temporary file, make sure it is complete, then <em>rename</em> it over the old one. A rename is one small operation, so the file is always either the complete old version or the complete new version.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">store.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># store.py -- save a small dict so that a reset can never leave half a file
+import json, os
+
+def save(path, data):
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        f.write(json.dumps(data))
+        f.flush()
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+    os.rename(tmp, path)
+
+def load(path, default):
+    for p in (path, path + ".tmp"):
+        try:
+            with open(p) as f:
+                return json.loads(f.read())
+        except (OSError, ValueError):
+            pass
+    return default
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="170" height="100" rx="6" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="105" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">1  write</text><text x="105" y="72.125" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">state.json.tmp</text><text x="105" y="112" font-size="14" fill="#5b6b78" text-anchor="middle">old file untouched</text><line x1="190" y1="80" x2="191" y2="80" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="200.0,80.0 189.0,74.5 189.0,85.5" fill="#1f3b52"/><rect x="200" y="30" width="170" height="100" rx="6" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="285" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">2  flush</text><text x="285" y="72.125" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">tmp is complete</text><text x="285" y="112" font-size="14" fill="#5b6b78" text-anchor="middle">old file still intact</text><line x1="370" y1="80" x2="371" y2="80" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="380.0,80.0 369.0,74.5 369.0,85.5" fill="#1f3b52"/><rect x="380" y="30" width="170" height="100" rx="6" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="465" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">3  remove</text><text x="465" y="72.125" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">state.json</text><text x="465" y="112" font-size="14" fill="#5b6b78" text-anchor="middle">only tmp is complete</text><line x1="550" y1="80" x2="551" y2="80" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="560.0,80.0 549.0,74.5 549.0,85.5" fill="#1f3b52"/><rect x="560" y="30" width="170" height="100" rx="6" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="645" y="54" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">4  rename tmp</text><text x="645" y="72.125" font-size="14.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">to state.json</text><text x="645" y="112" font-size="14" fill="#5b6b78" text-anchor="middle">new file in place</text><text x="380" y="170" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">a reset at any step leaves one complete copy on the flash</text><text x="380" y="200" font-size="14.5" fill="#5b6b78" text-anchor="middle">load tries state.json first, then state.json.tmp, then the default</text><text x="380" y="228" font-size="14.5" fill="#5b6b78" text-anchor="middle">a half-written tmp does not parse, so it is skipped</text></svg>
+            <div class="diagram-caption">The four steps of an atomic save. The only dangerous gap is between steps 3 and 4, and <span class="code-lesson-il">load</span> covers it by reading the temporary file as a fallback.</div>
+        </div>
+
+<p><span class="code-lesson-il">machine.reset_cause()</span> tells the program <em>why</em> it started. Use it to choose the starting behaviour: after a power-on, restore the saved mode; after a watchdog reset, count it, and start idle with every output off.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">main.py (start of)</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># boot.py part of main.py -- decide how to start
+from machine import reset_cause, PWRON_RESET, WDT_RESET
+import state
+
+st = state.State("state.json", {"resets": 0, "mode": "IDLE", "pan": 0})
+cause = reset_cause()
+if cause == WDT_RESET:
+    st.set("resets", st.data.get("resets", 0) + 1)
+    st.set("mode", "IDLE")      # never resume a motion after a hang
+    st.set("pan", 0)
+st.tick(force=True)
+print("start:", st.data, "cause:", cause)
+</span>
+</div>
+<p>That script, run in the test environment with a saved state of <span class="code-lesson-il">mode BUSY, pan 40</span> and a watchdog cause, printed <span class="code-lesson-il">{'resets': 1, 'mode': 'IDLE', 'pan': 0}</span>: the reset was counted, and the node did not resume the motion that was in progress when it hung.</p>
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Backoff Schedule.</strong> With first wait 1 s, cap 30 s and no jitter, list the waits after failures 1 to 7. With ±25 % jitter, within what range is the third wait?</p>
-        <p><strong>Exercise 2: How Many Tries?.</strong> Roughly how many connection attempts does a backoff node (1, 2, 4, 8, 16, then 30 s) make during a five-minute outage? How many does a fixed 5-second node make?</p>
+        <p><strong>Exercise 2: Why Not Print?</strong> A student prints each received message inside the callback “to see what arrives”, and the node starts disconnecting from the broker whenever traffic rises. Give the likely reason, and say where the print belongs.</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Will It Reset?.</strong> A node starts the watchdog at 8,000 ms. In its loop it calls <span class="code-lesson-il">net.publish</span>, which may try to reconnect with the default 8-second WiFi timeout, then calls <span class="code-lesson-il">wdt.feed()</span>. What goes wrong when the access point is off, and how do you fix it two different ways?</p>
+        <p><strong>Exercise 3: Will It Reset?</strong> A node starts the watchdog at 8,000 ms. In its loop it calls <span class="code-lesson-il">net.publish</span>, which may try to reconnect with the default 8-second WiFi timeout, then calls <span class="code-lesson-il">wdt.feed()</span>. What goes wrong when the access point is off, and how do you fix it two different ways?</p>
+        <p><strong>Exercise 4: Keep or Forget.</strong> For a robot with a servo, a motor, a filtered range reading, a calibration offset for the IMU, and a count of reboots, say for each whether it should be restored after a watchdog reset.</p>
         <h4>Advanced</h4>
-        <p><strong>Exercise 4: Repeat or Reboot?.</strong> Use <span class="code-lesson-il">Dedupe</span> on these arrivals of topic <span class="code-lesson-il">lab/a/tele/imu</span>: (seq 1, t 100), (2, 200), (2, 200), (1, 90), (3, 300), and on <span class="code-lesson-il">lab/b/tele/imu</span> (2, 200). Say which are repeats, and what the fourth message probably is.</p>
+        <p><strong>Exercise 5: Where Is the Gap?</strong> The <span class="code-lesson-il">save</span> function removes the old file and then renames the temporary file. Suppose the board loses power right after the <span class="code-lesson-il">os.remove</span>. Walk through the next boot. Which file does <span class="code-lesson-il">load</span> use, and is anything lost?</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
@@ -218,39 +249,103 @@ while True:
 <p>1, 2, 4, 8, 16, 30 (the cap), 30 seconds. The third wait is 4 s ± 25 %, so between <strong>3 and 5 seconds</strong>. The sample run of <span class="code-lesson-il">Backoff</span> in the lesson’s test printed 817, 2347, 4527 and 7020 ms for the first four, each inside its range.</p>
         </details>
         <details>
-        <summary>Exercise 2: How Many Tries?</summary>
-<p>Backoff: attempts at about 1, 3, 7, 15, 31 s, and then every 30 s: the first five take 31 s, and the remaining 269 s hold about 9 more, so <strong>about 14 to 16</strong> attempts (the simulation averaged 15.8). Fixed 5 s: 300 / 5 = <strong>60</strong> (simulated 62). The backoff node spends a quarter of the effort.</p>
+        <summary>Exercise 2: Why Not Print?</summary>
+<p>The callback runs inside <span class="code-lesson-il">check_msg()</span>, so every <span class="code-lesson-il">print</span> (slow over USB) delays the library from reading the socket and from sending its keepalive ping. Under load the delay exceeds the keepalive allowance and the broker drops the client. Move the print to the <strong>handler</strong>, after the queue, and count messages rather than printing every one.</p>
         </details>
         <h4>Intermediate</h4>
         <details>
         <summary>Exercise 3: Will It Reset?</summary>
 <p>The reconnect attempt blocks for up to 8 s. The watchdog has 8 s, and the node also spent time in the rest of the loop, so the watchdog fires and the board resets every time the network is down: a <em>reboot loop</em> that is worse than the original failure. Fix one: shorten the blocking call (<span class="code-lesson-il">wifi_timeout_s=3</span>) so every pass stays well inside the limit. Fix two: feed the watchdog from inside the wait (in <span class="code-lesson-il">_wifi_up</span>’s loop, between the short sleeps), so a long wait is allowed while the program is plainly still running. The first is simpler and keeps the control loop responsive too.</p>
         </details>
+        <details>
+        <summary>Exercise 4: Keep or Forget</summary>
+<p><strong>Restore:</strong> the IMU offset (descriptive, costly to remeasure) and the reboot count (a diagnosis). <strong>Forget:</strong> the motor and servo targets (restart with outputs off) and the filtered reading (a few seconds of data; the filter refills itself).</p>
+        </details>
         <h4>Advanced</h4>
         <details>
-        <summary>Exercise 4: Repeat or Reboot?</summary>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">test_dedupe.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">d = Dedupe()
-msgs = [("lab/a/tele/imu", 1, 100), ("lab/a/tele/imu", 2, 200), ("lab/a/tele/imu", 2, 200),
-        ("lab/a/tele/imu", 1, 90), ("lab/a/tele/imu", 3, 300), ("lab/b/tele/imu", 2, 200)]
-print([d.seen(t, {"seq": s, "t": ms}) for t, s, ms in msgs])
-# [False, False, True, False, False, False]
-</span>
-</div><p>Only the third is a repeat (the same topic, <span class="code-lesson-il">seq</span> and <span class="code-lesson-il">t</span> as the second). The fourth has <span class="code-lesson-il">seq</span> 1 and a <em>smaller</em> time: it is not a repeat of anything seen, and a counter that starts over together with a clock that starts over means the node <strong>rebooted</strong>. The last is on a different topic, so its identical numbers mean nothing. The <span class="code-lesson-il">Dedupe</span> window is only 16 entries, so it protects against retransmissions in the last few messages, not against a very old duplicate; a bigger window costs RAM.</p>
+        <summary>Exercise 5: Where Is the Gap?</summary>
+<p>After the remove, <span class="code-lesson-il">state.json</span> does not exist but <span class="code-lesson-il">state.json.tmp</span> is complete (it was flushed in step 2). <span class="code-lesson-il">load</span> first tries <span class="code-lesson-il">state.json</span>, which raises <span class="code-lesson-il">OSError</span>, then tries <span class="code-lesson-il">state.json.tmp</span> and returns the <strong>new</strong> data. Nothing is lost. If power had failed <em>during</em> step 1, <span class="code-lesson-il">state.json</span> would still be the complete old copy, and the half-written <span class="code-lesson-il">.tmp</span> would be ignored. The next successful save overwrites the leftover <span class="code-lesson-il">.tmp</span>.</p>
+        </details>
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. First Rule.</strong> State the first rule of recovery from network failures.</p>
+        <p><strong>P2. Backoff with Jitter.</strong> Describe exponential backoff with jitter in two sentences.</p>
+        <p><strong>P3. Catch, Do Not Think.</strong> What should a umqtt callback do, and what should it never do?</p>
+        <p><strong>P4. Watchdog Facts.</strong> Give three facts about the RP2040 hardware watchdog from the lesson.</p>
+        <p><strong>P5. Descriptive or Active.</strong> State the rule for what a node should restore after a restart.</p>
+        <h4>Apply</h4>
+        <p><strong>P6. Schedule.</strong> The backoff schedule is 1, 2, 4, 8, 16, then 30 s (before jitter). How long, nominally, from the first failure until the sixth attempt? Until the eighth?</p>
+        <p><strong>P7. Stop Behind Telemetry.</strong> A FIFO queue holds 200 telemetry messages when <span class="code-lesson-il">cmd/stop</span> arrives behind them. The node handles 5 messages per pass and passes run every 20 ms. When is the stop handled?</p>
+        <p><strong>P8. Write Count.</strong> A value changes every 10 s for an hour. How many writes with no gap rule? With a minimum gap of 1 minute? Of 5 minutes?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Healthy Feeding.</strong> A student feeds the watchdog from a timer interrupt every second. Why does that defeat the purpose, and where should feeding happen?</p>
+        <p><strong>P10. Too Long a Wait.</strong> net.py's WiFi connect can block for 8 s, and the watchdog timeout is 8 s. What happens on a bad day, and what are two fixes?</p>
+        <p><strong>P11. What to Restore.</strong> After a watchdog reset, which of these should a node restore from flash: (a) calibration offsets, (b) the count of resets, (c) the last motor command, (d) the mode it was in (BUSY)? Justify.</p>
+        <p><strong>P12. Atomic Save.</strong> Describe the atomic write pattern for <span class="code-lesson-il">state.json</span> and explain why a power cut at any point leaves a usable file.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. First Rule</summary>
+<p>The control loop does not stop while the network is down: the robot keeps doing its job locally, and the network layer recovers in the background.</p>
+        </details>
+        <details>
+        <summary>P2. Backoff with Jitter</summary>
+<p>Wait a short time after the first failure and double the wait after each further failure, up to a ceiling. Randomise each wait (for example by ±25 %) so that many nodes do not retry in step.</p>
+        </details>
+        <details>
+        <summary>P3. Catch, Do Not Think</summary>
+<p>Store the message in a bounded queue and return. Never parse heavily, print, publish, drive hardware or block inside it.</p>
+        </details>
+        <details>
+        <summary>P4. Watchdog Facts</summary>
+<p>Once started it cannot be stopped until the chip resets; its maximum timeout is about 8.3 s, so every blocking call must be shorter; it should be fed only when the loop is healthy; <span class="code-lesson-il">reset_cause()</span> reports <span class="code-lesson-il">WDT_RESET</span> afterwards. Any three.</p>
+        </details>
+        <details>
+        <summary>P5. Descriptive or Active</summary>
+<p>Restore what is descriptive (it describes the node: calibration, counters); re-derive what is active (it makes the node do something: modes, motor commands) from fresh commands.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P6. Schedule</summary>
+<p>Waits before attempts 2 to 6: 1 + 2 + 4 + 8 + 16 = 31 s. Attempts 7 and 8 add 30 + 30: 91 s.</p>
+        </details>
+        <details>
+        <summary>P7. Stop Behind Telemetry</summary>
+<p>After 200 / 5 = 40 passes: about 800 ms later (plus its own pass). If the node subscribes only to its own commands, nothing can queue in front of the stop and it is handled on the next pass.</p>
+        </details>
+        <details>
+        <summary>P8. Write Count</summary>
+<p>360; 60; 12.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Healthy Feeding</summary>
+<p>The interrupt keeps firing even when the main loop is hung, so the watchdog never resets a dead program. Feed at the end of a pass of the main loop, only when a <span class="code-lesson-il">healthy()</span> check passes (loop came round, sensor read recently, outputs sane).</p>
+        </details>
+        <details>
+        <summary>P10. Too Long a Wait</summary>
+<p>The connect can outlast the watchdog, so the board resets during a reconnect, possibly in a loop. Set <span class="code-lesson-il">wifi_timeout_s=5</span>, or feed the watchdog inside the wait.</p>
+        </details>
+        <details>
+        <summary>P11. What to Restore</summary>
+<p>Restore (a) and (b): they describe the node and are harmless if slightly stale. Do not restore (c) or (d): they make the node act, and after a hang the node should start idle and wait for fresh commands.</p>
+        </details>
+        <details>
+        <summary>P12. Atomic Save</summary>
+<p>Write the new content to <span class="code-lesson-il">state.json.tmp</span>, make sure it is complete (close/flush), then rename it over <span class="code-lesson-il">state.json</span>. Until the rename the old file is intact; after it the new one is; a loader that falls back to the .tmp covers the instant between. The file is never half old, half new.</p>
         </details>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>List the failures a node must survive and what it should do in each.</li>
-            <li>Write a backoff with a ceiling and jitter, and say what each of the three contributes.</li>
-            <li>Say why the receiver must look at <span class="code-lesson-il">seq</span> and <span class="code-lesson-il">t</span>, not at arrival, after an outage.</li>
-            <li>Explain what a watchdog does, why it cannot be stopped, and what limits the blocking time of every call.</li>
-            <li>Use <span class="code-lesson-il">reset_cause()</span> to tell a watchdog restart from a power-on.</li>
+            <li>State the first rule of recovery, and show that your control loop keeps running while the network is down.</li>
+            <li>Describe exponential backoff with jitter, and why the jitter matters when many nodes fail together.</li>
+            <li>Keep a callback minimal, bound the inbox, count drops, and explain why a robot node subscribes only to what it needs.</li>
+            <li>Use the watchdog safely: feed it only when the loop is healthy, and keep every blocking call shorter than its timeout.</li>
+            <li>Decide what to restore after a restart, write state rarely and atomically, and start idle after a watchdog reset.</li>
         </ol>
 
     </body>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+    </head>
+
+    <body>
+
+<p>All of our code this term is plain Python, written and run in <strong>Thonny</strong>, a small editor built for learning. It ships with its own copy of Python, so there is nothing else to install. If you used Thonny in CSC 1100 you can skip to <em>Course Project Folder</em> below.</p>
+
+<h3>Web source</h3>
+<ol>
+    <li>Go to <a href="https://thonny.org/" target="_blank">thonny.org</a>. The top-right corner has download links for each operating system.</li>
+</ol>
+
+<h3><span class="os-icon os-icon-lin"></span> Linux</h3>
+<ol>
+    <li>Open a terminal and run the official install script:
+        <code class="code-lesson-bl">bash &lt;(curl -s https://thonny.org/installer-for-linux)</code>
+        This downloads a self-contained copy of Thonny into your home folder (it won't interfere with any Python already on your system) and adds it to your applications menu.</li>
+    <li><em>Alternative:</em> most distributions (including Mint) package Thonny directly, though usually an older version:
+        <code class="code-lesson-bl">sudo apt install thonny</code></li>
+    <li>Launch it from your applications menu, or type <code class="code-lesson-il">thonny</code> in a terminal.</li>
+</ol>
+
+<h3><span class="os-icon os-icon-mac"></span> MacOS</h3>
+<ol>
+    <li>On the download page, click the Mac link. This downloads a <code class="code-lesson-il">.pkg</code> installer.</li>
+    <li>Double-click the downloaded file and click through <strong>Continue</strong> &rarr; <strong>Agree</strong> &rarr; <strong>Install</strong>. This installs Thonny and its own bundled Python together.</li>
+    <li>The first time you open it, macOS may warn it's from an unidentified developer. Right-click (or Control-click) the Thonny app and choose <strong>Open</strong>, then confirm. You only need to do this once.</li>
+    <li>Launch Thonny going forward from Launchpad or Applications.</li>
+</ol>
+
+<h3><span class="os-icon os-icon-win"></span> Windows</h3>
+<ol>
+    <li>On the download page, click the Windows link. This downloads an <code class="code-lesson-il">.exe</code> installer.</li>
+    <li>Double-click the file to run it. Accept the license, and choose <strong>Install for me only</strong> unless you have a reason to install for all users.</li>
+    <li>Check the box for a desktop icon if you'd like one, then click through to finish.</li>
+    <li>If Windows SmartScreen shows a warning ("Windows protected your PC"), click <strong>More info</strong> then <strong>Run anyway</strong>.</li>
+    <li>Launch Thonny from the Start menu or the desktop icon.</li>
+</ol>
+
+<h3>First Run</h3>
+<ol>
+    <li>The first time Thonny opens, it may ask you to pick an initial settings style; <strong>Standard</strong> is fine.</li>
+    <li>You'll see the <strong>editor</strong> (top), where you write code, and the <strong>Shell</strong> (bottom), where output appears and you can run Python one line at a time.</li>
+    <li>Type <code class="code-lesson-il">print("hello, world")</code> into the editor, save it (<code class="code-lesson-il">Ctrl/Cmd+S</code>) as <code class="code-lesson-il">hello.py</code>, then click the green <strong>Run</strong> button (or press <code class="code-lesson-il">F5</code>).</li>
+</ol>
+
+<h3>Course Project Folder</h3>
+<ol>
+    <li>Make a folder for the semester, for example <code class="code-lesson-il">csc3530_agent</code>, somewhere you back up (a cloud-synced folder is ideal).</li>
+    <li>Download the <strong>course starter zip</strong> from the Files tab of this course page and unzip it into that folder. It holds <code class="code-lesson-il">arc_utils.py</code>, <code class="code-lesson-il">arc_agent.py</code>, and a short README.</li>
+    <li>Download the ARC-AGI-1 data from <a href="https://github.com/fchollet/ARC-AGI" target="_blank">github.com/fchollet/ARC-AGI</a> (green <strong>Code</strong> button &rarr; <strong>Download ZIP</strong>). Inside the zip, find the <code class="code-lesson-il">data</code> folder and copy it into your project folder.</li>
+</ol>
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">csc3530_agent/</span>
+        <span class="code-block-lang">Folders</span>
+    </div>
+    <code class="code-lesson-bl">csc3530_agent/
+    arc_utils.py
+    arc_agent.py
+    hello_agent.py        &lt;- you will write this next
+    data/
+        training/         &lt;- 400 .json files
+        evaluation/       &lt;- 400 .json files</code>
+</div>
+
+<p>When you press Run, Thonny runs your script <em>from the folder it is saved in</em>. That is why a path like <code class="code-lesson-il">'data/training/a416b8f3.json'</code> works, as long as the script sits in the project folder next to <code class="code-lesson-il">data/</code>.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">hello_agent.py</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">from arc_utils import load_task, show
+
+task = load_task(&#x27;data/training/a416b8f3.json&#x27;)
+for i, pair in enumerate(task[&#x27;train&#x27;]):
+    show(pair[&#x27;input&#x27;], f&#x27;train {i} input&#x27;)
+    show(pair[&#x27;output&#x27;], f&#x27;train {i} output&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">train 0 input
+. 5 .
+5 5 2
+. . .
+
+train 0 output
+. 5 . . 5 .
+5 5 2 5 5 2
+. . . . . .
+...</code>
+</div>
+
+<p>If you see a <code class="code-lesson-il">FileNotFoundError</code>, the script is not saved in the project folder, or the <code class="code-lesson-il">data</code> folder is one level deeper than it should be (a common unzip surprise: <code class="code-lesson-il">data/ARC-AGI-master/data/...</code>).</p>
+
+<h3>Thonny Features You Will Use All Term</h3>
+<ul>
+    <li><strong>Variables view</strong> (<em>View &rarr; Variables</em>): shows every variable and its value after a run. Click a grid to see it as a list of lists.</li>
+    <li><strong>The debugger</strong>: <em>Debug current script</em> (the bug icon, or <code class="code-lesson-il">Ctrl+F5</code>), then <em>Step over</em> (<code class="code-lesson-il">F6</code>) and <em>Step into</em> (<code class="code-lesson-il">F7</code>). For an agent that reasons in many small steps, watching it think one step at a time is the best way to find out why it chose a wrong answer. This is metacognition done by hand.</li>
+    <li><strong>The Shell</strong>: after a run, every variable is still alive in the Shell. Type <code class="code-lesson-il">task['train'][0]['output']</code> to poke at data without editing your file.</li>
+    <li><strong>Package manager</strong> (<em>Tools &rarr; Manage packages...</em>): installs extra libraries into Thonny's Python. The course code needs none, but drawing grids in colour is nice.</li>
+</ul>
+
+<h3>Optional: Draw Grids in ARC Colours</h3>
+<p>In <em>Tools &rarr; Manage packages...</em>, search for <code class="code-lesson-il">matplotlib</code> and click <strong>Install</strong>. Then:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">draw.py</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Optional: draw a grid in ARC colours (needs matplotlib).
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from arc_utils import load_task
+
+ARC_CMAP = ListedColormap([&#x27;#000000&#x27;, &#x27;#0074D9&#x27;, &#x27;#FF4136&#x27;, &#x27;#2ECC40&#x27;, &#x27;#FFDC00&#x27;,
+                           &#x27;#AAAAAA&#x27;, &#x27;#F012BE&#x27;, &#x27;#FF851B&#x27;, &#x27;#7FDBFF&#x27;, &#x27;#870C25&#x27;])
+
+def draw(grid, ax, title=&#x27;&#x27;):
+    ax.imshow(grid, cmap=ARC_CMAP, vmin=0, vmax=9)
+    ax.set_xticks([]); ax.set_yticks([]); ax.set_title(title)
+
+task = load_task(&#x27;data/training/0ca9ddb6.json&#x27;)
+fig, axes = plt.subplots(2, len(task[&#x27;train&#x27;]), figsize=(3 * len(task[&#x27;train&#x27;]), 6))
+for i, pair in enumerate(task[&#x27;train&#x27;]):
+    draw(pair[&#x27;input&#x27;], axes[0][i], f&#x27;train {i} in&#x27;)
+    draw(pair[&#x27;output&#x27;], axes[1][i], f&#x27;train {i} out&#x27;)
+plt.tight_layout()
+plt.show()</code>
+</div>
+
+<p>A window opens with the train pairs drawn in the standard ARC palette. Close it to end the program.</p>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Run a script in Thonny and find its output in the Shell.</li><li>Set up the project folder so that <code class="code-lesson-il">hello_agent.py</code> prints a task.</li><li>Step through a short script with the debugger and watch a variable change in the Variables view.</li></ol>
+
+
+    </body>
+</html>

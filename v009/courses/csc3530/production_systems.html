@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>A <strong>production system</strong> is a set of condition-action rules, <em>IF this situation THEN do that</em>, plus a working memory of facts and a loop that keeps choosing a rule to fire. It is the oldest serious theory of how human problem solving works (Allen Newell and Herbert Simon, 1972), the engine inside the Soar and ACT-R cognitive architectures, and a surprisingly effective way to describe many ARC transformations.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_production_systems_1_bennett.pdf" target="_blank"><b>Bennett</b>, Ch. 2: <i>Integrating valence signals into one decision</i></a> <span class="reading-meta">(PDF pp. 67–69 &middot; 3 pages)</span><br>A nematode's "too hot" and "too cold" rules fire on conditions, and inhibition lets only one action win. Condition-action rules plus conflict resolution, in 302 neurons.</li></ul>
+</div>
+
+
+<h3>Part 1. Rules, Working Memory, and the Recognize-Act Cycle</h3>
+<p>A production rule has a left-hand side (conditions that must be in working memory) and a right-hand side (actions: add or remove facts, or do something in the world). The system runs in a cycle:</p>
+<div class="diagram">
+<svg viewBox="0 0 800 300" style="max-width:780px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="cy" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="30" y="40" width="200" height="110" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="130.0" y="69.2" font-size="12" text-anchor="middle" fill="#1f3b52">Working memory</text><text x="130.0" y="84.2" font-size="12" text-anchor="middle" fill="#1f3b52">(facts about now)</text><text x="130.0" y="99.2" font-size="12" text-anchor="middle" fill="#1f3b52">(batter left)</text><text x="130.0" y="114.2" font-size="12" text-anchor="middle" fill="#1f3b52">(count balls 3)</text><text x="130.0" y="129.2" font-size="12" text-anchor="middle" fill="#1f3b52">...</text><rect x="530" y="40" width="200" height="110" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="630.0" y="76.7" font-size="12" text-anchor="middle" fill="#1f3b52">Rule memory</text><text x="630.0" y="91.7" font-size="12" text-anchor="middle" fill="#1f3b52">(long-term, procedural)</text><text x="630.0" y="106.7" font-size="12" text-anchor="middle" fill="#1f3b52">IF ... THEN ...</text><text x="630.0" y="121.7" font-size="12" text-anchor="middle" fill="#1f3b52">IF ... THEN ...</text><rect x="290" y="30" width="180" height="50" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="59.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">1. Match</text><rect x="290" y="120" width="180" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="146.7" font-size="12" text-anchor="middle" fill="#1f3b52">2. Conflict set</text><text x="380.0" y="161.7" font-size="12" text-anchor="middle" fill="#1f3b52">(all rules that match)</text><rect x="290" y="220" width="180" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="246.7" font-size="12" text-anchor="middle" fill="#1f3b52">3. Resolve</text><text x="380.0" y="261.7" font-size="12" text-anchor="middle" fill="#1f3b52">(pick one)</text><rect x="30" y="220" width="200" height="60" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="130.0" y="239.2" font-size="12" text-anchor="middle" fill="#1f3b52">4. Act</text><text x="130.0" y="254.2" font-size="12" text-anchor="middle" fill="#1f3b52">(add / remove facts,</text><text x="130.0" y="269.2" font-size="12" text-anchor="middle" fill="#1f3b52">or act in the world)</text><line x1="232" y1="70" x2="288" y2="58" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cy)"/><line x1="528" y1="70" x2="472" y2="58" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cy)"/><line x1="380" y1="82" x2="380" y2="118" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cy)"/><line x1="380" y1="182" x2="380" y2="218" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cy)"/><line x1="288" y1="250" x2="232" y2="250" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cy)"/><line x1="130" y1="218" x2="130" y2="152" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cy)"/><text x="140" y="190" font-size="11" text-anchor="start" fill="#1f3b52">changes</text><text x="600" y="210" font-size="12" text-anchor="start" fill="#8a4526" font-weight="bold">Resolution strategies:</text><text x="600" y="230" font-size="11.5" text-anchor="start" fill="#8a4526">- rule order / priority</text><text x="600" y="248" font-size="11.5" text-anchor="start" fill="#8a4526">- specificity (more conditions win)</text><text x="600" y="266" font-size="11.5" text-anchor="start" fill="#8a4526">- recency (newest facts win)</text><text x="600" y="284" font-size="11.5" text-anchor="start" fill="#8a4526">- refraction (no repeats)</text></svg>
+    <div class="diagram-caption">The recognize-act cycle. Match every rule against working memory; collect the ones that match (the conflict set); resolve the conflict by choosing one; act; repeat. Acting changes working memory, so different rules match next time.</div>
+</div>
+
+<p>The resolution step matters more than it looks. When several rules match, the agent needs a principled way to choose. Common strategies are fixed priority, <em>specificity</em> (a rule with more conditions is about a more particular situation, so it wins), <em>recency</em> (prefer rules matching the newest facts), and <em>refraction</em> (never fire the same rule on the same facts twice). This week's Bennett reading shows a nematode doing conflict resolution with inhibitory neurons: "you can go in only one direction at a time."</p>
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Newell and Simon recorded people thinking aloud while solving puzzles and found they could model each person's moves as a small set of production rules. Rules also explain skill learning. In Soar, every time the system solves a subproblem it saves the solution as a new rule, a <em>chunk</em>. Newell and Rosenbloom (1981) showed that chunking naturally produces the <strong>power law of practice</strong>: the time to do a task falls as a power function of the number of times you have done it, a pattern found in people learning everything from typing to cigar rolling.</p>
+</div>
+
+
+<h3>Part 2. A Soar-Style Agent: Proposals, Impasses, and Chunking</h3>
+<p>Soar treats every decision as choosing an <em>operator</em>. Rules first propose operators. If exactly one is proposed, or if preference knowledge picks among them, the agent applies it. If not, the agent is at an <strong>impasse</strong>, and it sets up a subgoal to resolve the impasse with whatever other knowledge it has. When the subgoal succeeds, Soar compiles the result into a new rule (a chunk), so the same impasse never happens again.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 270" style="max-width:760px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="so" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="60" width="140" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="90.0" y="79.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">Elaborate:</text><text x="90.0" y="94.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">fire all matching</text><text x="90.0" y="108.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">proposal rules</text><rect x="200" y="60" width="140" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="270.0" y="79.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">Decide:</text><text x="270.0" y="94.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">one operator?</text><text x="270.0" y="108.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">or a preference?</text><rect x="380" y="60" width="140" height="60" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="450.0" y="86.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">Apply the</text><text x="450.0" y="101.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">operator</text><rect x="200" y="190" width="140" height="60" rx="7" fill="#fde2e2" stroke="#b3261e" stroke-width="1.8"/><text x="270.0" y="209.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">IMPASSE</text><text x="270.0" y="224.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">(tie, no knowledge</text><text x="270.0" y="238.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">to break it)</text><rect x="380" y="190" width="160" height="60" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="460.0" y="209.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">Subgoal: resolve it</text><text x="460.0" y="224.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">(search, look up</text><text x="460.0" y="238.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">episodes, ...)</text><rect x="580" y="190" width="160" height="60" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="660.0" y="209.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">CHUNK:</text><text x="660.0" y="224.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">save the result as</text><text x="660.0" y="238.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">a new rule</text><line x1="162" y1="90" x2="198" y2="90" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#so)"/><line x1="342" y1="90" x2="378" y2="90" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#so)"/><text x="360.0" y="82" font-size="11" text-anchor="middle" fill="#1f3b52">yes</text><line x1="270" y1="122" x2="270" y2="188" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#so)"/><text x="280" y="160" font-size="11" text-anchor="start" fill="#1f3b52">no</text><line x1="342" y1="220" x2="378" y2="220" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#so)"/><line x1="542" y1="220" x2="578" y2="220" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#so)"/><path d="M 660 188 C 660 20, 100 20, 90 58" fill="none" stroke="#b8860b" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#so)"/><text x="420" y="36" font-size="11.5" text-anchor="middle" fill="#7a5a06" font-style="italic">next time the chunk fires during Decide: no impasse</text></svg>
+    <div class="diagram-caption">Soar's decision cycle with impasses and chunking, simplified.</div>
+</div>
+
+<p>Our example (after Goel and Joyner's KBAI course) is a baseball pitcher deciding what to throw. First, a pattern matcher. Variables start with <code class="code-lesson-il">?</code>, and <code class="code-lesson-il">('not', pattern)</code> means the pattern must be absent:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">pitcher_agent.py: pattern matching</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def match(patterns, wm, bindings=None):
+    &quot;&quot;&quot;Yield every set of variable bindings under which all patterns are in
+    working memory. Variables start with &#x27;?&#x27;. (&#x27;not&#x27;, p) means p is absent.&quot;&quot;&quot;
+    bindings = bindings or {}
+    if not patterns:
+        yield bindings
+        return
+    first, rest = patterns[0], patterns[1:]
+    if first[0] == &#x27;not&#x27;:
+        if not any(True for _ in match([first[1]], wm, bindings)):
+            yield from match(rest, wm, bindings)
+        return
+    for fact in wm:
+        if len(fact) != len(first):
+            continue
+        b = dict(bindings)
+        for p, f in zip(first, fact):
+            if isinstance(p, str) and p.startswith(&#x27;?&#x27;):
+                if b.setdefault(p, f) != f:
+                    break
+            elif p != f:
+                break
+        else:
+            yield from match(rest, wm, b)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">pitcher_agent.py: proposal rules</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Each rule: name, IF patterns, THEN a proposed operator (may use variables)
+RULES = [
+    (&#x27;throw-strikes&#x27;,  [(&#x27;count&#x27;, &#x27;balls&#x27;, 3)], &#x27;fastball&#x27;),
+    (&#x27;fool-a-lefty&#x27;,   [(&#x27;batter&#x27;, &#x27;left&#x27;)], &#x27;curveball&#x27;),
+    (&#x27;walk-a-slugger&#x27;, [(&#x27;batter-skill&#x27;, &#x27;strong&#x27;), (&#x27;base&#x27;, &#x27;first&#x27;, &#x27;empty&#x27;),
+                        (&#x27;outs&#x27;, &#x27;?n&#x27;)], &#x27;intentional-walk&#x27;),
+    (&#x27;hold-runner&#x27;,    [(&#x27;base&#x27;, &#x27;?b&#x27;, &#x27;runner&#x27;), (&#x27;not&#x27;, (&#x27;base&#x27;, &#x27;first&#x27;, &#x27;empty&#x27;))], &#x27;pickoff&#x27;),
+]
+
+def propose(wm, rules):
+    &quot;&quot;&quot;Elaboration phase: fire every matching rule, collect proposals.&quot;&quot;&quot;
+    proposals = {}
+    for name, conds, op in rules:
+        for b in match(conds, wm):
+            proposals.setdefault(op, []).append(name)
+            break
+    return proposals</code>
+</div>
+
+<p>The <em>hold-runner</em> rule shows a negative condition: it proposes a pickoff only if first base is not empty. The decision procedure tries learned preferences first. If none applies and the proposals tie, it falls into an impasse, consults episodic memory, and chunks:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">pitcher_agent.py: deciding, impasses, chunking</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">EPISODES = [   # long-term episodic memory: what worked before
+    ({(&#x27;batter&#x27;, &#x27;left&#x27;), (&#x27;count&#x27;, &#x27;balls&#x27;, 3), (&#x27;batter-skill&#x27;, &#x27;strong&#x27;)}, &#x27;intentional-walk&#x27;),
+    ({(&#x27;batter&#x27;, &#x27;right&#x27;), (&#x27;count&#x27;, &#x27;balls&#x27;, 3)}, &#x27;fastball&#x27;),
+]
+PREFERENCES = []   # preference rules: IF patterns THEN prefer an operator
+
+def decide(wm):
+    proposals = propose(wm, RULES)
+    print(&#x27;  proposals:&#x27;, proposals)
+    if len(proposals) == 1:
+        return next(iter(proposals))
+    for name, conds, op in PREFERENCES:          # does a learned rule break the tie?
+        if op in proposals and any(True for _ in match(conds, wm)):
+            print(f&#x27;  tie broken by {name}&#x27;)
+            return op
+    # IMPASSE: several operators, no knowledge to choose between them.
+    print(&#x27;  impasse! consulting episodic memory&#x27;)
+    best = max(EPISODES, key=lambda ep: len(ep[0] &amp; wm))
+    choice = best[1] if best[1] in proposals else sorted(proposals)[0]
+    # CHUNKING: save how the impasse was resolved as a new preference rule,
+    # so this situation never causes an impasse again.
+    chunk = (&#x27;chunk-1&#x27;, sorted(best[0] &amp; wm), choice)
+    PREFERENCES.append(chunk)
+    print(&#x27;  learned&#x27;, chunk)
+    return choice</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">pitcher_agent.py: two identical at-bats</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">situation = {(&#x27;batter&#x27;, &#x27;left&#x27;), (&#x27;batter-skill&#x27;, &#x27;strong&#x27;), (&#x27;count&#x27;, &#x27;balls&#x27;, 3),
+             (&#x27;outs&#x27;, 2), (&#x27;base&#x27;, &#x27;first&#x27;, &#x27;empty&#x27;), (&#x27;base&#x27;, &#x27;second&#x27;, &#x27;runner&#x27;)}
+for at_bat in (1, 2):
+    print(f&#x27;at-bat {at_bat}:&#x27;)
+    print(&#x27;  pitch:&#x27;, decide(situation))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">at-bat 1:
+  proposals: {&#x27;fastball&#x27;: [&#x27;throw-strikes&#x27;], &#x27;curveball&#x27;: [&#x27;fool-a-lefty&#x27;], &#x27;intentional-walk&#x27;: [&#x27;walk-a-slugger&#x27;]}
+  impasse! consulting episodic memory
+  learned (&#x27;chunk-1&#x27;, [(&#x27;batter&#x27;, &#x27;left&#x27;), (&#x27;batter-skill&#x27;, &#x27;strong&#x27;), (&#x27;count&#x27;, &#x27;balls&#x27;, 3)], &#x27;intentional-walk&#x27;)
+  pitch: intentional-walk
+at-bat 2:
+  proposals: {&#x27;fastball&#x27;: [&#x27;throw-strikes&#x27;], &#x27;curveball&#x27;: [&#x27;fool-a-lefty&#x27;], &#x27;intentional-walk&#x27;: [&#x27;walk-a-slugger&#x27;]}
+  tie broken by chunk-1
+  pitch: intentional-walk</code>
+</div>
+
+<p>The second at-bat is the same situation, and the same three rules fire, but the learned preference breaks the tie at once. The agent went from deliberating to recognizing. That shift is what skill acquisition feels like from the inside.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># A Soar-flavoured production system: match, propose, decide, and chunk.
+def match(patterns, wm, bindings=None):
+    """Yield every set of variable bindings under which all patterns are in
+    working memory. Variables start with '?'. ('not', p) means p is absent."""
+    bindings = bindings or {}
+    if not patterns:
+        yield bindings
+        return
+    first, rest = patterns[0], patterns[1:]
+    if first[0] == 'not':
+        if not any(True for _ in match([first[1]], wm, bindings)):
+            yield from match(rest, wm, bindings)
+        return
+    for fact in wm:
+        if len(fact) != len(first):
+            continue
+        b = dict(bindings)
+        for p, f in zip(first, fact):
+            if isinstance(p, str) and p.startswith('?'):
+                if b.setdefault(p, f) != f:
+                    break
+            elif p != f:
+                break
+        else:
+            yield from match(rest, wm, b)
+
+# Each rule: name, IF patterns, THEN a proposed operator (may use variables)
+RULES = [
+    ('throw-strikes',  [('count', 'balls', 3)], 'fastball'),
+    ('fool-a-lefty',   [('batter', 'left')], 'curveball'),
+    ('walk-a-slugger', [('batter-skill', 'strong'), ('base', 'first', 'empty'),
+                        ('outs', '?n')], 'intentional-walk'),
+    ('hold-runner',    [('base', '?b', 'runner'), ('not', ('base', 'first', 'empty'))], 'pickoff'),
+]
+
+def propose(wm, rules):
+    """Elaboration phase: fire every matching rule, collect proposals."""
+    proposals = {}
+    for name, conds, op in rules:
+        for b in match(conds, wm):
+            proposals.setdefault(op, []).append(name)
+            break
+    return proposals
+
+EPISODES = [   # long-term episodic memory: what worked before
+    ({('batter', 'left'), ('count', 'balls', 3), ('batter-skill', 'strong')}, 'intentional-walk'),
+    ({('batter', 'right'), ('count', 'balls', 3)}, 'fastball'),
+]
+PREFERENCES = []   # preference rules: IF patterns THEN prefer an operator
+
+def decide(wm):
+    proposals = propose(wm, RULES)
+    print('  proposals:', proposals)
+    if len(proposals) == 1:
+        return next(iter(proposals))
+    for name, conds, op in PREFERENCES:          # does a learned rule break the tie?
+        if op in proposals and any(True for _ in match(conds, wm)):
+            print(f'  tie broken by {name}')
+            return op
+    # IMPASSE: several operators, no knowledge to choose between them.
+    print('  impasse! consulting episodic memory')
+    best = max(EPISODES, key=lambda ep: len(ep[0] & wm))
+    choice = best[1] if best[1] in proposals else sorted(proposals)[0]
+    # CHUNKING: save how the impasse was resolved as a new preference rule,
+    # so this situation never causes an impasse again.
+    chunk = ('chunk-1', sorted(best[0] & wm), choice)
+    PREFERENCES.append(chunk)
+    print('  learned', chunk)
+    return choice
+
+situation = {('batter', 'left'), ('batter-skill', 'strong'), ('count', 'balls', 3),
+             ('outs', 2), ('base', 'first', 'empty'), ('base', 'second', 'runner')}
+for at_bat in (1, 2):
+    print(f'at-bat {at_bat}:')
+    print('  pitch:', decide(situation))</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Inducing Local Rules</h3>
+<p>Many ARC tasks are naturally described by local production rules. In <code class="code-lesson-il">0ca9ddb6</code> (from the ARC-AGI lesson) a person might say: <em>IF a cell is red THEN its diagonal neighbours become yellow; IF a cell is blue THEN its side neighbours become orange.</em></p>
+<div class="diagram">
+<svg viewBox="0 0 468 104" style="max-width:520px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="st" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(30.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">IF red</text></g><line x1="100.0" y1="59.0" x2="136.0" y2="59.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#st)"/><g transform="translate(144.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">THEN</text></g><line x1="214.0" y1="59.0" x2="250.0" y2="59.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#st)"/><g transform="translate(258.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">IF blue</text></g><line x1="328.0" y1="59.0" x2="364.0" y2="59.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#st)"/><g transform="translate(372.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">THEN</text></g></svg>
+    <div class="diagram-caption">The two rules of 0ca9ddb6 drawn as before-and-after stencils.</div>
+</div>
+
+<p>Instead of writing those rules by hand, the agent can <em>induce</em> them. For every coloured cell in every train input, record what the output holds at each of the nine neighbouring positions. A candidate rule <em>colour c &rarr; position (dy, dx) becomes k</em> survives only if it was true every single time its condition occurred. One counterexample kills it.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_rules.py: inducing rules from the train pairs</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def induce_rules(task):
+    &quot;&quot;&quot;Propose rules  IF a cell has colour c THEN the cell at offset (dy, dx)
+    becomes colour k.  Keep a rule only if it holds every time its
+    condition occurs in every train pair (no counterexamples).&quot;&quot;&quot;
+    seen = {}                                  # (c, dy, dx) -&gt; set of k
+    for pair in task[&#x27;train&#x27;]:
+        inp, out = pair[&#x27;input&#x27;], pair[&#x27;output&#x27;]
+        if dims(inp) != dims(out):
+            return None
+        bg = background(inp)
+        h, w = dims(inp)
+        for r in range(h):
+            for c in range(w):
+                col = inp[r][c]
+                if col == bg:
+                    continue
+                for dy, dx in OFFSETS:
+                    y, x = r + dy, c + dx
+                    if 0 &lt;= y &lt; h and 0 &lt;= x &lt; w and (inp[y][x] == bg or (dy, dx) == (0, 0)):
+                        seen.setdefault((col, dy, dx), set()).add(out[y][x])
+    rules = []
+    for (col, dy, dx), ks in seen.items():
+        if len(ks) == 1:
+            k = ks.pop()
+            unchanged = (k == col) if (dy, dx) == (0, 0) else (k == bg)
+            if not unchanged:                 # only rules that DO something
+                rules.append((col, dy, dx, k))
+    return rules</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_rules.py: firing the rules</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def fire(rules, grid):
+    &quot;&quot;&quot;Production cycle: every rule whose condition matches fires once.
+    Conflict resolution: rules about the cell itself fire last (they win).&quot;&quot;&quot;
+    bg = background(grid)
+    h, w = dims(grid)
+    out = [row[:] for row in grid]
+    for col, dy, dx, k in sorted(rules, key=lambda r: (r[1], r[2]) == (0, 0)):
+        for r in range(h):
+            for c in range(w):
+                y, x = r + dy, c + dx
+                if grid[r][c] == col and 0 &lt;= y &lt; h and 0 &lt;= x &lt; w:
+                    if grid[y][x] == bg or (dy, dx) == (0, 0):
+                        out[y][x] = k
+    return out</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_rules.py: try it</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    from arc_utils import COLOR_NAMES as N
+    task = load_task(&#x27;data/training/0ca9ddb6.json&#x27;)
+    rules = induce_rules(task)
+    for col, dy, dx, k in sorted(rules):
+        print(f&#x27;IF cell is {N[col]:6} THEN cell at ({dy:+d},{dx:+d}) := {N[k]}&#x27;)
+    ok = all(fire(rules, p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;])
+    print(&#x27;fits train:&#x27;, ok, &#x27;| test correct:&#x27;,
+          fire(rules, task[&#x27;test&#x27;][0][&#x27;input&#x27;]) == task[&#x27;test&#x27;][0][&#x27;output&#x27;])</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">IF cell is blue   THEN cell at (-1,+0) := orange
+IF cell is blue   THEN cell at (+0,-1) := orange
+IF cell is blue   THEN cell at (+0,+1) := orange
+IF cell is blue   THEN cell at (+1,+0) := orange
+IF cell is red    THEN cell at (-1,-1) := yellow
+IF cell is red    THEN cell at (-1,+1) := yellow
+IF cell is red    THEN cell at (+1,-1) := yellow
+IF cell is red    THEN cell at (+1,+1) := yellow
+fits train: True | test correct: True</code>
+</div>
+
+<p>The agent found exactly the eight rules a person would state, and it found them from data. How general is this? Run it over all 400 training tasks:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_rules.py: sweep the training set</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    solved = []
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        t = load_task(&#x27;data/training/&#x27; + name)
+        rs = induce_rules(t)
+        if rs and all(fire(rs, p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in t[&#x27;train&#x27;]):
+            if all(fire(rs, p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in t[&#x27;test&#x27;]):
+                solved.append(name[:-5])
+    print(len(solved), &#x27;training tasks solved by local rules:&#x27;, &#x27; &#x27;.join(solved))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">10 training tasks solved by local rules: 0ca9ddb6 0d3d703e 4258a5f9 54d9e175 913fb3ed a9f96cdd b60334d2 ce22a75a d364b489 dc1df850</code>
+</div>
+
+<p>Ten tasks with about 60 lines of code, and the rules it found are readable: you can print them and see <em>why</em> the agent answered as it did. Notice what this learner cannot do. Its conditions look only at one cell's colour, so it cannot express "a cell between two blue cells" or "the largest object." Richer conditions (matching on objects and relations from your semantic network) are the obvious next step.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Production rules are long-term <strong>procedural memory</strong>. The match-resolve-act cycle is a <strong>Decider</strong>. Conflict resolution and impasse detection are early forms of the <strong>Monitor</strong>. Chunking is the learning arrow from Decider back to Memory.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>Rule order is the simplest conflict-resolution strategy. When would it give the wrong answer in the pitcher example?</li><li>The ARC rule learner requires zero counterexamples. Why is that a good policy with only three train pairs? When might it be too strict?</li><li>Bennett's nematode has fixed rules shaped by evolution, while Soar learns new ones. Which parts of your ARC agent should be fixed and which learned?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Describe the parts of a production system and the recognize-act cycle.</li><li>Name and explain three conflict-resolution strategies.</li><li>Explain impasse and chunking in Soar, and how chunking relates to the power law of practice.</li><li>Induce consistent local rules from ARC train pairs and explain why one counterexample eliminates a rule.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add a rule to the pitcher agent that proposes <code class="code-lesson-il">changeup</code> when the count has two strikes. Run it and read the proposals.</li><li>Print the rules induced for <code class="code-lesson-il">dc1df850</code> and <code class="code-lesson-il">4258a5f9</code>. Describe each task in one English sentence.</li></ol><h3>Intermediate</h3>
+<ol><li>Implement specificity as the conflict-resolution strategy in the pitcher agent: when several rules propose different operators, prefer the rule with the most conditions. Does this avoid the impasse?</li><li>Extend <code class="code-lesson-il">induce_rules</code> to use a 5&times;5 neighbourhood. Does it solve more tasks? Does it ever solve fewer? Why?</li></ol><h3>Advanced</h3>
+<ol><li>Write a rule learner whose conditions are about <em>objects</em> rather than cells: <em>IF an object has size s and colour c THEN recolour it k</em>. Test it on <code class="code-lesson-il">d2abd087</code> and <code class="code-lesson-il">67385a82</code>.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Add the local-rule learner to your agent's Decider as one more source of hypotheses, and record how many tasks your agent now solves.</li></ol></section>
+
+
+    </body>
+</html>

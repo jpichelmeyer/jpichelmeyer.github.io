@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>So far the agent has been handed representations: frames, cases, features. <strong>Understanding</strong> is the process of building a representation from raw input, deciding what is going on, who is doing what to whom, with what, and why. The classic setting is language, where a sentence must become a structured meaning. The same problem appears in ARC: an agent that can say "the green cell moved one step toward the yellow one" has <em>understood</em> the pair in a way that "these 3 cells changed" never will.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_understanding_1_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 4, §4.1–4.2.1: <i>Language Understanding</i></a> <span class="reading-meta">(pp. 84–87 &middot; PDF 95–98 &middot; 4 pages)</span><br>Understanding as building a meaning representation in stages, with many candidate interpretations pruned to one.</li></ul>
+</div>
+
+
+<h3>Part 1. Thematic Roles</h3>
+<p>Charles Fillmore's case grammar (1968) observed that behind the surface of a sentence is an <strong>event</strong> with a small set of <strong>thematic roles</strong>: the agent who acts, the object acted on, the beneficiary it is done for, the instrument used, the source and destination of motion. Understanding a sentence means filling a frame for the event.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 260" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="fr" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><text x="380" y="26" font-size="14" text-anchor="middle" fill="#1f3b52" font-style="italic">&quot;Ashok made pancakes for David with a griddle.&quot;</text><rect x="300" y="50" width="160" height="40" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="75.2" font-size="15" text-anchor="middle" fill="#1f3b52" font-weight="bold">MAKE</text><rect x="40" y="150" width="140" height="50" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="110.0" y="179.6" font-size="13" text-anchor="middle" fill="#1f3b52">Ashok</text><line x1="380" y1="92" x2="110" y2="148" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#fr)"/><text x="245.0" y="119.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">agent</text><rect x="220" y="150" width="140" height="50" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="290.0" y="179.6" font-size="13" text-anchor="middle" fill="#1f3b52">pancakes</text><line x1="380" y1="92" x2="290" y2="148" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#fr)"/><text x="335.0" y="119.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">object</text><rect x="400" y="150" width="140" height="50" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="470.0" y="179.6" font-size="13" text-anchor="middle" fill="#1f3b52">David</text><line x1="380" y1="92" x2="470" y2="148" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#fr)"/><text x="425.0" y="119.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">beneficiary</text><rect x="580" y="150" width="140" height="50" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="650.0" y="179.6" font-size="13" text-anchor="middle" fill="#1f3b52">griddle</text><line x1="380" y1="92" x2="650" y2="148" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#fr)"/><text x="515.0" y="119.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">instrument</text><text x="380" y="230" font-size="11.5" text-anchor="middle" fill="#5b6b78">cue for &quot;beneficiary&quot;: the preposition &quot;for&quot; + a person</text><text x="380" y="248" font-size="11.5" text-anchor="middle" fill="#5b6b78">cue for &quot;instrument&quot;: the preposition &quot;with&quot; + a tool</text></svg>
+    <div class="diagram-caption">A thematic-role frame. Prepositions, word categories, and the verb's own expectations together decide which role each phrase fills.</div>
+</div>
+
+<p>The hard part is ambiguity. Words have several senses, prepositions signal several roles, and many sentences could be read more than one way. Understanding is mostly <strong>constraint satisfaction</strong>: each verb sense expects certain kinds of fillers in certain roles, and the interpretation that satisfies the most constraints wins.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 250" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="tk" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="310" y="20" width="140" height="40" rx="7" fill="#f2f5f7" stroke="#5b6b78" stroke-width="1.8"/><text x="380.0" y="45.2" font-size="15" text-anchor="middle" fill="#1f3b52" font-weight="bold">&quot;took&quot;</text><rect x="40" y="100" width="170" height="34" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="125.0" y="121.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">INGEST</text><rect x="40" y="140" width="170" height="50" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="125.0" y="168.8" font-size="11" text-anchor="middle" fill="#1f3b52">object: medicine</text><line x1="380" y1="62" x2="125" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#tk)"/><rect x="290" y="100" width="170" height="34" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="375.0" y="121.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">TRAVEL</text><rect x="290" y="140" width="170" height="50" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="375.0" y="161.8" font-size="11" text-anchor="middle" fill="#1f3b52">object/conveyance: vehicle</text><text x="375.0" y="175.8" font-size="11" text-anchor="middle" fill="#1f3b52">destination: place</text><line x1="380" y1="62" x2="375" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#tk)"/><rect x="560" y="100" width="170" height="34" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="645.0" y="121.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">GRAB</text><rect x="560" y="140" width="170" height="50" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="645.0" y="161.8" font-size="11" text-anchor="middle" fill="#1f3b52">object: physical object</text><text x="645.0" y="175.8" font-size="11" text-anchor="middle" fill="#1f3b52">source: person</text><line x1="380" y1="62" x2="645" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#tk)"/><text x="380" y="220" font-size="11.5" text-anchor="middle" fill="#5b6b78">&quot;took the medicine&quot; satisfies INGEST; &quot;took the train to Atlanta&quot; satisfies TRAVEL;</text><text x="380" y="238" font-size="11.5" text-anchor="middle" fill="#5b6b78">&quot;took the book from David&quot; satisfies GRAB. The constraints pick the sense.</text></svg>
+    <div class="diagram-caption">Three senses of "took," each with constraints on its roles.</div>
+</div>
+
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>People understand incrementally, committing to an interpretation word by word, and occasionally have to back up. Try <em>"The horse raced past the barn fell."</em> Most readers stall at "fell," because they committed to "raced" as the main verb; it is actually "the horse (that was) raced past the barn." Such <strong>garden-path sentences</strong> show the commitment. Understanding also depends on having the right frame: John Bransford and Marcia Johnson (1972) read people a vague passage ("first you arrange things into different groups...") that was nearly incomprehensible until they were told its title, <em>washing clothes</em>. With the title, comprehension and recall jumped. This week's McShane reading describes a working agent that builds meaning in stages, keeping several candidate interpretations alive and pruning them as more knowledge applies.</p>
+</div>
+
+
+<h3>Part 2. A Thematic-Role Agent</h3>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">roles_agent.py: lexicon, prepositions, verb senses</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">CATEGORY = {&#x27;ashok&#x27;: &#x27;person&#x27;, &#x27;david&#x27;: &#x27;person&#x27;, &#x27;maria&#x27;: &#x27;person&#x27;,
+            &#x27;pancakes&#x27;: &#x27;food&#x27;, &#x27;medicine&#x27;: &#x27;medicine&#x27;, &#x27;train&#x27;: &#x27;vehicle&#x27;, &#x27;bus&#x27;: &#x27;vehicle&#x27;,
+            &#x27;atlanta&#x27;: &#x27;place&#x27;, &#x27;school&#x27;: &#x27;place&#x27;, &#x27;book&#x27;: &#x27;object&#x27;, &#x27;griddle&#x27;: &#x27;tool&#x27;,
+            &#x27;pills&#x27;: &#x27;medicine&#x27;}
+
+# What each preposition can signal, most likely first.
+PREPOSITIONS = {&#x27;for&#x27;: [&#x27;beneficiary&#x27;], &#x27;with&#x27;: [&#x27;instrument&#x27;, &#x27;co-agent&#x27;],
+                &#x27;to&#x27;: [&#x27;destination&#x27;], &#x27;from&#x27;: [&#x27;source&#x27;], &#x27;by&#x27;: [&#x27;conveyance&#x27;]}
+
+# Verb senses: the roles each sense expects and what may fill them.
+VERBS = {
+    &#x27;made&#x27;: [(&#x27;make&#x27;, {&#x27;agent&#x27;: &#x27;person&#x27;, &#x27;object&#x27;: &#x27;food&#x27;, &#x27;beneficiary&#x27;: &#x27;person&#x27;,
+                       &#x27;instrument&#x27;: &#x27;tool&#x27;})],
+    &#x27;took&#x27;: [(&#x27;ingest&#x27;, {&#x27;agent&#x27;: &#x27;person&#x27;, &#x27;object&#x27;: &#x27;medicine&#x27;}),
+             (&#x27;travel&#x27;, {&#x27;agent&#x27;: &#x27;person&#x27;, &#x27;conveyance&#x27;: &#x27;vehicle&#x27;, &#x27;object&#x27;: &#x27;vehicle&#x27;,
+                         &#x27;destination&#x27;: &#x27;place&#x27;, &#x27;source&#x27;: &#x27;place&#x27;}),
+             (&#x27;grab&#x27;, {&#x27;agent&#x27;: &#x27;person&#x27;, &#x27;object&#x27;: &#x27;object&#x27;, &#x27;source&#x27;: &#x27;person&#x27;})],
+}</code>
+</div>
+
+<p>For each sense of the verb, the agent fills what it can and scores the fit. A filler that matches a constraint earns a point; a subject or object that violates its sense's constraint costs one. The best-scoring sense is the understanding.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">roles_agent.py: understanding a sentence</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def understand(sentence):
+    words = sentence.lower().strip(&#x27;.&#x27;).replace(&#x27; the &#x27;, &#x27; &#x27;).split()
+    subject, verb, obj, rest = words[0], words[1], words[2], words[3:]
+    best = None
+    for sense, slots in VERBS[verb]:
+        frame, score = {&#x27;event&#x27;: sense}, 0
+        # subject and object: check them against the sense&#x27;s constraints
+        for role, word in [(&#x27;agent&#x27;, subject), (&#x27;object&#x27;, obj)]:
+            if slots.get(role) == CATEGORY.get(word):
+                frame[role] = word
+                score += 1
+            elif role in slots:
+                score -= 1            # constraint violated: this sense is unlikely
+        # prepositional phrases: the preposition proposes roles, the sense disposes
+        for prep, word in zip(rest[::2], rest[1::2]):
+            for role in PREPOSITIONS.get(prep, []):
+                if slots.get(role) == CATEGORY.get(word):
+                    frame[role] = word
+                    score += 1
+                    break
+        if best is None or score &gt; best[1]:
+            best = (frame, score)
+    return best[0]</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">roles_agent.py: four sentences</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">for s in [&#x27;Ashok made pancakes for David with the griddle.&#x27;,
+          &#x27;Ashok took the medicine.&#x27;,
+          &#x27;Ashok took the train to Atlanta.&#x27;,
+          &#x27;Maria took the book from David.&#x27;]:
+    print(f&#x27;{s:48} -&gt; {understand(s)}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">Ashok made pancakes for David with the griddle.  -&gt; {&#x27;event&#x27;: &#x27;make&#x27;, &#x27;agent&#x27;: &#x27;ashok&#x27;, &#x27;object&#x27;: &#x27;pancakes&#x27;, &#x27;beneficiary&#x27;: &#x27;david&#x27;, &#x27;instrument&#x27;: &#x27;griddle&#x27;}
+Ashok took the medicine.                         -&gt; {&#x27;event&#x27;: &#x27;ingest&#x27;, &#x27;agent&#x27;: &#x27;ashok&#x27;, &#x27;object&#x27;: &#x27;medicine&#x27;}
+Ashok took the train to Atlanta.                 -&gt; {&#x27;event&#x27;: &#x27;travel&#x27;, &#x27;agent&#x27;: &#x27;ashok&#x27;, &#x27;object&#x27;: &#x27;train&#x27;, &#x27;destination&#x27;: &#x27;atlanta&#x27;}
+Maria took the book from David.                  -&gt; {&#x27;event&#x27;: &#x27;grab&#x27;, &#x27;agent&#x27;: &#x27;maria&#x27;, &#x27;object&#x27;: &#x27;book&#x27;, &#x27;source&#x27;: &#x27;david&#x27;}</code>
+</div>
+
+<p>The same word "took" became three different events, chosen by what kinds of things filled the roles. Notice that the agent understands nothing about medicine or trains beyond their categories. Deeper understanding (that taking medicine is meant to make you better, that a train goes along tracks) is common-sense knowledge, the next lesson.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Understanding sentences by filling thematic-role frames.
+CATEGORY = {'ashok': 'person', 'david': 'person', 'maria': 'person',
+            'pancakes': 'food', 'medicine': 'medicine', 'train': 'vehicle', 'bus': 'vehicle',
+            'atlanta': 'place', 'school': 'place', 'book': 'object', 'griddle': 'tool',
+            'pills': 'medicine'}
+
+# What each preposition can signal, most likely first.
+PREPOSITIONS = {'for': ['beneficiary'], 'with': ['instrument', 'co-agent'],
+                'to': ['destination'], 'from': ['source'], 'by': ['conveyance']}
+
+# Verb senses: the roles each sense expects and what may fill them.
+VERBS = {
+    'made': [('make', {'agent': 'person', 'object': 'food', 'beneficiary': 'person',
+                       'instrument': 'tool'})],
+    'took': [('ingest', {'agent': 'person', 'object': 'medicine'}),
+             ('travel', {'agent': 'person', 'conveyance': 'vehicle', 'object': 'vehicle',
+                         'destination': 'place', 'source': 'place'}),
+             ('grab', {'agent': 'person', 'object': 'object', 'source': 'person'})],
+}
+
+def understand(sentence):
+    words = sentence.lower().strip('.').replace(' the ', ' ').split()
+    subject, verb, obj, rest = words[0], words[1], words[2], words[3:]
+    best = None
+    for sense, slots in VERBS[verb]:
+        frame, score = {'event': sense}, 0
+        # subject and object: check them against the sense's constraints
+        for role, word in [('agent', subject), ('object', obj)]:
+            if slots.get(role) == CATEGORY.get(word):
+                frame[role] = word
+                score += 1
+            elif role in slots:
+                score -= 1            # constraint violated: this sense is unlikely
+        # prepositional phrases: the preposition proposes roles, the sense disposes
+        for prep, word in zip(rest[::2], rest[1::2]):
+            for role in PREPOSITIONS.get(prep, []):
+                if slots.get(role) == CATEGORY.get(word):
+                    frame[role] = word
+                    score += 1
+                    break
+        if best is None or score > best[1]:
+            best = (frame, score)
+    return best[0]
+
+for s in ['Ashok made pancakes for David with the griddle.',
+          'Ashok took the medicine.',
+          'Ashok took the train to Atlanta.',
+          'Maria took the book from David.']:
+    print(f'{s:48} -> {understand(s)}')</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Understanding a Pair as an Event</h3>
+<p>Treat each train pair as a tiny story and try to understand it as an event with roles. Here is the MOVE event: one object (the <em>theme</em>) changes position without changing shape, another (the <em>landmark</em>) stays put, and the motion has a direction and an extent.</p>
+<div class="diagram">
+<svg viewBox="0 0 480 206" style="max-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr_dc433765" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(34.0,26.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="20.0" height="20.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="20.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="40.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="20.0" height="20.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><text x="30.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 1</text></g><line x1="64.0" y1="94.0" x2="64.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_dc433765)"/><g transform="translate(34.0,132.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="20.0" height="20.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="20.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="40.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="20.0" height="20.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/></g><g transform="translate(128.0,26.0)"><rect x="-1" y="-1" width="38.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.0" width="12.0" height="12.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="12.0" width="12.0" height="12.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="18.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 2</text></g><line x1="146.0" y1="94.0" x2="146.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_dc433765)"/><g transform="translate(128.0,132.0)"><rect x="-1" y="-1" width="38.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="12.0" width="12.0" height="12.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="12.0" width="12.0" height="12.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(198.0,26.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="24.0" width="12.0" height="12.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="24.0" width="12.0" height="12.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="30.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 3</text></g><line x1="228.0" y1="94.0" x2="228.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_dc433765)"/><g transform="translate(198.0,132.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="0.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="12.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="24.0" width="12.0" height="12.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="24.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="24.0" width="12.0" height="12.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="36.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="24.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="36.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="48.0" width="12.0" height="12.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(292.0,26.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="8.6" width="8.6" height="8.6" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="34.3" width="8.6" height="8.6" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="30.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 4</text></g><line x1="322.0" y1="94.0" x2="322.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_dc433765)"/><g transform="translate(292.0,132.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="0.0" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="8.6" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="17.1" width="8.6" height="8.6" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="17.1" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="25.7" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="34.3" width="8.6" height="8.6" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="34.3" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="42.9" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="8.6" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="17.1" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.3" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="51.4" width="8.6" height="8.6" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(386.0,26.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="0.0" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="5.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="10.9" width="5.5" height="5.5" fill="#2ECC40" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="10.9" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="16.4" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="21.8" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="27.3" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="32.7" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="38.2" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="43.6" width="5.5" height="5.5" fill="#FFDC00" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="43.6" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="49.1" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="0.0" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="5.5" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="10.9" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="16.4" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="21.8" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="27.3" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="32.7" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="38.2" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="43.6" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="49.1" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><rect x="54.5" y="54.5" width="5.5" height="5.5" fill="#000000" stroke="#444" stroke-width="0.3"/><text x="30.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">test</text></g><line x1="416.0" y1="94.0" x2="416.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_dc433765)"/><rect x="396.0" y="132.0" width="40.0" height="40.0" rx="4" fill="#fff" stroke="#7a4f9a" stroke-width="2" stroke-dasharray="5,4"/><text x="416.0" y="161.0" font-size="26" text-anchor="middle" fill="#7a4f9a">?</text></svg>
+    <div class="diagram-caption">Task dc433765. A green cell and a yellow cell.</div>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 760 200" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="mf" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(30.0,40.0)"><rect x="-1" y="-1" width="104.0" height="104.0" fill="#555"/><rect x="0.0" y="0.0" width="34.0" height="34.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="34.0" y="0.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="68.0" y="0.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="34.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.0" y="34.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="68.0" y="34.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="68.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.0" y="68.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="68.0" y="68.0" width="34.0" height="34.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><text x="51.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">input</text></g><g transform="translate(190.0,40.0)"><rect x="-1" y="-1" width="104.0" height="104.0" fill="#555"/><rect x="0.0" y="0.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.0" y="0.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="68.0" y="0.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="34.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.0" y="34.0" width="34.0" height="34.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="68.0" y="34.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="68.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="34.0" y="68.0" width="34.0" height="34.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="68.0" y="68.0" width="34.0" height="34.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><text x="51.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">output</text></g><line x1="140" y1="90" x2="182" y2="90" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#mf)"/><rect x="360" y="30" width="380" height="30" rx="4" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="550.0" y="49.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">understood as</text><rect x="360" y="60" width="110" height="26" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="415.0" y="77.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">event</text><rect x="470" y="60" width="270" height="26" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="605.0" y="77.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">MOVE</text><rect x="360" y="86" width="110" height="26" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="415.0" y="103.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">theme</text><rect x="470" y="86" width="270" height="26" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="605.0" y="103.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">green (3): the object that moved</text><rect x="360" y="112" width="110" height="26" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="415.0" y="129.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">landmark</text><rect x="470" y="112" width="270" height="26" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="605.0" y="129.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">yellow (4): stayed put</text><rect x="360" y="138" width="110" height="26" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="415.0" y="155.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">direction</text><rect x="470" y="138" width="270" height="26" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="605.0" y="155.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">toward the landmark</text><rect x="360" y="164" width="110" height="26" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="415.0" y="181.0" font-size="11.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">extent</text><rect x="470" y="164" width="270" height="26" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="605.0" y="181.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">one step</text></svg>
+    <div class="diagram-caption">Train pair 1 of dc433765, understood as an event with thematic roles.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_understand.py: understanding one pair</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def understand(pair):
+    &quot;&quot;&quot;Describe a train pair as a MOVE event with thematic roles:
+    theme (the object that moved), landmark (an object that stayed),
+    direction (toward the landmark?), and how far (one step, or until contact).&quot;&quot;&quot;
+    if dims(pair[&#x27;input&#x27;]) != dims(pair[&#x27;output&#x27;]):
+        return None
+    ins = {o[&#x27;color&#x27;]: o for o in find_objects(pair[&#x27;input&#x27;], bg=0)}
+    outs = {o[&#x27;color&#x27;]: o for o in find_objects(pair[&#x27;output&#x27;], bg=0)}
+    if set(ins) != set(outs) or len(ins) != 2:
+        return None
+    moved = [c for c in ins if ins[c][&#x27;cells&#x27;] != outs[c][&#x27;cells&#x27;]]
+    if len(moved) != 1:
+        return None
+    theme = moved[0]
+    landmark = next(c for c in ins if c != theme)
+    dy = outs[theme][&#x27;top&#x27;] - ins[theme][&#x27;top&#x27;]
+    dx = outs[theme][&#x27;left&#x27;] - ins[theme][&#x27;left&#x27;]
+    shift = [(r + dy, c + dx) for r, c in ins[theme][&#x27;cells&#x27;]]
+    if sorted(shift) != sorted(outs[theme][&#x27;cells&#x27;]):
+        return None                                 # it changed shape: not a move
+    before, after = gap(ins[theme], ins[landmark]), gap(outs[theme], ins[landmark])
+    extent = set()                                  # every reading this pair supports
+    if after == 0:
+        extent.add(&#x27;until contact&#x27;)
+    if max(abs(dy), abs(dx)) == 1:
+        extent.add(&#x27;one step&#x27;)
+    return {&#x27;event&#x27;: &#x27;move&#x27;, &#x27;theme&#x27;: theme, &#x27;landmark&#x27;: landmark,
+            &#x27;toward_landmark&#x27;: after &lt; before, &#x27;extent&#x27;: extent}
+
+def gap(a, b):
+    return min(abs(r1 - r2) + abs(c1 - c2) for r1, c1 in a[&#x27;cells&#x27;] for r2, c2 in b[&#x27;cells&#x27;]) - 1</code>
+</div>
+
+<p>One pair can support more than one reading. If the green cell moved one step and that step brought it into contact, was the rule "one step" or "until contact"? Just as with sentences, the agent keeps every reading the evidence allows and lets the other pairs prune them.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_understand.py: one understanding for all pairs</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def common_frame(task, verbose=False):
+    &quot;&quot;&quot;One understanding that fits every pair. Ambiguous slots (a pair that
+    supports two readings) are resolved by intersecting across pairs.&quot;&quot;&quot;
+    frames = [understand(p) for p in task[&#x27;train&#x27;]]
+    if None in frames:
+        return None
+    keys = [&#x27;event&#x27;, &#x27;theme&#x27;, &#x27;landmark&#x27;, &#x27;toward_landmark&#x27;]
+    if any(f[k] != frames[0][k] for f in frames for k in keys):
+        return None
+    extent = set.intersection(*(f[&#x27;extent&#x27;] for f in frames))
+    if verbose:
+        for i, f in enumerate(frames):
+            print(f&#x27;   pair {i + 1}: extent could be {sorted(f[&quot;extent&quot;])}&#x27;)
+    if len(extent) != 1:
+        return None
+    return dict(frames[0], extent=extent.pop())</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_understand.py: acting on the understanding</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def enact(frame, grid):
+    &quot;&quot;&quot;Carry out the understood event on a new grid.&quot;&quot;&quot;
+    objs = {o[&#x27;color&#x27;]: o for o in find_objects(grid, bg=0)}
+    theme, land = objs[frame[&#x27;theme&#x27;]][&#x27;cells&#x27;], objs[frame[&#x27;landmark&#x27;]]
+    steps = 1 if frame[&#x27;extent&#x27;] == &#x27;one step&#x27; else 30
+    for _ in range(steps):
+        if gap({&#x27;cells&#x27;: theme}, land) == 0:
+            break
+        moves = [[(r + dy, c + dx) for r, c in theme] for dy, dx in [(1, 0), (-1, 0), (0, 1), (0, -1),
+                                                                    (1, 1), (1, -1), (-1, 1), (-1, -1)]]
+        theme = min(moves, key=lambda m: gap({&#x27;cells&#x27;: m}, land))
+    out = [[0] * len(grid[0]) for _ in grid]
+    for r, c in land[&#x27;cells&#x27;]:
+        out[r][c] = frame[&#x27;landmark&#x27;]
+    for r, c in theme:
+        out[r][c] = frame[&#x27;theme&#x27;]
+    return out
+
+if __name__ == &#x27;__main__&#x27;:
+    for tid in [&#x27;dc433765&#x27;, &#x27;05f2a901&#x27;]:
+        task = load_task(f&#x27;data/training/{tid}.json&#x27;)
+        print(tid)
+        frame = common_frame(task, verbose=True)
+        print(&#x27;   understood as:&#x27;, frame)
+        print(&#x27;   test correct:&#x27;, enact(frame, task[&#x27;test&#x27;][0][&#x27;input&#x27;]) == task[&#x27;test&#x27;][0][&#x27;output&#x27;])</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">dc433765
+   pair 1: extent could be [&#x27;one step&#x27;]
+   pair 2: extent could be [&#x27;one step&#x27;, &#x27;until contact&#x27;]
+   pair 3: extent could be [&#x27;one step&#x27;]
+   pair 4: extent could be [&#x27;one step&#x27;]
+   pair 5: extent could be [&#x27;one step&#x27;]
+   pair 6: extent could be [&#x27;one step&#x27;]
+   pair 7: extent could be [&#x27;one step&#x27;]
+   understood as: {&#x27;event&#x27;: &#x27;move&#x27;, &#x27;theme&#x27;: 3, &#x27;landmark&#x27;: 4, &#x27;toward_landmark&#x27;: True, &#x27;extent&#x27;: &#x27;one step&#x27;}
+   test correct: True
+05f2a901
+   pair 1: extent could be [&#x27;until contact&#x27;]
+   pair 2: extent could be [&#x27;until contact&#x27;]
+   pair 3: extent could be [&#x27;until contact&#x27;]
+   understood as: {&#x27;event&#x27;: &#x27;move&#x27;, &#x27;theme&#x27;: 2, &#x27;landmark&#x27;: 8, &#x27;toward_landmark&#x27;: True, &#x27;extent&#x27;: &#x27;until contact&#x27;}
+   test correct: True</code>
+</div>
+
+<p>Pair 2 of <code class="code-lesson-il">dc433765</code> was ambiguous on its own; the other six pairs settled it as "one step." <code class="code-lesson-il">05f2a901</code>, the means-ends task from week 3, is understood as the same kind of event with a different extent. Understanding gave one representation for two tasks that earlier lessons solved in two different ways. That is the payoff of event frames: <em>one frame, many tasks.</em></p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Understanding is the cognitive <strong>Perceptor</strong> at full strength: it builds a structured representation (an event frame) that the <strong>Decider</strong> can act on directly. Keeping several candidate readings alive and pruning them is a small <strong>Monitor</strong> loop inside perception. The library of event frames (MOVE, RECOLOUR, COPY, GROW...) is long-term semantic <strong>Memory</strong>.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>Bransford and Johnson's passage was meaningless without its title. What is the ARC equivalent of the title? Can an agent find it by itself?</li><li>The ARC understanding agent only knows MOVE. List three more event frames you have seen in ARC tasks, with their roles.</li><li>When should an agent commit to one reading early (like a garden-path reader) and when should it keep several alive? What does each cost?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Define thematic roles and fill a frame for a simple sentence.</li><li>Explain how constraints on roles resolve word-sense ambiguity.</li><li>Describe garden-path sentences and the Bransford and Johnson finding.</li><li>Understand an ARC pair as an event frame and resolve an ambiguous slot across pairs.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add the sentence "David took the bus from school." What does the agent produce? Is it right?</li><li>Run <code class="code-lesson-il">understand</code> on every pair of <code class="code-lesson-il">05f2a901</code> and print the frames.</li></ol><h3>Intermediate</h3>
+<ol><li>Add a sense of "made" for "Ashok made David angry" (cause a state). What constraint distinguishes it?</li><li>Add a RECOLOUR frame to the ARC agent: theme (the object that changed colour), from-colour, to-colour, and a "source" role for where the new colour came from.</li></ol><h3>Advanced</h3>
+<ol><li>Make the sentence agent incremental: process words left to right, keeping every sense still possible, and print the surviving senses after each word.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Give your agent a small library of event frames and have its Perceptor try to understand every train pair with each one before the Decider starts searching.</li></ol></section>
+
+
+    </body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>A semantic network spreads knowledge across many little links. A <strong>frame</strong> gathers the knowledge about one kind of thing into one structure: a named bundle of <em>slots</em>, each with a typical filler and rules about what may go there. Marvin Minsky proposed frames in 1974 as a theory of how people bring the right expectations to a new situation. Walk into a restaurant, a classroom, or an ARC task, and a frame tells you what to look for before you have looked.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_frames_1_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 3, §3.2–3.2.1: <i>Ontology; Properties</i></a> <span class="reading-meta">(pp. 50–52 &middot; PDF 61–63 &middot; 3 pages)</span><br>Real frames in a working agent: slots with default, sem, relaxable-to and value facets.</li></ul>
+</div>
+
+
+<h3>Part 1. Slots, Fillers, and Expectations</h3>
+<p>Here is the frame for a surgery event, taken from the ontology in this week's McShane reading. Each slot has several <strong>facets</strong>:</p>
+<div class="diagram">
+<svg viewBox="0 0 730 224" style="max-width:700px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ft" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="14" width="690" height="34" rx="4" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="365.0" y="35.9" font-size="14" text-anchor="middle" fill="#8a4526" font-weight="bold">SURGERY  (is-a EVENT)</text><rect x="20" y="48" width="100" height="34" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="70.0" y="69.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">slot</text><rect x="120" y="48" width="130" height="34" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="185.0" y="69.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">default</text><rect x="250" y="48" width="150" height="34" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="325.0" y="69.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">sem</text><rect x="400" y="48" width="120" height="34" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="460.0" y="69.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">relaxable-to</text><rect x="520" y="48" width="190" height="34" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="615.0" y="69.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">if-needed</text><rect x="20" y="82" width="100" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="70.0" y="103.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">agent</text><rect x="120" y="82" width="130" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="185.0" y="103.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">surgeon</text><rect x="250" y="82" width="150" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="325.0" y="103.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">medical-personnel</text><rect x="400" y="82" width="120" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="460.0" y="103.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">human</text><rect x="520" y="82" width="190" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="615.0" y="103.4" font-size="12.5" text-anchor="middle" fill="#1f3b52"></text><rect x="20" y="116" width="100" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="70.0" y="137.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">theme</text><rect x="120" y="116" width="130" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="185.0" y="137.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">human</text><rect x="250" y="116" width="150" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="325.0" y="137.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">animal</text><rect x="400" y="116" width="120" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="460.0" y="137.4" font-size="12.5" text-anchor="middle" fill="#1f3b52"></text><rect x="520" y="116" width="190" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="615.0" y="137.4" font-size="12.5" text-anchor="middle" fill="#1f3b52"></text><rect x="20" y="150" width="100" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="70.0" y="171.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">location</text><rect x="120" y="150" width="130" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="185.0" y="171.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">operating-room</text><rect x="250" y="150" width="150" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="325.0" y="171.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">medical-building</text><rect x="400" y="150" width="120" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="460.0" y="171.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">place</text><rect x="520" y="150" width="190" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="615.0" y="171.4" font-size="12.5" text-anchor="middle" fill="#1f3b52"></text><rect x="20" y="184" width="100" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="70.0" y="205.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">time</text><rect x="120" y="184" width="130" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="185.0" y="205.4" font-size="12.5" text-anchor="middle" fill="#1f3b52"></text><rect x="250" y="184" width="150" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="325.0" y="205.4" font-size="12.5" text-anchor="middle" fill="#1f3b52"></text><rect x="400" y="184" width="120" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="460.0" y="205.4" font-size="12.5" text-anchor="middle" fill="#1f3b52"></text><rect x="520" y="184" width="190" height="34" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="615.0" y="205.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">(inherited from EVENT)</text></svg>
+    <div class="diagram-caption">The SURGERY frame, after McShane, Nirenburg &amp; English (2024), p. 50. <b>default</b>: the typical filler. <b>sem</b>: the normal type restriction. <b>relaxable-to</b>: possible but unusual. <b>if-needed</b>: a procedure (a "demon") that computes a value on request.</div>
+</div>
+
+<p>Facets give an agent graded expectations. Told that a vet operated on a dog, the agent accepts both fillers (a vet is medical personnel, a dog is an animal), and if asked <em>where</em>, it answers "an operating room" by default. Told that a farmer operated in a barn, it accepts the sentence but notes that two expectations were violated. Told that the surgery took place "in the dog," it rejects the filler outright, since a dog is not a place.</p>
+<p>Frames add three things that a flat list of facts does not have:</p>
+<ul>
+    <li><strong>Defaults</strong> let the agent assume what is typical and override it when told otherwise.</li>
+    <li><strong>Inheritance</strong>: a frame can be a specialization of a more general frame and inherit its slots. SURGERY inherits <em>time</em> from EVENT.</li>
+    <li><strong>Procedural attachment</strong>: a slot can hold a small procedure (an if-needed or if-added demon) instead of a value.</li>
+</ul>
+<div class="diagram">
+<svg viewBox="0 0 760 260" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ih" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="30" y="30" width="200" height="70" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="130.0" y="61.6" font-size="12.5" text-anchor="middle" fill="#1f3b52">EVENT</text><text x="130.0" y="77.1" font-size="12.5" text-anchor="middle" fill="#1f3b52">time: if-needed demon</text><rect x="30" y="150" width="200" height="90" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="130.0" y="176.7" font-size="12" text-anchor="middle" fill="#1f3b52">SURGERY</text><text x="130.0" y="191.7" font-size="12" text-anchor="middle" fill="#1f3b52">agent: default surgeon</text><text x="130.0" y="206.7" font-size="12" text-anchor="middle" fill="#1f3b52">theme: sem animal</text><text x="130.0" y="221.7" font-size="12" text-anchor="middle" fill="#1f3b52">location: default OR</text><rect x="330" y="150" width="220" height="90" rx="7" fill="#fff" stroke="#5b6b78" stroke-width="1.8"/><text x="440.0" y="176.7" font-size="12" text-anchor="middle" fill="#1f3b52">surgery-17 (instance)</text><text x="440.0" y="191.7" font-size="12" text-anchor="middle" fill="#1f3b52">agent: vet  (stated)</text><text x="440.0" y="206.7" font-size="12" text-anchor="middle" fill="#1f3b52">theme: dog  (stated)</text><text x="440.0" y="221.7" font-size="12" text-anchor="middle" fill="#1f3b52">location: ?</text><line x1="130" y1="150" x2="130" y2="102" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ih)"/><text x="150" y="130" font-size="11" text-anchor="start" fill="#1f3b52">is-a</text><line x1="330" y1="195" x2="232" y2="195" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ih)"/><text x="281.0" y="187" font-size="11" text-anchor="middle" fill="#1f3b52">instance-of</text><rect x="600" y="150" width="140" height="90" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="670.0" y="177.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">location?</text><text x="670.0" y="191.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">-&gt; look in instance</text><text x="670.0" y="206.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">-&gt; look in frame</text><text x="670.0" y="220.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">-&gt; look in parent</text><line x1="552" y1="195" x2="598" y2="195" stroke="#b8860b" stroke-width="1.8" marker-end="url(#ih)"/></svg>
+    <div class="diagram-caption">Looking up a slot. The agent checks the instance first, then the frame, then the frame's parents. The first value found wins, which is how a stated fact overrides a default.</div>
+</div>
+
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Frames descend from Frederic Bartlett's <em>schemas</em> (1932). Bartlett had English students retell a Native American folk tale, "The War of the Ghosts," and found that their retellings drifted toward their own cultural expectations: unfamiliar details dropped out or turned into familiar ones. Brewer and Treyens (1981) left people waiting briefly in a graduate student's office and then asked what they had seen. Many "remembered" books, which an office should have but this one did not. Defaults fill memory as well as perception, sometimes falsely.</p>
+</div>
+
+<p>A frame is not a different kind of knowledge from a semantic network. It is the same knowledge, packaged per concept:</p>
+<div class="diagram">
+<svg viewBox="0 0 760 190" style="max-width:720px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="fv" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="40" width="210" height="110" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="125.0" y="76.1" font-size="12.5" text-anchor="middle" fill="#1f3b52">BIRD</text><text x="125.0" y="91.6" font-size="12.5" text-anchor="middle" fill="#1f3b52">is-a: animal</text><text x="125.0" y="107.1" font-size="12.5" text-anchor="middle" fill="#1f3b52">covering: feathers</text><text x="125.0" y="122.6" font-size="12.5" text-anchor="middle" fill="#1f3b52">locomotion: flies</text><text x="125" y="28" font-size="12" text-anchor="middle" fill="#8a4526" font-weight="bold">as a frame</text><text x="300" y="100" font-size="34" text-anchor="middle" fill="#5b6b78">=</text><circle cx="470" cy="100" r="36" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="470" y="104.2" font-size="12" text-anchor="middle" fill="#1f3b52">bird</text><line x1="506" y1="100" x2="596" y2="40" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#fv)"/><text x="551.0" y="64.0" font-size="11" text-anchor="middle" fill="#1f3b52">is-a</text><rect x="598" y="24" width="98" height="32" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="647.0" y="44.2" font-size="12" text-anchor="middle" fill="#1f3b52">animal</text><line x1="506" y1="100" x2="616" y2="100" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#fv)"/><text x="561.0" y="94.0" font-size="11" text-anchor="middle" fill="#1f3b52">covering</text><rect x="618" y="84" width="98" height="32" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="667.0" y="104.2" font-size="12" text-anchor="middle" fill="#1f3b52">feathers</text><line x1="506" y1="100" x2="596" y2="160" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#fv)"/><text x="551.0" y="124.0" font-size="11" text-anchor="middle" fill="#1f3b52">locomotion</text><rect x="598" y="144" width="98" height="32" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="647.0" y="164.2" font-size="12" text-anchor="middle" fill="#1f3b52">flies</text><text x="470" y="28" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">as part of a semantic network</text></svg>
+    <div class="diagram-caption">A frame is a node of a semantic network together with its outgoing labelled edges. The packaging makes it natural to attach defaults and demons to slots.</div>
+</div>
+
+
+<h3>Part 2. A Frame-Based Interpreter</h3>
+<p>The agent below interprets short statements about surgeries. Its long-term memory has a small concept hierarchy (to check <em>sem</em> constraints) and two frames.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">frame_agent.py: a concept hierarchy</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">ISA = {   # a tiny concept hierarchy: child -&gt; parent
+    &#x27;surgeon&#x27;: &#x27;medical-personnel&#x27;, &#x27;vet&#x27;: &#x27;medical-personnel&#x27;, &#x27;nurse&#x27;: &#x27;medical-personnel&#x27;,
+    &#x27;medical-personnel&#x27;: &#x27;human&#x27;, &#x27;farmer&#x27;: &#x27;human&#x27;, &#x27;human&#x27;: &#x27;animal&#x27;, &#x27;dog&#x27;: &#x27;animal&#x27;,
+    &#x27;operating-room&#x27;: &#x27;medical-building&#x27;, &#x27;clinic&#x27;: &#x27;medical-building&#x27;,
+    &#x27;medical-building&#x27;: &#x27;place&#x27;, &#x27;barn&#x27;: &#x27;place&#x27;,
+}
+
+def is_a(x, y):
+    while x is not None:
+        if x == y:
+            return True
+        x = ISA.get(x)
+    return False</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">frame_agent.py: frames with facets and inheritance</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class Frame:
+    &quot;&quot;&quot;A frame is a named bundle of slots. Each slot has facets:
+       default      the typical filler
+       sem          the normal type restriction
+       relaxable_to what is possible, though unusual
+       if_needed    a demon that computes a value only when asked&quot;&quot;&quot;
+    def __init__(self, name, parent=None, **slots):
+        self.name, self.parent, self.slots = name, parent, slots
+
+    def facet(self, slot, facet):
+        f = self
+        while f is not None:                      # inheritance up the chain
+            if slot in f.slots and facet in f.slots[slot]:
+                return f.slots[slot][facet]
+            f = f.parent
+        return None
+
+    def slot_names(self):
+        names, f = [], self
+        while f is not None:
+            names += [s for s in f.slots if s not in names]
+            f = f.parent
+        return names
+
+EVENT = Frame(&#x27;event&#x27;, time={&#x27;if_needed&#x27;: lambda inst: &#x27;some time in the past&#x27;})
+SURGERY = Frame(&#x27;surgery&#x27;, parent=EVENT,
+    agent={&#x27;default&#x27;: &#x27;surgeon&#x27;, &#x27;sem&#x27;: &#x27;medical-personnel&#x27;, &#x27;relaxable_to&#x27;: &#x27;human&#x27;},
+    theme={&#x27;default&#x27;: &#x27;human&#x27;, &#x27;sem&#x27;: &#x27;animal&#x27;},
+    location={&#x27;default&#x27;: &#x27;operating-room&#x27;, &#x27;sem&#x27;: &#x27;medical-building&#x27;, &#x27;relaxable_to&#x27;: &#x27;place&#x27;})</code>
+</div>
+
+<p>An <strong>instance</strong> is a filled-in copy of a frame. Filling a slot checks the filler against the facets; reading a slot falls back from stated values to demons to defaults.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">frame_agent.py: instances</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class Instance:
+    &quot;&quot;&quot;A filled-in copy of a frame: one particular event.&quot;&quot;&quot;
+    def __init__(self, frame, **fillers):
+        self.frame, self.fillers, self.notes = frame, {}, []
+        for slot, value in fillers.items():
+            self.fill(slot, value)
+
+    def fill(self, slot, value):
+        sem, relax = self.frame.facet(slot, &#x27;sem&#x27;), self.frame.facet(slot, &#x27;relaxable_to&#x27;)
+        if sem is None or is_a(value, sem):
+            self.fillers[slot] = value
+        elif relax and is_a(value, relax):
+            self.fillers[slot] = value
+            self.notes.append(f&#x27;{slot}={value} is possible but unusual (expected a {sem})&#x27;)
+        else:
+            self.notes.append(f&#x27;{slot}={value} REJECTED: not even a {relax or sem}&#x27;)
+
+    def get(self, slot):
+        if slot in self.fillers:
+            return self.fillers[slot], &#x27;stated&#x27;
+        demon = self.frame.facet(slot, &#x27;if_needed&#x27;)
+        if demon:
+            return demon(self), &#x27;computed by demon&#x27;
+        default = self.frame.facet(slot, &#x27;default&#x27;)
+        return default, &#x27;assumed by default&#x27;
+
+    def report(self):
+        for slot in self.frame.slot_names():
+            value, how = self.get(slot)
+            print(f&#x27;  {slot:9} {value:16} ({how})&#x27;)
+        for n in self.notes:
+            print(&#x27;  note:&#x27;, n)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">frame_agent.py: interpreting three statements</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">print(&#x27;&quot;The vet operated on the dog.&quot;&#x27;)
+Instance(SURGERY, agent=&#x27;vet&#x27;, theme=&#x27;dog&#x27;).report()
+print(&#x27;&quot;The farmer operated on the dog in the barn.&quot;&#x27;)
+Instance(SURGERY, agent=&#x27;farmer&#x27;, theme=&#x27;dog&#x27;, location=&#x27;barn&#x27;).report()
+print(&#x27;&quot;The surgery was performed in the dog.&quot;&#x27;)
+Instance(SURGERY, location=&#x27;dog&#x27;).report()</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">&quot;The vet operated on the dog.&quot;
+  agent     vet              (stated)
+  theme     dog              (stated)
+  location  operating-room   (assumed by default)
+  time      some time in the past (computed by demon)
+&quot;The farmer operated on the dog in the barn.&quot;
+  agent     farmer           (stated)
+  theme     dog              (stated)
+  location  barn             (stated)
+  time      some time in the past (computed by demon)
+  note: agent=farmer is possible but unusual (expected a medical-personnel)
+  note: location=barn is possible but unusual (expected a medical-building)
+&quot;The surgery was performed in the dog.&quot;
+  agent     surgeon          (assumed by default)
+  theme     human            (assumed by default)
+  location  operating-room   (assumed by default)
+  time      some time in the past (computed by demon)
+  note: location=dog REJECTED: not even a place</code>
+</div>
+
+<p>The "how" column is the point. Because every value records where it came from (stated, computed, or assumed), the agent can tell you which of its beliefs are guesses. That is the beginning of the explainability McShane and colleagues argue for.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Frames with facets, inheritance and demons, after McShane et al.'s ontology.
+ISA = {   # a tiny concept hierarchy: child -> parent
+    'surgeon': 'medical-personnel', 'vet': 'medical-personnel', 'nurse': 'medical-personnel',
+    'medical-personnel': 'human', 'farmer': 'human', 'human': 'animal', 'dog': 'animal',
+    'operating-room': 'medical-building', 'clinic': 'medical-building',
+    'medical-building': 'place', 'barn': 'place',
+}
+
+def is_a(x, y):
+    while x is not None:
+        if x == y:
+            return True
+        x = ISA.get(x)
+    return False
+
+class Frame:
+    """A frame is a named bundle of slots. Each slot has facets:
+       default      the typical filler
+       sem          the normal type restriction
+       relaxable_to what is possible, though unusual
+       if_needed    a demon that computes a value only when asked"""
+    def __init__(self, name, parent=None, **slots):
+        self.name, self.parent, self.slots = name, parent, slots
+
+    def facet(self, slot, facet):
+        f = self
+        while f is not None:                      # inheritance up the chain
+            if slot in f.slots and facet in f.slots[slot]:
+                return f.slots[slot][facet]
+            f = f.parent
+        return None
+
+    def slot_names(self):
+        names, f = [], self
+        while f is not None:
+            names += [s for s in f.slots if s not in names]
+            f = f.parent
+        return names
+
+EVENT = Frame('event', time={'if_needed': lambda inst: 'some time in the past'})
+SURGERY = Frame('surgery', parent=EVENT,
+    agent={'default': 'surgeon', 'sem': 'medical-personnel', 'relaxable_to': 'human'},
+    theme={'default': 'human', 'sem': 'animal'},
+    location={'default': 'operating-room', 'sem': 'medical-building', 'relaxable_to': 'place'})
+
+class Instance:
+    """A filled-in copy of a frame: one particular event."""
+    def __init__(self, frame, **fillers):
+        self.frame, self.fillers, self.notes = frame, {}, []
+        for slot, value in fillers.items():
+            self.fill(slot, value)
+
+    def fill(self, slot, value):
+        sem, relax = self.frame.facet(slot, 'sem'), self.frame.facet(slot, 'relaxable_to')
+        if sem is None or is_a(value, sem):
+            self.fillers[slot] = value
+        elif relax and is_a(value, relax):
+            self.fillers[slot] = value
+            self.notes.append(f'{slot}={value} is possible but unusual (expected a {sem})')
+        else:
+            self.notes.append(f'{slot}={value} REJECTED: not even a {relax or sem}')
+
+    def get(self, slot):
+        if slot in self.fillers:
+            return self.fillers[slot], 'stated'
+        demon = self.frame.facet(slot, 'if_needed')
+        if demon:
+            return demon(self), 'computed by demon'
+        default = self.frame.facet(slot, 'default')
+        return default, 'assumed by default'
+
+    def report(self):
+        for slot in self.frame.slot_names():
+            value, how = self.get(slot)
+            print(f'  {slot:9} {value:16} ({how})')
+        for n in self.notes:
+            print('  note:', n)
+
+print('"The vet operated on the dog."')
+Instance(SURGERY, agent='vet', theme='dog').report()
+print('"The farmer operated on the dog in the barn."')
+Instance(SURGERY, agent='farmer', theme='dog', location='barn').report()
+print('"The surgery was performed in the dog."')
+Instance(SURGERY, location='dog').report()</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Frames for Pairs and Tasks</h3>
+<p>For ARC, a useful frame is one that describes a <em>train pair</em>: same size or not, size ratio, colours added or lost, number of objects, how many cells changed. Many of these are expensive to compute and only sometimes needed, so they are if-needed demons.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_frames.py: a pair frame with demons</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class PairFrame:
+    &quot;&quot;&quot;One train pair, described by slots. Cheap slots are filled at once;
+    expensive ones are computed by if-needed demons the first time asked.&quot;&quot;&quot;
+    DEMONS = {
+        &#x27;same_size&#x27;:      lambda p: dims(p.inp) == dims(p.out),
+        &#x27;size_ratio&#x27;:     lambda p: (len(p.out) / len(p.inp), len(p.out[0]) / len(p.inp[0])),
+        &#x27;new_colors&#x27;:     lambda p: colors(p.out) - colors(p.inp),
+        &#x27;lost_colors&#x27;:    lambda p: colors(p.inp) - colors(p.out),
+        &#x27;n_objects_in&#x27;:   lambda p: len(find_objects(p.inp, bg=0)),
+        &#x27;n_objects_out&#x27;:  lambda p: len(find_objects(p.out, bg=0)),
+        &#x27;cells_changed&#x27;:  lambda p: (sum(a != b for ra, rb in zip(p.inp, p.out)
+                                         for a, b in zip(ra, rb))
+                                     if dims(p.inp) == dims(p.out) else None),
+        &#x27;out_symmetric&#x27;:  lambda p: p.out == flip_h(p.out) or p.out == flip_v(p.out),
+    }
+
+    def __init__(self, pair):
+        self.inp, self.out = pair[&#x27;input&#x27;], pair[&#x27;output&#x27;]
+        self.slots = {}                       # filled lazily
+
+    def __getitem__(self, slot):
+        if slot not in self.slots:
+            self.slots[slot] = self.DEMONS[slot](self)
+        return self.slots[slot]</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 760 260" style="max-width:720px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="pf" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(30.0,50.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">input</text></g><g transform="translate(30.0,150.0)"><rect x="-1" y="-1" width="134.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="0.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="66.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">output</text></g><rect x="220" y="30" width="330" height="34" rx="4" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="385.0" y="51.5" font-size="13" text-anchor="middle" fill="#8a4526" font-weight="bold">PairFrame  (train 1 of a416b8f3)</text><rect x="220" y="64" width="140" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="290.0" y="83.2" font-size="12" text-anchor="middle" fill="#1f3b52">same_size</text><rect x="360" y="64" width="190" height="30" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="455.0" y="83.2" font-size="12" text-anchor="middle" fill="#1f3b52">False</text><rect x="220" y="94" width="140" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="290.0" y="113.2" font-size="12" text-anchor="middle" fill="#1f3b52">size_ratio</text><rect x="360" y="94" width="190" height="30" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="455.0" y="113.2" font-size="12" text-anchor="middle" fill="#1f3b52">(1.0, 2.0)</text><rect x="220" y="124" width="140" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="290.0" y="143.2" font-size="12" text-anchor="middle" fill="#1f3b52">new_colors</text><rect x="360" y="124" width="190" height="30" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="455.0" y="143.2" font-size="12" text-anchor="middle" fill="#1f3b52">set()</text><rect x="220" y="154" width="140" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="290.0" y="173.2" font-size="12" text-anchor="middle" fill="#1f3b52">lost_colors</text><rect x="360" y="154" width="190" height="30" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="455.0" y="173.2" font-size="12" text-anchor="middle" fill="#1f3b52">set()</text><rect x="220" y="184" width="140" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="290.0" y="203.2" font-size="12" text-anchor="middle" fill="#1f3b52">cells_changed</text><rect x="360" y="184" width="190" height="30" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="455.0" y="203.2" font-size="12" text-anchor="middle" fill="#1f3b52">None (sizes differ)</text><rect x="220" y="214" width="140" height="30" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="290.0" y="233.2" font-size="12" text-anchor="middle" fill="#1f3b52">n_objects_in</text><rect x="360" y="214" width="190" height="30" rx="0" fill="#fff" stroke="#5b6b78" stroke-width="1"/><text x="455.0" y="233.2" font-size="12" text-anchor="middle" fill="#5b6b78">(not asked yet)</text><text x="580" y="120" font-size="11.5" text-anchor="start" fill="#b8860b">Demons compute a slot</text><text x="580" y="136" font-size="11.5" text-anchor="start" fill="#b8860b">the first time someone</text><text x="580" y="152" font-size="11.5" text-anchor="start" fill="#b8860b">asks for it, then cache it.</text></svg>
+    <div class="diagram-caption">A PairFrame for the first train pair of a416b8f3 (the input placed twice side by side). Slots are filled only when asked.</div>
+</div>
+
+<p>A <em>task</em> frame generalizes over its pair frames. A slot whose value is the same in every train pair is an <strong>invariant</strong> of the task, and invariants are strong hints. If every pair has <code class="code-lesson-il">size_ratio == (1.0, 2.0)</code>, the test output will almost certainly be twice as wide as the test input, and the Decider can throw away any hypothesis that produces a different size.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_frames.py: invariants across pairs</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class TaskFrame:
+    &quot;&quot;&quot;Generalizes over the pair frames: a slot is an invariant of the task
+    if every train pair has the same value for it.&quot;&quot;&quot;
+    def __init__(self, task):
+        self.pairs = [PairFrame(p) for p in task[&#x27;train&#x27;]]
+
+    def invariants(self, slots):
+        found = {}
+        for s in slots:
+            values = [p[s] for p in self.pairs]
+            if all(v == values[0] for v in values):
+                found[s] = values[0]
+        return found
+
+slots = list(PairFrame.DEMONS)
+for tid in [&#x27;0ca9ddb6&#x27;, &#x27;a416b8f3&#x27;, &#x27;aabf363d&#x27;, &#x27;d631b094&#x27;]:
+    tf = TaskFrame(load_task(f&#x27;data/training/{tid}.json&#x27;))
+    print(tid)
+    for s, v in tf.invariants(slots).items():
+        print(f&#x27;   {s:14} {v}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">0ca9ddb6
+   same_size      True
+   size_ratio     (1.0, 1.0)
+   new_colors     {4, 7}
+   lost_colors    set()
+   out_symmetric  False
+a416b8f3
+   same_size      False
+   size_ratio     (1.0, 2.0)
+   new_colors     set()
+   lost_colors    set()
+   cells_changed  None
+   out_symmetric  False
+aabf363d
+   same_size      True
+   size_ratio     (1.0, 1.0)
+   new_colors     set()
+   n_objects_in   2
+   n_objects_out  1
+   cells_changed  13
+   out_symmetric  False
+d631b094
+   same_size      False
+   new_colors     set()
+   lost_colors    {0}
+   n_objects_out  1
+   cells_changed  None
+   out_symmetric  True</code>
+</div>
+
+<p>Read the output like a detective. In <code class="code-lesson-il">0ca9ddb6</code> the size never changes and colours 4 and 7 always appear: something is being <em>added</em>. In <code class="code-lesson-il">aabf363d</code> there are always two objects in and one out: something is being <em>removed</em>. In <code class="code-lesson-il">d631b094</code> the output is always symmetric and black disappears. None of these is a solution, but each one rules out most of the possible rules before any search begins.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Frames are long-term <strong>semantic memory</strong> (the SURGERY frame, a general PairFrame) and working memory (the instances filled in for the current task). The <strong>Perceptor</strong> fills frames; the <strong>Decider</strong> reads them; defaults let the agent act on missing information. Use the invariants as a filter in front of your Decider this week.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>When is a default dangerous? Find an ARC task where the "obvious" default (say, background is black) is wrong.</li><li>Bartlett's participants distorted the story toward their schemas. Can a frame-based agent make the same kind of error? Is that a bug or a feature?</li><li>Frames and semantic networks hold the same information. When would you choose one packaging over the other?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Define frame, slot, filler, facet, default, and demon.</li><li>Explain how inheritance and overriding work when an agent looks up a slot.</li><li>Describe one human memory finding that frames explain.</li><li>Compute task invariants from pair frames and explain how they prune hypotheses.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add an <em>instrument</em> slot to SURGERY (default <code class="code-lesson-il">scalpel</code>) and an <em>is-a</em> chain for it.</li><li>Run <code class="code-lesson-il">arc_frames.py</code> on five tasks of your choosing. For each, write one sentence of what the invariants suggest.</li></ol><h3>Intermediate</h3>
+<ol><li>Add an <em>if-added</em> demon to the frame system: when the agent slot is filled with a <code class="code-lesson-il">nurse</code>, automatically add a note that the surgery was probably minor.</li><li>Add a <code class="code-lesson-il">background_in</code> slot and a <code class="code-lesson-il">largest_object_color</code> slot to <code class="code-lesson-il">PairFrame</code>.</li></ol><h3>Advanced</h3>
+<ol><li>Over all 400 training tasks, count how often each PairFrame slot is an invariant. Which slots are most often invariant? Which are most informative?</li></ol><h3>For your ARC agent</h3>
+<ol><li>Give your agent a <code class="code-lesson-il">TaskFrame</code> and make the Monitor reject any hypothesis whose output size breaks the size invariant before it even checks the cells.</li></ol></section>
+
+
+    </body>
+</html>

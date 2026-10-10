@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>Every earlier lesson gave the agent a way to think about a task. <strong>Meta-reasoning</strong> is thinking about that thinking: choosing which method to use, noticing whether it is working, deciding when to switch or stop, and learning which methods suit which problems. It is the Monitor from week 1 grown into a full reasoner, and it is where your semester agent becomes one agent instead of a drawer of separate tricks.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_meta_reasoning_1_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 8, §8.4: <i>Explaining Reasoning</i></a> <span class="reading-meta">(pp. 239–241 &middot; PDF 250–252 &middot; 3 pages)</span><br>An agent can explain its decisions because it saves metadata about its reasoning while it reasons. The raw material of metacognition.</li><li><a href="../../pdfs/csc3530/csc3530_meta_reasoning_2_bennett.pdf" target="_blank"><b>Bennett</b>, Ch. 16: <i>Modeling your own mind</i></a> <span class="reading-meta">(PDF pp. 265–267 &middot; 3 pages)</span><br>New primate brain areas may model the brain's own simulations: a mind modeling a mind.</li></ul>
+</div>
+
+
+<h3>Part 1. Reasoning About Reasoning</h3>
+<div class="diagram">
+<svg viewBox="0 0 760 275" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="mt" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="20" width="720" height="90" rx="10" fill="#efe6f7" stroke="#7a4f9a" stroke-width="2"/><text x="40" y="42" font-size="13" text-anchor="start" fill="#5a3577" font-weight="bold">Meta level: a model of the agent&#x27;s own strategies</text><rect x="40" y="55" width="160" height="40" rx="7" fill="#fff" stroke="#7a4f9a" stroke-width="1.8"/><text x="120.0" y="79.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">which strategy first?</text><rect x="215" y="55" width="160" height="40" rx="7" fill="#fff" stroke="#7a4f9a" stroke-width="1.8"/><text x="295.0" y="79.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">is it working?</text><rect x="390" y="55" width="160" height="40" rx="7" fill="#fff" stroke="#7a4f9a" stroke-width="1.8"/><text x="470.0" y="79.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">switch or stop?</text><rect x="565" y="55" width="160" height="40" rx="7" fill="#fff" stroke="#7a4f9a" stroke-width="1.8"/><text x="645.0" y="79.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">what did I learn?</text><rect x="20" y="170" width="720" height="90" rx="10" fill="#fbe6da" stroke="#c0693f" stroke-width="2"/><text x="40" y="192" font-size="13" text-anchor="start" fill="#8a4526" font-weight="bold">Object level: strategies that work on the task</text><rect x="40" y="205" width="125" height="40" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="102.5" y="229.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">generate &amp; test</text><rect x="180" y="205" width="125" height="40" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="242.5" y="229.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">means-ends</text><rect x="320" y="205" width="125" height="40" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="382.5" y="229.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">cases</text><rect x="460" y="205" width="125" height="40" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="522.5" y="229.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">analogy</text><rect x="600" y="205" width="125" height="40" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="662.5" y="229.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">constraints...</text><line x1="200" y1="168" x2="200" y2="112" stroke="#7a4f9a" stroke-width="1.8" marker-end="url(#mt)"/><text x="210" y="146" font-size="11" text-anchor="start" fill="#7a4f9a">monitoring: traces, progress, failures</text><line x1="560" y1="112" x2="560" y2="168" stroke="#7a4f9a" stroke-width="1.8" marker-end="url(#mt)"/><text x="570" y="146" font-size="11" text-anchor="start" fill="#7a4f9a">control: choose, switch, stop</text></svg>
+    <div class="diagram-caption">Meta-reasoning. The meta level holds a model of the object level's strategies and uses it the way the object level uses a model of the task.</div>
+</div>
+
+<p>Goel and Joyner make a point that is easy to miss: <strong>meta-reasoning uses the same methods as reasoning.</strong> Choosing a strategy can be classification ("this looks like a tiling task"), case-based reasoning ("last time a task like this, analogy worked"), planning ("first try the cheap specialists, then search"), or learning by correcting mistakes ("that strategy failed; why?"). The only difference is what the knowledge is about: the agent's own methods instead of the world.</p>
+<p>Three questions the meta level keeps asking:</p>
+<ul>
+    <li><strong>Selection</strong>: given what I notice about this problem and what I know about my strategies, which should I try first?</li>
+    <li><strong>Monitoring</strong>: is the current strategy making progress? Is its answer any good?</li>
+    <li><strong>Learning about myself</strong>: after each problem, update what I believe about each strategy's reliability and cost.</li>
+</ul>
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Robert Siegler's studies of children learning arithmetic (the <em>overlapping waves</em> model, 1996) found that children do not switch suddenly from one strategy to a better one. They keep several strategies (counting on fingers, counting on from the larger number, retrieving the answer) and choose among them problem by problem, with the better strategies gradually winning as experience shows which works. People also monitor their own memory: the <em>feeling of knowing</em> (Joseph Hart, 1965) predicts whether you will recognize an answer you cannot recall. This week's Bennett reading suggests that primates evolved brain areas that model the brain's own simulations; the McShane reading shows an agent that can explain its reasoning because it records metadata about that reasoning as it goes.</p>
+</div>
+
+
+<h3>Part 2. A Meta-Reasoning Agent</h3>
+<p>The agent solves mazes with two strategies: greedy search (cheap, but sometimes takes a long detour) and breadth-first search (expensive, always shortest). Its meta level keeps a record of each strategy's reliability and cost, picks the one with the best expected value, monitors the answer, and switches if the answer is unacceptable.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">strategy_agent.py: two strategies</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def greedy(grid, start, goal, budget):
+    &quot;&quot;&quot;Fast and focused, but can wander into dead ends and long detours.&quot;&quot;&quot;
+    h = lambda x: abs(x[0] - goal[0]) + abs(x[1] - goal[1])
+    frontier, seen, work = [(h(start), start, [start])], {start}, 0
+    while frontier and work &lt; budget:
+        _, cell, path = heapq.heappop(frontier)
+        work += 1
+        if cell == goal:
+            return path, work
+        for n in neighbours(grid, cell):
+            if n not in seen:
+                seen.add(n)
+                heapq.heappush(frontier, (h(n), n, path + [n]))
+    return None, work
+
+def breadth_first(grid, start, goal, budget):
+    &quot;&quot;&quot;Slow but thorough: always finds the shortest path if there is one.&quot;&quot;&quot;
+    frontier, prev, work = deque([start]), {start: None}, 0
+    while frontier and work &lt; budget:
+        cell = frontier.popleft()
+        work += 1
+        if cell == goal:
+            path = []
+            while cell:
+                path.append(cell)
+                cell = prev[cell]
+            return path[::-1], work
+        for n in neighbours(grid, cell):
+            if n not in prev:
+                prev[n] = cell
+                frontier.append(n)
+    return None, work
+
+STRATEGIES = {&#x27;greedy&#x27;: greedy, &#x27;breadth-first&#x27;: breadth_first}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">strategy_agent.py: the meta level</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class MetaReasoner:
+    &quot;&quot;&quot;The meta level: a model of its own strategies (how often each one
+    gives an acceptable answer, and how much work it costs), used to choose,
+    to monitor, and to switch.&quot;&quot;&quot;
+    def __init__(self):
+        self.stats = {s: {&#x27;tries&#x27;: 1, &#x27;good&#x27;: 1, &#x27;work&#x27;: 50} for s in STRATEGIES}
+
+    def expected_value(self, s):
+        st = self.stats[s]
+        return st[&#x27;good&#x27;] / st[&#x27;tries&#x27;] * 100 - st[&#x27;work&#x27;] / st[&#x27;tries&#x27;] * 0.5
+
+    def acceptable(self, path, start, goal):
+        &quot;&quot;&quot;Monitoring: is the answer good enough? (not a huge detour)&quot;&quot;&quot;
+        straight = abs(start[0] - goal[0]) + abs(start[1] - goal[1])
+        return path is not None and len(path) - 1 &lt;= 1.3 * straight
+
+    def solve(self, grid, start, goal):
+        order = sorted(STRATEGIES, key=self.expected_value, reverse=True)
+        log = []
+        for s in order:
+            path, work = STRATEGIES[s](grid, start, goal, budget=200)
+            ok = self.acceptable(path, start, goal) or (s == order[-1] and path)
+            st = self.stats[s]
+            st[&#x27;tries&#x27;] += 1
+            st[&#x27;work&#x27;] += work
+            st[&#x27;good&#x27;] += bool(ok)
+            log.append(f&#x27;{s} ({work} steps of work): &#x27; + (&#x27;accepted&#x27; if ok else
+                       &#x27;no path&#x27; if path is None else f&#x27;path of {len(path) - 1} rejected as a detour&#x27;))
+            if ok:
+                return log
+        return log + [&#x27;gave up&#x27;]</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">strategy_agent.py: ten mazes</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">meta = MetaReasoner()
+SEEDS = [5, 122, 190, 6, 206, 214, 8, 9, 10, 16]     # a mix of easy and deceptive mazes
+for k, seed in enumerate(SEEDS, 1):
+    print(f&#x27;maze {k:2}: &#x27; + &#x27; -&gt; &#x27;.join(meta.solve(make_maze(seed), (0, 0), (11, 11))))
+for s in STRATEGIES:
+    st = meta.stats[s]
+    print(f&#x27;{s:13} acceptable {st[&quot;good&quot;] - 1}/{st[&quot;tries&quot;] - 1}, value now {meta.expected_value(s):.0f}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">maze  1: greedy (31 steps of work): accepted
+maze  2: greedy (34 steps of work): path of 30 rejected as a detour -&gt; breadth-first (107 steps of work): accepted
+maze  3: breadth-first (109 steps of work): accepted
+maze  4: breadth-first (107 steps of work): accepted
+maze  5: breadth-first (84 steps of work): accepted
+maze  6: breadth-first (100 steps of work): accepted
+maze  7: breadth-first (68 steps of work): accepted
+maze  8: breadth-first (68 steps of work): accepted
+maze  9: breadth-first (105 steps of work): accepted
+maze 10: breadth-first (70 steps of work): accepted
+greedy        acceptable 1/2, value now 47
+breadth-first acceptable 9/9, value now 57</code>
+</div>
+
+<p>The meta level started optimistic about greedy (cheaper, equally reliable as far as it knew), used it on maze 1, and switched to breadth-first when greedy's answer on maze 2 failed the quality check. Then something instructive happened: greedy never got a second chance. One failure dropped its expected value below breadth-first's, and the agent kept using the expensive strategy on mazes greedy would have solved for a third of the work. That is the <strong>exploration versus exploitation</strong> trade-off, and a good meta level needs a policy for it (an exercise below).</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Meta-reasoning: an agent that chooses, monitors, and learns about its
+# own problem-solving strategies.
+import heapq, random
+from collections import deque
+
+def make_maze(seed, n=12, walls=0.3):
+    rnd = random.Random(seed)
+    grid = [['#' if rnd.random() < walls else '.' for _ in range(n)] for _ in range(n)]
+    grid[0][0] = grid[n - 1][n - 1] = '.'
+    return grid
+
+def neighbours(grid, cell):
+    r, c = cell
+    for nr, nc in [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]:
+        if 0 <= nr < len(grid) and 0 <= nc < len(grid) and grid[nr][nc] == '.':
+            yield nr, nc
+
+def greedy(grid, start, goal, budget):
+    """Fast and focused, but can wander into dead ends and long detours."""
+    h = lambda x: abs(x[0] - goal[0]) + abs(x[1] - goal[1])
+    frontier, seen, work = [(h(start), start, [start])], {start}, 0
+    while frontier and work < budget:
+        _, cell, path = heapq.heappop(frontier)
+        work += 1
+        if cell == goal:
+            return path, work
+        for n in neighbours(grid, cell):
+            if n not in seen:
+                seen.add(n)
+                heapq.heappush(frontier, (h(n), n, path + [n]))
+    return None, work
+
+def breadth_first(grid, start, goal, budget):
+    """Slow but thorough: always finds the shortest path if there is one."""
+    frontier, prev, work = deque([start]), {start: None}, 0
+    while frontier and work < budget:
+        cell = frontier.popleft()
+        work += 1
+        if cell == goal:
+            path = []
+            while cell:
+                path.append(cell)
+                cell = prev[cell]
+            return path[::-1], work
+        for n in neighbours(grid, cell):
+            if n not in prev:
+                prev[n] = cell
+                frontier.append(n)
+    return None, work
+
+STRATEGIES = {'greedy': greedy, 'breadth-first': breadth_first}
+
+class MetaReasoner:
+    """The meta level: a model of its own strategies (how often each one
+    gives an acceptable answer, and how much work it costs), used to choose,
+    to monitor, and to switch."""
+    def __init__(self):
+        self.stats = {s: {'tries': 1, 'good': 1, 'work': 50} for s in STRATEGIES}
+
+    def expected_value(self, s):
+        st = self.stats[s]
+        return st['good'] / st['tries'] * 100 - st['work'] / st['tries'] * 0.5
+
+    def acceptable(self, path, start, goal):
+        """Monitoring: is the answer good enough? (not a huge detour)"""
+        straight = abs(start[0] - goal[0]) + abs(start[1] - goal[1])
+        return path is not None and len(path) - 1 <= 1.3 * straight
+
+    def solve(self, grid, start, goal):
+        order = sorted(STRATEGIES, key=self.expected_value, reverse=True)
+        log = []
+        for s in order:
+            path, work = STRATEGIES[s](grid, start, goal, budget=200)
+            ok = self.acceptable(path, start, goal) or (s == order[-1] and path)
+            st = self.stats[s]
+            st['tries'] += 1
+            st['work'] += work
+            st['good'] += bool(ok)
+            log.append(f'{s} ({work} steps of work): ' + ('accepted' if ok else
+                       'no path' if path is None else f'path of {len(path) - 1} rejected as a detour'))
+            if ok:
+                return log
+        return log + ['gave up']
+
+meta = MetaReasoner()
+SEEDS = [5, 122, 190, 6, 206, 214, 8, 9, 10, 16]     # a mix of easy and deceptive mazes
+for k, seed in enumerate(SEEDS, 1):
+    print(f'maze {k:2}: ' + ' -> '.join(meta.solve(make_maze(seed), (0, 0), (11, 11))))
+for s in STRATEGIES:
+    st = meta.stats[s]
+    print(f'{s:13} acceptable {st["good"] - 1}/{st["tries"] - 1}, value now {meta.expected_value(s):.0f}')</script>
+</div>
+
+
+<h3>Part 3. Your Agent, Integrated</h3>
+<p>Here is the payoff of the semester. Every ARC specialist from earlier lessons becomes a strategy under one meta level. The meta level perceives a few cheap features of the task, puts the specialists those features trigger first (configuration when the output is a multiple of the input size, truth tables when it is half, completion when a mask colour is present...), orders the rest by their track record, runs them under a time budget, verifies every candidate on all train pairs, and keeps up to two distinct test answers.</p>
+<div class="diagram">
+<svg viewBox="0 0 790 215" style="max-width:760px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ig" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="30" width="130" height="60" rx="7" fill="#f2f5f7" stroke="#5b6b78" stroke-width="1.8"/><text x="85.0" y="64.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">ARC task</text><rect x="190" y="30" width="150" height="60" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="265.0" y="49.9" font-size="11" text-anchor="middle" fill="#1f3b52">Perceive features</text><text x="265.0" y="63.9" font-size="11" text-anchor="middle" fill="#1f3b52">same size? multiple?</text><text x="265.0" y="77.8" font-size="11" text-anchor="middle" fill="#1f3b52">mask colour? halves?</text><rect x="380" y="30" width="160" height="60" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="460.0" y="49.9" font-size="11" text-anchor="middle" fill="#1f3b52">Order specialists</text><text x="460.0" y="63.9" font-size="11" text-anchor="middle" fill="#1f3b52">triggered first, then</text><text x="460.0" y="77.8" font-size="11" text-anchor="middle" fill="#1f3b52">best track record</text><rect x="580" y="30" width="160" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="660.0" y="56.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">Run next specialist</text><text x="660.0" y="71.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">(time budget)</text><rect x="580" y="140" width="160" height="60" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="660.0" y="166.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">Verify on every</text><text x="660.0" y="181.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">train pair</text><rect x="380" y="140" width="160" height="60" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="460.0" y="166.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">Keep distinct test</text><text x="460.0" y="181.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">answers; stop at 2</text><rect x="190" y="140" width="150" height="60" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="265.0" y="166.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">Update the track</text><text x="265.0" y="181.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">record (meta-memory)</text><line x1="152" y1="60" x2="188" y2="60" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ig)"/><line x1="342" y1="60" x2="378" y2="60" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ig)"/><line x1="542" y1="60" x2="578" y2="60" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ig)"/><line x1="660" y1="92" x2="660" y2="138" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ig)"/><line x1="578" y1="170" x2="542" y2="170" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ig)"/><text x="560.0" y="162" font-size="11" text-anchor="middle" fill="#1f3b52">passes</text><line x1="378" y1="170" x2="342" y2="170" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ig)"/><path d="M 740 170 C 770 170, 770 60, 742 60" fill="none" stroke="#b3261e" stroke-width="1.6" marker-end="url(#ig)"/><text x="745" y="125" font-size="11" text-anchor="start" fill="#b3261e">fails</text></svg>
+    <div class="diagram-caption">The integrated ARC agent. Every specialist is an object-level strategy; the meta level chooses, monitors, and keeps score.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_meta.py: specialists as uniform strategies (excerpt)</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Each specialist looks at a task and proposes solver functions (grid -&gt; grid).
+from arc_gt import solve as gt_solve, run as gt_run
+from arc_rules import induce_rules, fire
+from arc_logic import learn_truth_table, apply as tt_apply
+from arc_priors import hypotheses as prior_hypotheses
+from arc_complete import solve as complete, mask_color
+from arc_config import configure, build
+from arc_icl import learn as icl_learn, apply as icl_apply, BG
+from arc_analogy import learn_mapping, transfer
+from arc_ebl import learn as ebl_learn
+from arc_classify import learn_stump, predict
+from arc_diagnose import repair
+from arc_script import instantiate, run_script
+from arc_understand import common_frame, enact
+
+def sp_search(t):
+    prog, _ = gt_solve(t)
+    return [lambda g, p=prog: gt_run(p, g)] if prog else []
+
+# ... one small wrapper per specialist ...</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_meta.py: triggers</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def features(t):
+    &quot;&quot;&quot;What the meta level notices about a task before choosing a strategy.&quot;&quot;&quot;
+    ps = t[&#x27;train&#x27;]
+    same = all(dims(p[&#x27;input&#x27;]) == dims(p[&#x27;output&#x27;]) for p in ps)
+    hi, wi = dims(ps[0][&#x27;input&#x27;])
+    ho, wo = dims(ps[0][&#x27;output&#x27;])
+    return {&#x27;same_size&#x27;: same, &#x27;bigger&#x27;: ho * wo &gt; hi * wi, &#x27;smaller&#x27;: ho * wo &lt; hi * wi,
+            &#x27;multiple&#x27;: ho % hi == 0 and wo % wi == 0 and (ho, wo) != (hi, wi),
+            &#x27;halves&#x27;: (ho, wo) in [(hi, wi // 2), (hi // 2, wi), (hi, (wi - 1) // 2), ((hi - 1) // 2, wi)],
+            &#x27;mask&#x27;: bool(set.intersection(*(colors(p[&#x27;input&#x27;]) - colors(p[&#x27;output&#x27;]) for p in ps))),
+            &#x27;repeats&#x27;: len({str(p[&#x27;output&#x27;]) for p in ps}) &lt; len(ps)}
+
+SPECIALISTS = {   # name: (function, trigger)
+    &#x27;configuration&#x27;: (sp_configure, lambda f: f[&#x27;multiple&#x27;]),
+    &#x27;truth tables&#x27;:  (sp_logic,     lambda f: f[&#x27;halves&#x27;]),
+    &#x27;completion&#x27;:    (sp_complete,  lambda f: f[&#x27;mask&#x27;]),
+    &#x27;classification&#x27;: (sp_classify, lambda f: f[&#x27;repeats&#x27;]),
+    &#x27;local rules&#x27;:   (sp_rules,     lambda f: f[&#x27;same_size&#x27;]),
+    &#x27;priors&#x27;:        (sp_priors,    lambda f: f[&#x27;same_size&#x27;]),
+    &#x27;events&#x27;:        (sp_events,    lambda f: f[&#x27;same_size&#x27;]),
+    &#x27;analogy&#x27;:       (sp_analogy,   lambda f: f[&#x27;same_size&#x27;]),
+    &#x27;concepts&#x27;:      (sp_concepts,  lambda f: f[&#x27;same_size&#x27;]),
+    &#x27;scripts&#x27;:       (sp_script,    lambda f: f[&#x27;same_size&#x27;]),
+    &#x27;explanation&#x27;:   (sp_ebl,       lambda f: True),
+    &#x27;repair&#x27;:        (sp_repair,    lambda f: True),
+    &#x27;program search&#x27;: (sp_search,   lambda f: True),
+}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_meta.py: the meta level</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">class MetaLevel:
+    def __init__(self):
+        self.record = {name: [1, 2] for name in SPECIALISTS}   # [successes+1, tries+2]
+
+    def order(self, f):
+        &quot;&quot;&quot;Triggered specialists first; within each group, best track record first.&quot;&quot;&quot;
+        rate = lambda n: self.record[n][0] / self.record[n][1]
+        return sorted(SPECIALISTS, key=lambda n: (not SPECIALISTS[n][1](f), -rate(n)))
+
+    def verify(self, fn, t):
+        try:
+            return all(fn(p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in t[&#x27;train&#x27;])
+        except Exception:
+            return False
+
+    def solve(self, t, budget=2.0):
+        &quot;&quot;&quot;Run specialists in order; keep every verified solver; stop with two
+        distinct test answers or when the time budget is spent.&quot;&quot;&quot;
+        f, start, answers, credit = features(t), time.time(), [], []
+        for name in self.order(f):
+            if time.time() - start &gt; budget:
+                break
+            fn_, trig = SPECIALISTS[name]
+            try:
+                candidates = fn_(t)
+            except Exception:
+                candidates = []
+            self.record[name][1] += 1
+            for fn in candidates:
+                if self.verify(fn, t):
+                    try:
+                        guess = [fn(p[&#x27;input&#x27;]) for p in t[&#x27;test&#x27;]]
+                    except Exception:
+                        continue
+                    if guess not in answers:
+                        answers.append(guess)
+                        credit.append(name)
+                        self.record[name][0] += 1
+            if len(answers) &gt;= 2:
+                break
+        return answers[:2], credit[:2]</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_meta.py: run on both sets</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    for split in [&#x27;training&#x27;, &#x27;evaluation&#x27;]:
+        meta, solved, by = MetaLevel(), 0, {}
+        names = sorted(os.listdir(&#x27;data/&#x27; + split))
+        for name in names:
+            t = load_task(f&#x27;data/{split}/{name}&#x27;)
+            answers, credit = meta.solve(t)
+            truth = [p[&#x27;output&#x27;] for p in t[&#x27;test&#x27;]]
+            if truth in answers:
+                solved += 1
+                who = credit[answers.index(truth)]
+                by[who] = by.get(who, 0) + 1
+        print(f&#x27;{split}: solved {solved} of {len(names)}&#x27;)
+        for who, n in sorted(by.items(), key=lambda kv: -kv[1]):
+            print(f&#x27;   {who:15} {n}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">training: solved 88 of 400
+   program search  28
+   truth tables    10
+   local rules     10
+   completion      9
+   analogy         6
+   classification  5
+   explanation     4
+   scripts         4
+   priors          3
+   configuration   3
+   events          2
+   repair          2
+   concepts        2
+evaluation: solved 36 of 400
+   completion      11
+   truth tables    10
+   configuration   8
+   concepts        2
+   repair          2
+   analogy         1
+   classification  1
+   local rules     1</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 640 326" style="max-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="br" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><text x="20" y="20" font-size="13" text-anchor="start" fill="#1f3b52" font-weight="bold">Training set: 88 of 400 solved, credited to the specialist that found the answer</text><text x="170" y="48" font-size="11.5" text-anchor="end" fill="#1f3b52">program search</text><rect x="178" y="34" width="420.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="604.0" y="47" font-size="11.5" text-anchor="start" fill="#1f3b52">28</text><text x="170" y="70" font-size="11.5" text-anchor="end" fill="#1f3b52">truth tables</text><rect x="178" y="56" width="150.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="334.0" y="69" font-size="11.5" text-anchor="start" fill="#1f3b52">10</text><text x="170" y="92" font-size="11.5" text-anchor="end" fill="#1f3b52">local rules</text><rect x="178" y="78" width="150.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="334.0" y="91" font-size="11.5" text-anchor="start" fill="#1f3b52">10</text><text x="170" y="114" font-size="11.5" text-anchor="end" fill="#1f3b52">completion</text><rect x="178" y="100" width="135.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="319.0" y="113" font-size="11.5" text-anchor="start" fill="#1f3b52">9</text><text x="170" y="136" font-size="11.5" text-anchor="end" fill="#1f3b52">analogy</text><rect x="178" y="122" width="90.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="274.0" y="135" font-size="11.5" text-anchor="start" fill="#1f3b52">6</text><text x="170" y="158" font-size="11.5" text-anchor="end" fill="#1f3b52">classification</text><rect x="178" y="144" width="75.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="259.0" y="157" font-size="11.5" text-anchor="start" fill="#1f3b52">5</text><text x="170" y="180" font-size="11.5" text-anchor="end" fill="#1f3b52">explanation</text><rect x="178" y="166" width="60.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="244.0" y="179" font-size="11.5" text-anchor="start" fill="#1f3b52">4</text><text x="170" y="202" font-size="11.5" text-anchor="end" fill="#1f3b52">scripts</text><rect x="178" y="188" width="60.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="244.0" y="201" font-size="11.5" text-anchor="start" fill="#1f3b52">4</text><text x="170" y="224" font-size="11.5" text-anchor="end" fill="#1f3b52">priors</text><rect x="178" y="210" width="45.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="229.0" y="223" font-size="11.5" text-anchor="start" fill="#1f3b52">3</text><text x="170" y="246" font-size="11.5" text-anchor="end" fill="#1f3b52">configuration</text><rect x="178" y="232" width="45.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="229.0" y="245" font-size="11.5" text-anchor="start" fill="#1f3b52">3</text><text x="170" y="268" font-size="11.5" text-anchor="end" fill="#1f3b52">events</text><rect x="178" y="254" width="30.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="214.0" y="267" font-size="11.5" text-anchor="start" fill="#1f3b52">2</text><text x="170" y="290" font-size="11.5" text-anchor="end" fill="#1f3b52">repair</text><rect x="178" y="276" width="30.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="214.0" y="289" font-size="11.5" text-anchor="start" fill="#1f3b52">2</text><text x="170" y="312" font-size="11.5" text-anchor="end" fill="#1f3b52">concepts</text><rect x="178" y="298" width="30.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="214.0" y="311" font-size="11.5" text-anchor="start" fill="#1f3b52">2</text></svg>
+    <div class="diagram-caption">Which specialist gets credit on the training set. Program search gets the most credit partly because it is a general fallback.</div>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 640 216" style="max-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="br" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><text x="20" y="20" font-size="13" text-anchor="start" fill="#1f3b52" font-weight="bold">Evaluation set: 36 of 400 solved</text><text x="170" y="48" font-size="11.5" text-anchor="end" fill="#1f3b52">completion</text><rect x="178" y="34" width="165.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="349.0" y="47" font-size="11.5" text-anchor="start" fill="#1f3b52">11</text><text x="170" y="70" font-size="11.5" text-anchor="end" fill="#1f3b52">truth tables</text><rect x="178" y="56" width="150.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="334.0" y="69" font-size="11.5" text-anchor="start" fill="#1f3b52">10</text><text x="170" y="92" font-size="11.5" text-anchor="end" fill="#1f3b52">configuration</text><rect x="178" y="78" width="120.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="304.0" y="91" font-size="11.5" text-anchor="start" fill="#1f3b52">8</text><text x="170" y="114" font-size="11.5" text-anchor="end" fill="#1f3b52">concepts</text><rect x="178" y="100" width="30.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="214.0" y="113" font-size="11.5" text-anchor="start" fill="#1f3b52">2</text><text x="170" y="136" font-size="11.5" text-anchor="end" fill="#1f3b52">repair</text><rect x="178" y="122" width="30.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="214.0" y="135" font-size="11.5" text-anchor="start" fill="#1f3b52">2</text><text x="170" y="158" font-size="11.5" text-anchor="end" fill="#1f3b52">analogy</text><rect x="178" y="144" width="15.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="199.0" y="157" font-size="11.5" text-anchor="start" fill="#1f3b52">1</text><text x="170" y="180" font-size="11.5" text-anchor="end" fill="#1f3b52">classification</text><rect x="178" y="166" width="15.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="199.0" y="179" font-size="11.5" text-anchor="start" fill="#1f3b52">1</text><text x="170" y="202" font-size="11.5" text-anchor="end" fill="#1f3b52">local rules</text><rect x="178" y="188" width="15.0" height="16" fill="#7a4f9a" fill-opacity="0.75"/><text x="199.0" y="201" font-size="11.5" text-anchor="start" fill="#1f3b52">1</text></svg>
+    <div class="diagram-caption">The evaluation set, on the same scale. The specialists that transfer are the ones built on a general idea (constraints, truth tables, configuration), not the ones that memorized a few primitives.</div>
+</div>
+
+<p>Two numbers to sit with. On the training set, the integrated agent solves 88 tasks, more than any single lesson's specialist, because the meta level lets each specialist work where it fits. On the harder evaluation set it solves 36, and the credit list changes completely: program search, the champion on training tasks, gets no credit at all (on its own it solves just one evaluation task), while completion, truth tables, and configuration carry the load. Methods built around a <em>general idea</em> transfer; methods built around a fixed list of primitives do not. (Times vary by machine: with a 2-second budget per task, a slower computer may try fewer specialists and score a little lower.)</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>This lesson is the <strong>Monitor</strong> becoming a meta level: it perceives the agent's own strategies (their triggers, costs, and records), decides among them, and acts by running, switching, and stopping them. Its track record is meta-<strong>Memory</strong>. Everything else in SAM stays as it was; the meta level is SAM applied to the agent itself, as promised in week 1.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>The maze agent never tried greedy again after one failure. What would you change, and how would you know it helped?</li><li>Should the ARC meta level trust triggers (cheap features) or track records (experience) more? When do they disagree?</li><li>Program search led on training tasks and vanished on evaluation tasks. What does that say about how to spend your remaining weeks on the agent?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Define meta-reasoning and the object level / meta level distinction.</li><li>Explain strategy selection, monitoring, and learning about one's own strategies.</li><li>Describe the overlapping waves model and the feeling of knowing.</li><li>Explain how the integrated ARC agent orders, runs, verifies, and credits its specialists, and interpret its training and evaluation results.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Change the cost weight in <code class="code-lesson-il">expected_value</code> from 0.5 to 0.1. Does greedy get another chance?</li><li>Print the order in which the ARC meta level tries specialists for three tasks with different features.</li></ol><h3>Intermediate</h3>
+<ol><li>Add exploration to the maze meta level: with probability 0.2 (use a fixed random seed), try the strategy that is not currently preferred.</li><li>Give the ARC meta level a per-specialist time cost estimate and order by expected value (success rate minus a cost penalty) instead of success rate alone.</li></ol><h3>Advanced</h3>
+<ol><li>Persist the ARC meta level's track record in a JSON file across runs, broken down by task features (so it learns, for example, that configuration is reliable when the output is a multiple of the input). Measure whether ordering gets faster over repeated runs.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Make <code class="code-lesson-il">arc_meta.py</code> (with your own specialists added) the main loop of your agent. This is the agent you will defend in Agent Exam 3.</li></ol></section>
+
+
+    </body>
+</html>

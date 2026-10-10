@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>Planning built a sequence of actions from scratch. Most design is not like that. When an engineer designs a chair, a circuit, or a timetable, the overall structure is usually known in advance; what remains is choosing <em>values</em> for its parts so that everything fits together. That is <strong>configuration</strong>: a routine kind of design in which a known plan skeleton is refined, one variable at a time, under constraints. It sits right on top of last week's constraint propagation and planning.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_configuration_1_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 3, §3.2.4 and Ch. 8, §8.4: <i>From script to plan; the next step in the current plan</i></a> <span class="reading-meta">(pp. 65, 240 &middot; PDF 76, 251 &middot; 2 pages)</span><br>A plan is a script with one path chosen and its roles filled in, which is configuration. Page 251 has a robot building a chair one leg at a time.</li></ul>
+</div>
+
+
+<h3>Part 1. Refining a Plan Skeleton</h3>
+<div class="diagram">
+<svg viewBox="0 0 760 225" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="cf" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="60" width="140" height="60" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="90.0" y="79.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">Specification</text><text x="90.0" y="94.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">(constraints:</text><text x="90.0" y="108.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">mass, cost, use)</text><rect x="200" y="60" width="140" height="60" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="270.0" y="79.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">Plan skeleton</text><text x="270.0" y="94.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">(from memory:</text><text x="270.0" y="108.5" font-size="11.5" text-anchor="middle" fill="#1f3b52">legs, seat, back)</text><rect x="380" y="60" width="150" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="455.0" y="86.7" font-size="12" text-anchor="middle" fill="#1f3b52">Refine: assign</text><text x="455.0" y="101.7" font-size="12" text-anchor="middle" fill="#1f3b52">one variable</text><rect x="570" y="60" width="170" height="60" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="655.0" y="86.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">Check constraints</text><text x="655.0" y="101.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">on the partial design</text><rect x="570" y="170" width="170" height="44" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="655.0" y="196.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">Complete design</text><line x1="162" y1="90" x2="198" y2="90" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cf)"/><line x1="342" y1="90" x2="378" y2="90" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cf)"/><line x1="532" y1="90" x2="568" y2="90" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cf)"/><line x1="655" y1="122" x2="655" y2="168" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cf)"/><text x="645" y="150" font-size="11" text-anchor="end" fill="#1f3b52">all assigned, all satisfied</text><path d="M 640 58 C 640 24, 470 24, 460 56" fill="none" stroke="#3c8a5a" stroke-width="1.8" marker-end="url(#cf)"/><text x="550" y="16" font-size="11" text-anchor="middle" fill="#3c8a5a">ok: next variable</text><path d="M 590 124 C 560 170, 470 170, 455 124" fill="none" stroke="#b3261e" stroke-width="1.8" marker-end="url(#cf)"/><text x="470" y="182" font-size="11" text-anchor="middle" fill="#b3261e">violated: try another value, or back up</text></svg>
+    <div class="diagram-caption">Configuration. The skeleton comes from memory; the work is assigning values in a sensible order and checking constraints on the partial design after every assignment, so bad choices are caught early.</div>
+</div>
+
+<p>Three features distinguish configuration from planning from scratch:</p>
+<ul>
+    <li><strong>The components and their arrangement are known.</strong> A chair has legs, a seat, and a back. Only their properties are open.</li>
+    <li><strong>Decisions are ordered</strong>, usually from the most constraining to the least. Deciding the number of legs first constrains everything after it.</li>
+    <li><strong>Constraints are checked on partial designs</strong>, so a doomed choice is abandoned at once instead of after the whole design is finished.</li>
+</ul>
+<p>This week's McShane reading makes the connection to scripts explicit: a <em>plan</em> is a script with one path chosen and its roles filled in. Configuration is the process of choosing them.</p>
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Configuration was one of expert systems' great successes. John McDermott's R1 (later called XCON, 1980s) configured orders for DEC's VAX computers, choosing and arranging hundreds of components, and was reported to save the company tens of millions of dollars a year. Studies of human designers find the same pattern: experts retrieve a known design skeleton and refine it, and they <strong>satisfice</strong> (Herbert Simon's word): they stop at the first design that meets every constraint rather than searching for the best possible one.</p>
+</div>
+
+
+<h3>Part 2. A Chair-Configuring Agent</h3>
+<div class="diagram">
+<svg viewBox="0 0 760 225" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ct" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="310" y="10" width="140" height="40" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="34.9" font-size="14" text-anchor="middle" fill="#1f3b52" font-weight="bold">chair</text><rect x="80" y="100" width="140" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="150.0" y="122.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">legs</text><rect x="80" y="142" width="140" height="44" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="150.0" y="160.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">count: 3 or 4</text><text x="150.0" y="175.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">material</text><line x1="380" y1="52" x2="150" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ct)"/><rect x="310" y="100" width="140" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="380.0" y="122.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">seat</text><rect x="310" y="142" width="140" height="44" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="380.0" y="168.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">material</text><line x1="380" y1="52" x2="380" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ct)"/><rect x="540" y="100" width="140" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="610.0" y="122.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">back</text><rect x="540" y="142" width="140" height="44" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="610.0" y="168.0" font-size="11.5" text-anchor="middle" fill="#1f3b52">material</text><line x1="380" y1="52" x2="610" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ct)"/><text x="380" y="215" font-size="11.5" text-anchor="middle" fill="#5b6b78">materials: pine (light, cheap), oak (heavier, pricier), steel (heavy), plastic (light, cheapest)</text></svg>
+    <div class="diagram-caption">The chair skeleton and its variables.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">chair_agent.py: skeleton and components</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># The plan skeleton: a chair has legs, a seat, and a back. Each component
+# has variables with possible values; materials have mass and cost per unit.
+MATERIALS = {&#x27;pine&#x27;: (0.6, 2), &#x27;oak&#x27;: (0.9, 5), &#x27;steel&#x27;: (1.5, 4), &#x27;plastic&#x27;: (0.4, 1)}
+SKELETON = [   # (component, variable, options), in the order decisions are made
+    (&#x27;legs&#x27;, &#x27;count&#x27;, [4, 3]),
+    (&#x27;legs&#x27;, &#x27;material&#x27;, [&#x27;steel&#x27;, &#x27;oak&#x27;, &#x27;pine&#x27;, &#x27;plastic&#x27;]),
+    (&#x27;seat&#x27;, &#x27;material&#x27;, [&#x27;oak&#x27;, &#x27;pine&#x27;, &#x27;plastic&#x27;]),
+    (&#x27;back&#x27;, &#x27;material&#x27;, [&#x27;oak&#x27;, &#x27;pine&#x27;, &#x27;plastic&#x27;]),
+]
+SIZE = {&#x27;legs&#x27;: 1.0, &#x27;seat&#x27;: 2.0, &#x27;back&#x27;: 1.5}     # units of material per part</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">chair_agent.py: constraints on partial designs</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def check(design, spec):
+    &quot;&quot;&quot;Return the first violated constraint, or None. Partial designs are
+    checked only on what has been decided so far.&quot;&quot;&quot;
+    mass = cost = 0
+    for comp in (&#x27;legs&#x27;, &#x27;seat&#x27;, &#x27;back&#x27;):
+        mat = design.get((comp, &#x27;material&#x27;))
+        if mat is None:
+            continue
+        n = design.get((&#x27;legs&#x27;, &#x27;count&#x27;), 1) if comp == &#x27;legs&#x27; else 1
+        mass += MATERIALS[mat][0] * SIZE[comp] * n
+        cost += MATERIALS[mat][1] * SIZE[comp] * n
+    if mass &gt; spec[&#x27;max_mass&#x27;]:
+        return f&#x27;mass {mass:.1f} kg &gt; {spec[&quot;max_mass&quot;]}&#x27;
+    if cost &gt; spec[&#x27;budget&#x27;]:
+        return f&#x27;cost ${cost:.0f} &gt; ${spec[&quot;budget&quot;]}&#x27;
+    if spec.get(&#x27;outdoor&#x27;) and design.get((&#x27;seat&#x27;, &#x27;material&#x27;)) == &#x27;pine&#x27;:
+        return &#x27;pine seat will rot outdoors&#x27;
+    return None</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">chair_agent.py: refinement with backtracking</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def configure(spec, design=None, depth=0):
+    &quot;&quot;&quot;Assign variables one at a time in skeleton order, checking constraints
+    after each assignment and backing up when one is violated.&quot;&quot;&quot;
+    design = design or {}
+    if len(design) == len(SKELETON):
+        return design
+    comp, var, options = SKELETON[len(design)]
+    for value in options:
+        trial = {**design, (comp, var): value}
+        problem = check(trial, spec)
+        print(&#x27;  &#x27; * depth + f&#x27;{comp}.{var} = {value}&#x27; + (f&#x27;   x {problem}&#x27; if problem else &#x27;&#x27;))
+        if problem is None:
+            done = configure(spec, trial, depth + 1)
+            if done:
+                return done
+    return None
+
+spec = {&#x27;max_mass&#x27;: 7.0, &#x27;budget&#x27;: 20, &#x27;outdoor&#x27;: True}
+print(&#x27;spec:&#x27;, spec)
+result = configure(spec)
+print(&#x27;design:&#x27;, {f&#x27;{c}.{v}&#x27;: x for (c, v), x in result.items()})</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">spec: {&#x27;max_mass&#x27;: 7.0, &#x27;budget&#x27;: 20, &#x27;outdoor&#x27;: True}
+legs.count = 4
+  legs.material = steel
+    seat.material = oak   x mass 7.8 kg &gt; 7.0
+    seat.material = pine   x mass 7.2 kg &gt; 7.0
+    seat.material = plastic
+      back.material = oak   x mass 8.2 kg &gt; 7.0
+      back.material = pine   x mass 7.7 kg &gt; 7.0
+      back.material = plastic   x mass 7.4 kg &gt; 7.0
+  legs.material = oak
+    seat.material = oak   x cost $30 &gt; $20
+    seat.material = pine   x cost $24 &gt; $20
+    seat.material = plastic   x cost $22 &gt; $20
+  legs.material = pine
+    seat.material = oak
+      back.material = oak   x cost $26 &gt; $20
+      back.material = pine   x cost $21 &gt; $20
+      back.material = plastic
+design: {&#x27;legs.count&#x27;: 4, &#x27;legs.material&#x27;: &#x27;pine&#x27;, &#x27;seat.material&#x27;: &#x27;oak&#x27;, &#x27;back.material&#x27;: &#x27;plastic&#x27;}</code>
+</div>
+
+<p>Read the trace as a designer's notebook. Steel legs looked fine until the seat and back made the chair too heavy, so the agent backed up and tried oak legs, which ran over budget as soon as a seat was added. Pine legs with an oak seat and a plastic back satisfy every constraint, and the agent stops there: a satisficing design, not necessarily the best one. Notice that it never had to consider a three-legged chair, because the first branch it tried eventually worked.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Configuration: refine an abstract design, assigning values under constraints.
+# The plan skeleton: a chair has legs, a seat, and a back. Each component
+# has variables with possible values; materials have mass and cost per unit.
+MATERIALS = {'pine': (0.6, 2), 'oak': (0.9, 5), 'steel': (1.5, 4), 'plastic': (0.4, 1)}
+SKELETON = [   # (component, variable, options), in the order decisions are made
+    ('legs', 'count', [4, 3]),
+    ('legs', 'material', ['steel', 'oak', 'pine', 'plastic']),
+    ('seat', 'material', ['oak', 'pine', 'plastic']),
+    ('back', 'material', ['oak', 'pine', 'plastic']),
+]
+SIZE = {'legs': 1.0, 'seat': 2.0, 'back': 1.5}     # units of material per part
+
+def check(design, spec):
+    """Return the first violated constraint, or None. Partial designs are
+    checked only on what has been decided so far."""
+    mass = cost = 0
+    for comp in ('legs', 'seat', 'back'):
+        mat = design.get((comp, 'material'))
+        if mat is None:
+            continue
+        n = design.get(('legs', 'count'), 1) if comp == 'legs' else 1
+        mass += MATERIALS[mat][0] * SIZE[comp] * n
+        cost += MATERIALS[mat][1] * SIZE[comp] * n
+    if mass > spec['max_mass']:
+        return f'mass {mass:.1f} kg > {spec["max_mass"]}'
+    if cost > spec['budget']:
+        return f'cost ${cost:.0f} > ${spec["budget"]}'
+    if spec.get('outdoor') and design.get(('seat', 'material')) == 'pine':
+        return 'pine seat will rot outdoors'
+    return None
+
+def configure(spec, design=None, depth=0):
+    """Assign variables one at a time in skeleton order, checking constraints
+    after each assignment and backing up when one is violated."""
+    design = design or {}
+    if len(design) == len(SKELETON):
+        return design
+    comp, var, options = SKELETON[len(design)]
+    for value in options:
+        trial = {**design, (comp, var): value}
+        problem = check(trial, spec)
+        print('  ' * depth + f'{comp}.{var} = {value}' + (f'   x {problem}' if problem else ''))
+        if problem is None:
+            done = configure(spec, trial, depth + 1)
+            if done:
+                return done
+    return None
+
+spec = {'max_mass': 7.0, 'budget': 20, 'outdoor': True}
+print('spec:', spec)
+result = configure(spec)
+print('design:', {f'{c}.{v}': x for (c, v), x in result.items()})</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Configuring a Tiled Output</h3>
+<p>Many ARC outputs are built from copies of the input, flipped or rotated and arranged in a block. That is a configuration problem. The skeleton is an <em>a</em>&times;<em>b</em> arrangement of tiles (the sizes come from comparing input and output sizes), the variables are which part fills each slot, and the constraint is that every train pair is reproduced.</p>
+<div class="diagram">
+<svg viewBox="0 0 476 232" style="max-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr_46442a0e" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(54.0,26.0)"><rect x="-1" y="-1" width="42.0" height="42.0" fill="#555"/><rect x="0.0" y="0.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><text x="20.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 1</text></g><line x1="74.0" y1="100.0" x2="74.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_46442a0e)"/><g transform="translate(34.0,138.0)"><rect x="-1" y="-1" width="82.0" height="82.0" fill="#555"/><rect x="0.0" y="0.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="0.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="20.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="20.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="40.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="40.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="60.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="60.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="60.0" width="20.0" height="20.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="60.0" width="20.0" height="20.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/></g><g transform="translate(168.0,26.0)"><rect x="-1" y="-1" width="42.0" height="42.0" fill="#555"/><rect x="0.0" y="0.0" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="0.0" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="0.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="13.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="13.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="13.3" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><text x="20.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 2</text></g><line x1="188.0" y1="100.0" x2="188.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_46442a0e)"/><g transform="translate(148.0,138.0)"><rect x="-1" y="-1" width="82.0" height="82.0" fill="#555"/><rect x="0.0" y="0.0" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="0.0" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="0.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="0.0" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="0.0" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="13.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="13.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="13.3" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="13.3" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="13.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="13.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="26.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="40.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="40.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="40.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="40.0" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="53.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="53.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="53.3" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="53.3" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="53.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="53.3" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.7" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="66.7" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="66.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="66.7" width="13.3" height="13.3" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="66.7" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="66.7" width="13.3" height="13.3" fill="#FF851B" stroke="#444" stroke-width="0.6"/></g><g transform="translate(282.0,26.0)"><rect x="-1" y="-1" width="42.0" height="42.0" fill="#555"/><rect x="0.0" y="0.0" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="0.0" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="0.0" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="13.3" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="13.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="13.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="26.7" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="26.7" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="26.7" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><text x="20.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 3</text></g><line x1="302.0" y1="100.0" x2="302.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_46442a0e)"/><g transform="translate(262.0,138.0)"><rect x="-1" y="-1" width="82.0" height="82.0" fill="#555"/><rect x="0.0" y="0.0" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="0.0" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="0.0" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="0.0" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="0.0" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="13.3" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="13.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="13.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="13.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="13.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="13.3" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="26.7" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="26.7" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="26.7" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="26.7" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="26.7" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="26.7" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="40.0" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="40.0" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="40.0" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="40.0" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="53.3" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="53.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="53.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="53.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="53.3" width="13.3" height="13.3" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="53.3" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.7" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="13.3" y="66.7" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="26.7" y="66.7" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="66.7" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="53.3" y="66.7" width="13.3" height="13.3" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="66.7" y="66.7" width="13.3" height="13.3" fill="#F012BE" stroke="#444" stroke-width="0.6"/></g><g transform="translate(376.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#870C25" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#870C25" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">test</text></g><line x1="409.0" y1="100.0" x2="409.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_46442a0e)"/><rect x="376.0" y="138.0" width="66.0" height="66.0" rx="4" fill="#fff" stroke="#7a4f9a" stroke-width="2" stroke-dasharray="5,4"/><text x="409.0" y="180.0" font-size="26" text-anchor="middle" fill="#7a4f9a">?</text></svg>
+    <div class="diagram-caption">Task 46442a0e.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_config.py: the parts</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># The parts a tiled output can be built from: the input under one of the
+# eight symmetries of a square, or an empty (black) tile.
+PARTS = {&#x27;id&#x27;: lambda g: [r[:] for r in g], &#x27;flip_h&#x27;: flip_h, &#x27;flip_v&#x27;: flip_v,
+         &#x27;rot90&#x27;: rotate90, &#x27;rot180&#x27;: rotate180, &#x27;rot270&#x27;: rotate270,
+         &#x27;transpose&#x27;: transpose, &#x27;anti&#x27;: lambda g: rotate180(transpose(g)),
+         &#x27;blank&#x27;: lambda g: [[0] * len(g[0]) for _ in g]}
+
+def block(grid, i, j, h, w):
+    return [row[j * w:(j + 1) * w] for row in grid[i * h:(i + 1) * h]]</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_config.py: configure slot by slot</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def configure(task):
+    &quot;&quot;&quot;Skeleton: the output is an a x b arrangement of tiles, each tile one
+    of PARTS applied to the input. Variables: a, b, and the part in each
+    slot. Constraint: every train pair must be reproduced exactly.&quot;&quot;&quot;
+    p0 = task[&#x27;train&#x27;][0]
+    h, w = dims(p0[&#x27;input&#x27;])
+    H, W = dims(p0[&#x27;output&#x27;])
+    if H % h or W % w or (H, W) == (h, w):
+        return None
+    a, b = H // h, W // w
+    design = {}
+    for i in range(a):
+        for j in range(b):
+            # values for this slot that satisfy the constraint on EVERY pair
+            ok = [name for name, f in PARTS.items()
+                  if all(dims(p[&#x27;output&#x27;]) == (a * len(p[&#x27;input&#x27;]), b * len(p[&#x27;input&#x27;][0])) and
+                         f(p[&#x27;input&#x27;]) == block(p[&#x27;output&#x27;], i, j, len(p[&#x27;input&#x27;]), len(p[&#x27;input&#x27;][0]))
+                         for p in task[&#x27;train&#x27;])]
+            if not ok:
+                return None
+            design[(i, j)] = ok[0]
+    return a, b, design
+
+def build(config, grid):
+    a, b, design = config
+    rows = []
+    for i in range(a):
+        tiles = [PARTS[design[(i, j)]](grid) for j in range(b)]
+        for r in range(len(grid)):
+            rows.append([v for t in tiles for v in t[r]])
+    return rows</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_config.py: the configured design for 46442a0e</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    task = load_task(&#x27;data/training/46442a0e.json&#x27;)
+    a, b, design = configure(task)
+    print(f&#x27;46442a0e: a {a}x{b} arrangement&#x27;)
+    for i in range(a):
+        print(&#x27;   &#x27;, &#x27;  &#x27;.join(f&#x27;{design[(i, j)]:8}&#x27; for j in range(b)))
+    print(&#x27;test correct:&#x27;, build((a, b, design), task[&#x27;test&#x27;][0][&#x27;input&#x27;]) == task[&#x27;test&#x27;][0][&#x27;output&#x27;])</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">46442a0e: a 2x2 arrangement
+    id        rot90   
+    rot270    rot180  
+test correct: True</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 760 210" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ds" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(30.0,60.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="30.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="30.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><text x="30.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">input</text></g><g transform="translate(200.0,40.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="30.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="30.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/></g><text x="230" y="114" font-size="11" text-anchor="middle" fill="#8a4526">id</text><g transform="translate(280.0,40.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="30.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="30.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/></g><text x="310" y="114" font-size="11" text-anchor="middle" fill="#8a4526">rot90</text><g transform="translate(200.0,120.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="30.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="30.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/></g><text x="230" y="194" font-size="11" text-anchor="middle" fill="#8a4526">rot270</text><g transform="translate(280.0,120.0)"><rect x="-1" y="-1" width="62.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="30.0" width="30.0" height="30.0" fill="#F012BE" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="30.0" width="30.0" height="30.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/></g><text x="310" y="194" font-size="11" text-anchor="middle" fill="#8a4526">rot180</text><line x1="100" y1="90" x2="190" y2="90" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ds)"/><text x="440" y="70" font-size="12" text-anchor="start" fill="#1f3b52" font-weight="bold">skeleton: a 2 x 2 arrangement of tiles</text><text x="440" y="92" font-size="12" text-anchor="start" fill="#1f3b52">variables: which part goes in each slot</text><text x="440" y="114" font-size="12" text-anchor="start" fill="#5b6b78">(9 options: 8 symmetries or blank)</text><text x="440" y="136" font-size="12" text-anchor="start" fill="#1f3b52">constraint: reproduce every train pair</text></svg>
+    <div class="diagram-caption">The design the agent configured: the input, then a quarter turn, three quarter turns, and a half turn, arranged clockwise.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_config.py: sweep</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    solved = []
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        t = load_task(&#x27;data/training/&#x27; + name)
+        cfg = configure(t)
+        if cfg and all(build(cfg, p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in t[&#x27;test&#x27;]):
+            solved.append(f&#x27;{name[:-5]} ({cfg[0]}x{cfg[1]})&#x27;)
+    print(len(solved), &#x27;tasks:&#x27;, &#x27;, &#x27;.join(solved))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">12 tasks: 3af2c5a8 (2x2), 46442a0e (2x2), 4c4377d9 (2x1), 62c24649 (2x2), 67e8384a (2x2), 6d0aefbc (1x2), 6fa7a44f (2x1), 7fe24cdd (2x2), 8be77c9e (2x1), 8d5021e8 (3x2), a416b8f3 (1x2), c9e6f938 (1x2)</code>
+</div>
+
+<p>Twelve tasks. Several of them (<code class="code-lesson-il">46442a0e</code>, <code class="code-lesson-il">7fe24cdd</code>, <code class="code-lesson-il">8d5021e8</code>) were missed by program search and planning, because their outputs need a different transform in each tile, which a short program of whole-grid operations cannot express. Configuration does not search over sequences at all; it fills each slot independently, and the constraint does the rest. Choosing the right <em>representation of the solution</em> (a design with slots instead of a program) changed what was easy.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>The plan skeleton is procedural <strong>Memory</strong> (a script for a kind of design). Refinement is a <strong>Decider</strong>; checking constraints on partial designs is the <strong>Monitor</strong>; backing up when a constraint fails is the Monitor controlling the Decider. Your agent's TaskFrame invariants (output size!) are exactly the specification that a configuration step needs.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>The chair agent satisficed. When should an ARC agent satisfice (take the first configuration that fits) and when should it look for alternatives?</li><li>Is choosing the order of decisions (legs first, then seat) part of the knowledge or part of the algorithm? What happens if you reverse it?</li><li>McShane says a plan is an instantiated script. Is a configured design a plan? What is the difference?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Define configuration and contrast it with planning from scratch.</li><li>Explain why decision order and checking partial designs matter.</li><li>Describe R1/XCON and satisficing.</li><li>Configure a tiled ARC output slot by slot from train pairs.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Lower the budget to $16. What does the chair agent produce? Is there a design at all?</li><li>Run <code class="code-lesson-il">configure</code> on <code class="code-lesson-il">7fe24cdd</code> and draw the design on paper.</li></ol><h3>Intermediate</h3>
+<ol><li>Add a constraint that a three-legged chair must have steel legs, and a spec that forces three legs. Watch the trace.</li><li>Add <em>conditional</em> slots to the ARC configurer: a slot is the input if the corresponding input cell is coloured, blank otherwise. Which task does that solve? (Look at <code class="code-lesson-il">007bbfb7</code>.)</li></ol><h3>Advanced</h3>
+<ol><li>Make the chair agent find the <em>cheapest</em> valid design instead of the first. How much more of the space does it explore?</li></ol><h3>For your ARC agent</h3>
+<ol><li>Add configuration as a specialist in your agent, triggered when the TaskFrame says the output is an integer multiple of the input size.</li></ol></section>
+
+
+    </body>
+</html>

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   viewBox="0 0 64 64"
-   x="0px"
-   y="0px"
+   viewBox="0 0 75 75"
+   width="75"
+   height="75"
    version="1.1"
-   id="svg10"
-   sodipodi:docname="noun_internetofthings_5706249.svg"
-   width="64"
-   height="64"
+   id="svg41"
+   sodipodi:docname="iort-icon(2).svg"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs14" />
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <sodipodi:namedview
-     id="namedview12"
+     id="namedview43"
      pagecolor="#505050"
      bordercolor="#ffffff"
      borderopacity="1"
@@ -25,21 +25,138 @@
      inkscape:pagecheckerboard="1"
      inkscape:deskcolor="#505050"
      showgrid="false"
-     inkscape:zoom="10.3"
-     inkscape:cx="32.038835"
-     inkscape:cy="27.281553"
+     inkscape:zoom="4.12"
+     inkscape:cx="39.805825"
+     inkscape:cy="37.621359"
      inkscape:window-width="1920"
      inkscape:window-height="994"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg10" />
+     inkscape:current-layer="svg41" />
+  <title
+     id="title2">Internet of Robotic Things</title>
+  <defs
+     id="defs23">
+    <g
+       id="robot"
+       fill="#0e7490">
+      <!-- wifi signal -->
+      <circle
+         cx="0"
+         cy="-9.5"
+         r="1.3"
+         id="circle4" />
+      <g
+         fill="none"
+         stroke="#0e7490"
+         stroke-width="1.6"
+         stroke-linecap="round"
+         id="g10">
+        <path
+           d="m -2.47,-11.97 a 3.5,3.5 0 0 1 4.94,0"
+           id="path6" />
+        <path
+           d="m -4.6,-14.1 a 6.5,6.5 0 0 1 9.2,0"
+           id="path8" />
+      </g>
+      <!-- filled body with a cut-out eye -->
+      <path
+         fill-rule="evenodd"
+         d="m -7.5,-6 h 15 a 2.5,2.5 0 0 1 2.5,2.5 v 7 A 2.5,2.5 0 0 1 7.5,6 h -15 A 2.5,2.5 0 0 1 -10,3.5 v -7 A 2.5,2.5 0 0 1 -7.5,-6 Z m 0.1,6 a 3.4,3.4 0 1 0 6.8,0 3.4,3.4 0 1 0 -6.8,0 z"
+         id="path12" />
+      <!-- legs and feet -->
+      <rect
+         x="-8"
+         y="5.5"
+         width="3"
+         height="3.5"
+         id="rect14" />
+      <rect
+         x="5"
+         y="5.5"
+         width="3"
+         height="3.5"
+         id="rect16" />
+      <rect
+         x="-9.5"
+         y="8.5"
+         width="6"
+         height="1.8"
+         rx="0.89999998"
+         id="rect18" />
+      <rect
+         x="3.5"
+         y="8.5"
+         width="6"
+         height="1.8"
+         rx="0.89999998"
+         id="rect20" />
+    </g>
+  </defs>
+  <!-- spokes -->
   <g
-     data-name="Internet of Things (IoT)"
-     id="g4"
-     transform="translate(0.51283609,0.002)">
-    <path
-       d="m 55.058,37 c 2.757,0 5,-2.243 5,-5 0,-2.757 -2.243,-5 -5,-5 -0.553,0 -1,0.448 -1,1 v 3 H 41.16 c -0.195,-1.996 -0.974,-3.872 -2.254,-5.434 l 7.569,-7.568 3.257,3.257 7.045,-7.045 -8.171,-8.171 -7.045,7.045 3.5,3.5 -7.569,7.568 c -1.56,-1.279 -3.437,-2.057 -5.434,-2.253 v -10 c 2.279,-0.465 4,-2.484 4,-4.899 0,-2.757 -2.243,-5 -5,-5 -2.757,0 -5,2.243 -5,5 0,2.414 1.721,4.434 4,4.899 v 10.002 c -1.998,0.196 -3.871,0.982 -5.432,2.262 l -6.807,-6.816 1.464,-5.464 -4.816,-4.816 -6.579,1.763 -1.763,6.579 4.816,4.816 5.463,-1.464 6.793,6.802 c -1.279,1.555 -2.057,3.433 -2.252,5.436 h -5.4 c -0.172,-0.31 -0.424,-0.575 -0.747,-0.761 L 6.941,25.701 c -0.629,-0.362 -1.377,-0.362 -2,0 -0.626,0.361 -1,1.009 -1,1.732 v 9.072 c 0,0.723 0.374,1.371 1,1.732 0.312,0.181 0.656,0.271 1,0.271 0.344,0 0.687,-0.09 1,-0.271 L 14.798,33.7 c 0.302,-0.175 0.542,-0.418 0.713,-0.703 h 5.433 c 0.194,2.008 0.972,3.89 2.252,5.445 l -5.371,5.371 c -0.627,-0.375 -1.341,-0.588 -2.094,-0.588 -1.098,0 -2.127,0.425 -2.899,1.197 l -3.351,3.351 c -0.772,0.772 -1.197,1.801 -1.197,2.899 0,1.098 0.425,2.127 1.197,2.899 0.771,0.772 1.801,1.197 2.898,1.197 1.097,0 2.127,-0.425 2.899,-1.197 l 3.351,-3.351 c 0.772,-0.772 1.197,-1.801 1.197,-2.899 0,-0.753 -0.213,-1.466 -0.588,-2.094 l 5.37,-5.371 c 1.555,1.28 3.437,2.058 5.446,2.252 v 10.886 c -3.419,0.31 -5.973,2.162 -5.973,4.476 0,2.538 3.068,4.526 6.986,4.526 3.918,0 6.986,-1.988 6.986,-4.526 0,-2.321 -2.567,-4.176 -6,-4.479 V 42.107 c 2.003,-0.195 3.881,-0.973 5.436,-2.252 l 7.366,7.357 c -2.354,3.052 -2.14,7.461 0.657,10.258 0.195,0.195 0.451,0.293 0.707,0.293 0.256,0 0.512,-0.098 0.707,-0.293 l 9.603,-9.602 c 0.391,-0.391 0.391,-1.023 0,-1.414 -1.471,-1.472 -3.427,-2.282 -5.508,-2.282 -1.743,0 -3.395,0.575 -4.751,1.625 l -7.379,-7.37 c 1.28,-1.56 2.067,-3.434 2.263,-5.432 h 12.9 v 3 c 0,0.552 0.447,1 1,1 z"
-       id="path2" />
+     stroke="#0e7490"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="g31"
+     transform="translate(-13.123544,-5.1974426)"
+     sodipodi:insensitive="true">
+    <line
+       x1="50"
+       y1="44.5"
+       x2="50"
+       y2="31"
+       id="line25" />
+    <line
+       x1="54.799999"
+       y1="52.799999"
+       x2="66.5"
+       y2="59.5"
+       id="line27" />
+    <line
+       x1="45.200001"
+       y1="52.799999"
+       x2="33.5"
+       y2="59.5"
+       id="line29" />
   </g>
+  <!-- central hub with a cut-out center -->
+  <path
+     fill="#0e7490"
+     fill-rule="evenodd"
+     d="m 30.876456,44.802557 a 6,6 0 1 0 12,0 6,6 0 1 0 -12,0 z m 3.6,0 a 2.4,2.4 0 1 0 4.8,0 2.4,2.4 0 1 0 -4.8,0 z"
+     id="path33"
+     sodipodi:insensitive="true" />
+  <!-- robots at 120° intervals -->
+  <use
+     xlink:href="#robot"
+     href="#robot"
+     x="50"
+     y="20"
+     id="use35"
+     transform="translate(-13.123544,-3.1974426)" />
+  <use
+     xlink:href="#robot"
+     href="#robot"
+     x="76"
+     y="65"
+     id="use37"
+     transform="translate(-13.123544,-3.1974426)" />
+  <use
+     xlink:href="#robot"
+     href="#robot"
+     x="24"
+     y="65"
+     id="use39"
+     transform="translate(-13.123544,-3.1974426)" />
+  <metadata
+     id="metadata326">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Internet of Robotic Things</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
 </svg>

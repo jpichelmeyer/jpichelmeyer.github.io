@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p><strong>Diagnosis</strong> is reasoning from observed malfunctions back to their causes: a doctor from symptoms to a disease, a mechanic from a noise to a part, a programmer from a failing test to a bug. It is a kind of <em>abduction</em>: inference to the best explanation. For a cognitive agent, the most important thing to diagnose is often itself. When your ARC agent gets a train pair wrong, <em>what</em> did it get wrong, and what would fix it?</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_diagnosis_1_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 8, §8.5: <i>Detecting jumping to conclusions</i></a> <span class="reading-meta">(pp. 245–248 &middot; PDF 256–259 &middot; 4 pages)</span><br>An agent that knows when there is enough evidence to diagnose a disease, and says which findings are still missing.</li></ul>
+</div>
+
+
+<h3>Part 1. Diagnosis as Abduction</h3>
+<p>Deduction runs from causes to effects: if the patient has Alphaitis, then A will be high. Diagnosis runs the other way: A is high, so what could cause that? Many causes could, so diagnosis must choose among explanations by several principles:</p>
+<ul>
+    <li><strong>Coverage</strong>: the explanation must account for all the observations.</li>
+    <li><strong>Parsimony</strong>: prefer fewer hypotheses (one disease rather than three).</li>
+    <li><strong>Plausibility</strong>: prefer common causes over rare ones, other things being equal.</li>
+    <li><strong>Interactions</strong>: two causes can mask each other's effects, so an observation's <em>absence</em> does not rule a cause out.</li>
+</ul>
+<div class="diagram">
+<svg viewBox="0 0 760 255" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><text x="150" y="22" font-size="13" text-anchor="middle" fill="#2e5a80" font-weight="bold">data space (observations)</text><text x="590" y="22" font-size="13" text-anchor="middle" fill="#8a4526" font-weight="bold">hypothesis space (disorders)</text><rect x="80" y="40" width="140" height="34" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="150.0" y="61.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">A high</text><rect x="80" y="84" width="140" height="34" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="150.0" y="105.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">B high</text><rect x="80" y="128" width="140" height="34" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="150.0" y="149.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">D low</text><rect x="80" y="172" width="140" height="34" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="150.0" y="193.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">F high</text><rect x="520" y="40" width="150" height="34" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="595.0" y="61.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">Zetad</text><rect x="520" y="84" width="150" height="34" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="595.0" y="105.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">Alphaitis</text><rect x="520" y="128" width="150" height="34" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="595.0" y="149.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">Betatosis</text><rect x="520" y="172" width="150" height="34" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="595.0" y="193.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">Gammonia</text><line x1="222" y1="57" x2="518" y2="57" stroke="#c0693f" stroke-width="1.8" marker-end="url(#sp)"/><line x1="222" y1="101" x2="518" y2="57" stroke="#c0693f" stroke-width="1.8" marker-end="url(#sp)"/><line x1="222" y1="145" x2="518" y2="57" stroke="#c0693f" stroke-width="1.8" marker-end="url(#sp)"/><line x1="222" y1="189" x2="518" y2="57" stroke="#c0693f" stroke-width="1.8" marker-end="url(#sp)"/><line x1="222" y1="57" x2="518" y2="101" stroke="#9aa5ae" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#sp)"/><line x1="222" y1="101" x2="518" y2="145" stroke="#9aa5ae" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#sp)"/><text x="370" y="240" font-size="12" text-anchor="middle" fill="#5b6b78">Find the smallest set of hypotheses whose predicted effects match every observation.</text></svg>
+    <div class="diagram-caption">Diagnosis maps the data space onto the hypothesis space. Here one disorder covers all four observations; a pair of others also covers them, because one raises C and the other lowers it.</div>
+</div>
+
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Arthur Elstein and colleagues (1978) watched physicians diagnose simulated patients. Contrary to the textbook picture of gathering all the data first, doctors formed a few hypotheses within the first minutes and then gathered data to test them. That is efficient, and it carries a characteristic failure: <strong>premature closure</strong>, settling on a diagnosis before the evidence warrants it. This week's McShane reading describes a tutoring agent built to catch exactly that, checking a learner's diagnosis against the clinical preconditions for it and naming which findings are still missing.</p>
+</div>
+
+
+<h3>Part 2. An Abductive Diagnosis Agent</h3>
+<div class="diagram">
+<svg viewBox="0 0 540 220" style="max-width:520px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="et" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="10" width="130" height="28" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="85.0" y="28.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">disorder</text><rect x="150" y="10" width="60" height="28" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="180.0" y="28.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">A</text><rect x="210" y="10" width="60" height="28" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="240.0" y="28.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">B</text><rect x="270" y="10" width="60" height="28" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="300.0" y="28.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">C</text><rect x="330" y="10" width="60" height="28" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="360.0" y="28.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">D</text><rect x="390" y="10" width="60" height="28" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="420.0" y="28.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">E</text><rect x="450" y="10" width="60" height="28" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="480.0" y="28.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">F</text><rect x="20" y="38" width="130" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="56.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">Alphaitis</text><rect x="150" y="38" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="180.0" y="56.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="210" y="38" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="240.0" y="56.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="270" y="38" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="300.0" y="56.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold">low</text><rect x="330" y="38" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="360.0" y="56.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="390" y="38" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="420.0" y="56.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="450" y="38" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="480.0" y="56.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="20" y="66" width="130" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="84.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">Betatosis</text><rect x="150" y="66" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="180.0" y="84.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="210" y="66" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="240.0" y="84.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="270" y="66" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="300.0" y="84.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="330" y="66" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="360.0" y="84.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold">low</text><rect x="390" y="66" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="420.0" y="84.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="450" y="66" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="480.0" y="84.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="20" y="94" width="130" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="112.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">Gammonia</text><rect x="150" y="94" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="180.0" y="112.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold">low</text><rect x="210" y="94" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="240.0" y="112.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="270" y="94" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="300.0" y="112.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="330" y="94" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="360.0" y="112.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="390" y="94" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="420.0" y="112.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="450" y="94" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="480.0" y="112.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="20" y="122" width="130" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="140.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">Deltacol</text><rect x="150" y="122" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="180.0" y="140.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="210" y="122" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="240.0" y="140.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold">low</text><rect x="270" y="122" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="300.0" y="140.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="330" y="122" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="360.0" y="140.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="390" y="122" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="420.0" y="140.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="450" y="122" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="480.0" y="140.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="20" y="150" width="130" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="168.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">Epsilitis</text><rect x="150" y="150" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="180.0" y="168.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="210" y="150" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="240.0" y="168.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="270" y="150" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="300.0" y="168.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="330" y="150" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="360.0" y="168.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold">low</text><rect x="390" y="150" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="420.0" y="168.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="450" y="150" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="480.0" y="168.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="20" y="178" width="130" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="85.0" y="196.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">Zetad</text><rect x="150" y="178" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="180.0" y="196.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="210" y="178" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="240.0" y="196.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text><rect x="270" y="178" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="300.0" y="196.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="330" y="178" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="360.0" y="196.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold">low</text><rect x="390" y="178" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="420.0" y="196.0" font-size="11.5" text-anchor="middle" fill="#2e5a80" font-weight="bold"></text><rect x="450" y="178" width="60" height="28" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="480.0" y="196.0" font-size="11.5" text-anchor="middle" fill="#b3261e" font-weight="bold">high</text></svg>
+    <div class="diagram-caption">The agent's knowledge: what each disorder does to six lab values.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">doctor_agent.py: knowledge</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Each disorder raises (+) or lowers (-) some lab values.
+DISORDERS = {
+    &#x27;Alphaitis&#x27;: {&#x27;A&#x27;: &#x27;+&#x27;, &#x27;C&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;},
+    &#x27;Betatosis&#x27;: {&#x27;B&#x27;: &#x27;+&#x27;, &#x27;C&#x27;: &#x27;+&#x27;, &#x27;D&#x27;: &#x27;-&#x27;},
+    &#x27;Gammonia&#x27;:  {&#x27;A&#x27;: &#x27;-&#x27;, &#x27;E&#x27;: &#x27;+&#x27;},
+    &#x27;Deltacol&#x27;:  {&#x27;B&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;},
+    &#x27;Epsilitis&#x27;: {&#x27;C&#x27;: &#x27;+&#x27;, &#x27;D&#x27;: &#x27;-&#x27;, &#x27;E&#x27;: &#x27;+&#x27;},
+    &#x27;Zetad&#x27;:     {&#x27;A&#x27;: &#x27;+&#x27;, &#x27;B&#x27;: &#x27;+&#x27;, &#x27;D&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;},
+}
+PRIOR = {&#x27;Alphaitis&#x27;: 0.10, &#x27;Betatosis&#x27;: 0.05, &#x27;Gammonia&#x27;: 0.02,
+         &#x27;Deltacol&#x27;: 0.08, &#x27;Epsilitis&#x27;: 0.03, &#x27;Zetad&#x27;: 0.01}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">doctor_agent.py: predicting combined effects (with cancellation)</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def predict(hypotheses):
+    &quot;&quot;&quot;Combined effect of several disorders: opposite effects cancel.&quot;&quot;&quot;
+    total = {}
+    for h in hypotheses:
+        for test, sign in DISORDERS[h].items():
+            total[test] = total.get(test, 0) + (1 if sign == &#x27;+&#x27; else -1)
+    return {t: (&#x27;+&#x27; if v &gt; 0 else &#x27;-&#x27;) for t, v in total.items() if v != 0}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">doctor_agent.py: coverage, parsimony, plausibility</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def diagnose(observed, max_size=3):
+    &quot;&quot;&quot;Coverage: the prediction must match the observations exactly.
+    Parsimony: try one disorder, then pairs, then triples, and stop at the
+    smallest size that works. Plausibility: rank ties by prior probability.&quot;&quot;&quot;
+    for size in range(1, max_size + 1):
+        found = [set(c) for c in combinations(DISORDERS, size) if predict(c) == observed]
+        if found:
+            return sorted(found, key=lambda c: -min(PRIOR[h] for h in c))
+    return []</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">doctor_agent.py: three patients</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">for observed in [{&#x27;A&#x27;: &#x27;+&#x27;, &#x27;C&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;},
+                 {&#x27;A&#x27;: &#x27;+&#x27;, &#x27;B&#x27;: &#x27;+&#x27;, &#x27;D&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;},
+                 {&#x27;B&#x27;: &#x27;+&#x27;, &#x27;D&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;, &#x27;A&#x27;: &#x27;+&#x27;, &#x27;C&#x27;: &#x27;+&#x27;}]:
+    print(&#x27;observed:&#x27;, observed)
+    for expl in diagnose(observed):
+        print(&#x27;   explained by&#x27;, sorted(expl), &#x27; prior&#x27;, min(PRIOR[h] for h in expl))</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">doctor_agent.py: an interaction</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">obs = {&#x27;A&#x27;: &#x27;+&#x27;, &#x27;B&#x27;: &#x27;+&#x27;, &#x27;D&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;}
+pairs = [sorted(c) for c in combinations(DISORDERS, 2) if predict(c) == obs]
+print(&#x27;pairs that also explain case 2:&#x27;, pairs)
+print(&#x27;  Alphaitis lowers C and Betatosis raises it: the effects cancel.&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">observed: {&#x27;A&#x27;: &#x27;+&#x27;, &#x27;C&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;}
+   explained by [&#x27;Alphaitis&#x27;]  prior 0.1
+observed: {&#x27;A&#x27;: &#x27;+&#x27;, &#x27;B&#x27;: &#x27;+&#x27;, &#x27;D&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;}
+   explained by [&#x27;Zetad&#x27;]  prior 0.01
+observed: {&#x27;B&#x27;: &#x27;+&#x27;, &#x27;D&#x27;: &#x27;-&#x27;, &#x27;F&#x27;: &#x27;+&#x27;, &#x27;A&#x27;: &#x27;+&#x27;, &#x27;C&#x27;: &#x27;+&#x27;}
+   explained by [&#x27;Betatosis&#x27;, &#x27;Zetad&#x27;]  prior 0.01
+pairs that also explain case 2: [[&#x27;Alphaitis&#x27;, &#x27;Betatosis&#x27;]]
+  Alphaitis lowers C and Betatosis raises it: the effects cancel.</code>
+</div>
+
+<p>Patient 2 shows the principles in tension. Parsimony picks Zetad, a single disorder, though it is rare (prior 0.01). Alphaitis and Betatosis together also explain everything, each is more common, and their effects on C cancel so C looks normal. Which is right depends on how much you trust parsimony versus base rates, and a real diagnostician would order one more test to tell them apart. Patient 3 needs two disorders: no single one covers everything.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Abductive diagnosis: find the smallest set of hypotheses that explains
+# every observation (after Goel & Joyner's KBAI diagnosis example).
+from itertools import combinations
+
+# Each disorder raises (+) or lowers (-) some lab values.
+DISORDERS = {
+    'Alphaitis': {'A': '+', 'C': '-', 'F': '+'},
+    'Betatosis': {'B': '+', 'C': '+', 'D': '-'},
+    'Gammonia':  {'A': '-', 'E': '+'},
+    'Deltacol':  {'B': '-', 'F': '+'},
+    'Epsilitis': {'C': '+', 'D': '-', 'E': '+'},
+    'Zetad':     {'A': '+', 'B': '+', 'D': '-', 'F': '+'},
+}
+PRIOR = {'Alphaitis': 0.10, 'Betatosis': 0.05, 'Gammonia': 0.02,
+         'Deltacol': 0.08, 'Epsilitis': 0.03, 'Zetad': 0.01}
+
+def predict(hypotheses):
+    """Combined effect of several disorders: opposite effects cancel."""
+    total = {}
+    for h in hypotheses:
+        for test, sign in DISORDERS[h].items():
+            total[test] = total.get(test, 0) + (1 if sign == '+' else -1)
+    return {t: ('+' if v > 0 else '-') for t, v in total.items() if v != 0}
+
+def diagnose(observed, max_size=3):
+    """Coverage: the prediction must match the observations exactly.
+    Parsimony: try one disorder, then pairs, then triples, and stop at the
+    smallest size that works. Plausibility: rank ties by prior probability."""
+    for size in range(1, max_size + 1):
+        found = [set(c) for c in combinations(DISORDERS, size) if predict(c) == observed]
+        if found:
+            return sorted(found, key=lambda c: -min(PRIOR[h] for h in c))
+    return []
+
+for observed in [{'A': '+', 'C': '-', 'F': '+'},
+                 {'A': '+', 'B': '+', 'D': '-', 'F': '+'},
+                 {'B': '+', 'D': '-', 'F': '+', 'A': '+', 'C': '+'}]:
+    print('observed:', observed)
+    for expl in diagnose(observed):
+        print('   explained by', sorted(expl), ' prior', min(PRIOR[h] for h in expl))
+
+obs = {'A': '+', 'B': '+', 'D': '-', 'F': '+'}
+pairs = [sorted(c) for c in combinations(DISORDERS, 2) if predict(c) == obs]
+print('pairs that also explain case 2:', pairs)
+print('  Alphaitis lowers C and Betatosis raises it: the effects cancel.')</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Diagnosing Your Own Wrong Answers</h3>
+<p>Week 3's program search threw away every program that missed a train pair. But some misses are <em>informative</em>. A program that produces the right shapes in the wrong colours is nearly right: diagnose the fault, and the repair is obvious. Here is a small fault taxonomy for wrong ARC answers:</p>
+<div class="diagram">
+<svg viewBox="0 0 760 200" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ft" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="300" y="10" width="160" height="36" rx="7" fill="#fde2e2" stroke="#b3261e" stroke-width="1.8"/><text x="380.0" y="32.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">wrong answer</text><rect x="20" y="100" width="160" height="34" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="100.0" y="121.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">crashed</text><rect x="20" y="140" width="160" height="48" rx="7" fill="#fff" stroke="#7a4f9a" stroke-width="1.8"/><text x="100.0" y="167.8" font-size="11" text-anchor="middle" fill="#1f3b52">fix the code</text><line x1="380" y1="48" x2="100" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ft)"/><rect x="200" y="100" width="160" height="34" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="280.0" y="121.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">wrong size</text><rect x="200" y="140" width="160" height="48" rx="7" fill="#fff" stroke="#7a4f9a" stroke-width="1.8"/><text x="280.0" y="160.8" font-size="11" text-anchor="middle" fill="#1f3b52">wrong program or</text><text x="280.0" y="174.8" font-size="11" text-anchor="middle" fill="#1f3b52">wrong size rule</text><line x1="380" y1="48" x2="280" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ft)"/><rect x="390" y="100" width="160" height="34" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="470.0" y="121.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">wrong colours</text><rect x="390" y="140" width="160" height="48" rx="7" fill="#fff" stroke="#7a4f9a" stroke-width="1.8"/><text x="470.0" y="160.8" font-size="11" text-anchor="middle" fill="#1f3b52">right shapes: append</text><text x="470.0" y="174.8" font-size="11" text-anchor="middle" fill="#1f3b52">a recolouring step</text><line x1="380" y1="48" x2="470" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ft)"/><rect x="580" y="100" width="160" height="34" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="660.0" y="121.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">wrong cells</text><rect x="580" y="140" width="160" height="48" rx="7" fill="#fff" stroke="#7a4f9a" stroke-width="1.8"/><text x="660.0" y="160.8" font-size="11" text-anchor="middle" fill="#1f3b52">shapes wrong:</text><text x="660.0" y="174.8" font-size="11" text-anchor="middle" fill="#1f3b52">look elsewhere</text><line x1="380" y1="48" x2="660" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ft)"/></svg>
+    <div class="diagram-caption">Kinds of fault in a wrong ARC answer, and what each suggests.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_diagnose.py: localizing the fault</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def diagnose(got, want):
+    &quot;&quot;&quot;Localize the fault in a wrong answer. Returns the kind of fault and,
+    where possible, the information needed to repair it.&quot;&quot;&quot;
+    if not got or not got[0]:
+        return (&#x27;crashed&#x27;, None)
+    if dims(got) != dims(want):
+        return (&#x27;wrong size&#x27;, None)
+    diff = [(r, c) for r in range(len(want)) for c in range(len(want[0])) if got[r][c] != want[r][c]]
+    if not diff:
+        return (&#x27;correct&#x27;, None)
+    mapping = {}
+    for r, c in diff:
+        if mapping.setdefault(got[r][c], want[r][c]) != want[r][c]:
+            return (&#x27;wrong cells&#x27;, len(diff))
+    # every wrong cell of colour x should have been colour y: a colour fault,
+    # but only if no correct cell of colour x would be broken by the fix
+    if any(got[r][c] in mapping for r in range(len(got)) for c in range(len(got[0]))
+           if (r, c) not in diff):
+        return (&#x27;wrong cells&#x27;, len(diff))
+    return (&#x27;wrong colours&#x27;, mapping)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_diagnose.py: a few diagnoses</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    for tid, prog in [(&#x27;7468f01a&#x27;, (&#x27;flip_h&#x27;,)), (&#x27;a740d043&#x27;, (&#x27;crop_all&#x27;,)),
+                      (&#x27;d511f180&#x27;, ()), (&#x27;3c9b0459&#x27;, (&#x27;flip_h&#x27;,))]:
+        task = load_task(f&#x27;data/training/{tid}.json&#x27;)
+        p = task[&#x27;train&#x27;][0]
+        print(f&#x27;{tid}, program {prog or &quot;identity&quot;}:&#x27;, diagnose(run(prog, p[&#x27;input&#x27;]), p[&#x27;output&#x27;]))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">7468f01a, program (&#x27;flip_h&#x27;,): (&#x27;wrong size&#x27;, None)
+a740d043, program (&#x27;crop_all&#x27;,): (&#x27;wrong colours&#x27;, {1: 0})
+d511f180, program identity: (&#x27;wrong colours&#x27;, {8: 5, 5: 8})
+3c9b0459, program (&#x27;flip_h&#x27;,): (&#x27;wrong cells&#x27;, 2)</code>
+</div>
+
+<p>Each verdict is useful. "Wrong size" says the program is the wrong kind entirely. "Wrong cells, 2" says it was very close but not in a way a colour fix will mend. "Wrong colours" comes with its own repair: a colour mapping. The agent now uses diagnosis to repair near misses:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_diagnose.py: diagnose, then repair</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def repair(task):
+    &quot;&quot;&quot;Take each one-step program whose answers have the right SIZE on every
+    train pair, diagnose its errors, and if every pair shows the same colour
+    fault, repair it by appending a recolouring step.&quot;&quot;&quot;
+    for prog in [()] + [(name,) for name in PRIMS]:      # () = leave the grid as it is
+        faults = []
+        for p in task[&#x27;train&#x27;]:
+            try:
+                got = run(prog, p[&#x27;input&#x27;])
+            except Exception:
+                got = None
+            faults.append(diagnose(got, p[&#x27;output&#x27;]))
+        kinds = {k for k, _ in faults}
+        if kinds == {&#x27;correct&#x27;}:
+            return prog, None, faults
+        if kinds &lt;= {&#x27;correct&#x27;, &#x27;wrong colours&#x27;}:
+            mapping = {}
+            for k, m in faults:
+                if k == &#x27;wrong colours&#x27;:
+                    mapping.update(m)
+            fixed = lambda g, prog=prog, m=mapping: [[m.get(v, v) for v in row] for row in run(prog, g)]
+            if all(fixed(p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;]):
+                return prog, mapping, faults
+    return None, None, None</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_diagnose.py: sweep</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    fixed = []
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        t = load_task(&#x27;data/training/&#x27; + name)
+        prog, mapping, faults = repair(t)
+        if prog is not None and mapping:
+            f = lambda g: [[mapping.get(v, v) for v in row] for row in run(prog, g)]
+            if all(f(p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in t[&#x27;test&#x27;]):
+                fixed.append(f&#x27;{name[:-5]} ({prog[0] if prog else &quot;identity&quot;} + recolour {mapping})&#x27;)
+    print(len(fixed), &#x27;tasks repaired after diagnosis:&#x27;)
+    for s in fixed:
+        print(&#x27; &#x27;, s)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">5 tasks repaired after diagnosis:
+  0d3d703e (identity + recolour {3: 4, 1: 5, 2: 6, 8: 9, 5: 1, 6: 2, 9: 8, 4: 3})
+  a740d043 (crop_all + recolour {1: 0})
+  b1948b0a (identity + recolour {6: 2})
+  c8f0f002 (identity + recolour {7: 5})
+  d511f180 (identity + recolour {8: 5, 5: 8})</code>
+</div>
+
+<p>Five tasks, solved by programs that had <em>failed</em> every train pair, because the agent asked why they failed. <code class="code-lesson-il">d511f180</code> is a colour swap; <code class="code-lesson-il">a740d043</code> is "crop to the shape, then turn the blue background black." The repairs are only accepted after they reproduce every train pair, which is the diagnostic version of not jumping to conclusions.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Diagnosis is the <strong>Monitor</strong> turning a failure signal into a specific account of what went wrong, and repair is the Monitor directing the <strong>Decider</strong>. The fault taxonomy itself is knowledge in long-term <strong>Memory</strong>, and it should grow: every new kind of near miss you notice in your agent's failures is a new branch.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>Patient 2: Zetad alone, or Alphaitis plus Betatosis? Argue for each. What single extra test would decide it?</li><li>Elstein's doctors generated hypotheses early. Does your ARC agent? Should it?</li><li>Add two branches to the ARC fault taxonomy from failures you have seen in your own agent.</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Explain diagnosis as abduction and the principles of coverage, parsimony, plausibility, and interaction.</li><li>Explain how cancelling effects complicate diagnosis.</li><li>Describe premature closure.</li><li>Diagnose a wrong ARC answer and use the diagnosis to repair a program.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add a seventh disorder and an observation set that only it explains.</li><li>Run <code class="code-lesson-il">diagnose</code> on the outputs of three different primitives for one unsolved task of your choice. Which is closest?</li></ol><h3>Intermediate</h3>
+<ol><li>Make the doctor agent recommend the single most useful next test when the top two explanations disagree (the test whose predicted result differs between them).</li><li>Add a "shifted" diagnosis: right shapes and colours, but offset by a constant (dy, dx). Repair it with a shift.</li></ol><h3>Advanced</h3>
+<ol><li>Let repair use two-step programs from <code class="code-lesson-il">arc_gt.py</code>. How many more tasks are repaired? How much slower is it?</li></ol><h3>For your ARC agent</h3>
+<ol><li>Give your agent a Monitor that runs <code class="code-lesson-il">diagnose</code> on its best failing hypothesis for every unsolved task and logs the verdict. Use the log to decide what to build next.</li></ol></section>
+
+
+    </body>
+</html>

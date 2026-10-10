@@ -16,6 +16,7 @@
 
     <body>
         <p>This lesson covers reactive control. You build a priority arbiter over small behaviors, use a two-look comparison to track a target with a wide-beam sensor, measure the speed limit of the tracker and see why it is a cliff, and place the network’s pan command as one more behavior beneath a stop.</p>
+        <p><strong>SAM lens.</strong> A priority arbiter is a Decider architecture: each behavior proposes an action from the current percepts and Memory, and the first with an opinion wins. Safety sits at the top; a default that always has something to do sits at the bottom.</p>
 
 <p>A robot that works from a plan (“go to this point, then that point”) fails the moment the world differs from the plan. A robot built from <strong>behaviors</strong> does not need the plan to be right: it has several small rules, each reacting to what the sensors say <em>now</em>, and a way to decide which rule is in charge. Complicated-looking activity (searching, following, stopping when it must) emerges from rules that are each a few lines long. This lesson builds that structure and applies it to the problem of Lab 10 and Lab 12: keeping a scan head pointed at a moving object using only a pan servo and a range sensor.</p>
 <h3>Part 1. Behaviors and Who Wins</h3>
@@ -172,7 +173,7 @@ class Remote(Behavior):
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Who Wins?.</strong> The arbiter list is [Stop, Remote, Track, Search]. For each situation say which behavior wins: (a) the target is locked and nothing else is going on, (b) the owner sent <span class="code-lesson-il">pan 30</span> 1 s ago, (c) the owner sent <span class="code-lesson-il">pan 30</span> 5 s ago, no target, (d) <span class="code-lesson-il">halt</span> is set and the owner sends <span class="code-lesson-il">pan 30</span>.</p>
+        <p><strong>Exercise 1: Who Wins?</strong> The arbiter list is [Stop, Remote, Track, Search]. For each situation say which behavior wins: (a) the target is locked and nothing else is going on, (b) the owner sent <span class="code-lesson-il">pan 30</span> 1 s ago, (c) the owner sent <span class="code-lesson-il">pan 30</span> 5 s ago, no target, (d) <span class="code-lesson-il">halt</span> is set and the owner sends <span class="code-lesson-il">pan 30</span>.</p>
         <p><strong>Exercise 2: The Speed Limit.</strong> A tracker looks left and right alternately every 50 ms and moves the estimate 2 degrees per decision. What is its speed limit? Is a target moving at 25 degrees per second inside it?</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: Lost and Found.</strong> The tracker loses the target when it passes behind an obstacle for 3 seconds. Use the code to say what happens, what the head does while it waits, and how it reacquires the target. What would you change to reacquire faster?</p>
@@ -227,6 +228,78 @@ class Center(Behavior):
         return None
 </span>
 </div><p>It needs two pieces of state: when it last saw anything (<span class="code-lesson-il">started</span>) and, while it is holding, until when (<span class="code-lesson-il">hold_until</span>). Put it between <span class="code-lesson-il">Track</span> and <span class="code-lesson-il">Search</span>: <span class="code-lesson-il">[Stop(), Remote(), Track(), Center(), Search()]</span>. It has an opinion only in the rare case, so the simpler behaviors keep their lines.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Priority Architecture.</strong> How does the lesson's arbiter decide which behavior acts, and what is always at the top and bottom?</p>
+        <p><strong>P2. Implicit Mode.</strong> Where is the robot's "mode" in a behavior architecture, and what is the trap?</p>
+        <p><strong>P3. Two Looks.</strong> Describe the two-look tracking trick for a wide-beam sensor.</p>
+        <p><strong>P4. Remote Behavior.</strong> Where does the owner's pan command sit in the priority list, and why does it hold only for a limited time?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Speed Limit.</strong> The tracker's limit is step / (2 × period). With a 3° step and a 100 ms period, what is it? With a 6° step?</p>
+        <p><strong>P6. Can It Follow.</strong> A target 60 cm away moves sideways at 10 cm/s. Roughly what angular speed is that, and can the 3° tracker follow it?</p>
+        <p><strong>P7. Trace Winners.</strong> Behaviors: Stop (halt flag), Remote (command less than 2 s old), Track (target seen), Search (always). Give the winner at each moment: t = 0.5 s target seen; t = 1.0 s pan command arrives, target seen; t = 2.5 s target seen; t = 3.5 s target lost; t = 5 s halt flag set.</p>
+        <p><strong>P8. Lock Fraction.</strong> A tracker locked on 39 % of the time at 20 °/s and 100 % at 16 °/s. Why is the change a cliff rather than a slope?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Choose the Step.</strong> You must follow targets at up to 25 °/s with a 100 ms loop. Choose a step and say what you would check on real hardware.</p>
+        <p><strong>P10. Quick Behaviors.</strong> Why must a behavior never wait or make a network call?</p>
+        <p><strong>P11. Safety First.</strong> Why should the stop behavior be tested first, and how would you test it?</p>
+        <p><strong>P12. SAM View.</strong> Map the scan head with the arbiter onto SAM: what is in the Perceptor, Memory, Decider and Actuator?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Priority Architecture</summary>
+<p>It asks behaviors in priority order; the first with an opinion decides. Safety (stop) is at the top; a behavior that always has something to do (search) is at the bottom, so the robot is never idle.</p>
+        </details>
+        <details>
+        <summary>P2. Implicit Mode</summary>
+<p>It is implicit: whichever behavior is winning. The trap: with many behaviors it becomes hard to predict what the robot will do; keep the list short and print the winner while testing.</p>
+        </details>
+        <details>
+        <summary>P3. Two Looks</summary>
+<p>Look a few degrees left of the best guess, then a few degrees right, and compare: only left sees it → move left; only right → move right; both → centred. Correct by a small step after each pair.</p>
+        </details>
+        <details>
+        <summary>P4. Remote Behavior</summary>
+<p>Below stop and above track. It expires so that a lost owner does not leave the head pointing where the last command said for ever.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Speed Limit</summary>
+<p>3 / 0.2 = 15 °/s; 6 / 0.2 = 30 °/s.</p>
+        </details>
+        <details>
+        <summary>P6. Can It Follow</summary>
+<p>10 / 60 rad/s ≈ 0.167 rad/s ≈ 9.5 °/s, under 15 °/s, so yes.</p>
+        </details>
+        <details>
+        <summary>P7. Trace Winners</summary>
+<p>0.5: Track. 1.0: Remote. 2.5: Remote (command 1.5 s old). 3.5: Search (command expired at 3.0, target lost). 5: Stop.</p>
+        </details>
+        <details>
+        <summary>P8. Lock Fraction</summary>
+<p>Below the speed limit every correction keeps up and the error stays inside the beam; above it the error grows every cycle until the target leaves the beam, the tracker loses it and must search again. A small increase in speed crosses from always keeping up to never keeping up.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Choose the Step</summary>
+<p>Step ≥ 25 × 2 × 0.1 = 5°, so about 6°. Check that the servo actually moves that fast and settles within a period, that a noisy range does not make the head chatter, and that mean error stays acceptable.</p>
+        </details>
+        <details>
+        <summary>P10. Quick Behaviors</summary>
+<p>It runs every pass of the control loop; any wait delays every other behavior, including stop.</p>
+        </details>
+        <details>
+        <summary>P11. Safety First</summary>
+<p>Everything else depends on it overriding all other behaviors. Test with each other behavior wanting control (target seen, fresh command, search) and confirm that setting the halt flag always wins on the next pass.</p>
+        </details>
+        <details>
+        <summary>P12. SAM View</summary>
+<p>Perceptor: the ranger (and the received pan command). Memory: the estimate of the bearing, the dither phase, the time of the last command, misses since last seen. Decider: the arbiter and its behaviors. Actuator: the pan servo and the bearing publication.</p>
         </details>
 
         <h3>Checkpoint</h3>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>The simplest problem-solving method there is: <strong>propose a candidate solution, check it, and repeat until one passes</strong>. Generate and test sounds too simple to be interesting, but almost every method in this course is generate and test with a cleverer generator, a cleverer tester, or both. It is also, at heart, how most competitive ARC programs work.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_generate_and_test_1_bennett.pdf" target="_blank"><b>Bennett</b>, Ch. 12: <i>Vicarious trial and error</i></a> <span class="reading-meta">(PDF pp. 199–200 &middot; 2 pages)</span><br>Tolman's rats pause and look down each path before choosing: generating options in imagination and testing them before acting.</li><li><a href="../../pdfs/csc3530/csc3530_generate_and_test_2_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 2, §2.1.3: <i>Deliberation</i></a> <span class="reading-meta">(pp. 15–16 &middot; PDF 26–27 &middot; 2 pages)</span><br>The counterpoint: "content-centric modeling strives to replace search by retrieval from structured knowledge."</li></ul>
+</div>
+
+
+<h3>Part 1. Generators and Testers</h3>
+<div class="diagram">
+<svg viewBox="0 0 760 220" style="max-width:720px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="gt" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="40" y="70" width="170" height="70" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="125.0" y="93.5" font-size="13" text-anchor="middle" fill="#1f3b52">Generator</text><text x="125.0" y="109.5" font-size="13" text-anchor="middle" fill="#1f3b52">proposes a</text><text x="125.0" y="125.5" font-size="13" text-anchor="middle" fill="#1f3b52">candidate</text><rect x="300" y="70" width="170" height="70" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="385.0" y="93.5" font-size="13" text-anchor="middle" fill="#1f3b52">Tester</text><text x="385.0" y="109.5" font-size="13" text-anchor="middle" fill="#1f3b52">does it satisfy</text><text x="385.0" y="125.5" font-size="13" text-anchor="middle" fill="#1f3b52">the goal?</text><rect x="560" y="70" width="160" height="70" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="640.0" y="109.9" font-size="14" text-anchor="middle" fill="#1f3b52" font-weight="bold">Answer</text><line x1="212" y1="105" x2="298" y2="105" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#gt)"/><text x="255.0" y="97" font-size="11" text-anchor="middle" fill="#1f3b52">candidate</text><line x1="472" y1="105" x2="558" y2="105" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#gt)"/><text x="515.0" y="97" font-size="11" text-anchor="middle" fill="#1f3b52">pass</text><path d="M 385 142 C 385 205, 125 205, 125 144" fill="none" stroke="#b3261e" stroke-width="1.8" marker-end="url(#gt)"/><text x="255" y="196" font-size="12" text-anchor="middle" fill="#b3261e">fail: generate another</text><text x="125" y="40" font-size="11.5" text-anchor="middle" fill="#8a4526">smart generator: proposes</text><text x="125" y="56" font-size="11.5" text-anchor="middle" fill="#8a4526">only plausible candidates</text><text x="385" y="40" font-size="11.5" text-anchor="middle" fill="#5a3577">smart tester: rejects early</text><text x="385" y="56" font-size="11.5" text-anchor="middle" fill="#5a3577">and remembers what it saw</text></svg>
+    <div class="diagram-caption">Generate and test. All the intelligence lives in how good the generator is at proposing plausible candidates, and how good the tester is at rejecting bad ones cheaply.</div>
+</div>
+
+<p>With a dumb generator and a dumb tester, generate and test is hopeless: the number of candidates explodes. The method becomes powerful when knowledge is pushed into one side or the other:</p>
+<ul>
+    <li>A <strong>smart generator</strong> never proposes candidates that are obviously wrong. In ARC, if every train output is twice the width of its input, do not generate programs that keep the width the same.</li>
+    <li>A <strong>smart tester</strong> checks cheap conditions first and remembers what it has already rejected, so the same bad candidate is never examined twice.</li>
+</ul>
+<p>There is a trade-off. Knowledge moved into the generator makes it complicated and possibly wrong (it might never propose the true answer). Knowledge moved into the tester keeps the generator simple but wastes effort on candidates that a little thought would have skipped.</p>
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>People rarely generate blindly. This week's Bennett reading describes Edward Tolman's rats pausing at a fork in a maze and looking down each path before choosing, which Tolman called <em>vicarious trial and error</em>: generating options in imagination and testing them before acting. The McShane reading makes the opposite point: experts mostly do not search at all; they <em>retrieve</em> a solution from structured knowledge. In ARC, people typically consider only a handful of candidate rules per task. Their generators are extraordinarily smart, and modeling that smartness is what the rest of this course is about.</p>
+</div>
+
+
+<h3>Part 2. Generate and Test as State-Space Search</h3>
+<p>Our first mini-agent solves a classic puzzle. Three guards and three prisoners must cross a river in a boat that holds one or two people. On neither bank may prisoners outnumber guards, unless there are no guards on that bank. A <strong>state</strong> records how many guards and prisoners are on the left bank and where the boat is.</p>
+<div class="diagram">
+<svg viewBox="0 0 780 280" style="max-width:760px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="rt" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="320" y="10" width="120" height="34" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="380.0" y="31.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">3G 3P &lt;</text><rect x="40" y="110" width="120" height="34" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="100.0" y="131.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">3G 2P &gt;</text><line x1="380" y1="46" x2="100" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rt)"/><text x="100" y="102" font-size="10.5" text-anchor="middle" fill="#5b6b78">send 1P</text><rect x="190" y="110" width="120" height="34" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="250.0" y="131.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">3G 1P &gt;</text><line x1="380" y1="46" x2="250" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rt)"/><text x="250" y="102" font-size="10.5" text-anchor="middle" fill="#5b6b78">send 2P</text><rect x="340" y="110" width="120" height="34" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="400.0" y="131.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">2G 2P &gt;</text><line x1="380" y1="46" x2="400" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rt)"/><text x="400" y="102" font-size="10.5" text-anchor="middle" fill="#5b6b78">send 1G+1P</text><rect x="490" y="110" width="120" height="34" rx="7" fill="#fde2e2" stroke="#b3261e" stroke-width="1.8"/><text x="550.0" y="131.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">2G 3P &gt;</text><line x1="380" y1="46" x2="550" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rt)"/><text x="550" y="102" font-size="10.5" text-anchor="middle" fill="#5b6b78">send 1G</text><text x="550" y="166" font-size="10.5" text-anchor="middle" fill="#b3261e">prisoners outnumber</text><text x="550" y="180" font-size="10.5" text-anchor="middle" fill="#b3261e">guards: rejected</text><rect x="640" y="110" width="120" height="34" rx="7" fill="#fde2e2" stroke="#b3261e" stroke-width="1.8"/><text x="700.0" y="131.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">1G 3P &gt;</text><line x1="380" y1="46" x2="700" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rt)"/><text x="700" y="102" font-size="10.5" text-anchor="middle" fill="#5b6b78">send 2G</text><text x="700" y="166" font-size="10.5" text-anchor="middle" fill="#b3261e">prisoners outnumber</text><text x="700" y="180" font-size="10.5" text-anchor="middle" fill="#b3261e">guards: rejected</text><rect x="40" y="200" width="120" height="34" rx="7" fill="#f2f5f7" stroke="#9aa5ae" stroke-width="1.8"/><text x="100.0" y="221.4" font-size="12.5" text-anchor="middle" fill="#9aa5ae">3G 3P &lt;</text><line x1="100" y1="146" x2="100" y2="198" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rt)"/><text x="108" y="178" font-size="10.5" text-anchor="start" fill="#1f3b52">1P returns</text><text x="100" y="252" font-size="10.5" text-anchor="middle" fill="#5b6b78">repeated state:</text><text x="100" y="266" font-size="10.5" text-anchor="middle" fill="#5b6b78">a smart tester drops it</text></svg>
+    <div class="diagram-caption">The first level of the state space. Of the five possible boat loads, two lead to illegal states. One legal move followed by its reverse leads straight back to the start, which a smart tester should notice.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">river_agent.py: states and moves</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># A state is (guards on left, prisoners on left, boat on left?)
+START, GOAL = (3, 3, True), (0, 0, False)
+LOADS = [(1, 0), (2, 0), (0, 1), (0, 2), (1, 1)]   # (guards, prisoners) in boat</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">river_agent.py: the generator</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def generate(state):
+    &quot;&quot;&quot;Every successor reachable with one boat trip (no checking).&quot;&quot;&quot;
+    g, p, left = state
+    sign = -1 if left else 1
+    for dg, dp in LOADS:
+        yield (g + sign * dg, p + sign * dp, not left), (dg, dp)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">river_agent.py: the tester</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def legal(state):
+    g, p, _ = state
+    if not (0 &lt;= g &lt;= 3 and 0 &lt;= p &lt;= 3):
+        return False
+    right_g, right_p = 3 - g, 3 - p
+    return (g == 0 or g &gt;= p) and (right_g == 0 or right_g &gt;= right_p)</code>
+</div>
+
+<p>The search loop below is <strong>breadth-first</strong>: it keeps a queue of states to expand and always expands the oldest first, so the first solution it finds uses the fewest crossings. The only difference between the naive and smart versions is one condition: whether the tester rejects states it has seen before.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">river_agent.py: breadth-first generate and test</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def solve(smart):
+    &quot;&quot;&quot;Breadth-first generate and test. A &#x27;smart&#x27; tester also rejects
+    states we have already seen; a naive one only checks legality.&quot;&quot;&quot;
+    frontier, seen, tested = deque([(START, [])]), {START}, 0
+    while frontier:
+        state, path = frontier.popleft()
+        if state == GOAL:
+            return path, tested
+        for nxt, move in generate(state):
+            tested += 1
+            if not legal(nxt) or (smart and nxt in seen):
+                continue
+            seen.add(nxt)
+            frontier.append((nxt, path + [move]))
+        if tested &gt; 100000:
+            return None, tested
+
+for smart in (False, True):
+    path, tested = solve(smart)
+    print(&#x27;smart tester&#x27; if smart else &#x27;naive tester&#x27;, &#x27;-&gt; states tested:&#x27;, tested)
+print(&#x27;solution in&#x27;, len(path), &#x27;crossings:&#x27;, path)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">naive tester -&gt; states tested: 58760
+smart tester -&gt; states tested: 70
+solution in 11 crossings: [(0, 2), (0, 1), (0, 2), (0, 1), (2, 0), (1, 1), (2, 0), (0, 1), (0, 2), (1, 0), (1, 1)]</code>
+</div>
+
+<p>Remembering visited states cut the work from almost 59,000 tested states to 70. That one line of "memory" in the tester is worth more than any amount of speed.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Generate and test on the guards-and-prisoners river crossing.
+# Three guards and three prisoners must cross a river in a boat that holds
+# one or two people. Prisoners may never outnumber guards on either bank
+# (unless no guards are there).
+from collections import deque
+
+# A state is (guards on left, prisoners on left, boat on left?)
+START, GOAL = (3, 3, True), (0, 0, False)
+LOADS = [(1, 0), (2, 0), (0, 1), (0, 2), (1, 1)]   # (guards, prisoners) in boat
+
+def generate(state):
+    """Every successor reachable with one boat trip (no checking)."""
+    g, p, left = state
+    sign = -1 if left else 1
+    for dg, dp in LOADS:
+        yield (g + sign * dg, p + sign * dp, not left), (dg, dp)
+
+def legal(state):
+    g, p, _ = state
+    if not (0 <= g <= 3 and 0 <= p <= 3):
+        return False
+    right_g, right_p = 3 - g, 3 - p
+    return (g == 0 or g >= p) and (right_g == 0 or right_g >= right_p)
+
+def solve(smart):
+    """Breadth-first generate and test. A 'smart' tester also rejects
+    states we have already seen; a naive one only checks legality."""
+    frontier, seen, tested = deque([(START, [])]), {START}, 0
+    while frontier:
+        state, path = frontier.popleft()
+        if state == GOAL:
+            return path, tested
+        for nxt, move in generate(state):
+            tested += 1
+            if not legal(nxt) or (smart and nxt in seen):
+                continue
+            seen.add(nxt)
+            frontier.append((nxt, path + [move]))
+        if tested > 100000:
+            return None, tested
+
+for smart in (False, True):
+    path, tested = solve(smart)
+    print('smart tester' if smart else 'naive tester', '-> states tested:', tested)
+print('solution in', len(path), 'crossings:', path)</script>
+</div>
+
+<p>The same method finds paths. Here the generator yields the open neighbouring cells, and the tester asks "is this the goal?" Breadth-first search guarantees the shortest path:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">maze_agent.py</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Pathfinding as generate and test: breadth-first search on a grid maze.
+from collections import deque
+
+MAZE = [&#x27;S.#.....&#x27;,
+        &#x27;.##.###.&#x27;,
+        &#x27;....#...&#x27;,
+        &#x27;.##.#.#.&#x27;,
+        &#x27;.#..#.#G&#x27;]
+
+def find(ch):
+    for r, row in enumerate(MAZE):
+        if ch in row:
+            return r, row.index(ch)
+
+def neighbours(cell):                          # the generator
+    r, c = cell
+    for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+        nr, nc = r + dr, c + dc
+        if 0 &lt;= nr &lt; len(MAZE) and 0 &lt;= nc &lt; len(MAZE[0]) and MAZE[nr][nc] != &#x27;#&#x27;:
+            yield nr, nc
+
+def bfs(start, goal):
+    frontier, came_from = deque([start]), {start: None}
+    while frontier:
+        cell = frontier.popleft()
+        if cell == goal:                       # the tester
+            path = []
+            while cell:
+                path.append(cell)
+                cell = came_from[cell]
+            return path[::-1], len(came_from)
+        for nxt in neighbours(cell):
+            if nxt not in came_from:
+                came_from[nxt] = cell
+                frontier.append(nxt)
+    return None, len(came_from)
+
+path, explored = bfs(find(&#x27;S&#x27;), find(&#x27;G&#x27;))
+print(f&#x27;path of {len(path) - 1} steps, {explored} cells explored&#x27;)
+for r, row in enumerate(MAZE):
+    print(&#x27;&#x27;.join(&#x27;*&#x27; if (r, c) in path and ch == &#x27;.&#x27; else ch for c, ch in enumerate(row)))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">path of 15 steps, 24 cells explored
+S.#*****
+*##*###*
+****#..*
+.##.#.#*
+.#..#.#G</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 236 148" style="max-width:360px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="rowArrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(30.0,26.0)"><rect x="-1" y="-1" width="178.0" height="112.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="0.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="0.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="0.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="0.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="0.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="22.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="22.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="44.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="44.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="44.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="66.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="66.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="66.0" width="22.0" height="22.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="88.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="88.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="88.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="88.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><text x="88.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">S green, G red, walls grey, BFS path yellow</text></g></svg>
+    <div class="diagram-caption">The maze and the shortest path found by breadth-first search. Next lesson, means-ends analysis uses the distance to the goal to search more selectively.</div>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Searching a Space of Programs</h3>
+<p>For ARC, a candidate solution is a <em>program</em>: a short sequence of grid operations. The generator lists programs, shortest first. The tester runs each program on every train input and compares with the train output. Here are 19 primitive operations, from flips and rotations to "crop to the largest object" and "let every cell fall":</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_gt.py: primitives</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def crop_all(g):
+    bg = background(g)
+    cells = [(r, c) for r, row in enumerate(g) for c, v in enumerate(row) if v != bg]
+    rs, cs = [r for r, _ in cells], [c for _, c in cells]
+    return crop(g, min(rs), min(cs), max(rs), max(cs))
+
+def largest(g):
+    return crop_object(g, max(find_objects(g), key=lambda o: o[&#x27;size&#x27;]))
+
+def smallest(g):
+    return crop_object(g, min(find_objects(g), key=lambda o: o[&#x27;size&#x27;]))
+
+def gravity(g):                     # every non-background cell falls down
+    bg, (h, w) = background(g), dims(g)
+    out = [[bg] * w for _ in range(h)]
+    for c in range(w):
+        col = [g[r][c] for r in range(h) if g[r][c] != bg]
+        for k, v in enumerate(reversed(col)):
+            out[h - 1 - k][c] = v
+    return out
+
+PRIMS = {
+    &#x27;flip_h&#x27;: flip_h, &#x27;flip_v&#x27;: flip_v, &#x27;transpose&#x27;: transpose,
+    &#x27;rot90&#x27;: rotate90, &#x27;rot180&#x27;: rotate180, &#x27;rot270&#x27;: rotate270,
+    &#x27;scale2&#x27;: lambda g: scale(g, 2), &#x27;scale3&#x27;: lambda g: scale(g, 3),
+    &#x27;double_w&#x27;: lambda g: hconcat(g, g), &#x27;double_h&#x27;: lambda g: vconcat(g, g),
+    &#x27;mirror_w&#x27;: lambda g: hconcat(g, flip_h(g)), &#x27;mirror_h&#x27;: lambda g: vconcat(g, flip_v(g)),
+    &#x27;tile3&#x27;: lambda g: vconcat(vconcat(hconcat(hconcat(g, g), g), hconcat(hconcat(g, g), g)),
+                               hconcat(hconcat(g, g), g)),
+    &#x27;left_half&#x27;: lambda g: [r[:len(r) // 2] for r in g],
+    &#x27;top_half&#x27;: lambda g: g[:len(g) // 2],
+    &#x27;crop_all&#x27;: crop_all, &#x27;largest&#x27;: largest, &#x27;smallest&#x27;: smallest,
+    &#x27;gravity&#x27;: gravity,
+}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_gt.py: generator</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def programs(depth=2):
+    &quot;&quot;&quot;Every sequence of up to `depth` primitives, shortest first.&quot;&quot;&quot;
+    for n in range(1, depth + 1):
+        yield from itertools.product(PRIMS, repeat=n)
+
+def run(prog, g):
+    for name in prog:
+        g = PRIMS[name](g)
+    return g</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_gt.py: tester</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def fits(prog, task, smart):
+    &quot;&quot;&quot;Test a program on every train pair. A smart tester checks the cheap
+    thing first: does the first output even have the right size?&quot;&quot;&quot;
+    try:
+        if smart:
+            first = task[&#x27;train&#x27;][0]
+            if dims(run(prog, first[&#x27;input&#x27;])) != dims(first[&#x27;output&#x27;]):
+                return False, &#x27;size&#x27;
+        return all(run(prog, p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;]), &#x27;full&#x27;
+    except Exception:
+        return False, &#x27;error&#x27;
+
+def solve(task, smart=True):
+    full_checks = 0
+    for prog in programs():
+        ok, how = fits(prog, task, smart)
+        full_checks += how == &#x27;full&#x27;
+        if ok:
+            return prog, full_checks
+    return None, full_checks</code>
+</div>
+
+<p>The smart tester checks one cheap thing before running a program on every pair: does the program produce an output of the right <em>size</em> for the first pair? On task <code class="code-lesson-il">28bf18c6</code> (crop the object, then place two copies side by side):</p>
+<div class="diagram">
+<svg viewBox="0 0 530 216" style="max-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr_28bf18c6" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(34.0,26.0)"><rect x="-1" y="-1" width="92.0" height="92.0" fill="#555"/><rect x="0.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="11.2" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="11.2" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="22.5" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="33.8" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="33.8" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="33.8" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="45.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 1</text></g><line x1="79.0" y1="124.0" x2="79.0" y2="152.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_28bf18c6)"/><g transform="translate(45.2,162.0)"><rect x="-1" y="-1" width="69.5" height="35.8" fill="#555"/><rect x="0.0" y="0.0" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="0.0" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="0.0" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="0.0" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="11.2" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="11.2" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.5" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="22.5" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="22.5" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="22.5" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="22.5" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="22.5" width="11.2" height="11.2" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/></g><g transform="translate(158.0,26.0)"><rect x="-1" y="-1" width="92.0" height="92.0" fill="#555"/><rect x="0.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="56.2" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="67.5" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="67.5" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="67.5" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="78.8" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="78.8" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="45.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 2</text></g><line x1="203.0" y1="124.0" x2="203.0" y2="152.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_28bf18c6)"/><g transform="translate(169.2,162.0)"><rect x="-1" y="-1" width="69.5" height="35.8" fill="#555"/><rect x="0.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="0.0" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="0.0" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.2" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="11.2" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="11.2" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="11.2" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="11.2" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="11.2" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.5" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="22.5" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="22.5" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="22.5" width="11.2" height="11.2" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(282.0,26.0)"><rect x="-1" y="-1" width="92.0" height="92.0" fill="#555"/><rect x="0.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="11.2" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="11.2" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="22.5" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="33.8" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="45.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 3</text></g><line x1="327.0" y1="124.0" x2="327.0" y2="152.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_28bf18c6)"/><g transform="translate(293.2,162.0)"><rect x="-1" y="-1" width="69.5" height="35.8" fill="#555"/><rect x="0.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="0.0" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="0.0" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="0.0" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="0.0" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.2" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="11.2" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="22.5" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="22.5" width="11.2" height="11.2" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(406.0,26.0)"><rect x="-1" y="-1" width="92.0" height="92.0" fill="#555"/><rect x="0.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="0.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="11.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="22.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="33.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="45.0" width="11.2" height="11.2" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="45.0" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="56.2" width="11.2" height="11.2" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="56.2" width="11.2" height="11.2" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="56.2" width="11.2" height="11.2" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="56.2" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="67.5" width="11.2" height="11.2" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="67.5" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="11.2" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.5" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="33.8" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="45.0" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="56.2" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="67.5" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="78.8" y="78.8" width="11.2" height="11.2" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="45.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">test</text></g><line x1="451.0" y1="124.0" x2="451.0" y2="152.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_28bf18c6)"/><rect x="431.0" y="162.0" width="40.0" height="40.0" rx="4" fill="#fff" stroke="#7a4f9a" stroke-width="2" stroke-dasharray="5,4"/><text x="451.0" y="191.0" font-size="26" text-anchor="middle" fill="#7a4f9a">?</text></svg>
+    <div class="diagram-caption">Task 28bf18c6.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_gt_demo.py</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">from arc_utils import load_task
+from arc_gt import solve
+
+task = load_task(&#x27;data/training/28bf18c6.json&#x27;)
+for smart in (False, True):
+    prog, checks = solve(task, smart)
+    print(&#x27;smart&#x27; if smart else &#x27;naive&#x27;, &#x27;tester:&#x27;, prog, &#x27;after&#x27;, checks, &#x27;full checks&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">naive tester: (&#x27;crop_all&#x27;, &#x27;double_w&#x27;) after 313 full checks
+smart tester: (&#x27;crop_all&#x27;, &#x27;double_w&#x27;) after 1 full checks</code>
+</div>
+
+<p>Now sweep all 400 training tasks with programs of length one or two:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_gt.py: sweep</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    solved, checks = [], 0
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        task = load_task(&#x27;data/training/&#x27; + name)
+        prog, n = solve(task)
+        checks += n
+        if prog and all(run(prog, t[&#x27;input&#x27;]) == t[&#x27;output&#x27;] for t in task[&#x27;test&#x27;]):
+            solved.append((name[:-5], &#x27; then &#x27;.join(prog)))
+    print(f&#x27;{len(PRIMS)} primitives, {sum(1 for _ in programs())} programs per task&#x27;)
+    print(f&#x27;solved {len(solved)} of 400; full checks needed: {checks}&#x27;)
+    for tid, prog in solved:
+        print(f&#x27;  {tid}: {prog}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">19 primitives, 380 programs per task
+solved 28 of 400; full checks needed: 16649
+  1c786137: largest then crop_all
+  1cf80156: crop_all
+  1e0a9b12: gravity
+  1f85a75f: largest
+  23b5c85d: smallest
+  28bf18c6: crop_all then double_w
+  3af2c5a8: mirror_w then mirror_h
+  3c9b0459: rot180
+  496994bd: top_half then mirror_h
+  4c4377d9: flip_v then mirror_h
+  6150a2bd: rot180
+  62c24649: mirror_w then mirror_h
+  67a3c6ac: flip_h
+  67e8384a: mirror_w then mirror_h
+  68b16354: flip_v
+  6d0aefbc: mirror_w
+  6fa7a44f: mirror_h
+  7468f01a: flip_h then crop_all
+  74dd1130: transpose
+  8be77c9e: mirror_h
+  9172f3a0: scale3
+  9dfd6313: transpose
+  a416b8f3: double_w
+  be94b721: largest
+  c59eb873: scale2
+  c9e6f938: mirror_w
+  ed36ccf7: rot270
+  f25fbde4: scale2 then crop_all</code>
+</div>
+
+<p>From 7 tasks (last week's eight symmetries) to 28, with no task-specific knowledge at all. Every one of those answers comes with a readable explanation: the program itself. But notice the cost. With 19 primitives there are 380 programs of length two and 6,859 of length three, and real ARC tasks often need longer programs with parameters (which colour? which object?). Blind generation runs out of steam quickly. The rest of the term is about making the generator smarter.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Generate and test splits the <strong>Decider</strong> (the generator) from the <strong>Monitor</strong> (the tester). The visited-state set is a small piece of working <strong>Memory</strong> that serves the Monitor. Most improvements to your ARC agent this term will be improvements to one of these two halves.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>Where in the ARC program search would you add knowledge: the generator or the tester? Give one concrete example of each.</li><li>The program search found <code class="code-lesson-il">largest then crop_all</code> for task 1c786137. Is that a sensible explanation of the task, or a lucky accident? How could an agent tell the difference?</li><li>Tolman's rats and McShane's experts sit at opposite ends of a spectrum: simulate-and-test versus retrieve. Where are you when you solve an ARC task?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Explain generate and test and the roles of smart generators and smart testers.</li><li>Represent a puzzle as states and moves and search it breadth-first.</li><li>Explain why remembering visited states matters so much.</li><li>Describe ARC program search as generate and test, and estimate how the number of programs grows with length.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Change the river puzzle to four guards and four prisoners with a boat of two. Is there still a solution? What does the search report?</li><li>Add <code class="code-lesson-il">rot90</code>-then-<code class="code-lesson-il">double_w</code> style primitives of your own (for example <code class="code-lesson-il">mirror_both</code>) and rerun the sweep.</li></ol><h3>Intermediate</h3>
+<ol><li>Make the ARC tester check <em>every</em> train pair's output size before checking any cells. How many full checks does the sweep need now?</li><li>Add a parameterized primitive <code class="code-lesson-il">recolor(a, b)</code> where the agent infers <code class="code-lesson-il">a</code> and <code class="code-lesson-il">b</code> from the first train pair before testing it on the rest.</li></ol><h3>Advanced</h3>
+<ol><li>Allow programs of length three, but only generate a length-three program if its first two steps produce a grid whose size could still lead to the right output size. Measure the speedup and the new score.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Merge program search into your agent's Decider. Use last week's TaskFrame invariants to make the generator smarter, and report the before-and-after numbers.</li></ol></section>
+
+
+    </body>
+</html>

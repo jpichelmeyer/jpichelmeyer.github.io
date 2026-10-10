@@ -16,6 +16,7 @@
 
     <body>
         <p>Real sensor readings are never perfectly steady. Before a reading can be used to decide anything, you need to know how to quiet it without making it slow. This lesson covers where noise comes from, how averaging reduces it, and the three filters you will use all term: the moving average, the exponential moving average and the median.</p>
+        <p><strong>SAM lens.</strong> Filters are the Perceptor's last stage before a percept is trusted, and the EMA and moving average are also the robot's first Memory: each output depends on the history of inputs, not just the latest one.</p>
 
 <h3>Part 1. Where Noise Comes From</h3>
 <p>Hold a sensor perfectly still and its readings still wander. <strong>Noise</strong> is the small random variation on top of the true value, and it comes from many places: the sensor itself, ripple on the power supply, the converter rounding to the nearest step, and electrical interference from wires, motors and the radio. A WiFi chip transmitting a few centimetres from your analog pin is a real noise source on the Pico W.</p>
@@ -128,7 +129,7 @@ print([f.update(x) for x in (10, 11, 90, 12, 11, 10)])   # [10, 11, 11, 12, 11, 
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: How Much Quieter?.</strong> A raw reading has noise of 12 counts. You average 16 readings. What noise is left? How many readings would you need to bring it below 2 counts?</p>
+        <p><strong>Exercise 1: How Much Quieter?</strong> A raw reading has noise of 12 counts. You average 16 readings. What noise is left? How many readings would you need to bring it below 2 counts?</p>
         <p><strong>Exercise 2: Do an EMA by Hand.</strong> With alpha = 0.25, the output so far is 100 and the next two readings are 140 and 140. What are the next two outputs?</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: The Integer EMA.</strong> Run <span class="code-lesson-il">ema_int</span> with shift = 3 (alpha = 1/8) from y = 1000 on the readings 1080, 1080, 1080, 1000 and give each output. Why must the shift be used with whole numbers only?</p>
@@ -179,6 +180,78 @@ out = [clean(x) for x in [50, 50, 50, 50, 150, 50, 50, 50]]
 print([round(v, 1) for v in out])      # [50, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
 </span>
 </div><p>The spike enters the median window at the fifth reading but is never the middle value, so the EMA sees only 50s. Swap the order of the two filters and the spike drags the output up by 20 and lingers.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Smoothness and Lag.</strong> Every filter trades two things against each other. Name them.</p>
+        <p><strong>P2. The Square-Root Rule.</strong> Averaging N independent readings reduces random noise by what factor?</p>
+        <p><strong>P3. Median's Job.</strong> Which filter removes isolated spikes without smearing them, and why?</p>
+        <p><strong>P4. Filter Order.</strong> When combining a median and an EMA, which comes first, and why?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. How Many to Average.</strong> A sensor has noise of 8 counts. How much noise remains after averaging 16 readings? How many readings are needed to get to 1 count?</p>
+        <p><strong>P6. EMA Trace.</strong> An EMA with α = 0.5 receives 0, 10, 10, 10 (it starts from the first reading). Give its four outputs.</p>
+        <p><strong>P7. Moving Average Trace.</strong> A moving average of length 4 receives 4, 8, 12, 16, 20. What are its outputs once the window is full?</p>
+        <p><strong>P8. Median Trace.</strong> The <span class="code-lesson-il">Median(5)</span> class receives 10, 10, 50, 10, 11, 12 (it reports the middle of whatever it holds while filling). Give its six outputs.</p>
+        <p><strong>P9. EMA Settling.</strong> An EMA with α = 0.2 sees a clean step from 0 to 1. After n samples its output is 1 − 0.8^n. How many samples until it passes 90 % of the step?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P10. Spike in an Average.</strong> An 8-sample moving average receives one spike of +2.0 on a steady signal. What does the spike do to the outputs? What would a 5-sample median do?</p>
+        <p><strong>P11. Choose a Filter.</strong> An LDR is sampled at 100 Hz. You need the noise reduced about three times, and the robot must respond to a real change within 100 ms. Propose a filter and check it against both requirements.</p>
+        <p><strong>P12. Integers or Floats.</strong> Why does the lesson recommend integer arithmetic for the running total of a moving average?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Smoothness and Lag</summary>
+<p>Smoothness (less noise) and lag (slower response to real changes).</p>
+        </details>
+        <details>
+        <summary>P2. The Square-Root Rule</summary>
+<p>By √N.</p>
+        </details>
+        <details>
+        <summary>P3. Median's Job</summary>
+<p>The median filter: a lone outlier is never the middle value of the window, so it never reaches the output.</p>
+        </details>
+        <details>
+        <summary>P4. Filter Order</summary>
+<p>The median first: if the EMA ran first it would already have smeared the spike over several outputs, and the median could no longer remove it.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. How Many to Average</summary>
+<p>8 / √16 = 2 counts. To reach 1 count you need √N = 8, so N = 64.</p>
+        </details>
+        <details>
+        <summary>P6. EMA Trace</summary>
+<p>0, 5, 7.5, 8.75.</p>
+        </details>
+        <details>
+        <summary>P7. Moving Average Trace</summary>
+<p>After the fourth reading: (4 + 8 + 12 + 16) / 4 = 10. After the fifth: (8 + 12 + 16 + 20) / 4 = 14.</p>
+        </details>
+        <details>
+        <summary>P8. Median Trace</summary>
+<p>[10] → 10; [10, 10] → 10; [10, 10, 50] → 10; [10, 10, 50, 10] → 10; [10, 10, 50, 10, 11] → 10; [10, 50, 10, 11, 12] → 11. The spike of 50 never appears.</p>
+        </details>
+        <details>
+        <summary>P9. EMA Settling</summary>
+<p>0.8^n &lt; 0.1 needs n &gt; ln 0.1 / ln 0.8 = 10.3, so 11 samples, matching the lesson's comparison.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P10. Spike in an Average</summary>
+<p>It adds 2.0 / 8 = 0.25 to eight consecutive outputs. The median ignores it completely.</p>
+        </details>
+        <details>
+        <summary>P11. Choose a Filter</summary>
+<p>A moving average of 9 (√9 = 3, three times less noise). Its average delay is about (9 − 1)/2 = 4 samples = 40 ms, and it fully reflects a step after 9 samples = 90 ms, within 100 ms. An EMA with α ≈ 0.2 is a similar choice.</p>
+        </details>
+        <details>
+        <summary>P12. Integers or Floats</summary>
+<p>A running total of floats accumulates rounding error, because each add and subtract rounds slightly differently; over a long run the total drifts from the true sum of the window. Integer ADC counts add and subtract exactly.</p>
         </details>
 
         <h3>Checkpoint</h3>

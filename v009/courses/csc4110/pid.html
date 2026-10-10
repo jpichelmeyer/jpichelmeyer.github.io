@@ -16,6 +16,7 @@
 
     <body>
         <p>Until now, outputs were set by rules: if dark, switch on. But sometimes you want an output to hold a quantity at a target, such as a light level, a temperature or a speed, even as conditions change. Feedback control does that: measure, compare with the target, adjust, repeat. The most widely used recipe for the adjusting step is the PID controller.</p>
+        <p><strong>SAM lens.</strong> PID is a Decider with Memory: the integral term remembers accumulated error, and the derivative term remembers the last measurement. The loop closes through the environment: the Actuator changes what the Perceptor measures next.</p>
 
 
 <h3>Part 1. The Feedback Loop</h3>
@@ -113,7 +114,7 @@ print(round(simulate((2.0, 4.0, 0.2))[-1], 2))      # 0.3: PID reaches the targe
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: One Update by Hand.</strong> Kp = 2, Ki = 4, Kd = 0.2, dt = 0.05 s. The setpoint is 0.30, the measurement 0.20 (it was 0.18 a step ago) and the stored integral is 0.10. Compute the output.</p>
-        <p><strong>Exercise 2: Which Gain?.</strong> For each symptom, say which gain to change and which way: (a) it settles short of the target, (b) it overshoots and rings, (c) it is slow to approach the target.</p>
+        <p><strong>Exercise 2: Which Gain?</strong> For each symptom, say which gain to change and which way: (a) it settles short of the target, (b) it overshoots and rings, (c) it is slow to approach the target.</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: Check the Simulation.</strong> Run the simulator with P-only, PI and PID gains and report the final value and the peak for each.</p>
         <h4>Advanced</h4>
@@ -178,6 +179,78 @@ def settle_time(pid):
 print(settle_time(PID(2.0, 4.0, 0.2)), settle_time(NaivePID(2.0, 4.0, 0.2)))   # about 2.1 and 3.6 seconds
 </span>
 </div><p>Only one line differs between the two controllers, and it makes the recovery more than a second and a half slower. This is a good example of a defect that only appears when the output saturates, which is why you test saturation deliberately.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Loop Vocabulary.</strong> Define setpoint, measurement and error in a feedback loop.</p>
+        <p><strong>P2. Three Terms.</strong> In one phrase each, what do P, I and D act on?</p>
+        <p><strong>P3. Windup.</strong> What is integral windup, and what is the fix used in the lesson's <span class="code-lesson-il">PID</span> class?</p>
+        <p><strong>P4. Derivative on Measurement.</strong> Why does the lesson take the derivative on the measurement rather than on the error?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. P-Only Gap.</strong> A plant has gain 1 (output u gives measurement u at steady state). With P-only control, the steady measurement is Kp / (1 + Kp) × setpoint. For a setpoint of 0.30, what does Kp = 2 give? Kp = 4?</p>
+        <p><strong>P6. One Update.</strong> Kp = 1.5, Ki = 4, Kd = 0, output limits 0 to 1. The integral holds 0.10. Setpoint 0.5, measurement 0.3, dt = 0.05 s. Compute the output and the new integral.</p>
+        <p><strong>P7. Saturated Update.</strong> The same, but the integral holds 0.90. What is the output, and what happens to the integral?</p>
+        <p><strong>P8. Simulate a Plant.</strong> A plant follows y ← y + (dt/τ)(u − y) with τ = 1 s and dt = 0.1 s. P-only with Kp = 1 and setpoint 1, starting at y = 0. Compute y after three steps, and the value it settles to.</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Wrong Sign.</strong> In the LED and LDR loop, a student puts the LDR at the bottom of the divider. The LED goes to full brightness and stays there. Explain.</p>
+        <p><strong>P10. Wrong dt.</strong> A loop runs at 20 Hz but the code always passes dt = 0.01 s. What happens to the I and D terms?</p>
+        <p><strong>P11. Tuning Order.</strong> Describe a safe procedure for tuning a PID on real hardware.</p>
+        <p><strong>P12. Heater by Relay.</strong> A heater is switched by a relay, and the room responds over minutes. Would you use PID with PWM on the relay, or on-off control with hysteresis? Justify.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Loop Vocabulary</summary>
+<p>Setpoint: the value you want. Measurement: what the sensor reports you have. Error: setpoint minus measurement.</p>
+        </details>
+        <details>
+        <summary>P2. Three Terms</summary>
+<p>P: the error now. I: the error accumulated over time. D: how fast the measurement is changing.</p>
+        </details>
+        <details>
+        <summary>P3. Windup</summary>
+<p>While the output is saturated the integral keeps growing far beyond what the output can use, so when the target becomes reachable the stored value keeps the output pinned and causes a long overshoot. The fix: only accept the new integral when the output is inside its limits.</p>
+        </details>
+        <details>
+        <summary>P4. Derivative on Measurement</summary>
+<p>A sudden change of setpoint would make the error jump, and its derivative would be a huge spike in the output. The measurement changes smoothly, so its derivative does not.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. P-Only Gap</summary>
+<p>Kp = 2: 2/3 × 0.30 = 0.20 (error 0.10), matching the lesson. Kp = 4: 4/5 × 0.30 = 0.24 (error 0.06). The gap shrinks but never vanishes.</p>
+        </details>
+        <details>
+        <summary>P6. One Update</summary>
+<p>Error 0.2. New integral 0.10 + 4 × 0.2 × 0.05 = 0.14. Output 1.5 × 0.2 + 0.14 = 0.44, inside the limits, so the integral becomes 0.14.</p>
+        </details>
+        <details>
+        <summary>P7. Saturated Update</summary>
+<p>New integral would be 0.94; output 0.3 + 0.94 = 1.24, above the limit, so the output is 1.0 and the integral stays at 0.90 (not accepted).</p>
+        </details>
+        <details>
+        <summary>P8. Simulate a Plant</summary>
+<p>Step 1: u = 1, y = 0.1. Step 2: u = 0.9, y = 0.1 + 0.1 × 0.8 = 0.18. Step 3: u = 0.82, y = 0.18 + 0.1 × 0.64 = 0.244. It settles at Kp/(1 + Kp) = 0.5.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Wrong Sign</summary>
+<p>With the LDR at the bottom, more light gives a lower reading. More LED now lowers the measurement, so the error grows, the controller raises the LED further: positive feedback. The output saturates at full. Swap the divider or invert the measurement.</p>
+        </details>
+        <details>
+        <summary>P10. Wrong dt</summary>
+<p>The real dt is 0.05 s. The integral grows 5 times too slowly (I effectively 5 times weaker) and the derivative is 5 times too large (D effectively 5 times stronger, amplifying noise).</p>
+        </details>
+        <details>
+        <summary>P11. Tuning Order</summary>
+<p>Start with I = D = 0 and a small P; raise P until the response is quick but not oscillating; add I gradually until the steady error disappears without too much overshoot; add a little D only if overshoot needs trimming and the sensor is clean. Change one gain at a time, test with a setpoint step and with a disturbance, and record each result.</p>
+        </details>
+        <details>
+        <summary>P12. Heater by Relay</summary>
+<p>On-off with hysteresis: a relay must not switch rapidly (it wears and clicks), and the slow room smooths the on-off switching anyway. A PID would need slow time-proportioning (for example a cycle of tens of seconds) to be relay-friendly.</p>
         </details>
 
         <h3>Checkpoint</h3>

@@ -16,6 +16,7 @@
 
     <body>
         <p>The sampling rate you choose decides what you can and cannot know about a signal. This lesson covers sampling at a steady rate, why the Nyquist limit exists, what aliasing looks like when you break it, and how to check that your loop and your data budget can keep up.</p>
+        <p><strong>SAM lens.</strong> Sampling decides what the Perceptor can know at all: a signal that is sampled too slowly reaches the Decider as a convincing lie (an alias). The time budget of each sample is also the first appearance of the loop budget from Week 1.</p>
 
 <h3>Part 1. Sampling</h3>
 <p>An ADC reading is one snapshot. To follow a signal you take snapshots repeatedly, at a steady rate. The rate is the <strong>sampling frequency</strong> <em>f_s</em> in samples per second (hertz), and the time between snapshots is the <strong>sample period</strong> <em>T_s</em> = 1 / <em>f_s</em>. A light sensor read 100 times a second has <em>T_s</em> = 10 ms.</p>
@@ -123,7 +124,7 @@ def profile(fn, n=200):
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: What Do You See?.</strong> A vibration at 7 Hz is sampled at 10 Hz. What frequency do you see in the data? Is that a safe measurement?</p>
+        <p><strong>Exercise 1: What Do You See?</strong> A vibration at 7 Hz is sampled at 10 Hz. What frequency do you see in the data? Is that a safe measurement?</p>
         <p><strong>Exercise 2: Choose a Rate.</strong> A motor vibrates at up to 40 Hz and you want to see its shape, not just detect it. What is the theoretical minimum sampling rate, and what would you actually choose?</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: The Budget.</strong> You sample 3 analog channels, 2 bytes each, at 250 Hz. How many bytes per second does that produce, and how long is the period? If reading, filtering and formatting take 1.8 ms in the worst case, how much slack is left?</p>
@@ -165,6 +166,78 @@ def fake_work():
 print(profile(fake_work, 200))               # (3000, 6000): average 3 ms, worst 6 ms
 </span>
 </div><p>The average (3000 µs) looks comfortable against a 4 ms period, but the worst case (6000 µs) is an overrun. Reporting both numbers is what exposes it.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Period and Rate.</strong> What is the sample period for 250 Hz sampling? What rate gives a 40 ms period?</p>
+        <p><strong>P2. Nyquist Frequency.</strong> State the sampling rule in one inequality, and give the Nyquist frequency for 50 Hz sampling.</p>
+        <p><strong>P3. What an Alias Is.</strong> In one or two sentences: what is an alias, and why is it dangerous?</p>
+        <p><strong>P4. Three Defences.</strong> Name three defences against aliasing.</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Alias Arithmetic.</strong> Sampling at 20 Hz, what frequency appears for a true signal of (a) 8 Hz, (b) 18 Hz, (c) 33 Hz?</p>
+        <p><strong>P6. Mains Flicker.</strong> A lamp on US mains flickers at 120 Hz. You sample its light at 50 Hz. What frequency do you see in the data?</p>
+        <p><strong>P7. Slow Loop.</strong> A loop does <span class="code-lesson-il">read(); sleep_ms(10)</span>, and the read and processing take 1.3 ms. What is the real sampling rate?</p>
+        <p><strong>P8. Data Budget.</strong> Three channels of 2 bytes each are sampled at 200 Hz. What is the data rate? If each sample is sent as a 60-byte JSON message, what is the message byte rate?</p>
+        <p><strong>P9. Deadline Scheduler.</strong> A deadline-based sampler has a 10 ms period. The work for samples 0 to 4 takes 3, 3, 14, 3, 3 ms. Sample 0 starts at t = 0. How many overruns are counted, and is sample 4 on time?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P10. Pick a Rate.</strong> A motor's vibration has its strongest component at 4 Hz. What is the bare minimum sampling rate, and what rate would you actually choose? Justify.</p>
+        <p><strong>P11. Detect an Alias.</strong> A student samples a signal at 10 Hz and reports a clean 1 Hz oscillation. How could they test, without new hardware, whether it is real or an alias?</p>
+        <p><strong>P12. Worst-Case Budget.</strong> Per sample: read 0.4 ms, filter 0.2 ms, format 1.5 ms (worst 4 ms), publish 0.5 ms (worst 6 ms), in a 10 ms period. Does it fit on average? In the worst case? Propose a fix that keeps 100 Hz sampling.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Period and Rate</summary>
+<p>4 ms; 25 Hz.</p>
+        </details>
+        <details>
+        <summary>P2. Nyquist Frequency</summary>
+<p>f_s &gt; 2 × f_max. Nyquist frequency = f_s / 2 = 25 Hz.</p>
+        </details>
+        <details>
+        <summary>P3. What an Alias Is</summary>
+<p>A frequency above the Nyquist frequency that appears in the samples as a lower frequency that is not really there. It is dangerous because the sampled data look perfectly normal; nothing reveals the error.</p>
+        </details>
+        <details>
+        <summary>P4. Three Defences</summary>
+<p>Sample fast enough (5 to 10 times the fastest change, not the bare 2 times); filter out high frequencies before sampling (an analog low-pass RC filter); oversample and average.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Alias Arithmetic</summary>
+<p>(a) 8 Hz, below Nyquist (10 Hz), correct. (b) 18 Hz folds to 20 − 18 = 2 Hz. (c) 33 mod 20 = 13, which is above 10, so it folds to 20 − 13 = 7 Hz.</p>
+        </details>
+        <details>
+        <summary>P6. Mains Flicker</summary>
+<p>120 mod 50 = 20 Hz, which is below the 25 Hz Nyquist frequency, so a 20 Hz oscillation appears that the room does not have.</p>
+        </details>
+        <details>
+        <summary>P7. Slow Loop</summary>
+<p>Period 11.3 ms, so 88.5 Hz, not 100 Hz.</p>
+        </details>
+        <details>
+        <summary>P8. Data Budget</summary>
+<p>3 × 2 × 200 = 1200 B/s raw; 60 × 200 = 12 000 B/s as JSON.</p>
+        </details>
+        <details>
+        <summary>P9. Deadline Scheduler</summary>
+<p>Sample 2 starts at 20 and ends at 34, past sample 3's deadline of 30: one overrun, and sample 3 runs late (34 to 37). Sample 4's deadline is 40, computed from the previous deadline, not from when sample 3 finished, so it is on time. One overrun.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P10. Pick a Rate</summary>
+<p>Bare minimum: more than 8 Hz. Choose 20 to 40 Hz (5 to 10 times), because real signals contain harmonics above 4 Hz and the sampler is never perfectly even.</p>
+        </details>
+        <details>
+        <summary>P11. Detect an Alias</summary>
+<p>Change the sampling rate (for example to 13 Hz or 30 Hz). A real 1 Hz signal stays at 1 Hz; an alias moves (a 9 Hz signal would appear at 4 Hz with 13 Hz sampling, and at 9 Hz with 30 Hz sampling).</p>
+        </details>
+        <details>
+        <summary>P12. Worst-Case Budget</summary>
+<p>Average 2.6 ms: fits. Worst 0.4 + 0.2 + 4 + 6 = 10.6 ms: overruns. Fix: keep sampling and filtering every 10 ms, but format and publish a summary only every 10th sample (or spread formatting and publishing over different ticks).</p>
         </details>
 
         <h3>Checkpoint</h3>

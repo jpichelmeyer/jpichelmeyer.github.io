@@ -15,17 +15,18 @@
     </head>
 
     <body>
-        <p>Lab 5 puts the first week of Unit 2 together. You configure and run your own Mosquitto broker with an access list, measure the WiFi and TCP behavior of your link at three places, publish one sensor sample in three encodings, count the bytes that arrive, and measure the round-trip time of a message.</p>
+        <p>Lab 5 puts the first week of Unit 2 together. You configure and run your own Mosquitto broker on your laptop with an access list, point your Pico at it, publish an IMU sample as JSON, check on the laptop that every message arrived, and measure how long a message takes to go to the broker and back.</p>
+        <p><strong>SAM lens.</strong> your broker is the environment your robot will act on and perceive through for the rest of the term. Here you measure that environment: what arrives, what goes missing, and how long a message takes.</p>
 
 <h3>What You Will Build</h3>
-<p>You will run your own broker, put numbers on every layer between your Pico and it, and measure how three encodings of one sensor behave on a real network. By the end you will have a node that publishes the same IMU sample as JSON, CSV and binary to a broker you configured yourself, a laptop program that reports what arrived, and a table of measurements that you will use again in Labs 6 to 8.</p>
+<p>You will run your own broker and use it as your sandbox for the rest of the term: anything you can test at home, you test here before bringing it to the class hub. By the end you will have a node that publishes IMU samples as JSON to a broker you configured yourself, a laptop program that counts what arrived and what went missing, and a round-trip measurement you will use again in Lab 6 and in Week 14.</p>
         <div class="diagram">
-<svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="100" width="150" height="80" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="95" y="135.6" font-size="16" fill="#1f3b52" text-anchor="middle">Pico</text><text x="95" y="155.6" font-size="16" fill="#1f3b52" text-anchor="middle">Lab 5 node</text><rect x="300" y="100" width="160" height="80" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="135.6" font-size="16" fill="#1f3b52" text-anchor="middle">Mosquitto</text><text x="380" y="155.6" font-size="16" fill="#1f3b52" text-anchor="middle">on your laptop</text><rect x="590" y="30" width="150" height="60" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="665" y="55.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">size_report.py</text><text x="665" y="75.1125" font-size="15.5" fill="#1f3b52" text-anchor="middle">(laptop)</text><rect x="590" y="110" width="150" height="60" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="665" y="135.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">mosquitto_sub</text><text x="665" y="155.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">(you, watching)</text><rect x="590" y="190" width="150" height="60" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="665" y="215.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">second user</text><text x="665" y="235.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">(ACL test)</text><line x1="179" y1="140" x2="291" y2="140" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="300.0,140.0 289.0,134.5 289.0,145.5" fill="#1f3b52"/><polygon points="170.0,140.0 181.0,145.5 181.0,134.5" fill="#1f3b52"/><line x1="460" y1="140" x2="582.335" y2="64.7169" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="590.0,60.0 577.7,61.1 583.5,70.4" fill="#1f3b52"/><line x1="460" y1="140" x2="581" y2="140" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="590.0,140.0 579.0,134.5 579.0,145.5" fill="#1f3b52"/><line x1="460" y1="140" x2="582.335" y2="215.283" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="590.0,220.0 583.5,209.6 577.7,218.9" fill="#1f3b52"/><text x="235" y="126" font-size="14.5" fill="#5b6b78" text-anchor="middle">WiFi + TCP</text><text x="60" y="220" font-size="14.5" fill="#5b6b78" text-anchor="start">imu_json  imu_csv  imu_bin</text><text x="60" y="244" font-size="14.5" fill="#5b6b78" text-anchor="start">echo (round trip)</text></svg>
+<svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="100" width="150" height="80" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="95" y="135.6" font-size="16" fill="#1f3b52" text-anchor="middle">Pico</text><text x="95" y="155.6" font-size="16" fill="#1f3b52" text-anchor="middle">Lab 5 node</text><rect x="300" y="100" width="160" height="80" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="380" y="135.6" font-size="16" fill="#1f3b52" text-anchor="middle">Mosquitto</text><text x="380" y="155.6" font-size="16" fill="#1f3b52" text-anchor="middle">on your laptop</text><rect x="590" y="30" width="150" height="60" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="665" y="55.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">seq_check.py</text><text x="665" y="75.1125" font-size="15.5" fill="#1f3b52" text-anchor="middle">(laptop)</text><rect x="590" y="110" width="150" height="60" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="665" y="135.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">mosquitto_sub</text><text x="665" y="155.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">(you, watching)</text><rect x="590" y="190" width="150" height="60" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="665" y="215.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">second user</text><text x="665" y="235.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">(ACL test)</text><line x1="179" y1="140" x2="291" y2="140" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="300.0,140.0 289.0,134.5 289.0,145.5" fill="#1f3b52"/><polygon points="170.0,140.0 181.0,145.5 181.0,134.5" fill="#1f3b52"/><line x1="460" y1="140" x2="582.335" y2="64.7169" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="590.0,60.0 577.7,61.1 583.5,70.4" fill="#1f3b52"/><line x1="460" y1="140" x2="581" y2="140" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="590.0,140.0 579.0,134.5 579.0,145.5" fill="#1f3b52"/><line x1="460" y1="140" x2="582.335" y2="215.283" stroke="#1f3b52" stroke-width="2.2" stroke-linecap="round"/><polygon points="590.0,220.0 583.5,209.6 577.7,218.9" fill="#1f3b52"/><text x="235" y="126" font-size="14.5" fill="#5b6b78" text-anchor="middle">WiFi + TCP</text><text x="60" y="220" font-size="14.5" fill="#5b6b78" text-anchor="start">tele/imu (JSON)</text><text x="60" y="244" font-size="14.5" fill="#5b6b78" text-anchor="start">echo (round trip)</text></svg>
             <div class="diagram-caption">The Lab 5 setup. The only thing that differs from the class hub is that you own the configuration, which lets you break the access list on purpose and see what happens.</div>
         </div>
 
 <h3>Step 1. Your Own Broker</h3>
-<p>Install Mosquitto and its tools on your laptop (the Mosquitto lesson has the commands). In a new folder, create three small files, set the passwords, and start the broker in the foreground with <span class="code-lesson-il">-v</span> so that every connect and publish is printed.</p>
+<p>Install Mosquitto and its tools on your laptop (the MQTT lesson has the commands). In a new folder, create three small files, set the passwords, and start the broker in the foreground with <span class="code-lesson-il">-v</span> so that every connect and publish is printed.</p>
 <div class="code-block" data-lang="conf">
 <div class="code-block-header">
 <span class="code-block-filename">lab5.conf</span>
@@ -65,88 +66,26 @@ mosquitto_passwd passwd partner       # a second user, to test the access list
 <span class="code-lesson-bl">mosquitto -c lab5.conf -v
 </span>
 </div>
-<p>Test it from a second terminal before involving the Pico: subscribe as one user to <span class="code-lesson-il">lab/#</span>, publish as another to <span class="code-lesson-il">lab/you/test</span>, and see the message arrive. Find your laptop’s address on the WiFi network (<span class="code-lesson-il">ipconfig</span> or <span class="code-lesson-il">ip addr</span>) and put it in <span class="code-lesson-il">config.py</span> as <span class="code-lesson-il">BROKER</span>; the other fields stay as they were except for your new user name and password. Your laptop’s firewall may block port 1883; allow it for the private network.</p>
-<h3>Step 2. Measure the Link</h3>
-<p>Run the scan from the TCP lesson in three places: next to the access point, where you normally work, and as far away as the room allows. Then run the TCP echo test from the same lesson against your laptop (run <span class="code-lesson-il">echo_server.py</span> there; note that it uses port 9000 and does not need the broker). Call <span class="code-lesson-il">ask()</span> ten times and record the connect time and the round-trip time each time.</p>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">scan.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">import network
-from time import sleep_ms
-
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-
-def scan():
-    """Print every 2.4 GHz network the Pico can hear, strongest first."""
-    nets = wlan.scan()                       # (ssid, bssid, channel, rssi, security, hidden)
-    nets.sort(key=lambda n: -n[3])
-    for ssid, bssid, ch, rssi, sec, hid in nets:
-        print("%-24s ch%-3d %4d dBm" % (ssid.decode(), ch, rssi))
-
-scan()
-</span>
-</div>
-        <div class="diagram">
-<svg viewBox="0 0 760 212" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="190" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="115" y="42.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Place</text><rect x="210" y="14" width="120" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="270" y="42.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">RSSI (dBm)</text><rect x="330" y="14" width="120" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="390" y="42.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">connect ms</text><rect x="450" y="14" width="120" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="510" y="32.875" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">round trip</text><text x="510" y="51.625" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">ms</text><rect x="570" y="14" width="170" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="655" y="42.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">comment</text><rect x="20" y="60" width="190" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="88.25" font-size="15" fill="#1f3b52" text-anchor="start">next to the AP</text><rect x="210" y="60" width="120" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="330" y="60" width="120" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="450" y="60" width="120" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="570" y="60" width="170" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="106" width="190" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="134.25" font-size="15" fill="#1f3b52" text-anchor="start">at my desk</text><rect x="210" y="106" width="120" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="330" y="106" width="120" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="450" y="106" width="120" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="570" y="106" width="170" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="152" width="190" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="180.25" font-size="15" fill="#1f3b52" text-anchor="start">far corner</text><rect x="210" y="152" width="120" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="330" y="152" width="120" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="450" y="152" width="120" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="570" y="152" width="170" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/></svg>
-            <div class="diagram-caption">Table 1 for your report. Take the median of ten calls at each place; the connect time is the TCP handshake, the round trip is send and reply. Expect the numbers to get worse, and noisier, as the signal weakens.</div>
-        </div>
-
+<p>Test it from a second terminal before involving the Pico: subscribe as one user to <span class="code-lesson-il">lab/#</span>, publish as another to <span class="code-lesson-il">lab/you/test</span>, and see the message arrive. Find your laptop’s address on the WiFi network and put it, with the user name and password you just made, on the <span class="code-lesson-il">"home"</span> line of <span class="code-lesson-il">config.py</span> (the two-broker version from the MQTT lesson). Set <span class="code-lesson-il">WHERE = "home"</span>. If the Pico reports NO BROKER, work through the four usual causes in that lesson: the listener line, the firewall, a changed address, or a network that keeps devices apart (a phone hotspot avoids the last one).</p>
 <h3>Step 3. Break the Access List</h3>
-<p>Before you run the Pico, use the two users to confirm the rules of the access list you wrote. For each row of Table 2 write your prediction, then try it with <span class="code-lesson-il">mosquitto_pub</span> and <span class="code-lesson-il">mosquitto_sub</span> and record what you saw on the subscriber and in the broker’s <span class="code-lesson-il">-v</span> output.</p>
+<p>Before you run the Pico, use the two users to confirm the rules of the access list you wrote. For each row of Table 1 write your prediction, then try it with <span class="code-lesson-il">mosquitto_pub</span> and <span class="code-lesson-il">mosquitto_sub</span> and record what you saw on the subscriber and in the broker’s <span class="code-lesson-il">-v</span> output.</p>
         <div class="diagram">
-<svg viewBox="0 0 760 345.5" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="60" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="50" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="80" y="14" width="270" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="215" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Action</text><rect x="350" y="14" width="140" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="420" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Predicted</text><rect x="490" y="14" width="250" height="44" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="615" y="41.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Observed (subscriber, log)</text><rect x="20" y="58" width="60" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="85.25" font-size="15" fill="#1f3b52" text-anchor="middle">1</text><rect x="80" y="58" width="270" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="85.25" font-size="15" fill="#1f3b52" text-anchor="start">you publish to lab/you/x</text><rect x="350" y="58" width="140" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="490" y="58" width="250" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="102" width="60" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="129.25" font-size="15" fill="#1f3b52" text-anchor="middle">2</text><rect x="80" y="102" width="270" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="129.25" font-size="15" fill="#1f3b52" text-anchor="start">you publish to lab/partner/x</text><rect x="350" y="102" width="140" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="490" y="102" width="250" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="146" width="60" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="173.25" font-size="15" fill="#1f3b52" text-anchor="middle">3</text><rect x="80" y="146" width="270" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="173.25" font-size="15" fill="#1f3b52" text-anchor="start">partner subscribes to lab/you/#</text><rect x="350" y="146" width="140" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="490" y="146" width="250" height="44" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="190" width="60" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="217.25" font-size="15" fill="#1f3b52" text-anchor="middle">4</text><rect x="80" y="190" width="270" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="217.25" font-size="15" fill="#1f3b52" text-anchor="start">you subscribe to $SYS/#</text><rect x="350" y="190" width="140" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="490" y="190" width="250" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="234" width="60" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="266" font-size="15" fill="#1f3b52" text-anchor="middle">5</text><rect x="80" y="234" width="270" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="256.625" font-size="15" fill="#1f3b52" text-anchor="start">you publish with a wrong</text><text x="89" y="275.375" font-size="15" fill="#1f3b52" text-anchor="start">password</text><rect x="350" y="234" width="140" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="490" y="234" width="250" height="53.5" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="287.5" width="60" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="314.75" font-size="15" fill="#1f3b52" text-anchor="middle">6</text><rect x="80" y="287.5" width="270" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="314.75" font-size="15" fill="#1f3b52" text-anchor="start">two clients, same client id</text><rect x="350" y="287.5" width="140" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="490" y="287.5" width="250" height="44" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/></svg>
-            <div class="diagram-caption">Table 2 for your report. For row 6, start <span class="code-lesson-il">mosquitto_sub -i same</span> twice. Look at what the broker prints, and what happens to the first subscriber.</div>
+<svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="50" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="35.0" y="35.0" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="60" y="10" width="290" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="70.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Action</text><rect x="350" y="10" width="150" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="360.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Predicted</text><rect x="500" y="10" width="250" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="510.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Observed (subscriber, broker output)</text><rect x="10" y="50" width="50" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="35.0" y="77.0" font-size="14" fill="#1f3b52" text-anchor="middle">1</text><rect x="60" y="50" width="290" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="70.0" y="77.0" font-size="14" fill="#1f3b52" text-anchor="start">you publish to lab/you/x</text><rect x="350" y="50" width="150" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="360.0" y="77.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="500" y="50" width="250" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="510.0" y="77.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="94" width="50" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="35.0" y="121.0" font-size="14" fill="#1f3b52" text-anchor="middle">2</text><rect x="60" y="94" width="290" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="70.0" y="121.0" font-size="14" fill="#1f3b52" text-anchor="start">you publish to lab/partner/x</text><rect x="350" y="94" width="150" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="360.0" y="121.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="500" y="94" width="250" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="510.0" y="121.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="138" width="50" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="35.0" y="165.0" font-size="14" fill="#1f3b52" text-anchor="middle">3</text><rect x="60" y="138" width="290" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="70.0" y="165.0" font-size="14" fill="#1f3b52" text-anchor="start">partner subscribes to lab/you/#</text><rect x="350" y="138" width="150" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="360.0" y="165.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="500" y="138" width="250" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="510.0" y="165.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="182" width="50" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="35.0" y="209.0" font-size="14" fill="#1f3b52" text-anchor="middle">4</text><rect x="60" y="182" width="290" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="70.0" y="209.0" font-size="14" fill="#1f3b52" text-anchor="start">you publish with a wrong password</text><rect x="350" y="182" width="150" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="360.0" y="209.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="500" y="182" width="250" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="510.0" y="209.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="226" width="50" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="35.0" y="253.0" font-size="14" fill="#1f3b52" text-anchor="middle">5</text><rect x="60" y="226" width="290" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="70.0" y="253.0" font-size="14" fill="#1f3b52" text-anchor="start">two clients, same client id</text><rect x="350" y="226" width="150" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="360.0" y="253.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="500" y="226" width="250" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="510.0" y="253.0" font-size="14" fill="#1f3b52" text-anchor="start"></text></svg>
+            <div class="diagram-caption">Table 1 for your report. For row 5, start <span class="code-lesson-il">mosquitto_sub -i same</span> twice in two terminals. Look at what the broker prints, and what happens to the first subscriber.</div>
         </div>
 
-<h3>Step 4. The Node</h3>
-<p>Copy <span class="code-lesson-il">formats.py</span> from the Serialization lesson (reproduced below) and the files from earlier labs (<span class="code-lesson-il">mpu6050.py</span>, <span class="code-lesson-il">every.py</span>, <span class="code-lesson-il">net.py</span>) to the Pico, and run <span class="code-lesson-il">main.py</span>. It uses the helper <span class="code-lesson-il">net</span> only to join WiFi and connect, then publishes on the raw client, because <span class="code-lesson-il">net.publish</span> can send only JSON.</p>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">formats.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">import json
-import struct
-
-# One sample: the envelope (version, sequence number, time) and three accelerations in g.
-def to_json(seq, t, ax, ay, az):
-    return json.dumps({"v": 1, "seq": seq, "t": t,
-                       "ax": round(ax, 2), "ay": round(ay, 2), "az": round(az, 2)}).encode()
-
-def to_csv(seq, t, ax, ay, az):
-    return ("1,%d,%d,%.2f,%.2f,%.2f" % (seq, t, ax, ay, az)).encode()
-
-# Binary: acceleration as whole milli-g in a signed 16-bit integer (resolution 0.001 g).
-REC = "&lt;BHIhhh"                     # version, seq, t, ax, ay, az; little-endian, no padding
-
-def to_bin(seq, t, ax, ay, az):
-    return struct.pack(REC, 1, seq &amp; 0xFFFF, t &amp; 0xFFFFFFFF,
-                       round(ax * 1000), round(ay * 1000), round(az * 1000))
-
-def from_bin(buf):
-    if len(buf) != struct.calcsize(REC):
-        raise ValueError("wrong length")
-    v, seq, t, ax, ay, az = struct.unpack(REC, buf)
-    if v != 1:
-        raise ValueError("unknown version")
-    return {"seq": seq, "t": t, "ax": ax / 1000, "ay": ay / 1000, "az": az / 1000}
-</span>
-</div>
+<h3>Step 3. The Node</h3>
+<p>Copy the files from earlier labs (<span class="code-lesson-il">mpu6050.py</span>, <span class="code-lesson-il">every.py</span>, <span class="code-lesson-il">net.py</span>, and your two-broker <span class="code-lesson-il">config.py</span>) to the Pico, and run this <span class="code-lesson-il">main.py</span>. It publishes through <span class="code-lesson-il">net.publish</span>, which adds the envelope, queues messages while the broker is unreachable, and never blocks for long.</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">main.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl"># main.py for Lab 5: one sensor, three encodings, published to your own broker
+<span class="code-lesson-bl"># main.py for Lab 5: IMU samples, five a second, as JSON to your own broker
 import net
 from machine import I2C, Pin
-from time import ticks_ms
 from mpu6050 import MPU6050            # from the I2C lesson
 from every import Every                # from the Pulses lesson
-from formats import to_json, to_csv, to_bin     # from the Serialization lesson
 
 i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400_000)
 imu = MPU6050(i2c)
@@ -154,85 +93,56 @@ imu.calibrate()                        # keep the board still for this second
 
 link = net.link()
 link.keepalive = 30                    # set before the first connect: the broker now watches this client
-link.connect()                         # config.py must name YOUR broker's address for this lab
 sample = Every(200)                    # 5 samples per second
-seq = 0
-
-def send(name, payload):
-    """Publish raw bytes under lab/&lt;you&gt;/tele/&lt;name&gt;. Returns True if it left the board."""
-    if link.client is None:
-        link.connect()
-        if link.client is None:
-            return False
-    try:
-        link.client.publish((link.root + "tele/" + name).encode(), payload)
-        return True
-    except OSError:
-        link._drop()                   # forget the dead connection; the next call reconnects
-        return False
 
 while True:
     if sample.due():
         (ax, ay, az), _, _ = imu.read()
-        seq += 1
-        t = ticks_ms()
-        send("imu_json", to_json(seq, t, ax, ay, az))
-        send("imu_csv", to_csv(seq, t, ax, ay, az))
-        send("imu_bin", to_bin(seq, t, ax, ay, az))
+        net.publish("tele/imu", {"ax": round(ax, 2), "ay": round(ay, 2), "az": round(az, 2)})
 </span>
 </div>
-<p>Look at the line <span class="code-lesson-il">link.keepalive = 30</span>. It changes the helper’s setting before the first connect, so the client now makes the keepalive promise. Because the node publishes five times a second the promise is kept automatically. And notice what <span class="code-lesson-il">send</span> does when the network fails: it reports <span class="code-lesson-il">False</span> and drops the dead connection; the next call reconnects. The node never raises an error and never blocks for long. You will meet the proper version of this idea, with back-off and a queue, in Week 8.</p>
-<p>On the laptop, watch the three topics and total them with the report program. The <span class="code-lesson-il">-F "%t %x"</span> option prints each message’s topic and its payload in hexadecimal, which is the only way to pipe binary data through a text tool.</p>
-<div class="code-block" data-lang="shell">
-<div class="code-block-header">
-<span class="code-block-filename">laptop</span>
-<span class="code-block-lang">Shell</span>
-</div>
-<span class="code-lesson-bl">mosquitto_sub -h localhost -u you -P PASSWORD -t "lab/+/tele/imu_#" -F "%t %x" | python3 size_report.py
-</span>
-</div>
+<p>Look at the line <span class="code-lesson-il">link.keepalive = 30</span>. It changes the helper’s setting before the first connect, so the client now makes the keepalive promise. Because the node publishes five times a second, the promise is kept automatically.</p>
+<p>On the laptop, pipe the messages into a small program that uses each message’s <span class="code-lesson-il">seq</span> to count what arrived, what went missing and what came twice, exactly as in the Messages and JSON lesson:</p>
 <div class="code-block" data-lang="python">
 <div class="code-block-header">
-<span class="code-block-filename">size_report.py</span>
+<span class="code-block-filename">seq_check.py</span>
 <span class="code-block-lang">Python</span>
 </div>
-<span class="code-lesson-bl"># size_report.py: run on the laptop.
-#   mosquitto_sub -h localhost -u USER -P PASS -t "lab/+/tele/imu_#" -F "%t %x" | python3 size_report.py
-import sys, struct
-from collections import defaultdict
+<span class="code-lesson-bl"># seq_check.py: run on the laptop.
+#   mosquitto_sub -h localhost -u you -P PASSWORD -v -t "lab/+/tele/imu" | python3 seq_check.py
+import sys, json
 
-REC = "&lt;BHIhhh"
-count = defaultdict(int)
-nbytes = defaultdict(int)
-
-def handle(line):
-    topic, _, hexpayload = line.strip().partition(" ")
-    payload = bytes.fromhex(hexpayload)
-    name = topic.rsplit("/", 1)[-1]
-    count[name] += 1
-    nbytes[name] += len(payload)
-    if name == "imu_bin" and len(payload) == struct.calcsize(REC):
-        v, seq, t, ax, ay, az = struct.unpack(REC, payload)
-        return (seq, t, ax / 1000, ay / 1000, az / 1000)
-
-def report():
-    for name in sorted(count):
-        print("%-9s %5d messages  %6.1f bytes each" % (name, count[name], nbytes[name] / count[name]))
-
-if __name__ == "__main__":
-    for i, line in enumerate(sys.stdin):
-        handle(line)
-        if (i + 1) % 30 == 0:
-            report()
+prev = None
+n = lost = dup = restarts = nbytes = 0
+for line in sys.stdin:
+    topic, _, payload = line.strip().partition(" ")
+    try:
+        seq = json.loads(payload)["seq"]
+    except (ValueError, KeyError, TypeError):
+        continue                                   # not a class message: skip it
+    n += 1
+    nbytes += len(payload)
+    if prev is not None:
+        if seq &gt; prev + 1:
+            lost += seq - prev - 1
+        elif seq == prev:
+            dup += 1
+        elif seq &lt; prev:
+            restarts += 1                          # the Pico rebooted and started counting again
+    prev = seq
+    if n % 25 == 0:                                # a report every 5 s at 5 messages a second
+        print("%d messages, %.0f bytes each, lost %d, duplicates %d, restarts %d"
+              % (n, nbytes / n, lost, dup, restarts), flush=True)
 </span>
 </div>
+<p>Let it run for two minutes. Then stop the broker (Ctrl-C in its terminal) for about ten seconds and start it again, and watch the lost count. Finally press the Pico’s reset button and watch the restart count. Before each of these, write down your prediction.</p>
         <div class="diagram">
-<svg viewBox="0 0 760 258" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="200" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="120" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Topic</text><rect x="220" y="14" width="130" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="285" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">payload bytes</text><rect x="350" y="14" width="130" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="415" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">topic bytes</text><rect x="480" y="14" width="130" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="545" y="42.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">on wire (+4)</text><rect x="610" y="14" width="130" height="46" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="675" y="33.0125" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">bytes per</text><text x="675" y="51.1375" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">second</text><rect x="20" y="60" width="200" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="88.075" font-size="14.5" fill="#1f3b52" text-anchor="start">imu_json</text><rect x="220" y="60" width="130" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="350" y="60" width="130" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="480" y="60" width="130" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="610" y="60" width="130" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="106" width="200" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="134.075" font-size="14.5" fill="#1f3b52" text-anchor="start">imu_csv</text><rect x="220" y="106" width="130" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="350" y="106" width="130" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="480" y="106" width="130" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="610" y="106" width="130" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="152" width="200" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="180.075" font-size="14.5" fill="#1f3b52" text-anchor="start">imu_bin</text><rect x="220" y="152" width="130" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="350" y="152" width="130" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="480" y="152" width="130" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="610" y="152" width="130" height="46" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><rect x="20" y="198" width="200" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="226.075" font-size="14.5" fill="#1f3b52" text-anchor="start">all three</text><rect x="220" y="198" width="130" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="350" y="198" width="130" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="480" y="198" width="130" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><rect x="610" y="198" width="130" height="46" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/></svg>
-            <div class="diagram-caption">Table 3 for your report. The node sends 5 samples a second, so bytes per second is five times the on-wire size. Compare your totals with the prediction you made in Exercise 1.</div>
+<svg viewBox="0 0 760 324" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="380" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="20.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Measurement</text><rect x="390" y="10" width="170" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="400.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Prediction</text><rect x="560" y="10" width="190" height="40" rx="0" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="570.0" y="35.0" font-size="15" fill="#fff" text-anchor="start" font-weight="bold">Measured</text><rect x="10" y="50" width="380" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="77.0" font-size="14" fill="#1f3b52" text-anchor="start">bytes per message (payload)</text><rect x="390" y="50" width="170" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="400.0" y="77.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="560" y="50" width="190" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="570.0" y="77.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="94" width="380" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="121.0" font-size="14" fill="#1f3b52" text-anchor="start">messages per second</text><rect x="390" y="94" width="170" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="400.0" y="121.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="560" y="94" width="190" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="570.0" y="121.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="138" width="380" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="165.0" font-size="14" fill="#1f3b52" text-anchor="start">bytes per second</text><rect x="390" y="138" width="170" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="400.0" y="165.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="560" y="138" width="190" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="570.0" y="165.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="182" width="380" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="209.0" font-size="14" fill="#1f3b52" text-anchor="start">lost in two minutes of normal running</text><rect x="390" y="182" width="170" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="400.0" y="209.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="560" y="182" width="190" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="570.0" y="209.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="226" width="380" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="253.0" font-size="14" fill="#1f3b52" text-anchor="start">lost when the broker is stopped for 10 s</text><rect x="390" y="226" width="170" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="400.0" y="253.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="560" y="226" width="190" height="44" rx="0" fill="#ffffff" stroke="#cfd9e1" stroke-width="1"/><text x="570.0" y="253.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="10" y="270" width="380" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="20.0" y="297.0" font-size="14" fill="#1f3b52" text-anchor="start">restarts counted after pressing reset</text><rect x="390" y="270" width="170" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="400.0" y="297.0" font-size="14" fill="#1f3b52" text-anchor="start"></text><rect x="560" y="270" width="190" height="44" rx="0" fill="#f3f7fa" stroke="#cfd9e1" stroke-width="1"/><text x="570.0" y="297.0" font-size="14" fill="#1f3b52" text-anchor="start"></text></svg>
+            <div class="diagram-caption">Table 2 for your report. The node sends 5 messages a second, so bytes per second is five times the payload plus the topic and a few bytes of MQTT header. For the broker outage, use your answer to Exercise 4 as the prediction.</div>
         </div>
 
-<h3>Step 5. The Round Trip</h3>
-<p>Finally, measure what a message really costs in time. This program subscribes to a topic and publishes to the same topic, so each message comes back to the sender, and one clock measures the whole journey, with no need to synchronize two boards. Run it at your desk and again at the far corner.</p>
+<h3>Step 4. The Round Trip</h3>
+<p>Finally, measure what a message really costs in time. This program subscribes to a topic and publishes to the same topic, so each message comes back to the sender, and one clock measures the whole journey, with no need to synchronize two boards. Run it at your desk and again across the room.</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">rtt.py</span>
@@ -271,29 +181,29 @@ else:
 <p>The minimum shows the best the link can do; the maximum usually includes a lost packet that TCP had to resend (a retransmission timeout is far longer than a normal trip). The median is the number to quote. Keep these results: Lab 6’s command latency and Week 14’s latency budget start from them.</p>
 <h3>Lab Report</h3>
 <ol>
-<li>Tables 1 to 3, completed, with your observation of how the link changed with distance.</li>
-<li>The result of each row of Table 2, and for any row where your prediction was wrong, what you misunderstood.</li>
-<li>The three message sizes you measured against the sizes the lesson predicts (68, 26 and 13 bytes for the example values), and the bytes per second the node placed on the network. If this node were on the class broker, would it be allowed? Explain using the class limits.</li>
+<li>The result of each row of Table 1, and for any row where your prediction was wrong, what you misunderstood.</li>
+<li>Table 2, completed. Would this node be allowed on the class broker? Explain using the class limits.</li>
+<li>What happened to the lost count when the broker was stopped, compared with your prediction, and why the number is not zero even though <span class="code-lesson-il">net.py</span> keeps a queue.</li>
 <li>The round-trip statistics at two places, and an explanation of any large maximum.</li>
-<li>One thing that surprised you, and one thing you would change in <span class="code-lesson-il">main.py</span> (hint: consider what happens when the WiFi drops for ten seconds).</li>
+<li>One thing that surprised you, and one thing you would change in <span class="code-lesson-il">main.py</span>.</li>
 </ol>
 
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Predict the Bandwidth.</strong> Using the example sizes (JSON 68, CSV 26, binary 13 bytes), the topics <span class="code-lesson-il">lab/jsmith/tele/imu_json</span> (24 characters), <span class="code-lesson-il">imu_csv</span> and <span class="code-lesson-il">imu_bin</span> (23 characters each), and 4 bytes of fixed header per message, compute the bytes per cycle and per second at 5 Hz, and the messages per second.</p>
+        <p><strong>Exercise 1: Predict the Bandwidth.</strong> The JSON message from the Messages and JSON lesson is 68 bytes. It goes to <span class="code-lesson-il">lab/jsmith/tele/imu</span> (19 characters) with 4 bytes of MQTT header. Compute the bytes per message and per second at 5 Hz, and the messages per second. Does the node fit the class limit of 10 messages per second?</p>
         <p><strong>Exercise 2: Reading the Table.</strong> The echo test gives min 11, median 14 and max 240 ms over 20 trials. Which number would you use to budget a command that must arrive in time, and what do you conclude from the max?</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: Silent Failure.</strong> You run <span class="code-lesson-il">mosquitto_pub -u you -t lab/partner/x -m hi</span> and see no error, but the subscriber on lab/# never gets it. Explain what happened, how you would confirm it, and what a program would see if it did the same.</p>
         <h4>Advanced</h4>
-        <p><strong>Exercise 4: Do They Agree?.</strong> Write <span class="code-lesson-il">agree(json_line, csv_line, bin_bytes)</span> that decodes the three encodings of one sample and returns True only if they have the same seq and time and their accelerations differ by less than 0.006 g. Test it with a matching sample and one in which the binary version has a different ax.</p>
+        <p><strong>Exercise 4: Predict the Outage.</strong> <span class="code-lesson-il">net.py</span> queues at most 40 messages, and after a failed connect it leaves the network alone for 15 s before trying again. The node publishes 5 times a second. The broker is stopped for 10 s and then restarted. About how many messages will <span class="code-lesson-il">seq_check.py</span> count as lost, and why is it more than you might expect from a 10-second outage?</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
         <h4>Warm Up</h4>
         <details>
         <summary>Exercise 1: Predict the Bandwidth</summary>
-<p>Per cycle: payload 68 + 26 + 13 = 107; headers 3 × 4 = 12; topics 24 + 23 + 23 = 70; total <strong>189 bytes</strong>. At 5 cycles per second: <strong>945 B/s</strong>, and 3 × 5 = <strong>15 messages per second</strong>. That is fine for your own broker and 50 % over the class limit of 10 messages per second, which is why this node must not be run on the class hub as it stands.</p>
+<p>Per message: 68 + 19 + 4 = <strong>91 bytes</strong>. At 5 messages per second: <strong>455 B/s</strong> and <strong>5 messages per second</strong>, half the class limit. The real payload varies by a byte or two as the readings change sign or gain a digit.</p>
         </details>
         <details>
         <summary>Exercise 2: Reading the Table</summary>
@@ -306,47 +216,17 @@ else:
         </details>
         <h4>Advanced</h4>
         <details>
-        <summary>Exercise 4: Do They Agree?</summary>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">agree.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">import json, struct
-
-def agree(json_line, csv_line, bin_bytes, tol=0.006):
-    """Do the three encodings of one sample describe the same numbers?"""
-    j = json.loads(json_line)
-    c = csv_line.decode().split(",")
-    v, seq, t, ax, ay, az = struct.unpack("&lt;BHIhhh", bin_bytes)
-    same_meta = (j["seq"], j["t"]) == (int(c[1]), int(c[2])) == (seq, t)
-    a = (j["ax"], j["ay"], j["az"])
-    b = tuple(float(x) for x in c[3:6])
-    d = (ax / 1000, ay / 1000, az / 1000)
-    close = all(abs(p - q) &lt; tol and abs(p - r) &lt; tol for p, q, r in zip(a, b, d))
-    return same_meta and close
-</span>
-</div><div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">test_agree.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">j = to_json(17, 34120, 0.0198, -0.0101, 0.9801)
-c = to_csv(17, 34120, 0.0198, -0.0101, 0.9801)
-b = to_bin(17, 34120, 0.0198, -0.0101, 0.9801)
-print(agree(j, c, b))                                            # True
-print(agree(j, c, to_bin(17, 34120, 0.05, -0.0101, 0.9801)))     # False: ax differs by 0.03 g
-</span>
-</div><p>The tolerance is about one rounding step: JSON and CSV round to 0.01 g, so they can differ from the original by 0.005, and the binary is 0.001 resolution. Choosing the tolerance from the resolution of the encodings is the right way to compare floating values from different sources; testing for exact equality would fail every time.</p>
+        <summary>Exercise 4: Predict the Outage</summary>
+<p>When the broker stops, the next publish fails and the node tries to reconnect at once; that fails, so it waits 15 s before trying again, even though the broker came back after 10 s. In those 15 s the node queues 5 × 15 = 75 messages, but the queue keeps only the newest 40, so about <strong>35 are lost</strong> (the oldest ones). When it reconnects it sends up to 5 queued messages per call while adding one new one, so the backlog clears in about two seconds. The retry wait, not the outage, sets the loss: that trade-off between reconnecting quickly and not hammering a dead broker is the subject of Week 7.</p>
         </details>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>Run a broker with a password file and an access list, and test each rule with two users.</li>
-            <li>Measure RSSI, TCP connect time and round-trip time, and say how they change with distance.</li>
-            <li>Publish raw bytes with <span class="code-lesson-il">umqtt</span> using a keepalive, and report what arrives with <span class="code-lesson-il">mosquitto_sub -F</span>.</li>
-            <li>Compute message and byte rates for a node and compare them with the class limits.</li>
+            <li>Run a broker on your laptop with a password file and an access list, and test each rule with two users.</li>
+            <li>Switch <span class="code-lesson-il">config.py</span> between the class broker and your own with one line.</li>
+            <li>Publish JSON telemetry with a keepalive, and use <span class="code-lesson-il">seq</span> on the laptop to count lost, duplicate and restarted messages.</li>
+            <li>Measure the round-trip time of a message and say why the median and the maximum tell different stories.</li>
             <li>Explain why a denied publish is silent and what a program can do about it.</li>
         </ol>
 

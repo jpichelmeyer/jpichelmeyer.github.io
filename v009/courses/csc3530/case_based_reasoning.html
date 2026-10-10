@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>Recording cases answers new problems by copying old answers. <strong>Case-based reasoning</strong> (CBR) goes one step further: it retrieves an old solution and then <em>adapts</em> it to fit the new problem, checks the result, and stores the new case for next time. Roger Schank built the idea out of a theory of human memory: we understand and solve new situations by being reminded of old ones. Much of everyday expertise (a doctor recognizing a presentation, a mechanic recognizing a noise) looks more like this than like reasoning from first principles.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_case_based_reasoning_1_hofstadter.pdf" target="_blank"><b>Hofstadter &amp; Sander</b>, Ch. 3: <i>Events are Encoded Not by Rote but by Distillation</i></a> <span class="reading-meta">(pp. 171–174 &middot; PDF 186–189 &middot; 4 pages)</span><br>Why a "total rote recording" of experience would be useless, and Schank's claim that reminding is part of understanding.</li><li><a href="../../pdfs/csc3530/csc3530_case_based_reasoning_2_mcshane.pdf" target="_blank"><b>McShane, Nirenburg &amp; English</b>, Ch. 3, §3.5: <i>Episodic Memory</i></a> <span class="reading-meta">(pp. 80–81 &middot; PDF 91–92 &middot; 2 pages)</span><br>A working agent that picks a plan by retrieving the past situation most like the current one: case-based reasoning in two pages.</li></ul>
+</div>
+
+
+<h3>Part 1. The CBR Cycle</h3>
+<div class="diagram">
+<svg viewBox="0 0 760 385" style="max-width:720px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="cb" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="300" y="20" width="160" height="50" rx="7" fill="#f2f5f7" stroke="#5b6b78" stroke-width="1.8"/><text x="380.0" y="49.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">new problem</text><rect x="560" y="110" width="170" height="60" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="645.0" y="136.7" font-size="12" text-anchor="middle" fill="#1f3b52">1. Retrieve</text><text x="645.0" y="151.7" font-size="12" text-anchor="middle" fill="#1f3b52">the most similar case</text><rect x="560" y="230" width="170" height="60" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="645.0" y="256.7" font-size="12" text-anchor="middle" fill="#1f3b52">2. Adapt</text><text x="645.0" y="271.7" font-size="12" text-anchor="middle" fill="#1f3b52">its solution</text><rect x="300" y="310" width="160" height="60" rx="7" fill="#efe6f7" stroke="#7a4f9a" stroke-width="1.8"/><text x="380.0" y="336.7" font-size="12" text-anchor="middle" fill="#1f3b52">3. Evaluate</text><text x="380.0" y="351.7" font-size="12" text-anchor="middle" fill="#1f3b52">does it work?</text><rect x="30" y="230" width="170" height="60" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="115.0" y="256.7" font-size="12" text-anchor="middle" fill="#1f3b52">4. Store</text><text x="115.0" y="271.7" font-size="12" text-anchor="middle" fill="#1f3b52">the new case</text><rect x="30" y="110" width="170" height="60" rx="7" fill="#fff" stroke="#b8860b" stroke-width="1.8"/><text x="115.0" y="136.7" font-size="12" text-anchor="middle" fill="#1f3b52">case library</text><text x="115.0" y="151.7" font-size="12" text-anchor="middle" fill="#1f3b52">(episodic memory)</text><line x1="462" y1="50" x2="600" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cb)"/><line x1="645" y1="172" x2="645" y2="228" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cb)"/><line x1="560" y1="275" x2="462" y2="330" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cb)"/><line x1="300" y1="330" x2="202" y2="275" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cb)"/><text x="230" y="318" font-size="11" text-anchor="middle" fill="#1f3b52">works</text><line x1="115" y1="228" x2="115" y2="172" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#cb)"/><line x1="202" y1="140" x2="558" y2="140" stroke="#b8860b" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#cb)"/><text x="380" y="132" font-size="11" text-anchor="middle" fill="#7a5a06">retrieval searches the library</text><path d="M 460 352 C 560 360, 700 330, 700 292" fill="none" stroke="#b3261e" stroke-width="1.6" marker-end="url(#cb)"/><text x="600" y="372" font-size="11" text-anchor="middle" fill="#b3261e">fails: adapt again, or next case</text></svg>
+    <div class="diagram-caption">The case-based reasoning cycle (often summarized as retrieve, reuse, revise, retain). Every solved problem enlarges the library, so the agent gets faster with experience.</div>
+</div>
+
+<p>Each step hides a real design question:</p>
+<ul>
+    <li><strong>Retrieval</strong>: what counts as similar, and how do you find similar cases quickly in a large library? Cases are usually <em>indexed</em> by the features that matter for solving them, not by every feature they have.</li>
+    <li><strong>Adaptation</strong>: how do you change an old solution? Common methods are tweaking parameters, substituting one part for a related part, and patching the ends with a little search (the method used below).</li>
+    <li><strong>Evaluation</strong>: by simulation, by testing, or by asking an expert. If the adapted solution fails, adapt again or retrieve the next case.</li>
+    <li><strong>Storage</strong>: store everything, or only cases that teach something new?</li>
+</ul>
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>People are good at using a case once they have it, and surprisingly bad at retrieving the right one. Mary Gick and Keith Holyoak (1980) gave people a story about a general who captures a fortress by splitting his army into small groups that converge from all sides. Then they posed Duncker's radiation problem: how can a doctor destroy a tumour with rays that would harm healthy tissue at full strength? The solution is the same: many weak rays converging. Most people did not think to use the story until told it might help; once told, most solved it. Retrieval runs on surface features (armies, fortresses), while usefulness depends on deep structure. This week's Hofstadter reading argues that good encodings capture both, which is why "reminding" can work across years and continents.</p>
+</div>
+
+
+<h3>Part 2. A CBR Agent for Routes</h3>
+<p>The agent plans walking routes through a small town. Finding a route from scratch means a breadth-first search. With CBR, it retrieves the stored route whose endpoints are nearest the new ones, and adapts it by searching only for short legs at each end.</p>
+<div class="diagram">
+<svg viewBox="0 0 280 192" style="max-width:380px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="rowArrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(30.0,26.0)"><rect x="-1" y="-1" width="222.0" height="156.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="0.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="176.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="198.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="176.0" y="22.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="198.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="176.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="198.0" y="44.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="66.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="66.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="66.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="66.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="176.0" y="66.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="198.0" y="66.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="88.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="176.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="198.0" y="88.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="110.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="110.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="110.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="110.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="110.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="110.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="110.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="110.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="176.0" y="110.0" width="22.0" height="22.0" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="198.0" y="110.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="66.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="88.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="110.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="132.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="154.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="176.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="198.0" y="132.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="110.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">the town: grey = buildings, black = streets</text></g></svg>
+    <div class="diagram-caption">The town map used by the route agent.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">route_cbr.py: the town and route search from scratch</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">TOWN = [&#x27;.....#....&#x27;,
+        &#x27;.###.#.##.&#x27;,
+        &#x27;.#.......#&#x27;,
+        &#x27;.#.##.##..&#x27;,
+        &#x27;....#.....&#x27;,
+        &#x27;.##...###.&#x27;,
+        &#x27;..........&#x27;]
+
+def streets(cell):
+    r, c = cell
+    for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+        nr, nc = r + dr, c + dc
+        if 0 &lt;= nr &lt; len(TOWN) and 0 &lt;= nc &lt; len(TOWN[0]) and TOWN[nr][nc] == &#x27;.&#x27;:
+            yield nr, nc
+
+def bfs(a, b):
+    &quot;&quot;&quot;From-scratch route finding (expensive): breadth-first search.&quot;&quot;&quot;
+    prev, q = {a: None}, deque([a])
+    while q:
+        x = q.popleft()
+        if x == b:
+            path = []
+            while x:
+                path.append(x)
+                x = prev[x]
+            return path[::-1], len(prev)
+        for n in streets(x):
+            if n not in prev:
+                prev[n] = x
+                q.append(n)
+    return None, len(prev)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">route_cbr.py: retrieve, adapt, evaluate, store</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">LIBRARY = []                     # cases: (start, goal, route)
+
+def dist(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+def retrieve(start, goal):
+    return min(LIBRARY, key=lambda case: dist(start, case[0]) + dist(goal, case[1]))
+
+def adapt(case, start, goal):
+    &quot;&quot;&quot;Reuse the old route; patch on short searched legs at each end.&quot;&quot;&quot;
+    head, n1 = bfs(start, case[0])
+    tail, n2 = bfs(case[1], goal)
+    return head[:-1] + case[2] + tail[1:], n1 + n2
+
+def evaluate(route, start, goal):
+    &quot;&quot;&quot;Is it a real route, and not absurdly longer than a straight shot?&quot;&quot;&quot;
+    ok = route[0] == start and route[-1] == goal and \
+         all(b in streets(a) for a, b in zip(route, route[1:]))
+    return ok and len(route) - 1 &lt;= dist(start, goal) + 6
+
+def solve(start, goal):
+    if LIBRARY:
+        case = retrieve(start, goal)
+        route, effort = adapt(case, start, goal)
+        if evaluate(route, start, goal):
+            print(f&#x27;  {start}-&gt;{goal}: adapted the case {case[0]}-&gt;{case[1]}, &#x27;
+                  f&#x27;{len(route) - 1} steps, {effort} cells searched&#x27;)
+            LIBRARY.append((start, goal, route))          # store
+            return route
+        print(f&#x27;  {start}-&gt;{goal}: adapted route has {len(route) - 1} steps: rejected&#x27;)
+    route, effort = bfs(start, goal)
+    print(f&#x27;  {start}-&gt;{goal}: solved from scratch, {len(route) - 1} steps, {effort} cells searched&#x27;)
+    LIBRARY.append((start, goal, route))
+    return route</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">route_cbr.py: four trips</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">for trip in [((0, 0), (6, 9)), ((0, 1), (6, 8)), ((1, 0), (5, 9)), ((6, 0), (0, 9))]:
+    solve(*trip)
+print(&#x27;cases stored:&#x27;, len(LIBRARY))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">  (0, 0)-&gt;(6, 9): solved from scratch, 15 steps, 50 cells searched
+  (0, 1)-&gt;(6, 8): adapted the case (0, 0)-&gt;(6, 9), 17 steps, 8 cells searched
+  (1, 0)-&gt;(5, 9): adapted the case (0, 0)-&gt;(6, 9), 17 steps, 7 cells searched
+  (6, 0)-&gt;(0, 9): adapted route has 33 steps: rejected
+  (6, 0)-&gt;(0, 9): solved from scratch, 15 steps, 49 cells searched
+cases stored: 4</code>
+</div>
+
+<p>The first trip has nothing to be reminded of, so it is solved from scratch (50 cells searched). The next two reuse it and search only 7 or 8 cells, at the cost of routes slightly longer than optimal. The fourth trip goes the other way across town; the nearest case adapts into a 33-step detour, evaluation rejects it, and the agent falls back on search. Evaluation is what keeps a case-based reasoner from confidently reusing the wrong experience.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Case-based reasoning for routes in a small town: retrieve, adapt, evaluate, store.
+from collections import deque
+
+TOWN = ['.....#....',
+        '.###.#.##.',
+        '.#.......#',
+        '.#.##.##..',
+        '....#.....',
+        '.##...###.',
+        '..........']
+
+def streets(cell):
+    r, c = cell
+    for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < len(TOWN) and 0 <= nc < len(TOWN[0]) and TOWN[nr][nc] == '.':
+            yield nr, nc
+
+def bfs(a, b):
+    """From-scratch route finding (expensive): breadth-first search."""
+    prev, q = {a: None}, deque([a])
+    while q:
+        x = q.popleft()
+        if x == b:
+            path = []
+            while x:
+                path.append(x)
+                x = prev[x]
+            return path[::-1], len(prev)
+        for n in streets(x):
+            if n not in prev:
+                prev[n] = x
+                q.append(n)
+    return None, len(prev)
+
+LIBRARY = []                     # cases: (start, goal, route)
+
+def dist(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+def retrieve(start, goal):
+    return min(LIBRARY, key=lambda case: dist(start, case[0]) + dist(goal, case[1]))
+
+def adapt(case, start, goal):
+    """Reuse the old route; patch on short searched legs at each end."""
+    head, n1 = bfs(start, case[0])
+    tail, n2 = bfs(case[1], goal)
+    return head[:-1] + case[2] + tail[1:], n1 + n2
+
+def evaluate(route, start, goal):
+    """Is it a real route, and not absurdly longer than a straight shot?"""
+    ok = route[0] == start and route[-1] == goal and \
+         all(b in streets(a) for a, b in zip(route, route[1:]))
+    return ok and len(route) - 1 <= dist(start, goal) + 6
+
+def solve(start, goal):
+    if LIBRARY:
+        case = retrieve(start, goal)
+        route, effort = adapt(case, start, goal)
+        if evaluate(route, start, goal):
+            print(f'  {start}->{goal}: adapted the case {case[0]}->{case[1]}, '
+                  f'{len(route) - 1} steps, {effort} cells searched')
+            LIBRARY.append((start, goal, route))          # store
+            return route
+        print(f'  {start}->{goal}: adapted route has {len(route) - 1} steps: rejected')
+    route, effort = bfs(start, goal)
+    print(f'  {start}->{goal}: solved from scratch, {len(route) - 1} steps, {effort} cells searched')
+    LIBRARY.append((start, goal, route))
+    return route
+
+for trip in [((0, 0), (6, 9)), ((0, 1), (6, 8)), ((1, 0), (5, 9)), ((6, 0), (0, 9))]:
+    solve(*trip)
+print('cases stored:', len(LIBRARY))</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Being Reminded of Old Tasks</h3>
+<p>Your agent will solve tasks all semester. Each solved task is a case: the task, plus the program that solved it. When a new task arrives, the agent can index it by a few features a person notices first, retrieve the most similar solved tasks, and adapt their programs by substituting related primitives (a horizontal flip for a vertical one, doubling the width for doubling the height).</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_cbr.py: a small case library</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Cases recorded from tasks solved earlier: (training task, program that solved it)
+LIBRARY = [(&#x27;a416b8f3&#x27;, (&#x27;double_w&#x27;,)), (&#x27;3af2c5a8&#x27;, (&#x27;mirror_w&#x27;, &#x27;mirror_h&#x27;)),
+           (&#x27;67a3c6ac&#x27;, (&#x27;flip_h&#x27;,)), (&#x27;74dd1130&#x27;, (&#x27;transpose&#x27;,)), (&#x27;c59eb873&#x27;, (&#x27;scale2&#x27;,)),
+           (&#x27;9172f3a0&#x27;, (&#x27;scale3&#x27;,)), (&#x27;1cf80156&#x27;, (&#x27;crop_all&#x27;,)), (&#x27;be94b721&#x27;, (&#x27;largest&#x27;,)),
+           (&#x27;1e0a9b12&#x27;, (&#x27;gravity&#x27;,)), (&#x27;28bf18c6&#x27;, (&#x27;crop_all&#x27;, &#x27;double_w&#x27;)),
+           (&#x27;7468f01a&#x27;, (&#x27;flip_h&#x27;, &#x27;crop_all&#x27;)), (&#x27;6d0aefbc&#x27;, (&#x27;mirror_w&#x27;,)),
+           (&#x27;496994bd&#x27;, (&#x27;top_half&#x27;, &#x27;mirror_h&#x27;)), (&#x27;3c9b0459&#x27;, (&#x27;rot180&#x27;,))]</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_cbr.py: indexing features</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def features(task):
+    &quot;&quot;&quot;How a task is indexed: the things a person notices first.&quot;&quot;&quot;
+    p = task[&#x27;train&#x27;][0]
+    hi, wi = dims(p[&#x27;input&#x27;])
+    ho, wo = dims(p[&#x27;output&#x27;])
+    return {&#x27;same_size&#x27;: (hi, wi) == (ho, wo),
+            &#x27;ratio&#x27;: (round(ho / hi, 2), round(wo / wi, 2)),
+            &#x27;shrinks&#x27;: ho * wo &lt; hi * wi,
+            &#x27;new_colors&#x27;: bool(colors(p[&#x27;output&#x27;]) - colors(p[&#x27;input&#x27;])),
+            &#x27;square_in&#x27;: hi == wi}
+
+def similarity(f1, f2):
+    return sum(f1[k] == f2[k] for k in f1)</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 760 235" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="it" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="300" y="10" width="160" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="380.0" y="32.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">same size?</text><rect x="120" y="90" width="160" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="200.0" y="112.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">new colours?</text><rect x="480" y="90" width="160" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="560.0" y="112.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">output smaller?</text><rect x="20" y="170" width="150" height="50" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="95.0" y="191.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">flip_h, rot180,</text><text x="95.0" y="206.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">transpose, gravity</text><rect x="200" y="170" width="130" height="50" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="265.0" y="191.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">(recolouring</text><text x="265.0" y="206.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">cases)</text><rect x="390" y="170" width="150" height="50" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="465.0" y="191.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">crop_all, largest,</text><text x="465.0" y="206.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">flip_h then crop_all</text><rect x="570" y="170" width="170" height="50" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="655.0" y="191.8" font-size="11.5" text-anchor="middle" fill="#1f3b52">double_w, scale2,</text><text x="655.0" y="206.3" font-size="11.5" text-anchor="middle" fill="#1f3b52">mirror_w then mirror_h</text><line x1="340" y1="48" x2="210" y2="88" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#it)"/><text x="258" y="62" font-size="11" text-anchor="middle" fill="#1f3b52">yes</text><line x1="420" y1="48" x2="550" y2="88" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#it)"/><text x="500" y="62" font-size="11" text-anchor="middle" fill="#1f3b52">no</text><line x1="170" y1="128" x2="100" y2="168" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#it)"/><text x="120" y="146" font-size="11" text-anchor="middle" fill="#1f3b52">no</text><line x1="230" y1="128" x2="260" y2="168" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#it)"/><text x="262" y="146" font-size="11" text-anchor="middle" fill="#1f3b52">yes</text><line x1="530" y1="128" x2="470" y2="168" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#it)"/><text x="482" y="146" font-size="11" text-anchor="middle" fill="#1f3b52">yes</text><line x1="590" y1="128" x2="650" y2="168" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#it)"/><text x="638" y="146" font-size="11" text-anchor="middle" fill="#1f3b52">no</text></svg>
+    <div class="diagram-caption">Cases indexed by features. A new task that keeps its size and adds no colours is retrieved alongside the flips and rotations, not the crops.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_cbr.py: adaptation by substitution</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">RELATED = {&#x27;flip_h&#x27;: [&#x27;flip_v&#x27;, &#x27;transpose&#x27;], &#x27;flip_v&#x27;: [&#x27;flip_h&#x27;], &#x27;rot90&#x27;: [&#x27;rot270&#x27;, &#x27;rot180&#x27;],
+           &#x27;rot270&#x27;: [&#x27;rot90&#x27;], &#x27;rot180&#x27;: [&#x27;rot90&#x27;, &#x27;rot270&#x27;, &#x27;flip_h&#x27;, &#x27;flip_v&#x27;],
+           &#x27;double_w&#x27;: [&#x27;double_h&#x27;, &#x27;mirror_w&#x27;], &#x27;double_h&#x27;: [&#x27;double_w&#x27;, &#x27;mirror_h&#x27;],
+           &#x27;mirror_w&#x27;: [&#x27;mirror_h&#x27;, &#x27;double_w&#x27;], &#x27;mirror_h&#x27;: [&#x27;mirror_w&#x27;, &#x27;double_h&#x27;],
+           &#x27;scale2&#x27;: [&#x27;scale3&#x27;], &#x27;scale3&#x27;: [&#x27;scale2&#x27;], &#x27;largest&#x27;: [&#x27;smallest&#x27;, &#x27;crop_all&#x27;],
+           &#x27;smallest&#x27;: [&#x27;largest&#x27;], &#x27;crop_all&#x27;: [&#x27;largest&#x27;], &#x27;top_half&#x27;: [&#x27;left_half&#x27;],
+           &#x27;left_half&#x27;: [&#x27;top_half&#x27;], &#x27;transpose&#x27;: [&#x27;rot90&#x27;, &#x27;rot270&#x27;], &#x27;gravity&#x27;: []}
+
+def adaptations(prog):
+    &quot;&quot;&quot;The old program first, then every one-step substitution.&quot;&quot;&quot;
+    yield prog
+    for i, step in enumerate(prog):
+        for alt in RELATED.get(step, []):
+            yield prog[:i] + (alt,) + prog[i + 1:]
+
+def fits(prog, task):
+    try:
+        return all(run(prog, p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;])
+    except Exception:
+        return False</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_cbr.py: the CBR loop</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def cbr(task, k=3):
+    &quot;&quot;&quot;Retrieve the k most similar cases, adapt, evaluate on the train pairs.&quot;&quot;&quot;
+    f = features(task)
+    ranked = sorted(LIBRARY, key=lambda c: -similarity(f, features(CASE_TASKS[c[0]])))
+    tried = 0
+    for case_id, prog in ranked[:k]:
+        for candidate in adaptations(prog):
+            tried += 1
+            if fits(candidate, task):
+                return case_id, candidate, tried
+    return None, None, tried
+
+CASE_TASKS = {cid: load_task(f&#x27;data/training/{cid}.json&#x27;) for cid, _ in LIBRARY}</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_cbr.py: try it on tasks the library has never seen</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    for split in [&#x27;training&#x27;, &#x27;evaluation&#x27;]:
+        solved, tried_total = [], 0
+        for name in sorted(os.listdir(&#x27;data/&#x27; + split)):
+            tid = name[:-5]
+            if tid in CASE_TASKS:
+                continue                                  # don&#x27;t test on the library
+            task = load_task(f&#x27;data/{split}/{name}&#x27;)
+            case_id, prog, tried = cbr(task)
+            tried_total += tried
+            if prog and all(run(prog, t[&#x27;input&#x27;]) == t[&#x27;output&#x27;] for t in task[&#x27;test&#x27;]):
+                solved.append((tid, case_id, prog))
+                LIBRARY.append((tid, prog))               # store the new case
+                CASE_TASKS[tid] = task
+        print(f&#x27;{split}: solved {len(solved)}, trying {tried_total} programs in all&#x27;)
+        for tid, case_id, prog in solved:
+            print(f&#x27;  {tid}: reminded of {case_id} -&gt; {&quot; then &quot;.join(prog)}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">training: solved 6, trying 3176 programs in all
+  62c24649: reminded of 3af2c5a8 -&gt; mirror_w then mirror_h
+  67e8384a: reminded of 62c24649 -&gt; mirror_w then mirror_h
+  68b16354: reminded of 67a3c6ac -&gt; flip_v
+  9dfd6313: reminded of 67a3c6ac -&gt; transpose
+  c9e6f938: reminded of a416b8f3 -&gt; mirror_w
+  ed36ccf7: reminded of 74dd1130 -&gt; rot270
+evaluation: solved 1, trying 3401 programs in all
+  60c09cac: reminded of c59eb873 -&gt; scale2</code>
+</div>
+
+<p>On unseen training tasks, fourteen cases plus substitution solve six more, trying about eight programs per task (week 3's blind search needed around 16,600 full checks across the training set). Look at <code class="code-lesson-il">67e8384a</code>: it was reminded of <code class="code-lesson-il">62c24649</code>, a case the agent had stored only moments before.</p>
+<p>The evaluation set tells a humbler story: one task. The evaluation tasks are harder and less like the training tasks, so there is less to be reminded of. Blind program search also solves exactly one evaluation task. CBR is only as good as the library and the index, and a library of fourteen flips and crops will not go far. That is a real lesson about expertise: it is broad because the case library is enormous.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>CBR is the first full loop through every SAM unit at once: the <strong>Perceptor</strong> computes the index features, long-term episodic <strong>Memory</strong> holds the cases, the <strong>Decider</strong> adapts, the <strong>Monitor</strong> evaluates on the train pairs, and the learning arrow stores the result.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>The route agent accepted slightly longer routes in exchange for much less search. When would a person make that trade? When would they not?</li><li>Gick and Holyoak found that people retrieve by surface features. Is the ARC index above surface or deep? Propose one deeper feature.</li><li>Should an agent store every solved case, or only surprising ones? What would each policy do to the library over a whole semester?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Name and explain the four steps of the CBR cycle.</li><li>Explain indexing and why it matters for retrieval.</li><li>Describe three adaptation methods.</li><li>Explain the Gick and Holyoak finding and what it says about retrieval.</li><li>Run CBR over ARC tasks and interpret the difference between training and evaluation results.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add two more trips to the route agent. Which cases do they retrieve?</li><li>Add five more cases to the ARC library (from your own solved tasks) and rerun. Does the training score change?</li></ol><h3>Intermediate</h3>
+<ol><li>Change the route agent so it retrieves the two nearest cases and keeps whichever adapted route is shorter.</li><li>Add an index feature to <code class="code-lesson-il">features</code> (for example the number of objects in the first input) and measure its effect on retrieval.</li></ol><h3>Advanced</h3>
+<ol><li>Replace <code class="code-lesson-il">similarity</code> with a learned weighting: for each feature, count how often two library cases that share it also share a first primitive. Weight features by that number.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Connect your agent's persistent case library from last week to a CBR step that runs before program search. Log how often it is used and how often it succeeds.</li></ol></section>
+
+
+    </body>
+</html>

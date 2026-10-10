@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>Means-ends analysis chooses one step at a time and gets trapped when goals interfere. <strong>Planning</strong> steps back: before acting, it reasons about whole sequences of actions, what each one needs and what each one changes, and orders them so that no step undoes the work of another. Planning is also where ARC program search gets smarter: the agent can reason about what a sequence of operations <em>will</em> do before running it.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_planning_1_bennett.pdf" target="_blank"><b>Bennett</b>, Ch. 13: <i>Model-based reinforcement learning (AlphaZero)</i></a> <span class="reading-meta">(PDF pp. 212–214 &middot; 3 pages)</span><br>Planning as simulating futures before acting, the search problem that comes with it, and why real brains switch strategies.</li></ul>
+</div>
+
+
+<h3>Part 1. States, Operators, and Goals</h3>
+<p>The classical representation comes from STRIPS (Fikes and Nilsson, 1971). A state is a set of conditions that are true. An <strong>operator</strong> has preconditions (what must be true to use it), an add list (what becomes true), and a delete list (what stops being true). A goal is a set of conditions to make true. Goel and Joyner's example: a robot has to paint both the ceiling and the ladder it stands on to reach the ceiling.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 225" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="so1" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="270" y="20" width="220" height="44" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="47.2" font-size="15" text-anchor="middle" fill="#8a4526" font-weight="bold">climb-ladder</text><rect x="20" y="110" width="220" height="70" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="130.0" y="133.9" font-size="12.5" text-anchor="middle" fill="#1f3b52">Preconditions</text><text x="130.0" y="149.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">on-floor</text><text x="130.0" y="164.9" font-size="12.5" text-anchor="middle" fill="#1f3b52">ladder-dry</text><rect x="270" y="110" width="220" height="70" rx="7" fill="#e3f2e7" stroke="#3c8a5a" stroke-width="1.8"/><text x="380.0" y="141.6" font-size="12.5" text-anchor="middle" fill="#1f3b52">Add list</text><text x="380.0" y="157.1" font-size="12.5" text-anchor="middle" fill="#1f3b52">on-ladder</text><rect x="520" y="110" width="220" height="70" rx="7" fill="#fde2e2" stroke="#b3261e" stroke-width="1.8"/><text x="630.0" y="141.6" font-size="12.5" text-anchor="middle" fill="#1f3b52">Delete list</text><text x="630.0" y="157.1" font-size="12.5" text-anchor="middle" fill="#1f3b52">on-floor</text><line x1="330" y1="66" x2="140" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#so1)"/><line x1="380" y1="66" x2="380" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#so1)"/><line x1="430" y1="66" x2="620" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#so1)"/><text x="380" y="210" font-size="12" text-anchor="middle" fill="#5b6b78">new state = (old state - delete list) + add list,  allowed only if the preconditions hold</text></svg>
+    <div class="diagram-caption">A STRIPS operator. Anything not mentioned in the add or delete list stays as it was.</div>
+</div>
+
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Plans as hierarchies of goals entered psychology with George Miller, Eugene Galanter and Karl Pribram's <em>Plans and the Structure of Behavior</em> (1960). Their unit of behaviour was the TOTE loop (Test, Operate, Test, Exit), nested inside larger TOTEs. To hammer a nail: test whether the nail is flush; if not, operate (lift, strike) and test again. This week's Bennett reading adds an evolutionary angle: planning means simulating futures before acting, and the hard part is not the simulation but deciding which futures are worth simulating.</p>
+</div>
+
+
+<h3>Part 2. A Planning Agent, and Goals That Clobber Each Other</h3>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">ladder_agent.py: operators</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># name: (preconditions, add list, delete list)
+OPS = {
+    &#x27;climb-ladder&#x27;:  ({&#x27;on-floor&#x27;, &#x27;ladder-dry&#x27;}, {&#x27;on-ladder&#x27;}, {&#x27;on-floor&#x27;}),
+    &#x27;descend&#x27;:       ({&#x27;on-ladder&#x27;}, {&#x27;on-floor&#x27;}, {&#x27;on-ladder&#x27;}),
+    &#x27;paint-ceiling&#x27;: ({&#x27;on-ladder&#x27;}, {&#x27;ceiling-painted&#x27;}, set()),
+    &#x27;paint-ladder&#x27;:  ({&#x27;on-floor&#x27;}, {&#x27;ladder-painted&#x27;}, {&#x27;ladder-dry&#x27;}),
+}
+START = frozenset({&#x27;on-floor&#x27;, &#x27;ladder-dry&#x27;})
+
+def apply(state, op):
+    pre, add, delete = OPS[op]
+    return frozenset((state - delete) | add) if pre &lt;= state else None</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">ladder_agent.py: a forward state-space planner</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def plan(state, goals):
+    &quot;&quot;&quot;Forward state-space planning: breadth-first over operator sequences
+    until every goal condition holds.&quot;&quot;&quot;
+    frontier, seen = deque([(state, [])]), {state}
+    while frontier:
+        s, steps = frontier.popleft()
+        if goals &lt;= s:
+            return steps
+        for op in OPS:
+            nxt = apply(s, op)
+            if nxt is not None and nxt not in seen:
+                seen.add(nxt)
+                frontier.append((nxt, steps + [op]))
+    return None</code>
+</div>
+
+<p>A tempting shortcut is to achieve goals one at a time. Whether that works depends entirely on the order:</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">ladder_agent.py: one goal at a time</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def one_goal_at_a_time(state, goals):
+    &quot;&quot;&quot;Achieve the goals in the order given, each with its own little plan.&quot;&quot;&quot;
+    steps = []
+    for g in goals:
+        sub = plan(state, {g})
+        if sub is None:
+            print(f&#x27;  cannot achieve {g} from {sorted(state)}&#x27;)
+            return None
+        for op in sub:
+            state = apply(state, op)
+        steps += sub
+    return steps
+
+print(&#x27;goals in order [ladder, ceiling]:&#x27;)
+print(&#x27;  plan:&#x27;, one_goal_at_a_time(START, [&#x27;ladder-painted&#x27;, &#x27;ceiling-painted&#x27;]))
+print(&#x27;goals in order [ceiling, ladder]:&#x27;)
+print(&#x27;  plan:&#x27;, one_goal_at_a_time(START, [&#x27;ceiling-painted&#x27;, &#x27;ladder-painted&#x27;]))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">goals in order [ladder, ceiling]:
+  cannot achieve ceiling-painted from [&#x27;ladder-painted&#x27;, &#x27;on-floor&#x27;]
+  plan: None
+goals in order [ceiling, ladder]:
+  plan: [&#x27;climb-ladder&#x27;, &#x27;paint-ceiling&#x27;, &#x27;descend&#x27;, &#x27;paint-ladder&#x27;]</code>
+</div>
+
+<p>Painting the ladder first deletes <code class="code-lesson-il">ladder-dry</code>, a precondition of climbing, so the ceiling becomes unreachable. In planning language, <code class="code-lesson-il">paint-ladder</code> <strong>clobbers</strong> (or threatens) a precondition of <code class="code-lesson-il">climb-ladder</code>. A <strong>partial-order planner</strong> builds the separate plans, finds threats like this one, and resolves each by adding an ordering constraint: the clobbering step must come after the step whose precondition it would destroy.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">ladder_agent.py: detecting threats</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def threats(plan_a, plan_b):
+    &quot;&quot;&quot;Steps of plan_a that delete a precondition of some step of plan_b.
+    If there are any, plan_a must come after plan_b (or be repaired).&quot;&quot;&quot;
+    found = []
+    for a in plan_a:
+        for b in plan_b:
+            clobbered = OPS[a][2] &amp; OPS[b][0]
+            if clobbered:
+                found.append((a, b, clobbered))
+    return found
+
+p_ladder, p_ceiling = plan(START, {&#x27;ladder-painted&#x27;}), plan(START, {&#x27;ceiling-painted&#x27;})
+print(&#x27;separate plans:&#x27;, p_ladder, p_ceiling)
+for a, b, what in threats(p_ladder, p_ceiling):
+    print(f&#x27;  threat: {a} deletes {sorted(what)}, which {b} needs, so {a} must come after {b}&#x27;)
+print(&#x27;joint plan by search:&#x27;, plan(START, {&#x27;ladder-painted&#x27;, &#x27;ceiling-painted&#x27;}))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">separate plans: [&#x27;paint-ladder&#x27;] [&#x27;climb-ladder&#x27;, &#x27;paint-ceiling&#x27;]
+  threat: paint-ladder deletes [&#x27;ladder-dry&#x27;], which climb-ladder needs, so paint-ladder must come after climb-ladder
+joint plan by search: [&#x27;climb-ladder&#x27;, &#x27;paint-ceiling&#x27;, &#x27;descend&#x27;, &#x27;paint-ladder&#x27;]</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 760 240" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="po" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="100" width="90" height="40" rx="7" fill="#f2f5f7" stroke="#5b6b78" stroke-width="1.8"/><text x="65.0" y="124.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">start</text><rect x="160" y="30" width="140" height="40" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="230.0" y="54.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">climb-ladder</text><rect x="380" y="30" width="140" height="40" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="450.0" y="54.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">paint-ceiling</text><rect x="300" y="180" width="140" height="40" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="370.0" y="204.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">paint-ladder</text><rect x="650" y="100" width="90" height="40" rx="7" fill="#f2f5f7" stroke="#5b6b78" stroke-width="1.8"/><text x="695.0" y="124.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">finish</text><line x1="112" y1="110" x2="158" y2="60" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#po)"/><line x1="302" y1="50" x2="378" y2="50" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#po)"/><line x1="522" y1="52" x2="648" y2="108" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#po)"/><text x="600" y="68" font-size="11" text-anchor="middle" fill="#1f3b52">ceiling-painted</text><line x1="112" y1="130" x2="298" y2="196" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#po)"/><line x1="442" y1="198" x2="648" y2="132" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#po)"/><text x="560" y="184" font-size="11" text-anchor="middle" fill="#1f3b52">ladder-painted</text><path d="M 330 178 C 300 140, 270 110, 250 74" fill="none" stroke="#b3261e" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#po)"/><text x="20" y="210" font-size="11.5" text-anchor="start" fill="#b3261e">threat: paint-ladder deletes</text><text x="20" y="226" font-size="11.5" text-anchor="start" fill="#b3261e">ladder-dry, which climbing needs</text><path d="M 215 72 C 220 130, 300 150, 360 178" fill="none" stroke="#3c8a5a" stroke-width="2.4" marker-end="url(#po)"/><text x="330" y="112" font-size="11.5" text-anchor="start" fill="#3c8a5a">ordering constraint added:</text><text x="330" y="128" font-size="11.5" text-anchor="start" fill="#3c8a5a">climb-ladder before paint-ladder</text></svg>
+    <div class="diagram-caption">A partial-order plan. Steps are ordered only where they must be. The threat (red dashed) is resolved by an ordering constraint (green): paint the ladder only after climbing it. Since painting the ladder also needs the robot on the floor, the ceiling gets painted in between.</div>
+</div>
+
+<p>Searching over complete sequences also finds the right plan here, because the problem is tiny. With twenty operators and a plan of ten steps, blind sequence search is hopeless, and reasoning about threats (which steps interact, and how) is what keeps planning tractable.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># STRIPS planning, and why goals can clobber each other.
+from collections import deque
+
+# name: (preconditions, add list, delete list)
+OPS = {
+    'climb-ladder':  ({'on-floor', 'ladder-dry'}, {'on-ladder'}, {'on-floor'}),
+    'descend':       ({'on-ladder'}, {'on-floor'}, {'on-ladder'}),
+    'paint-ceiling': ({'on-ladder'}, {'ceiling-painted'}, set()),
+    'paint-ladder':  ({'on-floor'}, {'ladder-painted'}, {'ladder-dry'}),
+}
+START = frozenset({'on-floor', 'ladder-dry'})
+
+def apply(state, op):
+    pre, add, delete = OPS[op]
+    return frozenset((state - delete) | add) if pre <= state else None
+
+def plan(state, goals):
+    """Forward state-space planning: breadth-first over operator sequences
+    until every goal condition holds."""
+    frontier, seen = deque([(state, [])]), {state}
+    while frontier:
+        s, steps = frontier.popleft()
+        if goals <= s:
+            return steps
+        for op in OPS:
+            nxt = apply(s, op)
+            if nxt is not None and nxt not in seen:
+                seen.add(nxt)
+                frontier.append((nxt, steps + [op]))
+    return None
+
+def one_goal_at_a_time(state, goals):
+    """Achieve the goals in the order given, each with its own little plan."""
+    steps = []
+    for g in goals:
+        sub = plan(state, {g})
+        if sub is None:
+            print(f'  cannot achieve {g} from {sorted(state)}')
+            return None
+        for op in sub:
+            state = apply(state, op)
+        steps += sub
+    return steps
+
+print('goals in order [ladder, ceiling]:')
+print('  plan:', one_goal_at_a_time(START, ['ladder-painted', 'ceiling-painted']))
+print('goals in order [ceiling, ladder]:')
+print('  plan:', one_goal_at_a_time(START, ['ceiling-painted', 'ladder-painted']))
+
+def threats(plan_a, plan_b):
+    """Steps of plan_a that delete a precondition of some step of plan_b.
+    If there are any, plan_a must come after plan_b (or be repaired)."""
+    found = []
+    for a in plan_a:
+        for b in plan_b:
+            clobbered = OPS[a][2] & OPS[b][0]
+            if clobbered:
+                found.append((a, b, clobbered))
+    return found
+
+p_ladder, p_ceiling = plan(START, {'ladder-painted'}), plan(START, {'ceiling-painted'})
+print('separate plans:', p_ladder, p_ceiling)
+for a, b, what in threats(p_ladder, p_ceiling):
+    print(f'  threat: {a} deletes {sorted(what)}, which {b} needs, so {a} must come after {b}')
+print('joint plan by search:', plan(START, {'ladder-painted', 'ceiling-painted'}))</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Plan in the Abstract, Then Refine</h3>
+<p>In week 3 the agent searched over concrete programs, running every candidate on every train pair. A planner can do better by reasoning in an <strong>abstract</strong> state space first. Here the abstract state is just the size of the grid and the size of its largest object, and each size-changing operator gets a model of its effect: <code class="code-lesson-il">double_w</code> doubles the width, <code class="code-lesson-il">crop_largest</code> makes the grid the size of the largest object, and so on.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_plan.py: operators with preconditions and effects</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def largest(g):
+    return crop_object(g, max(find_objects(g), key=lambda o: o[&#x27;size&#x27;]))
+
+def desc(g):
+    &quot;&quot;&quot;The abstract state a planner reasons about: grid size and the size
+    of the largest object. Cheap to compute, ignores colours entirely.&quot;&quot;&quot;
+    objs = find_objects(g)
+    big = max(objs, key=lambda o: o[&#x27;size&#x27;]) if objs else None
+    return {&#x27;h&#x27;: len(g), &#x27;w&#x27;: len(g[0]),
+            &#x27;oh&#x27;: big[&#x27;height&#x27;] if big else 0, &#x27;ow&#x27;: big[&#x27;width&#x27;] if big else 0}
+
+# name: (precondition on desc, effect on desc, concrete function)
+SIZE_OPS = {
+    &#x27;crop_largest&#x27;: (lambda d: d[&#x27;oh&#x27;] &gt; 0, lambda d: dict(d, h=d[&#x27;oh&#x27;], w=d[&#x27;ow&#x27;]), largest),
+    &#x27;double_w&#x27;:     (lambda d: True, lambda d: dict(d, w=2 * d[&#x27;w&#x27;]), lambda g: hconcat(g, g)),
+    &#x27;double_h&#x27;:     (lambda d: True, lambda d: dict(d, h=2 * d[&#x27;h&#x27;]), lambda g: vconcat(g, g)),
+    &#x27;mirror_w&#x27;:     (lambda d: True, lambda d: dict(d, w=2 * d[&#x27;w&#x27;]), lambda g: hconcat(g, flip_h(g))),
+    &#x27;mirror_h&#x27;:     (lambda d: True, lambda d: dict(d, h=2 * d[&#x27;h&#x27;]), lambda g: vconcat(g, flip_v(g))),
+    &#x27;scale2&#x27;:       (lambda d: True, lambda d: dict(d, h=2 * d[&#x27;h&#x27;], w=2 * d[&#x27;w&#x27;]), lambda g: scale(g, 2)),
+    &#x27;scale3&#x27;:       (lambda d: True, lambda d: dict(d, h=3 * d[&#x27;h&#x27;], w=3 * d[&#x27;w&#x27;]), lambda g: scale(g, 3)),
+    &#x27;transpose&#x27;:    (lambda d: True, lambda d: dict(d, h=d[&#x27;w&#x27;], w=d[&#x27;h&#x27;]), transpose),
+}
+NEUTRAL = {&#x27;none&#x27;: lambda g: g, &#x27;flip_h&#x27;: flip_h, &#x27;flip_v&#x27;: flip_v, &#x27;rot180&#x27;: rotate180}</code>
+</div>
+
+<p>The planner looks for operator sequences whose <em>predicted</em> effect turns every train input's size into the matching output's size. That is cheap: no grids are built. Only the plans that survive are <strong>refined</strong> into concrete programs, by trying size-neutral operators (flips, half-turns) in each gap and checking the result on the real grids.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_plan.py: abstract planning</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def abstract_plans(task, max_len=2):
+    &quot;&quot;&quot;Plan in the abstract space: every sequence of size-changing operators
+    whose predicted effect turns each train input&#x27;s size into its output&#x27;s.&quot;&quot;&quot;
+    starts = [desc(p[&#x27;input&#x27;]) for p in task[&#x27;train&#x27;]]
+    goals = [(len(p[&#x27;output&#x27;]), len(p[&#x27;output&#x27;][0])) for p in task[&#x27;train&#x27;]]
+    for n in range(0, max_len + 1):
+        for seq in itertools.product(SIZE_OPS, repeat=n):
+            ok = True
+            for d, goal in zip(starts, goals):
+                for name in seq:
+                    pre, eff, _ = SIZE_OPS[name]
+                    if not pre(d):
+                        ok = False
+                        break
+                    d = eff(d)
+                if not ok or (d[&#x27;h&#x27;], d[&#x27;w&#x27;]) != goal:
+                    ok = False
+                    break
+            if ok:
+                yield seq</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_plan.py: refinement</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def refine(seq, task):
+    &quot;&quot;&quot;Turn an abstract plan into a concrete program by optionally inserting
+    one size-neutral operator, and keep the first that fits every pair.&quot;&quot;&quot;
+    for pos in range(len(seq) + 1):
+        for nname, nf in NEUTRAL.items():
+            prog = list(seq[:pos]) + [nname] + list(seq[pos:])
+            def run(g, prog=prog):
+                for step in prog:
+                    g = NEUTRAL[step](g) if step in NEUTRAL else SIZE_OPS[step][2](g)
+                return g
+            try:
+                if all(run(p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;]):
+                    return [s for s in prog if s != &#x27;none&#x27;], run
+            except Exception:
+                pass
+    return None, None</code>
+</div>
+
+<p>On task <code class="code-lesson-il">3af2c5a8</code> (each output is the input reflected into a 2&times;2 block):</p>
+<div class="diagram">
+<svg viewBox="0 0 490 206" style="max-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr_3af2c5a8" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(54.0,26.0)"><rect x="-1" y="-1" width="42.0" height="32.0" fill="#555"/><rect x="0.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="10.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="10.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="20.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 1</text></g><line x1="74.0" y1="94.0" x2="74.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_3af2c5a8)"/><g transform="translate(34.0,132.0)"><rect x="-1" y="-1" width="82.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="0.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="10.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="10.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="10.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="10.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="20.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="30.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="30.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="40.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="40.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="40.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="50.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="50.0" width="10.0" height="10.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(168.0,26.0)"><rect x="-1" y="-1" width="42.0" height="32.0" fill="#555"/><rect x="0.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="20.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 2</text></g><line x1="188.0" y1="94.0" x2="188.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_3af2c5a8)"/><g transform="translate(148.0,132.0)"><rect x="-1" y="-1" width="82.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="0.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="30.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="30.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="30.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="30.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="30.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="30.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="40.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="40.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="40.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="50.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(282.0,26.0)"><rect x="-1" y="-1" width="42.0" height="32.0" fill="#555"/><rect x="0.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="20.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 3</text></g><line x1="302.0" y1="94.0" x2="302.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_3af2c5a8)"/><g transform="translate(262.0,132.0)"><rect x="-1" y="-1" width="82.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="0.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="10.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="10.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="20.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="20.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="30.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="30.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="30.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="40.0" width="10.0" height="10.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="40.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="10.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="30.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="50.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/><rect x="70.0" y="50.0" width="10.0" height="10.0" fill="#2ECC40" stroke="#444" stroke-width="0.6"/></g><g transform="translate(376.0,26.0)"><rect x="-1" y="-1" width="82.0" height="62.0" fill="#555"/><rect x="0.0" y="0.0" width="20.0" height="20.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="0.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="0.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="0.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="20.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="20.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="20.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="20.0" width="20.0" height="20.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="40.0" width="20.0" height="20.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="20.0" y="40.0" width="20.0" height="20.0" fill="#FFDC00" stroke="#444" stroke-width="0.6"/><rect x="40.0" y="40.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="60.0" y="40.0" width="20.0" height="20.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="40.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">test</text></g><line x1="416.0" y1="94.0" x2="416.0" y2="122.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_3af2c5a8)"/><rect x="386.0" y="132.0" width="60.0" height="60.0" rx="4" fill="#fff" stroke="#7a4f9a" stroke-width="2" stroke-dasharray="5,4"/><text x="416.0" y="171.0" font-size="26" text-anchor="middle" fill="#7a4f9a">?</text></svg>
+    <div class="diagram-caption">Task 3af2c5a8.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_plan_demo.py</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">from arc_utils import load_task
+from arc_plan import abstract_plans, refine
+
+task = load_task(&#x27;data/training/3af2c5a8.json&#x27;)
+skeletons = list(abstract_plans(task))
+print(len(skeletons), &#x27;abstract plans reach the right output size:&#x27;)
+for seq in skeletons:
+    prog, _ = refine(seq, task)
+    print(f&#x27;  {&quot; then &quot;.join(seq):24} -&gt;&#x27;, &#x27;fits: &#x27; + &#x27; then &#x27;.join(prog) if prog else &#x27;no refinement fits&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">9 abstract plans reach the right output size:
+  scale2                   -&gt; no refinement fits
+  double_w then double_h   -&gt; no refinement fits
+  double_w then mirror_h   -&gt; no refinement fits
+  double_h then double_w   -&gt; no refinement fits
+  double_h then mirror_w   -&gt; no refinement fits
+  mirror_w then double_h   -&gt; no refinement fits
+  mirror_w then mirror_h   -&gt; fits: mirror_w then mirror_h
+  mirror_h then double_w   -&gt; no refinement fits
+  mirror_h then mirror_w   -&gt; fits: mirror_h then mirror_w</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 780 240" style="max-width:760px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ab" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><text x="30" y="24" font-size="13" text-anchor="start" fill="#2e5a80" font-weight="bold">Abstract level (sizes only)</text><rect x="30" y="36" width="130" height="40" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="95.0" y="60.5" font-size="13" text-anchor="middle" fill="#1f3b52">3 x 3</text><rect x="250" y="36" width="150" height="40" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="325.0" y="60.5" font-size="13" text-anchor="middle" fill="#1f3b52">3 x 6</text><rect x="490" y="36" width="150" height="40" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="565.0" y="60.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">6 x 6 = goal</text><line x1="162" y1="56" x2="248" y2="56" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ab)"/><text x="205.0" y="48" font-size="11" text-anchor="middle" fill="#1f3b52">mirror_w</text><line x1="402" y1="56" x2="488" y2="56" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ab)"/><text x="445.0" y="48" font-size="11" text-anchor="middle" fill="#1f3b52">mirror_h</text><text x="30" y="112" font-size="13" text-anchor="start" fill="#c0693f" font-weight="bold">Concrete level (actual grids)</text><g transform="translate(50.0,128.0)"><rect x="-1" y="-1" width="66.0" height="50.0" fill="#555"/><rect x="0.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="0.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="32.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(250.0,128.0)"><rect x="-1" y="-1" width="130.0" height="50.0" fill="#555"/><rect x="0.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="0.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="0.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="32.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="32.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(490.0,128.0)"><rect x="-1" y="-1" width="130.0" height="98.0" fill="#555"/><rect x="0.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="0.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="0.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="0.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="16.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="16.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="32.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="32.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="32.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="48.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="48.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="48.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="48.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="48.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="48.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="48.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="48.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="64.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="64.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="64.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="64.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="64.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="64.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="64.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="64.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="80.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="16.0" y="80.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="32.0" y="80.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="48.0" y="80.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.0" y="80.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="80.0" y="80.0" width="16.0" height="16.0" fill="#7FDBFF" stroke="#444" stroke-width="0.6"/><rect x="96.0" y="80.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="112.0" y="80.0" width="16.0" height="16.0" fill="#000000" stroke="#444" stroke-width="0.6"/></g><line x1="120" y1="152" x2="240" y2="152" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ab)"/><line x1="390" y1="152" x2="480" y2="152" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ab)"/><line x1="95" y1="78" x2="95" y2="122" stroke="#5b6b78" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#ab)"/><line x1="325" y1="78" x2="325" y2="122" stroke="#5b6b78" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#ab)"/><text x="660" y="170" font-size="11.5" text-anchor="start" fill="#5b6b78">check against</text><text x="660" y="186" font-size="11.5" text-anchor="start" fill="#5b6b78">every train pair</text></svg>
+    <div class="diagram-caption">Planning at two levels. The abstract plan gets the size right; refinement fills in what the abstract level ignored and checks the actual cells.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_plan.py: sweep</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    solved, checked = [], 0
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        task = load_task(&#x27;data/training/&#x27; + name)
+        for seq in abstract_plans(task):
+            checked += 1
+            prog, run = refine(seq, task)
+            if prog is not None:
+                if all(run(t[&#x27;input&#x27;]) == t[&#x27;output&#x27;] for t in task[&#x27;test&#x27;]):
+                    solved.append((name[:-5], &#x27; then &#x27;.join(prog) or &#x27;identity&#x27;))
+                break
+    print(f&#x27;abstract plans refined: {checked}; tasks solved: {len(solved)}&#x27;)
+    for tid, prog in solved:
+        print(f&#x27;  {tid}: {prog}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">abstract plans refined: 1025; tasks solved: 21
+  1cf80156: crop_largest
+  1f85a75f: crop_largest
+  3af2c5a8: mirror_w then mirror_h
+  3c9b0459: rot180
+  4c4377d9: flip_v then mirror_h
+  6150a2bd: rot180
+  62c24649: mirror_w then mirror_h
+  67a3c6ac: flip_h
+  67e8384a: mirror_w then mirror_h
+  68b16354: flip_v
+  6d0aefbc: mirror_w
+  6fa7a44f: mirror_h
+  74dd1130: transpose
+  8be77c9e: mirror_h
+  9172f3a0: scale3
+  9dfd6313: transpose
+  a416b8f3: double_w
+  be94b721: crop_largest
+  c59eb873: scale2
+  c9e6f938: mirror_w
+  ed36ccf7: flip_h then transpose</code>
+</div>
+
+<p>Twenty-one tasks, found by refining about a thousand abstract plans across all 400 tasks. That is far fewer concrete checks than last week's program search needed (about 16,600) for a similar score. Week 3's search still solves a few tasks this planner misses, because its primitives include operations (like gravity) that this planner has no effect model for. That is the price of abstraction: <em>you can only plan with operators whose effects you can predict.</em></p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>A planner is a <strong>Decider</strong> that reasons about future states before the <strong>Actuator</strong> does anything. The operator models (preconditions and effects) are procedural knowledge in long-term <strong>Memory</strong>. Detecting threats between subplans is a job the <strong>Monitor</strong> can share: it watches for one part of the plan undoing another.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>The ladder robot's problem is easy for people. Why? What do people know that makes "paint the ceiling first" obvious?</li><li>Abstract planning ignored colours completely. Name an ARC task where that would be a serious mistake, and an abstract feature that would fix it.</li><li>Bennett says the hard part of planning is deciding which futures to simulate. How does the abstract planner decide?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Write a STRIPS operator with preconditions, add list, and delete list.</li><li>Explain how achieving goals one at a time can fail, and what a threat (clobbering) is.</li><li>Explain how a partial-order planner resolves a threat with an ordering constraint.</li><li>Explain planning in an abstract space followed by refinement, and its main limitation.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add a <code class="code-lesson-il">wait-to-dry</code> operator (precondition <code class="code-lesson-il">ladder-painted</code>, adds <code class="code-lesson-il">ladder-dry</code>). Now is there a plan that paints the ladder first? Is it longer?</li><li>List the abstract plans for <code class="code-lesson-il">a416b8f3</code> and <code class="code-lesson-il">c59eb873</code>. Which refinements fit?</li></ol><h3>Intermediate</h3>
+<ol><li>Write a <code class="code-lesson-il">merge(plan_a, plan_b)</code> that uses <code class="code-lesson-il">threats</code> to choose an order and returns a single plan, then check it by simulating it with <code class="code-lesson-il">apply</code>.</li><li>Add an abstract operator <code class="code-lesson-il">crop_all</code> with an effect model, and a field in <code class="code-lesson-il">desc</code> that it needs. Which new tasks does the planner solve?</li></ol><h3>Advanced</h3>
+<ol><li>Add colour to the abstract state (the set of colours present) and give <code class="code-lesson-il">recolor</code> operators an effect model. Measure how many abstract plans survive on colour-changing tasks.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Make planning the first strategy in your agent's Decider and program search the fallback. Record both scores and the time each takes.</li></ol></section>
+
+
+    </body>
+</html>

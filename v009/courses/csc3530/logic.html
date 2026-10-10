@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p>Logic is the most precise form of reasoning we have: from premises we believe, it derives conclusions that are <em>guaranteed</em> to be true. Knowledge-based AI uses logic in two ways: as a language for writing knowledge down unambiguously, and as a set of inference methods that work regardless of what the knowledge is about. This lesson covers the propositional core, forward and backward chaining, and resolution, and then finds a little family of ARC tasks that are logic problems in disguise.</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_logic_1_hofstadter.pdf" target="_blank"><b>Hofstadter &amp; Sander</b>, Ch. 7: <i>Everyday Concepts Versus Scientific Concepts</i></a> <span class="reading-meta">(pp. 391–394 &middot; PDF 406–409 &middot; 4 pages)</span><br>A formal (for-all, there-exists) definition next to what people actually carry around in their heads. Logic is precise; human concepts are not.</li></ul>
+</div>
+
+
+<h3>Part 1. Propositions, Connectives, and Truth</h3>
+<p>A <strong>proposition</strong> is a statement that is true or false: <em>it has feathers</em>, <em>this cell is coloured</em>. Connectives build bigger ones. Their meaning is fixed by a truth table:</p>
+<div class="diagram">
+<svg viewBox="0 0 680 170" style="max-width:660px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="tt" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="10" width="60" height="32" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="50.0" y="30.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">P</text><rect x="80" y="10" width="60" height="32" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="110.0" y="30.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">Q</text><rect x="140" y="10" width="100" height="32" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="190.0" y="30.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">P AND Q</text><rect x="240" y="10" width="100" height="32" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="290.0" y="30.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">P OR Q</text><rect x="340" y="10" width="100" height="32" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="390.0" y="30.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">P XOR Q</text><rect x="440" y="10" width="120" height="32" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="500.0" y="30.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">NOT (P OR Q)</text><rect x="560" y="10" width="100" height="32" rx="0" fill="#eef4f9" stroke="#5b6b78" stroke-width="1"/><text x="610.0" y="30.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">P =&gt; Q</text><rect x="20" y="42" width="60" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="50.0" y="61.5" font-size="13" text-anchor="middle" fill="#1f3b52">F</text><rect x="80" y="42" width="60" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="110.0" y="61.5" font-size="13" text-anchor="middle" fill="#1f3b52">F</text><rect x="140" y="42" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="190.0" y="61.5" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="240" y="42" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="290.0" y="61.5" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="340" y="42" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="390.0" y="61.5" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="440" y="42" width="120" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="500.0" y="61.5" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="560" y="42" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="610.0" y="61.5" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="20" y="72" width="60" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="50.0" y="91.5" font-size="13" text-anchor="middle" fill="#1f3b52">F</text><rect x="80" y="72" width="60" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="110.0" y="91.5" font-size="13" text-anchor="middle" fill="#1f3b52">T</text><rect x="140" y="72" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="190.0" y="91.5" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="240" y="72" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="290.0" y="91.5" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="340" y="72" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="390.0" y="91.5" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="440" y="72" width="120" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="500.0" y="91.5" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="560" y="72" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="610.0" y="91.5" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="20" y="102" width="60" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="50.0" y="121.5" font-size="13" text-anchor="middle" fill="#1f3b52">T</text><rect x="80" y="102" width="60" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="110.0" y="121.5" font-size="13" text-anchor="middle" fill="#1f3b52">F</text><rect x="140" y="102" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="190.0" y="121.5" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="240" y="102" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="290.0" y="121.5" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="340" y="102" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="390.0" y="121.5" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="440" y="102" width="120" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="500.0" y="121.5" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="560" y="102" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="610.0" y="121.5" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="20" y="132" width="60" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="50.0" y="151.6" font-size="13" text-anchor="middle" fill="#1f3b52">T</text><rect x="80" y="132" width="60" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="110.0" y="151.6" font-size="13" text-anchor="middle" fill="#1f3b52">T</text><rect x="140" y="132" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="190.0" y="151.6" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="240" y="132" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="290.0" y="151.6" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text><rect x="340" y="132" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="390.0" y="151.6" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="440" y="132" width="120" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="500.0" y="151.6" font-size="13" text-anchor="middle" fill="#b3261e" font-weight="bold">F</text><rect x="560" y="132" width="100" height="30" rx="0" fill="#fff" stroke="#9aa5ae" stroke-width="1"/><text x="610.0" y="151.6" font-size="13" text-anchor="middle" fill="#3c8a5a" font-weight="bold">T</text></svg>
+    <div class="diagram-caption">Truth tables. Note the last column: "P implies Q" is false only when P is true and Q is false. In particular, it is true whenever P is false, which surprises almost everyone.</div>
+</div>
+
+<p>The two inference rules you will meet most often:</p>
+<ul>
+    <li><strong>Modus ponens</strong>: from <em>P</em> and <em>P &rArr; Q</em>, conclude <em>Q</em>. (It has feathers; feathers imply bird; so it is a bird.)</li>
+    <li><strong>Modus tollens</strong>: from <em>not Q</em> and <em>P &rArr; Q</em>, conclude <em>not P</em>. (It is not a bird; feathers imply bird; so it has no feathers.)</li>
+</ul>
+<p><em>Predicate</em> logic adds objects, relations, and quantifiers ("for all x, if x is a bird then x has wings"). The ideas below carry over, with variables and matching, as in the pattern matcher from the production systems lesson.</p>
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>People are not natural logicians. In Peter Wason's <strong>selection task</strong> (1966), participants see four cards showing <em>A, K, 4, 7</em> and are told "if a card has a vowel on one side, it has an even number on the other." Which cards must you turn over to test the rule? Most people pick <em>A</em> and <em>4</em>; the correct answer is <em>A</em> and <em>7</em> (modus tollens). Yet when the same logic is dressed as a social rule, "if someone is drinking beer, they must be over 21," most people get it right. Content, not form, drives much human reasoning. This week's Hofstadter reading makes the same point about mathematical concepts: we hold them through familiar analogies, not their formal definitions.</p>
+</div>
+
+
+<h3>Part 2. A Logic Agent: Chaining and Resolution</h3>
+<p>The knowledge base is a set of <strong>Horn clauses</strong>: rules of the form <em>premise and premise and ... &rArr; conclusion</em>, plus some facts.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">logic_agent.py: knowledge base</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># Horn clauses: (set of premises, conclusion)
+RULES = [
+    ({&#x27;has-feathers&#x27;}, &#x27;bird&#x27;),
+    ({&#x27;bird&#x27;, &#x27;can-not-fly&#x27;, &#x27;swims&#x27;}, &#x27;penguin&#x27;),
+    ({&#x27;bird&#x27;, &#x27;flies&#x27;, &#x27;sings&#x27;}, &#x27;songbird&#x27;),
+    ({&#x27;songbird&#x27;, &#x27;yellow&#x27;}, &#x27;canary&#x27;),
+]
+FACTS = {&#x27;has-feathers&#x27;, &#x27;flies&#x27;, &#x27;sings&#x27;, &#x27;yellow&#x27;}</code>
+</div>
+
+<p><strong>Forward chaining</strong> starts from the facts and fires every rule whose premises are all known, repeatedly, until nothing new appears. <strong>Backward chaining</strong> starts from a question and works back to the facts, which is what you want when the knowledge base is large and you care about one conclusion.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ch" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><text x="190" y="24" font-size="13" text-anchor="middle" fill="#2e5a80" font-weight="bold">Forward chaining (data-driven)</text><rect x="30" y="50" width="130" height="32" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="95.0" y="70.2" font-size="12" text-anchor="middle" fill="#1f3b52">has-feathers</text><rect x="210" y="50" width="130" height="32" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="275.0" y="70.2" font-size="12" text-anchor="middle" fill="#1f3b52">flies, sings</text><rect x="30" y="120" width="130" height="32" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="95.0" y="140.2" font-size="12" text-anchor="middle" fill="#1f3b52">bird</text><rect x="120" y="190" width="130" height="32" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="185.0" y="210.2" font-size="12" text-anchor="middle" fill="#1f3b52">songbird</text><rect x="120" y="260" width="130" height="32" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="185.0" y="280.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">canary</text><line x1="95" y1="84" x2="95" y2="118" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ch)"/><line x1="95" y1="154" x2="165" y2="188" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ch)"/><line x1="275" y1="84" x2="205" y2="188" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ch)"/><line x1="185" y1="224" x2="185" y2="258" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#ch)"/><text x="300" y="278" font-size="11.5" text-anchor="middle" fill="#5b6b78">+ yellow</text><text x="560" y="24" font-size="13" text-anchor="middle" fill="#c0693f" font-weight="bold">Backward chaining (goal-driven)</text><rect x="500" y="50" width="130" height="32" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="565.0" y="70.2" font-size="12" text-anchor="middle" fill="#1f3b52" font-weight="bold">canary?</text><rect x="420" y="120" width="130" height="32" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="485.0" y="140.2" font-size="12" text-anchor="middle" fill="#1f3b52">songbird?</text><rect x="590" y="120" width="130" height="32" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="655.0" y="140.2" font-size="12" text-anchor="middle" fill="#1f3b52">yellow?  given</text><rect x="420" y="190" width="130" height="32" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="485.0" y="210.2" font-size="12" text-anchor="middle" fill="#1f3b52">bird?</text><rect x="590" y="190" width="130" height="32" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="655.0" y="210.2" font-size="12" text-anchor="middle" fill="#1f3b52">flies? sings?</text><rect x="420" y="260" width="130" height="32" rx="7" fill="#fff" stroke="#c0693f" stroke-width="1.8"/><text x="485.0" y="280.2" font-size="12" text-anchor="middle" fill="#1f3b52">has-feathers?</text><line x1="545" y1="84" x2="495" y2="118" stroke="#c0693f" stroke-width="1.8" marker-end="url(#ch)"/><line x1="585" y1="84" x2="640" y2="118" stroke="#c0693f" stroke-width="1.8" marker-end="url(#ch)"/><line x1="485" y1="154" x2="485" y2="188" stroke="#c0693f" stroke-width="1.8" marker-end="url(#ch)"/><line x1="515" y1="154" x2="630" y2="188" stroke="#c0693f" stroke-width="1.8" marker-end="url(#ch)"/><line x1="485" y1="224" x2="485" y2="258" stroke="#c0693f" stroke-width="1.8" marker-end="url(#ch)"/></svg>
+    <div class="diagram-caption">The same knowledge used two ways. Forward chaining derives everything that follows from the facts. Backward chaining derives only what is needed to answer the question.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">logic_agent.py: forward chaining</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def forward_chain(facts, rules):
+    &quot;&quot;&quot;Data-driven: keep firing any rule whose premises are all known.&quot;&quot;&quot;
+    known, changed = set(facts), True
+    while changed:
+        changed = False
+        for premises, conclusion in rules:
+            if premises &lt;= known and conclusion not in known:
+                print(f&#x27;  {&quot; &amp; &quot;.join(sorted(premises))}  =&gt;  {conclusion}&#x27;)
+                known.add(conclusion)
+                changed = True
+    return known
+
+print(&#x27;forward chaining:&#x27;)
+forward_chain(FACTS, RULES)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">logic_agent.py: backward chaining</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def backward_chain(goal, facts, rules, depth=0):
+    &quot;&quot;&quot;Goal-driven: to prove a goal, find a rule that concludes it and
+    prove each premise. Prints the proof tree as it goes.&quot;&quot;&quot;
+    pad = &#x27;    &#x27; * depth
+    if goal in facts:
+        print(f&#x27;{pad}{goal}: given&#x27;)
+        return True
+    for premises, conclusion in rules:
+        if conclusion == goal:
+            print(f&#x27;{pad}{goal}: try rule needing {sorted(premises)}&#x27;)
+            if all(backward_chain(p, facts, rules, depth + 1) for p in sorted(premises)):
+                return True
+    print(f&#x27;{pad}{goal}: cannot prove&#x27;)
+    return False
+
+print(&#x27;backward chaining: is it a canary?&#x27;)
+backward_chain(&#x27;canary&#x27;, FACTS, RULES)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">forward chaining:
+  has-feathers  =&gt;  bird
+  bird &amp; flies &amp; sings  =&gt;  songbird
+  songbird &amp; yellow  =&gt;  canary
+backward chaining: is it a canary?
+canary: try rule needing [&#x27;songbird&#x27;, &#x27;yellow&#x27;]
+    songbird: try rule needing [&#x27;bird&#x27;, &#x27;flies&#x27;, &#x27;sings&#x27;]
+        bird: try rule needing [&#x27;has-feathers&#x27;]
+            has-feathers: given
+        flies: given
+        sings: given
+    yellow: given</code>
+</div>
+
+<p>Horn clauses cannot express everything (for example, "it flies <em>or</em> it is a penguin"). <strong>Resolution</strong> handles any statement written in clause form (an OR of literals). To prove a query, add its negation and keep resolving pairs of clauses; if you ever derive the empty clause, the negated query contradicts what you know, so the query is true.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">logic_agent.py: resolution refutation</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def resolve(c1, c2):
+    &quot;&quot;&quot;All resolvents of two clauses (frozensets of literals, &#x27;-&#x27; = not).&quot;&quot;&quot;
+    out = []
+    for lit in c1:
+        neg = lit[1:] if lit.startswith(&#x27;-&#x27;) else &#x27;-&#x27; + lit
+        if neg in c2:
+            out.append((c1 - {lit}) | (c2 - {neg}))
+    return out
+
+def refute(clauses, query):
+    &quot;&quot;&quot;Proof by contradiction: add NOT query; if the empty clause can be
+    derived, the query follows from the clauses.&quot;&quot;&quot;
+    neg = query[1:] if query.startswith(&#x27;-&#x27;) else &#x27;-&#x27; + query
+    clauses = {frozenset(c) for c in clauses} | {frozenset([neg])}
+    while True:
+        new = set()
+        for a in clauses:
+            for b in clauses:
+                if a &lt; b or a == b:
+                    continue
+                for r in resolve(a, b):
+                    if not r:
+                        print(f&#x27;  {set(a)} + {set(b)} -&gt; empty clause: contradiction&#x27;)
+                        return True
+                    new.add(frozenset(r))
+        if new &lt;= clauses:
+            return False
+        clauses |= new
+
+# &quot;Penguins are birds&quot;, &quot;birds fly unless they are penguins&quot;, &quot;Pingu is a penguin&quot;
+# in clause form:  -penguin | bird ;  -bird | penguin | flies ; penguin
+print(&#x27;resolution: does Pingu fly?&#x27;, refute([{&#x27;-penguin&#x27;, &#x27;bird&#x27;}, {&#x27;-bird&#x27;, &#x27;penguin&#x27;, &#x27;flies&#x27;}, {&#x27;penguin&#x27;}], &#x27;flies&#x27;))
+print(&#x27;resolution: is Pingu a bird?&#x27;)
+print(&#x27;  proved:&#x27;, refute([{&#x27;-penguin&#x27;, &#x27;bird&#x27;}, {&#x27;-bird&#x27;, &#x27;penguin&#x27;, &#x27;flies&#x27;}, {&#x27;penguin&#x27;}], &#x27;bird&#x27;))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">resolution: does Pingu fly? False
+resolution: is Pingu a bird?
+  {&#x27;bird&#x27;} + {&#x27;-bird&#x27;} -&gt; empty clause: contradiction
+  proved: True</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 780 230" style="max-width:760px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="rs" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="20" width="170" height="34" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="105.0" y="41.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">-penguin OR bird</text><rect x="220" y="20" width="120" height="34" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="280.0" y="41.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">penguin</text><rect x="370" y="20" width="170" height="34" rx="7" fill="#fde2e2" stroke="#b3261e" stroke-width="1.8"/><text x="455.0" y="41.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">-bird  (negated query)</text><rect x="120" y="100" width="120" height="34" rx="7" fill="#fff" stroke="#2e5a80" stroke-width="1.8"/><text x="180.0" y="121.4" font-size="12.5" text-anchor="middle" fill="#1f3b52">bird</text><rect x="250" y="180" width="160" height="34" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="330.0" y="201.4" font-size="12.5" text-anchor="middle" fill="#1f3b52" font-weight="bold">empty clause</text><line x1="105" y1="56" x2="165" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rs)"/><line x1="280" y1="56" x2="200" y2="98" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rs)"/><line x1="180" y1="136" x2="300" y2="178" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rs)"/><line x1="455" y1="56" x2="360" y2="178" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#rs)"/><text x="560" y="110" font-size="12" text-anchor="start" fill="#1f3b52">Resolve two clauses that contain</text><text x="560" y="128" font-size="12" text-anchor="start" fill="#1f3b52">a literal and its negation;</text><text x="560" y="146" font-size="12" text-anchor="start" fill="#1f3b52">keep everything else.</text><text x="560" y="176" font-size="12" text-anchor="start" fill="#7a5a06" font-weight="bold">Empty clause = contradiction,</text><text x="560" y="194" font-size="12" text-anchor="start" fill="#7a5a06" font-weight="bold">so the query must be true.</text></svg>
+    <div class="diagram-caption">The resolution proof that Pingu is a bird.</div>
+</div>
+
+<p>"Does Pingu fly?" came back <em>False</em>, but read carefully: that means "cannot be proved," not "Pingu does not fly." Nothing in the knowledge base says penguins do not fly. Logic is sound (it never proves false things from true premises), but it only knows what you told it. Common sense needs far more knowledge than this, which is the subject of week 9.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Forward chaining, backward chaining, and resolution.
+# Horn clauses: (set of premises, conclusion)
+RULES = [
+    ({'has-feathers'}, 'bird'),
+    ({'bird', 'can-not-fly', 'swims'}, 'penguin'),
+    ({'bird', 'flies', 'sings'}, 'songbird'),
+    ({'songbird', 'yellow'}, 'canary'),
+]
+FACTS = {'has-feathers', 'flies', 'sings', 'yellow'}
+
+def forward_chain(facts, rules):
+    """Data-driven: keep firing any rule whose premises are all known."""
+    known, changed = set(facts), True
+    while changed:
+        changed = False
+        for premises, conclusion in rules:
+            if premises <= known and conclusion not in known:
+                print(f'  {" & ".join(sorted(premises))}  =>  {conclusion}')
+                known.add(conclusion)
+                changed = True
+    return known
+
+print('forward chaining:')
+forward_chain(FACTS, RULES)
+
+def backward_chain(goal, facts, rules, depth=0):
+    """Goal-driven: to prove a goal, find a rule that concludes it and
+    prove each premise. Prints the proof tree as it goes."""
+    pad = '    ' * depth
+    if goal in facts:
+        print(f'{pad}{goal}: given')
+        return True
+    for premises, conclusion in rules:
+        if conclusion == goal:
+            print(f'{pad}{goal}: try rule needing {sorted(premises)}')
+            if all(backward_chain(p, facts, rules, depth + 1) for p in sorted(premises)):
+                return True
+    print(f'{pad}{goal}: cannot prove')
+    return False
+
+print('backward chaining: is it a canary?')
+backward_chain('canary', FACTS, RULES)
+
+def resolve(c1, c2):
+    """All resolvents of two clauses (frozensets of literals, '-' = not)."""
+    out = []
+    for lit in c1:
+        neg = lit[1:] if lit.startswith('-') else '-' + lit
+        if neg in c2:
+            out.append((c1 - {lit}) | (c2 - {neg}))
+    return out
+
+def refute(clauses, query):
+    """Proof by contradiction: add NOT query; if the empty clause can be
+    derived, the query follows from the clauses."""
+    neg = query[1:] if query.startswith('-') else '-' + query
+    clauses = {frozenset(c) for c in clauses} | {frozenset([neg])}
+    while True:
+        new = set()
+        for a in clauses:
+            for b in clauses:
+                if a < b or a == b:
+                    continue
+                for r in resolve(a, b):
+                    if not r:
+                        print(f'  {set(a)} + {set(b)} -> empty clause: contradiction')
+                        return True
+                    new.add(frozenset(r))
+        if new <= clauses:
+            return False
+        clauses |= new
+
+# "Penguins are birds", "birds fly unless they are penguins", "Pingu is a penguin"
+# in clause form:  -penguin | bird ;  -bird | penguin | flies ; penguin
+print('resolution: does Pingu fly?', refute([{'-penguin', 'bird'}, {'-bird', 'penguin', 'flies'}, {'penguin'}], 'flies'))
+print('resolution: is Pingu a bird?')
+print('  proved:', refute([{'-penguin', 'bird'}, {'-bird', 'penguin', 'flies'}, {'penguin'}], 'bird'))</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Learning Truth Tables</h3>
+<p>Some ARC tasks show two halves of a grid and ask for a combination of them. Task <code class="code-lesson-il">0520fde7</code>:</p>
+<div class="diagram">
+<svg viewBox="0 0 530 165" style="max-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr_0520fde7" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(34.0,26.0)"><rect x="-1" y="-1" width="92.0" height="40.6" fill="#555"/><rect x="0.0" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="0.0" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="12.9" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="25.7" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="45.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 1</text></g><line x1="79.0" y1="72.6" x2="79.0" y2="100.6" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_0520fde7)"/><g transform="translate(59.7,110.6)"><rect x="-1" y="-1" width="40.6" height="40.6" fill="#555"/><rect x="0.0" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="12.9" width="12.9" height="12.9" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(158.0,26.0)"><rect x="-1" y="-1" width="92.0" height="40.6" fill="#555"/><rect x="0.0" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="0.0" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="12.9" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="25.7" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="45.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 2</text></g><line x1="203.0" y1="72.6" x2="203.0" y2="100.6" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_0520fde7)"/><g transform="translate(183.7,110.6)"><rect x="-1" y="-1" width="40.6" height="40.6" fill="#555"/><rect x="0.0" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="0.0" width="12.9" height="12.9" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="12.9" width="12.9" height="12.9" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="25.7" width="12.9" height="12.9" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/></g><g transform="translate(282.0,26.0)"><rect x="-1" y="-1" width="92.0" height="40.6" fill="#555"/><rect x="0.0" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="0.0" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="12.9" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="25.7" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><text x="45.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 3</text></g><line x1="327.0" y1="72.6" x2="327.0" y2="100.6" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_0520fde7)"/><g transform="translate(307.7,110.6)"><rect x="-1" y="-1" width="40.6" height="40.6" fill="#555"/><rect x="0.0" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.9" width="12.9" height="12.9" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="12.9" height="12.9" fill="#FF4136" stroke="#444" stroke-width="0.6"/></g><g transform="translate(406.0,26.0)"><rect x="-1" y="-1" width="92.0" height="40.6" fill="#555"/><rect x="0.0" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="0.0" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="0.0" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="0.0" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="12.9" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="12.9" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="12.9" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="12.9" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="25.7" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="38.6" y="25.7" width="12.9" height="12.9" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="51.4" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="64.3" y="25.7" width="12.9" height="12.9" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="77.1" y="25.7" width="12.9" height="12.9" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="45.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">test</text></g><line x1="451.0" y1="72.6" x2="451.0" y2="100.6" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_0520fde7)"/><rect x="431.0" y="110.6" width="40.0" height="40.0" rx="4" fill="#fff" stroke="#7a4f9a" stroke-width="2" stroke-dasharray="5,4"/><text x="451.0" y="139.6" font-size="26" text-anchor="middle" fill="#7a4f9a">?</text></svg>
+    <div class="diagram-caption">Task 0520fde7. A grey column splits each input into two halves.</div>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 502 104" style="max-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="hv" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(30.0,37.6)"><rect x="-1" y="-1" width="102.0" height="44.9" fill="#555"/><rect x="0.0" y="0.0" width="14.3" height="14.3" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="0.0" width="14.3" height="14.3" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="0.0" width="14.3" height="14.3" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="0.0" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="14.3" width="14.3" height="14.3" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="14.3" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="14.3" width="14.3" height="14.3" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="14.3" width="14.3" height="14.3" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="14.3" width="14.3" height="14.3" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="14.3" width="14.3" height="14.3" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="28.6" width="14.3" height="14.3" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="14.3" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="28.6" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="42.9" y="28.6" width="14.3" height="14.3" fill="#AAAAAA" stroke="#444" stroke-width="0.6"/><rect x="57.1" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="71.4" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="85.7" y="28.6" width="14.3" height="14.3" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="50.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">input</text></g><line x1="134.0" y1="59.0" x2="170.0" y2="59.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#hv)"/><g transform="translate(178.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">left half P</text></g><line x1="248.0" y1="59.0" x2="284.0" y2="59.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#hv)"/><g transform="translate(292.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">right half Q</text></g><line x1="362.0" y1="59.0" x2="398.0" y2="59.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#hv)"/><g transform="translate(406.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">output: P AND Q</text></g></svg>
+    <div class="diagram-caption">Read each half as a grid of propositions (coloured = true). The output is red exactly where both halves are true: P AND Q.</div>
+</div>
+
+<p>The agent does not need to know in advance which connective it is looking for. It treats each output cell as a function of two propositions and learns the truth table from the train pairs, rejecting the task if any combination of inputs ever maps to two different outputs. Then it names the table, if it has a name.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_logic.py: split into halves</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def split(grid):
+    &quot;&quot;&quot;Cut a grid into two equal halves: at a full line of one colour
+    through the middle if there is one, otherwise straight down the middle.&quot;&quot;&quot;
+    h, w = dims(grid)
+    mid_col = {grid[r][w // 2] for r in range(h)}
+    mid_row = set(grid[h // 2])
+    if w % 2 == 1 and len(mid_col) == 1 and mid_col != {0}:      # separator column
+        return [row[:w // 2] for row in grid], [row[w // 2 + 1:] for row in grid]
+    if h % 2 == 1 and len(mid_row) == 1 and mid_row != {0}:      # separator row
+        return grid[:h // 2], grid[h // 2 + 1:]
+    if w % 2 == 0 and w &gt;= h:
+        return [row[:w // 2] for row in grid], [row[w // 2:] for row in grid]
+    if h % 2 == 0:
+        return grid[:h // 2], grid[h // 2:]
+    return None</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_logic.py: learn a truth table</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def learn_truth_table(task):
+    &quot;&quot;&quot;Treat each cell of each half as a proposition (coloured = True).
+    Record which output colour goes with each (left, right) combination;
+    fail if any combination ever maps to two different outputs.&quot;&quot;&quot;
+    table = {}
+    for pair in task[&#x27;train&#x27;]:
+        halves = split(pair[&#x27;input&#x27;])
+        if not halves or dims(halves[0]) != dims(pair[&#x27;output&#x27;]):
+            return None
+        a, b = halves
+        for r, row in enumerate(pair[&#x27;output&#x27;]):
+            for c, v in enumerate(row):
+                key = (a[r][c] != 0, b[r][c] != 0)
+                if table.setdefault(key, v) != v:
+                    return None
+    return table
+
+NAMES = {(False, False, False, True): &#x27;AND&#x27;, (False, True, True, True): &#x27;OR&#x27;,
+         (False, True, True, False): &#x27;XOR&#x27;, (True, False, False, False): &#x27;NOR&#x27;,
+         (True, True, True, False): &#x27;NAND&#x27;, (True, False, False, True): &#x27;XNOR&#x27;}
+
+def name_of(table):
+    bits = tuple(table.get(k, 0) != 0 for k in [(False, False), (False, True), (True, False), (True, True)])
+    return NAMES.get(bits, &#x27;other&#x27;)
+
+def apply(table, grid):
+    a, b = split(grid)
+    return [[table[(a[r][c] != 0, b[r][c] != 0)] for c in range(len(a[0]))] for r in range(len(a))]</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_logic.py: sweep the training set</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        task = load_task(&#x27;data/training/&#x27; + name)
+        table = learn_truth_table(task)
+        if table and len(table) == 4:
+            test = task[&#x27;test&#x27;][0]
+            ok = apply(table, test[&#x27;input&#x27;]) == test[&#x27;output&#x27;]
+            print(f&#x27;{name[:-5]}: {name_of(table):4}  test {&quot;correct&quot; if ok else &quot;wrong&quot;}&#x27;)</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">0520fde7: AND   test correct
+1b2d62fb: NOR   test correct
+3428a4f5: XOR   test correct
+6430c8c4: NOR   test correct
+94f9d214: NOR   test correct
+99b1bc43: XOR   test correct
+ce4f8723: OR    test correct
+dae9d2b5: OR    test correct
+f2829549: NOR   test correct
+fafffa47: NOR   test correct</code>
+</div>
+
+<p>Ten tasks, five different connectives, one small learner. None of these was solved by last week's program search, because no sequence of flips and crops computes AND. This is a pattern worth remembering: <em>a new representation (cells as propositions) opens up a family of tasks that more search over the old representation never would.</em></p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Logic gives the <strong>Decider</strong> sound inference and gives long-term <strong>Memory</strong> an unambiguous language. Backward chaining is goal-driven, the style of reasoning MEA and planning use. In ARC, logic is best used as one more <em>representation</em> the Perceptor can offer: "these two regions are propositions."</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>Why does the Wason selection task get easier when it is about drinking ages? What does that suggest about how people store rules?</li><li>The logic agent says "cannot prove" rather than "false." When would an agent be justified in treating "cannot prove" as "false" (the closed-world assumption)? Is that justified in ARC?</li><li>Hofstadter and Sander argue that nobody really thinks with the epsilon-delta definition of continuity. Does that make formal logic a poor model of human thought, a good normative standard, or both?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Evaluate compound propositions with truth tables, including implication.</li><li>Apply modus ponens and modus tollens.</li><li>Contrast forward and backward chaining and say when each is better.</li><li>Carry out a short resolution refutation and interpret a failed proof correctly.</li><li>Learn a truth table from ARC train pairs.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add a rule to the knowledge base that concludes <code class="code-lesson-il">penguin</code> and facts that make it fire. Run both chaining methods.</li><li>Work the Wason selection task with a partner who has not seen it. Record their answer and their explanation.</li></ol><h3>Intermediate</h3>
+<ol><li>Make <code class="code-lesson-il">backward_chain</code> return the proof tree as a nested list instead of printing it, so the agent can explain itself later.</li><li>Extend the ARC truth-table learner to three equal parts (three propositions per cell). Is there a training task that needs it?</li></ol><h3>Advanced</h3>
+<ol><li>Add the clause <code class="code-lesson-il">{{'-penguin', '-flies'}}</code> ("penguins do not fly") and prove that Pingu does not fly. Then add "Pingu flies" as a fact and see what resolution can prove now. Explain the result.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Add the truth-table learner to your agent as a specialist the Decider calls when the Perceptor reports a grid that splits into two equal halves.</li></ol></section>
+
+
+    </body>
+</html>

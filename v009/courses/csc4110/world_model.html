@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC/EGR 4110</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC/EGR 4110: larger, sans-serif diagrams; readable solutions */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }   /* narrow panes: scroll, don't shrink the text */
+            .diagram-caption { font-size: 0.95em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+        </style>
+    </head>
+
+    <body>
+        <p>Each of your robots has a Memory, and so far it has been private: what the Scout remembers about the target is invisible to the Pointer unless the Scout says it, and the Pointer happens to be listening at that moment. A team needs more than that. It needs a <strong>shared world model</strong>: one place that holds what the team currently believes (who is on the team and alive, where the target is, what it is), how old each belief is and who it came from, and that any robot can read at any time, including one that has just rebooted. This lesson builds that place on the class hub, out of three things you already have: retained MQTT messages, the topic conventions, and the access list.</p>
+
+<h3>Part 1. Private Memories, Shared Memory</h3>
+        <div class="diagram">
+<svg viewBox="0 0 760 360" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="230" width="140" height="110" rx="10" fill="#ffffff" stroke="#2e5a80" stroke-width="2"/><text x="90.0" y="252.0" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">Scout A</text><rect x="34" y="264" width="112" height="30" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="1.4"/><text x="90.0" y="283.2" font-size="12" fill="#1f3b52" text-anchor="middle">own Memory</text><rect x="34" y="300" width="52" height="26" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.2"/><text x="60.0" y="317.2" font-size="12" fill="#1f3b52" text-anchor="middle">P</text><rect x="94" y="300" width="52" height="26" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.2"/><text x="120.0" y="317.2" font-size="12" fill="#1f3b52" text-anchor="middle">A</text><rect x="180" y="230" width="140" height="110" rx="10" fill="#ffffff" stroke="#2e5a80" stroke-width="2"/><text x="250.0" y="252.0" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">Scout B</text><rect x="194" y="264" width="112" height="30" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="1.4"/><text x="250.0" y="283.2" font-size="12" fill="#1f3b52" text-anchor="middle">own Memory</text><rect x="194" y="300" width="52" height="26" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.2"/><text x="220.0" y="317.2" font-size="12" fill="#1f3b52" text-anchor="middle">P</text><rect x="254" y="300" width="52" height="26" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.2"/><text x="280.0" y="317.2" font-size="12" fill="#1f3b52" text-anchor="middle">A</text><rect x="440" y="230" width="140" height="110" rx="10" fill="#ffffff" stroke="#2e5a80" stroke-width="2"/><text x="510.0" y="252.0" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">Watcher</text><rect x="454" y="264" width="112" height="30" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="1.4"/><text x="510.0" y="283.2" font-size="12" fill="#1f3b52" text-anchor="middle">own Memory</text><rect x="454" y="300" width="52" height="26" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.2"/><text x="480.0" y="317.2" font-size="12" fill="#1f3b52" text-anchor="middle">P</text><rect x="514" y="300" width="52" height="26" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.2"/><text x="540.0" y="317.2" font-size="12" fill="#1f3b52" text-anchor="middle">A</text><rect x="600" y="230" width="140" height="110" rx="10" fill="#ffffff" stroke="#2e5a80" stroke-width="2"/><text x="670.0" y="252.0" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">Pointer</text><rect x="614" y="264" width="112" height="30" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="1.4"/><text x="670.0" y="283.2" font-size="12" fill="#1f3b52" text-anchor="middle">own Memory</text><rect x="614" y="300" width="52" height="26" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.2"/><text x="640.0" y="317.2" font-size="12" fill="#1f3b52" text-anchor="middle">P</text><rect x="674" y="300" width="52" height="26" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1.2"/><text x="700.0" y="317.2" font-size="12" fill="#1f3b52" text-anchor="middle">A</text><rect x="230" y="20" width="300" height="120" rx="12" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="2"/><text x="380.0" y="44.0" font-size="14" fill="#6b4f9e" text-anchor="middle" font-weight="bold">hub: the team&#x27;s memory (world/#)</text><text x="250.0" y="72.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">world/roster</text><text x="350.0" y="72.0" font-size="13" fill="#1f3b52" text-anchor="start">who is here, role, alive?</text><text x="250.0" y="94.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">world/target</text><text x="350.0" y="94.0" font-size="13" fill="#1f3b52" text-anchor="start">where (x, y), quality, age</text><text x="250.0" y="116.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">world/ident</text><text x="350.0" y="116.0" font-size="13" fill="#1f3b52" text-anchor="start">what it is, confidence, age</text><line x1="68.0" y1="230.0" x2="229.6" y2="144.2" stroke="#2e5a80" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="6 4"/><polygon points="237.5,140.0 230.4,150.0 225.2,140.3" fill="#2e5a80"/><line x1="261.5" y1="140.0" x2="119.7" y2="225.4" stroke="#6b4f9e" stroke-width="1.6" stroke-linecap="round"/><polygon points="112.0,230.0 118.6,219.6 124.3,229.0" fill="#6b4f9e"/><line x1="228.0" y1="230.0" x2="303.5" y2="146.7" stroke="#2e5a80" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="6 4"/><polygon points="309.5,140.0 306.2,151.8 298.0,144.5" fill="#2e5a80"/><line x1="333.5" y1="140.0" x2="277.1" y2="222.6" stroke="#6b4f9e" stroke-width="1.6" stroke-linecap="round"/><polygon points="272.0,230.0 273.7,217.8 282.7,224.0" fill="#6b4f9e"/><line x1="488.0" y1="230.0" x2="431.6" y2="147.4" stroke="#2e5a80" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="6 4"/><polygon points="426.5,140.0 437.2,146.0 428.2,152.2" fill="#2e5a80"/><line x1="450.5" y1="140.0" x2="526.0" y2="223.3" stroke="#6b4f9e" stroke-width="1.6" stroke-linecap="round"/><polygon points="532.0,230.0 520.5,225.5 528.7,218.2" fill="#6b4f9e"/><line x1="648.0" y1="230.0" x2="506.2" y2="144.6" stroke="#2e5a80" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="6 4"/><polygon points="498.5,140.0 510.8,141.0 505.1,150.4" fill="#2e5a80"/><line x1="522.5" y1="140.0" x2="684.1" y2="225.8" stroke="#6b4f9e" stroke-width="1.6" stroke-linecap="round"/><polygon points="692.0,230.0 679.7,229.7 684.9,220.0" fill="#6b4f9e"/><line x1="336.0" y1="262.0" x2="366.0" y2="262.0" stroke="#2e5a80" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="6 4"/><text x="372.0" y="267.0" font-size="12" fill="#2e5a80" text-anchor="start">reports</text><line x1="336.0" y1="286.0" x2="366.0" y2="286.0" stroke="#6b4f9e" stroke-width="1.6" stroke-linecap="round"/><text x="372.0" y="291.0" font-size="12" fill="#6b4f9e" text-anchor="start">world/#</text></svg>
+            <div class="diagram-caption">Private memories and a shared one. Each robot keeps its own Memory for its own job, reports what it knows in its own subtree, and reads the team's beliefs from <span class="code-lesson-il">world/#</span>. The world model is one program on the hub that turns many reports into one consistent view. Because its messages are retained, a robot that joins late, or reboots mid-mission, gets the whole current view the moment it subscribes.</div>
+        </div>
+<p>In SAM terms, where does the shared world model live? Not inside any robot. For each robot, it is part of the <strong>environment</strong>: something it perceives through messages (with all the usual care: messages can be late, stale or missing) and influences only by reporting. It lives in the <strong>Memory of the hub agent</strong>, whose Perceptor is its subscriptions and whose Actuator is its retained publications. Thinking of it this way keeps one rule clear: a robot must never treat the world model as true. It is a belief, with an age, that the robot weighs like any other percept.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 260" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="330" height="190" rx="12" fill="#ffffff" stroke="#2e5a80" stroke-width="2.5"/><text x="34.0" y="42.0" font-size="15" fill="#2e5a80" text-anchor="start" font-weight="bold">Robot agent</text><rect x="40" y="95.0" width="83.33333333333333" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="81.7" y="127.5" font-size="13" fill="#1f3b52" text-anchor="middle">Perceptor</text><rect x="143.33333333333331" y="54" width="83.33333333333333" height="46" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="185.0" y="81.5" font-size="13" fill="#1f3b52" text-anchor="middle">Memory</text><rect x="143.33333333333331" y="138" width="83.33333333333333" height="56" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="185.0" y="170.6" font-size="13" fill="#1f3b52" text-anchor="middle">Decider</text><rect x="246.66666666666666" y="95.0" width="83.33333333333333" height="56" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="288.3" y="127.5" font-size="13" fill="#1f3b52" text-anchor="middle">Actuator</text><line x1="123.3" y1="137.0" x2="136.6" y2="148.8" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="143.3,154.8 131.5,151.6 138.8,143.4" fill="#1f3b52"/><line x1="123.3" y1="109.0" x2="137.7" y2="91.0" stroke="#b8860b" stroke-width="2" stroke-linecap="round"/><polygon points="143.3,84.0 140.8,96.0 132.2,89.2" fill="#b8860b"/><line x1="185.0" y1="109.0" x2="185.0" y2="129.0" stroke="#b8860b" stroke-width="2" stroke-linecap="round"/><polygon points="185.0,138.0 179.5,127.0 190.5,127.0" fill="#b8860b"/><polygon points="185.0,100.0 190.5,111.0 179.5,111.0" fill="#b8860b"/><line x1="226.7" y1="154.8" x2="239.9" y2="143.0" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="246.7,137.0 242.1,148.4 234.8,140.2" fill="#1f3b52"/><rect x="410" y="20" width="330" height="190" rx="12" fill="#ffffff" stroke="#2e5a80" stroke-width="2.5"/><text x="424.0" y="42.0" font-size="15" fill="#2e5a80" text-anchor="start" font-weight="bold">Hub agent: world model</text><rect x="430" y="95.0" width="83.33333333333333" height="56" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="471.7" y="127.5" font-size="13" fill="#1f3b52" text-anchor="middle">subscribe</text><rect x="533.3333333333334" y="54" width="83.33333333333333" height="46" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="575.0" y="81.5" font-size="13" fill="#1f3b52" text-anchor="middle">world state</text><rect x="533.3333333333334" y="138" width="83.33333333333333" height="56" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="575.0" y="170.6" font-size="13" fill="#1f3b52" text-anchor="middle">merge, vote</text><rect x="636.6666666666666" y="95.0" width="83.33333333333333" height="56" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="678.3" y="127.5" font-size="13" fill="#1f3b52" text-anchor="middle">publish</text><line x1="513.3" y1="137.0" x2="526.6" y2="148.8" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="533.3,154.8 521.5,151.6 528.8,143.4" fill="#1f3b52"/><line x1="513.3" y1="109.0" x2="527.7" y2="91.0" stroke="#b8860b" stroke-width="2" stroke-linecap="round"/><polygon points="533.3,84.0 530.8,96.0 522.2,89.2" fill="#b8860b"/><line x1="575.0" y1="109.0" x2="575.0" y2="129.0" stroke="#b8860b" stroke-width="2" stroke-linecap="round"/><polygon points="575.0,138.0 569.5,127.0 580.5,127.0" fill="#b8860b"/><polygon points="575.0,100.0 580.5,111.0 569.5,111.0" fill="#b8860b"/><line x1="616.7" y1="154.8" x2="629.9" y2="143.0" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="636.7,137.0 632.1,148.4 624.8,140.2" fill="#1f3b52"/><line x1="348.0" y1="70.0" x2="421.4" y2="92.4" stroke="#2e5a80" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4"/><polygon points="430.0,95.0 417.9,97.1 421.1,86.5" fill="#2e5a80"/><text x="380.0" y="62.0" font-size="12" fill="#2e5a80" text-anchor="middle">report</text><line x1="720.0" y1="120.0" x2="750.0" y2="120.0" stroke="#6b4f9e" stroke-width="2" stroke-linecap="round"/><line x1="750.0" y1="120.0" x2="750.0" y2="236.0" stroke="#6b4f9e" stroke-width="2" stroke-linecap="round"/><line x1="750.0" y1="236.0" x2="10.0" y2="236.0" stroke="#6b4f9e" stroke-width="2" stroke-linecap="round"/><line x1="10.0" y1="236.0" x2="10.0" y2="120.0" stroke="#6b4f9e" stroke-width="2" stroke-linecap="round"/><line x1="10.0" y1="120.0" x2="31.0" y2="120.0" stroke="#6b4f9e" stroke-width="2" stroke-linecap="round"/><polygon points="40.0,120.0 29.0,125.5 29.0,114.5" fill="#6b4f9e"/><text x="380.0" y="252.0" font-size="12" fill="#6b4f9e" text-anchor="middle" font-style="italic">world/# arrives at the robot&#x27;s Perceptor as a percept, with an age</text></svg>
+            <div class="diagram-caption">The world model drawn with SAM. The team's memory is the hub agent's Memory. Each robot reaches it only through its own Actuator (reporting) and its own Perceptor (reading <span class="code-lesson-il">world/#</span>), exactly as it reaches the physical world. Nothing writes directly into another agent's Memory.</div>
+        </div>
+<h3>Part 2. One Writer per Fact</h3>
+<p>The simplest design would let every robot write its beliefs straight into shared topics: the Scouts both publish <span class="code-lesson-il">world/target</span>, the Watchers both publish <span class="code-lesson-il">world/ident</span>. It fails in a way that is easy to miss on the bench. MQTT keeps only the <em>last</em> retained message on a topic, so the shared “truth” is whichever robot spoke most recently, and it flips every time the other one speaks.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20.0" y="24.0" font-size="14" fill="#d64545" text-anchor="start" font-weight="bold">Two writers on one topic: last writer wins</text><text x="130.0" y="53.0" font-size="13" fill="#2e5a80" text-anchor="end">Scout A</text><line x1="140.0" y1="48.0" x2="700.0" y2="48.0" stroke="#e3e8ec" stroke-width="1" stroke-linecap="round"/><circle cx="168.0" cy="48" r="6" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="168.0" y="38.0" font-size="11" fill="#2e5a80" text-anchor="middle">x=31</text><circle cx="308.0" cy="48" r="6" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="308.0" y="38.0" font-size="11" fill="#2e5a80" text-anchor="middle">x=31</text><circle cx="448.0" cy="48" r="6" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="448.0" y="38.0" font-size="11" fill="#2e5a80" text-anchor="middle">x=31</text><circle cx="588.0" cy="48" r="6" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="588.0" y="38.0" font-size="11" fill="#2e5a80" text-anchor="middle">x=31</text><text x="130.0" y="87.0" font-size="13" fill="#3c8a5a" text-anchor="end">Scout B</text><line x1="140.0" y1="82.0" x2="700.0" y2="82.0" stroke="#e3e8ec" stroke-width="1" stroke-linecap="round"/><circle cx="224.0" cy="82" r="6" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="224.0" y="72.0" font-size="11" fill="#3c8a5a" text-anchor="middle">x=44</text><circle cx="364.0" cy="82" r="6" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="364.0" y="72.0" font-size="11" fill="#3c8a5a" text-anchor="middle">x=44</text><circle cx="504.0" cy="82" r="6" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="504.0" y="72.0" font-size="11" fill="#3c8a5a" text-anchor="middle">x=44</text><circle cx="644.0" cy="82" r="6" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="644.0" y="72.0" font-size="11" fill="#3c8a5a" text-anchor="middle">x=44</text><text x="130.0" y="133.0" font-size="13" fill="#d64545" text-anchor="end">world/target</text><rect x="168.0" y="116" width="56.0" height="24" rx="2" fill="#fbe9e9" stroke="#d64545" stroke-width="1"/><text x="196.0" y="132.2" font-size="12" fill="#1f3b52" text-anchor="middle">31</text><rect x="224.0" y="116" width="84.0" height="24" rx="2" fill="#e9f5ee" stroke="#d64545" stroke-width="1"/><text x="266.0" y="132.2" font-size="12" fill="#1f3b52" text-anchor="middle">44</text><rect x="308.0" y="116" width="56.0" height="24" rx="2" fill="#fbe9e9" stroke="#d64545" stroke-width="1"/><text x="336.0" y="132.2" font-size="12" fill="#1f3b52" text-anchor="middle">31</text><rect x="364.0" y="116" width="84.0" height="24" rx="2" fill="#e9f5ee" stroke="#d64545" stroke-width="1"/><text x="406.0" y="132.2" font-size="12" fill="#1f3b52" text-anchor="middle">44</text><rect x="448.0" y="116" width="56.0" height="24" rx="2" fill="#fbe9e9" stroke="#d64545" stroke-width="1"/><text x="476.0" y="132.2" font-size="12" fill="#1f3b52" text-anchor="middle">31</text><rect x="504.0" y="116" width="84.0" height="24" rx="2" fill="#e9f5ee" stroke="#d64545" stroke-width="1"/><text x="546.0" y="132.2" font-size="12" fill="#1f3b52" text-anchor="middle">44</text><rect x="588.0" y="116" width="56.0" height="24" rx="2" fill="#fbe9e9" stroke="#d64545" stroke-width="1"/><text x="616.0" y="132.2" font-size="12" fill="#1f3b52" text-anchor="middle">31</text><rect x="644.0" y="116" width="56.0" height="24" rx="2" fill="#e9f5ee" stroke="#d64545" stroke-width="1"/><text x="672.0" y="132.2" font-size="12" fill="#1f3b52" text-anchor="middle">44</text><text x="20.0" y="184.0" font-size="14" fill="#3c8a5a" text-anchor="start" font-weight="bold">One writer (the hub) merges the reports</text><text x="130.0" y="211.0" font-size="12" fill="#2e5a80" text-anchor="end">Scout A report</text><circle cx="168.0" cy="206" r="5" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><circle cx="308.0" cy="206" r="5" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><circle cx="448.0" cy="206" r="5" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><circle cx="588.0" cy="206" r="5" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="130.0" y="237.0" font-size="12" fill="#3c8a5a" text-anchor="end">Scout B report</text><circle cx="224.0" cy="232" r="5" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><circle cx="364.0" cy="232" r="5" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><circle cx="504.0" cy="232" r="5" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><circle cx="644.0" cy="232" r="5" fill="#ffffff" stroke="#5b6b78" stroke-width="2"/><text x="130.0" y="273.0" font-size="13" fill="#3c8a5a" text-anchor="end">world/target</text><rect x="224.0" y="256" width="476.0" height="24" rx="2" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1"/><text x="462.0" y="272.2" font-size="12" fill="#1f3b52" text-anchor="middle">one fused answer: x = 37, quality from both</text></svg>
+            <div class="diagram-caption">Why each shared fact needs exactly one writer. Above, two Scouts publish their own estimates to the same retained topic, and every reader sees the answer flip back and forth. Below, the Scouts report in their own subtrees and one program on the hub combines them, so every reader sees the same, stable answer. This is also what the access list already enforces: each user may write only to <span class="code-lesson-il">lab/&lt;own name&gt;/#</span>.</div>
+        </div>
+<p>So the rule is: <strong>robots report, the world model decides, everyone reads</strong>. Robots never write <span class="code-lesson-il">world/#</span>, and the world model never writes into a robot's subtree. One new broker user, <span class="code-lesson-il">world</span>, owns the shared topics:</p>
+<div class="code-block" data-lang="text">
+<div class="code-block-header">
+<span class="code-block-filename">acl</span>
+<span class="code-block-lang">Config</span>
+</div>
+<span class="code-lesson-bl"># add to /etc/mosquitto/acl, then: sudo systemctl reload mosquitto
+user world
+topic read  lab/#                   # the world model hears every robot
+topic write world/#                 # and is the only user who may write world/#
+
+# in the general section, for everyone:
+pattern read world/#
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20.0" y="24.0" font-size="14" fill="#1f3b52" text-anchor="start" font-weight="bold">Who writes what</text><rect x="20" y="44" width="330" height="44" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.4"/><text x="30.0" y="62.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">lab/amy/stat/role</text><text x="30.0" y="80.0" font-size="12" fill="#5b6b78" text-anchor="start">{role: scout, x, y, heading}</text><text x="342.0" y="80.0" font-size="11" fill="#2e5a80" text-anchor="end">retained</text><rect x="20" y="96" width="330" height="44" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.4"/><text x="30.0" y="114.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">lab/amy/stat/online</text><text x="30.0" y="132.0" font-size="12" fill="#5b6b78" text-anchor="start">{online: true / false}</text><text x="342.0" y="132.0" font-size="11" fill="#2e5a80" text-anchor="end">retained, last will</text><rect x="20" y="148" width="330" height="44" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.4"/><text x="30.0" y="166.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">lab/&lt;fuser&gt;/tele/fix</text><text x="30.0" y="184.0" font-size="12" fill="#5b6b78" text-anchor="start">{x, y, q}</text><text x="342.0" y="184.0" font-size="11" fill="#2e5a80" text-anchor="end">5 Hz</text><rect x="20" y="200" width="330" height="44" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.4"/><text x="30.0" y="218.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">lab/raj/evt/ident</text><text x="30.0" y="236.0" font-size="12" fill="#5b6b78" text-anchor="start">{label: red, conf: 0.9}</text><text x="342.0" y="236.0" font-size="11" fill="#2e5a80" text-anchor="end">on event</text><rect x="20" y="252" width="330" height="44" rx="6" fill="#eaf1f7" stroke="#2e5a80" stroke-width="1.4"/><text x="30.0" y="270.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">lab/kim/evt/ident</text><text x="30.0" y="288.0" font-size="12" fill="#5b6b78" text-anchor="start">{label: green, conf: 0.6}</text><text x="342.0" y="288.0" font-size="11" fill="#2e5a80" text-anchor="end">on event</text><rect x="430" y="70" width="310" height="50" rx="6" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="1.4"/><text x="440.0" y="90.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">world/roster</text><text x="440.0" y="110.0" font-size="12" fill="#5b6b78" text-anchor="start">{amy: {role, online, seen_s}, …}</text><rect x="430" y="146" width="310" height="50" rx="6" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="1.4"/><text x="440.0" y="166.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">world/target</text><text x="440.0" y="186.0" font-size="12" fill="#5b6b78" text-anchor="start">{value: {x, y, q}, src, age_s, fresh}</text><rect x="430" y="222" width="310" height="50" rx="6" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="1.4"/><text x="440.0" y="242.0" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">world/ident</text><text x="440.0" y="262.0" font-size="12" fill="#5b6b78" text-anchor="start">{value: {label, conf}, src, age_s, fresh}</text><line x1="350.0" y1="66.0" x2="421.5" y2="91.9" stroke="#9aa5b1" stroke-width="1.4" stroke-linecap="round"/><polygon points="430.0,95.0 417.8,96.4 421.5,86.1" fill="#9aa5b1"/><line x1="350.0" y1="118.0" x2="421.4" y2="97.5" stroke="#9aa5b1" stroke-width="1.4" stroke-linecap="round"/><polygon points="430.0,95.0 420.9,103.3 417.9,92.8" fill="#9aa5b1"/><line x1="350.0" y1="170.0" x2="421.0" y2="170.9" stroke="#9aa5b1" stroke-width="1.4" stroke-linecap="round"/><polygon points="430.0,171.0 418.9,176.4 419.1,165.4" fill="#9aa5b1"/><line x1="350.0" y1="222.0" x2="421.4" y2="244.3" stroke="#9aa5b1" stroke-width="1.4" stroke-linecap="round"/><polygon points="430.0,247.0 417.9,249.0 421.1,238.5" fill="#9aa5b1"/><line x1="350.0" y1="274.0" x2="421.5" y2="249.9" stroke="#9aa5b1" stroke-width="1.4" stroke-linecap="round"/><polygon points="430.0,247.0 421.3,255.7 417.8,245.3" fill="#9aa5b1"/><text x="185.0" y="318.0" font-size="12" fill="#2e5a80" text-anchor="middle">written by each robot, in its own subtree</text><text x="585.0" y="318.0" font-size="12" fill="#6b4f9e" text-anchor="middle">written only by the world model, all retained</text></svg>
+            <div class="diagram-caption">The topic layout of the world model. Several reports feed each shared fact, and each shared fact carries its sources and its age. The world model reads only what it keeps (roles, presence, the fused position, identifications) and ignores the rest of the traffic.</div>
+        </div>
+<h3>Part 3. Beliefs Have Ages, Not Timestamps</h3>
+<p>Every shared fact is a <strong>belief</strong>: a value, who it came from, how old it is, and whether it is still fresh enough to act on. Fresh is not the same for every fact. A target position is useless after a couple of seconds if the target can move; an identification (“it is the red one”) stays good for much longer. The world model keeps a freshness limit per kind of fact and publishes the verdict along with the value.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 210" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><line x1="60.0" y1="120.0" x2="700.0" y2="120.0" stroke="#5b6b78" stroke-width="2" stroke-linecap="round"/><line x1="60.0" y1="120.0" x2="60.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="60.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">0 s</text><line x1="124.0" y1="120.0" x2="124.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="124.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">1 s</text><line x1="188.0" y1="120.0" x2="188.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="188.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">2 s</text><line x1="252.0" y1="120.0" x2="252.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="252.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">3 s</text><line x1="316.0" y1="120.0" x2="316.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="316.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">4 s</text><line x1="380.0" y1="120.0" x2="380.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="380.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">5 s</text><line x1="444.0" y1="120.0" x2="444.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="444.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">6 s</text><line x1="508.0" y1="120.0" x2="508.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="508.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">7 s</text><line x1="572.0" y1="120.0" x2="572.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="572.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">8 s</text><line x1="636.0" y1="120.0" x2="636.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="636.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">9 s</text><line x1="700.0" y1="120.0" x2="700.0" y2="126.0" stroke="#5b6b78" stroke-width="1.2" stroke-linecap="round"/><text x="700.0" y="144.0" font-size="12" fill="#5b6b78" text-anchor="middle">10 s</text><text x="20.0" y="60.0" font-size="13" fill="#2e5a80" text-anchor="start" font-weight="bold">target</text><rect x="60" y="46" width="128" height="26" rx="3" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1"/><text x="124.0" y="63.2" font-size="12" fill="#1f3b52" text-anchor="middle">fresh</text><rect x="188" y="46" width="512" height="26" rx="3" fill="#fff8e6" stroke="#d6a145" stroke-width="1"/><text x="444.0" y="63.2" font-size="12" fill="#1f3b52" text-anchor="middle">stale: shown, but do not act on it</text><text x="20.0" y="98.0" font-size="13" fill="#b8860b" text-anchor="start" font-weight="bold">ident</text><rect x="60" y="84" width="640" height="26" rx="3" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="1"/><text x="380.0" y="101.2" font-size="12" fill="#1f3b52" text-anchor="middle">fresh for 10 s</text><text x="380.0" y="180.0" font-size="13" fill="#1f3b52" text-anchor="middle" font-style="italic">The age is what the robot needs. The hub&#x27;s clock and the robot&#x27;s clock never agree,</text><text x="380.0" y="198.0" font-size="13" fill="#1f3b52" text-anchor="middle" font-style="italic">so the world model sends “0.4 s old at sending”, and the robot adds the time since it arrived.</text></svg>
+            <div class="diagram-caption">Freshness limits for two kinds of belief. A stale value is still published (it is better than nothing for a display), but it is flagged, and a robot's Decider should not aim a pointer at a two-second-old position. Sending ages instead of timestamps sidesteps the fact that the Picos' clocks are not synchronised with the hub or with each other.</div>
+        </div>
+<h3>Part 4. The World Model, as Pure Logic</h3>
+<p>Write the merging logic with no network code at all, so that you can test every rule with scripted reports. It keeps the roster (role, presence, last heard), the latest fused target and the latest identification from each Watcher, and produces the shared view on request. Two Watchers that disagree are settled by a confidence-weighted vote, and the result says who took part.</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">world.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># world.py -- the team's shared memory, kept by ONE writer on the hub (pure logic, no network)
+
+class WorldModel:
+    FRESH_S = {"target": 2.0, "ident": 10.0}     # how long each kind of belief stays fresh
+    OFFLINE_AFTER_S = 10.0                       # silent this long = treat as offline
+
+    def __init__(self):
+        self.roster = {}       # user -&gt; {"role", "online", "seen"}
+        self.target = None     # {"x", "y", "q", "src", "t"}
+        self.votes = {}        # user -&gt; (label, conf, t): each Watcher's latest identification
+
+    def ingest(self, topic, d, now):
+        """One report from a robot. topic is lab/&lt;user&gt;/&lt;kind&gt;/&lt;name&gt;; d is the decoded payload."""
+        parts = topic.split("/")
+        if len(parts) != 4 or parts[0] != "lab" or not isinstance(d, dict):
+            return False
+        _, user, kind, name = parts
+        r = self.roster.setdefault(user, {"role": None, "online": True, "seen": now})
+        r["seen"] = now
+        if (kind, name) == ("stat", "role"):
+            r["role"] = d.get("role")
+        elif (kind, name) == ("stat", "online"):
+            r["online"] = bool(d.get("online"))         # the last will sets this False
+        elif (kind, name) == ("tele", "fix"):
+            self.target = {"x": d["x"], "y": d["y"], "q": d.get("q", 0.0), "src": user, "t": now}
+        elif (kind, name) == ("evt", "ident"):
+            self.votes[user] = (d["label"], d["conf"], now)
+        else:
+            return False                                # not something the world model keeps
+        return True
+
+    def _belief(self, value, src, t, kind, now):
+        age = now - t
+        return {"value": value, "src": src, "age_s": round(age, 2),
+                "fresh": age &lt;= self.FRESH_S[kind]}
+
+    def snapshot(self, now):
+        """Everything the world model publishes: {topic: payload}."""
+        roster = {}
+        for u, r in sorted(self.roster.items()):
+            alive = r["online"] and now - r["seen"] &lt; self.OFFLINE_AFTER_S
+            roster[u] = {"role": r["role"], "online": alive, "seen_s": round(now - r["seen"], 1)}
+        out = {"world/roster": roster}
+        if self.target:
+            t = self.target
+            out["world/target"] = self._belief({"x": t["x"], "y": t["y"], "q": t["q"]},
+                                               [t["src"]], t["t"], "target", now)
+        fresh = [(u, lab, c, t) for u, (lab, c, t) in self.votes.items()
+                 if now - t &lt;= self.FRESH_S["ident"]]
+        if fresh:
+            score = {}
+            for u, lab, c, t in fresh:                  # confidence-weighted vote
+                score[lab] = score.get(lab, 0.0) + c
+            best = max(score, key=score.get)
+            out["world/ident"] = self._belief(
+                {"label": best, "conf": round(score[best] / sum(score.values()), 2)},
+                sorted(u for u, lab, c, t in fresh), max(t for *_, t in fresh), "ident", now)
+        return out
+</span>
+</div>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">test_world.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># test_world.py -- a scripted minute of reports, no broker needed
+w = WorldModel()
+w.ingest("lab/amy/stat/role",    {"role": "scout"}, 0.0)
+w.ingest("lab/raj/stat/role",    {"role": "watcher"}, 0.5)
+w.ingest("lab/kim/stat/role",    {"role": "watcher"}, 0.7)
+w.ingest("lab/amy/tele/fix",     {"x": 31.0, "y": 48.5, "q": 0.8}, 10.0)
+w.ingest("lab/raj/evt/ident",    {"label": "red", "conf": 0.9}, 11.0)
+w.ingest("lab/kim/evt/ident",    {"label": "green", "conf": 0.6}, 11.5)
+
+snap = w.snapshot(12.0)
+print(snap["world/target"])
+print(snap["world/ident"])
+
+w.ingest("lab/kim/stat/online",  {"online": False}, 13.0)    # kim's last will
+snap = w.snapshot(15.0)
+print(snap["world/target"]["fresh"], snap["world/roster"]["kim"]["online"])
+</span>
+</div>
+<div class="code-block" data-lang="text">
+<div class="code-block-header">
+<span class="code-block-filename">output</span>
+<span class="code-block-lang">Output</span>
+</div>
+<span class="code-lesson-bl">{'value': {'x': 31.0, 'y': 48.5, 'q': 0.8}, 'src': ['amy'], 'age_s': 2.0, 'fresh': True}
+{'value': {'label': 'red', 'conf': 0.6}, 'src': ['kim', 'raj'], 'age_s': 0.5, 'fresh': True}
+False False
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 760 200" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="210" height="54" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="125.0" y="61.9" font-size="14" fill="#1f3b52" text-anchor="middle">raj: red, 0.9</text><rect x="20" y="110" width="210" height="54" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="125.0" y="141.9" font-size="14" fill="#1f3b52" text-anchor="middle">kim: green, 0.6</text><rect x="300" y="60" width="190" height="74" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="395.0" y="93.2" font-size="14" fill="#c0693f" text-anchor="middle" font-weight="bold">vote</text><text x="395.0" y="110.7" font-size="14" fill="#1f3b52" text-anchor="middle">red 0.9 vs green 0.6</text><rect x="560" y="60" width="180" height="74" rx="8" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="2"/><text x="650.0" y="93.2" font-size="14" fill="#6b4f9e" text-anchor="middle" font-weight="bold">world/ident</text><text x="650.0" y="110.7" font-size="14" fill="#1f3b52" text-anchor="middle">red, conf 0.6</text><line x1="230.0" y1="57.0" x2="291.6" y2="81.7" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="300.0,85.0 287.7,86.0 291.8,75.8" fill="#1f3b52"/><line x1="230.0" y1="137.0" x2="291.6" y2="113.2" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="300.0,110.0 291.7,119.1 287.8,108.8" fill="#1f3b52"/><line x1="490.0" y1="97.0" x2="551.0" y2="97.0" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="560.0,97.0 549.0,102.5 549.0,91.5" fill="#1f3b52"/><text x="380.0" y="186.0" font-size="13" fill="#5b6b78" text-anchor="middle" font-style="italic">conf = winning score / total score = 0.9 / 1.5 = 0.6: agreement is part of the answer</text></svg>
+            <div class="diagram-caption">Merging two disagreeing identifications. Red wins because its Watcher was more confident, but the published confidence drops to 0.6 because the team did not agree. A Decider downstream (the mission coordinator in the next lesson) can then ask for a second look instead of acting on a split decision.</div>
+        </div>
+<p>Look at the last line of the output. When Kim's robot drops off, its last will marks it offline at once; the target belief, now five seconds old, is still in the view but flagged stale. Neither fact is deleted. Deleting would make a late joiner believe there had never been a target, which is a different and worse belief than “there was one, five seconds ago”.</p>
+<h3>Part 5. Running It on the Hub</h3>
+<p>The service that wraps the logic is short. It runs on the class Pi as an ordinary Python program, using the <span class="code-lesson-il">paho-mqtt</span> library (<span class="code-lesson-il">pip install paho-mqtt</span>). It subscribes to everything in <span class="code-lesson-il">lab/#</span> (any message at all proves its sender is alive, which keeps the roster honest), feeds each one to the model, which keeps only what it needs, and publishes the view retained, whenever it changes and once a second as a heartbeat so that ages keep moving.</p>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">worldsvc.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl"># worldsvc.py -- runs on the class Pi: the ONLY program that writes world/#
+import json, time
+import paho.mqtt.client as mqtt
+from world import WorldModel
+
+BROKER, USER, PASSWORD = "localhost", "world", "PASSWORD"
+w = WorldModel()
+last = {}                                      # what we last published on each topic
+
+def on_message(client, userdata, msg):
+    try:
+        d = json.loads(msg.payload)
+    except ValueError:
+        return                                 # a malformed report changes nothing
+    w.ingest(msg.topic, d, time.monotonic())
+
+def on_connect(client, userdata, flags, reason_code, properties):
+    client.subscribe("lab/#")         # everything: any message proves its sender is alive
+
+c = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="world")
+c.username_pw_set(USER, PASSWORD)
+c.on_connect, c.on_message = on_connect, on_message
+c.connect(BROKER)
+c.loop_start()                                 # network on its own thread
+
+beat = 0.0
+while True:
+    now = time.monotonic()
+    for topic, payload in w.snapshot(now).items():
+        text = json.dumps(payload, sort_keys=True)
+        if text != last.get(topic) or now - beat &gt;= 1.0:   # on change, and a 1 s heartbeat
+            c.publish(topic, text, qos=1, retain=True)     # retained: late joiners get it at once
+            last[topic] = text
+    if now - beat &gt;= 1.0:
+        beat = now
+    time.sleep(0.1)
+</span>
+</div>
+<p>On each robot, a small reader turns the shared view into percepts with ages. It belongs to the <strong>Perceptor</strong>: it receives, checks and ages the world model's messages, and the Decider asks it questions such as “is there a fresh target?”.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">worldview.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl"># worldview.py -- on each robot: the team's beliefs, as percepts with ages
+from time import ticks_ms, ticks_diff
+import hub
+
+class WorldView:
+    LIMIT_S = {"target": 2.0, "ident": 10.0}           # the same freshness rules as the hub
+
+    def __init__(self, h):
+        self.msgs = {}                                   # key -&gt; (payload, ms when received)
+        for key in ("roster", "target", "ident"):
+            h.on("world/" + key, self.on_world)
+
+    def on_world(self, topic, payload):
+        d = hub.decode(payload)
+        if isinstance(d, dict):
+            self.msgs[topic.split("/")[1]] = (d, ticks_ms())
+
+    def get(self, key):
+        """(value, age_s, fresh) or (None, None, False). Age = age at publish + time since."""
+        if key not in self.msgs:
+            return None, None, False
+        d, rx = self.msgs[key]
+        if key == "roster":
+            return d, ticks_diff(ticks_ms(), rx) / 1000, True
+        age = d["age_s"] + ticks_diff(ticks_ms(), rx) / 1000
+        return d["value"], age, d["fresh"] and age &lt;= self.LIMIT_S.get(key, 2.0)
+</span>
+</div>
+<p>Use it as one more source of percepts. A Pointer's Perceptor might return <span class="code-lesson-il">{"target": (x, y), "target_fresh": True, "ident": "red"}</span> next to its own eye readings, and its arbiter's Track behaviour wants control only when <span class="code-lesson-il">target_fresh</span> is true. If the hub goes silent, ages grow, beliefs turn stale, and the robot falls back to its own behaviours. Nothing in the robot waits for the world model.</p>
+<h3>Part 6. What Can Still Go Wrong</h3>
+<p>A shared world model removes the flip-flopping of Part 2, but distributed memory always has hazards. Name them in your designs:</p>
+<ul>
+    <li><strong>Stale reads.</strong> Every robot sees the world a little late (network delay, plus up to a heartbeat). Act on ages, never on the bare value.</li>
+    <li><strong>Ghosts.</strong> A retained message outlives its writer. If the world model itself crashes, its last retained view stays on the broker, with ages frozen at the moment it was sent. That is why robots add the time since arrival: a frozen view still ages, on the robot, and turns stale.</li>
+    <li><strong>Split decisions.</strong> Two robots read the same fresh belief and both act on it (both Pointers turn to the target). Shared memory is not coordination. Who acts is decided by a <em>lease</em> or a coordinator, the subject of the next two weeks.</li>
+    <li><strong>Garbage in.</strong> One robot reporting nonsense (a Watcher with a dead LED reporting “red” at 0.99) can outvote the rest. The contract checker of Week 11 should run on every report before <span class="code-lesson-il">ingest</span>, and a very confident outlier deserves a log line.</li>
+</ul>
+
+                <h3>Exercises</h3>
+        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <h4>Warm Up</h4>
+        <p><strong>Exercise 1: Who Writes?</strong> For each topic say which user may write it under the new access list: (a) <span class="code-lesson-il">lab/amy/stat/role</span>, (b) <span class="code-lesson-il">world/target</span>, (c) <span class="code-lesson-il">world/roster</span>, (d) <span class="code-lesson-il">lab/world/stat/online</span>.</p>
+        <p><strong>Exercise 2: How Old?</strong> A robot receives <span class="code-lesson-il">world/target</span> with <span class="code-lesson-il">age_s</span> 0.6. Its Decider reads the belief 1.1 s later. How old is the belief, and is it fresh under a 2 s limit? What if the heartbeat then stops for 3 s?</p>
+        <h4>Intermediate</h4>
+        <p><strong>Exercise 3: A Three-Way Vote.</strong> Three Watchers report red 0.7, green 0.8 and red 0.4 within ten seconds. What does <span class="code-lesson-il">world/ident</span> say, with what confidence? Then the green Watcher's report turns 11 s old. What changes?</p>
+        <h4>Advanced</h4>
+        <p><strong>Exercise 4: Roles from the Roster.</strong> Add <span class="code-lesson-il">alive_by_role(snapshot)</span>, which returns <span class="code-lesson-il">{"scout": ["amy"], "watcher": ["raj"], …}</span> using only robots that are online, and use it to write <span class="code-lesson-il">ready(snapshot)</span>, true when at least two scouts, one watcher and one pointer are alive. Test it with the scripted reports from Part 4 plus a pointer.</p>
+
+        <h3>Solutions</h3>
+        <p>Give each exercise an honest try before opening its solution.</p>
+        <h4>Warm Up</h4>
+        <details>
+        <summary>Exercise 1: Who Writes?</summary>
+<p>(a) Only <strong>amy</strong> (the <span class="code-lesson-il">pattern write lab/%u/#</span> rule) and the instructor. (b) and (c) Only the <strong>world</strong> user (and the instructor). (d) The <strong>world</strong> user, through the same pattern rule: it is that user's own subtree, which is where the world service should put its own last will, so that robots can tell the world model itself has gone away.</p>
+        </details>
+        <details>
+        <summary>Exercise 2: How Old?</summary>
+<p>0.6 + 1.1 = <strong>1.7 s</strong>: fresh under 2 s, just. If the heartbeat stops, no newer message arrives and the robot keeps adding time since arrival: after another 0.3 s the belief crosses 2 s and turns stale, even though nobody told the robot anything. That is the protection against ghosts in Part 6.</p>
+        </details>
+        <h4>Intermediate</h4>
+        <details>
+        <summary>Exercise 3: A Three-Way Vote</summary>
+<p>Scores: red 0.7 + 0.4 = 1.1, green 0.8. Red wins with confidence 1.1 / 1.9 = <strong>0.58</strong>, sources all three. Two lukewarm votes beat one confident one, which is a choice built into summing. When the green report expires, only the red votes count: red with confidence 1.1 / 1.1 = <strong>1.0</strong>. The label did not change, but the confidence jumped, and nothing new was observed. A coordinator that requires confidence 0.8 before marking would act at this moment, purely because a dissenting vote aged out. Whether that is acceptable is a design decision; write it down.</p>
+        </details>
+        <h4>Advanced</h4>
+        <details>
+        <summary>Exercise 4: Roles from the Roster</summary>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">roles.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl">def alive_by_role(snapshot):
+    out = {}
+    for user, r in snapshot["world/roster"].items():
+        if r["online"] and r["role"]:
+            out.setdefault(r["role"], []).append(user)
+    return out
+
+NEED = {"scout": 2, "watcher": 1, "pointer": 1}
+
+def ready(snapshot):
+    have = alive_by_role(snapshot)
+    return all(len(have.get(role, [])) &gt;= n for role, n in NEED.items())
+</span>
+</div>
+<div class="code-block" data-lang="python">
+<div class="code-block-header">
+<span class="code-block-filename">test_roles.py</span>
+<span class="code-block-lang">Python</span>
+</div>
+<span class="code-lesson-bl">w = WorldModel()
+for t, (u, role) in enumerate([("amy", "scout"), ("raj", "watcher"), ("lee", "pointer")]):
+    w.ingest(f"lab/{u}/stat/role", {"role": role}, float(t))
+print(ready(w.snapshot(3.0)))                    # False: only one scout
+w.ingest("lab/bo/stat/role", {"role": "scout"}, 3.5)
+print(alive_by_role(w.snapshot(4.0)))            # {'scout': ['amy', 'bo'], 'pointer': ['lee'], 'watcher': ['raj']}
+print(ready(w.snapshot(4.0)))                    # True
+print(ready(w.snapshot(14.0)))                   # False: nobody heard from for 10 s
+</span>
+</div>
+<p>The last line matters: robots that report only on change can look dead to a roster that times out after ten seconds. Either give every robot a periodic heartbeat (its telemetry usually is one), or have the roster trust <span class="code-lesson-il">stat/online</span> alone. The next lesson's coordinator uses <span class="code-lesson-il">ready</span> to decide whether a mission may start.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Where It Lives.</strong> In SAM terms, where does the shared world model live, and how does a robot reach it?</p>
+        <p><strong>P2. One Writer.</strong> State the rule for writing shared facts, and the access-list arrangement that enforces it.</p>
+        <p><strong>P3. Ages, Not Timestamps.</strong> Why does the world model publish ages instead of timestamps?</p>
+        <p><strong>P4. Four Hazards.</strong> Name four hazards of shared memory from the lesson.</p>
+        <h4>Apply</h4>
+        <p><strong>P5. How Old Now.</strong> A robot receives <span class="code-lesson-il">world/target</span> with <span class="code-lesson-il">age_s</span> 0.6 and reads it 1.1 s later. How old is the belief? Is it fresh under a 2 s limit? If no further message arrives, when does it turn stale?</p>
+        <p><strong>P6. Vote.</strong> Watchers report red 0.7, green 0.8 and red 0.4, all fresh. What does <span class="code-lesson-il">world/ident</span> say, with what confidence? Then the green report expires.</p>
+        <p><strong>P7. Roster.</strong> The roster marks a robot offline when it is silent for 10 s or its last will says offline. A robot publishes telemetry every 2 s, then its power is cut at t = 30 s. The broker's keepalive is 30 s. Roughly when is it shown offline, and by which rule?</p>
+        <p><strong>P8. Who May Write.</strong> Under the world model's access list, who may write (a) <span class="code-lesson-il">lab/amy/stat/role</span>, (b) <span class="code-lesson-il">world/target</span>, (c) <span class="code-lesson-il">lab/world/stat/online</span>?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Flip-Flop.</strong> Two Scouts each publish their own fix and the world model simply keeps the latest. What does every reader see, and give two fixes.</p>
+        <p><strong>P10. Don't Delete.</strong> When a target belief becomes stale, why does the world model keep publishing it (flagged stale) rather than deleting it?</p>
+        <p><strong>P11. Liar.</strong> One Watcher with a dead LED reports blue at confidence 0.99 while two others report red at 0.5. Who wins the vote? Propose two defences.</p>
+        <p><strong>P12. Percept, Not Truth.</strong> Give a concrete moment when a Pointer would do the wrong thing if it treated the world model as the truth, and the rule that prevents it.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Where It Lives</summary>
+<p>In the Memory of the hub agent. A robot reaches it only through its own Actuator (reporting) and its own Perceptor (reading <span class="code-lesson-il">world/#</span>), as part of its environment.</p>
+        </details>
+        <details>
+        <summary>P2. One Writer</summary>
+<p>Robots report, the world model decides, everyone reads: each shared fact has exactly one writer. Only the <span class="code-lesson-il">world</span> user may write <span class="code-lesson-il">world/#</span>; robots write only their own subtrees.</p>
+        </details>
+        <details>
+        <summary>P3. Ages, Not Timestamps</summary>
+<p>The hub's clock and the robots' clocks are not synchronised; an age at sending plus the time since arrival (measured on the robot's own clock) gives each robot a usable age.</p>
+        </details>
+        <details>
+        <summary>P4. Four Hazards</summary>
+<p>Stale reads; ghosts (retained messages outliving their writer); split decisions (two robots acting on the same belief); garbage in (a robot reporting nonsense that outvotes the rest).</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. How Old Now</summary>
+<p>1.7 s, fresh. It turns stale 0.3 s later (2.0 − 1.7), with no message needed.</p>
+        </details>
+        <details>
+        <summary>P6. Vote</summary>
+<p>Red 1.1 vs green 0.8: red, confidence 1.1 / 1.9 = 0.58. After green expires: red, confidence 1.1 / 1.1 = 1.0, although nothing new was observed.</p>
+        </details>
+        <details>
+        <summary>P7. Roster</summary>
+<p>By silence: last message at about t = 30, so shown offline at about t = 40 (the will would come later, between 30 and 45 s after the failure, so the silence rule fires first).</p>
+        </details>
+        <details>
+        <summary>P8. Who May Write</summary>
+<p>(a) amy (and the instructor). (b) only the world user (and the instructor). (c) the world user, through the general rule for its own subtree.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Flip-Flop</summary>
+<p><span class="code-lesson-il">world/target</span> flips between the two answers every time either Scout reports (and its source changes). Fix by merging in the world model (a quality-weighted mean of fresh fixes) or by giving positions a single writer (a fuser that crosses the bearings).</p>
+        </details>
+        <details>
+        <summary>P10. Don't Delete</summary>
+<p>Deleting would make a late joiner believe there had never been a target, a different and worse belief than "there was one, five seconds ago"; a stale value is still useful for a display, and the flag stops anyone acting on it.</p>
+        </details>
+        <details>
+        <summary>P11. Liar</summary>
+<p>Blue (0.99 against 1.0 for red is nearly a tie, and any slightly higher blue confidence wins). Defences: check every report against the contract and plausibility before ingesting; cap individual confidence or vote by count; log and flag confident outliers; require agreement for a decision.</p>
+        </details>
+        <details>
+        <summary>P12. Percept, Not Truth</summary>
+<p>After the world service dies, the last retained <span class="code-lesson-il">world/target</span> stays on the broker; a Pointer trusting it keeps aiming at an old position while the target moves. The rule: act only on fresh beliefs, adding the time since arrival to the published age.</p>
+        </details>
+
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain where the shared world model lives in SAM, and why a robot must treat it as a percept, not as the truth.</li>
+            <li>Explain why every shared fact needs exactly one writer, and set up the access list to enforce it.</li>
+            <li>Publish beliefs with sources, ages and freshness, and age them correctly on a robot whose clock disagrees with the hub's.</li>
+            <li>Merge conflicting reports with a confidence-weighted vote and say what the published confidence means.</li>
+            <li>Name four hazards of shared memory and the defence against each.</li>
+        </ol>
+
+    </body>
+</html>

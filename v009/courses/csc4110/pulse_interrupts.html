@@ -16,6 +16,7 @@
 
     <body>
         <p>A processor that can only do one thing at a time still has to notice many things that happen at their own pace: an echo returns, a magnet passes, someone walks by. This lesson covers how to time pulses, how interrupts let the hardware watch for them, and how to arrange a main loop so that nothing in it ever waits.</p>
+        <p><strong>SAM lens.</strong> Some percepts live in timing, not voltage. Interrupts let the Perceptor notice an edge the moment it happens, and the cooperative loop is how all four SAM units share one processor without any of them waiting.</p>
 
 <h3>Part 1. When the Information Is in the Timing</h3>
 <p>Not every sensor reports a voltage or a number. Many just produce a <strong>pulse</strong>, and the information is in <em>when</em> it happens or <em>how long</em> it lasts. An ultrasonic rangefinder reports distance as the length of a pulse; a magnet passing a reed switch makes one pulse per turn; a motion detector raises a pin when someone moves; an infrared receiver encodes a button as a pattern of pulse lengths. Reading these needs a different tool from the ADC: a clock fast enough to time microseconds.</p>
@@ -302,6 +303,78 @@ for ms in range(0, 3001):
 print(fired)                             # {60: 50, 500: 6, 1000: 3}
 </span>
 </div><p>Three seconds is 50 periods of 60 ms, 6 of 500 ms and 3 of 1000 ms, and the counts agree. Because each timer advances its <span class="code-lesson-il">last</span> by exactly one period rather than resetting to "now", a loop that is a little late on one pass does not stretch the rhythm: the next one is still on schedule.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Echo Timing.</strong> Describe the HC-SR04's sequence from TRIG to the end of the ECHO pulse.</p>
+        <p><strong>P2. Polling or Interrupt.</strong> In one sentence each, what is polling and what is an interrupt?</p>
+        <p><strong>P3. Handler Rules.</strong> Which of these are acceptable inside an interrupt handler? (a) set a flag; (b) <span class="code-lesson-il">print()</span>; (c) append to a list; (d) read <span class="code-lesson-il">ticks_us()</span>; (e) floating-point arithmetic.</p>
+        <p><strong>P4. Why a Divider.</strong> Why does the HC-SR04's ECHO line need a 1 kΩ / 2 kΩ divider before the Pico?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Distance.</strong> An echo is 1749 µs wide. How far is the object, using d = t / 58.3 cm?</p>
+        <p><strong>P6. Echo Width.</strong> How wide is the echo for an object 1.5 m away?</p>
+        <p><strong>P7. Temperature Error.</strong> The speed of sound is 331.3 + 0.606 × T m/s. On a 35 °C day, what is it? If your code assumes 343 m/s, what does it report for an object truly 200 cm away?</p>
+        <p><strong>P8. Rate from Counts.</strong> A reed switch (one magnet on a wheel) counts 45 passes in 3 s. What is the wheel's speed in revolutions per second and per minute?</p>
+        <p><strong>P9. Missed Pulses.</strong> A loop polls a pin once every 25 ms. A 5 ms pulse arrives at a random time. What is the chance the loop misses it?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P10. Blocking Cost.</strong> <span class="code-lesson-il">time_pulse_us</span> can block for up to 30 ms. A robot also samples an IMU at 100 Hz and reads a button. What goes wrong, and what replaces it?</p>
+        <p><strong>P11. Lateness.</strong> A cooperative loop has jobs every 60 ms, 500 ms and 1000 ms. One job sometimes takes 30 ms. What is the worst lateness of the others, and what is the general rule?</p>
+        <p><strong>P12. Min Gap.</strong> A reed-switch counter ignores edges within <span class="code-lesson-il">min_gap</span> = 5 ms of the last one. What is the highest rate it can count? Will it handle a wheel at 3000 rpm with two magnets?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Echo Timing</summary>
+<p>A 10 µs pulse on TRIG starts a burst of eight 40 kHz pulses. ECHO goes high when the burst leaves and falls when the echo returns; its width is the round-trip time.</p>
+        </details>
+        <details>
+        <summary>P2. Polling or Interrupt</summary>
+<p>Polling: the program repeatedly checks the pin. Interrupt: the hardware watches the pin and runs a handler the moment a chosen edge occurs, pausing the main program.</p>
+        </details>
+        <details>
+        <summary>P3. Handler Rules</summary>
+<p>(a) and (d) only. Printing is slow; appending and floats allocate memory, which can corrupt the interrupted program.</p>
+        </details>
+        <details>
+        <summary>P4. Why a Divider</summary>
+<p>The module runs at 5 V, so ECHO swings to 5 V; RP2040 pins are not rated for 5 V. The divider brings it to 5 × 2/3 = 3.3 V.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Distance</summary>
+<p>1749 / 58.3 = 30.0 cm.</p>
+        </details>
+        <details>
+        <summary>P6. Echo Width</summary>
+<p>150 × 58.3 = 8745 µs.</p>
+        </details>
+        <details>
+        <summary>P7. Temperature Error</summary>
+<p>352.5 m/s. The echo is shorter than the code expects, so it reports 200 × 343 / 352.5 = 194.6 cm, about 2.7 % short.</p>
+        </details>
+        <details>
+        <summary>P8. Rate from Counts</summary>
+<p>15 rev/s = 900 rpm.</p>
+        </details>
+        <details>
+        <summary>P9. Missed Pulses</summary>
+<p>It is seen only if a poll falls inside the pulse: 5 / 25 = 20 %. It is missed 80 % of the time.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P10. Blocking Cost</summary>
+<p>During the wait nothing else runs: up to three IMU samples are missed or late, and a short button press can be missed. Replace it with an interrupt-driven ranger that timestamps the rising and falling edges, and a main loop that only checks <span class="code-lesson-il">update()</span>.</p>
+        </details>
+        <details>
+        <summary>P11. Lateness</summary>
+<p>Up to 30 ms. Every job must be short, because no job can run while another is running: the longest job sets the worst-case lateness of all the others.</p>
+        </details>
+        <details>
+        <summary>P12. Min Gap</summary>
+<p>1 / 5 ms = 200 counts per second. 3000 rpm × 2 magnets = 100 per second: yes, within the limit (but at 7000 rpm it would not be).</p>
         </details>
 
         <h3>Checkpoint</h3>

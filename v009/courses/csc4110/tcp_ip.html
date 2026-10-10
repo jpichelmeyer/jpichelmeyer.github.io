@@ -16,6 +16,7 @@
 
     <body>
         <p>This lesson opens the layers under <span class="code-lesson-il">net.py</span>: WiFi, IP, TCP and MQTT. You will learn what each one adds in bytes and in time, how addresses and masks decide who can reach whom, why a connection should be opened once and kept, why every network call needs a timeout, and how to find the broken layer when a message does not arrive.</p>
+        <p><strong>SAM lens.</strong> The layers under MQTT are the road between one agent's Actuator and another agent's Perceptor. Every layer can fail, and each failure looks, from the agent's side, like a percept that is late, missing or wrong.</p>
 
 <p>Every message your node has sent so far travelled over WiFi, through IP, inside TCP, to a program on the Raspberry Pi. You were able to ignore all of that because <span class="code-lesson-il">net.py</span> hid it. This week we open the box. You will not memorize protocols; you will learn what each layer does, what it costs in bytes and in time, and how to tell, when a message does not arrive, which layer failed.</p>
 <h3>Part 1. Layers</h3>
@@ -24,7 +25,7 @@
             <div class="diagram-caption">The layers a message passes through. Each layer wraps the one above in its own header. By the time the Lab 4 message of 94 bytes is an IP packet it is 134 bytes, 70 % of it your information; the radio adds more, and the receiver’s acknowledgements add further traffic.</div>
         </div>
 
-<p>The idea of layering is that each layer solves one problem and trusts the one below. <strong>WiFi</strong> moves frames between your board and the access point and deals with radio problems. <strong>IP</strong> gives every device an address and sends packets from one address to another across several networks. <strong>TCP</strong> (or its simpler sibling UDP) turns packet delivery into something an application can use: TCP delivers bytes in order, resends what is lost, and tells the program if the connection breaks. <strong>MQTT</strong> uses TCP to carry its small messages. Most network debugging is finding the lowest layer that is broken.</p>
+<p>The idea of layering is that each layer solves one problem and trusts the one below. <strong>WiFi</strong> moves frames between your board and the access point and deals with radio problems. <strong>IP</strong> gives every device an address and sends packets from one address to another across several networks. <strong>TCP</strong> turns packet delivery into something an application can use: TCP delivers bytes in order, resends what is lost, and tells the program if the connection breaks. <strong>MQTT</strong> uses TCP to carry its small messages. Most network debugging is finding the lowest layer that is broken.</p>
 <h3>Part 2. Addresses</h3>
 <p>When the Pico joins the network, the access point’s DHCP service hands it four numbers. You can read them with <span class="code-lesson-il">wlan.ifconfig()</span>:</p>
 <div class="code-block" data-lang="micropython">
@@ -85,114 +86,11 @@ def prefix_of(mask):
             <div class="diagram-caption">Setting up an MQTT connection. Two round trips pass before the first byte of data. With a 20 ms round trip that is 40 ms, which is why a node should connect once and keep the connection open instead of connecting for every message.</div>
         </div>
 
-<p>You can feel this yourself with a few lines on the Pico and a few on your laptop. The laptop runs a tiny server that answers with your text in capitals; the Pico connects, sends, and times both stages.</p>
-<div class="code-block" data-lang="python">
-<div class="code-block-header">
-<span class="code-block-filename">echo_server.py</span>
-<span class="code-block-lang">Python</span>
-</div>
-<span class="code-lesson-bl"># echo_server.py: run on your laptop with  python3 echo_server.py
-import socket
-
-srv = socket.socket()
-srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-srv.bind(("0.0.0.0", 9000))
-srv.listen(1)
-print("listening on port 9000")
-while True:
-    conn, addr = srv.accept()
-    print("connection from", addr)
-    while True:
-        data = conn.recv(256)
-        if not data:
-            break                              # the other side closed
-        conn.send(data.upper())                # reply with the text in capitals
-    conn.close()
-</span>
-</div>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">echo_client.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">import socket
-from time import ticks_ms, ticks_diff
-
-def ask(host, port, text, timeout_s=3):
-    """Open a TCP connection, send text, return (reply, connect_ms, round_trip_ms)."""
-    addr = socket.getaddrinfo(host, port)[0][-1]
-    s = socket.socket()
-    s.settimeout(timeout_s)                 # never wait forever
-    try:
-        t0 = ticks_ms()
-        s.connect(addr)                     # the three-way handshake happens here
-        t1 = ticks_ms()
-        s.send(text.encode())
-        reply = s.recv(256)                 # blocks until data arrives or the timeout expires
-        t2 = ticks_ms()
-        return reply.decode(), ticks_diff(t1, t0), ticks_diff(t2, t1)
-    finally:
-        s.close()
-
-print(ask("192.168.1.20", 9000, "hello broker"))     # your laptop's address here
-</span>
-</div>
-<p><span class="code-lesson-il">settimeout</span> is the important line. Without it, <span class="code-lesson-il">recv</span> waits for as long as it takes, and a control loop that calls it freezes whenever the server is quiet. With it, the call raises <span class="code-lesson-il">OSError</span> after the timeout, and your program can decide what to do. Everything that touches the network in a robot should have a timeout.</p>
-<h3>Part 4. TCP or UDP?</h3>
-<p>UDP is TCP with the guarantees removed: you send a datagram and hope. There is no handshake, no ordering, no retransmission and no notice if it is lost. That makes it cheap and fast, and good for data that is stale a moment later (a position update, an audio sample). TCP is right when every message matters, or when order matters, or when you want to know that the other side is gone. MQTT chose TCP, and the price is the handshake above and a retransmission delay when a packet is lost: the following messages wait behind the lost one.</p>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">udp.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">import socket
-
-def send_udp(host, port, text):
-    """Fire and forget: no connection, no acknowledgement, no retry."""
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.sendto(text.encode(), socket.getaddrinfo(host, port)[0][-1])
-    finally:
-        s.close()
-</span>
-</div>
+<p>The handshake carries a second lesson. Every step waits for an answer, and an answer may never come. A program that waits on the network with no time limit freezes whenever the other side goes quiet, and if that program is also running your control loop, the robot freezes with it. So everything that touches the network in a robot needs a <strong>timeout</strong>: a limit after which the call gives up and lets your program decide what to do. That is why <span class="code-lesson-il">net.py</span> stops trying to join the WiFi after a few seconds instead of waiting forever.</p>
+<h3>Part 4. When It Does Not Work</h3>
+<p>Work from the bottom layer up and stop at the first failure. Each step has a tool. At the bottom, a weak radio signal is the usual culprit: walls, distance and a metal enclosure all weaken it, so test where the robot will actually run.</p>
         <div class="diagram">
-<svg viewBox="0 0 760 280" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="226.849" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><rect x="246.849" y="14" width="246.575" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="370.137" y="40.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">TCP</text><rect x="493.425" y="14" width="246.575" height="42" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="616.712" y="40.25" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">UDP</text><rect x="20" y="56" width="226.849" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="82.25" font-size="15" fill="#1f3b52" text-anchor="start">Connection setup</text><rect x="246.849" y="56" width="246.575" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="255.849" y="82.25" font-size="15" fill="#1f3b52" text-anchor="start">1 round trip</text><rect x="493.425" y="56" width="246.575" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="502.425" y="82.25" font-size="15" fill="#1f3b52" text-anchor="start">none</text><rect x="20" y="98" width="226.849" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="124.25" font-size="15" fill="#1f3b52" text-anchor="start">Delivery</text><rect x="246.849" y="98" width="246.575" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="255.849" y="124.25" font-size="15" fill="#1f3b52" text-anchor="start">in order, retried until it arrives</text><rect x="493.425" y="98" width="246.575" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="502.425" y="124.25" font-size="15" fill="#1f3b52" text-anchor="start">maybe; no notice if lost</text><rect x="20" y="140" width="226.849" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="166.25" font-size="15" fill="#1f3b52" text-anchor="start">Detects a dead peer</text><rect x="246.849" y="140" width="246.575" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="255.849" y="166.25" font-size="15" fill="#1f3b52" text-anchor="start">yes (after timeouts)</text><rect x="493.425" y="140" width="246.575" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="502.425" y="166.25" font-size="15" fill="#1f3b52" text-anchor="start">no</text><rect x="20" y="182" width="226.849" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="208.25" font-size="15" fill="#1f3b52" text-anchor="start">Header</text><rect x="246.849" y="182" width="246.575" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="255.849" y="208.25" font-size="15" fill="#1f3b52" text-anchor="start">20 bytes</text><rect x="493.425" y="182" width="246.575" height="42" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="502.425" y="208.25" font-size="15" fill="#1f3b52" text-anchor="start">8 bytes</text><rect x="20" y="224" width="226.849" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="250.25" font-size="15" fill="#1f3b52" text-anchor="start">Used by</text><rect x="246.849" y="224" width="246.575" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="255.849" y="250.25" font-size="15" fill="#1f3b52" text-anchor="start">MQTT, HTTP</text><rect x="493.425" y="224" width="246.575" height="42" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="502.425" y="250.25" font-size="15" fill="#1f3b52" text-anchor="start">DNS, streaming, some robots</text></svg>
-            <div class="diagram-caption">TCP and UDP side by side. We use TCP through MQTT. UDP returns later, in the multi-agent unit, where an occasional lost position update does not matter.</div>
-        </div>
-
-<h3>Part 5. Signal Strength</h3>
-<p>A radio link degrades gradually, then suddenly. The access point reports the received signal strength (RSSI) in dBm, a negative number: closer to zero is stronger. The scan below lists every network the board can hear, so you can find out whether a failure is simply a weak signal.</p>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">scan.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">import network
-from time import sleep_ms
-
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-
-def scan():
-    """Print every 2.4 GHz network the Pico can hear, strongest first."""
-    nets = wlan.scan()                       # (ssid, bssid, channel, rssi, security, hidden)
-    nets.sort(key=lambda n: -n[3])
-    for ssid, bssid, ch, rssi, sec, hid in nets:
-        print("%-24s ch%-3d %4d dBm" % (ssid.decode(), ch, rssi))
-
-scan()
-</span>
-</div>
-        <div class="diagram">
-<svg viewBox="0 0 760 190" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="50" width="194.286" height="54" rx="0" fill="#fbe9e7" stroke="#b3261e" stroke-width="2"/><text x="137.143" y="83" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">unusable</text><rect x="234.286" y="50" width="97.1429" height="54" rx="0" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="282.857" y="83" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">marginal</text><rect x="331.429" y="50" width="97.1429" height="54" rx="0" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="380" y="83" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">good</text><rect x="428.571" y="50" width="291.429" height="54" rx="0" fill="#cdeedb" stroke="#3c8a5a" stroke-width="2"/><text x="574.286" y="83" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">excellent</text><line x1="40" y1="104" x2="40" y2="114" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><text x="40" y="134" font-size="14.5" fill="#5b6b78" text-anchor="middle">-100</text><line x1="137.143" y1="104" x2="137.143" y2="114" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><text x="137.143" y="134" font-size="14.5" fill="#5b6b78" text-anchor="middle">-90</text><line x1="234.286" y1="104" x2="234.286" y2="114" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><text x="234.286" y="134" font-size="14.5" fill="#5b6b78" text-anchor="middle">-80</text><line x1="331.429" y1="104" x2="331.429" y2="114" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><text x="331.429" y="134" font-size="14.5" fill="#5b6b78" text-anchor="middle">-70</text><line x1="428.571" y1="104" x2="428.571" y2="114" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><text x="428.571" y="134" font-size="14.5" fill="#5b6b78" text-anchor="middle">-60</text><line x1="525.714" y1="104" x2="525.714" y2="114" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><text x="525.714" y="134" font-size="14.5" fill="#5b6b78" text-anchor="middle">-50</text><line x1="622.857" y1="104" x2="622.857" y2="114" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><text x="622.857" y="134" font-size="14.5" fill="#5b6b78" text-anchor="middle">-40</text><line x1="720" y1="104" x2="720" y2="114" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><text x="720" y="134" font-size="14.5" fill="#5b6b78" text-anchor="middle">-30</text><text x="380" y="168" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">RSSI in dBm (each 10 dB is a factor of ten in power)</text><text x="40" y="34" font-size="14.5" fill="#5b6b78" text-anchor="start">weaker</text><text x="720" y="34" font-size="14.5" fill="#5b6b78" text-anchor="end">stronger</text></svg>
-            <div class="diagram-caption">A rough guide to RSSI. Below about −80 dBm packets are retried so often that throughput and battery life suffer, and connections drop. Walls, a metal enclosure around your robot, and your own body all change the number, so measure where the robot will actually operate.</div>
-        </div>
-
-<h3>Part 6. When It Does Not Work</h3>
-<p>Work from the bottom layer up and stop at the first failure. Each step has a tool.</p>
-        <div class="diagram">
-<svg viewBox="0 0 760 328.75" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="60" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="50" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="80" y="14" width="190" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="175" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Question</text><rect x="270" y="14" width="250" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="395" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">How to check</text><rect x="520" y="14" width="220" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="630" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">If it fails</text><rect x="20" y="62" width="60" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="80" y="62" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="start">Is the radio joined?</text><rect x="270" y="62" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="start">wlan.isconnected(), why()</text><rect x="520" y="62" width="220" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="84.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">wrong password, out of</text><text x="529" y="102.263" font-size="14.5" fill="#1f3b52" text-anchor="start">range</text><rect x="20" y="114.25" width="60" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">2</text><rect x="80" y="114.25" width="190" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">Do I have an address?</text><rect x="270" y="114.25" width="250" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">wlan.ifconfig()</text><rect x="520" y="114.25" width="220" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">DHCP slow or refused</text><rect x="20" y="162.25" width="60" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">3</text><rect x="80" y="162.25" width="190" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">Can I reach the Pi?</text><rect x="270" y="162.25" width="250" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">ping from a laptop, ask() above</text><rect x="520" y="162.25" width="220" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">wrong network or firewall</text><rect x="20" y="210.25" width="60" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="241.45" font-size="14.5" fill="#1f3b52" text-anchor="middle">4</text><rect x="80" y="210.25" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="232.387" font-size="14.5" fill="#1f3b52" text-anchor="start">Does the broker accept</text><text x="89" y="250.512" font-size="14.5" fill="#1f3b52" text-anchor="start">me?</text><rect x="270" y="210.25" width="250" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="241.45" font-size="14.5" fill="#1f3b52" text-anchor="start">CONNECT result, broker log</text><rect x="520" y="210.25" width="220" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="241.45" font-size="14.5" fill="#1f3b52" text-anchor="start">bad user or password</text><rect x="20" y="262.5" width="60" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="293.7" font-size="14.5" fill="#1f3b52" text-anchor="middle">5</text><rect x="80" y="262.5" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="284.637" font-size="14.5" fill="#1f3b52" text-anchor="start">Is my message</text><text x="89" y="302.762" font-size="14.5" fill="#1f3b52" text-anchor="start">arriving?</text><rect x="270" y="262.5" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="293.7" font-size="14.5" fill="#1f3b52" text-anchor="start">mosquitto_sub -v on the topic</text><rect x="520" y="262.5" width="220" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="293.7" font-size="14.5" fill="#1f3b52" text-anchor="start">wrong topic or ACL</text></svg>
+<svg viewBox="0 0 760 328.75" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="60" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="50" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">#</text><rect x="80" y="14" width="190" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="175" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Question</text><rect x="270" y="14" width="250" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="395" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">How to check</text><rect x="520" y="14" width="220" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="630" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">If it fails</text><rect x="20" y="62" width="60" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="80" y="62" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="start">Is the radio joined?</text><rect x="270" y="62" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="93.2" font-size="14.5" fill="#1f3b52" text-anchor="start">wlan.isconnected(), why()</text><rect x="520" y="62" width="220" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="84.1375" font-size="14.5" fill="#1f3b52" text-anchor="start">wrong password, out of</text><text x="529" y="102.263" font-size="14.5" fill="#1f3b52" text-anchor="start">range</text><rect x="20" y="114.25" width="60" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">2</text><rect x="80" y="114.25" width="190" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">Do I have an address?</text><rect x="270" y="114.25" width="250" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">wlan.ifconfig()</text><rect x="520" y="114.25" width="220" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="143.325" font-size="14.5" fill="#1f3b52" text-anchor="start">DHCP slow or refused</text><rect x="20" y="162.25" width="60" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="middle">3</text><rect x="80" y="162.25" width="190" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">Can I reach the Pi?</text><rect x="270" y="162.25" width="250" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">ping from a laptop</text><rect x="520" y="162.25" width="220" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="191.325" font-size="14.5" fill="#1f3b52" text-anchor="start">wrong network or firewall</text><rect x="20" y="210.25" width="60" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="241.45" font-size="14.5" fill="#1f3b52" text-anchor="middle">4</text><rect x="80" y="210.25" width="190" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="232.387" font-size="14.5" fill="#1f3b52" text-anchor="start">Does the broker accept</text><text x="89" y="250.512" font-size="14.5" fill="#1f3b52" text-anchor="start">me?</text><rect x="270" y="210.25" width="250" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="241.45" font-size="14.5" fill="#1f3b52" text-anchor="start">net.py says NO BROKER</text><rect x="520" y="210.25" width="220" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="241.45" font-size="14.5" fill="#1f3b52" text-anchor="start">bad user or password</text><rect x="20" y="262.5" width="60" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="50" y="293.7" font-size="14.5" fill="#1f3b52" text-anchor="middle">5</text><rect x="80" y="262.5" width="190" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="89" y="284.637" font-size="14.5" fill="#1f3b52" text-anchor="start">Is my message</text><text x="89" y="302.762" font-size="14.5" fill="#1f3b52" text-anchor="start">arriving?</text><rect x="270" y="262.5" width="250" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="279" y="293.7" font-size="14.5" fill="#1f3b52" text-anchor="start">mosquitto_sub -v on the topic</text><rect x="520" y="262.5" width="220" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="529" y="293.7" font-size="14.5" fill="#1f3b52" text-anchor="start">wrong topic or ACL</text></svg>
             <div class="diagram-caption">The failure ladder. <span class="code-lesson-il">net.py</span> reports levels 1 and 4 as NO WIFI and NO BROKER. A message that never appears at level 5 with everything else healthy is usually a topic typo or an access-list denial, and the broker will not tell you which.</div>
         </div>
 
@@ -200,13 +98,10 @@ scan()
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Same Network?.</strong> Your Pico has address 192.168.1.57 and mask 255.255.255.0. Is it on the same network as the Pi at 192.168.1.50? As a laptop at 192.168.2.50? What would the mask have to be for the last one to be on the same network?</p>
+        <p><strong>Exercise 1: Same Network?</strong> Your Pico has address 192.168.1.57 and mask 255.255.255.0. Is it on the same network as the Pi at 192.168.1.50? As a laptop at 192.168.2.50? What would the mask have to be for the last one to be on the same network?</p>
         <p><strong>Exercise 2: Bytes on the Wire.</strong> A message of 94 bytes goes out over TCP/IP, which adds 40 bytes. What fraction of the IP packet is your message? How many bytes per second at IP level is the Lab 4 loop at 5 messages per second? What fraction would a 20-byte message be?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Connect Every Time?.</strong> A node sends 5 messages per second. Option A opens a connection, sends one message and closes it each time. Option B opens one connection and keeps it. The round trip to the broker is 20 ms, TCP needs 1 round trip to open and MQTT CONNECT needs 1 more. How much time per second does option A spend just setting up? What else is wrong with it?</p>
-        <h4>Advanced</h4>
-        <p><strong>Exercise 4: Pick the Access Point.</strong> A campus has several access points with the same network name. Write <span class="code-lesson-il">best_ap(scan_results, ssid)</span> that takes the list returned by <span class="code-lesson-il">wlan.scan()</span> and returns the (bssid, channel, rssi) of the strongest one for that name, ignoring any weaker than −80 dBm, or None. Test it with three access points, one of them too weak.</p>
-
+        <p><strong>Exercise 3: Connect Every Time?</strong> A node sends 5 messages per second. Option A opens a connection, sends one message and closes it each time. Option B opens one connection and keeps it. The round trip to the broker is 20 ms, TCP needs 1 round trip to open and MQTT CONNECT needs 1 more. How much time per second does option A spend just setting up? What else is wrong with it?</p>
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
         <h4>Warm Up</h4>
@@ -223,37 +118,60 @@ scan()
         <summary>Exercise 3: Connect Every Time?</summary>
 <p>Each connection costs 2 × 20 = 40 ms before data moves, so option A spends 5 × 40 = <strong>200 ms per second</strong>, a fifth of the time, waiting. If the code is blocking, the control loop is stalled for that time. Opening and closing also makes the broker log a connection and a disconnection per message, uses the radio far more (worse for batteries), and defeats the <em>last will</em>, which only means something for a connection that stays open. Option B pays the setup cost once.</p>
         </details>
-        <h4>Advanced</h4>
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Layer Jobs.</strong> In one line each, what problem does each layer solve: WiFi, IP, TCP, MQTT?</p>
+        <p><strong>P2. Four DHCP Numbers.</strong> Name the four numbers DHCP gives the Pico when it joins a network.</p>
+        <p><strong>P3. Why Timeouts.</strong> Why must every network call in a robot have a timeout?</p>
+        <h4>Apply</h4>
+        <p><strong>P4. Same Network?</strong> With mask 255.255.255.0, is 192.168.1.37 on the same network as (a) 192.168.1.200 and (b) 192.168.2.5? Repeat (b) with mask 255.255.252.0.</p>
+        <p><strong>P5. Prefix Length.</strong> Write 255.255.255.0 and 255.255.252.0 in prefix notation, and say how many device addresses each allows (excluding the network and broadcast addresses).</p>
+        <p><strong>P6. Handshake Cost.</strong> The round trip to the broker is 20 ms. Opening a TCP connection and then an MQTT session costs two round trips. What does it cost to connect once? A node that connects afresh for each of 10 messages a second spends how much of every second just connecting?</p>
+        <p><strong>P7. Header Bytes.</strong> A 94-byte MQTT message becomes a 134-byte IP packet. How many bytes did TCP and IP add, and what fraction of the packet is your MQTT message?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P8. Failure Ladder.</strong> A node's telemetry never reaches the laptop. Describe the ladder of checks from the bottom layer up, naming a tool or sign for each.</p>
+        <p><strong>P9. Why the Broker Has a Fixed Address.</strong> Why does the broker's IP address need to be fixed (or reserved), while your board's address may change every time it joins?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
         <details>
-        <summary>Exercise 4: Pick the Access Point</summary>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">best_ap.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">def best_ap(nets, ssid):
-    """nets: tuples (ssid, bssid, channel, rssi, security, hidden) as bytes ssid. Strongest usable AP."""
-    want = ssid.encode() if isinstance(ssid, str) else ssid
-    best = None
-    for n in nets:
-        if n[0] == want and n[3] &gt;= -80:
-            if best is None or n[3] &gt; best[2]:
-                best = (n[1], n[2], n[3])
-    return best
-</span>
-</div><div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">test_best_ap.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">nets = [(b"class", b"aa:01", 1, -72, 3, 0),
-        (b"class", b"aa:02", 6, -58, 3, 0),
-        (b"class", b"aa:03", 11, -85, 3, 0),
-        (b"other", b"bb:01", 6, -40, 3, 0)]
-print(best_ap(nets, "class"))        # (b'aa:02', 6, -58)
-print(best_ap(nets, "missing"))      # None
-</span>
-</div><p>The loop keeps the strongest entry that passes the −80 dBm floor, so the −85 dBm access point is ignored even though it is on the right network, and the −40 dBm one is ignored because its name is different. On the Pico you can pass the chosen BSSID to <span class="code-lesson-il">wlan.connect(ssid, password, bssid=...)</span> to pin the board to that access point.</p>
+        <summary>P1. Layer Jobs</summary>
+<p>WiFi: moves frames over the radio between the board and the access point. IP: gives every device an address and routes packets between networks. TCP: delivers a reliable, ordered byte stream and reports a broken connection. MQTT: carries small named messages (topics) between clients through a broker.</p>
+        </details>
+        <details>
+        <summary>P2. Four DHCP Numbers</summary>
+<p>Its IP address, the subnet mask, the gateway address and the DNS server address.</p>
+        </details>
+        <details>
+        <summary>P3. Why Timeouts</summary>
+<p>Without one a call such as <span class="code-lesson-il">recv</span> waits as long as it takes; whenever the other side is quiet or gone, the control loop freezes. With a timeout the call fails after a bounded time and the program decides what to do.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P4. Same Network?</summary>
+<p>(a) Yes: both AND to 192.168.1.0. (b) No: 192.168.1.0 versus 192.168.2.0. With 255.255.252.0 (/22) both AND to 192.168.0.0, so yes.</p>
+        </details>
+        <details>
+        <summary>P5. Prefix Length</summary>
+<p>/24: 254 addresses. /22: 2^10 − 2 = 1022 addresses.</p>
+        </details>
+        <details>
+        <summary>P6. Handshake Cost</summary>
+<p>40 ms per connection. Ten per second: 400 ms of every second, which is why a node connects once and keeps the connection.</p>
+        </details>
+        <details>
+        <summary>P7. Header Bytes</summary>
+<p>40 bytes (20 for TCP, 20 for IP). 94 / 134 = 70 %.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P8. Failure Ladder</summary>
+<p>(1) WiFi joined? (<span class="code-lesson-il">wlan.isconnected()</span>, net.py's NO WIFI). (2) Has an IP address on the right network? (<span class="code-lesson-il">wlan.ifconfig()</span>, subnet check). (3) Can it reach the broker's host? (a TCP connect to port 1883). (4) MQTT session accepted? (net.py's NO BROKER, broker log for a bad login). (5) Message published on the right topic and allowed by the access list? (<span class="code-lesson-il">mosquitto_sub -v -t 'lab/#'</span>, check spelling and ACL). Stop at the first failure.</p>
+        </details>
+        <details>
+        <summary>P9. Why the Broker Has a Fixed Address</summary>
+<p>Clients connect to the broker using the address in <span class="code-lesson-il">config.py</span>; if it changed, every node would lose the broker. Nothing ever connects to the boards, because nodes always open the connection to the broker, so their addresses can change freely.</p>
         </details>
 
         <h3>Checkpoint</h3>
@@ -261,9 +179,8 @@ print(best_ap(nets, "missing"))      # None
         <ol>
             <li>Name the layers a message passes through and say what each one is for.</li>
             <li>Use the address and mask to decide whether two devices are on the same network.</li>
-            <li>Explain the TCP handshake and the MQTT connect, and what they cost in round trips.</li>
-            <li>Choose between TCP and UDP for a given kind of data.</li>
-            <li>Put a timeout on every socket call, and use the failure ladder to find which layer is broken.</li>
+            <li>Explain why a node connects once and keeps the connection open.</li>
+            <li>Explain why every network call in a robot needs a timeout, and use the failure ladder to find which layer is broken.</li>
         </ol>
 
     </body>

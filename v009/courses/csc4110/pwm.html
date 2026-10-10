@@ -16,6 +16,7 @@
 
     <body>
         <p>A GPIO pin has only two outputs: on and off. Yet you want to dim an LED, slow a motor, or position a servo, which all need something in between. The trick is to switch the pin on and off so fast that the load only notices the average. It is called pulse-width modulation, PWM, and the Pico has hardware that does it for you, without any of your code running.</p>
+        <p><strong>SAM lens.</strong> PWM is the Actuator's main tool: one pin, a hardware block and a duty cycle turn a decision into brightness, speed or a servo angle. The Decider chooses a number; the Actuator turns it into a waveform.</p>
 
 
 <h3>Part 1. Fast On and Off</h3>
@@ -166,6 +167,78 @@ for d in (0, 45, 90, 200):
     print(d, angle_to_ns(d))           # 0 1000000, 45 1250000, 90 1500000, 200 2000000
 </span>
 </div><p>The 200° request is clamped to 180°, giving 2.0 ms. Putting the limits in parameters lets you narrow them to your own servo’s safe range without changing the function.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Duty Cycle.</strong> Define the duty cycle, and say what a slow load (an LED seen by the eye, a motor) responds to.</p>
+        <p><strong>P2. Slices.</strong> The RP2040 has eight PWM slices, each with two channels. What do the two channels of a slice share, and what can differ?</p>
+        <p><strong>P3. Servo Signal.</strong> What signal does a hobby servo expect?</p>
+        <p><strong>P4. Why Gamma.</strong> Why does dimming an LED with equal duty steps not look evenly spaced, and what corrects it?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Average Voltage.</strong> A 3.3 V PWM output runs at 25 % duty. What average voltage does a slow load see? What <span class="code-lesson-il">duty_u16</span> value gives 40 %?</p>
+        <p><strong>P6. Servo Pulse.</strong> With a 1.0 to 2.0 ms mapping over 0 to 180°, what pulse width commands 45°? What <span class="code-lesson-il">duty_u16</span> value is that at 50 Hz?</p>
+        <p><strong>P7. Resolution.</strong> With a 125 MHz clock, roughly how many duty steps does one period have at 20 kHz? At 1 MHz?</p>
+        <p><strong>P8. Gamma Value.</strong> Using <span class="code-lesson-il">int((level / 255) ** 2.2 * 65535)</span>, what duty does level 32 give? Compare with level 64 (3130).</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Shared Slice Bug.</strong> A servo on GP14 runs at 50 Hz. A student sets GP15 to 20 kHz to drive a motor. The servo starts twitching. Explain and fix.</p>
+        <p><strong>P10. Cells for a Servo.</strong> A 9 g servo is rated roughly 4.8 to 6 V. How many alkaline AA cells would you use, and why not power it from the Pico's 3V3 pin?</p>
+        <p><strong>P11. Going Limp.</strong> What does <span class="code-lesson-il">servo.duty_ns(0)</span> do, and when would you use it?</p>
+        <p><strong>P12. Choose Frequencies.</strong> Choose PWM frequencies for (a) an indicator LED, (b) a small DC motor that must be quiet, (c) a servo, and justify each.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Duty Cycle</summary>
+<p>The fraction of each period the output is high. A slow load responds to the average: duty × supply voltage.</p>
+        </details>
+        <details>
+        <summary>P2. Slices</summary>
+<p>They share one counter, so one frequency; each has its own duty cycle.</p>
+        </details>
+        <details>
+        <summary>P3. Servo Signal</summary>
+<p>A pulse repeated every 20 ms (50 Hz), about 1 ms wide for one end of travel, 1.5 ms for the middle and 2 ms for the other end.</p>
+        </details>
+        <details>
+        <summary>P4. Why Gamma</summary>
+<p>The eye responds non-linearly (low duty looks surprisingly bright). A gamma curve maps equal steps of a brightness number to duty values that look evenly spaced.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Average Voltage</summary>
+<p>0.825 V. 0.40 × 65535 = 26214.</p>
+        </details>
+        <details>
+        <summary>P6. Servo Pulse</summary>
+<p>1.25 ms. As a fraction of the 20 ms period: 6.25 %, so 0.0625 × 65535 ≈ 4096.</p>
+        </details>
+        <details>
+        <summary>P7. Resolution</summary>
+<p>125 000 000 / 20 000 = 6250 steps (about 12.6 bits). At 1 MHz, 125 steps (about 7 bits).</p>
+        </details>
+        <details>
+        <summary>P8. Gamma Value</summary>
+<p>(32/255)^2.2 × 65535 ≈ 681. Halving the level from 64 to 32 cuts the duty by more than four times.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Shared Slice Bug</summary>
+<p>GP14 and GP15 are the two channels of the same slice, so setting 20 kHz on GP15 also changed GP14's frequency; the servo no longer gets 20 ms frames. Move the motor (or the servo) to a pin in a different slice.</p>
+        </details>
+        <details>
+        <summary>P10. Cells for a Servo</summary>
+<p>Four cells give about 6 V, the top of the range (three give 4.5 V, slightly low but usually enough). The servo draws hundreds of milliamps when moving or stalled; from 3V3 or USB the voltage dips and the Pico browns out and resets.</p>
+        </details>
+        <details>
+        <summary>P11. Going Limp</summary>
+<p>It stops the pulses: the servo goes limp, stops drawing holding current and stops buzzing. Use it when the servo does not need to hold force, or as part of a safe shutdown.</p>
+        </details>
+        <details>
+        <summary>P12. Choose Frequencies</summary>
+<p>(a) About 1 to 2 kHz: no visible flicker, plenty of resolution. (b) Above about 15 to 20 kHz: inaudible, at the cost of resolution and slightly more switching loss. (c) 50 Hz: required by the servo's 20 ms frame.</p>
         </details>
 
         <h3>Checkpoint</h3>

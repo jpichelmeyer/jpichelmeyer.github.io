@@ -15,102 +15,44 @@
     </head>
 
     <body>
-        <p>This lesson covers how a measurement becomes bytes and back. You compare JSON, CSV and binary encodings of the same data, learn fixed-point scaling and version bytes, see how batching brings a 50 Hz sensor inside the class message limit, and write a decoder that never crashes on bad input.</p>
+        <p>This lesson covers how a measurement becomes a message and back. You will see what JSON is, what the three envelope fields on every class message are for, how rounding keeps messages short, and how to write a decoder that never crashes on bad input.</p>
+        <p><strong>SAM lens.</strong> Serialization is how one agent's percept becomes bytes and another agent's percept again. The decoder that never crashes is a Perceptor filter for messages, exactly as a median filter is for spikes.</p>
 
-<p>MQTT carries bytes and has no opinion about what they mean. Somebody has to decide how a temperature, a timestamp and a sequence number become bytes at one end and numbers again at the other. That decision, <strong>serialization</strong>, sets the size of every message, how much work the Pico does to build and read it, and how hard the format is to change later. We have used JSON because you can read it. This lesson measures what that costs and what the alternatives buy.</p>
-<h3>Part 1. Same Data, Five Sizes</h3>
-<p>One accelerometer sample: a version number, a sequence number, a time, and three accelerations in g. The program below builds it three ways. Run it in a PC Python and on the Pico; the byte counts are the same.</p>
+<p>MQTT carries bytes and has no opinion about what they mean. Somebody has to decide how a temperature, a timestamp and a sequence number become bytes at one end and numbers again at the other. That decision, <strong>serialization</strong>, sets the size of every message, how much work the Pico does to build and read it, and how hard the format is to change later. We use JSON, because it is simple and you can read it with your eyes. This lesson looks at what goes into every class message and how to read one safely.</p>
+<h3>Part 1. JSON and the Envelope</h3>
+<p><strong>JSON</strong> (JavaScript Object Notation) writes a dictionary as text: keys in double quotes, numbers as digits, lists in square brackets. <span class="code-lesson-il">json.dumps</span> turns a dictionary into a string and <span class="code-lesson-il">json.loads</span> turns the string back into a dictionary. The two ends only have to agree on the key names. Every message in this course is a JSON object that starts with the same three <strong>envelope</strong> fields, which <span class="code-lesson-il">net.py</span> adds for you, followed by the data for that topic.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="18" width="732" height="52" rx="8" fill="#1f2b36" stroke="#1f2b36" stroke-width="2"/><text x="53.6" y="50.0" font-size="16" fill="#f0c674" text-anchor="start"font-family="Courier New, monospace" xml:space="preserve">{&quot;v&quot;: 1, &quot;seq&quot;: 17, &quot;t&quot;: 34120, &quot;ax&quot;: 0.02, &quot;ay&quot;: -0.01, &quot;az&quot;: 0.98}</text><line x1="65.2" y1="80.0" x2="118.8" y2="80.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="65.2" y1="76.0" x2="65.2" y2="84.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="118.8" y1="76.0" x2="118.8" y2="84.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="92.0" y1="82.0" x2="105.0" y2="140.0" stroke="#6b4f9e" stroke-width="1.6" stroke-linecap="round"/><rect x="20" y="140" width="170" height="104" rx="8" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="2"/><text x="105.0" y="179.4" font-size="14" fill="#6b4f9e" text-anchor="middle" font-weight="bold">v = version</text><text x="105.0" y="196.9" font-size="14" fill="#1f3b52" text-anchor="middle">unknown version?</text><text x="105.0" y="214.4" font-size="14" fill="#1f3b52" text-anchor="middle">discard it</text><line x1="142.0" y1="80.0" x2="224.4" y2="80.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="142.0" y1="76.0" x2="142.0" y2="84.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="224.4" y1="76.0" x2="224.4" y2="84.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="183.2" y1="82.0" x2="285.0" y2="140.0" stroke="#6b4f9e" stroke-width="1.6" stroke-linecap="round"/><rect x="200" y="140" width="170" height="104" rx="8" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="2"/><text x="285.0" y="170.7" font-size="14" fill="#6b4f9e" text-anchor="middle" font-weight="bold">seq = sequence</text><text x="285.0" y="188.2" font-size="14" fill="#1f3b52" text-anchor="middle">counts up by one:</text><text x="285.0" y="205.7" font-size="14" fill="#1f3b52" text-anchor="middle">a gap is a lost</text><text x="285.0" y="223.2" font-size="14" fill="#1f3b52" text-anchor="middle">message</text><line x1="247.6" y1="80.0" x2="339.6" y2="80.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="247.6" y1="76.0" x2="247.6" y2="84.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="339.6" y1="76.0" x2="339.6" y2="84.0" stroke="#6b4f9e" stroke-width="3" stroke-linecap="round"/><line x1="293.6" y1="82.0" x2="465.0" y2="140.0" stroke="#6b4f9e" stroke-width="1.6" stroke-linecap="round"/><rect x="380" y="140" width="170" height="104" rx="8" fill="#f1ecf8" stroke="#6b4f9e" stroke-width="2"/><text x="465.0" y="170.7" font-size="14" fill="#6b4f9e" text-anchor="middle" font-weight="bold">t = time</text><text x="465.0" y="188.2" font-size="14" fill="#1f3b52" text-anchor="middle">sender&#x27;s ticks_ms()</text><text x="465.0" y="205.7" font-size="14" fill="#1f3b52" text-anchor="middle">tells you how old</text><text x="465.0" y="223.2" font-size="14" fill="#1f3b52" text-anchor="middle">the reading is</text><line x1="362.8" y1="80.0" x2="694.8" y2="80.0" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><line x1="362.8" y1="76.0" x2="362.8" y2="84.0" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><line x1="694.8" y1="76.0" x2="694.8" y2="84.0" stroke="#2e5a80" stroke-width="3" stroke-linecap="round"/><line x1="528.8" y1="82.0" x2="645.0" y2="140.0" stroke="#2e5a80" stroke-width="1.6" stroke-linecap="round"/><rect x="560" y="140" width="170" height="104" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="645.0" y="170.7" font-size="14" fill="#2e5a80" text-anchor="middle" font-weight="bold">your data</text><text x="645.0" y="188.2" font-size="14" fill="#1f3b52" text-anchor="middle">named fields,</text><text x="645.0" y="205.7" font-size="14" fill="#1f3b52" text-anchor="middle">rounded to what the</text><text x="645.0" y="223.2" font-size="14" fill="#1f3b52" text-anchor="middle">sensor can tell</text><text x="205.0" y="272.0" font-size="14" fill="#6b4f9e" text-anchor="middle">the envelope: added to every class message by net.py</text><text x="645.0" y="272.0" font-size="14" fill="#2e5a80" text-anchor="middle">the body: different for each topic</text></svg>
+            <div class="diagram-caption">Anatomy of a class message. The envelope (purple) is the same on every topic and lets any receiver check the format, notice a lost message and tell how old a reading is. The body (blue) is the data, and only it changes from topic to topic.</div>
+        </div>
+<p>Each envelope field answers a question the receiver would otherwise have to guess. <span class="code-lesson-il">v</span> is the format <strong>version</strong>: if you ever change what the fields mean, you raise <span class="code-lesson-il">v</span>, and a receiver that sees a version it does not know discards the message instead of misreading it. <span class="code-lesson-il">seq</span> is a <strong>sequence number</strong> that counts up by one with each message from that sender: a jump from 41 to 44 means two messages were lost, and a second 41 is a duplicate. <span class="code-lesson-il">t</span> is the sender’s <span class="code-lesson-il">ticks_ms()</span> when the reading was taken. Two boards’ clocks started at different moments, so a <span class="code-lesson-il">t</span> from one board cannot be compared with another board’s clock, but the difference between two <span class="code-lesson-il">t</span> values from the same sender is real time.</p>
+<p>Here is one IMU sample built by hand, the same way <span class="code-lesson-il">net.py</span> builds it. It runs the same in desktop Python and on the Pico:</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
-<span class="code-block-filename">formats.py</span>
+<span class="code-block-filename">message.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
 <span class="code-lesson-bl">import json
-import struct
 
-# One sample: the envelope (version, sequence number, time) and three accelerations in g.
-def to_json(seq, t, ax, ay, az):
-    return json.dumps({"v": 1, "seq": seq, "t": t,
-                       "ax": round(ax, 2), "ay": round(ay, 2), "az": round(az, 2)}).encode()
+def make(seq, t, ax, ay, az):
+    """One IMU sample as a class message: the envelope, then the body."""
+    msg = {"v": 1, "seq": seq, "t": t,
+           "ax": round(ax, 2), "ay": round(ay, 2), "az": round(az, 2)}
+    return json.dumps(msg)
 
-def to_csv(seq, t, ax, ay, az):
-    return ("1,%d,%d,%.2f,%.2f,%.2f" % (seq, t, ax, ay, az)).encode()
+text = make(17, 34120, 0.019775390625, -0.0071, 0.98046875)
+print(text)
+print(len(text), "bytes")
 
-# Binary: acceleration as whole milli-g in a signed 16-bit integer (resolution 0.001 g).
-REC = "&lt;BHIhhh"                     # version, seq, t, ax, ay, az; little-endian, no padding
-
-def to_bin(seq, t, ax, ay, az):
-    return struct.pack(REC, 1, seq &amp; 0xFFFF, t &amp; 0xFFFFFFFF,
-                       round(ax * 1000), round(ay * 1000), round(az * 1000))
-
-def from_bin(buf):
-    if len(buf) != struct.calcsize(REC):
-        raise ValueError("wrong length")
-    v, seq, t, ax, ay, az = struct.unpack(REC, buf)
-    if v != 1:
-        raise ValueError("unknown version")
-    return {"seq": seq, "t": t, "ax": ax / 1000, "ay": ay / 1000, "az": az / 1000}
+back = json.loads(text)          # and back to a dictionary
+print(back["az"], back["seq"])
 </span>
 </div>
-        <div class="diagram">
-<svg viewBox="0 0 760 330" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="28" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">bytes per sample</text><text x="210" y="76" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">JSON, as sent so far</text><rect x="222" y="48" width="503.2" height="40" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1"/><text x="735.2" y="75" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">68</text><text x="210" y="130" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">JSON, no spaces</text><rect x="222" y="102" width="421.8" height="40" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1"/><text x="653.8" y="129" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">57</text><text x="210" y="184" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">JSON, short keys</text><rect x="222" y="156" width="384.8" height="40" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1"/><text x="616.8" y="183" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">52</text><text x="210" y="238" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">CSV text</text><rect x="222" y="210" width="192.4" height="40" rx="3" fill="#c0693f" stroke="#c0693f" stroke-width="1"/><text x="424.4" y="237" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">26</text><text x="210" y="292" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">binary (struct)</text><rect x="222" y="264" width="96.2" height="40" rx="3" fill="#3c8a5a" stroke="#3c8a5a" stroke-width="1"/><text x="328.2" y="291" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">13</text><text x="222" y="322" font-size="14.5" fill="#5b6b78" text-anchor="start">same six values in every row</text></svg>
-            <div class="diagram-caption">The same sample in five encodings: 68, 57, 52, 26 and 13 bytes. The binary record is a fifth of the JSON message, and what it gives up is the ability to read it with your eyes.</div>
-        </div>
-
-<p>The binary version works because both ends agree on a <em>layout</em>: one byte of version, two of sequence number, four of time, and three signed 16-bit integers for the accelerations, 13 bytes in all. There are no keys, no quotes, no digits spelled out. <span class="code-lesson-il">struct.pack</span> and <span class="code-lesson-il">struct.unpack</span> convert between Python values and exactly those bytes. The format string <span class="code-lesson-il">"&lt;BHIhhh"</span> is the whole definition: <span class="code-lesson-il">&lt;</span> means little-endian with no padding, <span class="code-lesson-il">B</span> is one unsigned byte, <span class="code-lesson-il">H</span> two, <span class="code-lesson-il">I</span> four, <span class="code-lesson-il">h</span> a signed two-byte integer.</p>
-        <div class="diagram">
-<svg viewBox="0 0 760 220" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="50" width="52" height="56" rx="5" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2.4"/><text x="46" y="85" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">01</text><text x="46" y="132" font-size="14.5" fill="#5b6b78" text-anchor="middle">v</text><text x="46" y="156" font-size="14" fill="#5b6b78" text-anchor="middle">1 byte</text><rect x="72" y="50" width="104" height="56" rx="5" fill="#fff4d6" stroke="#b8860b" stroke-width="2.4"/><text x="124" y="85" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">11 00</text><text x="124" y="132" font-size="14.5" fill="#5b6b78" text-anchor="middle">seq = 17</text><text x="124" y="156" font-size="14" fill="#5b6b78" text-anchor="middle">2 bytes</text><rect x="176" y="50" width="208" height="56" rx="5" fill="#fbece3" stroke="#c0693f" stroke-width="2.4"/><text x="280" y="85" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">48 85 00 00</text><text x="280" y="132" font-size="14.5" fill="#5b6b78" text-anchor="middle">t = 34120</text><text x="280" y="156" font-size="14" fill="#5b6b78" text-anchor="middle">4 bytes</text><rect x="384" y="50" width="104" height="56" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.4"/><text x="436" y="85" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">14 00</text><text x="436" y="132" font-size="14.5" fill="#5b6b78" text-anchor="middle">ax = 20 mg</text><text x="436" y="156" font-size="14" fill="#5b6b78" text-anchor="middle">2 bytes</text><rect x="488" y="50" width="104" height="56" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.4"/><text x="540" y="85" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">f6 ff</text><text x="540" y="132" font-size="14.5" fill="#5b6b78" text-anchor="middle">ay = −10 mg</text><text x="540" y="156" font-size="14" fill="#5b6b78" text-anchor="middle">2 bytes</text><rect x="592" y="50" width="104" height="56" rx="5" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2.4"/><text x="644" y="85" font-size="15.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">d4 03</text><text x="644" y="132" font-size="14.5" fill="#5b6b78" text-anchor="middle">az = 980 mg</text><text x="644" y="156" font-size="14" fill="#5b6b78" text-anchor="middle">2 bytes</text><text x="20" y="28" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">to_bin(17, 34120, 0.02, -0.01, 0.98)</text><text x="20" y="200" font-size="14.5" fill="#1f3b52" text-anchor="start" font-weight="bold">multi-byte values are stored low byte first (little-endian): seq 17 is 11 00, not 00 11</text></svg>
-            <div class="diagram-caption">The 13 bytes of the binary record. Reading a stream of these requires the table above: byte 0 is the version, bytes 1–2 the sequence number, and so on. The table <em>is</em> the contract.</div>
-        </div>
-
+<p>The message is 68 bytes. That is small enough that the class limits (about ten messages a second each) are set by how <em>often</em> you send, not by how big each message is.</p>
 <h3>Part 2. Numbers, Not Text</h3>
-<p>Two things make text expensive. The first is the digits themselves: a time of 34120 is five characters but fits in two bytes if it is small enough, and four in any case. The second is <strong>floating-point noise</strong>: <span class="code-lesson-il">0.019775390625</span> is what a float prints as when it came from an ADC count divided by 4096, and it costs 14 characters where <span class="code-lesson-il">0.02</span> costs 4. Rounding before sending (<span class="code-lesson-il">round(x, 2)</span>) is the cheapest saving in the course, and it also shows what precision the sensor really has. In the binary record the same idea appears as <strong>fixed point</strong>: the acceleration is stored as a whole number of milli-g, so 0.98 g becomes the integer 980, and the receiver divides by 1000. A signed 16-bit integer holds ±32.767 g, far more than the ±2 g or ±16 g range of the MPU6050, with a resolution of 0.001 g, finer than the sensor’s noise.</p>
-<p>That is the same reasoning as the ADC lesson: choose the number of bits by the precision the measurement deserves, not by the width of the variable it happens to sit in.</p>
-<h3>Part 3. Choosing</h3>
-        <div class="diagram">
-<svg viewBox="0 0 760 372.5" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="170" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><rect x="190" y="14" width="170" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="275" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">JSON</text><rect x="360" y="14" width="170" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="445" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">CSV text</text><rect x="530" y="14" width="210" height="48" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="635" y="43.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Binary (struct)</text><rect x="20" y="62" width="170" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Size</text><rect x="190" y="62" width="170" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="start">largest</text><rect x="360" y="62" width="170" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="369" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="start">about 40 %</text><rect x="530" y="62" width="210" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="539" y="91.075" font-size="14.5" fill="#1f3b52" text-anchor="start">about 20 %</text><rect x="20" y="110" width="170" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Readable by eye</text><rect x="190" y="110" width="170" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="start">yes</text><rect x="360" y="110" width="170" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="369" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="start">yes</text><rect x="530" y="110" width="210" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="539" y="139.075" font-size="14.5" fill="#1f3b52" text-anchor="start">no (use hex)</text><rect x="20" y="158" width="170" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Self-describing</text><rect x="190" y="158" width="170" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="start">yes: has key names</text><rect x="360" y="158" width="170" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="369" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="start">no: order matters</text><rect x="530" y="158" width="210" height="48" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="539" y="187.075" font-size="14.5" fill="#1f3b52" text-anchor="start">no: layout only</text><rect x="20" y="206" width="170" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="start">Add a field later</text><rect x="190" y="206" width="170" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="start">easy</text><rect x="360" y="206" width="170" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="369" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="start">append at the end</text><rect x="530" y="206" width="210" height="48" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="539" y="235.075" font-size="14.5" fill="#1f3b52" text-anchor="start">new version byte</text><rect x="20" y="254" width="170" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="285.2" font-size="14.5" fill="#1f3b52" text-anchor="start">Wrong data</text><rect x="190" y="254" width="170" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="285.2" font-size="14.5" fill="#1f3b52" text-anchor="start">usually a parse error</text><rect x="360" y="254" width="170" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="369" y="276.137" font-size="14.5" fill="#1f3b52" text-anchor="start">silently wrong</text><text x="369" y="294.262" font-size="14.5" fill="#1f3b52" text-anchor="start">column</text><rect x="530" y="254" width="210" height="52.25" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="539" y="285.2" font-size="14.5" fill="#1f3b52" text-anchor="start">silently wrong number</text><rect x="20" y="306.25" width="170" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="29" y="328.387" font-size="14.5" fill="#1f3b52" text-anchor="start">Works with other</text><text x="29" y="346.512" font-size="14.5" fill="#1f3b52" text-anchor="start">tools</text><rect x="190" y="306.25" width="170" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="199" y="337.45" font-size="14.5" fill="#1f3b52" text-anchor="start">everything</text><rect x="360" y="306.25" width="170" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="369" y="337.45" font-size="14.5" fill="#1f3b52" text-anchor="start">spreadsheets</text><rect x="530" y="306.25" width="210" height="52.25" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="539" y="337.45" font-size="14.5" fill="#1f3b52" text-anchor="start">your own decoder</text></svg>
-            <div class="diagram-caption">How the formats compare. A rule that serves well: use JSON for anything a human will read or that happens occasionally (commands, events, status), and binary for steady high-rate data that only programs read.</div>
-        </div>
-
-<p>A mismatch is the danger of binary. If the sender and receiver disagree about the layout, the receiver does not get an error: it gets numbers, and they are wrong. This is why the first byte of the record is a <strong>version</strong>. A receiver that sees a version it does not know should discard the message, not guess. A format with no version byte cannot be changed without breaking every reader at once.</p>
-<h3>Part 4. Fewer, Bigger Messages</h3>
-<p>Now the payoff. An IMU read at 50 Hz is 50 samples a second. Sent as one JSON message each that is 3,400 bytes per second and <strong>50 messages per second</strong>, five times the class limit of 10. Packing ten consecutive samples into one binary message, with a header that gives the time of the first and the interval between them, needs only 5 messages a second and 70 bytes each, 350 bytes per second. The receiver reconstructs every sample’s time from the header, so nothing is lost but the per-message overhead.</p>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">batch.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">import struct
-
-HEAD = "&lt;BHIHB"                      # version, seq, time of first sample, ms between samples, count
-SAMPLE = "&lt;hhh"                      # ax, ay, az in milli-g
-
-def pack_batch(seq, t0, dt_ms, samples):
-    """samples: list of (ax, ay, az) in g. One message instead of len(samples)."""
-    out = bytearray(struct.pack(HEAD, 1, seq &amp; 0xFFFF, t0 &amp; 0xFFFFFFFF, dt_ms, len(samples)))
-    for ax, ay, az in samples:
-        out += struct.pack(SAMPLE, round(ax * 1000), round(ay * 1000), round(az * 1000))
-    return bytes(out)
-
-def unpack_batch(buf):
-    hs = struct.calcsize(HEAD)
-    v, seq, t0, dt, n = struct.unpack(HEAD, buf[:hs])
-    if v != 1 or len(buf) != hs + n * struct.calcsize(SAMPLE):
-        raise ValueError("bad batch")
-    rows = []
-    for i in range(n):
-        ax, ay, az = struct.unpack_from(SAMPLE, buf, hs + i * 6)
-        rows.append((t0 + i * dt, ax / 1000, ay / 1000, az / 1000))
-    return seq, rows
-</span>
-</div>
-        <div class="diagram">
-<svg viewBox="0 0 760 320" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="20" y="28" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">messages per second</text><text x="200" y="76" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">50 JSON messages</text><rect x="212" y="48" width="450" height="38" rx="3" fill="#b3261e" stroke="#b3261e" stroke-width="1"/><text x="672" y="74" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">50</text><text x="200" y="128" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">5 batches of 10</text><rect x="212" y="100" width="45" height="38" rx="3" fill="#3c8a5a" stroke="#3c8a5a" stroke-width="1"/><text x="267" y="126" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">5</text><line x1="302" y1="40" x2="302" y2="158" stroke="#b3261e" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 4"/><text x="302" y="176" font-size="14.5" fill="#b3261e" text-anchor="middle" font-weight="bold">class limit: 10 per second</text><text x="20" y="222" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">bytes per second</text><text x="200" y="258" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">as JSON</text><rect x="212" y="234" width="414.634" height="36" rx="3" fill="#b3261e" stroke="#b3261e" stroke-width="1"/><text x="636.634" y="258" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">3,400</text><text x="200" y="290" font-size="15.5" fill="#1f3b52" text-anchor="end" font-weight="bold">as binary batches</text><rect x="212" y="274" width="42.6829" height="30" rx="3" fill="#3c8a5a" stroke="#3c8a5a" stroke-width="1"/><text x="264.683" y="296" font-size="16" fill="#1f3b52" text-anchor="start" font-weight="bold">350</text></svg>
-            <div class="diagram-caption">The same 50 Hz IMU stream sent two ways. Batching ten samples per message brings it under the class message limit and cuts the bytes by almost ten times. The price is latency: the first sample of a batch waits up to 180 ms before it leaves the board.</div>
-        </div>
-
-<p>That last sentence is the real engineering trade. Batching saves overhead but delays data, so it is right for logging and analysis and wrong for a control loop that needs the newest value now. Week 14 returns to this under <em>latency</em>.</p>
-<h3>Part 5. Trust Nothing You Receive</h3>
+<p>In JSON every digit is a byte. <span class="code-lesson-il">0.019775390625</span> is what a float prints as when it came from an ADC count divided by 4096, and it costs 14 characters where <span class="code-lesson-il">0.02</span> costs 4. Rounding before sending (<span class="code-lesson-il">round(x, 2)</span>) is the cheapest saving in the course, and it also shows what precision the sensor really has: the digits past the second or third decimal place of an MPU6050 reading are noise, not information.</p>
+<p>That is the same reasoning as the ADC lesson: send the precision the measurement deserves, not the precision the variable happens to hold.</p>
+<h3>Part 3. Trust Nothing You Receive</h3>
 <p>Everything arriving from the network is input from outside your program: it may be truncated, from the wrong version, or not what you thought. A receiver that crashes on a bad packet lets any other node take it down. The decoder below turns bytes into a dictionary or <span class="code-lesson-il">None</span>, and <strong>never raises an exception</strong>. Callers check for <span class="code-lesson-il">None</span> and carry on.</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
@@ -133,85 +75,108 @@ def decode(payload):
 </span>
 </div>
 <p>Notice what it checks: it is JSON; it is an object (not a list or a number); the version is one we know; the envelope fields have the right types. It does <em>not</em> yet check ranges (is this roll angle possible?) or that the fields for this particular topic are present; that is the job of the contract in Week 11. The habit starts here.</p>
-<p>Finally, measure. Run the benchmark on your Pico and write down the four times; they depend on the firmware version, and you should use your numbers, not anyone’s claims, for decisions about whether the processor or the network is the bottleneck in your node.</p>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">bench.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">from time import ticks_us, ticks_diff
-from formats import to_json, to_bin, from_bin
-import json
-
-def time_it(f, n=200):
-    t0 = ticks_us()
-    for _ in range(n):
-        f()
-    return ticks_diff(ticks_us(), t0) / n        # microseconds per call
-
-j = to_json(17, 34120, 0.02, -0.01, 0.98)
-b = to_bin(17, 34120, 0.02, -0.01, 0.98)
-print("json  pack %6.0f us   unpack %6.0f us   %d bytes" % (
-    time_it(lambda: to_json(17, 34120, 0.02, -0.01, 0.98)), time_it(lambda: json.loads(j)), len(j)))
-print("bin   pack %6.0f us   unpack %6.0f us   %d bytes" % (
-    time_it(lambda: to_bin(17, 34120, 0.02, -0.01, 0.98)), time_it(lambda: from_bin(b)), len(b)))
-</span>
-</div>
 
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Struct Size.</strong> A record has a version byte, a 16-bit sequence number, a 32-bit time, and six signed 16-bit values (three accelerations, three rotation rates). What is its format string and its size?</p>
-        <p><strong>Exercise 2: Fixed Point.</strong> The sensor reads −0.0734 g. What integer does <span class="code-lesson-il">to_bin</span> store, what does the receiver compute, and what is the rounding error? Why would you not store the acceleration in whole g?</p>
+        <p><strong>Exercise 1: Read the Envelope.</strong> A subscriber receives <span class="code-lesson-il">{"v": 1, "seq": 205, "t": 81460, "cm": 23.4}</span> from <span class="code-lesson-il">lab/amy/tele/range</span>, and a moment later <span class="code-lesson-il">{"v": 1, "seq": 208, "t": 82070, "cm": 22.9}</span>. Which fields are the envelope? How many of Amy’s messages were lost in between, and how much time passed on Amy’s board between the two readings?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Pick Formats.</strong> Choose JSON, CSV or binary for each, with a reason: (a) the command “servo to 90 degrees” sent by a person from a laptop; (b) a gyroscope stream at 100 Hz to the logger; (c) an “obstacle detected” event; (d) a heartbeat once a minute.</p>
+        <p><strong>Exercise 2: Decode These.</strong> What does <span class="code-lesson-il">decode()</span> from Part 3 return for each payload, and which check decides it? (a) <span class="code-lesson-il">b'{"v": 1, "seq": 4, "t": 900, "cm": 12.5}'</span> (b) <span class="code-lesson-il">b'[1, 4, 900]'</span> (c) <span class="code-lesson-il">b'{"v": 2, "seq": 4, "t": 900}'</span> (d) <span class="code-lesson-il">b'{"v": 1, "seq": "4", "t": 900}'</span> (e) <span class="code-lesson-il">b'{"v": 1, "seq": 4, "t": 9'</span></p>
         <h4>Advanced</h4>
-        <p><strong>Exercise 4: Wrapping Sequence Numbers.</strong> The batch header holds a 16-bit sequence number, which wraps from 65,535 back to 0. Write <span class="code-lesson-il">missing(prev, seq)</span> that returns how many batches were lost between two consecutive arrivals, correctly across the wrap. Test it for (10, 11), (10, 14), (65534, 1) and (65535, 0).</p>
+        <p><strong>Exercise 3: Lost, Duplicate or Restart.</strong> Write <span class="code-lesson-il">classify(prev, seq)</span> that compares a message’s sequence number with the previous one from the same sender and returns <span class="code-lesson-il">"ok"</span>, <span class="code-lesson-il">"lost N"</span>, <span class="code-lesson-il">"duplicate"</span> or <span class="code-lesson-il">"restart"</span>. Test it on the sequence 1, 2, 3, 6, 6, 7, 1, 2. What real event does a restart mean?</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
         <h4>Warm Up</h4>
         <details>
-        <summary>Exercise 1: Struct Size</summary>
-<p><span class="code-lesson-il">"&lt;BHIhhhhhh"</span>: 1 + 2 + 4 + 6 × 2 = <strong>19 bytes</strong>. You can confirm with <span class="code-lesson-il">struct.calcsize("&lt;BHIhhhhhh")</span>. Without the <span class="code-lesson-il">&lt;</span> the library may insert padding bytes to align values, and the size would not match what the receiver expects.</p>
-        </details>
-        <details>
-        <summary>Exercise 2: Fixed Point</summary>
-<p><span class="code-lesson-il">round(−0.0734 × 1000)</span> = <strong>−73</strong>. The receiver divides by 1000 and gets −0.073 g, an error of 0.0004 g, well below the sensor’s noise. In whole g the value would round to 0 and the whole signal, which is nearly all between −1 and +1, would be lost; the choice of unit sets the resolution, so choose the unit that makes the smallest interesting change at least one count.</p>
+        <summary>Exercise 1: Read the Envelope</summary>
+<p>The envelope is <span class="code-lesson-il">v</span>, <span class="code-lesson-il">seq</span> and <span class="code-lesson-il">t</span>; <span class="code-lesson-il">cm</span> is the body. The sequence number jumped from 205 to 208, so two messages (206 and 207) were lost. On Amy’s board 82070 − 81460 = 610 ms passed between the readings. How far apart they <em>arrived</em> does not tell you that, because network delays vary from message to message; <span class="code-lesson-il">t</span> does.</p>
         </details>
         <h4>Intermediate</h4>
         <details>
-        <summary>Exercise 3: Pick Formats</summary>
-<p>(a) <strong>JSON</strong>: rare, hand-typed, must be readable and self-describing. (b) <strong>Binary batches</strong>: steady, high-rate, only programs read it; 100 Hz of JSON would break the message limit alone. (c) <strong>JSON</strong>: an event is rare, and its fields (what, where, how far) will evolve. (d) <strong>JSON</strong>: the saving would be a few bytes a minute, and human-readable is worth more. The pattern: bytes matter only where the rate is high.</p>
+        <summary>Exercise 2: Decode These</summary>
+<p>(a) The dictionary: it passes every check. (b) <span class="code-lesson-il">None</span>: it is valid JSON but a list, not an object. (c) <span class="code-lesson-il">None</span>: version 2 is not one this receiver knows. (d) <span class="code-lesson-il">None</span>: <span class="code-lesson-il">seq</span> is the string <span class="code-lesson-il">"4"</span>, not an integer. (e) <span class="code-lesson-il">None</span>: the message was cut short, so <span class="code-lesson-il">json.loads</span> raises <span class="code-lesson-il">ValueError</span>, which the decoder catches. In no case does the program crash.</p>
         </details>
         <h4>Advanced</h4>
         <details>
-        <summary>Exercise 4: Wrapping Sequence Numbers</summary>
+        <summary>Exercise 3: Lost, Duplicate or Restart</summary>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
-<span class="code-block-filename">missing.py</span>
+<span class="code-block-filename">seqwatch.py</span>
 <span class="code-block-lang">MicroPython</span>
 </div>
-<span class="code-lesson-bl">def missing(prev, seq):
-    """How many messages were skipped between two arrivals (16-bit sequence numbers)."""
-    return (seq - prev - 1) &amp; 0xFFFF
+<span class="code-lesson-bl">def classify(prev, seq):
+    """Compare a message's seq with the previous one from the same sender."""
+    if prev is None or seq == prev + 1:
+        return "ok"
+    if seq &gt; prev + 1:
+        return "lost %d" % (seq - prev - 1)
+    if seq == prev:
+        return "duplicate"
+    return "restart"                 # seq went backwards: the sender rebooted
 
-print(missing(10, 11))        # 0   consecutive
-print(missing(10, 14))        # 3   11, 12, 13 were lost
-print(missing(65534, 1))      # 2   65535 and 0 were lost
-print(missing(65535, 0))      # 0   a normal wrap
+prev = None
+for seq in [1, 2, 3, 6, 6, 7, 1, 2]:
+    print(seq, classify(prev, seq))
+    prev = seq
 </span>
-</div><p>Subtracting and masking with 0xFFFF performs the arithmetic <em>modulo 65,536</em>, so the wrap needs no special case: 1 − 65534 − 1 = −65534, and −65534 &amp; 0xFFFF = 2. The same trick works for the millisecond clock, where <span class="code-lesson-il">ticks_diff</span> does it for you. The one thing it cannot do is tell a loss of 65,536 messages from none at all, so keep the interval between arrivals short enough that this cannot happen.</p>
+</div>
+<p>The output is ok, ok, ok, lost 2, duplicate, ok, restart, ok. A sequence number that goes <em>backwards</em> almost always means the sender rebooted: its counter started again from the beginning. Treat it as a fresh start rather than as thousands of lost messages.</p>
+        </details>
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. What Serialization Decides.</strong> Name three things the choice of serialization format decides for a node.</p>
+        <p><strong>P2. Three Envelope Fields.</strong> Name the three envelope fields on every class message and the question each one answers for the receiver.</p>
+        <p><strong>P3. Version Field.</strong> Why does every class message carry <span class="code-lesson-il">v</span>, and what should a receiver do with a version it does not know?</p>
+        <h4>Apply</h4>
+        <p><strong>P4. Rounding Saves.</strong> A float prints as 0.019775390625 (14 characters). Rounded with <span class="code-lesson-il">round(x, 2)</span> it is 0.02 (4 characters). For a message with six such values sent 10 times a second, roughly how many bytes per second does rounding save?</p>
+        <p><strong>P5. Lost or Duplicate.</strong> Messages from one sender arrive with <span class="code-lesson-il">seq</span> 40, 41, 41, 44, 45. What happened?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P6. Never Crash.</strong> List four checks a decoder of received JSON should make before returning a dictionary, and what it returns otherwise.</p>
+        <p><strong>P7. Comparing Times.</strong> The hub receives a reading from Amy with <span class="code-lesson-il">t</span> = 50200 and one from Bob with <span class="code-lesson-il">t</span> = 50300. Can it conclude that Bob’s reading was taken 0.1 s after Amy’s?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. What Serialization Decides</summary>
+<p>The size of every message; how much work the processor does to build and read it; how hard the format is to change later, and whether a person can read it.</p>
+        </details>
+        <details>
+        <summary>P2. Three Envelope Fields</summary>
+<p><span class="code-lesson-il">v</span>: is this a format I understand? <span class="code-lesson-il">seq</span>: did I miss a message, or get one twice? <span class="code-lesson-il">t</span>: when was this reading taken, by the sender’s clock?</p>
+        </details>
+        <details>
+        <summary>P3. Version Field</summary>
+<p>So that the meaning of the fields can change later without silently breaking old receivers. A receiver that sees an unknown version should discard the message, not guess what the fields mean.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P4. Rounding Saves</summary>
+<p>About 10 characters per value × 6 values × 10 messages = 600 bytes per second.</p>
+        </details>
+        <details>
+        <summary>P5. Lost or Duplicate</summary>
+<p>41 arrived twice (a duplicate), and 42 and 43 never arrived (two lost). 40, the first 41, 44 and 45 are normal.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P6. Never Crash</summary>
+<p>It parses as JSON; the result is an object (dict), not a list or number; the version is one it knows; the envelope fields (v, seq, t) have the right types. Otherwise it returns None and never raises.</p>
+        </details>
+        <details>
+        <summary>P7. Comparing Times</summary>
+<p>No. Each <span class="code-lesson-il">t</span> is that board’s own <span class="code-lesson-il">ticks_ms()</span>, counted from when that board started, and the two boards started at different moments. Only differences between two <span class="code-lesson-il">t</span> values from the <em>same</em> sender mean anything. To compare across boards, the hub uses its own clock: when each message arrived.</p>
         </details>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>Compute the size of a JSON, CSV or struct-packed message.</li>
-            <li>Write a struct format string and explain <span class="code-lesson-il">&lt;</span>, <span class="code-lesson-il">B</span>, <span class="code-lesson-il">H</span>, <span class="code-lesson-il">I</span> and <span class="code-lesson-il">h</span>.</li>
-            <li>Use fixed-point integers and rounding to shrink numbers without losing useful precision.</li>
-            <li>Choose a format by rate, readability and who reads it.</li>
-            <li>Say what batching saves and what it costs, and write a decoder that returns None instead of raising.</li>
+            <li>Build a class message with <span class="code-lesson-il">json.dumps</span> and read one back with <span class="code-lesson-il">json.loads</span>.</li>
+            <li>Say what each envelope field (<span class="code-lesson-il">v</span>, <span class="code-lesson-il">seq</span>, <span class="code-lesson-il">t</span>) lets a receiver do.</li>
+            <li>Round readings to the precision the sensor really has before sending them.</li>
+            <li>Write a decoder that returns <span class="code-lesson-il">None</span> instead of raising on bad input.</li>
         </ol>
 
     </body>

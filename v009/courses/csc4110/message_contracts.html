@@ -16,6 +16,7 @@
 
     <body>
         <p>This lesson covers agreeing on messages and roles. You write a contract with its seven items, enforce it with a schema checker that cannot crash, change it additively without breaking readers, and let agents announce roles and choose a leader by a rule everyone computes from the same retained messages.</p>
+        <p><strong>SAM lens.</strong> A contract is the agreement that lets one agent's Actuator output become another agent's Perceptor input. The checker is a Perceptor filter: nothing malformed ever reaches the Decider.</p>
 
 <p>Agents written by different people, on different days, must still work together. What makes that possible is not good intentions but a <strong>contract</strong>: a precise, written description of every message, so exact that two people who never speak can each write one side and have the sides fit. You have been using one since Unit 2 (the envelope, the topic kinds, the robot interface spec for Lab Practical 2). This lesson shows what a contract contains, how to <em>enforce</em> it in code on the receiving side, how to change one without breaking anyone, and how agents announce <strong>roles</strong> so that a group can organise itself.</p>
 <h3>Part 1. What a Contract Contains</h3>
@@ -141,11 +142,11 @@ class Roster:
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Spot the Violation.</strong> Which of these <span class="code-lesson-il">tele/range</span> messages violate the contract of Part 1? (a) <span class="code-lesson-il">{"v":1,"seq":4,"t":9,"cm":21.5}</span> (b) <span class="code-lesson-il">{"v":1,"seq":5,"t":9,"cm":"21.5"}</span> (c) <span class="code-lesson-il">{"v":1,"seq":6,"t":9,"cm":0}</span> (d) <span class="code-lesson-il">{"v":1,"seq":7,"t":9,"cm":21.5,"quality":0.9}</span></p>
-        <p><strong>Exercise 2: Breaking or Not?.</strong> Decide additive or breaking, and what you would do: (a) adding <span class="code-lesson-il">temp</span> to <span class="code-lesson-il">tele/imu</span>, (b) changing <span class="code-lesson-il">deg</span> in the pan command from degrees to radians, (c) removing <span class="code-lesson-il">why</span> from the ack.</p>
+        <p><strong>Exercise 2: Breaking or Not?</strong> Decide additive or breaking, and what you would do: (a) adding <span class="code-lesson-il">temp</span> to <span class="code-lesson-il">tele/imu</span>, (b) changing <span class="code-lesson-il">deg</span> in the pan command from degrees to radians, (c) removing <span class="code-lesson-il">why</span> from the ack.</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: Write the Contract.</strong> Write a schema in the style of <span class="code-lesson-il">contract.py</span> for <span class="code-lesson-il">evt/stopped</span> of the robot: a required string <span class="code-lesson-il">why</span> of at most 20 characters (checked separately) and an optional integer <span class="code-lesson-il">cmd_id</span>. Then say what <span class="code-lesson-il">check</span> returns for <span class="code-lesson-il">{"why": 5}</span> and for <span class="code-lesson-il">{"why": "deadman"}</span>.</p>
         <h4>Advanced</h4>
-        <p><strong>Exercise 4: Who Leads?.</strong> Agents <span class="code-lesson-il">c3</span>, <span class="code-lesson-il">c1</span> and <span class="code-lesson-il">c2</span> are coordinators, all online. <span class="code-lesson-il">c1</span> crashes, restarts and for two seconds has not yet published its role. What does <span class="code-lesson-il">c2</span> compute as the leader, and what do <span class="code-lesson-il">c3</span> and the actuators see? Suggest a rule that makes the double-leader moment harmless.</p>
+        <p><strong>Exercise 4: Who Leads?</strong> Agents <span class="code-lesson-il">c3</span>, <span class="code-lesson-il">c1</span> and <span class="code-lesson-il">c2</span> are coordinators, all online. <span class="code-lesson-il">c1</span> crashes, restarts and for two seconds has not yet published its role. What does <span class="code-lesson-il">c2</span> compute as the leader, and what do <span class="code-lesson-il">c3</span> and the actuators see? Suggest a rule that makes the double-leader moment harmless.</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
@@ -179,6 +180,78 @@ print(check(STOPPED, {"why": "deadman"}))  # (True, '')
         <details>
         <summary>Exercise 4: Who Leads?</summary>
 <p>When <span class="code-lesson-il">c1</span> crashes its will fires (<span class="code-lesson-il">online: false</span>), so <span class="code-lesson-il">c2</span> and <span class="code-lesson-il">c3</span> compute <strong><span class="code-lesson-il">c2</span></strong> as leader. When <span class="code-lesson-il">c1</span> returns, its hello (<span class="code-lesson-il">online: true</span>) arrives immediately, so <span class="code-lesson-il">c2</span> and <span class="code-lesson-il">c3</span> switch back to <span class="code-lesson-il">c1</span>; <span class="code-lesson-il">c1</span> itself, restarting, may also think it leads before it has received the retained roles of the others. For a short moment two agents command. A harmless rule: <strong>actuators obey only a command whose sender they currently believe is leader, and refuse a command with an older <span class="code-lesson-il">t</span> than the last they accepted</strong> from the same leader; and a new leader first observes for a second or two (the actuators’ lease expires) before acting.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Seven Items.</strong> List the items a message contract should specify (the lesson names seven).</p>
+        <p><strong>P2. Meaning of Silence.</strong> Why is "the meaning of silence" part of a contract? Give an example clause.</p>
+        <p><strong>P3. Never Raise.</strong> What is the most important rule for a function that checks received messages against a contract?</p>
+        <p><strong>P4. Additive or Breaking.</strong> Define an additive change and a breaking change to a contract, and how each is handled.</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Check These.</strong> Using the contract <span class="code-lesson-il">cm: (float, 2.0, 400.0, required)</span>, <span class="code-lesson-il">ok: (bool, optional)</span>, which pass <span class="code-lesson-il">check</span>? (a) <span class="code-lesson-il">{"cm": 20}</span>; (b) <span class="code-lesson-il">{"cm": true}</span>; (c) <span class="code-lesson-il">{"cm": 500.0}</span>; (d) <span class="code-lesson-il">{"cm": 35.5, "ok": false, "extra": 1}</span>; (e) <span class="code-lesson-il">{"ok": true}</span>.</p>
+        <p><strong>P6. NaN.</strong> Why does the range test also reject NaN?</p>
+        <p><strong>P7. Leader Rule.</strong> Coordinators c1, c2 and c3; the rule is "the live coordinator with the lowest name leads". Who leads when (a) all are live; (b) c1 is offline; (c) c1 and c2 are offline; (d) all are offline?</p>
+        <p><strong>P8. Unit Change.</strong> A sensor's <span class="code-lesson-il">range</span> field was in centimetres and its owner wants millimetres. Describe the safe way to make the change.</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Brief Double Leaders.</strong> With the lowest-name rule, how can two coordinators briefly both believe they lead, and what must the actuators do about it?</p>
+        <p><strong>P10. Silent but Online.</strong> A coordinator's <span class="code-lesson-il">stat/online</span> says true, but it has not published anything for a minute. What rule from the previous lesson should others combine with the presence will?</p>
+        <p><strong>P11. Report Once.</strong> Why should a receiver report a contract violation once rather than on every bad message?</p>
+        <p><strong>P12. Write a Contract.</strong> Write the contract row for a Watcher's <span class="code-lesson-il">evt/ident</span>: fields with types and ranges, rate, retained or not, and the meaning of silence.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Seven Items</summary>
+<p>The topic; who publishes it; who may read it; the fields with types, units and ranges; the rate; the meaning of silence (what it means if messages stop); and how errors and versions are handled (what a receiver does with a malformed or newer message). Wording may vary; units, ranges and the meaning of silence are the ones most often forgotten.</p>
+        </details>
+        <details>
+        <summary>P2. Meaning of Silence</summary>
+<p>If it is unwritten, every receiver invents its own rule and they differ. Example: "no <span class="code-lesson-il">tele/range</span> for 2 s means the sensor is lost; treat the range as unknown".</p>
+        </details>
+        <details>
+        <summary>P3. Never Raise</summary>
+<p>It must never raise: a malformed message is rejected quietly, counted and reported once, and the node keeps running.</p>
+        </details>
+        <details>
+        <summary>P4. Additive or Breaking</summary>
+<p>Additive: a new field; old receivers ignore it (extra fields are allowed), so nothing breaks. Breaking: changing the meaning or removing a field; the version changes, and for a while the sender publishes both forms.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Check These</summary>
+<p>(a) Passes: an int is accepted where a float is expected (JSON drops the .0). (b) Fails: a bool is not a number here. (c) Fails: out of range. (d) Passes: extra fields are allowed. (e) Fails: missing cm.</p>
+        </details>
+        <details>
+        <summary>P6. NaN</summary>
+<p>Every comparison with NaN is false, so <span class="code-lesson-il">lo &lt;= v &lt;= hi</span> is false and the message is rejected.</p>
+        </details>
+        <details>
+        <summary>P7. Leader Rule</summary>
+<p>(a) c1. (b) c2. (c) c3. (d) None: no leader, and the actuators' fail-safes are what remain.</p>
+        </details>
+        <details>
+        <summary>P8. Unit Change</summary>
+<p>Never change the meaning of an existing name. Add a new field (for example <span class="code-lesson-il">range_mm</span>) or a new topic with a new version, publish both for a transition period, move every receiver over, then retire the old field.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Brief Double Leaders</summary>
+<p>If c2 has not yet heard that c1 is back online, both lead for a moment. Actuators must make that harmless: obey only the leader they currently recognise (or the most recent leader), and keep their own fail-safes.</p>
+        </details>
+        <details>
+        <summary>P10. Silent but Online</summary>
+<p>The age rule: a leader not heard for longer than <span class="code-lesson-il">stale_ms</span> is treated as gone, even if its retained presence says online.</p>
+        </details>
+        <details>
+        <summary>P11. Report Once</summary>
+<p>A sender stuck in a fault might send thousands of bad messages; reporting each would flood the receiver's own log and the network. Count them all, report the first (and perhaps a periodic count).</p>
+        </details>
+        <details>
+        <summary>P12. Write a Contract</summary>
+<p>Topic <span class="code-lesson-il">lab/&lt;user&gt;/evt/ident</span>, published by a Watcher. Fields: <span class="code-lesson-il">label</span> (str, one of red, green, blue), <span class="code-lesson-il">conf</span> (float, 0.0 to 1.0), plus the envelope. Sent on each verdict, at most about 2 per second, not retained. Silence: no new verdict means the last one ages; the world model treats identifications older than 10 s as stale.</p>
         </details>
 
         <h3>Checkpoint</h3>

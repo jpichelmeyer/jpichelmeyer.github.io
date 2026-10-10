@@ -16,6 +16,7 @@
 
     <body>
         <p>This lab builds a shared resource out of a lease, a queue and a contract. You write a manager that is the single judge of who may move the servo, and clients that ask, wait, use and give back, and then check by drills that crashes, restarts and impatient clients do not break it, and that the system recovers in a time you can state.</p>
+        <p><strong>SAM lens.</strong> the manager's Memory (owner, lease, queue) is the only judge of who may move the servo. Clients perceive that Memory through retained state and act only through requests, so a crashed client costs at most one lease.</p>
 
 <h3>What You Will Build</h3>
 <p>One servo, several users, no collisions. One student’s Pico runs the <strong>manager</strong>: it owns a pan servo and decides, one at a time, who may move it. The other students run <strong>clients</strong> that ask for the servo, wait their turn in a queue, use it, and give it back. Everything in this lab is a combination of earlier lessons: the lease and queue of Week 13, the agent cycle, the contract, the failure habits of Week 8. The new work is making the pieces behave <strong>together</strong>, and then breaking the system the ways real systems break: a client that crashes while holding the servo, a manager that restarts, and a client that asks far too often.</p>
@@ -129,7 +130,7 @@ run(h, [Manager(h, Servo(14), lease_ms=10000)])
 </span>
 </div>
 <h3>Step 2. The Clients</h3>
-<p>The other students run the client, with a list of pan angles to perform. Change <span class="code-lesson-il">MANAGER</span> to the manager’s user name. A client is a small state machine (the state machines lesson): <span class="code-lesson-il">IDLE</span>, <span class="code-lesson-il">WAIT</span> for the queue, <span class="code-lesson-il">OWN</span> while it works.</p>
+<p>The other students run the client, with a list of pan angles to perform. Change <span class="code-lesson-il">MANAGER</span> to the manager’s user name. A client is a small state machine (the agents and state machines lesson): <span class="code-lesson-il">IDLE</span>, <span class="code-lesson-il">WAIT</span> for the queue, <span class="code-lesson-il">OWN</span> while it works.</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">client.py</span>
@@ -232,9 +233,9 @@ run(h, [Client(h, MANAGER, [10, 20, 30, 40, 50])])
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Why the Retained Owner?.</strong> Why is <span class="code-lesson-il">stat/owner</span> retained, and what could a client that joins late do with it?</p>
+        <p><strong>Exercise 1: Why the Retained Owner?</strong> Why is <span class="code-lesson-il">stat/owner</span> retained, and what could a client that joins late do with it?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 2: Two Owners?.</strong> Describe a sequence of messages and timeouts in which two clients both <em>believe</em> they own the servo, and say why the servo itself is never moved by both.</p>
+        <p><strong>Exercise 2: Two Owners?</strong> Describe a sequence of messages and timeouts in which two clients both <em>believe</em> they own the servo, and say why the servo itself is never moved by both.</p>
         <h4>Advanced</h4>
         <p><strong>Exercise 3: Handle “full”.</strong> Change the client so that, on an ack with <span class="code-lesson-il">why: "full"</span>, it waits a random 2 to 6 seconds before claiming again, instead of every second.</p>
 
@@ -281,7 +282,7 @@ class PatientClient(Client):
             self.hold_off_until = None
         super().step()                           # everything else is unchanged
 </span>
-</div><p>The random delay is <strong>jitter</strong> (the herd lesson of Week 8): without it, every client refused at the same moment would try again at the same moment. Note that <span class="code-lesson-il">on</span> takes the filter and the function; a real version would keep a single handler for <span class="code-lesson-il">evt/ack</span> and branch inside it.</p>
+</div><p>The random delay is <strong>jitter</strong> (from the Staying safe offline lesson of Week 7): without it, every client refused at the same moment would try again at the same moment. Note that <span class="code-lesson-il">on</span> takes the filter and the function; a real version would keep a single handler for <span class="code-lesson-il">evt/ack</span> and branch inside it.</p>
         </details>
 
         <h3>Checkpoint</h3>

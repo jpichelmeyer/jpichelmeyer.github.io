@@ -20,7 +20,7 @@
     {
       "num": 2,
       "action": "Analyze",
-      "detail": "the structural alignment between physical processing constraints and sensor data throughput in real-timme edge applications.",
+      "detail": "the structural alignment between physical processing constraints and sensor data throughput in real-time edge applications.",
       "blooms": 4
     },
     {
@@ -44,7 +44,7 @@
     {
       "num": 6,
       "action": "Validate",
-      "detail": "collaborative, network IoT system design requirements through physical testing.",
+      "detail": "collaborative, networked IoT system design requirements through physical testing.",
       "blooms": 5
     }
   ],
@@ -61,10 +61,10 @@
   },
   "schedule": [
     {
-      "theme": "Physical Nodes and the On-Ramp",
+      "theme": "Situated Node",
       "trs": [
         {
-          "Architecture": "csc4110/architecture.html",
+          "Situated agents and IoT architecture": "csc4110/architecture.html",
           "Thonny and MicroPython": "csc4110/thonny.html",
           "Circuits and GPIO": "csc4110/circuits_gpio.html",
           "Lab 1": "csc4110/lab1.html"
@@ -76,8 +76,7 @@
           "Lab 2": "csc4110/lab2.html"
         },
         {
-          "I2C": "csc4110/i2c.html",
-          "SPI": "csc4110/spi.html",
+          "I2C sensors": "csc4110/i2c.html",
           "Pulses and interrupts": "csc4110/pulse_interrupts.html",
           "Network on-ramp": "csc4110/network_onramp.html",
           "Lab 3": "csc4110/lab3.html"
@@ -91,43 +90,40 @@
         {
           "Flex": "",
           "Review": "",
-          "Lab Practical 1": "",
+          "Lab Practical 1": "csc4110/lp1.html",
           "Exam 1": ""
         }
       ]
     },
     {
-      "theme": "Distributed Messaging",
+      "theme": "Connected Specialists",
       "trs": [
         {
-          "WiFi and TCP/IP": "csc4110/tcp_ip.html",
-          "Pub-sub and MQTT": "csc4110/mqtt_basics.html",
-          "Mosquitto hub": "csc4110/mosquitto_hub.html",
-          "Serialization": "csc4110/serialization.html",
+          "Network essentials": "csc4110/tcp_ip.html",
+          "MQTT and the broker": "csc4110/mqtt_basics.html",
+          "Messages and JSON": "csc4110/serialization.html",
           "Lab 5": "csc4110/lab5.html"
         },
         {
-          "Topics and telemetry": "csc4110/topics_telemetry.html",
-          "Two-way routing and triggers": "csc4110/routing_triggers.html",
-          "QoS, retained, last will": "csc4110/qos_lwt.html",
+          "Topics and commands": "csc4110/topics_telemetry.html",
+          "Retained state and last will": "csc4110/qos_lwt.html",
+          "Staying safe offline": "csc4110/network_resilience.html",
           "Lab 6": "csc4110/lab6.html"
         },
         {
-          "Network resilience": "csc4110/network_resilience.html",
-          "State persistence": "csc4110/state_persistence.html",
-          "Message handling and async": "csc4110/message_handling.html",
+          "Cognitive architectures and roles": "csc4110/cognitive_architectures.html",
+          "Features and windows": "csc4110/features_stats.html",
           "Lab 7": "csc4110/lab7.html"
         },
         {
-          "Data management and logging": "csc4110/data_logging.html",
-          "Features and rolling stats": "csc4110/features_stats.html",
-          "Edge vs hub budgets": "csc4110/edge_hub_budgets.html",
+          "TinyML: collecting data and training": "csc4110/learning_sensors.html",
+          "TinyML: inference on the robot": "csc4110/edge_inference.html",
           "Lab 8": "csc4110/lab8.html"
         },
         {
           "Flex": "",
           "Review": "",
-          "Lab Practical 2": "",
+          "Lab Practical 2": "csc4110/lp2.html",
           "Exam 2": ""
         }
       ]
@@ -136,32 +132,31 @@
       "theme": "Multi-Agent Systems",
       "trs": [
         {
-          "Multi-agent systems": "csc4110/multi_agent_systems.html",
-          "Distributed state machines": "csc4110/distributed_state_machines.html",
+          "Agents and state machines": "csc4110/multi_agent_systems.html",
           "Roles and message contracts": "csc4110/message_contracts.html",
           "Lab 9": "csc4110/lab9.html"
         },
         {
           "Sensor fusion and geometry": "csc4110/sensor_fusion.html",
+          "Shared world model": "csc4110/world_model.html",
           "Behavior and tracking": "csc4110/behavior_tracking.html",
-          "Learning from sensor data": "csc4110/learning_sensors.html",
           "Lab 10": "csc4110/lab10.html"
         },
         {
           "Resources, power, enclosures": "csc4110/resource_management.html",
-          "Collision avoidance": "csc4110/collision_avoidance.html",
+          "Collision avoidance and leases": "csc4110/collision_avoidance.html",
           "State tracking": "csc4110/state_tracking.html",
           "Lab 11": "csc4110/lab11.html"
         },
         {
-          "Latency and message starvation": "csc4110/latency_starvation.html",
-          "Validation and test planning": "csc4110/validation_testing.html",
+          "Validation, latency and test planning": "csc4110/validation_testing.html",
+          "Mission integration": "csc4110/mission_integration.html",
           "Lab 12": "csc4110/lab12.html"
         },
         {
           "Flex": "",
           "Review": "",
-          "Lab Practical 3": "",
+          "Lab Practical 3": "csc4110/lp3.html",
           "Exam 3": ""
         }
       ]

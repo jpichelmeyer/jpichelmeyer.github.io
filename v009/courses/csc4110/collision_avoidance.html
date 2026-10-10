@@ -16,6 +16,7 @@
 
     <body>
         <p>This lesson covers three ways to avoid collisions. You compute a stopping distance from speed, latency and braking and see how an underestimated latency defeats it, reserve angular sectors with claims that expire, and share the ultrasonic medium by slots with a guard sized to the measured sync jitter, backing each scheme with a simulation.</p>
+        <p><strong>SAM lens.</strong> Stopping distance is a Decider rule that uses Memory (the closing speed) and must allow for the latency of the whole sense-decide-act loop. Sector claims and time slots coordinate the Actuators of several agents.</p>
 
 <p>Two things collide when they want the same place at the same time. In this course the “things” are mostly not wheeled robots: they are scan heads whose arms sweep into each other’s reach, ultrasonic sensors whose pings corrupt each other’s echoes, and the occasional hand or object that closes on a moving part. The ideas are the same ones a fleet of vehicles needs, and they come in three families: <strong>predict</strong> a collision from how fast a gap is closing; <strong>reserve</strong> the space so that two agents never plan the same place; and <strong>schedule</strong> the time so that agents share a medium by taking turns.</p>
 <h3>Part 1. Stopping in Time</h3>
@@ -155,7 +156,7 @@ class Slots:
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Stop Distance.</strong> A robot closes on a wall at 50 cm/s, can brake at 200 cm/s², and has 0.4 s of delay in the loop. What stop distance should it assume, with a 4 cm margin? At what range should it start braking at 25 cm/s?</p>
-        <p><strong>Exercise 2: Who Is in the Way?.</strong> The sector table holds <span class="code-lesson-il">a</span> at −60 to 0 and <span class="code-lesson-il">b</span> at 30 to 60. Which of these claims by <span class="code-lesson-il">c</span> are granted? (a) −20 to −10, (b) 5 to 25, (c) 0 to 10, (d) 60 to 90.</p>
+        <p><strong>Exercise 2: Who Is in the Way?</strong> The sector table holds <span class="code-lesson-il">a</span> at −60 to 0 and <span class="code-lesson-il">b</span> at 30 to 60. Which of these claims by <span class="code-lesson-il">c</span> are granted? (a) −20 to −10, (b) 5 to 25, (c) 0 to 10, (d) 60 to 90.</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: Too Good to Be True.</strong> A reading arrives at 150 cm when the previous three were 22, 21 and 23 cm. Give two possible causes and say what a robust receiver should do before acting on it.</p>
         <h4>Advanced</h4>
@@ -181,6 +182,78 @@ class Slots:
         <details>
         <summary>Exercise 4: Three Heads</summary>
 <p>The frame is 3 × 90 = <strong>270 ms</strong>, so each head measures at most every 270 ms (about 3.7 Hz). The usable window is 90 − 2 × 20 = <strong>50 ms</strong>, so a measurement of up to 50 ms fits (the HC-SR04’s longest, about 38 ms for an echo from the far end of its range, fits with 12 ms to spare, which the sync jitter has to be smaller than). Adding a head lengthens every head’s frame: four heads would mean 360 ms.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Three Families.</strong> Name the three families of collision avoidance from the lesson.</p>
+        <p><strong>P2. Stopping Distance.</strong> Write the stopping distance in terms of speed v, total latency L and braking deceleration a.</p>
+        <p><strong>P3. One Judge.</strong> Why does the sector manager do the check and the grant as one operation?</p>
+        <p><strong>P4. Guard Size.</strong> What must the guard at each end of a time slot cover?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Compute a Stop.</strong> v = 40 cm/s, L = 0.45 s, a = 150 cm/s². What is the stopping distance? For v = 60 cm/s and L = 0.5 s?</p>
+        <p><strong>P6. Latency Underestimate.</strong> The real latency is 0.5 s but the guard is configured with 0.3 s, at 60 cm/s. By how much does it underestimate the stopping distance?</p>
+        <p><strong>P7. Unsynchronised Crosstalk.</strong> Two heads each measure for 30 ms every 200 ms at random phases. What fraction of measurements collide? With 50 ms measurements?</p>
+        <p><strong>P8. Sector Claims.</strong> Claims are inclusive ranges of pan angle. a holds −60 to 0 and b holds 10 to 60. Are these granted? (a) b claims −10 to 40; (b) c claims 5 to 8; (c) c claims 0 to 5.</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Fixed Limit.</strong> Why is a fixed stopping limit (stop at 30 cm) right at one speed and wrong at others?</p>
+        <p><strong>P10. Guard Too Small.</strong> A 30 ms guard gave 0.01 % crosstalk with sync jitter under 40 ms but 3.9 % with 80 ms jitter. What should you do before choosing a guard?</p>
+        <p><strong>P11. Tie-Breaking.</strong> Two agents' claims always arrive at the manager in the same order, so one always wins ties. Is that correct? Is it fair? How would you make it fair?</p>
+        <p><strong>P12. Last Line of Defence.</strong> Even with a sector manager, why should every moving agent keep its own stopping guard?</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Three Families</summary>
+<p>Predict (from how fast a gap closes, compare with the stopping distance); reserve space (claims that expire); schedule time (slots for a shared medium).</p>
+        </details>
+        <details>
+        <summary>P2. Stopping Distance</summary>
+<p>d = v × L + v² / (2a).</p>
+        </details>
+        <details>
+        <summary>P3. One Judge</summary>
+<p>So two simultaneous claims cannot both pass: whichever message reaches the manager first wins and the other is refused, a fact independent of anybody's clock.</p>
+        </details>
+        <details>
+        <summary>P4. Guard Size</summary>
+<p>The jitter of the synchronisation message (how differently it arrives at each agent), plus clock drift between syncs.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Compute a Stop</summary>
+<p>40 × 0.45 + 1600 / 300 = 18 + 5.3 = 23.3 cm. 60 × 0.5 + 3600 / 300 = 30 + 12 = 42 cm.</p>
+        </details>
+        <details>
+        <summary>P6. Latency Underestimate</summary>
+<p>By 60 × 0.2 = 12 cm: it brakes 12 cm too late.</p>
+        </details>
+        <details>
+        <summary>P7. Unsynchronised Crosstalk</summary>
+<p>2 × 30 / 200 = 30 %. With 50 ms: 2 × 50 / 200 = 50 %.</p>
+        </details>
+        <details>
+        <summary>P8. Sector Claims</summary>
+<p>(a) Refused: overlaps a (and b's own claim is ignored for itself). (b) Granted: between the two. (c) Refused: 0 is inside a's claim (inclusive).</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Fixed Limit</summary>
+<p>The required distance grows with speed (linearly through latency, quadratically through braking). A limit right at 40 cm/s hits at 60 cm/s and stops far too early at 10 cm/s.</p>
+        </details>
+        <details>
+        <summary>P10. Guard Too Small</summary>
+<p>Measure the jitter of the sync messages at your boards (compare their arrival times) and set the guard to cover it, with margin; resynchronise often.</p>
+        </details>
+        <details>
+        <summary>P11. Tie-Breaking</summary>
+<p>It is correct (one judge, one order) but not fair. Break ties by a rule everyone can check (the agent that has waited longest, or alternate) and write it into the contract.</p>
+        </details>
+        <details>
+        <summary>P12. Last Line of Defence</summary>
+<p>Views can disagree (a lost refusal, a peer system with no judge, a person's hand), so two agents may believe they are allowed. The local guard works on what the agent itself senses, needing no message.</p>
         </details>
 
         <h3>Checkpoint</h3>

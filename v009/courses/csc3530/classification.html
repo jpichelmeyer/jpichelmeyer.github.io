@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3530</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+        <style>
+            /* CSC 3530: sans-serif diagram text, wide diagrams scroll on narrow panes */
+            .diagram svg text { font-family: Arial, Helvetica, sans-serif; }
+            .diagram { overflow-x: auto; }
+            .diagram-caption { font-size: 0.93em; line-height: 1.5; }
+            details { margin: 10px 0; }
+            details > summary { cursor: pointer; font-weight: bold; padding: 4px 0; }
+            .note-box { margin: 16px 0 24px; padding: 12px 18px; border-radius: 8px; border-left: 4px solid; }
+            .note-box p { margin: 0 0 8px; line-height: 1.6; }
+            .note-box p:last-child { margin-bottom: 0; }
+            .note-box ol, .note-box ul { margin: 4px 0 0; padding-left: 1.4em; line-height: 1.6; }
+            .note-title { font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+            .note-read    { background: #f3f7ee; border-color: #5f8f3e; }
+            .note-read .note-title { color: #3f6b26; }
+            .note-sam     { background: #eef4f9; border-color: #2e5a80; }
+            .note-sam .note-title { color: #1f3b52; }
+            .note-human   { background: #fbf1ea; border-color: #c0693f; }
+            .note-human .note-title { color: #8a4526; }
+            .note-arc     { background: #fdf6e3; border-color: #b8860b; }
+            .note-arc .note-title { color: #7a5a06; }
+            .note-discuss { background: #f5f0fa; border-color: #7a4f9a; }
+            .note-discuss .note-title { color: #5a3577; }
+            .reading-list { margin: 4px 0 0; padding-left: 1.2em; }
+            .reading-list li { margin-bottom: 6px; line-height: 1.5; }
+            .reading-meta { color: #555; font-size: 0.9em; }
+            table.lesson-table { border-collapse: collapse; margin: 12px 0 22px; font-size: 0.94em; }
+            table.lesson-table th, table.lesson-table td { border: 1px solid #ccd6de; padding: 6px 10px; text-align: left; vertical-align: top; }
+            table.lesson-table th { background: #eef4f9; }
+            table.lesson-table tbody tr:nth-child(even) { background: #fafbfc; }
+            .lesson-nav-part { color: #5b6b78; font-size: 0.9em; }
+        </style>
+        <script src="../../scripts/pyodide_terminal.js"></script>
+        <script src="../../scripts/python_editor.js"></script>
+    </head>
+
+    <body>
+
+<p><strong>Classification</strong> maps a situation onto one of a set of known categories, so that everything you know about the category becomes available. Hofstadter and Sander put it bluntly: "nonstop categorization is every bit as indispensable to our survival in the world as is the nonstop beating of our hearts." For an agent, classification is how a huge space of possible situations collapses into a few kinds, each with its own actions. For ARC, it is both a kind of task (some tasks literally ask "which kind of input is this?") and the agent's first move on every task ("what kind of task is this?").</p>
+
+<div class="note-box note-read">
+<div class="note-title">Reading</div>
+<ul class="reading-list"><li><a href="../../pdfs/csc3530/csc3530_classification_1_hofstadter.pdf" target="_blank"><b>Hofstadter &amp; Sander</b>, Ch. 4: <i>Mathematics is Not Always Cut and Dry; Are Squares Rectangles?</i></a> <span class="reading-meta">(pp. 233–238 &middot; PDF 248–253 &middot; 6 pages)</span><br>Even the textbook hierarchy of quadrilaterals is hard for people to hold. Experts have more levels in their hierarchy than novices.</li><li><a href="../../pdfs/csc3530/csc3530_classification_2_bennett.pdf" target="_blank"><b>Bennett</b>, Ch. 7: <i>The discrimination and generalization problems</i></a> <span class="reading-meta">(PDF pp. 134–136 &middot; 3 pages)</span><br>Two problems every classifier faces: telling similar things apart, and treating different-looking things as the same.</li></ul>
+</div>
+
+
+<h3>Part 1. Concept Hierarchies</h3>
+<p>Categories are organized in hierarchies. Each node is a concept; children are more specific than parents. Classification moves through the hierarchy in one of two directions:</p>
+<ul>
+    <li><strong>Top-down (establish and refine)</strong>: confirm that the situation belongs to a general concept, then try to narrow it down to one of that concept's children. Efficient, because each step rules out whole subtrees.</li>
+    <li><strong>Bottom-up</strong>: from observed features, find the leaf concepts that match and generalize upward. Useful when features arrive piecemeal.</li>
+</ul>
+<div class="diagram">
+<svg viewBox="0 0 760 270" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="tr" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="300" y="20" width="100" height="36" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="350.0" y="42.5" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">animal</text><rect x="120" y="110" width="100" height="36" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="170.0" y="132.6" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">bird</text><rect x="410" y="110" width="100" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="460.0" y="132.6" font-size="13" text-anchor="middle" fill="#1f3b52">mammal</text><rect x="590" y="110" width="100" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="640.0" y="132.6" font-size="13" text-anchor="middle" fill="#1f3b52">fish</text><rect x="10" y="210" width="100" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="60.0" y="232.6" font-size="13" text-anchor="middle" fill="#1f3b52">robin</text><rect x="120" y="210" width="100" height="36" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="170.0" y="232.6" font-size="13" text-anchor="middle" fill="#1f3b52" font-weight="bold">penguin</text><rect x="230" y="210" width="100" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="280.0" y="232.6" font-size="13" text-anchor="middle" fill="#1f3b52">eagle</text><rect x="360" y="210" width="100" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="410.0" y="232.6" font-size="13" text-anchor="middle" fill="#1f3b52">bat</text><rect x="470" y="210" width="100" height="36" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="520.0" y="232.6" font-size="13" text-anchor="middle" fill="#1f3b52">dog</text><line x1="350" y1="56" x2="170" y2="110" stroke="#c0693f" stroke-width="2.5"/><line x1="350" y1="56" x2="460" y2="110" stroke="#9aa5ae" stroke-width="1.5"/><line x1="350" y1="56" x2="640" y2="110" stroke="#9aa5ae" stroke-width="1.5"/><line x1="170" y1="146" x2="60" y2="210" stroke="#9aa5ae" stroke-width="1.5"/><line x1="170" y1="146" x2="170" y2="210" stroke="#c0693f" stroke-width="2.5"/><line x1="170" y1="146" x2="280" y2="210" stroke="#9aa5ae" stroke-width="1.5"/><line x1="460" y1="146" x2="410" y2="210" stroke="#9aa5ae" stroke-width="1.5"/><line x1="460" y1="146" x2="520" y2="210" stroke="#9aa5ae" stroke-width="1.5"/><text x="600" y="200" font-size="11.5" text-anchor="start" fill="#8a4526">establish: feathers</text><text x="600" y="218" font-size="11.5" text-anchor="start" fill="#8a4526">-&gt; bird</text><text x="600" y="240" font-size="11.5" text-anchor="start" fill="#8a4526">refine: no flight + swims</text><text x="600" y="258" font-size="11.5" text-anchor="start" fill="#8a4526">-&gt; penguin</text></svg>
+    <div class="diagram-caption">Establish and refine. "Has feathers" establishes <em>bird</em>; "does not fly, swims" refines it to <em>penguin</em>. Mammals and fish are never examined.</div>
+</div>
+
+<p>Not every concept is defined the same way. Goel and Joyner distinguish three kinds, which match three positions in cognitive psychology:</p>
+<div class="diagram">
+<svg viewBox="0 0 760 165" style="max-width:740px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ck" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="20" y="20" width="230" height="130" rx="7" fill="#e3eef8" stroke="#2e5a80" stroke-width="1.8"/><text x="135.0" y="51.7" font-size="12" text-anchor="middle" fill="#1f3b52">Axiomatic</text><text x="135.0" y="66.7" font-size="12" text-anchor="middle" fill="#1f3b52">defined by necessary and</text><text x="135.0" y="81.7" font-size="12" text-anchor="middle" fill="#1f3b52">sufficient conditions</text><text x="135.0" y="96.7" font-size="12" text-anchor="middle" fill="#1f3b52"></text><text x="135.0" y="111.7" font-size="12" text-anchor="middle" fill="#1f3b52">square, prime number,</text><text x="135.0" y="126.7" font-size="12" text-anchor="middle" fill="#1f3b52">four-way stop</text><rect x="265" y="20" width="230" height="130" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="51.7" font-size="12" text-anchor="middle" fill="#1f3b52">Prototype</text><text x="380.0" y="66.7" font-size="12" text-anchor="middle" fill="#1f3b52">a typical member; others</text><text x="380.0" y="81.7" font-size="12" text-anchor="middle" fill="#1f3b52">are more or less like it</text><text x="380.0" y="96.7" font-size="12" text-anchor="middle" fill="#1f3b52"></text><text x="380.0" y="111.7" font-size="12" text-anchor="middle" fill="#1f3b52">bird, chair,</text><text x="380.0" y="126.7" font-size="12" text-anchor="middle" fill="#1f3b52">&quot;a rotation task&quot;</text><rect x="510" y="20" width="230" height="130" rx="7" fill="#fdf3d7" stroke="#b8860b" stroke-width="1.8"/><text x="625.0" y="51.7" font-size="12" text-anchor="middle" fill="#1f3b52">Exemplar</text><text x="625.0" y="66.7" font-size="12" text-anchor="middle" fill="#1f3b52">the stored members</text><text x="625.0" y="81.7" font-size="12" text-anchor="middle" fill="#1f3b52">themselves</text><text x="625.0" y="96.7" font-size="12" text-anchor="middle" fill="#1f3b52"></text><text x="625.0" y="111.7" font-size="12" text-anchor="middle" fill="#1f3b52">my dog, the ARC tasks</text><text x="625.0" y="126.7" font-size="12" text-anchor="middle" fill="#1f3b52">I have solved</text></svg>
+    <div class="diagram-caption">Three kinds of concepts. Mathematics and rules of the road are axiomatic; most everyday categories are prototype-like; some are just remembered members.</div>
+</div>
+
+<div class="note-box note-human">
+<div class="note-title">Human cognition connection</div>
+<p>Eleanor Rosch (1970s) showed that human categories have a privileged middle level, the <strong>basic level</strong>. Shown a picture, people say "chair" before "furniture" (superordinate) or "kitchen chair" (subordinate); basic-level names are learned first, recognized fastest, and are the most informative for the effort. She also showed that categories have <em>typicality gradients</em>: a robin is a better bird than a penguin. This week's Hofstadter reading finds the same structure in schoolbook geometry: most people hold only two or three levels of the quadrilateral hierarchy, while experts hold four, and "is a square a rectangle?" depends on which levels you have. The Bennett reading names the two problems every classifier faces: telling similar things apart (<em>discrimination</em>) and treating different-looking things as the same (<em>generalization</em>).</p>
+</div>
+
+
+<h3>Part 2. A Hierarchical Classifier</h3>
+<p>Each node lists the features needed to <em>establish</em> it, and the features <em>typical</em> of it (a prototype). An unobserved feature counts as unknown, not false, so the classifier can stop and say what it would need to know to go further.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">animal_classifier.py: the hierarchy</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl"># node: (parent, features that must hold to ESTABLISH it, typical features)
+TREE = {
+    &#x27;animal&#x27;:  (None,     {},                                  {}),
+    &#x27;bird&#x27;:    (&#x27;animal&#x27;, {&#x27;covering&#x27;: &#x27;feathers&#x27;},             {&#x27;flies&#x27;: True, &#x27;size&#x27;: &#x27;small&#x27;}),
+    &#x27;mammal&#x27;:  (&#x27;animal&#x27;, {&#x27;covering&#x27;: &#x27;fur&#x27;},                  {&#x27;flies&#x27;: False, &#x27;legs&#x27;: 4}),
+    &#x27;fish&#x27;:    (&#x27;animal&#x27;, {&#x27;covering&#x27;: &#x27;scales&#x27;, &#x27;gills&#x27;: True}, {&#x27;swims&#x27;: True}),
+    &#x27;robin&#x27;:   (&#x27;bird&#x27;,   {&#x27;breast&#x27;: &#x27;red&#x27;},                    {&#x27;flies&#x27;: True, &#x27;size&#x27;: &#x27;small&#x27;}),
+    &#x27;penguin&#x27;: (&#x27;bird&#x27;,   {&#x27;flies&#x27;: False, &#x27;swims&#x27;: True},      {&#x27;size&#x27;: &#x27;medium&#x27;}),
+    &#x27;eagle&#x27;:   (&#x27;bird&#x27;,   {&#x27;hooked_beak&#x27;: True},                {&#x27;flies&#x27;: True, &#x27;size&#x27;: &#x27;large&#x27;}),
+    &#x27;bat&#x27;:     (&#x27;mammal&#x27;, {&#x27;flies&#x27;: True},                      {&#x27;size&#x27;: &#x27;small&#x27;}),
+    &#x27;dog&#x27;:     (&#x27;mammal&#x27;, {&#x27;barks&#x27;: True},                      {&#x27;legs&#x27;: 4}),
+}
+
+def children(node):
+    return [n for n, (p, _, _) in TREE.items() if p == node]</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">animal_classifier.py: establish and refine</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def establishes(node, obs):
+    &quot;&quot;&quot;A node is established if every required feature is observed to hold.
+    A feature we have not observed counts as unknown, not as false.&quot;&quot;&quot;
+    need = TREE[node][1]
+    if any(f in obs and obs[f] != v for f, v in need.items()):
+        return False
+    return all(f in obs for f in need)
+
+def typicality(node, obs):
+    typ = TREE[node][2]
+    known = [f for f in typ if f in obs]
+    return sum(obs[f] == typ[f] for f in known) / len(known) if known else None
+
+def classify(obs):
+    &quot;&quot;&quot;Top-down: establish a node, then try to refine it into a child.&quot;&quot;&quot;
+    node, path = &#x27;animal&#x27;, [&#x27;animal&#x27;]
+    while True:
+        winners = [c for c in children(node) if establishes(c, obs)]
+        if len(winners) != 1:
+            return path, winners
+        node = winners[0]
+        path.append(node)</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">animal_classifier.py: four observations</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def report(obs):
+    path, _ = classify(obs)
+    line = &#x27; -&gt; &#x27;.join(path)
+    if len(path) &gt; 1:
+        line += f&#x27;   (typicality as a {path[1]}: {typicality(path[1], obs):.1f})&#x27;
+    open_kids = [c for c in children(path[-1])
+                 if not any(f in obs and obs[f] != v for f, v in TREE[c][1].items())]
+    if open_kids:   # could not refine: say what would decide it
+        asks = [f&#x27;{c}? need {sorted(f for f in TREE[c][1] if f not in obs)}&#x27; for c in open_kids]
+        line += &#x27;\n      stuck; &#x27; + &#x27;; &#x27;.join(asks)
+    print(line)
+
+report({&#x27;covering&#x27;: &#x27;feathers&#x27;, &#x27;breast&#x27;: &#x27;red&#x27;, &#x27;flies&#x27;: True, &#x27;size&#x27;: &#x27;small&#x27;})
+report({&#x27;covering&#x27;: &#x27;feathers&#x27;, &#x27;flies&#x27;: False, &#x27;swims&#x27;: True, &#x27;size&#x27;: &#x27;medium&#x27;})
+report({&#x27;covering&#x27;: &#x27;fur&#x27;, &#x27;flies&#x27;: True, &#x27;size&#x27;: &#x27;small&#x27;})
+report({&#x27;covering&#x27;: &#x27;feathers&#x27;, &#x27;size&#x27;: &#x27;large&#x27;})</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">animal -&gt; bird -&gt; robin   (typicality as a bird: 1.0)
+animal -&gt; bird -&gt; penguin   (typicality as a bird: 0.0)
+animal -&gt; mammal -&gt; bat   (typicality as a mammal: 0.0)
+animal -&gt; bird   (typicality as a bird: 0.0)
+      stuck; robin? need [&#x27;breast&#x27;]; penguin? need [&#x27;flies&#x27;, &#x27;swims&#x27;]; eagle? need [&#x27;hooked_beak&#x27;]</code>
+</div>
+
+<p>Two things to notice. The penguin is classified correctly, yet its typicality as a bird is 0: it violates the bird prototype. Membership and typicality are different questions, exactly as Rosch found. And the last animal (feathers, large) cannot be refined; instead of guessing, the classifier reports which observations would decide it. A classifier that knows what it does not know is a step toward metacognition.</p>
+<div class="pyeditor">
+    <script type="text/plain" class="pyeditor-starter"># Classification with a concept hierarchy: establish, then refine.
+# node: (parent, features that must hold to ESTABLISH it, typical features)
+TREE = {
+    'animal':  (None,     {},                                  {}),
+    'bird':    ('animal', {'covering': 'feathers'},             {'flies': True, 'size': 'small'}),
+    'mammal':  ('animal', {'covering': 'fur'},                  {'flies': False, 'legs': 4}),
+    'fish':    ('animal', {'covering': 'scales', 'gills': True}, {'swims': True}),
+    'robin':   ('bird',   {'breast': 'red'},                    {'flies': True, 'size': 'small'}),
+    'penguin': ('bird',   {'flies': False, 'swims': True},      {'size': 'medium'}),
+    'eagle':   ('bird',   {'hooked_beak': True},                {'flies': True, 'size': 'large'}),
+    'bat':     ('mammal', {'flies': True},                      {'size': 'small'}),
+    'dog':     ('mammal', {'barks': True},                      {'legs': 4}),
+}
+
+def children(node):
+    return [n for n, (p, _, _) in TREE.items() if p == node]
+
+def establishes(node, obs):
+    """A node is established if every required feature is observed to hold.
+    A feature we have not observed counts as unknown, not as false."""
+    need = TREE[node][1]
+    if any(f in obs and obs[f] != v for f, v in need.items()):
+        return False
+    return all(f in obs for f in need)
+
+def typicality(node, obs):
+    typ = TREE[node][2]
+    known = [f for f in typ if f in obs]
+    return sum(obs[f] == typ[f] for f in known) / len(known) if known else None
+
+def classify(obs):
+    """Top-down: establish a node, then try to refine it into a child."""
+    node, path = 'animal', ['animal']
+    while True:
+        winners = [c for c in children(node) if establishes(c, obs)]
+        if len(winners) != 1:
+            return path, winners
+        node = winners[0]
+        path.append(node)
+
+def report(obs):
+    path, _ = classify(obs)
+    line = ' -> '.join(path)
+    if len(path) > 1:
+        line += f'   (typicality as a {path[1]}: {typicality(path[1], obs):.1f})'
+    open_kids = [c for c in children(path[-1])
+                 if not any(f in obs and obs[f] != v for f, v in TREE[c][1].items())]
+    if open_kids:   # could not refine: say what would decide it
+        asks = [f'{c}? need {sorted(f for f in TREE[c][1] if f not in obs)}' for c in open_kids]
+        line += '\n      stuck; ' + '; '.join(asks)
+    print(line)
+
+report({'covering': 'feathers', 'breast': 'red', 'flies': True, 'size': 'small'})
+report({'covering': 'feathers', 'flies': False, 'swims': True, 'size': 'medium'})
+report({'covering': 'fur', 'flies': True, 'size': 'small'})
+report({'covering': 'feathers', 'size': 'large'})</script>
+</div>
+
+
+<h3>Part 3. A Taste of ARC: Tasks That Are Classification</h3>
+<p>Some ARC tasks output one of a few fixed answers. In <code class="code-lesson-il">44f52bb0</code> every output is a single cell, blue or orange:</p>
+<div class="diagram">
+<svg viewBox="0 0 734 218" style="max-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arr_44f52bb0" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><g transform="translate(34.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 1</text></g><line x1="67.0" y1="100.0" x2="67.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_44f52bb0)"/><g transform="translate(56.0,138.0)"><rect x="-1" y="-1" width="24.0" height="24.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/></g><g transform="translate(134.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 2</text></g><line x1="167.0" y1="100.0" x2="167.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_44f52bb0)"/><g transform="translate(156.0,138.0)"><rect x="-1" y="-1" width="24.0" height="24.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF851B" stroke="#444" stroke-width="0.6"/></g><g transform="translate(234.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 3</text></g><line x1="267.0" y1="100.0" x2="267.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_44f52bb0)"/><g transform="translate(256.0,138.0)"><rect x="-1" y="-1" width="24.0" height="24.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/></g><g transform="translate(334.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 4</text></g><line x1="367.0" y1="100.0" x2="367.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_44f52bb0)"/><g transform="translate(356.0,138.0)"><rect x="-1" y="-1" width="24.0" height="24.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/></g><g transform="translate(434.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 5</text></g><line x1="467.0" y1="100.0" x2="467.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_44f52bb0)"/><g transform="translate(456.0,138.0)"><rect x="-1" y="-1" width="24.0" height="24.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF851B" stroke="#444" stroke-width="0.6"/></g><g transform="translate(534.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">train 6</text></g><line x1="567.0" y1="100.0" x2="567.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_44f52bb0)"/><g transform="translate(556.0,138.0)"><rect x="-1" y="-1" width="24.0" height="24.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF851B" stroke="#444" stroke-width="0.6"/></g><g transform="translate(634.0,26.0)"><rect x="-1" y="-1" width="68.0" height="68.0" fill="#555"/><rect x="0.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="0.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="0.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="22.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="0.0" y="44.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><rect x="22.0" y="44.0" width="22.0" height="22.0" fill="#000000" stroke="#444" stroke-width="0.6"/><rect x="44.0" y="44.0" width="22.0" height="22.0" fill="#FF4136" stroke="#444" stroke-width="0.6"/><text x="33.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">test</text></g><line x1="667.0" y1="100.0" x2="667.0" y2="128.0" stroke="#1f3b52" stroke-width="2" marker-end="url(#arr_44f52bb0)"/><rect x="634.0" y="138.0" width="66.0" height="66.0" rx="4" fill="#fff" stroke="#7a4f9a" stroke-width="2" stroke-dasharray="5,4"/><text x="667.0" y="180.0" font-size="26" text-anchor="middle" fill="#7a4f9a">?</text></svg>
+    <div class="diagram-caption">Task 44f52bb0. Each input is a small red pattern; each output a single cell. What decides the colour?</div>
+</div>
+
+<p>The agent describes each input with a few features, then looks for a single feature whose value predicts the answer without exception: a one-level decision tree, called a <strong>decision stump</strong>.</p>
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_classify.py: grid features</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def features(g):
+    &quot;&quot;&quot;A feature vector for a whole input grid.&quot;&quot;&quot;
+    objs = find_objects(g, bg=0)
+    cnt = Counter(v for row in g for v in row if v != 0)
+    return {
+        &#x27;mirror_lr&#x27;: g == flip_h(g), &#x27;mirror_ud&#x27;: g == flip_v(g),
+        &#x27;diag_sym&#x27;: dims(g)[0] == dims(g)[1] and g == transpose(g),
+        &#x27;n_colors&#x27;: len(colors(g) - {0}), &#x27;n_objects&#x27;: len(objs),
+        &#x27;top_color&#x27;: cnt.most_common(1)[0][0] if cnt else 0,
+        &#x27;rare_color&#x27;: cnt.most_common()[-1][0] if cnt else 0,
+        &#x27;shape&#x27;: tuple(tuple(v != 0 for v in row) for row in g),   # the mask itself
+    }</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_classify.py: learning a decision stump</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">def learn_stump(task):
+    &quot;&quot;&quot;Classification task? (outputs come from a small set of answers).
+    Find ONE feature whose value predicts the answer with no exceptions.&quot;&quot;&quot;
+    labels = [str(p[&#x27;output&#x27;]) for p in task[&#x27;train&#x27;]]
+    if len(set(labels)) == len(labels):            # every answer different: not classification
+        return None
+    answers = {str(p[&#x27;output&#x27;]): p[&#x27;output&#x27;] for p in task[&#x27;train&#x27;]}
+    feats = [features(p[&#x27;input&#x27;]) for p in task[&#x27;train&#x27;]]
+    for f in feats[0]:
+        table = {}
+        if all(table.setdefault(fv[f], lab) == lab for fv, lab in zip(feats, labels)):
+            if len(table) &gt; 1:                     # the feature must actually split
+                return f, {v: answers[lab] for v, lab in table.items()}
+    return None
+
+def predict(stump, grid):
+    f, table = stump
+    return table.get(features(grid)[f])</code>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_classify.py: what decides 44f52bb0?</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    task = load_task(&#x27;data/training/44f52bb0.json&#x27;)
+    f, table = learn_stump(task)
+    print(&#x27;44f52bb0 is decided by&#x27;, f, {k: v for k, v in table.items()})</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">44f52bb0 is decided by mirror_lr {True: [[1]], False: [[7]]}</code>
+</div>
+
+<div class="diagram">
+<svg viewBox="0 0 760 180" style="max-width:620px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="sp" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1f3b52"/></marker></defs><rect x="280" y="20" width="200" height="40" rx="7" fill="#fbe6da" stroke="#c0693f" stroke-width="1.8"/><text x="380.0" y="44.9" font-size="14" text-anchor="middle" fill="#1f3b52" font-weight="bold">mirror_lr?</text><g transform="translate(200.0,130.0)"><rect x="-1" y="-1" width="36.0" height="36.0" fill="#555"/><rect x="0.0" y="0.0" width="34.0" height="34.0" fill="#0074D9" stroke="#444" stroke-width="0.6"/><text x="17.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">answer [[1]]</text></g><g transform="translate(520.0,130.0)"><rect x="-1" y="-1" width="36.0" height="36.0" fill="#555"/><rect x="0.0" y="0.0" width="34.0" height="34.0" fill="#FF851B" stroke="#444" stroke-width="0.6"/><text x="17.0" y="-7" font-size="12" text-anchor="middle" fill="#1f3b52">answer [[7]]</text></g><line x1="330" y1="62" x2="222" y2="104" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#sp)"/><text x="262" y="74" font-size="11" text-anchor="middle" fill="#1f3b52">True</text><line x1="430" y1="62" x2="532" y2="104" stroke="#1f3b52" stroke-width="1.8" marker-end="url(#sp)"/><text x="500" y="74" font-size="11" text-anchor="middle" fill="#1f3b52">False</text></svg>
+    <div class="diagram-caption">The learned stump: left-right mirror symmetric patterns get blue, others orange.</div>
+</div>
+
+<div class="code-block" data-lang="python">
+    <div class="code-block-header">
+        <span class="code-block-filename">arc_classify.py: sweep the training set</span>
+        <span class="code-block-lang">Python</span>
+    </div>
+    <code class="code-lesson-bl">if __name__ == &#x27;__main__&#x27;:
+    solved = []
+    for name in sorted(os.listdir(&#x27;data/training&#x27;)):
+        t = load_task(&#x27;data/training/&#x27; + name)
+        stump = learn_stump(t)
+        if stump and all(predict(stump, p[&#x27;input&#x27;]) == p[&#x27;output&#x27;] for p in t[&#x27;test&#x27;]):
+            solved.append(f&#x27;{name[:-5]} ({stump[0]})&#x27;)
+    print(len(solved), &#x27;tasks:&#x27;, &#x27;, &#x27;.join(solved))</code>
+</div>
+
+<div class="code-block" data-lang="shell">
+    <div class="code-block-header">
+        <span class="code-block-filename">Shell output</span>
+        <span class="code-block-lang">Output</span>
+    </div>
+    <code class="code-lesson-bl">5 tasks: 27a28665 (n_objects), 44f52bb0 (mirror_lr), 6e02f1e3 (n_colors), d4469b4b (top_color), ff28f65a (n_objects)</code>
+</div>
+
+<p>Five tasks. Look closely at <code class="code-lesson-il">27a28665</code>: a person sees that each answer goes with a particular <em>shape</em>, but the stump found that the number of separate objects also happens to separate the answers in the train pairs, and it got the test right. Right answer, possibly wrong reason. With only a few train pairs, many features will separate the classes by accident. Preferring features that people find natural (shape over object count, symmetry over cell count) is a bias your agent needs, and it is the same lesson as last week's <code class="code-lesson-il">touches_edge</code>.</p>
+<div class="note-box note-sam">
+<div class="note-title">SAM lens</div>
+<p>Concept hierarchies are long-term semantic <strong>Memory</strong>. Establish-and-refine is a <strong>Decider</strong>. For your ARC agent, the most valuable classifier is one that labels <em>tasks</em> ("same size, recolouring" vs "output smaller, cropping"), because that label tells the Decider which methods to try first.</p>
+</div>
+
+<div class="note-box note-discuss">
+<div class="note-title">Discuss</div>
+<ol><li>Is "square" axiomatic, prototype, or both for you? What about "ARC rotation task"?</li><li>What is the basic level for ARC tasks? What would a superordinate and a subordinate category look like?</li><li>The stump solved <code class="code-lesson-il">27a28665</code> with object count. Should the agent trust that answer? How could it check?</li></ol>
+</div>
+
+<h3>Checkpoint</h3>
+<p>Before moving on, make sure you can:</p>
+<ol><li>Explain establish-and-refine classification in a concept hierarchy.</li><li>Distinguish axiomatic, prototype, and exemplar concepts.</li><li>Describe Rosch's basic level and typicality effects.</li><li>Learn a decision stump from ARC train pairs and explain why it might be right for the wrong reason.</li></ol>
+
+<section class="exercises">
+<h2>Exercises</h2>
+<p>Work in your own copy of the lesson code. Keep a short log of what you tried and what happened; it feeds your weekly agent report.</p>
+<h3>Warm-up</h3>
+<ol><li>Add <em>ostrich</em> to the hierarchy and an observation that classifies as ostrich.</li><li>Print the features of every input in <code class="code-lesson-il">27a28665</code>. Which features separate the answers? Which would you trust?</li></ol><h3>Intermediate</h3>
+<ol><li>Make the classifier bottom-up: from the observations, collect all leaves that are not ruled out and report them with typicality scores.</li><li>Extend the stump to a depth-2 decision tree. Do more tasks fall? Do any break?</li></ol><h3>Advanced</h3>
+<ol><li>Write a <em>task</em> classifier: label each training task with one of a handful of task types you define (for example "same size, colours change"). Hand-label 30 tasks, learn a stump or tree from your labels, and test it on 30 more.</li></ol><h3>For your ARC agent</h3>
+<ol><li>Put a task classifier at the front of your agent so the Decider tries the methods most likely to work for that kind of task first. Record whether average solve time drops.</li></ol></section>
+
+
+    </body>
+</html>

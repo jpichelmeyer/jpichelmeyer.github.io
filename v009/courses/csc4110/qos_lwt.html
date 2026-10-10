@@ -15,71 +15,12 @@
     </head>
 
     <body>
-        <p>This lesson covers the three tools MQTT offers for an unreliable world. QoS 0 and 1 trade loss against duplication, and a blocking QoS 1 publish is a danger on a microcontroller. Retained messages hold the latest state for late subscribers, and are wrong for commands. The last will turns a node’s death into a message, and its detection delay follows directly from the keepalive.</p>
+        <p>This lesson covers the two MQTT tools that matter most for robots that come and go. Retained messages hold the latest state for late subscribers, and are wrong for commands. The last will turns a node’s death into a message, and its detection delay follows directly from the keepalive. A short note on quality of service explains why the class sends almost everything at QoS 0.</p>
+        <p><strong>SAM lens.</strong> Retained messages are Memory kept by the environment; the last will is the environment speaking for an agent that can no longer act. QoS decides how reliably one agent's Actuator reaches another's Perceptor.</p>
 
 <p>A message crossing a WiFi link can be lost, duplicated, delayed or reordered by the network, and the node at either end can die in the middle of a conversation. MQTT gives you three tools for dealing with the unreliability and the dying: <strong>quality of service</strong> levels to control delivery, <strong>retained messages</strong> to keep the latest state, and the <strong>last will</strong> to announce a death. Each is easy to switch on and easy to misuse, and the class conventions say which to use where.</p>
-<h3>Part 1. Quality of Service</h3>
-        <div class="diagram">
-<svg viewBox="0 0 760 430.55" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><text x="205" y="76" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">QoS 0: at most once</text><text x="555" y="76" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">QoS 1: at least once</text><rect x="50" y="10" width="140" height="36" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="120" y="33.25" font-size="15" fill="#1f3b52" text-anchor="middle">Sender</text><rect x="220" y="10" width="140" height="36" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="290" y="33.25" font-size="15" fill="#1f3b52" text-anchor="middle">Broker</text><line x1="120" y1="46" x2="120" y2="198" stroke="#5b6b78" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4"/><line x1="290" y1="46" x2="290" y2="198" stroke="#5b6b78" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4"/><line x1="120" y1="110" x2="281" y2="110" stroke="#2e5a80" stroke-width="2.4" stroke-linecap="round"/><polygon points="290.0,110.0 279.0,104.5 279.0,115.5" fill="#2e5a80"/><text x="205" y="102" font-size="15" fill="#2e5a80" text-anchor="middle" font-weight="bold">PUBLISH</text><rect x="400" y="10" width="140" height="36" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="470" y="33.25" font-size="15" fill="#1f3b52" text-anchor="middle">Sender</text><rect x="570" y="10" width="140" height="36" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="640" y="33.25" font-size="15" fill="#1f3b52" text-anchor="middle">Broker</text><line x1="470" y1="46" x2="470" y2="330" stroke="#5b6b78" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4"/><line x1="640" y1="46" x2="640" y2="330" stroke="#5b6b78" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4"/><line x1="470" y1="110" x2="631" y2="110" stroke="#2e5a80" stroke-width="2.4" stroke-linecap="round"/><polygon points="640.0,110.0 629.0,104.5 629.0,115.5" fill="#2e5a80"/><text x="555" y="102" font-size="15" fill="#2e5a80" text-anchor="middle" font-weight="bold">PUBLISH</text><line x1="640" y1="154" x2="479" y2="154" stroke="#b3261e" stroke-width="2.4" stroke-linecap="round"/><polygon points="470.0,154.0 481.0,159.5 481.0,148.5" fill="#b3261e"/><text x="555" y="146" font-size="15" fill="#b3261e" text-anchor="middle" font-weight="bold">PUBACK  (lost)</text><line x1="470" y1="198" x2="631" y2="198" stroke="#2e5a80" stroke-width="2.4" stroke-linecap="round"/><polygon points="640.0,198.0 629.0,192.5 629.0,203.5" fill="#2e5a80"/><text x="555" y="190" font-size="15" fill="#2e5a80" text-anchor="middle" font-weight="bold">PUBLISH (DUP)</text><line x1="640" y1="242" x2="479" y2="242" stroke="#3c8a5a" stroke-width="2.4" stroke-linecap="round"/><polygon points="470.0,242.0 481.0,247.5 481.0,236.5" fill="#3c8a5a"/><text x="555" y="234" font-size="15" fill="#3c8a5a" text-anchor="middle" font-weight="bold">PUBACK</text><rect x="20" y="340" width="720" height="76.55" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="380" y="365.225" font-size="14.5" fill="#1f3b52" text-anchor="middle">QoS 0 costs one packet and never repeats. QoS 1 waits for a PUBACK and resends until it gets</text><text x="380" y="383.35" font-size="14.5" fill="#1f3b52" text-anchor="middle">one, so a lost PUBACK produces a duplicate. QoS 2 (exactly once) needs four packets, and</text><text x="380" y="401.475" font-size="14.5" fill="#1f3b52" text-anchor="middle">umqtt does not implement it.</text></svg>
-            <div class="diagram-caption">The two levels you can use. The choice is between possible loss (QoS 0) and possible duplication (QoS 1). There is no setting that gives exactly once without a cost in extra packets and state on both ends.</div>
-        </div>
-
-<p>Three details matter on a Pico. <strong>First,</strong> QoS 1 in <span class="code-lesson-il">umqtt.simple</span> is <em>blocking</em>: <span class="code-lesson-il">publish(..., qos=1)</span> does not return until the PUBACK arrives, and there is no timeout of its own. A single lost packet can freeze a control loop. <strong>Second,</strong> QoS applies to each hop separately: a message published at QoS 1 and received by a subscriber that subscribed at QoS 0 is delivered at QoS 0 on the second hop, so the guarantee is only as strong as the weakest end. <strong>Third,</strong> the guarantee is only between a client and the broker. It does not mean the <em>receiving program</em> acted on the message.</p>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">qos.py</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">c.publish(topic, payload, qos=1)    # umqtt: BLOCKS until the broker's PUBACK arrives
-c.subscribe(topic, qos=1)           # ask the broker to deliver at QoS 1 as well
-# QoS 2 is not supported by umqtt.simple at all.
-</span>
-</div>
-<p>The right place for reliability is usually the application: the ids and acks of the last lesson give you at-least-once delivery with duplicates removed, which is stronger than QoS 1 alone, works with QoS 0 underneath, and never blocks. Run the simulation below to see what the levels do to a stream when the link is bad.</p>
-<div class="code-block" data-lang="python">
-<div class="code-block-header">
-<span class="code-block-filename">lossy_sim.py</span>
-<span class="code-block-lang">Python</span>
-</div>
-<span class="code-lesson-bl"># lossy_sim.py: what QoS 0 and QoS 1 do on a link that loses packets (run on a laptop)
-import random
-
-def trial(qos, p, tries=3):
-    """One message. Each packet (the message, then the PUBACK) is lost with probability p.
-    Returns (times the receiver got it, whether the sender believes it was delivered)."""
-    got = 0
-    if qos == 0:
-        if random.random() &gt;= p:
-            got = 1
-        return got, True                     # QoS 0: the sender never knows
-    for _ in range(tries):
-        if random.random() &gt;= p:             # the message arrived
-            got += 1
-            if random.random() &gt;= p:         # and so did the PUBACK
-                return got, True
-        # otherwise: no PUBACK, the sender sends it again
-    return got, False
-
-def run(qos, p, n=100000, seed=1):
-    random.seed(seed)
-    lost = dup = unsure = 0
-    for _ in range(n):
-        got, believed = trial(qos, p)
-        lost += got == 0
-        dup += got &gt; 1
-        unsure += not believed
-    return 100 * lost / n, 100 * dup / n, 100 * unsure / n
-
-for p in (0.01, 0.05, 0.10, 0.20):
-    for qos in (0, 1):
-        print("loss %2d%%  qos %d  lost %5.2f%%  duplicated %5.2f%%  sender unsure %5.2f%%" % ((p * 100, qos) + run(qos, p)))
-</span>
-</div>
-        <div class="diagram">
-<svg viewBox="0 0 760 332" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="150" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="95" y="38.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">link loss</text><rect x="170" y="14" width="90" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="215" y="38.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">QoS</text><rect x="260" y="14" width="170" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="345" y="38.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">lost</text><rect x="430" y="14" width="190" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="525" y="38.075" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">duplicated</text><rect x="620" y="14" width="120" height="38" fill="#2e5a80" stroke="#fff" stroke-width="1.5"/><text x="680" y="29.0125" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">sender</text><text x="680" y="47.1375" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">unsure</text><rect x="20" y="52" width="150" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="95" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1 %</text><rect x="170" y="52" width="90" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="215" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="260" y="52" width="170" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1.01 %</text><rect x="430" y="52" width="190" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="525" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="620" y="52" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="76.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="20" y="90" width="150" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="95" y="114.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1 %</text><rect x="170" y="90" width="90" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="215" y="114.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="260" y="90" width="170" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="114.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="430" y="90" width="190" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="525" y="114.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1.03 %</text><rect x="620" y="90" width="120" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="114.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="20" y="128" width="150" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="95" y="152.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">5 %</text><rect x="170" y="128" width="90" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="215" y="152.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="260" y="128" width="170" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="152.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4.94 %</text><rect x="430" y="128" width="190" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="525" y="152.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="620" y="128" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="152.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="20" y="166" width="150" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="95" y="190.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">5 %</text><rect x="170" y="166" width="90" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="215" y="190.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="260" y="166" width="170" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="190.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.01 %</text><rect x="430" y="166" width="190" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="525" y="190.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">5.00 %</text><rect x="620" y="166" width="120" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="190.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.08 %</text><rect x="20" y="204" width="150" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="95" y="228.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">10 %</text><rect x="170" y="204" width="90" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="215" y="228.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="260" y="204" width="170" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="228.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">9.97 %</text><rect x="430" y="204" width="190" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="525" y="228.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="620" y="204" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="228.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0</text><rect x="20" y="242" width="150" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="95" y="266.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">10 %</text><rect x="170" y="242" width="90" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="215" y="266.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="260" y="242" width="170" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="266.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.10 %</text><rect x="430" y="242" width="190" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="525" y="266.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">9.62 %</text><rect x="620" y="242" width="120" height="38" fill="#fff" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="266.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.68 %</text><rect x="20" y="280" width="150" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="95" y="304.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">20 %</text><rect x="170" y="280" width="90" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="215" y="304.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">1</text><rect x="260" y="280" width="170" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="345" y="304.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">0.82 %</text><rect x="430" y="280" width="190" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="525" y="304.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">18.02 %</text><rect x="620" y="280" width="120" height="38" fill="#f2f5f7" stroke="#d0dae2" stroke-width="1.2"/><text x="680" y="304.075" font-size="14.5" fill="#1f3b52" text-anchor="middle">4.76 %</text></svg>
-            <div class="diagram-caption">Results of the simulation (100,000 messages per row, three attempts for QoS 1). QoS 1 turns almost every loss into a duplicate. A receiver that cannot tolerate duplicates must use ids, whatever the QoS.</div>
-        </div>
-
+<h3>Part 1. A Word on Quality of Service</h3>
+<p>Every publish carries a <strong>quality of service</strong> (QoS) level. At QoS 0 a message is sent once and may be lost. At QoS 1 the sender repeats it until the broker acknowledges it, so it may arrive twice. The class sends almost everything at QoS 0, for a reason specific to the Pico: in <span class="code-lesson-il">umqtt.simple</span> a QoS 1 publish does not return until the acknowledgement arrives, and it has no timeout of its own, so one lost packet can freeze a control loop. Reliability where it matters comes from the application instead: the ids and acks of the Topics and commands lesson already give you a command that is retried until answered and never carried out twice, and they never block. The one exception is presence (<span class="code-lesson-il">stat/online</span>, Part 3), which is rare and outside any control loop.</p>
 <h3>Part 2. Retained Messages</h3>
 <p>A message published with the <strong>retain</strong> flag is stored by the broker, one per topic, and delivered to every client that subscribes to a matching filter afterwards, immediately, before anything else. That solves a real problem: a dashboard that opens at noon would otherwise have to wait for the next state change to learn what a robot is doing. Publishing an <em>empty</em> retained message to the topic deletes the stored one.</p>
         <div class="diagram">
@@ -112,7 +53,7 @@ def set_led(on):
     h.publish("stat/led", {"on": on}, retain=True)
 </span>
 </div>
-<p>Two cautions. A wildcard subscription receives <em>every</em> matching retained message at once, in a burst (twelve students’ <span class="code-lesson-il">stat/online</span> arriving together), so the inbox of Lab 5 and the bounded dispatch of the last lesson matter. And a retained message outlives its publisher: it describes the last time the node spoke, not necessarily now, which is the reason for the next tool.</p>
+<p>Two cautions. A wildcard subscription receives <em>every</em> matching retained message at once, in a burst (twelve students’ <span class="code-lesson-il">stat/online</span> arriving together), so the bounded dispatch in <span class="code-lesson-il">hub.py</span> matters. And a retained message outlives its publisher: it describes the last time the node spoke, not necessarily now, which is the reason for the next tool.</p>
 <h3>Part 3. The Last Will</h3>
 <p>When a client connects it may register a <strong>will</strong>: a topic, a payload and a retain flag that the <em>broker</em> publishes on the client’s behalf if the client disappears without saying goodbye. The broker decides the client is gone when it has heard nothing for 1.5 times the keepalive, or when the TCP connection breaks. The pattern is two retained messages on one topic, <span class="code-lesson-il">stat/online</span>: the node publishes <span class="code-lesson-il">online: true</span> after connecting, and the broker publishes <span class="code-lesson-il">online: false</span> for it when it dies. Whoever reads the topic always sees the truth, or at least the truth as of the last packet.</p>
 <p>A <strong>clean disconnect</strong> is not a death, so the will is <em>not</em> published. A node that shuts down on purpose must therefore publish its own offline message first, which is what <span class="code-lesson-il">Hub.close()</span> does. A node that is only rebooting should usually do the same, so that the “offline” blip is honest.</p>
@@ -179,10 +120,72 @@ print(detect_window(10, 5), detect_window(30, 15), detect_window(60, 30), detect
 </div><p>The first three match the measured ranges in the figure. With a ping every 30 s on a keepalive of 30 s the window widens to 15–45 s, because the node uses up more of the broker’s patience between packets. Pinging every 50 s is worse than that: 50 s exceeds the broker’s 45-second deadline, so <span class="code-lesson-il">detect_window</span> would give a <em>negative</em> shortest time, which means the broker declares a perfectly healthy node dead and publishes its will. A node must always send something well inside the keepalive; half is the standard choice.</p>
         </details>
 
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. QoS Levels.</strong> What do QoS 0 and QoS 1 trade against each other?</p>
+        <p><strong>P2. Blocking Publish.</strong> What is dangerous about <span class="code-lesson-il">publish(..., qos=1)</span> in umqtt.simple on a robot?</p>
+        <p><strong>P3. Retained.</strong> What does the broker do with a retained message, and how do you delete one?</p>
+        <p><strong>P4. Will.</strong> What is a last will, and when does the broker publish it?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Detection Window.</strong> With a 30 s keepalive and pings every 15 s, between what times after a power failure is it detected?</p>
+        <p><strong>P6. Halve It.</strong> The class wants deaths detected within 20 s at worst. What keepalive would you choose, and what does it cost?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P7. Retained Command.</strong> A student retains <span class="code-lesson-il">cmd/led</span> with <span class="code-lesson-il">on</span>. Describe what happens when the node reboots an hour later, and the correct way to send commands.</p>
+        <p><strong>P8. Presence Pattern.</strong> Describe the two-message presence pattern on <span class="code-lesson-il">stat/online</span>, and why a planned shutdown must publish its own offline message.</p>
+        <p><strong>P9. Application Reliability.</strong> Why is reliability usually better built in the application (ids and acks) than by using QoS 1?</p>
+        <p><strong>P10. Choose Settings.</strong> For each topic choose QoS and retain: (a) <span class="code-lesson-il">tele/imu</span> at 5 Hz; (b) <span class="code-lesson-il">stat/online</span>; (c) <span class="code-lesson-il">cmd/pan</span>; (d) <span class="code-lesson-il">evt/anomaly</span>.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. QoS Levels</summary>
+<p>Possible loss (QoS 0: at most once) against possible duplication (QoS 1: at least once).</p>
+        </details>
+        <details>
+        <summary>P2. Blocking Publish</summary>
+<p>It blocks until the PUBACK arrives, with no timeout of its own; one lost packet can freeze the control loop.</p>
+        </details>
+        <details>
+        <summary>P3. Retained</summary>
+<p>It stores the last retained message on each topic and delivers it immediately to every new subscriber whose filter matches. Publishing an empty retained message to the topic deletes it.</p>
+        </details>
+        <details>
+        <summary>P4. Will</summary>
+<p>A topic, payload and retain flag the client registers when it connects. The broker publishes it if the client disappears without a clean disconnect: after 1.5 keepalives of silence or when the TCP connection breaks.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Detection Window</summary>
+<p>Between 1 and 1.5 keepalives: 30 to 45 s after the failure, depending on when in the ping cycle it happens.</p>
+        </details>
+        <details>
+        <summary>P6. Halve It</summary>
+<p>Worst case is 1.5 × keepalive, so keepalive ≤ 13 s (say 12 s). A ping and reply are 4 bytes, so traffic is trivial; the radio wakes more often, which matters only on a battery.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P7. Retained Command</summary>
+<p>On subscribing after the reboot, the node immediately receives the stale "on" and acts on it, although nobody wants it now. Commands must be sent without retain, with an id and a short life.</p>
+        </details>
+        <details>
+        <summary>P8. Presence Pattern</summary>
+<p>The node publishes <span class="code-lesson-il">online: true</span> retained after connecting; its will is <span class="code-lesson-il">online: false</span> retained, published by the broker if the node dies. A clean disconnect does not trigger the will, so a node shutting down on purpose publishes <span class="code-lesson-il">online: false</span> itself first; otherwise the retained true would stay forever.</p>
+        </details>
+        <details>
+        <summary>P9. Application Reliability</summary>
+<p>Ids and acks give at-least-once delivery with duplicates removed, which QoS 1 alone does not; they work over QoS 0, never block, and confirm the receiving program actually handled the message, not just that the broker got it.</p>
+        </details>
+        <details>
+        <summary>P10. Choose Settings</summary>
+<p>(a) QoS 0, not retained. (b) QoS 1 (rare, outside the control loop), retained. (c) QoS 0, not retained, with id and ack. (d) QoS 0, not retained.</p>
+        </details>
+
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>Describe what QoS 0 and QoS 1 guarantee and what each costs, including the blocking publish.</li>
+            <li>Say what QoS 0 and QoS 1 trade, and why a blocking QoS 1 publish is dangerous on a Pico.</li>
             <li>Choose QoS and retain for each class message kind and justify the choice.</li>
             <li>Explain why a retained command is dangerous, and show the sequence.</li>
             <li>Set up presence with a last will and a clean shutdown message.</li>

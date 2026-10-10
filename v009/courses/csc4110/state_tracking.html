@@ -16,6 +16,7 @@
 
     <body>
         <p>This lesson covers keeping a belief about things you cannot see. You store a value with its age, track a position and speed with an alpha-beta filter, coast through missing data and measure how the error grows, set a limit after which the track is declared lost, and keep commanded, reported and unknown state apart.</p>
+        <p><strong>SAM lens.</strong> Beliefs with ages and the alpha-beta filter are Perceptor and Memory together: the filter remembers position and speed, predicts when data is missing, and reports how old its belief is.</p>
 
 <p>Every agent in a multi-agent system acts on a <em>belief</em> about the others: where the target is, what state the door is in, whether the actuator did what it was told. A belief is built from messages, and messages are late, noisy, and sometimes missing. <strong>State tracking</strong> is the craft of turning such a stream into a usable estimate and of knowing, at every moment, how far to trust it. This lesson covers three tools: a belief that remembers its own age, a tracking filter that estimates position and speed from noisy readings, and the rule for how long an estimate may be carried forward when the data stops.</p>
 <h3>Part 1. A Belief Knows Its Age</h3>
@@ -102,12 +103,12 @@ class AlphaBeta:
 <li><strong>Gate the data.</strong> A reading very far from the prediction (several noise-widths) is probably an outlier (crosstalk, a reflection) and should not pull the estimate. Count it and let the next one decide.</li>
 </ul>
 <h3>Part 4. Believing an Actuator</h3>
-<p>The same discipline applies to things you command. After <span class="code-lesson-il">cmd/led state 1</span>, what is the LED’s state? Three honest answers: <em>commanded 1</em>, <em>reported 1</em>, and <em>unknown</em>. Keep them separate. The commanded value is what you asked for; the reported value (the actuator’s retained <span class="code-lesson-il">stat/…</span>) is what it says it did; and between sending and hearing there is a window where you do not know. A coordinator that treats “commanded” as “done” misses every lost message; one that waits for the report, with a timeout and a retry (the pattern of the state machines lesson), knows. The <em>belief</em> about the actuator is the reported value with its age, and a mismatch lasting longer than the round trip is an event worth publishing.</p>
+<p>The same discipline applies to things you command. After <span class="code-lesson-il">cmd/led state 1</span>, what is the LED’s state? Three honest answers: <em>commanded 1</em>, <em>reported 1</em>, and <em>unknown</em>. Keep them separate. The commanded value is what you asked for; the reported value (the actuator’s retained <span class="code-lesson-il">stat/…</span>) is what it says it did; and between sending and hearing there is a window where you do not know. A coordinator that treats “commanded” as “done” misses every lost message; one that waits for the report, with a timeout and a retry (the pattern of the agents and state machines lesson), knows. The <em>belief</em> about the actuator is the reported value with its age, and a mismatch lasting longer than the round trip is an event worth publishing.</p>
 
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Age or Fresh?.</strong> A <span class="code-lesson-il">Belief</span> with <span class="code-lesson-il">stale_ms = 3000</span> last updated at t = 10,000 ms. What does <span class="code-lesson-il">get</span> return at t = 11,500, at t = 13,500, and before any update?</p>
+        <p><strong>Exercise 1: Age or Fresh?</strong> A <span class="code-lesson-il">Belief</span> with <span class="code-lesson-il">stale_ms = 3000</span> last updated at t = 10,000 ms. What does <span class="code-lesson-il">get</span> return at t = 11,500, at t = 13,500, and before any update?</p>
         <p><strong>Exercise 2: Predict.</strong> An <span class="code-lesson-il">AlphaBeta</span> filter holds x = 20° and v = 5°/s. A step of 0.2 s passes with no measurement. What does <span class="code-lesson-il">predict(0.2)</span> give, and what if the gap lasts 2 s?</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: Update by Hand.</strong> With alpha 0.5 and beta 0.2, the filter has x = 20, v = 5 and dt = 0.2 s. A measurement z = 22 arrives. Compute the new x and v.</p>
@@ -155,6 +156,78 @@ class AlphaBeta:
         return super().update(z, dt)             # x is None after a loss: starts again from z
 </span>
 </div><p>After <span class="code-lesson-il">x</span> is <span class="code-lesson-il">None</span>, <span class="code-lesson-il">update</span> takes its first branch (<span class="code-lesson-il">self.x is None</span>), so the filter restarts from the new measurement with zero speed. The caller must treat <span class="code-lesson-il">None</span> from <span class="code-lesson-il">predict</span> as “no track” and publish accordingly.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Belief.</strong> What two things does a belief store, and why is a plain variable not enough?</p>
+        <p><strong>P2. Which Clock.</strong> For staleness, which time should you use: arrival time on your clock or the sender's <span class="code-lesson-il">t</span>? What is the sender's <span class="code-lesson-il">t</span> good for?</p>
+        <p><strong>P3. Alpha-Beta.</strong> In one or two sentences, what does an alpha-beta filter do each step?</p>
+        <p><strong>P4. Three States of an Actuator.</strong> After sending a command, what three things should a coordinator keep apart about the actuator?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. One Step.</strong> x = 10.0°, v = 2.0 °/s, dt = 0.2 s, α = 0.3, β = 0.05. A measurement of 11.0° arrives. Compute the prediction, the residual, and the new x and v (v correction = β × residual / dt).</p>
+        <p><strong>P6. Coast.</strong> The same filter (x = 10.58, v = 2.15) receives no measurements for 1 s. Where does it predict the target? If the target actually stopped at 11°, what is the error?</p>
+        <p><strong>P7. Hold Versus Coast.</strong> A target moves steadily at 8 °/s and data stop for 3 s. Roughly what is the worst error if you hold the last value? If you coast on a good speed estimate?</p>
+        <p><strong>P8. Gate.</strong> Bearing noise has a standard deviation of 3°. The prediction is 40° and a reading of 58° arrives. Should it update the filter? What rule would you use?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Gains.</strong> Compare gains (0.8, 0.4) and (0.2, 0.01) for a target that turns. What is the trade?</p>
+        <p><strong>P10. Limit the Coast.</strong> Why should a tracker stop publishing after coasting for a fixed time, and what should it publish instead?</p>
+        <p><strong>P11. Re-acquire.</strong> After a long gap, the first new measurement is far from the prediction. What should the filter do and why?</p>
+        <p><strong>P12. Commanded Is Not Done.</strong> A coordinator marks the LED as on as soon as it sends <span class="code-lesson-il">cmd/led</span> with state 1. Describe a failure this causes and the better design.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Belief</summary>
+<p>The value and when it arrived (so its age can be reported). A variable cannot distinguish a message from ten seconds ago from one ten milliseconds old.</p>
+        </details>
+        <details>
+        <summary>P2. Which Clock</summary>
+<p>Arrival time on your own clock for staleness. The sender's <span class="code-lesson-il">t</span> for ordering messages from one sender and for intervals between them.</p>
+        </details>
+        <details>
+        <summary>P3. Alpha-Beta</summary>
+<p>It predicts the position from the old position plus speed × elapsed time, compares the prediction with the measurement, and corrects the position by a fraction α and the speed by a fraction β of the difference.</p>
+        </details>
+        <details>
+        <summary>P4. Three States of an Actuator</summary>
+<p>The commanded value (what it asked for), the reported value (what the actuator says it did, with its age) and the unknown window in between.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. One Step</summary>
+<p>Prediction 10.0 + 2.0 × 0.2 = 10.4. Residual 0.6. x = 10.4 + 0.3 × 0.6 = 10.58. v = 2.0 + 0.05 × 0.6 / 0.2 = 2.15 °/s.</p>
+        </details>
+        <details>
+        <summary>P6. Coast</summary>
+<p>10.58 + 2.15 × 1 = 12.73°. Error 1.73°, and growing while it coasts.</p>
+        </details>
+        <details>
+        <summary>P7. Hold Versus Coast</summary>
+<p>Holding: about 8 × 3 = 24° (the lesson measured 23.5°). Coasting: small, limited by the speed estimate's error (the lesson measured 4.5°).</p>
+        </details>
+        <details>
+        <summary>P8. Gate</summary>
+<p>No: it is 6 noise-widths away, probably an outlier (crosstalk, a reflection). Gate readings more than about 3 to 4 standard deviations from the prediction; count them and let the next reading decide.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Gains</summary>
+<p>High gains trust each measurement: fast to follow a turn but noisy. Low gains trust the model: smooth but slow to follow a turn, and they fall apart when readings are missing. Choose from a recording of your own target.</p>
+        </details>
+        <details>
+        <summary>P10. Limit the Coast</summary>
+<p>Coasting error grows without limit (especially if the target changes direction); a confident wrong position is a hazard. After the limit, declare the track lost and publish that (or a coasting flag with the age before then).</p>
+        </details>
+        <details>
+        <summary>P11. Re-acquire</summary>
+<p>Restart from the measurement (reset x, and v to zero or a fresh estimate) rather than blending; the old prediction has drifted and blending would pull the new estimate toward a stale guess.</p>
+        </details>
+        <details>
+        <summary>P12. Commanded Is Not Done</summary>
+<p>If the command (or ack) is lost, the coordinator believes the LED is on when it is off and never retries. Better: wait for the actuator's reported state with a timeout and retry; treat the state as unknown until reported; publish a mismatch lasting longer than the round trip as an event.</p>
         </details>
 
         <h3>Checkpoint</h3>

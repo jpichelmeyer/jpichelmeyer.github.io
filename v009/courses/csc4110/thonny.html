@@ -16,6 +16,7 @@
 
     <body>
         <p>Everything in this course runs on a Raspberry Pi Pico W. This lesson gets one working: what is on the board, how MicroPython is installed, how Thonny talks to it, and what the difference is between running a program and saving it on the board. Do the setup steps on your own board as you read.</p>
+        <p><strong>SAM lens.</strong> This lesson sets up the body that will hold the Decider and Memory: the RP2040 runs your program (the Decider), its RAM holds what changes while it runs (Memory that is lost at power-off), and flash keeps the program and anything you choose to remember across restarts.</p>
 
 <h3>Part 1. What Is on the Board</h3>
 <p>The Pico W is a <strong>microcontroller</strong> board: one chip that holds a processor, memory, and a set of built-in hardware blocks for talking to the outside world, all on a board a few centimetres long. Unlike a laptop it has no operating system to speak of; it starts running your program the moment power arrives. Its chip is the RP2040, and a second small chip, the CYW43439, supplies WiFi.</p>
@@ -24,7 +25,7 @@
             <div class="diagram-caption">What is on the Pico W. The RP2040 chip holds the processor, the RAM and the hardware blocks that talk to the world. Program storage (flash), the WiFi chip and the USB connector sit beside it on the board.</div>
         </div>
 
-<p>Your program lives in flash and runs from there; the RAM only holds what changes while it runs, and it is wiped each time power is lost. Those hardware blocks (the ADC, PWM, I2C and SPI) are the subject of the next four weeks. Each is a small circuit inside the chip that does one job for you, so your code only has to say what you want.</p>
+<p>Your program lives in flash and runs from there; the RAM only holds what changes while it runs, and it is wiped each time power is lost. Three of those hardware blocks (the ADC, PWM and I2C) are the subject of the next four weeks. Each is a small circuit inside the chip that does one job for you, so your code only has to say what you want.</p>
 <h3>Part 2. Putting MicroPython on the Board</h3>
 <p><strong>MicroPython</strong> is a version of Python small enough to run on a microcontroller. The board arrives without it, so the first job is to install it once. After that you simply write programs.</p>
         <div class="diagram">
@@ -96,7 +97,7 @@ while True:                    # blink forever: the board's first heartbeat
                 <h3>Exercises</h3>
         <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
-        <p><strong>Exercise 1: Run or Save?.</strong> You wrote a program with a <span class="code-lesson-il">while True</span> loop. You press Run, it works, and you unplug the board. Later you plug it into a battery and nothing happens. Why? What would you do so that it starts by itself?</p>
+        <p><strong>Exercise 1: Run or Save?</strong> You wrote a program with a <span class="code-lesson-il">while True</span> loop. You press Run, it works, and you unplug the board. Later you plug it into a battery and nothing happens. Why? What would you do so that it starts by itself?</p>
         <p><strong>Exercise 2: Read the Boot Order.</strong> A student saves two files on the Pico, <span class="code-lesson-il">boot.py</span> and <span class="code-lesson-il">main.py</span>. Which runs first? What if the board only has <span class="code-lesson-il">blink.py</span>?</p>
         <h4>Intermediate</h4>
         <p><strong>Exercise 3: Board Report.</strong> Write <span class="code-lesson-il">info.py</span> that prints the processor speed in MHz, the free RAM in kilobytes, and the board’s unique id in hexadecimal.</p>
@@ -153,6 +154,91 @@ while True:
     # ...other work can go here, and runs thousands of times per blink...
 </span>
 </div><p><span class="code-lesson-il">ticks_ms</span> counts milliseconds but wraps around to zero after a long time, so a plain subtraction gives a wrong (possibly negative) answer at the wrap. <span class="code-lesson-il">ticks_diff</span> handles the wrap correctly. This <em>non-blocking</em> style appears again in the Pulses and Interrupts lesson.</p>
+        </details>
+
+
+        <h3>Paper Practice</h3>
+        <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
+        <h4>Recall</h4>
+        <p><strong>P1. Two Chips.</strong> What does the RP2040 do on a Pico W, and what does the CYW43439 do?</p>
+        <p><strong>P2. What Survives.</strong> Which survives a power cut: a variable in RAM, a file in flash, or both? Where does your saved program live?</p>
+        <p><strong>P3. The REPL.</strong> What do the letters REPL stand for, and give two things it is the right tool for.</p>
+        <p><strong>P4. Boot Order.</strong> When the Pico W powers up, which files does it run, and in what order?</p>
+        <h4>Apply</h4>
+        <p><strong>P5. Clock Period.</strong> <span class="code-lesson-il">machine.freq()</span> returns 125000000. What is the duration of one processor clock cycle, in nanoseconds?</p>
+        <p><strong>P6. Run Versus Save.</strong> A student presses Run on <span class="code-lesson-il">robot.py</span>, sees it work, unplugs the board and plugs it into a battery. Nothing happens. Explain, and say exactly what they should do.</p>
+        <p><strong>P7. Firmware Choice.</strong> Why must you install the Pico W firmware rather than the plain Pico firmware on your board? What would you notice if you installed the wrong one?</p>
+        <p><strong>P8. Case Matters.</strong> A student saves their program as <span class="code-lesson-il">Main.py</span>. At power-up it does not run. Why?</p>
+        <h4>Analyze and Design</h4>
+        <p><strong>P9. Locked Board.</strong> A <span class="code-lesson-il">main.py</span> contains <span class="code-lesson-il">while True:</span> with no sleep and floods the shell with prints. Thonny seems unable to talk to the board. Give the recovery steps.</p>
+        <p><strong>P10. Missing Library.</strong> <span class="code-lesson-il">import umqtt.simple</span> gives <span class="code-lesson-il">ImportError</span>. Describe two ways to install the library, and the one condition the second way needs.</p>
+        <p><strong>P11. Safe Mode.</strong> Design a safe-mode rule for a robot's <span class="code-lesson-il">main.py</span>: if button A (GP6, active low) is held at power-up, the robot must not start its motors but should leave the REPL usable. Write the few lines at the top of <span class="code-lesson-il">main.py</span> that do it.</p>
+        <p><strong>P12. Development Habit.</strong> Explain why work-in-progress code should be run with the Run button and only finished code saved as <span class="code-lesson-il">main.py</span>.</p>
+
+        <h3>Paper Practice: Answers</h3>
+        <h4>Recall</h4>
+        <details>
+        <summary>P1. Two Chips</summary>
+<p>The RP2040 is the microcontroller: processor, RAM and hardware blocks (ADC, PWM, I2C, SPI). The CYW43439 is the separate WiFi chip.</p>
+        </details>
+        <details>
+        <summary>P2. What Survives</summary>
+<p>Only the file in flash survives; RAM is wiped when power is lost. Your saved program (for example <span class="code-lesson-il">main.py</span>) lives in flash.</p>
+        </details>
+        <details>
+        <summary>P3. The REPL</summary>
+<p>Read, evaluate, print, loop. It is good for trying a pin or sensor interactively before writing a program, for listing files (<span class="code-lesson-il">os.listdir()</span>), and for checking free memory (<span class="code-lesson-il">gc.mem_free()</span>). Any two.</p>
+        </details>
+        <details>
+        <summary>P4. Boot Order</summary>
+<p><span class="code-lesson-il">boot.py</span> first, then <span class="code-lesson-il">main.py</span>, if they exist.</p>
+        </details>
+        <h4>Apply</h4>
+        <details>
+        <summary>P5. Clock Period</summary>
+<p>1 / 125 000 000 s = 8 ns.</p>
+        </details>
+        <details>
+        <summary>P6. Run Versus Save</summary>
+<p>Run executes the editor's file without storing it on the board; nothing was saved to start at power-up. Save the program on the Pico with the exact name <span class="code-lesson-il">main.py</span> (File, Save as, Raspberry Pi Pico).</p>
+        </details>
+        <details>
+        <summary>P7. Firmware Choice</summary>
+<p>Only the Pico W build contains the driver for the WiFi chip (and the on-board LED, which is wired through it). With the plain Pico firmware the network module would be missing and <span class="code-lesson-il">Pin("LED")</span> would not work.</p>
+        </details>
+        <details>
+        <summary>P8. Case Matters</summary>
+<p>The board looks for exactly <span class="code-lesson-il">main.py</span>; the file system distinguishes upper and lower case, so <span class="code-lesson-il">Main.py</span> is just an ordinary file.</p>
+        </details>
+        <h4>Analyze and Design</h4>
+        <details>
+        <summary>P9. Locked Board</summary>
+<p>Press Stop (or Ctrl+C) repeatedly until the REPL prompt returns, then rename, fix or delete <span class="code-lesson-il">main.py</span> in the Files panel. If that fails, reinstalling MicroPython through BOOTSEL wipes the board back to a clean start.</p>
+        </details>
+        <details>
+        <summary>P10. Missing Library</summary>
+<p>Thonny's Tools, Manage packages (search for micropython-umqtt.simple); or <span class="code-lesson-il">import mip; mip.install("umqtt.simple")</span> on the board, which needs the board to be on WiFi. Either way the library lands in the <span class="code-lesson-il">lib</span> folder.</p>
+        </details>
+        <details>
+        <summary>P11. Safe Mode</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">listing</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin
+import sys
+if Pin(6, Pin.IN, Pin.PULL_UP).value() == 0:   # held at boot
+    print('safe mode: robot not started')
+    sys.exit()                                   # back to the REPL
+# ... the robot program follows ...
+</span>
+</div>
+<p>Any version that checks the button before the robot starts and then stops cleanly is correct.</p>
+        </details>
+        <details>
+        <summary>P12. Development Habit</summary>
+<p>A <span class="code-lesson-il">main.py</span> starts by itself at every power-up; buggy code there can lock the board or drive outputs unexpectedly every time it is plugged in, and makes reprogramming awkward. Running from the editor leaves the board clean when it is unplugged.</p>
         </details>
 
         <h3>Checkpoint</h3>
