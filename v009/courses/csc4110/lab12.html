@@ -311,19 +311,19 @@ print("recovery after each fault:", recoveries(log, faults))
 </span>
 </div>
 <p>This was checked against a database built from the coordinator test of the mission lesson: it recovers the same phase log, a time to DONE of 21.0 s and a recovery of 5.0 s after the bump at 13 s. Your run will be slower, mostly because real people answer the operator's question. Compare the position the world model reported with the marked point for each run (the accuracy work of Step 4, now end to end), and note which phase took longest and why.</p>
-<h3>What to Hand In</h3>
+<h3>Your Lab Report Sheet</h3>
+<p>Everything for this lab is done and recorded <strong>during the lab period</strong>. Your lab report sheet is the whole record: nothing is taken home or finished later. Fill it in as you go, and hand it in before you leave. If you run out of time, write down exactly where you stopped.</p>
 <ul>
-<li>The test plan with every row filled in: your method, the number of trials, <strong>all</strong> the results, and where the evidence is (a log, a screenshot, a count). A failed row is a good row if it is explained.</li>
-<li>The accuracy table of Step 4, with the predicted error from the formula next to each measured one, and a sentence on any point where they disagree by more than a factor of two.</li>
-<li>The measured bearing bias and RMS error of each head, and the trim you used.</li>
-<li>One <strong>failure analysis</strong>: choose the test that went worst, say what the system did, what you believe caused it (with evidence, such as the log line that shows it), what you changed, and the repeat of the test with the number of trials.</li>
-<li>Your <span class="code-lesson-il">head.py</span>, <span class="code-lesson-il">fuser.py</span> and any change to the others, and a note of who ran what.</li>
-<li>From Step 6: the output of <span class="code-lesson-il">phases.py</span> for the three missions and the two faults, the reported and true target position for each mission, and which roles were real and which were stand-ins.</li>
-<li>A short paragraph: of everything in the course, which single design decision (slots, the lease, the doubt rule, the age of a belief, the filter) mattered most to the result, and what test showed it?</li>
+<li><strong>Goal (front).</strong> One sentence: what each head and the fuser do, and the positions of heads A and B you measured.</li>
+<li><strong>Wiring (back).</strong> Draw one scan head: the HC-SR04 and the servo (own battery pack, common ground), with the pins you used. Beside it sketch the layout: heads A and B, the 60 cm baseline, and the tube.</li>
+<li><strong>Check-off table (front).</strong> Rows 1 to 7 are tests T1 to T7: your method, the number of trials, the results, and where the evidence is. Rows 8 to 10: the three missions of Step 6, with the reported and the true target position. Rows 11 and 12: the two faults. A failed row is a good row if it is explained. Get initials when you show a row working.</li>
+<li><strong>Code (front).</strong> File name <span class="code-lesson-il">head.py</span> or <span class="code-lesson-il">fuser.py</span>. Write the lines you wrote or changed.</li>
+<li><strong>Measured or observed (front).</strong> The five points of Step 4 with the measured and the predicted error side by side (explain any that differ by more than a factor of two), and the bearing bias and RMS error of each head with the trim you used.</li>
+<li><strong>What went wrong (front).</strong> One failure analysis: the test that went worst, what the system did, what you believe caused it (with evidence), what you changed, and the repeat result with its number of trials. Then one sentence: of everything in the course, which single design decision (slots, the lease, the doubt rule, the age of a belief, the filter) mattered most, and what test showed it? Say which roles were real and which were stand-ins.</li>
 </ul>
 
                 <h3>Exercises</h3>
-        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <p>Optional practice, in three tiers. Nothing here is collected or graded. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Why Send a Position in the Frame?</strong> The fuser sends <span class="code-lesson-il">evt/sync</span> with <span class="code-lesson-il">pos</span>, its position within a 200 ms frame, rather than its clock time <span class="code-lesson-il">ticks_ms()</span>. Why, and why does the head add 15 ms?</p>
         <p><strong>Exercise 2: Why Does the Spread Matter?</strong> The fuser publishes <span class="code-lesson-il">spread</span> with every position. A student argues that <span class="code-lesson-il">tracking</span> or <span class="code-lesson-il">poor</span> is enough. What does the number add?</p>

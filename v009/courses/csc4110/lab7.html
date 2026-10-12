@@ -217,19 +217,19 @@ print(log)
 <p>Control returns to the sweep by itself when the owner has been silent for two seconds, and Safe takes over the moment the health check fails, whatever else is going on. On the board, repeat drill A (the deadman) with the arbiter in place and confirm that nothing changed: the role layer must never weaken a safety property you already had. Finally, fill in your role's <strong>SAM card</strong> (body, percepts with rates, Memory, Decider behaviours in priority order, learned component, messages sent and received) and hand it in with this lab; Lab 8 and Lab Practical 2 build on it.</p>
 <h3>Step 4. Improve One Thing</h3>
 <p>Choose <strong>one</strong> weakness the drills exposed and fix it. Examples: make the first retry faster for a short glitch, publish a <span class="code-lesson-il">stat/link</span> message with the outage duration after each reconnect, or add a check that the sensor was read recently to <span class="code-lesson-il">healthy()</span>. Describe the weakness, the change, and a measurement that shows the change helped.</p>
-<h3>What to Hand In</h3>
+<h3>Your Lab Report Sheet</h3>
+<p>Everything for this lab is done and recorded <strong>during the lab period</strong>. Your lab report sheet is the whole record: nothing is taken home or finished later. Fill it in as you go, and hand it in before you leave. If you run out of time, write down exactly where you stopped.</p>
 <ul>
-<li><span class="code-lesson-il">main.py</span> and any file you changed, with your name in a comment at the top.</li>
-<li>The drill table: A to H, with measured times in seconds and a sentence of explanation for each.</li>
-<li><span class="code-lesson-il">role.py</span>, the output of <span class="code-lesson-il">test_role.py</span>, drill A repeated with the arbiter, and your role's SAM card.</li>
-<li>The improvement from Step 4: the problem, the change, the before and after measurement.</li>
-<li>Answers to the three questions below.</li>
+<li><strong>Goal (front).</strong> One sentence: what each of the four layers (backoff, persistence, watchdog, bounded inbox) is for.</li>
+<li><strong>Wiring (back).</strong> Draw the hardware your role robot uses: the Lab 6 servo and drive output, plus anything your role adds, with its pins and its battery pack.</li>
+<li><strong>Check-off table (front).</strong> Rows 1 to 8 are drills A to H. Write the measured time in seconds and one sentence of explanation for each. Row 9: the result of the role arbiter test. Row 10: drill A repeated with the arbiter. Row 11: the Step 4 improvement, with the measurement before and after. Get initials when you show a row working.</li>
+<li><strong>Code (front).</strong> File name <span class="code-lesson-il">role.py</span> (or the file you changed in Step 4). Write the lines you wrote or changed.</li>
+<li><strong>Measured or observed (front).</strong> The reconnect times and the attempt counts for drills B and C, so you can answer question 1 below.</li>
+<li><strong>What went wrong (front).</strong> What failed and how you fixed it, and for Step 4: the weakness, the change and what the measurement showed. Then answer here before you leave: Q1. In drill C, why was the time to reconnect longer than in drill B, and is that a bug? Q2. Which layer saved the robot in drill A, and would it have worked without the network code at all? Q3. Name one piece of state your node must not restore after a watchdog reset, and why. A drill you could not make work, with a good account of why, is better than a made-up result.</li>
 </ul>
-<p><strong>Q1.</strong> In drill C, why was the time to reconnect longer than in drill B, and is that a bug? <strong>Q2.</strong> Which layer saved the robot in drill A, and would it have worked without the network code at all? <strong>Q3.</strong> Name one piece of state your node must not restore after a watchdog reset, and why.</p>
-<p>Marking: the node runs and survives drills A to E (35 %), the watchdog and persistence drills F and H (15 %), the measured table and explanations (20 %), the role arbiter, its test and the SAM card (20 %), and the improvement (10 %). A drill you could not make work, with a good account of why, scores better than a made-up result.</p>
 
                 <h3>Exercises</h3>
-        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <p>Optional practice, in three tiers. Nothing here is collected or graded. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Read the Backoff.</strong> In the test run the node reconnected 6 to 33 seconds after the link returned (average 22). The longest wait in the schedule is 30 s ± 25 %. What is the largest delay you could see, on average, and why is a ceiling still a good idea?</p>
         <h4>Intermediate</h4>

@@ -437,6 +437,7 @@ function openPrintPicker(c, table) {
                     <button type="button" class="rubric-print-option ${i === 0 ? 'active' : ''}" data-name="${esc(name)}">${esc(name)}</button>
                 `).join('')}
             </div>
+            <textarea class="rubric-print-questions" rows="4" placeholder="Questions to ask everyone (one per line). They print below the rubric."></textarea>
             <div class="rubric-print-picker-actions">
                 <button type="button" class="rubric-print-cancel">Cancel</button>
                 <button type="button" class="rubric-print-confirm">Print</button>
@@ -456,12 +457,13 @@ function openPrintPicker(c, table) {
     backdrop.querySelector('.rubric-print-cancel').addEventListener('click', close);
     backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
     backdrop.querySelector('.rubric-print-confirm').addEventListener('click', () => {
-        printRubric(c, selected, table);
+        const questions = backdrop.querySelector('.rubric-print-questions').value.split('\n').map(q => q.trim()).filter(Boolean);
+        printRubric(c, selected, table, questions);
         close();
     });
 }
 
-function printRubric(c, presentationName, table) {
+function printRubric(c, presentationName, table, questions = []) {
     const win = window.open('', '_blank', 'width=850,height=1100');
     if (!win) {
         alert('Please allow popups for this site to print the rubric.');
@@ -477,29 +479,36 @@ function printRubric(c, presentationName, table) {
     body { font-family: Arial, Helvetica, sans-serif; color: #1f1f1f; padding: 40px; }
     .rp-presentation { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: #666; margin-bottom: 4px; }
     .rp-course { font-size: 23px; margin-bottom: 22px; }
-    .rp-presen { font-size: 26px; font-weight: bold; margin-bottom: 22px; }
+    .rp-presen { font-size: 26px; font-weight: bold; margin-bottom: 14px; }
     .rp-fields { display: flex; gap: 50px; margin-bottom: 26px; font-size: 14px; }
     .rp-fields .rp-field { flex: 1; }
+    .rp-fields .rp-score { flex: 0 0 130px; white-space: nowrap; }
     .rp-fields .rp-line { display: inline-block; border-bottom: 1px solid #999; width: 100%; min-width: 160px; height: 1.4em; }
-    .rp-fields .rp-line-short { display: inline-block; border-bottom: 1px solid #999; width: 20%; min-width: 40px; height: 1.4em; }
+    .rp-fields .rp-line-short { display: inline-block; border-bottom: 1px solid #999; width: 50px; height: 1.4em; }
     table.rubric-table { border-collapse: collapse; width: 100%; font-size: 13px; }
     table.rubric-table th, table.rubric-table td { border: 1px solid #ccc; padding: 7px 9px; text-align: left; vertical-align: top; }
     table.rubric-table th { background: #f2f2f2; }
-    table.rubric-table tbody tr:nth-child(even) { background: #fafafa; }
+    table.rubric-table td { height: 48px; }
+    table.rubric-table tr.rb-gap td { height: 14px; border: none; padding: 0; background: none; }
+    .rp-meta { font-size: 14px; color: #444; margin: -8px 0 20px; }
+    .rp-questions { break-before: page; page-break-before: always; }
+    .rp-questions h2 { font-size: 15px; margin: 0 0 10px; }
+    .rp-questions ol { margin: 0; padding-left: 22px; font-size: 14px; }
+    .rp-questions li { margin-bottom: 70px; }
     @media print { body { padding: 20px; } }
 </style>
 </head>
 <body>
     <div class="rp-presen">${esc(presentationName)}</div>
     <div class="rp-course">${esc(courseName)}</div>
+    <div class="rp-meta">${esc([SHARED?.name, SHARED?.sem].filter(Boolean).join('  \u00b7  '))}</div>
     <div class="rp-fields">
         <div class="rp-field">Name<br><span class="rp-line">&nbsp;</span></div>
         <div class="rp-field">Date<br><span class="rp-line">&nbsp;</span></div>
+        <div class="rp-field rp-score">Score<br><span class="rp-line-short">&nbsp;</span> / 15 pts</div>
     </div>
     ${table.outerHTML}
-    <div class="rp-fields">
-        <div class="rp-field">Score<br><br><br><span class="rp-line-short">&nbsp;</span> / 15 pts</div>
-    </div>
+    ${questions.length ? `<div class="rp-questions"><h2>${esc(presentationName)}: questions to ask</h2><ol>${questions.map(q => `<li>${esc(q)}</li>`).join('')}</ol></div>` : ''}
 </body>
 </html>`);
     win.document.close();
@@ -527,7 +536,8 @@ function buildInstructionsPane(c) {
     `).join('');
 
     const miniPanesHtml = keys.map((key, i) => {
-        const body = instr[key];
+        // A value of "@shared" pulls the same-named entry from shared.json's "instructions".
+        const body = instr[key] === '@shared' ? (SHARED?.instructions?.[key] ?? '') : instr[key];
         // Detect a rubric table by content, not by which key it lives
         // under -- so this works for "Presentations" (csc1100/csc3730's
         // shape) or a future "Presentation 1/2/3" split alike, with no
