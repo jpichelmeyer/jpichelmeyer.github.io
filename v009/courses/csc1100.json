@@ -186,5 +186,6 @@
   "materials": "Laptop, writing utensils, paper",
   "credits": "4",
   "files" : [
+    "zips/csc1100_web_base.zip"
   ]
 }
