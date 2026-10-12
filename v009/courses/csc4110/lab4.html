@@ -276,17 +276,19 @@ def time_in_states(rows):
 </span>
 </div>
 <p>The script sees what the <em>broker</em> received: five samples a second, while the Decider runs twenty. That matters. In the simulation with kp = 1 and ki = 2, the head overshoots the moved light by about 3.6°, but the 5 Hz telemetry shows no overshoot at all, because the peak falls between two reports. This is the sampling lesson again, applied to your own measurement, and it is the reason the turret also publishes <span class="code-lesson-il">evt/lock</span>: an event is sent at the moment something happens, instead of being left for a fixed-rate sample to catch. <span class="code-lesson-il">time_in_states</span> is your first look at behaviour from outside the robot. In Unit 2 the hub will use exactly this kind of summary to know what every robot is doing.</p>
-<h3>Lab Report</h3>
-<ol>
-<li>Include a photo of your turret and your plant curve (balance against head angle). Where is your synthetic sensor most sensitive, and over what range of angles is it roughly linear? State the eyes' settling time.</li>
-<li>Include your tuning table: gains tried, steady gap, overshoot and settling time after the light moves, each measured from the broker data with <span class="code-lesson-il">analyze.py</span>.</li>
-<li>Compare the worst error <span class="code-lesson-il">analyze.py</span> reports for test 4 with what the Decider sees (print <span class="code-lesson-il">p["aim"] - p["balance"]</span> each control step for a few seconds). Explain any difference using the sampling lesson, and say how you would capture the true peak.</li>
-<li>Describe test 5. Which way did SEARCH sweep first, and which line of the program decided that? What would the turret do if Memory had no <span class="code-lesson-il">sweep_dir</span>?</li>
-<li>Draw your turret as a SAM agent, listing what is in each unit. Then list every place where this program could block or stall (the network, the ADC, the servo). Explain why none of them is allowed to stall the Decider.</li>
-</ol>
+<h3>Your Lab Report Sheet</h3>
+<p>Everything for this lab is done and recorded <strong>during the lab period</strong>. Your lab report sheet is the whole record: nothing is taken home or finished later. Fill it in as you go, and hand it in before you leave. If you run out of time, write down exactly where you stopped.</p>
+<ul>
+<li><strong>Goal (front).</strong> One sentence: what the turret does in each of its states.</li>
+<li><strong>Wiring (back).</strong> Draw the servo on GP14 (its own battery pack and the 470 µF capacitor on the power rail, grounds joined), the two LDR eyes (GP26 and GP27, each with a 10 kΩ resistor to GND) and the aim knob (GP28). The Lab 1 buttons and LEDs stay as they were.</li>
+<li><strong>Check-off table (front).</strong> Rows 1 to 6 are the six tuning tests. In “What happened” write the gains you used and what you saw: steady gap, overshoot and settling time. Get initials when you show a test working.</li>
+<li><strong>Code (front).</strong> File name <span class="code-lesson-il">turret.py</span>. Write the lines you wrote or changed: the behaviours on top and the PID underneath.</li>
+<li><strong>Measured or observed (front).</strong> The plant curve as a few points (balance against head angle): where the sensor is most sensitive, and the range of angles where it is roughly linear. The eyes’ settling time. The worst error <span class="code-lesson-il">analyze.py</span> reports for test 4 next to the worst error the Decider sees.</li>
+<li><strong>What went wrong (front).</strong> What failed and how you fixed it. Then answer here before you leave: in test 5, which way did SEARCH sweep first and which line decided that? What would the turret do if Memory had no <span class="code-lesson-il">sweep_dir</span>? Name two places this program could block or stall, and say why neither may stall the Decider.</li>
+</ul>
 
                 <h3>Exercises</h3>
-        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <p>Optional practice, in three tiers. Nothing here is collected or graded. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Read the Eyes.</strong> After calibration the left eye reads 30 000 and the corrected right eye 20 000 (room light was 21 000 per eye). What are the balance and the brightness? Is a target found? Which way must the head turn, in terms of the sign of the balance?</p>
         <p><strong>Exercise 2: The Cost of Telemetry.</strong> One <span class="code-lesson-il">tele/turret</span> message has a 22-byte topic, a 70-byte payload and about 5 bytes of header, sent at 5 Hz. How many bytes per second is that, and how many Decider updates happen per message?</p>

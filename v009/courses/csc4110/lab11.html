@@ -218,20 +218,22 @@ run(h, [Client(h, MANAGER, [10, 20, 30, 40, 50])])
 <p>Two of these were run in simulation, so you can compare. In drill 1 (client A unplugged 0.8 s after getting the servo, after two pans) the second client became owner at <strong>10.75 s</strong>, about 10 s after A’s last command, and the other two finished by 13.7 s; A did two of its five pans. In drill 2 (manager restarted at 2.5 s), the servo went to centre, <span class="code-lesson-il">stat/owner</span> was republished as none at 2.55 s, the client that had been waiting re-claimed and was owner again at 2.71 s, and all three clients completed 5 pans each.</p>
 <ul>
 <li><strong>Drill 3 and the lease length (drill 7)</strong> are the heart of the lab: a shorter lease recovers faster from a crash and costs more renewals; a longer one is cheaper and slower. Say which you would choose for a servo that a person is watching, and which for one that carries a load.</li>
-<li><strong>Drill 6:</strong> what should a client do when it is told “full”? Write what you chose in the report, and implement it: back off for a random time, and try again.</li>
+<li><strong>Drill 6:</strong> what should a client do when it is told “full”? Write what you chose on your lab report sheet, and implement it: back off for a random time, and try again.</li>
 <li><strong>Drill 2</strong> depends on <span class="code-lesson-il">shown = "?"</span>. Change it back to <span class="code-lesson-il">None</span>, repeat the drill, and describe what the clients do. This is a real bug that survived into the first version of this lab.</li>
 </ul>
-<h3>What to Hand In</h3>
+<h3>Your Lab Report Sheet</h3>
+<p>Everything for this lab is done and recorded <strong>during the lab period</strong>. Your lab report sheet is the whole record: nothing is taken home or finished later. Fill it in as you go, and hand it in before you leave. If you run out of time, write down exactly where you stopped.</p>
 <ul>
-<li>Your <span class="code-lesson-il">manager.py</span> and <span class="code-lesson-il">client.py</span> with the changes you made, and a note of which student ran which.</li>
-<li>The table of drills 1 to 7 with times and observations; for every difference from the simulated results, an explanation.</li>
-<li>A timeline (a table or sketch) of one full run: who owned the servo when, and how long each client waited.</li>
-<li>A short paragraph: where in this system would you add a second manager for redundancy, and what new problem would it create?</li>
+<li><strong>Goal (front).</strong> One sentence: what the manager does, and who ran the manager and each client.</li>
+<li><strong>Wiring (back).</strong> The student who owns the servo draws it on GP14 (own battery pack, common ground). Everyone else sketches the message path: client, broker, manager, with the topics.</li>
+<li><strong>Check-off table (front).</strong> Rows 1 to 7 are drills 1 to 7. Write what you measured, and for every difference from the simulated result, one sentence of explanation. Row 8: one full run, with who owned the servo when and how long each client waited. Get initials when you show a row working.</li>
+<li><strong>Code (front).</strong> File name <span class="code-lesson-il">client.py</span> or <span class="code-lesson-il">manager.py</span>. Write the lines you wrote or changed, such as your handling of “full”, “not owner” and ownership loss.</li>
+<li><strong>Measured or observed (front).</strong> The timeline of one full run (a small table or sketch): which client owned the servo and for how long, and how long each of the others waited.</li>
+<li><strong>What went wrong (front).</strong> What failed and how you fixed it. Then answer here before you leave: for drill 6, what you chose to do when told “full”, and why. Where in this system would you add a second manager for redundancy, and what new problem would it create?</li>
 </ul>
-<p>Marking: the system works and clients are served in order (30 %); the drills with measurements (30 %); handling of “full”, “not owner” and ownership loss in the client (20 %); the timeline and explanations (20 %).</p>
 
                 <h3>Exercises</h3>
-        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <p>Optional practice, in three tiers. Nothing here is collected or graded. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Why the Retained Owner?</strong> Why is <span class="code-lesson-il">stat/owner</span> retained, and what could a client that joins late do with it?</p>
         <h4>Intermediate</h4>

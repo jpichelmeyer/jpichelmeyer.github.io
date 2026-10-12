@@ -918,6 +918,19 @@
     background: color-mix(in oklab, var(--color-accent-courses), white 85%);
     font-weight: bold;
 }
+.rubric-print-questions {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--sans);
+    font-size: calc(11px * var(--mod-font-size));
+    padding: 8px 10px;
+    margin-bottom: 18px;
+    border: 1.5px solid var(--panel-bd);
+    border-radius: var(--border-radius2);
+    background: var(--bg-light);
+    color: var(--ink);
+    resize: vertical;
+}
 .rubric-print-picker-actions {
     display: flex;
     justify-content: flex-end;

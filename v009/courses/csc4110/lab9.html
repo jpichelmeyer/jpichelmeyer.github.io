@@ -211,17 +211,19 @@ mosquitto_pub -h BROKER -u bob -P PASSWORD -t lab/bob/cmd/led \
         </div>
 
 <p>In the simulation, test 5 gave <span class="code-lesson-il">rejected = 2</span> at the actuator (the <span class="code-lesson-il">7</span> and the plain text were refused; the message for someone else was <strong>correctly ignored without being counted as an error</strong>), test 6 gave one <span class="code-lesson-il">evt/warn</span> and the LED off about 2 s after the last range message, and test 7 gave LED off at 11.2 s when the last command was at 6.1 s: about <strong>5 seconds after the last command</strong>, 3.2 s after the coordinator died at 8 s. Your numbers will vary with your 2 s refresh.</p>
-<h3>Lab Report</h3>
+<h3>Your Lab Report Sheet</h3>
+<p>Everything for this lab is done and recorded <strong>during the lab period</strong>. Your lab report sheet is the whole record: nothing is taken home or finished later. Fill it in as you go, and hand it in before you leave. If you run out of time, write down exactly where you stopped.</p>
 <ul>
-<li>Paste your contract table and say which row you found hardest to get right and why.</li>
-<li>For test 5, show the malformed message you sent and the evidence (a log line, a counter) that your agent refused it.</li>
-<li>For tests 6 and 7, record the time from the failure to the LED going off and say <strong>which agent made the decision</strong> and from what information.</li>
-<li>For test 8, explain why the LED came back on and which message caused it.</li>
-<li>Name one thing that would break if a teammate changed the meaning of a field without changing <span class="code-lesson-il">v</span>, and one thing that would <em>not</em> break if they added a field.</li>
+<li><strong>Goal (front).</strong> One sentence: which agent you wrote (sensor, coordinator or actuator) and what it does.</li>
+<li><strong>Wiring (back).</strong> Draw the hardware your agent uses: the ultrasonic sensor for the sensor agent, the LED and its resistor for the actuator. The coordinator has no hardware: sketch the three agents and the topics between them instead.</li>
+<li><strong>Check-off table (front).</strong> Rows 1 to 8 are tests 1 to 8. For test 5 write the malformed message you sent and the evidence that your agent refused it (a log line or a counter). For tests 6 and 7 write the time from the failure to the LED going off. Get initials when you show a test working.</li>
+<li><strong>Code (front).</strong> File name: your agent’s file (<span class="code-lesson-il">sensor.py</span>, <span class="code-lesson-il">coordinator.py</span> or <span class="code-lesson-il">actuator.py</span>). Write the constants you set at the top and the lines that decide or obey.</li>
+<li><strong>Measured or observed (front).</strong> For tests 6 and 7, which agent made the decision and from what information. For test 8, which message made the LED come back on, and why.</li>
+<li><strong>What went wrong (front).</strong> What failed and how you fixed it. Then answer here before you leave: which row of the contract was hardest to get right, and why? Name one thing that would break if a teammate changed the meaning of a field without changing the version, and one thing that would not break if they added a field.</li>
 </ul>
 
                 <h3>Exercises</h3>
-        <p>Practice problems in three tiers. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
+        <p>Optional practice, in three tiers. Nothing here is collected or graded. Do each on paper or on your own board first, and only then open its solution below. Many problems have more than one correct answer; if yours behaves the same way, it is right even if it looks different.</p>
         <h4>Warm Up</h4>
         <p><strong>Exercise 1: Trace One Cycle.</strong> Write, in order, every message published between the range dropping below 20 cm and the LED being confirmed on.</p>
         <h4>Intermediate</h4>

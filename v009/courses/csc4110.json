@@ -167,38 +167,54 @@
       "name": "Lab reports",
       "type": "report",
       "description": "Handwritten, live report of what was accomplished during lab.",
-      "percentage": "10",
-      "colorbg": "#ffe4a6",
-      "colorfont": "#1f1f1f"
+      "percentage": "10"
     },
     {
-      "name": "Lab practicals",
+      "name": "Lab practical 1",
       "type": "labpractical",
-      "description": "Lab practical of physical system, graded according to live performance of task.",
-      "percentage": "20",
-      "colorbg": "#ffe4a6",
-      "colorfont": "#1f1f1f"
+      "description": "Lab practical of physical system based on first module of the course. Graded according to live performance of task.",
+      "percentage": "5"
     },
     {
-      "name": "Exams",
+      "name": "Lab practical 2",
+      "type": "labpractical",
+      "description": "Lab practical of physical system based on the first and second modules of the course. Graded according to live performance of task.",
+      "percentage": "10"
+    },
+    {
+      "name": "Lab practical 3",
+      "type": "labpractical",
+      "description": "Lab practical of physical system based on all three modules of the course. Graded according to live performance of task.",
+      "percentage": "15"
+    },
+    {
+      "name": "Exam 1",
       "type": "exam",
-      "description": "In class, sit-down, paper exam. No notes or resources outside of a pencil and eraser. Covers all three modules of the course.",
-      "percentage": "50",
-      "colorbg": "#7cbf8e",
-      "colorfont": "#1f1f1f"
+      "description": "In class, sit-down, paper exam. No notes or resources outside of a writing utensil. Covers material from the first module of the course.",
+      "percentage": "10"
+    },
+    {
+      "name": "Exam 2",
+      "type": "exam",
+      "description": "In class, sit-down, paper exam. No notes or resources outside of a writing utensil. Covers material from the first and second modules of the course.",
+      "percentage": "15"
+    },
+    {
+      "name": "Exam 3",
+      "type": "exam",
+      "description": "In class, sit-down, paper exam. No notes or resources outside of a writing utensil. Covers material from all three modules of the course.",
+      "percentage": "20"
     },
     {
       "name": "Quizzes",
       "type": "quiz",
       "description": "A short in-class quiz each week on the prior week's reading and concepts.",
-      "percentage": "20"
+      "percentage": "15"
     }
   ],
   "instructions": {
-    "Presentation 1": "Here is an <b>HTML-syntax</b> string",
-    "Presentation 2": "Here is an <b>HTML-syntax</b> string",
-    "Presentation 3": "Here is an <b>HTML-syntax</b> string",
-    "Progress reports": "Here is an <b>HTML-syntax</b> string"
+    "Lab reports": "@shared",
+    "Lab Practical 1": "Here is an <b>HTML-syntax</b> string"
   },
   "materials": "Laptop, writing utensils, paper",
   "credits": "4",
