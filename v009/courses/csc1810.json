@@ -90,6 +90,9 @@
       "theme": "Structure",
       "trs": [
         {
+          "BREAK": ""
+        },
+        {
           "Functions and methods" : "",
           "Values vs references" : "",
           "Overloading" : "",
