@@ -80,6 +80,9 @@
       "theme": "Memory & Analogy",
       "trs": [
         {
+          "BREAK": ""
+        },
+        {
           "Learning by recording cases": "csc3530/recording_cases.html",
           "Case-based reasoning": "csc3530/case_based_reasoning.html"
         },

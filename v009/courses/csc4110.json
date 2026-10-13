@@ -99,6 +99,9 @@
       "theme": "Connected Specialists",
       "trs": [
         {
+          "BREAK": ""
+        },
+        {
           "Network essentials": "csc4110/tcp_ip.html",
           "MQTT and the broker": "csc4110/mqtt_basics.html",
           "Messages and JSON": "csc4110/serialization.html",

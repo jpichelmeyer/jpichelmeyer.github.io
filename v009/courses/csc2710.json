@@ -81,6 +81,9 @@
       "theme": "Expansion",
       "trs": [
         {
+          "BREAK": ""
+        },
+        {
           "Hitboxes" : "",
           "Instancing" : ""
         },
