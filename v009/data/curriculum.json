@@ -38,7 +38,9 @@
       ],
       "number": "1820",
       "title": "Principles of Computer Science II",
-      "prereqs": []
+      "prereqs": [
+        "csc1810"
+      ]
     },
     "csc2350": {
       "prefixes": [
@@ -62,7 +64,9 @@
       ],
       "number": "2560",
       "title": "Data Structures and Algorithms",
-      "prereqs": []
+      "prereqs": [
+        "csc1820"
+      ]
     },
     "csc2710": {
       "prefixes": [
@@ -70,7 +74,9 @@
       ],
       "number": "2710",
       "title": "Game Development I",
-      "prereqs": []
+      "prereqs": [
+        "csc1810"
+      ]
     },
     "csc2720": {
       "prefixes": [
@@ -78,7 +84,9 @@
       ],
       "number": "2720",
       "title": "Game Development II",
-      "prereqs": []
+      "prereqs": [
+        "csc2710"
+      ]
     },
     "csc2810": {
       "prefixes": [
@@ -86,7 +94,11 @@
       ],
       "number": "2810",
       "title": "Database Design and Management",
-      "prereqs": []
+      "prereqs": [
+        "csc1810",
+        "csc1100",
+        "dat1040"
+      ]
     },
     "csc2910": {
       "prefixes": [
@@ -94,7 +106,9 @@
       ],
       "number": "2910",
       "title": "Object-Oriented Programming",
-      "prereqs": []
+      "prereqs": [
+        "csc1820"
+      ]
     },
     "csc3030": {
       "prefixes": [
@@ -102,7 +116,9 @@
       ],
       "number": "3030",
       "title": "Information Visualization",
-      "prereqs": []
+      "prereqs": [
+        "csc1820"
+      ]
     },
     "csc3210": {
       "prefixes": [
@@ -110,7 +126,9 @@
       ],
       "number": "3210",
       "title": "Computing Paradigms",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3350": {
       "prefixes": [
@@ -118,7 +136,9 @@
       ],
       "number": "3350",
       "title": "Software Engineering",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3410": {
       "prefixes": [
@@ -126,7 +146,9 @@
       ],
       "number": "3410",
       "title": "Web Development",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3450": {
       "prefixes": [
@@ -134,7 +156,9 @@
       ],
       "number": "3450",
       "title": "Computer System Administration",
-      "prereqs": []
+      "prereqs": [
+        "csc1810"
+      ]
     },
     "csc3510": {
       "prefixes": [
@@ -142,7 +166,9 @@
       ],
       "number": "3510",
       "title": "Computer Organization",
-      "prereqs": []
+      "prereqs": [
+        "csc1820"
+      ]
     },
     "csc3520": {
       "prefixes": [
@@ -150,7 +176,9 @@
       ],
       "number": "3520",
       "title": "Connected Systems: OS, Networking, and Security",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3530": {
       "prefixes": [
@@ -158,7 +186,9 @@
       ],
       "number": "3530",
       "title": "Artificial Intelligence and Cognitive Modeling",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3600": {
       "prefixes": [
@@ -166,7 +196,9 @@
       ],
       "number": "3600",
       "title": "Network Programming",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3630": {
       "prefixes": [
@@ -174,7 +206,9 @@
       ],
       "number": "3630",
       "title": "Reinforcement Learning",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3710": {
       "prefixes": [
@@ -182,7 +216,9 @@
       ],
       "number": "3710",
       "title": "Game Engine Programming",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3730": {
       "prefixes": [
@@ -190,7 +226,9 @@
       ],
       "number": "3730",
       "title": "Artificial Intelligence for Simulations",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3750": {
       "prefixes": [
@@ -198,15 +236,19 @@
       ],
       "number": "3750",
       "title": "Algorithms",
-      "prereqs": []
+      "prereqs": [
+        "csc1820"
+      ]
     },
     "csc3770": {
       "prefixes": [
         "CSC"
       ],
       "number": "3770",
-      "title": "Computer Graphics (AI)",
-      "prereqs": []
+      "title": "Computer Graphics (ART)",
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc3830": {
       "prefixes": [
@@ -214,7 +256,9 @@
       ],
       "number": "3830",
       "title": "Generative Artificial Intelligence",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc4000": {
       "prefixes": [
@@ -226,11 +270,15 @@
     },
     "csc4110": {
       "prefixes": [
-        "CSC"
+        "CSC",
+        "EGR"
       ],
       "number": "4110",
       "title": "Internet of Things",
-      "prereqs": []
+      "prereqs": [
+        "csc3600",
+        "egr3120"
+      ]
     },
     "csc4350": {
       "prefixes": [
@@ -238,7 +286,9 @@
       ],
       "number": "4350",
       "title": "Advanced Software Engineering",
-      "prereqs": []
+      "prereqs": [
+        "csc3350"
+      ]
     },
     "csc4360": {
       "prefixes": [
@@ -246,7 +296,9 @@
       ],
       "number": "4360",
       "title": "Agile Software Development",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc4650": {
       "prefixes": [
@@ -254,7 +306,9 @@
       ],
       "number": "4650",
       "title": "Computer Architecture",
-      "prereqs": []
+      "prereqs": [
+        "csc3510"
+      ]
     },
     "csc4730": {
       "prefixes": [
@@ -262,7 +316,9 @@
       ],
       "number": "4730",
       "title": "Operating Systems",
-      "prereqs": []
+      "prereqs": [
+        "csc2560"
+      ]
     },
     "csc4900": {
       "prefixes": [
@@ -270,7 +326,9 @@
       ],
       "number": "4900",
       "title": "Research in Computer Science",
-      "prereqs": []
+      "prereqs": [
+        "csc1820"
+      ]
     },
     "csc4910": {
       "prefixes": [
@@ -278,7 +336,9 @@
       ],
       "number": "4910",
       "title": "Software Engineering Capstone I",
-      "prereqs": []
+      "prereqs": [
+        "csc4350"
+      ]
     },
     "csc4920": {
       "prefixes": [
@@ -286,7 +346,9 @@
       ],
       "number": "4920",
       "title": "Software Engineering Capstone II",
-      "prereqs": []
+      "prereqs": [
+        "csc4910"
+      ]
     },
     "csc4990": {
       "prefixes": [
@@ -342,7 +404,7 @@
         "DAT"
       ],
       "number": "3090",
-      "title": "Machine Learning",
+      "title": "Machine Learning (QR)",
       "prereqs": []
     },
     "dat3350": {
@@ -407,6 +469,26 @@
       ],
       "number": "2100",
       "title": "Engineering Statics and Solid Mechanics",
+      "prereqs": [
+        "egr1020",
+        "phy2200",
+        "mth1220"
+      ]
+    },
+    "egr2130": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "2130",
+      "title": "Engineering in Athletics and Human Motion (IDP)",
+      "prereqs": []
+    },
+    "egr2140": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "2140",
+      "title": "Cultural Cconsiderations of Engineered Objects (IDP)",
       "prereqs": []
     },
     "egr2700": {
@@ -415,7 +497,9 @@
       ],
       "number": "2700",
       "title": "Engineering Practice I",
-      "prereqs": []
+      "prereqs": [
+        "egr1100"
+      ]
     },
     "egr2710": {
       "prefixes": [
@@ -423,7 +507,11 @@
       ],
       "number": "2710",
       "title": "Engineering Practice II",
-      "prereqs": []
+      "prereqs": [
+        "egr2700",
+        "egr1020",
+        "egr1300"
+      ]
     },
     "egr3100": {
       "prefixes": [
@@ -431,7 +519,11 @@
       ],
       "number": "3100",
       "title": "Engineering Materials",
-      "prereqs": []
+      "prereqs": [
+        "egr2100",
+        "chm1010",
+        "chm1020"
+      ]
     },
     "egr3120": {
       "prefixes": [
@@ -440,7 +532,9 @@
       ],
       "number": "3120",
       "title": "Electronics",
-      "prereqs": []
+      "prereqs": [
+        "phy2210"
+      ]
     },
     "egr3400": {
       "prefixes": [
@@ -448,15 +542,73 @@
       ],
       "number": "3400",
       "title": "Thermal Fluids",
-      "prereqs": []
+      "prereqs": [
+        "mth2020",
+        "phy2210"
+      ]
     },
     "egr3600": {
       "prefixes": [
         "EGR"
       ],
       "number": "3600",
+      "title": "Dynamics",
+      "prereqs": [
+        "mth2120",
+        "egr2100"
+      ]
+    },
+    "egr4100": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4100",
+      "title": "Nanomaterials",
+      "prereqs": [
+        "mth2120",
+        "egr2100"
+      ]
+    },
+    "egr4120": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4120",
+      "title": "Manufacturing Processes and Design",
+      "prereqs": [
+        "egr3100"
+      ]
+    },
+    "egr4130": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4130",
+      "title": "Biomechanics of Human Movement",
+      "prereqs": [
+        "egr3600"
+      ]
+    },
+    "egr4140": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4140",
+      "title": "Analysis and Performance of Composites",
+      "prereqs": [
+        "egr3100"
+      ]
+    },
+    "egr4300": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4300",
       "title": "Engineering Codes, Standards, and Economics",
-      "prereqs": []
+      "prereqs": [
+        "egr3100",
+        "egr2710"
+      ]
     },
     "egr4500": {
       "prefixes": [
@@ -464,7 +616,20 @@
       ],
       "number": "4500",
       "title": "Analysis and Measurement of Engineered Systems",
-      "prereqs": []
+      "prereqs": [
+        "egr3120",
+        "egr3600"
+      ]
+    },
+    "egr4550": {
+      "prefixes": [
+        "EGR"
+      ],
+      "number": "4550",
+      "title": "Engineering Cooperative Learning Experience",
+      "prereqs": [
+        "egr2710"
+      ]
     },
     "egr4900": {
       "prefixes": [
@@ -488,7 +653,9 @@
       ],
       "number": "4920",
       "title": "Engineering Capstone II",
-      "prereqs": []
+      "prereqs": [
+        "egr4910"
+      ]
     },
     "egr4990": {
       "prefixes": [
@@ -496,6 +663,70 @@
       ],
       "number": "4990",
       "title": "Senior Capstone Completion",
+      "prereqs": []
+    },
+    "mth1030": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1030",
+      "title": "Applied Contemporary Mathematics (QR)",
+      "prereqs": []
+    },
+    "mth1035": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1035",
+      "title": "Quantitative Social Justice (DIV) (QR)",
+      "prereqs": []
+    },
+    "mth1040": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1040",
+      "title": "Principles of Modern Mathematics (QR)",
+      "prereqs": []
+    },
+    "mth1050": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1050",
+      "title": "Elementary Statistics (QR)",
+      "prereqs": []
+    },
+    "mth1055": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1055",
+      "title": "Statistics for Social Justice (QR)",
+      "prereqs": []
+    },
+    "mth1060": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1060",
+      "title": "Finite Mathematics (QR)",
+      "prereqs": []
+    },
+    "mth1070": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1070",
+      "title": "Functions, Graphs, and Analysis",
+      "prereqs": []
+    },
+    "mth1090": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "1090",
+      "title": "Mathematics for Human Flourishing",
       "prereqs": []
     },
     "mth1120": {
@@ -536,7 +767,19 @@
       ],
       "number": "2040",
       "title": "Linear Algebra",
-      "prereqs": []
+      "prereqs": [
+        "mth1120"
+      ]
+    },
+    "mth2080": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "2080",
+      "title": "Modern Geometry",
+      "prereqs": [
+        "mth1120"
+      ]
     },
     "mth2090": {
       "prefixes": [
@@ -552,6 +795,22 @@
       ],
       "number": "2120",
       "title": "Multivariable Calculus",
+      "prereqs": []
+    },
+    "mth2130": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "2130",
+      "title": "Mathematics of Actuarial Science",
+      "prereqs": []
+    },
+    "mth3030": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "3030",
+      "title": "Probaility",
       "prereqs": []
     },
     "mth3040": {
@@ -576,7 +835,22 @@
       ],
       "number": "3120",
       "title": "Real Analysis",
-      "prereqs": []
+      "prereqs": [
+        "mth1220",
+        "mth1240",
+        "mth2040"
+      ]
+    },
+    "mth3180": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "3180",
+      "title": "Introduction to Topology",
+      "prereqs": [
+        "mth1220",
+        "mth1240"
+      ]
     },
     "mth4300": {
       "prefixes": [
@@ -624,8 +898,8 @@
         "csc1820",
         "csc2560",
         "csc2810",
+        "csc3350",
         "csc3510",
-        "csc4350",
         "csc4000",
         "csc4990",
         "mth1240"
@@ -651,8 +925,8 @@
         "csc1820",
         "csc2560",
         "csc2810",
+        "csc3350",
         "csc3510",
-        "csc4350",
         "mth1120",
         "mth1220",
         "mth1240",
@@ -683,8 +957,8 @@
         "csc2710",
         "csc2720",
         "csc2810",
+        "csc3350",
         "csc4000",
-        "csc4350",
         "csc4990"
       ],
       "elective": {
@@ -714,8 +988,8 @@
         "csc2710",
         "csc2720",
         "csc2810",
+        "csc3350",
         "csc4000",
-        "csc4350",
         "csc4990",
         "mth1120",
         "mth2040"
@@ -747,7 +1021,7 @@
         "csc2560",
         "egr2700",
         "egr2710",
-        "egr3350",
+        "csc3350",
         "csc3510",
         "csc3520",
         "csc4000",
@@ -941,7 +1215,7 @@
     "Explorations": {
       "color": "#a9cbf0",
       "tags": [
-        "AI",
+        "ART",
         "CL",
         "SI",
         "SE"
@@ -960,7 +1234,7 @@
       "color": "#efd78e",
       "tags": [
         "RP",
-        "DP",
+        "DIV",
         "ILP",
         "IDP"
       ]
@@ -971,9 +1245,10 @@
       "abbr": "RB",
       "color": "#ffb272",
       "courses": [
-        "csc3510",
+        "csc2720",
         "csc3710",
         "csc3770",
+        "csc4360",
         "csc400T"
       ]
     },
@@ -994,9 +1269,9 @@
       "color": "#bf9ed5",
       "courses": [
         "csc2350",
-        "csc2810",
         "csc3030",
-        "csc200t"
+        "csc200t",
+        "dat2190"
       ]
     },
     "Mark Mahoney": {
@@ -1007,7 +1282,9 @@
         "csc3210",
         "csc3520",
         "csc3350",
-        "csc4350"
+        "csc4350",
+        "csc4910",
+        "csc4920"
       ]
     }
   },

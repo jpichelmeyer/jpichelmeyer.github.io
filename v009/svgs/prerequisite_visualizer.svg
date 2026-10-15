@@ -1,0 +1,20 @@
+<!-- svgs/prerequisite_visualizer.svg : a square face looking up at a height mark. Same 22x22 / black-line style as dull.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" version="1.1" x="0px" y="0px">
+    <g fill="none" stroke="#000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <!-- measuring stick -->
+        <rect x="16" y="1.5" width="3.5" height="19" rx="0.6"/>
+        <path d="M16,6.5 H17.3 M16,9 H17.8 M16,11.5 H17.3 M16,14 H17.8 M16,16.5 H17.3 M16,19 H17.8"/>
+        <!-- the mark, higher than the face is tall -->
+        <path d="M12.5,4 H19.5"/>
+        <!-- face -->
+        <rect x="2" y="11.5" width="9" height="9" rx="1"/>
+        <circle cx="5" cy="14.6" r="1.6"/>
+        <circle cx="8.6" cy="14.6" r="1.6"/>
+        <circle cx="6.8" cy="18.3" r="0.8"/>
+    </g>
+    <g fill="#000000">
+        <path d="M12.5,2.6 L14.2,4 L12.5,5.4 Z"/>
+        <circle cx="5.6" cy="14" r="0.65"/>
+        <circle cx="9.2" cy="14" r="0.65"/>
+    </g>
+</svg>

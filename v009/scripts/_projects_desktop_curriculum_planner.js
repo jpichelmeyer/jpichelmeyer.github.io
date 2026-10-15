@@ -6,8 +6,7 @@
 // data/curriculum.json -- a single source of truth other
 // projects (a prerequisite graph, say) can also read, using the same
 // course codes. This file only ever reads it; nothing here writes
-// back to it. "Reset ordering" restores column order from a cached
-// copy of that first fetch, no second network round trip needed.
+// back to it.
 // Courses are always listed by prefix first, then by number, with
 // the number-plus-letter ones ("200T", "400T") after the plain numbers.
 //
@@ -24,16 +23,17 @@
 // e.g. "EGR 3120 / PHY 3120"), always shown/sorted alphabetically.
 // Each prefix has its own color (from the data file), used for its
 // pill in the course cell. A trailing gen-ed code in a title, like
-// "(QR)", becomes a colored tag after the course name (colors by
-// category, from the data file's `genEd`), followed by a tag with the
-// abbreviation of the instructor who typically teaches it (data file's
-// `instructors`: abbr, color, courses). Each program column shows a stack of tags:
+// "(QR)", becomes a colored tag in the Gen Ed column (colors by
+// category, from the data file's `genEd`); the Instr. column holds a tag
+// with the abbreviation of the instructor who typically teaches it (data
+// file's `instructors`: abbr, color, courses). Each program column shows a stack of tags:
 // degree (BA/BS), program abbreviation, and the department it is housed
 // in (a key into `departments`). A cell holds a solid star if the
 // course is required for that program, a hollow circle if elective.
 //
 // Columns (programs) are drag-reorderable, via a lightweight
-// pointer-based approach.
+// pointer-based approach. Programs can also be added by department, or
+// added/cleared by degree (BS, BA).
 //
 // Program columns have no minimum width -- however many are shown,
 // they divide the space remaining after the fixed course/count
@@ -58,8 +58,6 @@ const DEFAULT_PREFIX_COLORS = {
     MTH: '#e3c682',
 };
 const FALLBACK_PREFIX_COLOR = '#d8d5cf';
-
-function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
 // Step-gradient background for the "# programs requiring" column: how
 // many white-mix steps to use, based on what fraction of the currently
@@ -135,10 +133,9 @@ window._registerProject({
     label: 'Curriculum Planner',
     layout: 'desktop',
     thumb: 'curriculum_planner.svg',
-    desc: 'Compare degree programs against a list of courses (by prefix, then number) -- required (star) or elective (circle), per program. Pulls from a shared curriculum data file.',
+    desc: 'Compare degree programs side by side against their courses: a star marks a required course and a circle an elective. Choose programs one at a time, by department, or by degree, filter courses by prefix, and drag columns to reorder them.',
     init(container) {
         let state = null;
-        let rawData = null;
         let colDrag = null;
 
         container.innerHTML = `<div class="curric-root"><div class="curric-loading">Loading curriculum data\u2026</div></div>`;
@@ -154,7 +151,6 @@ window._registerProject({
                 root.innerHTML = `<div class="curric-loading curric-error">Couldn't load curriculum data (${esc(String(err.message || err))}). Check that data/curriculum.json exists and reload.</div>`;
                 return;
             }
-            rawData = data;
             state = buildWorkingState(data);
             buildUI();
         })();
@@ -167,17 +163,23 @@ window._registerProject({
                             <div class="curric-control-title">Programs <span class="curric-control-hint">(columns, drag header to reorder)</span></div>
                             <span class="curric-btn-pair"><button class="curric-clear-btn" data-all="programs">All</button><button class="curric-clear-btn" data-clear="programs">Clear</button></span>
                         </div>
+                        <div class="curric-degree-row">${['BS', 'BA'].map(d => `
+                            <span class="curric-btn-pair">${tagHTML(d, state.degreeColors[d] || FALLBACK_PREFIX_COLOR, d)}<button class="curric-clear-btn" data-degree-add="${d}">Add</button><button class="curric-clear-btn" data-degree-clear="${d}">Clear</button></span>`).join('')}
+                        </div>
                         <div class="curric-program-list"></div>
                     </div>
-                    <div class="curric-control-group">
+                    <div class="curric-control-group curric-dept-group">
+                        <div class="curric-control-title-row">
+                            <div class="curric-control-title">Departments</div>
+                        </div>
+                        <div class="curric-dept-list"></div>
+                    </div>
+                    <div class="curric-control-group curric-prefix-group">
                         <div class="curric-control-title-row">
                             <div class="curric-control-title">Prefixes</div>
                             <span class="curric-btn-pair"><button class="curric-clear-btn" data-all="prefixes">All</button><button class="curric-clear-btn" data-clear="prefixes">Clear</button></span>
                         </div>
                         <div class="curric-prefix-toggle-list"></div>
-                    </div>
-                    <div class="curric-control-group curric-control-actions">
-                        <button class="curric-btn curric-btn-reset" data-action="reset-order">Reset ordering</button>
                     </div>
                 </div>
                 <div class="curric-legend">
@@ -190,6 +192,7 @@ window._registerProject({
 
             const el = {
                 programList:      root.querySelector('.curric-program-list'),
+                deptList:         root.querySelector('.curric-dept-list'),
                 prefixToggleList: root.querySelector('.curric-prefix-toggle-list'),
                 table:            root.querySelector('.curric-table'),
             };
@@ -202,7 +205,7 @@ window._registerProject({
                 // are, they divide whatever width remains after the fixed
                 // course/count columns, so the whole table always fits the
                 // panel instead of needing horizontal scroll.
-                return `240px 54px repeat(${n}, minmax(0, 1fr))`;
+                return `240px 58px 52px 54px repeat(${n}, minmax(0, 1fr))`;
             }
 
             function prefixColor(prefix) {
@@ -233,8 +236,18 @@ window._registerProject({
                     <label class="curric-check-row" data-program-row="${esc(p.code)}">
                         <input type="checkbox" data-program="${esc(p.code)}" ${p.visible ? 'checked' : ''}>
                         ${deptTagHTML(p)}
-                        <span class="curric-program-name" contenteditable="true" spellcheck="false" data-program-name="${esc(p.code)}">${esc(p.name)}</span>
+                        ${tagHTML(p.degree || '', state.degreeColors[p.degree] || FALLBACK_PREFIX_COLOR, p.degree)}
+                        <span class="curric-program-name" contenteditable="true" spellcheck="false" data-program-name="${esc(p.code)}">${esc(p.name.replace(/^B\.(?:[AS]\.)?\s+/, ''))}</span>
                     </label>`).join('');
+
+                el.deptList.innerHTML = Object.entries(state.departments)
+                    .filter(([code]) => state.programs.some(p => p.house === code))
+                    .map(([code, d]) => `
+                    <div class="curric-check-row">
+                        ${tagHTML(d.abbr || code, d.color || FALLBACK_PREFIX_COLOR, d.name)}
+                        <span>${esc(d.name || code)}</span>
+                        <button class="curric-clear-btn" data-dept="${esc(code)}">Add</button>
+                    </div>`).join('');
 
                 el.prefixToggleList.innerHTML = state.allPrefixes.map(pfx => `
                     <label class="curric-check-row">
@@ -273,9 +286,9 @@ window._registerProject({
                             ${prefixPillsHTML(course)}
                             <span class="curric-course-number">${esc(course.number)}</span>
                             <span class="curric-course-name">${esc(course.title)}</span>
-                            ${course.genEdTag ? genEdTagHTML(course.genEdTag) : ''}
-                            ${instructorTagHTML(course.code)}
                         </div>
+                        <div class="curric-cell">${course.genEdTag ? genEdTagHTML(course.genEdTag) : ''}</div>
+                        <div class="curric-cell">${instructorTagHTML(course.code)}</div>
                         ${countCellHTML(course)}
                         ${cells}
                     </div>`;
@@ -292,6 +305,8 @@ window._registerProject({
                 el.table.innerHTML = `
                     <div class="curric-header-row" style="grid-template-columns:${gridTemplate()}">
                         <div class="curric-col-course-header">Course</div>
+                        <div class="curric-col-count-header">Gen Ed</div>
+                        <div class="curric-col-count-header">Instr.</div>
                         <div class="curric-col-count-header" title="Number of shown programs requiring this course">#</div>
                         ${progs.map(p => `
                             <div class="curric-col-program-header" data-col-program="${esc(p.code)}">
@@ -321,7 +336,7 @@ window._registerProject({
                 const code = e.target.dataset.programName;
                 if (!code) return;
                 const p = state.programs.find(p => p.code === code);
-                if (p) p.name = e.target.textContent.trim() || p.name;
+                if (p) p.name = e.target.textContent.trim() ? (p.name.match(/^B\.(?:[AS]\.)?\s+/) || [''])[0] + e.target.textContent.trim() : p.name;
                 renderTable();
             }, true);
 
@@ -334,19 +349,15 @@ window._registerProject({
             });
 
             root.querySelector('.curric-controls').addEventListener('click', e => {
-                const btn = e.target.closest('[data-clear], [data-all]');
+                const btn = e.target.closest('[data-clear], [data-all], [data-dept], [data-degree-add], [data-degree-clear]');
                 if (!btn) return;
+                const { dept, degreeAdd, degreeClear } = btn.dataset;
+                if (dept) state.programs.forEach(p => { if (p.house === dept) p.visible = true; });
+                if (degreeAdd || degreeClear) state.programs.forEach(p => { if (p.degree === (degreeAdd || degreeClear)) p.visible = !!degreeAdd; });
                 const all = 'all' in btn.dataset;
                 const which = all ? btn.dataset.all : btn.dataset.clear;
                 if (which === 'programs') state.programs.forEach(p => p.visible = all);
                 if (which === 'prefixes') state.visiblePrefixes = new Set(all ? state.allPrefixes : []);
-                render();
-            });
-
-            root.querySelector('[data-action="reset-order"]').addEventListener('click', () => {
-                const fresh = buildWorkingState(clone(rawData));
-                const visibility = Object.fromEntries(state.programs.map(p => [p.code, p.visible]));
-                state.programs = fresh.programs.map(p => ({ ...p, visible: !!visibility[p.code] }));
                 render();
             });
 

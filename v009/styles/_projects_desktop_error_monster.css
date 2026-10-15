@@ -1,0 +1,27 @@
+/* v009/site/styles/_projects_desktop_error_monster.css */
+
+.em-root {
+    font-family: var(--sans);
+    font-size: calc(11px * var(--mod-font-size));
+    color: var(--ink-soft);
+    line-height: 1.55;
+    max-width: 760px;
+}
+.em-root p, .em-root ul { margin: 0 0 10px; }
+.em-root ul { list-style: disc; padding-left: 22px; }
+.em-root li { margin-bottom: 4px; }
+.em-cover { display: block; width: 100%; margin-bottom: 12px; border-radius: var(--border-radius2); }
+.em-shots { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.em-shots img { width: 100%; border-radius: var(--border-radius2); border: 1px solid var(--panel-bd); }
+.em-play {
+    display: inline-block;
+    margin-bottom: 14px;
+    padding: 7px 14px;
+    border: 1.5px solid var(--color-accent-projects);
+    border-radius: var(--border-radius2);
+    background: var(--bg-light);
+    color: var(--ink);
+    font-weight: bold;
+    text-decoration: none;
+}
+.em-play:hover { border-color: var(--ink); background: var(--bg2); }
