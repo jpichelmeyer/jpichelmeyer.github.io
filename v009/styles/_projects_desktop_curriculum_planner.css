@@ -21,9 +21,19 @@
     padding: 10px 14px;
     min-width: 170px;
     flex: 1 1 170px;
-    max-height: 220px;
+    display: flex;
+    flex-direction: column;
+}
+.curric-program-list, .curric-dept-list, .curric-prefix-toggle-list {
+    max-height: 340px;
     overflow-y: auto;
 }
+.curric-prefix-group { flex: 0 0 auto; min-width: 0; }
+.curric-prefix-group .curric-control-title-row { flex-direction: column; align-items: flex-start; }
+.curric-dept-group { flex: 0 1 230px; }
+.curric-dept-list .curric-clear-btn { margin-left: auto; }
+.curric-degree-row { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 6px; }
+.curric-degree-row .curric-btn-pair { align-items: center; }
 .curric-control-title-row {
     display: flex;
     align-items: center;

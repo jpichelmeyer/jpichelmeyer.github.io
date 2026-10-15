@@ -19,6 +19,9 @@
 @import './_projects_responsive_clock.css';
 @import './_projects_desktop_cellular_automata.css';
 @import './_projects_desktop_curriculum_planner.css';
+@import './_projects_desktop_language_visualizer.css';
+@import './_projects_desktop_error_monster.css';
+@import './_projects_desktop_prerequisite_visualizer.css';
 @import './_advancement.css';
 @import './_plab_flyer.css';
 @import './_robotics.css';

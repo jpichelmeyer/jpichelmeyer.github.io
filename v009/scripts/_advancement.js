@@ -70,8 +70,15 @@ const PLAB_PROJECTS = [
         name: 'Godot Game to Steam',
         desc: 'Engineering core mechanics, optimize performance, handle production pipelines in Godot to take an indie game project from prototype to commercial publication.',
         outcomes: ['itch.io playtesting and public feedback cycle', 'Official Steam storefront release', 'Published commercial / indie software project'],
+        news: [
+            { date: '2026 10 15', html: 'Initial alpha proof of concept uploaded to <a href="https://jpichelmeyer.itch.io/error-monster" target="_blank" rel="noopener">itch.io</a>' },
+        ],
     },
 ];
+
+// Cards are ordered by most recent `news` date (YYYY MM DD), then by name.
+const latestNews = p => (p.news || []).map(n => n.date).sort().pop() || '';
+PLAB_PROJECTS.sort((a, b) => latestNews(b).localeCompare(latestNews(a)) || a.name.localeCompare(b.name));
 
 // The recruiting-flyer generator (_plab_flyer.js) reads this same list at
 // click time, so editing a project here updates the page AND the next
@@ -105,7 +112,7 @@ function renderScholarship() {
     document.getElementById('adv-tab-scholarship').innerHTML = `
         <div class="inst-plab-head">
             <img class="inst-plab-logo" src="./svgs/plab.svg" alt="PLAB logo" />
-            <div class="inst-plab-name">Pichelmeyer's Lab for<br>Autonomy and Bioemulation</div>
+            <div class="inst-plab-name"><span class="inst-plab-tag" style="background:#55d46e">Pichelmeyer</span>'s <span class="inst-plab-tag" style="background:#dea357">Lab</span> for<br><span class="inst-plab-tag" style="background:#de575e">Autonomy</span> and <span class="inst-plab-tag" style="background:#1ac0ff">Bioemulation</span></div>
         </div>
         <div id="plab-actions"></div>
         <div class="inst-plab-grid">
@@ -121,6 +128,8 @@ function renderScholarship() {
                     <p class="inst-plab-card-desc">${esc(p.desc)}</p>
                     <div class="inst-plab-card-outcomes-head">Target outcomes</div>
                     <ul class="inst-plab-card-outcomes">${p.outcomes.map(o => `<li>${esc(o)}</li>`).join('')}</ul>
+                    ${p.news ? `<div class="inst-plab-card-outcomes-head inst-plab-news-head">Progress / News</div>
+                    <ul class="inst-plab-card-outcomes">${p.news.map(n => `<li><span class="curric-prefix-pill inst-plab-date">${esc(n.date)}</span> ${n.html}</li>`).join('')}</ul>` : ''}
                 </div>`).join('')}
         </div>
         <div id="plab-footer"></div>`;

@@ -195,7 +195,7 @@ function buildProjectsPanel() {
             page.classList.add('active');
         });
 
-        const projectsForLayout = registry.filter(p => p.layout === layout.id);
+        const projectsForLayout = registry.filter(p => p.layout === layout.id).sort((a, b) => a.label.localeCompare(b.label));
         if (projectsForLayout.length === 0) {
             page.innerHTML = `<div class="projects-empty">No ${layout.label.toLowerCase()} projects yet.</div>`;
             return;

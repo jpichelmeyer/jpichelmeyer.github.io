@@ -63,6 +63,9 @@
     line-height: 1.15;
     color: var(--ink);
 }
+.inst-plab-tag { padding: 0 6px; border-radius: 6px; }
+.inst-plab-news-head { margin-top: 10px; }
+.inst-plab-date { background: #f4a7a7; margin-right: 4px; }
 .inst-plab-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
