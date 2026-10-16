@@ -1,6 +1,4 @@
 // v009/site/scripts/_projects_mobile_palette.js
-// Demo project: click a swatch, see its hex code. Confined entirely to
-// the container handed to init().
 
 import { qsa } from './__utils.js';
 

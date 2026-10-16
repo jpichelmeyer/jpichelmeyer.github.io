@@ -1,21 +1,9 @@
-/* 
-    courses/lesson-shared.css
-    Shared styling for lesson .html files (each one loads in its own
-    iframe, so it can't see styles/_teaching.css -- link this file from
-    any lesson's <head> instead:
-        <link rel="stylesheet" href="./lesson-shared.css">
- */
+/* courses/lesson-shared.css */
 :root {
     --os-icon-size: 3.5em;
     --os-icon-bg: #ff0000;
     --os-icon-fg: #1f1f1f;
 }
-
-/*
- ---------------------------------------------------------
-    Code style
- ---------------------------------------------------------
-*/
 
 .code-lesson-il {
     font-family: 'IBM Plex Mono', Consolas, monospace;
@@ -29,10 +17,7 @@
 .code-lesson-bl {
     display: block;
     font-family: 'IBM Plex Mono', Consolas, monospace;
-    /* background:  #eef0f2; */
-    /* background: #dbd8ce; */
     background: #1f2124;
-    /* color: #1f1f1f; */
     color: #f1f1f1;
     padding: 12px 16px;
     border-radius: 6px;
@@ -62,7 +47,7 @@
     padding: 6px 14px;
     font-family: 'IBM Plex Mono', Consolas, monospace;
     font-size: 0.82em;
-    background: #2a2f38; /* fallback */
+    background: #2a2f38;
     color: #fff;
 }
 .code-block-filename {
@@ -75,7 +60,6 @@
     border-radius: 4px;
 }
 
-/* Per-language presets */
 .code-block[data-lang="gdscript"] .code-block-header { background: #315d94; }
 .code-block[data-lang="gdscript"] .code-block-lang   { color: #fff; }
 
@@ -88,31 +72,18 @@
 .code-block[data-lang="python"] .code-block-header { background: #f0dcae; color: #4a3a12; }
 .code-block[data-lang="python"] .code-block-lang   { color: #4a3a12; }
 
-/* MicroPython matches the MicroPython tag on the course listing
-   (.tag_micropython in _teaching.css: #ad4949 background, #ffe49e text),
-   so the header, the filename and the language label all use those two
-   colors. The code area below uses a pale tint of the same #ffe49e; that
-   background and the token colors live in _lesson_highlight.js (HL_CSS). */
 .code-block[data-lang="micropython"] .code-block-header { background: #ad4949; color: #ffe49e; }
 .code-block[data-lang="micropython"] .code-block-lang   { color: #ffe49e; }
-/* Pi terminal and config-file blocks (Unit 2 lessons) */
 .code-block[data-lang="shell"] .code-block-header { background: #2f3b34; color: #cfe8cf; }
 .code-block[data-lang="shell"] .code-block-lang   { color: #7ee0a0; }
 .code-block[data-lang="conf"]  .code-block-header { background: #3a3426; color: #f1e3c2; }
 .code-block[data-lang="conf"]  .code-block-lang   { color: #ffb86b; }
 
 
-/* The editable code box gets its own, deliberately different, header
-   color: gold marks "read this example," dark grey marks "type here." */
 .code-block[data-lang="python-editable"] .code-block-header { background: #333333; color: #fff; }
 .code-block[data-lang="python-editable"] .code-block-lang   { color: #fff; }
 
 
-/*
- ---------------------------------------------------------
-    Diagram (inline SVG) style
- ---------------------------------------------------------
-*/
 .diagram {
     margin: 18px 0 28px;
     padding: 14px;
@@ -127,12 +98,6 @@
 .diagram-row .diagram { flex: 1 1 220px; margin: 18px 0; }
 
 
-/*
- ---------------------------------------------------------
-    Pyodide terminal (window._mountPyodideTerminal)
-    and the mini Python editor (python_editor.js)
- ---------------------------------------------------------
-*/
 .pyterm-root, .pyeditor-root {
     display: flex;
     flex-direction: column;
@@ -191,8 +156,6 @@
     tab-size: 4;
 }
 
-/* Bottom row: a narrow, vertically-stacked button column to the left
-   of a labeled output panel. */
 .pyeditor-bottom {
     display: flex;
     align-items: stretch;
@@ -236,11 +199,6 @@
 .pyeditor-verdict.fail { color: #c0392b; }
 
 
-/*
- ---------------------------------------------------------
-    Godot embed (matches .godot-embed in _projects.css)
- ---------------------------------------------------------
-*/
 .godot-embed-wrap { margin: 16px 0 28px; }
 
 .godot-embed {
@@ -286,11 +244,6 @@
 .godot-embed-btn:hover { background: #e6f0f9; }
 
 
-/*
- ---------------------------------------------------------
-    Screenshot placeholder style
- ---------------------------------------------------------
-*/
 .screenshot {
     margin: 16px 0 28px;
     border: 2px dashed #a9c6dd;
@@ -333,18 +286,12 @@
 
 
 
-/*
- ---------------------------------------------------------
-    OS icons
- ---------------------------------------------------------
-*/
 .os-icon {
     display: inline-block;
     vertical-align: middle;
     width: var(--os-icon-size);
     height: var(--os-icon-size);
     border-radius: 50%;
-    /*background-color: var(--os-icon-bg);*/
     position: relative;
     top: -0.1em;
 }
@@ -363,13 +310,6 @@
 .os-icon-win::before   { mask-image: url('../svgs/os_win.svg'); }
 
 
-/*
- ---------------------------------------------------------
-    Icon glossary (a strip of node/class icons with labels --
-    e.g. showing each FSM or behavior tree node type once, so
-    it's recognizable later in the actual Godot editor)
- ---------------------------------------------------------
-*/
 .icon-glossary {
     display: flex;
     flex-wrap: wrap;
@@ -410,11 +350,6 @@
 }
 
 
-/*
- ---------------------------------------------------------
-    Math lesson boxes (definitions/theorems, worked examples)
- ---------------------------------------------------------
-*/
 .math-box {
     margin: 16px 0 24px;
     padding: 14px 18px;

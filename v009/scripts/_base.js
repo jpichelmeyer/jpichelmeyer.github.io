@@ -1,37 +1,14 @@
 // v009/site/scripts/_base.js
-// Panel management, nav, click-outside, hint.
-// Depends only on __utils.js (via merged.js ordering).
 
-/* ====================================================================
-    
-        Imports
-
-   ====================================================================
-*/
 import {esc, el, qsa, clamp} from './__utils.js'
 
-/* ====================================================================
-    
-        Properties
-
-   ====================================================================
-*/
 
 
-
-/* Panel management */
 let activePanel = null;
 
 
 
 
-
-/* ====================================================================
-    
-        Functions
-
-   ====================================================================
-*/
 
 function openPanel(id) {
     closeAll();
@@ -59,17 +36,12 @@ function closeAll() {
     qsa('.nav-btn').forEach(b => b.classList.remove('active'));
     activePanel = null;
 
-    // Tear down any still-running project embed (e.g. a Blazor/Godot
-    // iframe) so closing the panel actually stops it, not just hides it.
     if (typeof window._closeActiveProject === 'function') window._closeActiveProject();
 
-    // The Robotics Workshop is its own panel (opened from the toolbox,
-    // not the nav bar), so opening any nav panel closes it too.
     if (typeof window._closeRoboWorkshop === 'function') window._closeRoboWorkshop();
 }
 window._closeAllPanels = closeAll;
 
-// MAKING PANELS DRAG-ABLE
 function makeDraggable(panel) {
     const titlebar = panel.querySelector('.panel-titlebar');
     let x = 0, y = 0, mouseX = 0, mouseY = 0;
@@ -94,7 +66,6 @@ function makeDraggable(panel) {
     };
 }
 
-// Generic panel subpage tabs (About / Courses / Research titlebar tabs)
 function initPanelTabs() {
     qsa('.panel-tabs').forEach(group => {
         const panel = group.closest('.panel');
@@ -111,15 +82,7 @@ function initPanelTabs() {
     });
 }
 
-/* ====================================================================
-    
-        Execution
 
-   ====================================================================
-*/
-
-
-// Nav buttons
 qsa('.nav-btn').forEach(btn => {
     
     btn.addEventListener('click', () => {
@@ -130,7 +93,6 @@ qsa('.nav-btn').forEach(btn => {
         
         openPanel(id);
         
-        //if (btn.dataset.panel === 'courses') window._renderCourses();
         el('panel-' + id).style.zIndex = "1000";
     
     
@@ -140,17 +102,14 @@ qsa('.nav-btn').forEach(btn => {
 
 });
 
-// Panel close buttons
 qsa('.panel-close').forEach(btn => {
     btn.addEventListener('click', closeAll);
 });
 
-// Click outside → close
 document.addEventListener('click', e => {
-    if (!e.target.isConnected) return;   // ← add this line
+    if (!e.target.isConnected) return;
     
     
-    // If the click is NOT on a panel, a nav button, or the navbar itself...
     const isUI = e.target.closest('.panel') || e.target.closest('.nav-btn') || e.target.closest('#navbar');
     
     if (!isUI && activePanel) {
@@ -158,20 +117,9 @@ document.addEventListener('click', e => {
     }
 });
 
-// Panel dragging disabled (no real upside) -- see makeDraggable() above,
-// left in place in case we want it back.
-// qsa('.panel').forEach(makeDraggable);
-
-// Initialize panel subpage tabs
 initPanelTabs();
 
 
-/* ====================================================================
-    
-        Scratch / Testing
-
-   ====================================================================
-*/
 
 
 
@@ -181,8 +129,3 @@ initPanelTabs();
 
 
 
-
-/* ====================================================================
-   ====================================================================
-   ====================================================================
-*/

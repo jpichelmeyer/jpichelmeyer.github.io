@@ -1,40 +1,4 @@
 // v009/site/scripts/_projects.js
-//
-// Plug-and-play orchestrator for the Projects panel.
-//
-// The panel has three static subpages — Desktop, Mobile, Responsive —
-// signaling what style of interaction each listed project expects.
-// Each project lives in its own file pair:
-//
-//     scripts/_projects_[layout]_[name].js
-//     styles/_projects_[layout]_[name].css   (optional)
-//
-// where [layout] is one of 'desktop' | 'mobile' | 'responsive' and
-// [name] is unique to the project. A project file registers itself by
-// calling window._registerProject(...) at module load time. This file
-// collects those registrations and, once every module has finished
-// loading, auto-builds the three subpages inside #panel-projects —
-// each one listing its projects vertically stacked (thumbnail, title,
-// description), in the style of the Research panel's listings. Clicking
-// a row expands it in place and lazily mounts the project's own UI —
-// wired up independently, so this file has no dependency on _base.js.
-//
-// To add a new project:
-//   1. Create scripts/_projects_[layout]_[name].js and (optionally)
-//      styles/_projects_[layout]_[name].css
-//   2. Call window._registerProject({ id, label, layout, thumb, desc, init })
-//      in that JS file. `thumb` is an SVG filename under ./svgs/ (fall
-//      back to 'dull.svg' if you don't have a custom one yet).
-//   3. Import both files from merged.js / merged.css
-// That's it — no other file needs to change.
-//
-// A registered project's init(container) is called every time its row
-// is opened (fresh each time — the container is emptied when the row
-// closes) and is handed the empty <div> it should render into. Only
-// one project is ever open at a time; opening one closes whatever was
-// open before it. If init() needs to stop something running (a timer,
-// a loop, etc.) when its row closes, return a cleanup function from
-// init() and it'll be called automatically.
 
 import { el } from './__utils.js';
 
@@ -50,10 +14,6 @@ const LAYOUTS = [
     { id: 'responsive', label: 'Responsive' },
 ];
 
-// Shared helper for Godot Web-export projects: drops a sandboxed iframe
-// pointed at that project's exported index.html into `container`. Every
-// Godot project's functionality stays confined inside that iframe —
-// it can't reach or be reached by the rest of the page.
 window._mountGodotProject = function (container, path) {
     container.innerHTML = `
         <div class="godot-embed">
@@ -63,44 +23,14 @@ window._mountGodotProject = function (container, path) {
         </div>`;
 };
 
-// C# projects follow the same pattern: a Blazor WebAssembly app's
-// `dotnet publish` output is just a static folder with an index.html,
-// exactly like a Godot Web export, so the exact same iframe embed
-// works unchanged -- aliased under its own name here for clarity when
-// registering a C# project.
 window._mountBlazorProject = window._mountGodotProject;
 
-// Shared helper for standard-library-only Python scripts: boots Pyodide
-// (lazily, once per page) and runs the script at `scriptPath` inside a
-// small terminal-styled UI dropped into `container`. The script's
-// stdout/stderr are piped to the on-screen terminal, and any input()
-// prompts are answered by typing into that same terminal.
-//
-// To stay runnable both as a real terminal script (`python3 foo.py`)
-// AND inside this browser terminal, a script should call the async
-// `ainput(prompt)` instead of the builtin `input()`, and clear the
-// screen by printing the ANSI sequence '\x1b[2J\x1b[H' rather than
-// shelling out to `cls`/`clear`. Both names are pre-defined as globals
-// before the script runs — see the fallback shim at the top of
-// python/cellular_automata.py for the two-line pattern that keeps a
-// script portable between the two environments. To point this helper
-// at a different script, just call it with a different path — nothing
-// else about it needs to change.
-// window._mountPyodideTerminal now lives in scripts/pyodide_terminal.js
-// (loaded just before this file in merged.js), so lesson pages can use
-// the exact same implementation directly via a plain <script> tag,
-// without pulling in the rest of this file. Nothing here changed
-// except where the code lives; see that file for the implementation.
-
-// Only one project is ever "live" at a time. Opening a row closes
-// whichever other row was open (calling its cleanup, if it returned
-// one, and clearing its mounted content so it starts fresh next time).
 let activeRow = null;
 
 function closeRow(row) {
     if (!row.classList.contains('open')) return;
     row.classList.remove('open');
-    if (row._cleanup) { try { row._cleanup(); } catch (e) { /* no-op */ } }
+    if (row._cleanup) { try { row._cleanup(); } catch (e) { } }
     row._cleanup = null;
     row._mounted = false;
     row.querySelector('.proj-expand').innerHTML = '';
@@ -115,18 +45,10 @@ function openRow(row, project) {
     activeRow = row;
 }
 
-// Called from _base.js when the Projects panel itself is closed (not just
-// a row inside it) -- without this, a heavy embed (Blazor/Godot iframe)
-// left open keeps running in the background after the whole panel closes.
 window._closeActiveProject = function () {
     if (activeRow) closeRow(activeRow);
 };
 
-// Desktop projects only make sense with room to work in; mobile ones
-// only make sense on a narrow/touch-sized screen; responsive ones are
-// fair game at any width. A row outside its layout's range is shown
-// but not clickable, and auto-collapses if the window is resized out
-// from under it while open.
 const LAYOUT_FITS = {
     desktop:    w => w >= 900,
     mobile:     w => w <= 400,
@@ -208,9 +130,6 @@ function buildProjectsPanel() {
     });
 }
 
-// Deferred so it runs after every _projects_[layout]_[name].js module
-// has finished evaluating (and therefore registering), regardless of
-// import order.
 setTimeout(() => {
     buildProjectsPanel();
     updateRowAvailability();

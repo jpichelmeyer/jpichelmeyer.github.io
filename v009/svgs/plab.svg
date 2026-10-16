@@ -44,7 +44,6 @@
      id="desc">A four-part circular SSRD mark with rounded, inward-cut shapes and white letterforms.</desc>
   <defs
      id="defs471">
-    <!-- Each mask leaves the colored circular form intact except for the letter. -->
     <mask
        id="letterP"
        maskUnits="userSpaceOnUse"
@@ -166,7 +165,6 @@
          id="text458-5">A</text>
     </mask>
   </defs>
-  <!-- Top-left: P -->
   <path
      d="M 393.60191,193.8958 C 478.12422,170.37094 536.08576,120.3877 559.94708,54.730586 642.96318,81.493716 692.83767,136.96153 692.83767,223.96153 680.97396,383.28695 471.46769,382.11133 393.60191,193.8958 Z"
      fill="#F3262F"
@@ -175,7 +173,6 @@
      style="fill:#de575e;fill-opacity:1"
      sodipodi:nodetypes="cccc"
      transform="matrix(0.80265131,-2.2439269e-4,-0.01032841,0.80726878,8.077547,104.13239)" />
-  <!-- Top-right: L -->
   <path
      d="m 412.10183,239.35397 c 15.56672,-93.01847 63.64695,-130.57068 155.64695,-130.57068 87,0 102.92499,47.81626 102.92499,134.81626 0,74 -90.23946,124.75689 -152.23946,140.75689 C 502.15658,333.70154 488.574,263.73917 412.10183,239.35397 Z"
      fill="#F3262F"
@@ -184,7 +181,6 @@
      style="fill:#dea357;fill-opacity:1"
      sodipodi:nodetypes="csscc"
      transform="matrix(0.81672119,-0.00712184,0.02716797,0.83274745,-112.46937,-72.353058)" />
-  <!-- Bottom-left: A -->
   <path
      d="m 92,562 c 0,-99 66,-160 158,-160 87,0 139,53 139,140 0,74 -41,128 -103,144 C 118,695.9213 98.064293,603.35265 92,562 Z"
      fill="#73cf43"
@@ -193,7 +189,6 @@
      transform="rotate(-1.2372102,-12427.427,4188.3657)"
      sodipodi:nodetypes="csscc"
      style="fill:#55d46e;fill-opacity:1" />
-  <!-- Bottom-right: B -->
   <path
      d="M 405.79237,523.80178 C 487.22609,499.90276 503.55418,421.91081 525.2564,375.74313 577.0422,450.15165 634.20911,489.2043 713.69581,491.62266 671.5789,785.8782 431.18131,690.34767 405.79237,523.80178 Z"
      fill="#fff21a"
@@ -203,7 +198,6 @@
      sodipodi:nodetypes="cccc"
      style="fill:#1ac0ff;fill-opacity:1"
      inkscape:label="path479" />
-  <!-- Small central circular separation, kept white to preserve the four-part mark. -->
   <metadata
      id="metadata331">
     <rdf:RDF>

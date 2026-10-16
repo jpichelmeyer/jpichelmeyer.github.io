@@ -1,25 +1,11 @@
 // v009/site/scripts/_animation.js
 
-/* ====================================================================
-        Imports
-   ====================================================================
-*/
 import {esc, el, qsa, clamp} from './__utils.js'
-
-/* ====================================================================
-        Properties
-   ====================================================================
-*/
 
 const COLORS = ['#1e9ab0','#e05340','#f0a830','#2a5db0','#6bb86e'];
 const MAX_PARTS = 12;
 let parts = [];
 let svg, animFrame;
-
-/* ====================================================================
-        Functions
-   ====================================================================
-*/
 
 function getW() { return svg ? svg.clientWidth  : 260; }
 function getH() { return svg ? svg.clientHeight : 300; }
@@ -44,7 +30,6 @@ function init() {
     for (let i = 0; i < MAX_PARTS; i++) {
         const p = resetParticle({});
         p.life = Math.random() * p.maxLife;
-        // sync opacity to staggered life position
         const fadeDuration = 60;
         if (p.life < fadeDuration) {
             p.opacity = p.life / fadeDuration;
@@ -113,7 +98,6 @@ function render() {
         circle.setAttribute('cy', p.y);
         const clampedR = Math.max(currentR, 1);
         circle.setAttribute('r', clampedR);
-        //circle.setAttribute('r', currentR);
         circle.setAttribute('opacity', p.opacity);
     });
 }
@@ -132,7 +116,6 @@ function buildSVG() {
     svg.id = 'ink-svg';
     svg.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;';
 
-    // The filter lives here, inline in the SVG — guaranteed to resolve
     svg.innerHTML = `
         <defs>
             <filter id="ink-filter" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
@@ -154,23 +137,13 @@ function buildSVG() {
     portrait.appendChild(svg);
 }
 
-/* ====================================================================
-        Execution
-   ====================================================================
-*/
-
 const portrait = el('about-portrait');
 if (portrait) {
     init();
     buildSVG();
     loop();
     window.addEventListener('resize', () => {
-        // SVG scales itself — just re-init particle bounds on resize
         init();
     });
 }
 
-/* ====================================================================
-   ====================================================================
-   ====================================================================
-*/

@@ -1,16 +1,8 @@
 // v009/site/scripts/_teaching.js
 
-// Course renderer.
-// Loads data from ./courses/manifest.json and ./courses/${key}.json.
-// Depends only on __utils.js (via merged.js ordering).
-
-// ===========  Imports  ==============================================
-
 import { esc, el, qsa } from './__utils.js';
 import { highlightLessonDoc } from './_lesson_highlight.js';
 import { addDiagramZoom } from './_lesson_diagram_zoom.js';
-
-// ===========  Declarations  =========================================
 
 let MANIFEST  = null;
 let COURSE_DB = {};
@@ -25,10 +17,7 @@ function setCoursePanelWide(on = true) {
 }
 
 
-// ===========  Data layer  ===========================================
-
 async function loadAll() {
-    // Always reload fresh — no stale cache for students.
     MANIFEST  = null;
     COURSE_DB = {};
     SHARED    = null;
@@ -51,24 +40,13 @@ async function loadAll() {
 }
 
 
-// ===========  Schedule rows builder  ================================
-
-// A trs row is now a dict of { topicName: lessonFile }, not the old
-// [topicString, readings[]] pair -- so a single week can carry more
-// than one topic (comma-separated in the Topic cell), each one
-// clickable through to its lesson if it has a non-empty file. The
-// Reading column is gone entirely; reading links no longer come from
-// here (see the note in the delivery message about that data).
-
-// Bloom's taxonomy pyramid shown beside each course's learning goals.
-// Level colors match the .lg-blooms-N classes in _teaching.css.
-const BLOOMS_LEVELS = ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create']; // 1..6
+const BLOOMS_LEVELS = ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create'];
 const BLOOMS_PYRAMID_SVG = (() => {
     const W = 220, H = 204, band = H / 6;
-    const halfAt = y => 32 + (W / 2 - 32) * (y / H); // half-width at depth y (flat top so 'Create' fits)
+    const halfAt = y => 32 + (W / 2 - 32) * (y / H);
     const bands = BLOOMS_LEVELS.map((name, i) => {
         const level = i + 1;
-        const y0 = H - (i + 1) * band, y1 = H - i * band;  // level 1 at the bottom
+        const y0 = H - (i + 1) * band, y1 = H - i * band;
         const a = halfAt(y0), b = halfAt(y1), cx = W / 2;
         return `<polygon class="lg-blooms-${level}" points="${cx - a},${y0} ${cx + a},${y0} ${cx + b},${y1} ${cx - b},${y1}" stroke="#f7f7f7" stroke-width="2"/>
             <text x="${cx}" y="${(y0 + y1) / 2 + 4}" text-anchor="middle">${name}</text>`;
@@ -79,14 +57,6 @@ const BLOOMS_PYRAMID_SVG = (() => {
 function buildScheduleRows(c) {
     let weekNum = 0, html = '';
 
-    // Shared by both the single- and multi-topic paths below: pulls an
-    // inline "Exam N" out of a topic string and tag-highlights it,
-    // same as before.
-    // Tag types, checked in order: a qualified exam ("Oral Exam 1",
-    // "Agent Exam 3") -> soft gold; a plain "Exam N" -> red; a lab
-    // practical ("Lab Practical 2") -> blue. Plain "Lab 4" entries are
-    // ordinary lesson topics (so they can be linked), not assessments,
-    // and deliberately get no tag.
     const TOPIC_TAGS = [
         [/\s*,?\s*\b((?!final\b|midterm\b)[a-z]+\s+Exam(?:\s*\d+)?)\s*,?\s*/i, 'exam-alt'],
         [/\s*,?\s*(Exam\s*\d+)\s*,?\s*/i, 'exam'],
@@ -117,7 +87,7 @@ function buildScheduleRows(c) {
         for (let i = 0; i < rows.length; i++) {
             const tr = rows[i];
             weekNum++;
-            const topics = Object.entries(tr); // [[topicName, lessonFile], ...]
+            const topics = Object.entries(tr);
             const isFirst = i === 0;
             const isLast  = i === rows.length - 1;
 
@@ -125,10 +95,6 @@ function buildScheduleRows(c) {
             let topicCell;
 
             if (topics.length === 1) {
-                // Single-topic week: full existing behavior preserved
-                // (pipe annotation, exam tag, full-row special-bar
-                // treatment for presentations/breaks/labs), just minus
-                // the reading column.
                 const [topicName, lessonFile] = topics[0];
 
                 const pipeIdx    = topicName.indexOf(' | ');
@@ -155,9 +121,6 @@ function buildScheduleRows(c) {
                     : `<td>${topicHtml(mainTopic, lessonFile)}${annotationSpan}</td>`;
 
             } else {
-                // Multiple topics sharing one week -- comma-separated,
-                // each individually clickable through to its own
-                // lesson (if it has one).
                 const joined = topics.map(([name, file]) => topicHtml(name, file)).join(', ');
                 topicCell = `<td>${joined}</td>`;
             }
@@ -180,11 +143,6 @@ function buildScheduleRows(c) {
     return html;
 }
 
-// Walks the same c.schedule/trs structure to build the Lessons tab's
-// module list -- one module per week that has at least one topic with
-// a lesson file, labeled "Week N" using the exact same weekNum this
-// function and buildScheduleRows above both count in lockstep, so a
-// schedule topic's week always matches its Lessons tab module.
 function deriveLessonModules(c) {
     const modules = [];
     let weekNum = 0;
@@ -201,10 +159,6 @@ function deriveLessonModules(c) {
 }
 
 
-// ===========  State 1 — Teaching listing (ported from v001)  ========
-
-// Courses that have a full detail page (schedule/assessments/etc), keyed
-// by the same key used in MANIFEST / COURSE_DB. These get a course-dot.
 const DETAIL_PAGE_COURSES = {
     'CSC 1100 : Introduction to Computing':                         'csc1100',
     'CSC 1810 : Principles of Computer Science I':                  'csc1810',
@@ -216,9 +170,6 @@ const DETAIL_PAGE_COURSES = {
     'MTH 1220 : Calculus II':                                       'mth1220',
 };
 
-// Builds the title+tags markup for one taught_course entry. The dot
-// column is reserved for every course (so titles all line up), but the
-// clickable course-dot itself only appears for courses with a detail page.
 function buildTaughtCourseHead(title, tagsHtml) {
     const detailKey = DETAIL_PAGE_COURSES[title];
     const c = detailKey ? COURSE_DB[detailKey] : null;
@@ -241,13 +192,10 @@ function renderTeachingListing(body, mode = 'all') {
     
     setCoursePanelWide(false);
     
-    // 'active' mode shows only the courses with a full detail page
-    // (DETAIL_PAGE_COURSES above); 'all' shows everything, unfiltered.
     const filterActive = mode === 'active'
         ? list => list.filter(([title]) => DETAIL_PAGE_COURSES[title])
         : list => list;
     
-    // ── Instructor of record ──
     const instructorCourses = [
         ['CS 7280 : Network Science',
             tag('tag_gt', 'Georgia Institute of Technology') + tag('tag_python', 'Python') + tag('tag_graduate', 'Graduate'),
@@ -350,7 +298,6 @@ function renderTeachingListing(body, mode = 'all') {
             `Topology is the mathematical study of shapes and space that considers questions such as, "What objects that visually seem quite different share the same properties?" One of the major fields of mathematics, topology possesses wide-ranging applications and beautiful theorems with far-reaching consequences. This course will introduce you and your classmates to point-set topology as you delve into bizarre notions of "space" and develop skills with rigorous, proof-based mathematics. You'll begin by tackling the core concepts of sets, topologies, and continuous mappings before moving on to topological invariants such as compactness, connectedness, and the separation axioms. With these tools in hand, you will explore how to deform shapes and spaces without altering their fundamental properties. This knowledge allows you to see why it took 100 years for mathematicians to prove Poincaré's 1904 conjecture about the nature of a sphere. Finally, you'll survey different applications of topology, such as how the study of knots influenced our understanding of proteins, or how the study of manifolds led scientists to a deeper understanding of the topological shape of the universe.`],
     ];
     
-    // ── Teaching assistant ──
     const taCourses = [
         ['CS 7280 : Network Science',
             tag('tag_gt', 'Georgia Institute of Technology') + tag('tag_python', 'Python'),
@@ -366,26 +313,6 @@ function renderTeachingListing(body, mode = 'all') {
             <div class="taught_course_description">${esc(desc)}</div>
         </div>`).join('');
     
-    /*
-    const taHtml = filterActive(taCourses).map(([title, tagsHtml, desc]) => `
-        <div class="taught_course">
-            ${buildTaughtCourseHead(title, tagsHtml)}
-            <div class="taught_course_description">${esc(desc)}</div>
-        </div>`).join('');
-    */
-    
-    /*
-    body.innerHTML = `
-        <div class="teaching-listing">
-            ${instructorHtml ? `
-            <div class="taught_course_section_head">Instructor of Record</div>
-            <div class="taught_course_section">${instructorHtml}</div>` : ''}
-            ${taHtml ? `
-            <div class="taught_course_section_head">Teaching Assistant</div>
-            <div class="taught_course_section">${taHtml}</div>` : ''}
-        </div>`;
-    */
-    
     body.innerHTML = `
         <div class="teaching-listing">
             ${instructorHtml ? `
@@ -398,11 +325,6 @@ function renderTeachingListing(body, mode = 'all') {
 }
 
 
-// ===========  Instructions pane builder  ============================
-
-// Converts a key like "thingAtoHaveInstructions" or "semester_project"
-// into a readable tab label ("Thing Ato Have Instructions" / "Semester
-// Project").
 function labelizeInstructionKey(key) {
     const spaced = key
         .replace(/[_-]+/g, ' ')
@@ -410,17 +332,6 @@ function labelizeInstructionKey(key) {
         .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
     return spaced.replace(/\s+/g, ' ').trim().replace(/\b\w/g, ch => ch.toUpperCase());
 }
-
-// ===========  Rubric print flow  ======================================
-//
-// Triggered by the "Print rubric..." button buildInstructionsPane adds
-// wherever a pane's content contains a .rubric-table. Asks which of the
-// three presentations this printout is for, then opens a small,
-// self-contained popup window (its own document, not this page) with
-// just that label, the course name, blank Name/Date lines, and a clone
-// of the rubric table -- and calls print() on it. A separate window
-// keeps this to a couple of small functions instead of needing print
-// stylesheets that hide the rest of the single-page app.
 
 const RUBRIC_PRESENTATION_NAMES = ['The Pitch', 'The Progress', 'The...Perfection?'];
 
@@ -513,9 +424,9 @@ function printRubric(c, presentationName, table, questions = []) {
 </html>`);
     win.document.close();
     win.focus();
-    const doPrint = () => { try { win.print(); } catch (e) { /* no-op */ } };
+    const doPrint = () => { try { win.print(); } catch (e) { } };
     win.onload = doPrint;
-    setTimeout(doPrint, 300); // fallback if onload already fired
+    setTimeout(doPrint, 300);
 }
 
 function buildInstructionsPane(c) {
@@ -523,26 +434,12 @@ function buildInstructionsPane(c) {
     const keys = instr ? Object.keys(instr) : [];
     if (!keys.length) return `<div class="cd-body" style="color:var(--ink-faint);font-size:13px;padding:8px;">No instructions available yet.</div>`;
 
-    // The submenu is generated directly from the instructions dict: one
-    // mini-tab per key, in the order the keys appear, showing that key's
-    // value as-is (an HTML-syntax string, same convention as the
-    // Policies tab). Tabs/panes are matched up by position (data-itab
-    // is just the array index) rather than by the key text itself, so
-    // this never breaks no matter what characters end up in a key name
-    // (spaces, punctuation, whatever) -- the key only ever has to be
-    // valid JSON, never a valid CSS selector.
     const miniNavHtml = keys.map((key, i) => `
         <div class="instr-mini-tab ${i === 0 ? 'active' : ''}" data-itab="${i}">${esc(labelizeInstructionKey(key))}</div>
     `).join('');
 
     const miniPanesHtml = keys.map((key, i) => {
-        // A value of "@shared" pulls the same-named entry from shared.json's "instructions".
         const body = instr[key] === '@shared' ? (SHARED?.instructions?.[key] ?? '') : instr[key];
-        // Detect a rubric table by content, not by which key it lives
-        // under -- so this works for "Presentations" (csc1100/csc3730's
-        // shape) or a future "Presentation 1/2/3" split alike, with no
-        // per-course special-casing, and automatically stops offering
-        // the button again if a rubric is ever removed.
         const hasRubric = /rubric-table/i.test(body);
         const printBtnHtml = hasRubric
             ? `<div class="instr-print-row"><button class="instr-print-rubric-btn" type="button">Print rubric\u2026</button></div>`
@@ -562,23 +459,6 @@ function buildInstructionsPane(c) {
         </div>`;
 }
 
-// ===========  Lessons pane builder  ==================================
-//
-// Same side-menu-plus-content-panel shape as Instructions above, and
-// one level deeper: the side menu lists "modules" (one per schedule
-// week that has at least one topic with a lesson file, via
-// deriveLessonModules above), and each module's own topics are paged
-// through with prev/next arrows (Brightspace-style), not listed all
-// at once. There's no separate "lessons" key in the JSON anymore --
-// this is entirely derived from c.schedule/trs, which is also what
-// the Schedule tab's topic links jump into (see the
-// .topic-lesson-link handler below). Each page is its own standalone
-// .html file (courses/[file]), dropped in via an iframe (same pattern
-// already used for Godot/Blazor projects elsewhere on the site) so it
-// can carry real <style>/<script> of its own, fully sandboxed from
-// the rest of the page. Only the currently-shown page is ever
-// mounted -- switching modules or turning a page mounts on demand.
-
 function renderLessonPageChrome(pages, pageIndex) {
     const total = pages.length;
     if (!total) return `<div class="cd-body" style="color:var(--ink-faint);font-size:13px;padding:8px;">No pages in this module yet.</div>`;
@@ -593,10 +473,6 @@ function renderLessonPageChrome(pages, pageIndex) {
         <div class="lesson-frame-mount" data-lesson-src="${esc(src)}"></div>`;
 }
 
-// Advances/re-renders one module's pane to the given page index and
-// (re)mounts its iframe -- shared by the pager buttons, the initial
-// eager-mount, and the Schedule tab's "jump to this lesson" links, so
-// all three land on the exact same rendering.
 function goToLessonPage(pane, pages, pageIdx) {
     pane.dataset.pageIndex = pageIdx;
     pane.innerHTML = renderLessonPageChrome(pages, pageIdx);
@@ -628,12 +504,6 @@ function buildLessonsPane(c) {
         </div>`;
 }
 
-// Drops an iframe into a .lesson-frame-mount and, once it loads, makes
-// its background transparent so the page shows through the panel's
-// own background instead of the browser's default white -- same
-// overlaid look the Instructions tab already gets for free by not
-// using an iframe at all. Same-origin only (these are always relative
-// site files), so contentDocument access is safe.
 function mountLessonFrame(mount) {
     const src = mount.dataset.lessonSrc;
     if (!src) return;
@@ -649,19 +519,13 @@ function mountLessonFrame(mount) {
             const style = doc.createElement('style');
             style.textContent = 'html, body { background: transparent !important; }';
             doc.head.appendChild(style);
-        } catch (e) { return; /* cross-origin -- nothing we can do, harmless no-op */ }
-        // Deliberately outside the try/catch above: that one exists only
-        // to swallow a genuine cross-origin failure, and was silently
-        // swallowing real highlighter bugs too. A real failure here
-        // should hit the console, not vanish.
+        } catch (e) { return; }
         highlightLessonDoc(doc);
         try { addDiagramZoom(doc); } catch (e) { console.error('diagram zoom failed', e); }
     });
     mount.appendChild(iframe);
 }
 
-
-// ===========  State 2 — Detail view  ================================
 
 function renderDetailView(body, key) {
     
@@ -679,11 +543,6 @@ function renderDetailView(body, key) {
         `<div class="lg-line"><b>${g.num || i + 1}.</b> <span class="lg-action lg-action-${g.action.toLowerCase()}${g.blooms ? ' lg-blooms-' + g.blooms : ''}">${esc(g.action)}</span> ${esc(g.detail)}</div>`
     ).join('');
     
-    // Assessment colors come from shared.json (["assessments"]["colors"][type]),
-    // keyed by each assessment's own 'type' (exam/presentation/quiz/report/...),
-    // so every course draws from one shared palette instead of repeating
-    // colorbg/colorfont per course. Falls back to a per-assessment
-    // colorbg/colorfont if present (older data), then a neutral gray.
     function assessColor(a) {
         const shared = SHARED?.assessments?.colors?.[a.type];
         return {
@@ -706,11 +565,6 @@ function renderDetailView(body, key) {
             </div>`;
     }).join('');
 
-    // 10x10 grid: one square per percentage point, filled in assessment
-    // order and colored to match. The bordered box is the 100% mark --
-    // squares left empty inside it mean the assessments add up to under
-    // 100%; squares spilling into the unbordered row below mean they add
-    // up to over 100%. Either way, a glance shows whether it's balanced.
     function buildAssessGrid(assessList) {
         const cells = [];
         assessList.forEach(a => {
@@ -872,8 +726,6 @@ function renderDetailView(body, key) {
             const pane = el('cx-pane-' + tab.dataset.tab);
             pane.classList.add('active');
 
-            // Lazy-mount any top-level iframe in this pane (currently
-            // just Syllabus) the first time its tab is opened.
             const mount = pane.querySelector(':scope > .lesson-frame-mount');
             if (mount && !mount.dataset.mounted) {
                 mount.dataset.mounted = '1';
@@ -882,11 +734,6 @@ function renderDetailView(body, key) {
         });
     });
 
-    // Mini-nav wiring (shared by Instructions and Lessons, each of which
-    // gets its own independent .instr-layout -- so tabs are scoped to
-    // their own layout rather than the whole detail view, which keeps
-    // the two from cross-toggling each other now that both can exist
-    // on the same page at once).
     qsa('.instr-mini-tab', body).forEach(tab => {
         tab.addEventListener('click', () => {
             const layout = tab.closest('.instr-layout');
@@ -900,8 +747,6 @@ function renderDetailView(body, key) {
             if (!pane) return;
             pane.classList.add('active');
 
-            // Lessons lazy-load: mount this module's current page's
-            // iframe the first time its tab is opened.
             if (isLesson) {
                 const mount = pane.querySelector('.lesson-frame-mount');
                 if (mount && !mount.dataset.mounted) {
@@ -912,9 +757,6 @@ function renderDetailView(body, key) {
         });
     });
 
-    // Rubric print button (see buildInstructionsPane): scoped to this
-    // renderDetailView call, so it closes directly over this course's
-    // own `c`, no data-attribute round-trip needed.
     qsa('.instr-print-rubric-btn', body).forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -924,10 +766,6 @@ function renderDetailView(body, key) {
         });
     });
 
-    // Lesson page-turner (prev/next arrows within a module). Delegated
-    // on each .instr-content, since turning a page rebuilds that
-    // module's chrome (fresh prev/next buttons each time), unlike the
-    // mini-tabs above which just get their active class toggled.
     qsa('.instr-content', body).forEach(content => {
         content.addEventListener('click', (e) => {
             const btn = e.target.closest('.lesson-pager-btn');
@@ -945,10 +783,6 @@ function renderDetailView(body, key) {
         });
     });
 
-    // Schedule topic -> Lessons jump. Switches to the Lessons tab,
-    // activates the module for that topic's week (reusing the same
-    // click listeners above), then jumps straight to that topic's
-    // page within it.
     qsa('.topic-lesson-link', body).forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -972,16 +806,12 @@ function renderDetailView(body, key) {
         });
     });
 
-    // Eager-mount the first module's first page (mirrors Instructions,
-    // which shows its first tab's content immediately); every other
-    // module/page mounts lazily via the handlers above.
     const activeMount = body.querySelector('.lesson-module.active .lesson-frame-mount');
     if (activeMount) {
         activeMount.dataset.mounted = '1';
         mountLessonFrame(activeMount);
     }
 
-    // Presentation accordions
     qsa('.instr-acc-header', body).forEach(header => {
         header.addEventListener('click', () => {
             const acc = header.closest('.instr-accordion');
@@ -991,8 +821,6 @@ function renderDetailView(body, key) {
 }
 
 
-
-// ===========  Entry point  ==========================================
 
 async function renderCourses(mode = 'active') {
     const body = el('courses-body');
@@ -1006,15 +834,8 @@ function currentCoursesMode() {
 }
 
 
-// ===========  Execution  ============================================
-
 window._renderCourses = renderCourses;
 
-// Pressing either subtab always resets back to that listing, even if
-// a course detail page is currently open.
 document.querySelector('.panel-tab[data-tab="active"]')?.addEventListener('click', () => renderCourses('active'));
 document.querySelector('.panel-tab[data-tab="all"]')?.addEventListener('click', () => renderCourses('all'));
 
-// Course detail pages now support narrow widths directly (see the
-// mobile stacked layout in _teaching.css), so there's no width below
-// which we force-close back to the listing anymore.

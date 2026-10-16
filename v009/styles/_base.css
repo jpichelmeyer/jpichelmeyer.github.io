@@ -1,26 +1,7 @@
 /* v009/site/styles/_base.css */
 
-/* ====================================================================
-
-        Description
-
-   ====================================================================
-*/
-/*
-      Base layout, reset, navbar, panel shell, about panel,
-      projects panel, hint. Consumes __primitives.css vars.
-      No imports — merged.css handles ordering.
-*/
 
 
-
-
-/* ====================================================================
-
-        Reset
-
-   ====================================================================
-*/
 
 * { 
     margin: 0; 
@@ -33,22 +14,6 @@ html, body {
     overflow: hidden;
     font-family: var(--mono);
 }
-
-/* Paper grain (disabled) */
-/*
-body::before {
-    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-}
-
-::selection { background: var(--ink); color: var(--bg); }
-*/
-
-/* ====================================================================
-
-        Layering / z-index scaffolding
-
-   ====================================================================
-*/
 
 #dot-grid {
     position: fixed; inset: 0;
@@ -72,13 +37,6 @@ body::before {
 }
 
 
-/* ====================================================================
-
-        Ripple
-
-   ====================================================================
-*/
-
 .ripple {
     position: fixed; border-radius: 50%;
     border: 1.5px solid var(--accent);
@@ -90,13 +48,6 @@ body::before {
     100% { width: 80px; height: 80px; opacity: 0;   transform: translate(-50%,-50%); }
 }
 
-
-/* ====================================================================
-
-        Navbar
-
-   ====================================================================
-*/
 
 #navbar {
     position: fixed; top: 0; left: 50%; z-index: 100;
@@ -116,8 +67,6 @@ body::before {
     display: flex; flex-direction: column; justify-content: center;
     background: #3f3f3f;
     color: #f1f1f1;
-    /*background: var(--paper3);*/
-    /*padding: 0 22px 0 20px; */
     padding: 0 22px 0 20px;
     border-right: var(--border1);
     cursor: default; min-width: 175px;
@@ -126,7 +75,6 @@ body::before {
     font-weight: 500;
     font-size: calc(11px * var(--mod-font-size));
     letter-spacing: 0.08em;
-    /*color: var(--ink);*/
     color: #f1f1f1;
     line-height: 1.2;
     text-align: right;
@@ -135,7 +83,6 @@ body::before {
     font-weight: 300;
     font-size: calc(12px * var(--mod-font-size));
     letter-spacing: 0.06em;
-    /*color: var(--ink-soft);*/
     color: rbg(200, 200, 200, 0.5);
     line-height: 1.4;
     text-align: right;
@@ -163,13 +110,6 @@ body::before {
 @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(0.7); } }
 
 
-/* ====================================================================
-
-        Content area & Panel shell
-
-   ====================================================================
-*/
-
 #content-area {
     position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
     z-index: 10; pointer-events: none;
@@ -191,7 +131,6 @@ body::before {
     overflow: auto;
     box-shadow: 6px 6px 0 var(--shadow-soft);
     z-index: 100;
-    /*resize: both;*/
     animation: panel-in 0.15s cubic-bezier(0.2,0,0.2,1) forwards;
 }
 .panel.active  { display: flex; }
@@ -203,11 +142,9 @@ body::before {
     transition: width 160ms ease;
 }
 #panel-courses.course-detail-mode {
-    width: 90%; /* matches #panel-projects / #navbar */
+    width: 90%;
 }
 
-/* Match the navbar's own width rule (see #navbar above) so the
-   Projects panel lines up with it exactly. */
 #panel-projects {
     width: 90%;
 }
@@ -216,7 +153,6 @@ body::before {
     display: flex; align-items: center; justify-content: space-between;
     height: 50px;
     padding: 4px 8px; 
-    /*border-bottom: 1px solid var(--panel-bd);*/
     background: var(--bg2); 
     flex-shrink: 0;
     position: sticky; top: 0; z-index: 10;
@@ -241,7 +177,6 @@ body::before {
 }
 .panel-close:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
-/* Panel tab system — dropdown-style subpage tabs living in the panel-titlebar */
 .panel-tabs {
     display: flex; align-items: center; height: 100%;
     padding-left: 22px; gap: 4px;
@@ -268,18 +203,10 @@ body::before {
 }
 
 
-/* ====================================================================
-
-        Shared components
-
-   ====================================================================
-*/
-
 .sec-div { display: flex; align-items: center; gap: 12px; margin: 22px 0 16px; }
 .sec-div span { font-size: calc(9px * var(--mod-font-size)); letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-faint); white-space: nowrap; }
 .sec-div::before, .sec-div::after { content: ''; flex: 1; height: 1px; background: var(--panel-bd); }
 
-/* Section head/group — shared by Teaching and Research panel listings */
 .taught_course_section_head {
     font-size: calc(12px * var(--mod-font-size));
     text-transform: uppercase;
@@ -291,14 +218,6 @@ body::before {
 .taught_course_section { padding-left: 6px; }
 
 
-/* ====================================================================
-
-        About panel
-
-   ====================================================================
-*/
-
-/* Layout */
 #about-a {
     display: flex;
     flex-direction: row;
@@ -321,7 +240,6 @@ body::before {
 #about-portrait {
     height: 300px;
     width: 100%;
-    /*overflow: hidden;*/
     position: relative;
 }
 
@@ -332,7 +250,7 @@ body::before {
     align-self: center;
     width: 100%;
     max-width: 140px;
-    image-rendering: pixelated;   /* keep the pixel art crisp when scaled */
+    image-rendering: pixelated;
 }
 
 #sketch-o-self {
@@ -346,7 +264,6 @@ body::before {
 }
 
 #sketch-o-self {
-    /*animation: breathe 4.2s ease-in-out infinite;*/
 }
 
 #sketch-o-self::after {
@@ -362,7 +279,6 @@ body::before {
     z-index: 5;
 }
 
-/* Hero / name card */
 .about-hero {
     padding-bottom: 22px;
     margin-bottom: 4px;
@@ -391,17 +307,14 @@ body::before {
 .about-hero-row-left  { flex: 0.5; }
 .about-hero-row-right { flex: 0.5; }
 
-/* Bio */
 .about-bio        { font-family: var(--serif); font-size: calc(13px * var(--mod-font-size)); line-height: 1.78; color: var(--ink-soft); margin-bottom: 14px; }
 .about-bio strong { color: var(--ink); font-weight: 600; }
 
-/* 2-col cards */
 .about-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 8px; }
 .acard      { padding: 14px 16px; border: 1px solid var(--panel-bd); background: var(--bg); }
 .acard-lbl  { font-size: calc(9px * var(--mod-font-size)); letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent1); margin-bottom: 7px; }
 .acard-body { font-family: var(--serif); font-size: calc(14.5px * var(--mod-font-size)); line-height: 1.6; color: var(--ink-soft); }
 
-/* Interest pills */
 .interest-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
 .interest-pill {
     font-size: calc(9.5px * var(--mod-font-size)); letter-spacing: 0.07em; padding: 5px 12px;
@@ -415,13 +328,6 @@ body::before {
 .interest-pill.c4   { border-color: var(--cobalt);  color: var(--bg); background: var(--cobalt); }
 
 
-/* ====================================================================
-
-        Projects panel
-
-   ====================================================================
-*/
-
 .proj-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
 .proj-card { border: 1px solid var(--panel-bd); padding: 16px; cursor: pointer; transition: all 0.14s; background: var(--bg); }
 .proj-card:hover { border-color: var(--ink); transform: translate(-2px,-2px); box-shadow: 3px 3px 0 var(--ink); }
@@ -433,14 +339,6 @@ body::before {
 .proj-card.launch:hover { background: rgba(30,154,176,0.06); }
 
 
-/* ====================================================================
-
-        Projects panel
-
-   ====================================================================
-*/
-
-/* Post-it (pi) system */
 .pi {
     border: 1px solid transparent;
     border-radius: 0.25rem;
@@ -462,13 +360,11 @@ body::before {
     position: absolute;
     z-index: -1;
     
-    /* Stretched edge-to-edge across the bottom */
     bottom: 0;
     left: 0;
     width: 100%;
     height: 20px;
     
-    /* Deep downward blur with negative spread to clean up the sides */
     box-shadow: 0 15px 10px -5px rgba(0, 0, 0, 0.4);
 }
 
@@ -478,17 +374,8 @@ body::before {
 }
 
 
-/* ====================================================================
-
-        Mobile
-
-   ====================================================================
-*/
-
 @media (max-width: 600px) {
 
-    /* Navbar — shrink brand + nav buttons so About/Teaching/Research/
-       Projects and the name all fit on narrow screens. */
     #brand {
         min-width: 0;
         padding: 0 10px;
@@ -502,7 +389,6 @@ body::before {
     }
     #nav-right { display: none; }
 
-    /* About panel — Bio tab: one column instead of portrait/postit + text */
     #about-a { flex-direction: column; }
 }
 

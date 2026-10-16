@@ -1,31 +1,12 @@
 /* v009/site/styles/_timeline.css */
 
-/*
-      Timeline panel and styles.
-      Only dependency between this and other files should be...
-      
-      merged.css <--- this <--- __primitives.css
-       
-*/
 
-
-
-/*
-------------------------------------------------------------------
-    Timeline (About > Path)
-    A vertical line on the left with one node per entry; each entry
-    is a card with the institution icon, dates, title, place and
-    subject tags. Degrees get a passport-style ink stamp (SVG drawn
-    by _timeline.js).
-------------------------------------------------------------------
-*/
 
 .tl {
     position: relative;
     padding: 10px 6px 30px 40px;
     font-family: var(--sans-inter);
 }
-/* the vertical line, fading out at both ends */
 .tl::before {
     content: "";
     position: absolute;
@@ -37,8 +18,6 @@
     position: relative;
     margin-bottom: 16px;
 }
-/* node on the line: hollow ring for positions, filled for degrees,
-   accent + halo for the current role */
 .tl-dot {
     position: absolute;
     left: -29px; top: 30px;
@@ -54,7 +33,6 @@
     border-color: var(--color-accent-about);
     box-shadow: 0 0 0 5px color-mix(in oklab, var(--color-accent-about), transparent 82%);
 }
-/* short connector from the line to the card */
 .tl-dot::after {
     content: "";
     position: absolute;
@@ -69,19 +47,17 @@
     background: var(--panel-bg-bright);
     border: 1.5px solid var(--panel-bd);
     border-radius: var(--border-radius2);
-    padding: 12px 14px 12px 0;    /* no left padding: the logo is the card's left cap */
+    padding: 12px 14px 12px 0;
     min-height: 72px;
 }
 .tl-logo {
-    /* Left cap: full card height, flush with the card's left edge,
-       rounded to match the card's own corners (like a panel titlebar) */
     align-self: stretch;
     width: 60px;
     margin: 6px 6px 10px 10px;
     height: auto;
     flex-shrink: 0;
     object-fit: cover;
-    object-view-box: inset(3% 4%);   /* trim the logos' transparent margins (where supported) */
+    object-view-box: inset(3% 4%);
     border-radius: calc(var(--border-radius2) - 1.5px) 0 0 calc(var(--border-radius2) - 1.5px);
 }
 .tl-main { flex: 1; min-width: 0; }
@@ -103,7 +79,6 @@
     color: var(--timeline-lowlight);
     margin: 1px 0 7px;
 }
-/* passport stamp: tilted, ink-like, overlapping the card edge a little */
 .tl-stamp {
     width: 118px;
     flex-shrink: 0;

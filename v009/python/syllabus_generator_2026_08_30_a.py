@@ -51,10 +51,6 @@ import json
 import os
 import sys
 
-# ---------------------------------------------------------------------------
-# Course/shared lookup -- same pattern as the other brightspace_* scripts
-# ---------------------------------------------------------------------------
-
 def find_courses_dir():
     here = os.path.abspath('.')
     for _ in range(4):
@@ -118,12 +114,7 @@ def pick_course_interactively(courses_dir):
     return os.path.join(courses_dir, f"{key}.json")
 
 
-# ---------------------------------------------------------------------------
-# Helpers for pulling optional / not-yet-authored content, while tracking
-# what's missing so we can report it at the end.
-# ---------------------------------------------------------------------------
-
-MISSING = []  # collected (location, key, shape) tuples, printed in main()
+MISSING = []
 
 
 def note_missing(location, key, shape):
@@ -166,10 +157,6 @@ def find_policy(shared, *names):
             return as_html_blocks(p.get('description', []))
     return None
 
-
-# ---------------------------------------------------------------------------
-# Section builders
-# ---------------------------------------------------------------------------
 
 def build_course_info(course, shared):
     title = f"{course.get('pre','')} {course.get('num','')}".strip()
@@ -317,12 +304,6 @@ def build_workload_note(course):
     )
 
 
-# Default, editable-in-code fallback text for the Student Support Resources
-# section, used only if shared.json doesn't yet have a 'support_resources'
-# list. This is the text you pasted -- it's here so the generator produces
-# a complete document right away; once you add 'support_resources' to
-# shared.json (see the end-of-run report), that becomes the source of
-# truth instead and this fallback is ignored.
 DEFAULT_SUPPORT_RESOURCES = [
     {
         "name": "Student-Athletes",
@@ -472,10 +453,6 @@ def build_course_policies(course, shared):
     """
 
 
-# ---------------------------------------------------------------------------
-# Full document assembly
-# ---------------------------------------------------------------------------
-
 CSS = """
 body { font-family: Helvetica, Arial, sans-serif; color: #1f1f1f; line-height: 1.45; margin: 2em; }
 h1 { font-size: 1.6em; border-bottom: 3px solid #333; padding-bottom: 0.2em; }
@@ -590,10 +567,6 @@ def build_document(course, shared):
 """
 
 
-# ---------------------------------------------------------------------------
-# PDF export (optional -- only if xhtml2pdf is installed)
-# ---------------------------------------------------------------------------
-
 def try_write_pdf(html_text, pdf_path):
     try:
         from xhtml2pdf import pisa
@@ -610,10 +583,6 @@ def try_write_pdf(html_text, pdf_path):
         return False
     return True
 
-
-# ---------------------------------------------------------------------------
-# Missing-field report
-# ---------------------------------------------------------------------------
 
 def print_missing_report():
     if not MISSING:
@@ -632,10 +601,6 @@ def print_missing_report():
     print("by adding the same key directly to that course's own JSON.")
     print("-" * 72 + "\n")
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 def main():
     courses_dir = find_courses_dir()

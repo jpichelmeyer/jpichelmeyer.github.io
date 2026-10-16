@@ -1,7 +1,4 @@
-/* v009/site/styles/_plab_flyer.css
-   Apply-by-email block and flyer options dialog for the PLAB page.
-   (The flyer itself is styled inside the popup document it opens, in
-   _plab_flyer.js, since it lives in its own window.) */
+/* v009/site/styles/_plab_flyer.css */
 
 .plab-apply {
     background: color-mix(in oklab, var(--color-accent-advancement), white 90%);
@@ -71,7 +68,6 @@
 .plab-template-fields { margin: 6px 0 0; padding-left: 22px; line-height: 1.55; }
 .plab-apply-error { color: var(--accent2); font-size: calc(11px * var(--mod-font-size)); }
 
-/* Flyer button: owner-only tool, so it sits quietly at the page bottom */
 .plab-footer {
     margin: 26px 0 8px;
     padding-top: 10px;
@@ -87,7 +83,6 @@
 }
 .plab-btn-quiet:hover { color: var(--ink); border-color: var(--panel-bd); background: var(--bg-light); }
 
-/* ── Flyer options dialog ── */
 .plab-modal-backdrop {
     position: fixed;
     inset: 0;

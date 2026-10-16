@@ -1,29 +1,4 @@
 // v009/site/scripts/_plab_flyer.js
-//
-// Recruiting tools for the PLAB lab page (Institution > Scholarship):
-//
-//   1. An "apply by email" block near the top of the page. There is no
-//      back end and no mailto: button (those fail for anyone whose mail
-//      lives in a browser tab or an unconfigured mail app), so applying
-//      means sending a short email in a fixed format that the page shows
-//      in full and can copy to the clipboard in one click.
-//   2. A flyer generator. The flyer is assembled at click time from
-//         - window._plabProjects  (the same PLAB_PROJECTS array that
-//           draws the cards on the page, set in _advancement.js), so
-//           editing a project there updates the next flyer, and
-//         - data/plab_flyer.json  (headline, intro, contact, apply
-//           format, default deadline -- everything that isn't a project),
-//         - plus the site's existing portrait/logo assets.
-//      It opens in its own small window and calls print(), the same
-//      pattern the rubric and report printers use, so "Save as PDF" is
-//      just the browser's print dialog.
-//
-// The QR code encodes <siteUrl>#plab, which _advancement.js turns into
-// "open Institution > Scholarship" on load, so a scan lands directly on
-// the page the flyer is about. QR generation is the vendored MIT-licensed
-// qrcode-generator (scripts/qrcode.js), so it works offline and
-// the flyer never depends on a third-party service that could change or
-// disappear.
 
 import { qsa, esc } from './__utils.js';
 import { qrcode } from './qrcode.js';
@@ -44,8 +19,6 @@ function loadConfig() {
 const escA = s => esc(String(s)).replace(/"/g, '&quot;');
 const abs = path => new URL(path, document.baseURI).href;
 
-// Assembled from parts so the address never appears as one plain string
-// in page source (same spirit as the site's existing email obfuscation).
 function emailAddress(cfg) {
     return cfg.person.emailUser + '@' + cfg.person.emailDomain;
 }
@@ -70,18 +43,12 @@ async function copyText(text) {
         document.body.appendChild(ta);
         ta.select();
         let ok = false;
-        try { ok = document.execCommand('copy'); } catch (err) { /* no-op */ }
+        try { ok = document.execCommand('copy'); } catch (err) { }
         ta.remove();
         return ok;
     }
 }
 
-// ---------------------------------------------------------------------
-// Apply block on the PLAB page
-// ---------------------------------------------------------------------
-// "Ways to take part" (SURE, course credit) lives in data/plab_flyer.json so
-// the page and the flyer always say the same thing. The flyer uses each
-// item's `short` text when it has one, since space there is tight.
 function waysItems(cfg) {
     return (cfg.ways && Array.isArray(cfg.ways.items)) ? cfg.ways.items : [];
 }
@@ -159,9 +126,6 @@ async function mount(host, footerHost) {
     }
 }
 
-// ---------------------------------------------------------------------
-// Flyer options dialog
-// ---------------------------------------------------------------------
 function projectList() {
     return Array.isArray(window._plabProjects) ? window._plabProjects : [];
 }
@@ -214,17 +178,11 @@ function openFlyerDialog(cfg) {
             logistics: backdrop.querySelector('#plab-logistics').value.trim(),
             projectIdx: qsa('.plab-proj-check', backdrop).filter(c => c.checked).map(c => parseInt(c.value, 10)),
         };
-        // window.open must happen inside this click handler (a user
-        // gesture) or popup blockers will eat it; everything after that
-        // is synchronous string building, so it stays inside the gesture.
         generateFlyer(cfg, opts);
         close();
     });
 }
 
-// ---------------------------------------------------------------------
-// Flyer document
-// ---------------------------------------------------------------------
 function formatDeadline(iso) {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
     if (!m) return null;
@@ -412,10 +370,6 @@ html, body { margin: 0; background: #d9d9d9; -webkit-print-color-adjust: exact; 
 }
 `;
 
-// Runs inside the popup: waits for every image (and the sketch mask,
-// which isn't in document.images) to decode, shrinks the type until the
-// flyer fits one page (so adding a sixth project can't spill onto a
-// second sheet), then opens the print dialog.
 const POPUP_SCRIPT = (preloads) => `
 (function () {
     var preloads = ${JSON.stringify(preloads)};
@@ -467,9 +421,6 @@ function generateFlyer(cfg, opts) {
     win.focus();
 }
 
-// Expose mount() to _advancement.js (same window-hook pattern as the
-// particle-life and robotics APIs), and also mount directly if the
-// page rendered before this module finished loading.
 window._plabUI = { mount, generateFlyer: (opts) => loadConfig().then(cfg => generateFlyer(cfg, opts)) };
 const earlyHost = document.getElementById('plab-actions');
 if (earlyHost) mount(earlyHost, document.getElementById('plab-footer'));

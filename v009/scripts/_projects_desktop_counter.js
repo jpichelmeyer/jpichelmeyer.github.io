@@ -1,6 +1,4 @@
 // v009/site/scripts/_projects_desktop_counter.js
-// Demo project: a simple click counter. Confined entirely to the
-// container handed to init() — no globals, no listeners outside it.
 
 import { qsa } from './__utils.js';
 

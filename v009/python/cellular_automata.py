@@ -27,17 +27,6 @@ layered on top of the last to build one real program:
     11. Algorithms & pseudocode
 """
 
-# ---------------------------------------------------------------------------
-# Host-environment shim
-# ---------------------------------------------------------------------------
-# `ainput` and `should_stop` are ordinary names this module calls like any
-# other function. When this file is run as a real script, neither name
-# exists yet, so we define plain fallbacks right here. When it's instead
-# executed inside the site's browser terminal, the host JS pre-defines
-# both names as globals *before* running this file (see _projects.js),
-# so the `try` below finds them already there and leaves them alone.
-# That's the entire portability trick -- nothing else in this file needs
-# to know or care which environment it's running in.
 import sys
 
 try:
@@ -52,9 +41,6 @@ except NameError:
     def should_stop():
         return False
 
-# ===========================================================================
-# 8. Modules, Files I/O  (imports live at top of file, by convention)
-# ===========================================================================
 import asyncio
 import os
 import random
@@ -71,13 +57,6 @@ def clear_screen():
     everywhere without an environment check."""
     print('\x1b[2J\x1b[H', end='')
 
-
-# ===========================================================================
-# 1. Variables, expressions  /  2. Conditionals, control flow
-# ===========================================================================
-# Small validated-input helpers. Every prompt in this program goes
-# through one of these, so the configuration screens below are just
-# straight-line calls -- no repeated validation logic.
 
 async def ask_choice(prompt, options):
     """Show a numbered menu of `options` and return the chosen string."""
@@ -118,10 +97,6 @@ async def ask_float(prompt, default, lo=None, hi=None):
         print("  -> out of range, try again.")
 
 
-# ===========================================================================
-# 4. Functions, recursion
-# ===========================================================================
-
 def int_to_bits(n, width=8):
     """Turn n into a fixed-width bit string, one bit at a time -- a
     recursive stand-in for the built-in `format(n, '08b')`."""
@@ -129,10 +104,6 @@ def int_to_bits(n, width=8):
         return ''
     return int_to_bits(n // 2, width - 1) + str(n % 2)
 
-
-# ===========================================================================
-# 5. Strings  /  6. Collections (list, set, dict, tuple)
-# ===========================================================================
 
 def rule_to_table(rule_number):
     """Wolfram elementary-CA rule number (0-255) -> a dict mapping every
@@ -180,10 +151,6 @@ def next_row_1d(row, table):
     return new_row
 
 
-# ===========================================================================
-# 3. Loops  /  7. Debugging, exceptions
-# ===========================================================================
-
 async def run_1d(config):
     table = rule_to_table(config['rule'])
     row = initial_row_1d(config)
@@ -208,10 +175,6 @@ async def run_1d(config):
 
     print(f"\nStopped after {lines_drawn} lines.")
 
-
-# ===========================================================================
-# 9. Classes  /  10. Inheritance, regular expressions
-# ===========================================================================
 
 class Topology:
     """How a 2D grid's edges are (or aren't) identified with each
@@ -332,17 +295,6 @@ class Grid:
                 count += self.cells[ny][nx]
         return count
 
-    # -----------------------------------------------------------------
-    # 11. Algorithms & pseudocode
-    #
-    #   for each cell (x, y) in the grid:
-    #       n <- count of live neighbors, following the grid's topology
-    #       if cell is alive and n is in the survive set:  stays alive
-    #       elif cell is dead and n is in the birth set:    becomes alive
-    #       else:                                           (stays) dead
-    #   replace the whole grid with the new generation at once, so every
-    #   cell's next state is computed from the *same* snapshot in time.
-    # -----------------------------------------------------------------
     def step(self):
         new_cells = [[0] * self.width for _ in range(self.height)]
         for y in range(self.height):
@@ -415,9 +367,6 @@ async def run_2d(config):
 
     print(f"\nStopped after {generation} generations.")
 
-    # 8. Modules, Files I/O -- offer to save the final frame. Skipped
-    # automatically inside the browser terminal, which has no real
-    # filesystem for the visitor to receive a file from.
     if not IS_PYODIDE:
         save = (await ainput("\nSave final frame to a text file? [y/N] ")).strip().lower()
         if save.startswith('y'):
@@ -426,10 +375,6 @@ async def run_2d(config):
                 f.write(grid.render() + '\n')
             print(f"Saved to {filename}")
 
-
-# ===========================================================================
-# Entry point
-# ===========================================================================
 
 async def main():
     print("=" * 60)
@@ -451,15 +396,6 @@ async def main():
 
 
 if __name__ == '__main__':
-    # A real terminal has no event loop running yet, so asyncio.run()
-    # is the normal, blocking way to kick things off. Pyodide, though,
-    # already has its own event loop running by the time this file's
-    # top-level code executes (that's what lets scripts elsewhere use
-    # top-level `await`) -- and asyncio.run() refuses to start a
-    # second loop inside an already-running one. So: if a loop is
-    # already running, hand main() to *that* loop as a task instead of
-    # trying to start a new one. Either way, main() actually runs;
-    # this only decides how it gets scheduled.
     try:
         _running_loop = asyncio.get_running_loop()
     except RuntimeError:

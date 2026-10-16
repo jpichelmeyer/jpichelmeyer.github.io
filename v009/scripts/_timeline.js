@@ -1,28 +1,11 @@
 // v009/site/scripts/_timeline.js
 
-/* ====================================================================
-    
-        Description
-
-   ====================================================================
-*/
-// Career path (About > Path). The markup lives in index.html; this file
-// only draws the passport-style degree stamps from each .tl-stamp's
-// data-* attributes (shape, deg, field, school, year, ink, rot).
-
-/* ====================================================================
-    
-        Imports
-
-   ====================================================================
-*/
 import {esc, qsa} from './__utils.js'
 
 
 
 let stampCount = 0;
 
-// Rough, slightly uneven ink: wobble the edges and knock out speckles.
 function inkFilter(id, seed) {
     return `
         <filter id="${id}" x="-5%" y="-5%" width="110%" height="110%">
@@ -36,7 +19,6 @@ function inkFilter(id, seed) {
 
 const FONT = `font-family="'Arial Narrow', 'Roboto Condensed', Arial, sans-serif" font-weight="bold"`;
 
-// Text along an arc, centered. `top` arcs read over the top, others under the bottom.
 function arcText(id, cx, cy, rx, ry, top, text, size) {
     const d = top
         ? `M ${cx - rx} ${cy} A ${rx} ${ry} 0 0 1 ${cx + rx} ${cy}`

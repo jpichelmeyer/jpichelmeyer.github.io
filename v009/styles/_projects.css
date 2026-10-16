@@ -1,11 +1,5 @@
 /* v009/site/styles/_projects.css */
 
-/*
-   Shared/minimal styling for the Projects panel shell.
-   Individual projects (_projects_X.css) style their own content —
-   this file only covers the panel-level empty state.
-*/
-
 .projects-empty {
     font-family: var(--sans);
     font-size: calc(13px * var(--mod-font-size));
@@ -13,9 +7,6 @@
     padding: 20px 0;
 }
 
-/* Shared wrapper for Godot Web-export embeds (see window._mountGodotProject
-   in _projects.js). Individual Godot projects don't need their own CSS
-   file for sizing — this covers it. */
 .godot-embed {
     width: 100%;
     aspect-ratio: 16 / 9;
@@ -30,10 +21,6 @@
     display: block;
 }
 
-/* ── Vertically-stacked project listing (Desktop/Mobile/Responsive) ──
-   Mirrors the look of .research_paper_row in _research.css: thumbnail
-   to the left, title + description to the right. Each row is also an
-   accordion — clicking it expands the project's own UI beneath it. */
 .proj-list { display: flex; flex-direction: column; }
 
 .proj-row {
@@ -97,7 +84,6 @@
 }
 .proj-row.open .proj-expand { display: block; }
 
-/* ── Pyodide terminal (window._mountPyodideTerminal) ── */
 .pyterm-root {
     display: flex;
     flex-direction: column;

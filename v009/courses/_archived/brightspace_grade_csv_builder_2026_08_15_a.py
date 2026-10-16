@@ -46,10 +46,6 @@ import json
 import os
 import sys
 
-# ---------------------------------------------------------------------------
-# Small input helpers (same style as brightspace_grade_cheatsheet.py)
-# ---------------------------------------------------------------------------
-
 def ask_choice(prompt, options):
     while True:
         print(prompt)
@@ -80,10 +76,6 @@ def ask_positive_number(prompt):
             pass
         print("Please enter a number greater than 0.")
 
-
-# ---------------------------------------------------------------------------
-# Locating the course + shared JSON (identical logic to the cheatsheet script)
-# ---------------------------------------------------------------------------
 
 def find_courses_dir():
     here = os.path.abspath('.')
@@ -137,12 +129,6 @@ def pick_course_interactively(courses_dir):
     return os.path.join(courses_dir, f"{key}.json")
 
 
-# ---------------------------------------------------------------------------
-# Category grouping (same as build_categories() in the cheatsheet script,
-# minus the per-item percentage rescaling -- we only need each category's
-# total weight here, since items within it will be split evenly instead)
-# ---------------------------------------------------------------------------
-
 def build_categories(assess_list):
     order = []
     by_type = {}
@@ -165,10 +151,6 @@ def category_label(t):
     return t.replace('_', ' ').replace('-', ' ').title()
 
 
-# ---------------------------------------------------------------------------
-# Interactive collection: number of items + points per item, per category
-# ---------------------------------------------------------------------------
-
 def collect_item_specs(categories):
     """Asks the two questions per category and returns each category
     enriched with 'num_items', 'points_per_item', and 'item_weight'
@@ -187,10 +169,6 @@ def collect_item_specs(categories):
 
     return categories
 
-
-# ---------------------------------------------------------------------------
-# CSV construction
-# ---------------------------------------------------------------------------
 
 def build_header_and_row(categories):
     header = ["Username"]
@@ -212,7 +190,7 @@ def build_header_and_row(categories):
                 f"Category:{label} CategoryWeight:{cat['weight']:g}>"
             )
             header.append(col)
-            row.append("")  # blank grade cell for the dummy student
+            row.append("")
 
         header.append(f"{label} Subtotal Numerator")
         header.append(f"{label} Subtotal Denominator")
@@ -240,10 +218,6 @@ def write_csv(course_path, header, row):
         writer.writerow(row)
     return out_path
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 def main():
     courses_dir = find_courses_dir()

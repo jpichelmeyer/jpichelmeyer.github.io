@@ -1,13 +1,7 @@
 /* v009/site/styles/_teaching.css */
 
-/*
-   Teaching panel, lesson viewer, schedule table, assessments.
-   Completely independent of _base.css. 
-*/
 
 
-
-/* ── Course list ── */
 .course-list { display: flex; flex-direction: column; gap: 2px; }
 .course-row  { display: flex; align-items: stretch; border: 1px solid var(--panel-bd); cursor: pointer; transition: all 0.12s; background: var(--bg); }
 .course-row:hover, .course-row.expanded { border-color: var(--ink); background: var(--bg2); }
@@ -21,7 +15,6 @@
 .course-arrow { display: flex; align-items: center; padding: 0 14px; font-size: calc(11px * var(--mod-font-size)); color: var(--ink-faint); transition: transform 0.15s; }
 .course-row.expanded .course-arrow { transform: rotate(90deg); }
 
-/* ── Course detail drawer ── */
 .course-detail { display: none; background: var(--bg); border-top: 1px solid var(--panel-bd); padding: 20px 24px; animation: slide-in 0.15s ease; }
 @keyframes slide-in { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 .course-detail.open { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -31,10 +24,8 @@
     font-size: calc(10px * var(--mod-font-size)); 
     letter-spacing: 0.13em; 
     text-transform: uppercase; 
-    /*color: var(--color-accent-courses);*/ 
     margin-bottom: 10px; 
     color: #f1f1f1;
-    /*background: var(--color-accent-courses);*/
     background: #3f3f3f;
     
     border-radius: 4px;
@@ -44,7 +35,6 @@
 .cd-body   { font-family: var(--sans); font-size: calc(15px * var(--mod-font-size)); line-height: 1.65; color: var(--ink-soft); }
 .cd-body p { margin-bottom: 8px; }
 
-/* ── Files tab ── */
 .cd-file-list { display: flex; flex-direction: column; gap: 8px; }
 .cd-file-row {
     display: flex;
@@ -64,7 +54,6 @@
 .cd-file-icon { color: var(--color-accent-courses); font-size: 1.1em; flex-shrink: 0; }
 .cd-file-name { word-break: break-word; }
 
-/* ── Schedule table ── */
 .cd-schedule { 
     grid-column: 1/-1; 
     border-top: 1px solid var(--panel-bd); 
@@ -83,18 +72,15 @@
     color: var(--ink-faint); 
     letter-spacing: 0.08em; 
     text-transform: uppercase; 
-    /*border-bottom: 1px solid var(--panel-bd); */
     font-size: calc(12px * var(--mod-font-size)); 
 }
 .schedule-table td { 
     padding: 5px 8px; 
-    /*border-bottom: 1px solid rgba(0,0,0,0.04);*/ 
     color: var(--ink-soft); 
     vertical-align: top; 
 }
 .schedule-table tr:hover td { background: var(--bg2); }
 
-/*.schedule-theme    { display: inline-block; padding: 1px 6px; border-radius: 2px; font-size: 8.5px; letter-spacing: 0.06em; background: var(--bg3); color: var(--ink-faint); }*/
 .schedule-theme    { 
     display: inline-block; 
     padding: 1px 6px; 
@@ -105,7 +91,6 @@
     color: var(--ink-faint); 
 }
 
-/* ── Theme grouping column ── */
 .theme-group-cell {
     width: 80px;
     padding: 0 4px;
@@ -122,7 +107,6 @@
     }
 .theme-last  .theme-group-cell { border-radius: 0 0 10px 10px; }
 .spacer-row td { padding: 0; height: 6px; background: transparent !important; border: none !important; }
-/*.schedule-table tr.spacer-row:hover td { background: transparent !important; }*/
 
 
 
@@ -154,7 +138,6 @@
 .ex-tooltip        { display: none; position: absolute; left: 0; top: 100%; z-index: 300; background: var(--ink); color: var(--bg); padding: 8px 10px; font-size: calc(10px * var(--mod-font-size)); line-height: 1.55; width: 280px; white-space: normal; margin-top: 3px; box-shadow: 3px 3px 0 rgba(0,0,0,0.2); }
 .ex-btn:hover .ex-tooltip { display: block; }
 
-/* ── Assessments ── */
 .cd-assessments { display: flex; flex-direction: column; gap: 6px; }
 .assess-row     { 
     display: flex; 
@@ -177,7 +160,6 @@
 .assess-row > div { flex: 1; }
 .assess-pct { flex-shrink: 0; }
 
-/* ── Assessment percentage grid (100 squares = 100%) ── */
 .assess-grid-block {
     margin-bottom: 16px;
 }
@@ -219,7 +201,6 @@
 }
 
 
-/* ── Teaching listing (State 1) — ported from v001 ────────────────── */
 .teaching-listing { padding: 20px 24px 32px; }
 
 .taught_course { padding: 4px 0 20px; }
@@ -242,7 +223,6 @@
     margin-left: 48px;
 }
 
-/* ── Course tags ── */
 .tag {
     width: fit-content;
     height: fit-content;
@@ -283,20 +263,14 @@
 .tag_uwm                { background:#ffc73b; color:#1f1f1f; }
 .tag_westminster        { background:#2459c9; color:#ffffff; }
 
-/* ── Course-page icon indicator (courses that have a full detail page) ──
-   The icon column is reserved for every course row so titles all line
-   up; only courses with a detail page actually render an icon inside it. */
 .taught_course_head {
     display: flex;
-    /*align-items: center;*/
     gap: 12px;
 }
 .taught_course_dot_col {
     width: 36px;
     flex-shrink: 0;
     display: flex;
-    /*align-items: center;*/
-    /*justify-content: center;*/
 }
 .taught_course_head_text {
     display: flex;
@@ -324,8 +298,6 @@
     filter: brightness(1.15);
     box-shadow: 0 0 0 4px rgba(0,0,0,0.06);
 }
-/* Course button: rounded tile in the course color with its icon centered
-   (same treatment as the .cxc tile on the course page). */
 .course-dot.course-btn {
     -webkit-mask-image: none;
     mask-image: none;
@@ -355,21 +327,6 @@
 
 
 
-/* ── Detail view layout (State 2) ──────────────────────────────── */
-
-
-/*
-    +---------------------------------+
-    | +-------+  ++++ +++++ +++ +++++ |
-    | |       |  +--------------------|
-    | +-------+  |                    |
-    | +-------+  |                    |
-    | |       |  |                    |
-    | |       |  |                    |
-    | +-------+  |                    |
-    +---------------------------------+
-    
-*/
 
 
 .cx-layout {
@@ -380,7 +337,6 @@
     background: var(--paper1);
 }
 
-/* Left sidebar */
 .cxa {
     display: flex;
     flex-direction: column;
@@ -410,14 +366,12 @@
 
 .cxd {
     padding: 20px;
-    /*border-bottom: 1px solid var(--panel-bd); */
     display: flex;
     flex-direction: column;
     gap: 4px;
     border-radius: 6px;
     background: var(--panel-bg-bright);
     border-radius: 6px;
-    /*padding: 12px;*/
 }
 .cxd-code   { display: flex; align-items: baseline; gap: 4px; }
 .cxd-pre    { 
@@ -431,7 +385,6 @@
 .cxd-pre    { 
     font-family: var(--mono); 
     font-size: calc(11px * var(--mod-font-size)); 
-    /*color: #1f1f1f;*/
     color: var(--color-accent-courses);
     background: transparent;
     letter-spacing: 0.1em; 
@@ -508,7 +461,6 @@
 }
 
 
-/* Right main */
 .cxb {
     display: flex;
     flex-direction: column;
@@ -518,7 +470,6 @@
 
 .course-nav-bar {
     display: flex;
-    /* border-bottom: 1px solid var(--panel-bd); */
     flex-shrink: 0;
     background: var(--bg3);
 }
@@ -530,16 +481,13 @@
     text-transform: uppercase;
     color: rgb(24, 24, 24, 0.55);
     cursor: pointer;
-    /* border-right: 1px solid var(--panel-bd); */
     transition: all 0.1s;
     white-space: nowrap;
     border-radius: 0px 0px 8px 8px;
 }
 .cx-tab:hover  { background: var(--bg2); color: var(--ink); }
 .cx-tab.active { 
-    /*background: var(--ink); */
     background: var(--color-accent-courses);
-    /*background: #2f2f2f;*/
     color: var(--bg); 
 }
 
@@ -560,15 +508,6 @@
 }
 .cx-pane.active  { display: block; }
 
-/* ── Mobile detail view (stacked) ──────────────────────────────────
-   Below this width the two-column grid (200px sidebar + content)
-   doesn't have room to breathe, so it collapses to one column: the
-   sidebar (.cxa) stays pinned at the top, the subnav (.course-nav-bar)
-   stacks into a vertical list right under it, and the selected pane
-   populates below that. Same markup, same tab-click JS -- just a
-   different flow, with the panel's own scrollbar (.panel-body) now
-   the only scroll container instead of each column scrolling on its
-   own. */
 @media (max-width: 700px) {
     .cx-layout {
         display: flex;
@@ -613,7 +552,6 @@
 
 
 
-/* Schedule */
 .special-bar {
     display: block;
     padding: 4px 10px;
@@ -632,13 +570,8 @@
 .special-lab          { 
     background: rgb(250, 248, 246, 0.25); 
     color: var(--ink-soft); 
-    /*border: 1px solid var(--panel-bd);*/ 
 }
 
-/* Inline tag for a partial highlight within an otherwise ordinary
-   topic cell (e.g. "Technique choosing, Exam 1") -- same idea as
-   .special-bar above, but sized to sit inline mid-sentence rather
-   than take over the whole cell. */
 .topic-tag {
     display: inline-flex;
     padding: 2px 7px;
@@ -652,18 +585,17 @@
     background: var(--color-exam-bg);
     color: var(--color-exam-font);
 }
-.topic-tag-lab {             /* labs / lab practicals */
+.topic-tag-lab {
     background: #6f98c4;
     color: #f1f1f1;
 }
-.topic-tag-exam-alt {        /* qualified exams: "Oral Exam 1", "Agent Exam 3" */
+.topic-tag-exam-alt {
     background: #cfae5c;
     color: #f1f1f1;
 }
 
 
 
-/* Learning goals */
 .lg-line {
     padding: 8px;
     font-family: var(--sans);
@@ -716,17 +648,14 @@
     background: #5e9fff;
 }
 
-/* Bloom's level colors (goal 'blooms': 1-6). Two classes, so these win
-   over the per-verb .lg-action-* colors whenever 'blooms' is set. */
-.lg-action.lg-blooms-1, polygon.lg-blooms-1 { background: #b9d7f5; fill: #b9d7f5; }  /* remember   - blue     */
-.lg-action.lg-blooms-2, polygon.lg-blooms-2 { background: #d8ccf1; fill: #d8ccf1; }  /* understand - lavender */
-.lg-action.lg-blooms-3, polygon.lg-blooms-3 { background: #f4b9b9; fill: #f4b9b9; }  /* apply      - red      */
-.lg-action.lg-blooms-4, polygon.lg-blooms-4 { background: #f8cfa5; fill: #f8cfa5; }  /* analyze    - orange   */
-.lg-action.lg-blooms-5, polygon.lg-blooms-5 { background: #f3e0a0; fill: #f3e0a0; }  /* evaluate   - gold     */
-.lg-action.lg-blooms-6, polygon.lg-blooms-6 { background: #bfe3c1; fill: #bfe3c1; }  /* create     - green    */
+.lg-action.lg-blooms-1, polygon.lg-blooms-1 { background: #b9d7f5; fill: #b9d7f5; }
+.lg-action.lg-blooms-2, polygon.lg-blooms-2 { background: #d8ccf1; fill: #d8ccf1; }
+.lg-action.lg-blooms-3, polygon.lg-blooms-3 { background: #f4b9b9; fill: #f4b9b9; }
+.lg-action.lg-blooms-4, polygon.lg-blooms-4 { background: #f8cfa5; fill: #f8cfa5; }
+.lg-action.lg-blooms-5, polygon.lg-blooms-5 { background: #f3e0a0; fill: #f3e0a0; }
+.lg-action.lg-blooms-6, polygon.lg-blooms-6 { background: #bfe3c1; fill: #bfe3c1; }
 .lg-action[class*="lg-blooms-"] { color: #1f1f1f; }
 
-/* Goals list + pyramid side by side */
 .lg-layout { display: flex; align-items: flex-start; gap: 20px; }
 .lg-list { flex: 1; min-width: 0; }
 .lg-blooms-pyramid { flex-shrink: 0; width: 200px; margin: 8px 0 0; text-align: center; }
@@ -753,11 +682,6 @@
 
 
 
-/* ═══════════════════════════════════════════════════════════════════
-   Instructions pane
-   ═══════════════════════════════════════════════════════════════════ */
-
-/* ── Outer layout: mini-nav on left, content on right ── */
 .instr-layout {
     display: grid;
     grid-template-columns: 140px 1fr;
@@ -766,7 +690,6 @@
     gap: 0;
 }
 
-/* ── Mini-nav sidebar ── */
 .instr-mini-nav {
     display: flex;
     flex-direction: column;
@@ -789,13 +712,10 @@
 }
 .instr-mini-tab:hover  { background: var(--bg2); color: var(--ink); }
 .instr-mini-tab.active {
-    /*background: var(--bg3);*/
     background: var(--bg3);
     color: var(--ink);
-    /*border-left: 3px solid var(--color-accent-courses);*/
 }
 
-/* ── Pane content area ── */
 .instr-content {
     overflow-y: auto;
     padding: 16px 20px;
@@ -806,7 +726,6 @@
 .instr-pane         { display: none; }
 .instr-pane.active  { display: block; }
 
-/* ── Lessons (standalone .html files, iframed in) ── */
 .lesson-frame {
     width: 100%;
     height: 600px;
@@ -843,13 +762,10 @@
     color: var(--ink-faint);
 }
 
-/* ── Generic content blocks ── */
 .instr-block {
     margin-bottom: 20px;
 }
 
-/* ── Rubric print button + picker (see buildInstructionsPane /
-   openPrintPicker in _teaching.js) ── */
 .instr-print-row {
     margin-bottom: 14px;
 }
@@ -1001,7 +917,6 @@
     list-style-type: decimal;
 }
 
-/* ── Presentation accordion ── */
 .instr-accordion {
     border: 1px solid var(--panel-bd);
     border-radius: 8px;
@@ -1068,31 +983,26 @@
 .instr-section:last-child { margin-bottom: 0; }
 
 
-/* 
- --------------------------------------------- 
- Formatting for inline
- -----------------------------------------------
- */
 .code-lesson-il {
-    display: inline;                     /* Keeps it flowing naturally inside text */
-    font-family: monospace;              /* Uses classic code lettering */
-    font-size: 0.9em;                    /* Slightly smaller than standard text */
-    background-color: #f3f4f6;          /* Soft light-gray background */
-    color: #d946ef;                      /* Vibrant magenta/pink code color */
-    padding: 2px 6px;                    /* Tiny padding around the text */
-    border-radius: 4px;                  /* Rounded corners */
-    border: 1px solid #e5e7eb;          /* Subtle border to pop off the page */
+    display: inline;
+    font-family: monospace;
+    font-size: 0.9em;
+    background-color: #f3f4f6;
+    color: #d946ef;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
 }
 .code_lesson-bl {
-    display: block;                      /* Forces a new line and fills container width */
-    white-space: pre;                    /* Keeps your tabs, spaces, and code indentation */
-    font-family: monospace;              /* Keeps font consistent with inline */
+    display: block;
+    white-space: pre;
+    font-family: monospace;
     font-size: 0.9em;
-    background-color: #1f2937;          /* Dark sleek background (VS Code style) */
-    color: #f9fafb;                      /* Crisp, bright white text */
-    padding: 16px;                       /* Generous spacing inside the block */
-    margin: 16px 0;                      /* Pushes surrounding paragraphs away */
-    border-radius: 8px;                  /* Rounded box corners */
-    overflow-x: auto;                    /* Adds a horizontal scrollbar if text is too wide */
-    border-left: 4px solid #3b82f6;      /* Stylish blue left border accent */
+    background-color: #1f2937;
+    color: #f9fafb;
+    padding: 16px;
+    margin: 16px 0;
+    border-radius: 8px;
+    overflow-x: auto;
+    border-left: 4px solid #3b82f6;
 }

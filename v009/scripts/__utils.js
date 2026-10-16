@@ -1,5 +1,4 @@
 // v009/site/scripts/__utils.js
-// Shared utilities. No dependencies. Consumed by all _*.js files via merged.js.
 
 export function esc(s) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

@@ -8,7 +8,6 @@
     color: var(--ink);
 }
 
-/* ── Controls ── */
 .curric-controls {
     display: flex;
     flex-wrap: wrap;
@@ -152,7 +151,6 @@
 .curric-btn:hover { border-color: var(--ink); background: var(--bg2); }
 .curric-btn-reset { border-color: var(--color-accent-projects); }
 
-/* ── Legend ── */
 .curric-legend {
     display: flex;
     flex-wrap: wrap;
@@ -170,15 +168,11 @@
     flex-shrink: 0;
 }
 
-/* ── Table ── */
 .curric-table-wrap {
     overflow-x: auto;
     border: 1px solid var(--panel-bd);
     border-radius: var(--border-radius2);
 }
-/* Always exactly the wrapper's width, never wider -- program columns
-   (minmax(0,1fr) in gridTemplate()) shrink to fit however many there
-   are, rather than the table growing and needing horizontal scroll. */
 .curric-table { width: 100%; }
 
 .curric-header-row, .curric-group-header, .curric-row {
@@ -368,7 +362,6 @@
 .curric-cell-elective {
     color: #4a3b0f;
 }
-/* Star (required) / hollow circle (elective) in a program cell. */
 .curric-mark { font-size: calc(17px * var(--mod-font-size)); line-height: 1; color: var(--ink); }
 .curric-col-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
 .curric-cell-blank {
