@@ -389,7 +389,9 @@
       ],
       "number": "1040",
       "title": "Data Science II",
-      "prereqs": []
+      "prereqs": [
+        "dat1030"
+      ]
     },
     "dat2190": {
       "prefixes": [
@@ -397,7 +399,9 @@
       ],
       "number": "2190",
       "title": "Ethics in Data Science",
-      "prereqs": []
+      "prereqs": [
+        "dat1030"
+      ]
     },
     "dat3090": {
       "prefixes": [
@@ -405,7 +409,11 @@
       ],
       "number": "3090",
       "title": "Machine Learning (QR)",
-      "prereqs": []
+      "prereqs": [
+        "mth1120",
+        "csc1100",
+        "csc1810"
+      ]
     },
     "dat3350": {
       "prefixes": [
@@ -413,7 +421,11 @@
       ],
       "number": "3350",
       "title": "Data Science Portfolio I",
-      "prereqs": []
+      "prereqs": [
+        "dat1040",
+        "mth1050",
+        "mth3050"
+      ]
     },
     "dat4350": {
       "prefixes": [
@@ -421,7 +433,9 @@
       ],
       "number": "4350",
       "title": "Data Science Portfolio II",
-      "prereqs": []
+      "prereqs": [
+        "dat3350"
+      ]
     },
     "dat4990": {
       "prefixes": [
@@ -735,7 +749,9 @@
       ],
       "number": "1120",
       "title": "Calculus I",
-      "prereqs": []
+      "prereqs": [
+        "mth1070"
+      ]
     },
     "mth1220": {
       "prefixes": [
@@ -743,7 +759,9 @@
       ],
       "number": "1220",
       "title": "Calculus II",
-      "prereqs": []
+      "prereqs": [
+        "mth1120"
+      ]
     },
     "mth1240": {
       "prefixes": [
@@ -751,7 +769,12 @@
       ],
       "number": "1240",
       "title": "Discrete Structures",
-      "prereqs": []
+      "prereqs": [
+        "mth1120",
+        "csc1100",
+        "csc1810",
+        "dat1030"
+      ]
     },
     "mth2020": {
       "prefixes": [
@@ -759,7 +782,9 @@
       ],
       "number": "2020",
       "title": "Differential Equations",
-      "prereqs": []
+      "prereqs": [
+        "mth1220"
+      ]
     },
     "mth2040": {
       "prefixes": [
@@ -787,7 +812,10 @@
       ],
       "number": "2090",
       "title": "Mathematical Computing",
-      "prereqs": []
+      "prereqs": [
+        "mth1220",
+        "mth1240"
+      ]
     },
     "mth2120": {
       "prefixes": [
@@ -795,7 +823,9 @@
       ],
       "number": "2120",
       "title": "Multivariable Calculus",
-      "prereqs": []
+      "prereqs": [
+        "mth1220"
+      ]
     },
     "mth2130": {
       "prefixes": [
@@ -803,7 +833,10 @@
       ],
       "number": "2130",
       "title": "Mathematics of Actuarial Science",
-      "prereqs": []
+      "prereqs": [
+        "mth1220",
+        "mth1240"
+      ]
     },
     "mth3030": {
       "prefixes": [
@@ -811,7 +844,10 @@
       ],
       "number": "3030",
       "title": "Probaility",
-      "prereqs": []
+      "prereqs": [
+        "mth1220",
+        "mth1240"
+      ]
     },
     "mth3040": {
       "prefixes": [
@@ -819,7 +855,9 @@
       ],
       "number": "3040",
       "title": "Abstract Algebra I",
-      "prereqs": []
+      "prereqs": [
+        "mth2040"
+      ]
     },
     "mth3050": {
       "prefixes": [
@@ -827,7 +865,12 @@
       ],
       "number": "3050",
       "title": "Statistics",
-      "prereqs": []
+      "prereqs": [
+        "mth1050",
+        "mth1055",
+        "egr2100",
+        "mth1220"
+      ]
     },
     "mth3120": {
       "prefixes": [
@@ -841,6 +884,16 @@
         "mth2040"
       ]
     },
+    "mth3140": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "3140",
+      "title": "Abstract Algebra II",
+      "prereqs": [
+        "mth3040"
+      ]
+    },
     "mth3180": {
       "prefixes": [
         "MTH"
@@ -850,6 +903,27 @@
       "prereqs": [
         "mth1220",
         "mth1240"
+      ]
+    },
+    "mth3220": {
+      "prefixes": [
+        "MTH"
+      ],
+      "number": "3220",
+      "title": "Complex Variables",
+      "prereqs": [
+        "mth1220"
+      ]
+    },
+    "mth3470": {
+      "prefixes": [
+        "MTH",
+        "PHY"
+      ],
+      "number": "3470",
+      "title": "Mathematics for Scientists and Engineers",
+      "prereqs": [
+        "mth2020"
       ]
     },
     "mth4300": {
@@ -868,13 +942,78 @@
       "title": "Senior Thesis Completion",
       "prereqs": []
     },
+    "phy1000": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "1000",
+      "title": "Physics for Future Presidents (SE) (QR)",
+      "prereqs": [
+        
+      ]
+    },
+    "phy1030": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "1030",
+      "title": "Astronomy (QR)",
+      "prereqs": [
+        
+      ]
+    },
+    "phy1050": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "1050",
+      "title": "Cosmology (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "phy1200": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "1200",
+      "title": "Fundamental Physics (SE) (QR)",
+      "prereqs": [
+        "mth1070"
+      ]
+    },
+    "phy2100": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "2100",
+      "title": "Physics I (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "phy2110": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "2110",
+      "title": "Physics II",
+      "prereqs": [
+        
+      ]
+    },
     "phy2200": {
       "prefixes": [
         "PHY"
       ],
       "number": "2200",
       "title": "General Physics I",
-      "prereqs": []
+      "prereqs": [
+        "phy1200",
+        "chm1020",
+        "egr1100",
+        "csc1820"
+      ]
     },
     "phy2210": {
       "prefixes": [
@@ -882,7 +1021,178 @@
       ],
       "number": "2210",
       "title": "General Physics II",
-      "prereqs": []
+      "prereqs": [
+        "phy2200",
+        "mth1220"
+      ]
+    },
+    "phy2300": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "2300",
+      "title": "MOdern Physics (OC)",
+      "prereqs": [
+        
+      ]
+    },
+    "phy2970": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "2970",
+      "title": "Physics Portfolio Seminar A",
+      "prereqs": [
+        "phy2210"
+      ]
+    },
+    "phy3100": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "3100",
+      "title": "Waves and Optics",
+      "prereqs": [
+        "phy2210",
+        "mth2020"
+      ]
+    },
+    "phy3170": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "3170",
+      "title": "Introduction to Computational Physics",
+      "prereqs": [
+        "phy2110"
+      ]
+    },
+    "phy3200": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "3200",
+      "title": "Mechanics",
+      "prereqs": [
+        "phy2210",
+        "mth2020"
+      ]
+    },
+    "phy3300": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "3300",
+      "title": "Thermodynamics",
+      "prereqs": [
+        "phy2210",
+        "mth2020"
+      ]
+    },
+    "phy3450": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "3450",
+      "title": "Data Analysis for Scientists and Engineers",
+      "prereqs": [
+        "mth1220",
+        "phy2210"
+      ]
+    },
+    "phy3960": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "3960",
+      "title": "Physics Portfolio Seminar B",
+      "prereqs": [
+        "phy2970"
+      ]
+    },
+    "phy3970": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "3970",
+      "title": "Physics Portfolio Seminar C",
+      "prereqs": [
+        "phy3960"
+      ]
+    },
+    "phy4100": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "4100",
+      "title": "Astrophysics",
+      "prereqs": [
+        "phy2210",
+        "mth2020"
+      ]
+    },
+    "phy4110": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "4110",
+      "title": "Observational Astrophysics",
+      "prereqs": [
+        "phy2210"
+      ]
+    },
+    "phy4120": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "4120",
+      "title": "Experimental Physics",
+      "prereqs": [
+        "phy2300"
+      ]
+    },
+    "phy4150": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "4150",
+      "title": "Science of Global Climate Change",
+      "prereqs": [
+        "geo3700",
+        "phy2200"
+      ]
+    },
+    "phy4200": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "4200",
+      "title": "Quantum Mechanics",
+      "prereqs": [
+        "phy2300",
+        "mth2020"
+      ]
+    },
+    "phy4300": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "4300",
+      "title": "Electricity and Magnetism",
+      "prereqs": [
+        "phy2210",
+        "mth2020"
+      ]
+    },
+    "phy4960": {
+      "prefixes": [
+        "PHY"
+      ],
+      "number": "4960",
+      "title": "Physics Portfolio D",
+      "prereqs": [
+        "phy3970"
+      ]
     }
   },
   "programs": [
@@ -1024,7 +1334,6 @@
         "csc3350",
         "csc3510",
         "csc3520",
-        "csc4000",
         "csc4350",
         "csc4910",
         "csc4920",
@@ -1038,7 +1347,7 @@
         "phy2210"
       ],
       "elective": {
-        "pick": null,
+        "pick": 2,
         "list": [
           "csc2810",
           "csc2910",

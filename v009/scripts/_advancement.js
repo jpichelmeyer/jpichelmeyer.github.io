@@ -111,8 +111,9 @@ function renderTeaching(prefixColors) {
 function renderScholarship() {
     document.getElementById('adv-tab-scholarship').innerHTML = `
         <div class="inst-plab-head">
+            <div class="inst-plab-name"><span class="inst-plab-tag" style="background:#55d46e">Pichelmeyer</span>'s</div>
             <img class="inst-plab-logo" src="./svgs/plab.svg" alt="PLAB logo" />
-            <div class="inst-plab-name"><span class="inst-plab-tag" style="background:#55d46e">Pichelmeyer</span>'s <span class="inst-plab-tag" style="background:#dea357">Lab</span> for<br><span class="inst-plab-tag" style="background:#de575e">Autonomy</span> and <span class="inst-plab-tag" style="background:#1ac0ff">Bioemulation</span></div>
+            <div class="inst-plab-name inst-plab-name-stack"><span class="inst-plab-tag" style="background:#dea357">Lab</span> for<br><span class="inst-plab-tag" style="background:#de575e">Autonomy</span> and<br><span class="inst-plab-tag" style="background:#1ac0ff">Bioemulation</span></div>
         </div>
         <div id="plab-actions"></div>
         <div class="inst-plab-grid">
