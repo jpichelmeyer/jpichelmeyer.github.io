@@ -1,21 +1,10 @@
 // v009/site/scripts/_advancement.js
-//
-// The "Institution" panel (internal id stays `advancement` so the
-// shared panel/nav wiring in _base.js/_base.css is untouched).
-// Three static subpages: Teaching, Scholarship, Service.
-//
-// Prefix pill colors are read from the same data file the Curriculum
-// Planner uses (data/curriculum.json -> prefixColors) and rendered
-// with its .curric-prefix-pill class, so the two always match.
 
 import { esc } from './__utils.js';
 
 const CURRICULUM_URL = './data/curriculum.json';
 const FALLBACK_PREFIX_COLOR = '#d8d5cf';
 
-// ---------------------------------------------------------------------
-// Teaching: most recent term first.
-// ---------------------------------------------------------------------
 const TERMS = [
     { label: 'AY 2026-2027 Spring', courses: [
         { prefixes: ['CSC'],        num: '1810', name: 'Principles of CS I' },
@@ -31,9 +20,6 @@ const TERMS = [
     ]},
 ];
 
-// ---------------------------------------------------------------------
-// Scholarship: PLAB projects.
-// ---------------------------------------------------------------------
 const PLAB_PROJECTS = [
     {
         icon: 'plab_explainable_ai.svg',
@@ -76,24 +62,13 @@ const PLAB_PROJECTS = [
     },
 ];
 
-// Cards are ordered by most recent `news` date (YYYY MM DD), then by name.
 const latestNews = p => (p.news || []).map(n => n.date).sort().pop() || '';
 PLAB_PROJECTS.sort((a, b) => latestNews(b).localeCompare(latestNews(a)) || a.name.localeCompare(b.name));
 
-// The recruiting-flyer generator (_plab_flyer.js) reads this same list at
-// click time, so editing a project here updates the page AND the next
-// flyer. `track` ('research' | 'applied') only controls which flyer
-// section a project appears under.
 window._plabProjects = PLAB_PROJECTS;
 
-// ---------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------
-const COMMITTEES = []; // e.g. { name: 'Curriculum Committee', role: 'Member', years: '2026-' }
+const COMMITTEES = [];
 
-// ---------------------------------------------------------------------
-// Render
-// ---------------------------------------------------------------------
 function renderTeaching(prefixColors) {
     const pill = p => `<span class="curric-prefix-pill" style="background:${esc(prefixColors[p] || FALLBACK_PREFIX_COLOR)}">${esc(p)}</span>`;
     document.getElementById('adv-tab-teaching').innerHTML = TERMS.map(t => `
@@ -156,7 +131,6 @@ function renderService() {
             : `<div class="inst-empty">No committee assignments listed yet.</div>`}
         </div>`;
 
-    // Opens Projects > Desktop > Curriculum Planner using the existing UI.
     host.querySelector('#inst-open-planner').addEventListener('click', (e) => {
         e.preventDefault();
         document.querySelector('.nav-btn[data-panel="projects"]')?.click();
@@ -171,7 +145,7 @@ function renderService() {
     try {
         const res = await fetch(CURRICULUM_URL, { cache: 'no-store' });
         prefixColors = (await res.json()).prefixColors || {};
-    } catch (e) { /* fall back to neutral pills */ }
+    } catch (e) { }
     renderTeaching(prefixColors);
     renderScholarship();
     renderService();
@@ -179,9 +153,6 @@ function renderService() {
     window.addEventListener('hashchange', openFromHash);
 })();
 
-// The flyer's QR code points at <site>/#plab. Nothing else on the site
-// uses URL hashes, so this is the whole routing layer: open the
-// Institution panel on its Scholarship tab.
 function openFromHash() {
     if (location.hash.toLowerCase() !== '#plab') return;
     const panel = document.getElementById('panel-advancement');

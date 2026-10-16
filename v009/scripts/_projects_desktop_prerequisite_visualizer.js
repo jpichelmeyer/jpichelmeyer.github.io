@@ -1,19 +1,4 @@
 // v009/site/scripts/_projects_desktop_prerequisite_visualizer.js
-//
-// Prerequisite Visualizer: tick courses in the list and they are drawn,
-// together with every course they (transitively) require, as a graph
-// read left to right. Prerequisites come from data/curriculum.json
-// (each course's `prereqs`: a list of course keys like "csc1810").
-//
-// Layout is redone on every change from only the courses on screen:
-// a course's column is the length of its longest prerequisite chain
-// among the shown courses, and the canvas is sized to those columns,
-// so it never stretches out over empty space. Nodes are colored by
-// prefix (cross-listed courses are split in half, one color per side).
-// Buttons up top add every course with a prefix, or every course a
-// program requires; "Fit view" scales the graph to fill the view.
-//
-// Self-contained: all state lives in init(); nothing to clean up.
 
 import { esc } from './__utils.js';
 
@@ -76,13 +61,11 @@ window._registerProject({
             };
 
             const draw = () => {
-                // everything the picked courses depend on
                 const shown = new Set(), todo = [...picked];
                 while (todo.length) { const c = todo.pop(); if (!shown.has(c)) { shown.add(c); todo.push(...prereqs[c]); } }
                 info.textContent = picked.size ? `${picked.size} picked, ${shown.size} shown` : (anyPrereqs ? '' : 'No prerequisites listed in the data yet.');
                 if (!shown.size) { stage.innerHTML = `<div class="pv-empty">Tick courses on the left to see them and the prerequisites they build on.</div>`; return; }
 
-                // columns from the longest prerequisite chain among shown courses only
                 const col = {}, busy = new Set();
                 const depth = c => {
                     if (c in col) return col[c];

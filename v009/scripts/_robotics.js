@@ -1,53 +1,15 @@
 // v009/site/scripts/_robotics.js
-//
-// The robotics workshop: a toolbox icon sitting on the same visual
-// layer as the particle life (behind the navbar/panels, above the
-// background), which opens into a part-assembly workspace, plus a
-// small block-programming IDE ("ROBASIC") for writing the deployed
-// robot's behavior. Deployed robots run on their own canvas layered
-// just above the particle life canvas, and their sensors read the
-// real, live particle array via window._particleLifeAPI (added with
-// a small, additive hook in _particlelife.js) -- nothing here fakes
-// or duplicates the simulation.
-//
-// Scope notes, since several things in the spec were qualitative
-// rather than exact numbers or left implementation details open:
-//   - Every part's concrete stat (capacity/recharge, power draw,
-//     weight, memory, speed) lives in data/robotics_parts.json, and
-//     each one was chosen specifically to honor every stated
-//     relationship (higher capacity -> lower recharge, higher speed
-//     -> more draw, higher memory -> more weight, movement draw
-//     scaling with both speed and weight, etc).
-//   - The chassis has two dedicated single slots (Processor, Power)
-//     rather than validation logic on a shared grid -- this makes
-//     "exactly one processor, exactly one power source" true by
-//     construction, never an invalid state to check for.
-//   - The general grid (sensors/movement/displays) is a fixed 3x2
-//     footprint; every part occupies exactly one cell regardless of
-//     its S/M/L size (size only affects stats, not footprint) --
-//     true multi-cell "fitting together" geometry was out of scope
-//     for a first version.
-//   - ROBASIC scripts are a flat, ordered list (drag-reorderable) of
-//     blocks executed one per simulation tick, wrapping back to the
-//     start forever once deployed. The two "If ... : Continue"
-//     blocks are the only control flow: if false, the very next
-//     block in the list is skipped that pass. This is intentionally
-//     small -- enough for real reactive behavior, not a general
-//     programming language.
 
 import { qsa, esc, clamp } from './__utils.js';
 
 const DATA_URL = './data/robotics_parts.json';
 
-const CELL_PX = 58;      // workshop chassis grid cell size (px)
-const DEPLOY_CELL = 8;   // deployed chassis cell size before ROBOT_SCALE
-const POWERDOWN_RECOVER_FRACTION = 1.0; // a drained robot recharges all the way back to full before resuming
-const ROBOT_SCALE = 1.6; // deployed robots are drawn this much bigger than the base 18x14 body
-const CHARGING_RATE_MULT = 4; // while powered down: no draw, steady recharge at rechargeRate x this
+const CELL_PX = 58;
+const DEPLOY_CELL = 8;
+const POWERDOWN_RECOVER_FRACTION = 1.0;
+const ROBOT_SCALE = 1.6;
+const CHARGING_RATE_MULT = 4;
 
-// ---------------------------------------------------------------------
-// Part icons (inline SVG, 32x32 viewBox), keyed by part id
-// ---------------------------------------------------------------------
 const ICON_INK = '#333c46';
 function svgIcon(inner) {
     return `<svg class="robo-part-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${ICON_INK}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
@@ -98,7 +60,6 @@ const STAT_ICONS = {
     recharge: svgIcon('<rect x="4" y="10" width="22" height="13" rx="2.5" fill="#f1f1f1"/><path d="M17 11 L12 17 H15.5 L14 22 L19.5 15.5 H16 Z" fill="#f5c518" stroke="none"/>'),
 };
 
-// Same icons as <img> sources, for drawing deployed robots on the canvas.
 const ICON_IMG = {};
 function iconImage(part) {
     if (!ICON_IMG[part.id]) {
@@ -114,12 +75,6 @@ function partIcon(part) { return PART_ICONS[part.id] || svgIcon('<rect x="6" y="
 let DATA = null;
 let dom = {};
 
-// ---------------------------------------------------------------------
-// Chassis being built in the workshop (not yet deployed)
-// ---------------------------------------------------------------------
-// A build is a chassis frame (cols x rows grid) plus the parts placed on
-// it: { cat, part, x, y, rot }. processor / power / general are derived,
-// so the stats, IDE and simulation code can keep reading them as before.
 function newChassis(frame = null) {
     return {
         frame,
@@ -130,22 +85,17 @@ function newChassis(frame = null) {
     };
 }
 let chassis = newChassis();
-let dragPayload = null; // { cat, part, from? } for the part currently being dragged
+let dragPayload = null;
 
-// ROBASIC script currently being edited (array of block id strings)
 let currentScript = [];
 let robasicDrag = null;
 
-// Deployed robots, simulated + drawn every frame once any exist
 let deployedRobots = [];
-let editingRobot = null; // a deployed robot currently loaded into the workshop, or null for a new build
+let editingRobot = null;
 let roboLoopStarted = false;
 
 function uid() { return 'r_' + Math.random().toString(36).slice(2, 9); }
 
-// ---------------------------------------------------------------------
-// Boot
-// ---------------------------------------------------------------------
 (async function init() {
     try {
         const res = await fetch(DATA_URL, { cache: 'no-store' });
@@ -175,7 +125,6 @@ function uid() { return 'r_' + Math.random().toString(36).slice(2, 9); }
     wireWorkshop();
     wireRobotClicks();
     dom.deployBtn.addEventListener('click', deployRobot);
-    // Withdraw: remove the robot being edited from the scene
     dom.withdrawBtn.addEventListener('click', () => {
         deployedRobots = deployedRobots.filter(r => r !== editingRobot);
         closeWorkshop();
@@ -194,23 +143,16 @@ function resizeRoboCanvas() {
     dom.roboCanvas.height = window.innerHeight;
 }
 
-// ===========================================================================
-// Toolbox
-// ===========================================================================
 function wireToolbox() {
     dom.toolbox.addEventListener('click', openWorkshop);
 }
 
 function openWorkshop() {
-    // The workshop is its own panel: opening it closes any open nav
-    // panel (and _base.js's closeAll() closes it in return).
     if (typeof window._closeAllPanels === 'function') window._closeAllPanels();
     dom.workshop.classList.add('active');
     dom.toolbox.classList.add('robo-hidden');
 }
 
-// Left-clicking a deployed robot opens the workshop loaded with that
-// robot; Deploy then becomes "Update" and applies changes in place.
 function wireRobotClicks() {
     document.addEventListener('click', (e) => {
         if (e.button !== 0 || e.target.closest('#navbar, .panel, #robo-workshop, #robo-toolbox')) return;
@@ -240,7 +182,7 @@ function closeWorkshop() {
     if (!dom.workshop || !dom.workshop.classList.contains('active')) return;
     dom.workshop.classList.remove('active');
     dom.toolbox.classList.remove('robo-hidden');
-    if (editingRobot) resetBuild(); // unapplied edits to a deployed robot are discarded
+    if (editingRobot) resetBuild();
 }
 
 window._closeRoboWorkshop = closeWorkshop;
@@ -249,9 +191,6 @@ function wireWorkshop() {
     dom.workshopClose.addEventListener('click', closeWorkshop);
 }
 
-// ===========================================================================
-// Parts palette (drag sources)
-// ===========================================================================
 function partsForCategory(catKey) { return DATA[catKey] || []; }
 
 function statLine(part, catKey) {
@@ -275,7 +214,6 @@ const CATEGORY_LABELS = {
     movement: 'Output \u2014 Movement', displays: 'Output \u2014 Display', generators: 'Output \u2014 Particle generator',
     pulsers: 'Output \u2014 Pulse emitter',
 };
-// At most one of each of these per robot
 const ONE_PER_ROBOT = { processors: 'processor', power: 'power source', movement: 'movement suite' };
 
 function renderPalette() {
@@ -301,7 +239,6 @@ function renderPalette() {
             if (icon && e.dataTransfer.setDragImage) e.dataTransfer.setDragImage(icon, 16, 16);
         });
         card.addEventListener('dragend', () => { card.classList.remove('robo-dragging'); dragPayload = null; clearGridPreview(); });
-        // Click = drop into the first spot where it fits
         card.addEventListener('click', () => {
             const part = findPart(card.dataset.cat, card.dataset.part);
             if (!chassis.frame || !part) return;
@@ -317,10 +254,6 @@ function findPart(catKey, partId) {
     return partsForCategory(catKey).find(p => p.id === partId) || null;
 }
 
-// ===========================================================================
-// Chassis (drop targets: 2 special slots + general grid)
-// ===========================================================================
-// Chassis shape: an optional mask of strings ('x' = cell exists).
 function cellOn(frame, x, y) {
     return x >= 0 && y >= 0 && x < frame.cols && y < frame.rows && (!frame.mask || frame.mask[y][x] === 'x');
 }
@@ -336,12 +269,10 @@ function frameCells(frame) {
 
 function pieceSize(part, rot) { return rot ? [part.h || 1, part.w || 1] : [part.w || 1, part.h || 1]; }
 
-// Returns a reason string if the part can't go at (x, y), else ''.
-// `ignore` is the index of a placed piece being moved (-1 for none).
 function placementProblem(cat, part, x, y, rot, ignore) {
     const one = ONE_PER_ROBOT[cat];
     if (one && chassis.placed.some((p, i) => i !== ignore && p.cat === cat)) return `Only one ${one} per robot.`;
-    if (x < 0 && y < 0) return ''; // category check only
+    if (x < 0 && y < 0) return '';
     const [w, h] = pieceSize(part, rot);
     if (!fitsFrame(chassis.frame, x, y, w, h)) return `${part.name} (${w}\u00d7${h}) doesn't fit there.`;
     const hit = chassis.placed.find((p, i) => {
@@ -359,7 +290,6 @@ function setGridHint(msg) {
 
 function renderChassis() {
     if (!chassis.frame) {
-        // Step 1: choose a chassis
         dom.chassisEl.innerHTML = `
             <div class="robo-chassis-pick-title">Choose a chassis -- every part mounts onto it</div>
             <div class="robo-chassis-pick">
@@ -373,7 +303,6 @@ function renderChassis() {
             </div>`;
         qsa('[data-chassis]', dom.chassisEl).forEach(b => b.addEventListener('click', () => {
             chassis.frame = DATA.chassis.find(c => c.id === b.dataset.chassis);
-            // Changing frames keeps whatever still fits inside the new bounds
             chassis.placed = chassis.placed.filter(p => { const [w, h] = pieceSize(p.part, p.rot); return fitsFrame(chassis.frame, p.x, p.y, w, h); });
             renderChassis();
         }));
@@ -383,7 +312,6 @@ function renderChassis() {
     }
 
     const f = chassis.frame;
-    // Only cells that exist on this frame are drawn; exterior sides get the outline.
     const cells = Array.from({ length: f.cols * f.rows }, (_, i) => {
         const x = i % f.cols, y = Math.floor(i / f.cols);
         if (!cellOn(f, x, y)) return '';
@@ -431,7 +359,7 @@ function renderChassis() {
             e.dataTransfer.effectAllowed = 'move';
         });
         el.addEventListener('dragend', () => { dragPayload = null; clearGridPreview(); });
-        el.addEventListener('click', () => { // rotate in place if it still fits
+        el.addEventListener('click', () => {
             const p = chassis.placed[i];
             if ((p.part.w || 1) === (p.part.h || 1)) return;
             const why = placementProblem(p.cat, p.part, p.x, p.y, !p.rot, i);
@@ -442,10 +370,9 @@ function renderChassis() {
     });
 
     renderStats();
-    renderIdePalette(); // available blocks depend on installed parts
+    renderIdePalette();
 }
 
-// Where would the dragged piece land? Centered on the cell under the pointer.
 function dropTarget(e) {
     const grid = dom.chassisEl.querySelector('.robo-grid');
     if (!grid || !dragPayload) return null;
@@ -492,9 +419,6 @@ function wireChassisDropTargets() {
     });
 }
 
-// ===========================================================================
-// Stats + Deploy gating
-// ===========================================================================
 function computeChassisStats() {
     let weight = chassis.frame ? chassis.frame.weight : 0;
     if (chassis.processor) weight += chassis.processor.weight;
@@ -522,7 +446,7 @@ function computeChassisStats() {
 
 function renderStats() {
     const s = computeChassisStats();
-    const canDeploy = !!chassis.frame; // a bare chassis is a valid (if inert) robot
+    const canDeploy = !!chassis.frame;
     dom.deployBtn.disabled = !canDeploy;
 
     dom.deployBtn.textContent = editingRobot ? 'Update robot' : 'Deploy';
@@ -536,9 +460,6 @@ function renderStats() {
         (chassis.power ? card('recharge', 'Recharge', `${chassis.power.rechargeRate.toFixed(3)}/tick (cap ${chassis.power.capacity})`) : '');
 }
 
-// ===========================================================================
-// Deploy
-// ===========================================================================
 function deployRobot() {
     if (!chassis.frame) return;
     const stats = computeChassisStats();
@@ -594,15 +515,9 @@ function deployRobot() {
     closeWorkshop();
     ensureRoboLoop();
 
-    // Reset the workbench for the next build, matching "drop the robot
-    // onto the scene" as a distinct, consumed action rather than a
-    // reusable template.
     resetBuild();
 }
 
-// ===========================================================================
-// ROBASIC IDE
-// ===========================================================================
 function currentMemoryTotal() {
     return chassis.processor ? chassis.processor.memory : 0;
 }
@@ -610,8 +525,6 @@ function currentMemoryGrid() {
     return chassis.processor ? chassis.processor.memGrid : [3, 2];
 }
 
-// A block with `requires` (movement / sensors / generators) only shows
-// up once the chassis has at least one part of that kind installed.
 function blockAvailable(b) {
     if (!b.requires) return true;
     const s = computeChassisStats();
@@ -707,8 +620,6 @@ function refreshIdeMemoryCapacity() {
     }
 }
 
-// ── ROBASIC script drag-to-reorder (same pointer-based pattern used
-//    elsewhere on the site for row/column/group reordering) ──
 function onScriptDragStart(e) {
     e.preventDefault();
     const row = e.target.closest('.robasic-block-row');
@@ -750,9 +661,6 @@ function onScriptDragEnd() {
     renderScript();
 }
 
-// ===========================================================================
-// Robot simulation + rendering
-// ===========================================================================
 function readSensors(robot, particles, bounds) {
     let nearest = null, nearestD = Infinity;
     let sensing = false;
@@ -771,7 +679,6 @@ function readSensors(robot, particles, bounds) {
             }
             if (count >= sensorPart.densityThreshold) sensing = true;
         } else if (sensorPart.detects === 'ping') {
-            // Latched result of the last completed ping (see stepPulses)
             if (robot.pingEcho) {
                 sensing = true;
                 const t = robot.pingEcho;
@@ -787,9 +694,6 @@ function readSensors(robot, particles, bounds) {
         }
     }
 
-    // A generic "nearest for aiming" fallback, used by turn blocks even
-    // when only a density/velocity sensor (no inherent single target) is
-    // equipped -- aim at whatever's closest within the widest range.
     if (!nearest && robot.sensors.length) {
         const widest = Math.max(...robot.sensors.map(s => s.range));
         for (const p of particles) {
@@ -814,18 +718,14 @@ function stepRobot(robot, bounds) {
     robot.tickCounter++;
     stepPulses(robot);
 
-    // Without both a processor and a power source it's just a chunk of metal.
     if (!robot.processor || !robot.power) return;
 
-    // Sensing refreshes every tick regardless of what instruction runs.
     if (window._particleLifeAPI) readSensors(robot, window._particleLifeAPI.getParticles(), bounds);
 
     let moved = false;
 
     if (!robot.poweredDown && robot.script.length) {
         const block = robot.script[robot.pointer % robot.script.length];
-        // Blocks with an editable tick count (Move Forward, Wait) stay on
-        // the same block for that many ticks before advancing.
         const holdBlock = () => {
             if (robot.blockTicksLeft === null) robot.blockTicksLeft = Math.max(1, block.arg || 1);
             robot.blockTicksLeft--;
@@ -877,9 +777,6 @@ function stepRobot(robot, bounds) {
         if (robot.pointer >= robot.script.length) robot.pointer = 0;
     }
 
-    // Power: draw while idle (processor/sensors/displays always on),
-    // extra draw while actually moving, offset by recharge every tick.
-    // A powered-down robot draws nothing and charges at a steady rate.
     let draw = robot.processor.powerDraw;
     robot.sensors.forEach(s => draw += s.powerDraw);
     robot.displays.forEach(d => draw += d.powerDraw);
@@ -919,7 +816,6 @@ function emitFromGenerators(robot) {
             const species = g.species === 'same' ? same
                 : g.species === 'nearest' ? (robot.sensedTarget ? robot.sensedTarget.c : pick())
                 : pick();
-            // Spawn just behind the robot so particles don't land on top of it.
             const back = robot.heading + Math.PI + (Math.random() - 0.5) * 1.2;
             const dist = robotRadius(robot) + 4 + Math.random() * 8;
             window._particleLifeAPI.spawn(robot.x + Math.cos(back) * dist, robot.y + Math.sin(back) * dist, species);
@@ -927,7 +823,6 @@ function emitFromGenerators(robot) {
     });
 }
 
-// ── Expanding rings: sonar pings (sensor) and fired pulses (output) ──
 function firePulsers(robot) {
     robot.pulsers.forEach((g, i) => {
         const key = g.id + '_p' + i;
@@ -939,7 +834,6 @@ function firePulsers(robot) {
 }
 
 function stepPulses(robot) {
-    // Sonar pingers fire on their own interval while the robot is running
     if (robot.processor && robot.power && !robot.poweredDown) {
         robot.sensors.forEach(sn => {
             if (sn.detects === 'ping' && robot.tickCounter % sn.interval === 0) {
@@ -972,8 +866,6 @@ function angleTo(robot, target, bounds) {
     return Math.atan2(dy, dx);
 }
 
-// Deployed robots are drawn as their chassis grid, parts exactly where
-// they sit in the workshop, with the grid's top row facing forward.
 function robotCell() { return DEPLOY_CELL * ROBOT_SCALE; }
 function robotHalf(robot) { const c = robotCell(); return [robot.frame.cols * c / 2, robot.frame.rows * c / 2]; }
 function robotRadius(robot) { const [hw, hh] = robotHalf(robot); return Math.hypot(hw, hh); }
@@ -983,7 +875,6 @@ function drawRobot(ctx, robot) {
     const [hw, hh] = robotHalf(robot);
     const R = robotRadius(robot);
 
-    // Pulse / ping rings
     for (const pl of robot.pulses) {
         ctx.beginPath();
         ctx.arc(pl.x, pl.y, pl.r, 0, Math.PI * 2);
@@ -998,7 +889,6 @@ function drawRobot(ctx, robot) {
     ctx.translate(robot.x, robot.y);
     ctx.rotate(robot.heading + Math.PI / 2);
     ctx.globalAlpha = robot.poweredDown || !robot.power || !robot.processor ? 0.55 : 1;
-    // Chassis plate: one square per existing cell, outlined on exterior sides
     const f = robot.frame;
     for (let y = 0; y < f.rows; y++) for (let x = 0; x < f.cols; x++) {
         if (!cellOn(f, x, y)) continue;
@@ -1017,7 +907,6 @@ function drawRobot(ctx, robot) {
         if (!cellOn(f, x - 1, y)) { ctx.moveTo(x0, y0); ctx.lineTo(x0, y0 + c); }
         ctx.stroke();
     }
-    // Parts
     for (const p of robot.placed) {
         const [w, h] = pieceSize(p.part, p.rot);
         const x = -hw + p.x * c, y = -hh + p.y * c;
@@ -1029,7 +918,6 @@ function drawRobot(ctx, robot) {
         const img = iconImage(p.part);
         if (img.complete) ctx.drawImage(img, x + (w * c - s) / 2, y + (h * c - s) / 2, s, s);
     }
-    // Front marker
     ctx.fillStyle = '#f0a830';
     ctx.beginPath();
     ctx.moveTo(0, -hh - 5); ctx.lineTo(-4, -hh - 1); ctx.lineTo(4, -hh - 1); ctx.closePath();
@@ -1038,7 +926,6 @@ function drawRobot(ctx, robot) {
 
     if (!robot.power) return;
 
-    // Charge ring (screen-aligned, not rotated with heading)
     ctx.save();
     ctx.translate(robot.x, robot.y);
     const pct = robot.charge / robot.capacity;
@@ -1048,14 +935,11 @@ function drawRobot(ctx, robot) {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Charging: a flashing yellow bar under the robot (the ring above
-    // fills back up in yellow as it charges).
     if (robot.poweredDown && Math.floor(robot.tickCounter / 15) % 2 === 0) {
         ctx.fillStyle = '#f5c518';
         ctx.fillRect(-12, R + 8, 24, 3);
     }
 
-    // Display element flair
     if (robot.displays.some(d => d.style === 'fancy')) {
         robot.displayPhase += 0.12;
         const hue = (robot.displayPhase * 60) % 360;
@@ -1073,7 +957,6 @@ function drawRobot(ctx, robot) {
     ctx.restore();
 }
 
-// Name tag that follows the robot (drawn unscaled so text stays crisp).
 function drawNameTag(ctx, robot) {
     if (!robot.name) return;
     ctx.save();
@@ -1094,15 +977,11 @@ function drawNameTag(ctx, robot) {
     ctx.restore();
 }
 
-// Particle collision against the robot's actual cell shape, in the
-// robot's local frame. Returns [x, y, nx, ny] (corrected position and
-// outward normal) or null when the particle isn't touching it.
 function makeResolver(frame, c) {
     const hw = frame.cols * c / 2, hh = frame.rows * c / 2;
     return (lx, ly, r) => {
         const cx = Math.floor((lx + hw) / c), cy = Math.floor((ly + hh) / c);
         if (cellOn(frame, cx, cy)) {
-            // Center is inside a cell: leave through the nearest side that faces open space
             const x0 = -hw + cx * c, y0 = -hh + cy * c;
             const exits = [[lx - x0, -1, 0], [x0 + c - lx, 1, 0], [ly - y0, 0, -1], [y0 + c - ly, 0, 1]]
                 .filter(([, nx, ny]) => !cellOn(frame, cx + nx, cy + ny)).sort((a, b) => a[0] - b[0]);
@@ -1110,7 +989,6 @@ function makeResolver(frame, c) {
             const [d, nx, ny] = exits[0];
             return [lx + nx * (d + r), ly + ny * (d + r), nx, ny];
         }
-        // Center is outside: push away from the closest point of any nearby cell
         let best = null;
         for (let y = cy - 1; y <= cy + 1; y++) for (let x = cx - 1; x <= cx + 1; x++) {
             if (!cellOn(frame, x, y)) continue;
@@ -1139,7 +1017,7 @@ function ensureRoboLoop() {
                 return { x: r.x, y: r.y, hw, hh, angle: r.heading + Math.PI / 2, resolve: r.resolve };
             }));
         }
-        if (!deployedRobots.length) return; // (canvas cleared above, so a withdrawn robot disappears)
+        if (!deployedRobots.length) return;
         const bounds = window._particleLifeAPI ? window._particleLifeAPI.getBounds() : { width: dom.roboCanvas.width, height: dom.roboCanvas.height, navH: 52 };
         for (const robot of deployedRobots) {
             stepRobot(robot, bounds);
@@ -1150,9 +1028,6 @@ function ensureRoboLoop() {
     requestAnimationFrame(loop);
 }
 
-// Minimal read-only debug hook, in the same spirit as
-// window._particleLifeAPI -- useful for verifying robot behavior
-// (and potentially for a future stats/inspector UI), not just tests.
 window._roboticsDebug = {
     getDeployedRobots() { return deployedRobots; },
     getChassis() { return chassis; },

@@ -47,11 +47,6 @@ import json
 import os
 import sys
 
-# ---------------------------------------------------------------------------
-# Small input helpers (same style as the site's cellular_automata.py, for
-# anyone who's seen that one -- numbered menu, validated free-text prompt).
-# ---------------------------------------------------------------------------
-
 def ask_choice(prompt, options):
     while True:
         print(prompt)
@@ -62,10 +57,6 @@ def ask_choice(prompt, options):
             return options[int(raw) - 1]
         print("Please enter a number from the list above.\n")
 
-
-# ---------------------------------------------------------------------------
-# Locating the course + shared JSON
-# ---------------------------------------------------------------------------
 
 def find_courses_dir():
     """Look for a courses/ folder starting from the current directory and
@@ -85,10 +76,8 @@ def find_courses_dir():
 
 
 def resolve_course_path(arg, courses_dir):
-    # A direct path to a .json file (relative or absolute).
     if arg and os.path.isfile(arg):
         return arg
-    # A bare course key, e.g. "mth1220" -> courses/mth1220.json
     if arg and courses_dir:
         candidate = os.path.join(courses_dir, f"{arg}.json")
         if os.path.isfile(candidate):
@@ -125,12 +114,6 @@ def pick_course_interactively(courses_dir):
     return os.path.join(courses_dir, f"{key}.json")
 
 
-# ---------------------------------------------------------------------------
-# Terminal color swatches (best-effort only -- shared.json is optional here,
-# and if it's missing/malformed we just skip the swatches, since none of the
-# actual weight math depends on it).
-# ---------------------------------------------------------------------------
-
 def load_shared_colors(courses_dir):
     if not courses_dir:
         return {}
@@ -157,10 +140,6 @@ def swatch(hexcolor):
     except Exception:
         return ''
 
-
-# ---------------------------------------------------------------------------
-# The actual category/item weight computation
-# ---------------------------------------------------------------------------
 
 def build_categories(assess_list):
     """Groups assessments by 'type' (in first-seen order), computes each
@@ -200,10 +179,6 @@ def build_categories(assess_list):
 def category_label(t):
     return t.replace('_', ' ').replace('-', ' ').title()
 
-
-# ---------------------------------------------------------------------------
-# Report
-# ---------------------------------------------------------------------------
 
 def print_report(course_data, categories, colors):
     title = f"{course_data.get('pre','')} {course_data.get('num','')}".strip()
@@ -265,10 +240,6 @@ def write_text_file(course_path, course_data, categories, colors):
         f.write('\n'.join(lines) + '\n')
     return out_path
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 def main():
     courses_dir = find_courses_dir()

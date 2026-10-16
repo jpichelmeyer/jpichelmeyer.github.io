@@ -1,7 +1,4 @@
 // v009/site/scripts/_projects_desktop_error_monster.js
-//
-// Error Monster: not embedded here. Opening the row shows the game's
-// description and a link out to its itch.io page.
 
 const ITCH_URL = 'https://jpichelmeyer.itch.io/error-monster';
 

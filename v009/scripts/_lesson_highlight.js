@@ -1,18 +1,4 @@
 // v009/site/scripts/_lesson_highlight.js
-//
-// Adds syntax highlighting to <code class="code-lesson-bl"> blocks
-// inside a lesson's .code-block[data-lang="..."] wrapper. Called once
-// per lesson iframe from mountLessonFrame() in _teaching.js, so no
-// individual lesson .html file needs to change.
-//
-// Only this file knows which words are keywords/types per language;
-// it always emits the same handful of generic classes (hl-kw, hl-type,
-// hl-str, hl-com, hl-num, hl-fn). The actual color per language is
-// pure CSS in lessons_shared.css, scoped with the same
-// .code-block[data-lang="..."] selector already used for the header
-// colors -- so gdscript gets a Godot-4.6-ish palette, python gets a
-// Thonny-ish palette, and everything else (csharp included) falls
-// through to one shared "Jake default" palette, exactly as asked.
 
 const LANG_WORDS = {
     gdscript: {
@@ -29,15 +15,6 @@ const LANG_WORDS = {
             'except','finally','with','lambda','yield','global','nonlocal','raise','assert','del'],
         types: ['int','float','str','bool','list','dict','tuple','set','object','bytes'],
     },
-    // Same language, same keyword set as python above -- the distinct
-    // entry exists because MicroPython code leans heavily on a small
-    // set of hardware-facing class names (Pin, ADC, WLAN, ...) that are
-    // worth recognizing as their own token type even though they're
-    // ordinary classes, not language keywords, plus True/False/None are
-    // both common here and worth the same treatment.
-    // Pi terminal sessions and Mosquitto config files: only a few real
-    // words are worth coloring, and the C# fallback would wrongly color
-    // ordinary words like "new" or "for" in command output.
     shell: {
         keywords: ['sudo','apt','systemctl','journalctl','nano','cat','echo','ls','cd','mosquitto_sub','mosquitto_pub','mosquitto_passwd','ss','grep','tail'],
         types: [],
@@ -53,10 +30,6 @@ const LANG_WORDS = {
         types: ['int','float','str','bool','list','dict','tuple','set','object','bytes',
             'Pin','ADC','PWM','I2C','SPI','UART','Timer','RTC','WLAN','MQTTClient'],
     },
-    // Also the fallback for any data-lang value that isn't listed above
-    // (see langWords()) -- "csharp" and "default" are deliberately the
-    // same entry, matching the request for csharp's palette to double
-    // as the generic one.
     csharp: {
         keywords: ['if','else','for','foreach','while','return','class','public','private',
             'protected','internal','static','new','using','namespace','break','continue','true',
@@ -71,14 +44,6 @@ function langWords(dataLang) {
     return LANG_WORDS[dataLang] || LANG_WORDS.csharp;
 }
 
-// Same rules as the .hl-* block in lessons_shared.css, injected directly
-// into each lesson iframe instead of relying on that lesson's own
-// (separately cached, separately loaded) copy of the stylesheet to be
-// up to date. A stale per-iframe stylesheet cache would leave the
-// hl-* classes present in the DOM but completely uncolored -- exactly
-// a "highlighting silently doesn't show up" symptom with no console
-// error, which is the actual failure this is guarding against. Keep
-// this in sync with lessons_shared.css if either one changes.
 const HL_CSS = `
 .hl-kw   { color: #ff8a65; font-weight: 600; }
 .hl-type { color: #4fd1c5; }
@@ -120,11 +85,6 @@ const HL_CSS = `
 .code-block[data-lang="micropython"] .hl-fn   { color: #1a5fb4; }
 `;
 
-// One combined scanner for every language: line comments (# or //),
-// block comments (/* */), triple- and single-quoted strings, numbers,
-// and bare words. Whatever falls between matches (whitespace,
-// operators, punctuation) is passed through untouched. Good enough for
-// lesson snippets; not a real per-language lexer.
 const TOKEN_RE = /(#[^\n]*|\/\/[^\n]*|\/\*[\s\S]*?\*\/|"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+\.?\d*[fFdDlLuU]?\b|[A-Za-z_][A-Za-z0-9_]*)/g;
 
 function escapeHtml(s) {
@@ -156,9 +116,6 @@ function highlightSource(code, dataLang) {
     return out;
 }
 
-// Runs once against a lesson iframe's document. Safe to call more than
-// once on the same doc (marks each block as done, and only injects the
-// stylesheet once).
 export function highlightLessonDoc(doc) {
     const blocks = doc.querySelectorAll('.code-block[data-lang] > .code-lesson-bl');
     if (!blocks.length) return;

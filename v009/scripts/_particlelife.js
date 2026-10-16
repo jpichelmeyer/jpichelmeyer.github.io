@@ -1,23 +1,8 @@
 // v009/site/scripts/_particlelife.js
 
-/*
-    Particle Life (Dreher/Ahmed inspired)
-
-    Features:
-    - asymmetric ecological interactions
-    - (no mouse interaction: particles ignore the cursor entirely)
-    - cascading plague system
-*/
-
 import {esc, el, qsa, clamp} from './__utils.js';
 
 
-
-/* ====================================================================
-
-        Properties
-
-==================================================================== */
 
 const lifeCanvas = el('life-canvas');
 const nav        = el('navbar');
@@ -37,7 +22,6 @@ const COLORS_HEX = [
 ];
 
 
-// Ecological interaction matrix
 const RULES = [
     [ 0.5, -0.8,  0.3,  0.1,  0.6 ],
     [ 0.4,  0.6, -0.5,  0.2, -0.3 ],
@@ -53,15 +37,9 @@ const FORCE = 0.18;
 const DAMP  = 0.86;
 
 const POP = 180;
-const MAX_POP = 400; // right-click spawning stops adding particles past this
+const MAX_POP = 400;
 
 
-
-/* ====================================================================
-
-        State
-
-==================================================================== */
 
 let parts = [];
 
@@ -71,26 +49,16 @@ let mY = -9999;
 let mDown = false;
 
 
-// Right-click spawning
 let spawnEmit = false;
 let spawnCooldown = 0;
 
 
-// Plague waves
 let plagueWaves = [];
 
 
-// Solid obstacles (deployed robots): oriented rectangles
-// { x, y, hw, hh, angle } set each frame by _robotics.js
 let obstacles = [];
 
 
-
-/* ====================================================================
-
-        Functions
-
-==================================================================== */
 
 function resizeLife() {
 
@@ -165,12 +133,6 @@ function spawnParticle(x, y) {
 
 
 
-/* ====================================================================
-
-        Plague Waves
-
-==================================================================== */
-
 function emitCarrierWave(x, y) {
 
     plagueWaves.push({
@@ -211,22 +173,12 @@ function emitSpeciesWave(x, y, species) {
 
 
 
-/* ====================================================================
-
-        Simulation
-
-==================================================================== */
-
 function stepParticles() {
 
     const W = lifeCanvas.width;
     const H = lifeCanvas.height;
 
 
-
-    // ─────────────────────────────────────────────
-    // Continuous right-click spawning
-    // ─────────────────────────────────────────────
 
     if (spawnEmit) {
 
@@ -262,10 +214,6 @@ function stepParticles() {
 
 
 
-    // ─────────────────────────────────────────────
-    // Advance plague waves
-    // ─────────────────────────────────────────────
-
     for (const w of plagueWaves) {
 
         w.r += w.speed;
@@ -274,17 +222,12 @@ function stepParticles() {
 
 
 
-    // ─────────────────────────────────────────────
-    // Particle simulation
-    // ─────────────────────────────────────────────
-
     for (const p of parts) {
 
         let fx = 0;
         let fy = 0;
 
 
-        // Particle interactions
         for (const q of parts) {
 
             if (q === p) {
@@ -304,7 +247,6 @@ function stepParticles() {
             const ny = dy / d;
 
 
-            // Repulsion
             if (d < R_MIN) {
 
                 const rep =
@@ -314,7 +256,6 @@ function stepParticles() {
                 fy -= ny * rep * 1.2;
             }
 
-            // Attraction
             else {
 
                 const t =
@@ -340,10 +281,6 @@ function stepParticles() {
 
 
 
-        // ─────────────────────────────────────────
-        // Plague interactions
-        // ─────────────────────────────────────────
-
         for (const w of plagueWaves) {
 
             const dx = p.x - w.x;
@@ -351,9 +288,6 @@ function stepParticles() {
 
             const d = Math.hypot(dx, dy);
 
-
-            // Carrier wave
-            // seeds species plague
 
             if (
                 w.type === 'carrier' &&
@@ -371,9 +305,6 @@ function stepParticles() {
             }
 
 
-            // Species wave
-            // kills only matching species
-
             else if (
                 w.type === 'species' &&
                 p.c === w.species &&
@@ -385,10 +316,6 @@ function stepParticles() {
         }
 
 
-
-        // ─────────────────────────────────────────
-        // Integrate
-        // ─────────────────────────────────────────
 
         p.vx =
             (p.vx + fx) * DAMP;
@@ -411,18 +338,14 @@ function stepParticles() {
         p.y += p.vy;
 
 
-        // Robots are solid: push the particle back out to the robot's
-        // edge and cancel the inward part of its velocity, so it stops
-        // or slides around the side instead of passing through.
         for (const o of obstacles) {
             const cos = Math.cos(o.angle), sin = Math.sin(o.angle);
             const rx = p.x - o.x, ry = p.y - o.y;
-            const lx = rx * cos + ry * sin, ly = -rx * sin + ry * cos; // into robot frame
+            const lx = rx * cos + ry * sin, ly = -rx * sin + ry * cos;
             const hw = o.hw + p.r, hh = o.hh + p.r;
             if (Math.abs(lx) >= hw || Math.abs(ly) >= hh) continue;
-            let nx = 0, ny = 0, px, py; // local outward normal + corrected local position
+            let nx = 0, ny = 0, px, py;
             if (o.resolve) {
-                // Non-rectangular robot: it resolves against its own shape
                 const hit = o.resolve(lx, ly, p.r);
                 if (!hit) continue;
                 [px, py, nx, ny] = hit;
@@ -433,14 +356,12 @@ function stepParticles() {
             }
             p.x = o.x + px * cos - py * sin;
             p.y = o.y + px * sin + py * cos;
-            const wx = nx * cos - ny * sin, wy = nx * sin + ny * cos; // world normal
+            const wx = nx * cos - ny * sin, wy = nx * sin + ny * cos;
             const vn = p.vx * wx + p.vy * wy;
             if (vn < 0) { p.vx -= vn * wx; p.vy -= vn * wy; }
         }
 
 
-
-        // Toroidal wrap
 
         if (p.x < 0) {
             p.x += W;
@@ -461,17 +382,14 @@ function stepParticles() {
 
 
 
-    // Remove dead particles
     parts = parts.filter(
         p => !p.dead
     );
 
-    // Update navbar counter
     const popCtEl = document.getElementById('pop-ct');
     if (popCtEl) popCtEl.textContent = parts.length;
 
 
-    // Remove expired waves
     plagueWaves =
         plagueWaves.filter(
             w => w.life > 0
@@ -479,12 +397,6 @@ function stepParticles() {
 }
 
 
-
-/* ====================================================================
-
-        Render
-
-==================================================================== */
 
 function renderParticles() {
 
@@ -499,7 +411,6 @@ function renderParticles() {
     lctx.globalAlpha = 0.82;
 
 
-    // Particles
     for (const p of parts) {
 
         lctx.beginPath();
@@ -523,7 +434,6 @@ function renderParticles() {
 
 
 
-    // Plague waves
     for (const w of plagueWaves) {
 
         lctx.beginPath();
@@ -537,7 +447,6 @@ function renderParticles() {
         );
 
 
-        // Carrier wave
         if (w.type === 'carrier') {
 
             lctx.strokeStyle =
@@ -546,7 +455,6 @@ function renderParticles() {
             lctx.lineWidth = 3;
         }
 
-        // Species wave
         else {
 
             lctx.strokeStyle =
@@ -566,12 +474,6 @@ function renderParticles() {
 
 
 
-/* ====================================================================
-
-        Main Loop
-
-==================================================================== */
-
 function lifeLoop() {
 
     requestAnimationFrame(lifeLoop);
@@ -581,12 +483,6 @@ function lifeLoop() {
 }
 
 
-
-/* ====================================================================
-
-        Execution
-
-==================================================================== */
 
 resizeLife();
 
@@ -603,19 +499,6 @@ requestAnimationFrame(lifeLoop);
 
 
 
-/* ====================================================================
-
-        Robotics hook (minimal, read-mostly API)
-
-    Exposes just enough for _robotics.js to build sensors that read
-    genuine simulation state, and for deployed robots to nudge nearby
-    particles the same gentle way the mouse already does -- without
-    _robotics.js needing to reach into this module's private state
-    directly, and without changing anything about how particle life
-    itself behaves when no robot is deployed.
-
-==================================================================== */
-
 window._particleLifeAPI = {
     getParticles() { return parts; },
     setObstacles(list) { obstacles = list; },
@@ -623,10 +506,6 @@ window._particleLifeAPI = {
     getBounds() {
         return { width: lifeCanvas.width, height: lifeCanvas.height, navH: NAV_H_L };
     },
-    // Mirrors the existing mouse-repel mechanic (see the "Mouse
-    // interaction" block in stepParticles) so a moving robot disturbs
-    // nearby particles the same gentle way the cursor does.
-    // Used by robot particle generators; respects the same MAX_POP cap.
     spawn(x, y, species) {
         if (parts.length >= MAX_POP) return false;
         const p = spawnParticle(x, y);
@@ -649,12 +528,6 @@ window._particleLifeAPI = {
 };
 
 
-
-/* ====================================================================
-
-        Event Listeners
-
-==================================================================== */
 
 window.addEventListener(
     'resize',

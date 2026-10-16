@@ -1,4 +1,4 @@
-/* v009/site/styles/_advancement.css -- "Institution" panel */
+/* v009/site/styles/_advancement.css */
 
 #panel-advancement .panel-body {
     font-family: var(--sans);
@@ -6,7 +6,6 @@
     padding: 20px 26px 40px;
 }
 
-/* ── Teaching: one card per term ── */
 .inst-term {
     background: var(--panel-bg-bright);
     border: 1.5px solid var(--panel-bd);
@@ -49,7 +48,6 @@
     font-style: italic;
 }
 
-/* ── Scholarship: PLAB ── */
 .inst-plab-head {
     display: flex;
     align-items: center;
@@ -113,7 +111,6 @@
     color: var(--ink-soft);
 }
 
-/* ── Service ── */
 .inst-service-block {
     font-size: calc(11.5px * var(--mod-font-size));
     line-height: 1.6;

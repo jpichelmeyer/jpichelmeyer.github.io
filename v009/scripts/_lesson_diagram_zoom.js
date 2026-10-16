@@ -1,23 +1,6 @@
 // _lesson_diagram_zoom.js
-//
-// Adds a small  -  100%  +  reset  control bar above every diagram in a
-// lesson iframe, so a reader can enlarge (or shrink) the diagrams, and
-// with them every label inside, to whatever size suits them.
-//
-// Like _lesson_highlight.js this runs once per lesson iframe load from
-// mountLessonFrame() in _teaching.js, so no lesson .html file needs to
-// change. It only touches .diagram blocks that contain an <svg>.
-//
-// How it zooms: the diagram's <svg> is set to (zoom x 100%) of the
-// diagram box's width. An SVG scales everything proportionally, so text
-// grows with the shapes. When it is wider than the box, the box scrolls
-// sideways. The chosen zoom is remembered (localStorage) and applied to
-// every diagram, in every lesson, so a reader sets it once.
-//
-// Which courses: on for every course. To limit it, set
-// ENABLE_FOR_ALL_COURSES = false and list course ids in ENABLED_COURSES.
 
-const ENABLED_COURSES = [];            // only used if ENABLE_FOR_ALL_COURSES is false
+const ENABLED_COURSES = [];
 const ENABLE_FOR_ALL_COURSES = true;
 
 const STORAGE_KEY = 'lessonDiagramZoom';
@@ -59,7 +42,7 @@ function loadZoom() {
     } catch (e) { return 1; }
 }
 function saveZoom(v) {
-    try { localStorage.setItem(STORAGE_KEY, String(v)); } catch (e) { /* private mode etc.: just don't remember it */ }
+    try { localStorage.setItem(STORAGE_KEY, String(v)); } catch (e) { }
 }
 
 export function addDiagramZoom(doc) {
@@ -76,7 +59,7 @@ export function addDiagramZoom(doc) {
     }
 
     let zoom = loadZoom();
-    const parts = [];   // one {svg, base, label, minus, plus} per diagram
+    const parts = [];
 
     function render() {
         for (const p of parts) {

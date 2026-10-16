@@ -1,13 +1,7 @@
 /* v009/site/styles/_research.css */
 
-/*
-   Research panel — Era I / II / III project listings.
-   Ported from v001's research section. Independent of _base.css.
-*/
 
 
-
-/* ── Era intro / placeholder text ── */
 .research-era-intro {
     font-family: var(--serif);
     font-size: calc(13px * var(--mod-font-size));
@@ -24,7 +18,6 @@
     text-align: center;
 }
 
-/* ── Research project rows ── */
 .research_paper_row {
     display: flex;
     flex-wrap: wrap;

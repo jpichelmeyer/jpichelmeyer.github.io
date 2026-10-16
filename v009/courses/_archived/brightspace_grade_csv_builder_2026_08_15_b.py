@@ -46,10 +46,6 @@ import json
 import os
 import sys
 
-# ---------------------------------------------------------------------------
-# Small input helpers (same style as brightspace_grade_cheatsheet.py)
-# ---------------------------------------------------------------------------
-
 def ask_choice(prompt, options):
     while True:
         print(prompt)
@@ -80,10 +76,6 @@ def ask_positive_number(prompt):
             pass
         print("Please enter a number greater than 0.")
 
-
-# ---------------------------------------------------------------------------
-# Locating the course + shared JSON (identical logic to the cheatsheet script)
-# ---------------------------------------------------------------------------
 
 def find_courses_dir():
     here = os.path.abspath('.')
@@ -137,22 +129,6 @@ def pick_course_interactively(courses_dir):
     return os.path.join(courses_dir, f"{key}.json")
 
 
-# ---------------------------------------------------------------------------
-# Category identification
-#
-# NOTE: unlike brightspace_grade_cheatsheet.py, this does NOT group entries
-# by their shared 'type' field. Two assessments can share a 'type' (e.g. all
-# three presentations are type "presentation") while still being distinct
-# graded categories in Brightspace, each with its own weight -- grouping by
-# type would incorrectly merge them into one category and split their
-# combined weight evenly, losing the 10/20/30 split the JSON actually
-# defines. So every entry in 'assess' becomes its own category here, using
-# its own 'name' as the label and its own 'percentage' as the weight. Entries
-# that really are meant to represent many individual instances (e.g. one
-# "Quizzes" entry standing in for ten actual quizzes) still work exactly the
-# same way as before -- they just get expanded into N items below.
-# ---------------------------------------------------------------------------
-
 def build_categories(assess_list):
     categories = []
     for a in assess_list:
@@ -161,10 +137,6 @@ def build_categories(assess_list):
         categories.append({'label': label, 'weight': weight})
     return categories
 
-
-# ---------------------------------------------------------------------------
-# Interactive collection: number of items + points per item, per category
-# ---------------------------------------------------------------------------
 
 def collect_item_specs(categories):
     """Asks the two questions per category and returns each category
@@ -184,10 +156,6 @@ def collect_item_specs(categories):
 
     return categories
 
-
-# ---------------------------------------------------------------------------
-# CSV construction
-# ---------------------------------------------------------------------------
 
 def build_header_and_row(categories):
     header = ["Username"]
@@ -209,7 +177,7 @@ def build_header_and_row(categories):
                 f"Category:{label} CategoryWeight:{cat['weight']:g}>"
             )
             header.append(col)
-            row.append("")  # blank grade cell for the dummy student
+            row.append("")
 
         header.append(f"{label} Subtotal Numerator")
         header.append(f"{label} Subtotal Denominator")
@@ -237,10 +205,6 @@ def write_csv(course_path, header, row):
         writer.writerow(row)
     return out_path
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 def main():
     courses_dir = find_courses_dir()

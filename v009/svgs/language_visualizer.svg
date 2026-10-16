@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- svgs/language_visualizer.svg : a graph with a face. Same 22x22 / black-line style as dull.svg -->
+<!-- svgs/language_visualizer.svg -->
 
 <svg
    viewBox="0 0 22 22"
@@ -42,15 +42,11 @@
      stroke-linejoin="round"
      id="g24"
      transform="translate(3.9000001,-3.9000001)">
-    <!-- influence edges from the little nodes to the big one -->
-    <!-- little nodes -->
-    <!-- the big node is the face -->
     <circle
        cx="11"
        cy="11"
        r="6.5999999"
        id="circle16" />
-    <!-- eyes: ring + pupil, like the file icon's -->
     <circle
        cx="8.6000004"
        cy="9.6000004"
@@ -61,7 +57,6 @@
        cy="9.6000004"
        r="1.6"
        id="circle20" />
-    <!-- mouth -->
     <path
        d="m 8.2,13.2 q 2.8,2.8 5.6,0"
        id="path22" />
@@ -74,21 +69,16 @@
      stroke-linejoin="round"
      id="g24-3"
      transform="matrix(0.64791829,0,0,0.64791829,-2.5268814,10.272679)">
-    <!-- influence edges from the little nodes to the big one -->
-    <!-- little nodes -->
-    <!-- the big node is the face -->
     <path
        id="circle16-6"
        d="M 16.605296,16.96507 C 14.077306,16.856185 9.056425,16.818348 5.2564251,16.815188 5.36313,13.357834 5.5328638,8.438114 5.4860679,5.380048 7.9202966,5.4081037 13.797058,5.1820623 16.765478,5.4418572 16.669375,9.0516639 16.629044,13.881461 16.605296,16.96507 Z"
        sodipodi:nodetypes="ccccc" />
-    <!-- eyes: ring + pupil, like the file icon's -->
     <path
        id="circle18-7"
        d="M 10.2,9.6000004 A 1.6,1.6 0 0 1 8.6000004,11.2 a 1.6,1.6 0 0 1 -1.6,-1.5999996 1.6,1.6 0 0 1 1.6,-1.6 1.6,1.6 0 0 1 1.5999996,1.6 z" />
     <path
        id="circle20-5"
        d="M 15,9.6000004 A 1.6,1.6 0 0 1 13.4,11.2 1.6,1.6 0 0 1 11.8,9.6000004 a 1.6,1.6 0 0 1 1.6,-1.6 1.6,1.6 0 0 1 1.6,1.6 z" />
-    <!-- mouth -->
     <path
        d="m 8.2,13.2 c 1.866667,1.866667 3.733333,1.866667 5.6,0 m 2.965478,-7.7581428 c 2.242264,-1.799707 0.659834,-0.4867076 3.157535,-2.9135271"
        id="path22-3"

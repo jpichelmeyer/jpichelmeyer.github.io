@@ -1,49 +1,4 @@
 // v009/site/scripts/_projects_desktop_curriculum_planner.js
-//
-// Curriculum Planner: compares degree programs (columns) against
-// courses (rows), showing which courses are required/elective/not
-// required for each program. Pulls its data from a shared file,
-// data/curriculum.json -- a single source of truth other
-// projects (a prerequisite graph, say) can also read, using the same
-// course codes. This file only ever reads it; nothing here writes
-// back to it.
-// Courses are always listed by prefix first, then by number, with
-// the number-plus-letter ones ("200T", "400T") after the plain numbers.
-//
-// Required/elective status is derived live from each program's
-// `required` list and `elective` rule (an explicit list with a pick-
-// count, or an open rule like "any CSC course numbered 2000+") --
-// never stored per-course. Where a program's elective rule doesn't
-// give an explicit pick-count, the "1/X" shown is X = how many
-// currently-visible courses qualify as electives for that program --
-// a live count, not a guess, and it changes as the prefix filter
-// changes.
-//
-// A course can carry up to two prefixes (rare cross-listed courses,
-// e.g. "EGR 3120 / PHY 3120"), always shown/sorted alphabetically.
-// Each prefix has its own color (from the data file), used for its
-// pill in the course cell. A trailing gen-ed code in a title, like
-// "(QR)", becomes a colored tag in the Gen Ed column (colors by
-// category, from the data file's `genEd`); the Instr. column holds a tag
-// with the abbreviation of the instructor who typically teaches it (data
-// file's `instructors`: abbr, color, courses). Each program column shows a stack of tags:
-// degree (BA/BS), program abbreviation, and the department it is housed
-// in (a key into `departments`). A cell holds a solid star if the
-// course is required for that program, a hollow circle if elective.
-//
-// Columns (programs) are drag-reorderable, via a lightweight
-// pointer-based approach. Programs can also be added by department, or
-// added/cleared by degree (BS, BA).
-//
-// Program columns have no minimum width -- however many are shown,
-// they divide the space remaining after the fixed course/count
-// columns, so the table always fits its panel rather than requiring
-// horizontal scroll.
-//
-// Self-contained: all state lives in this file's init(), nothing
-// touches window/document outside the container except transient
-// pointer listeners during an active drag, always removed on
-// pointerup.
 
 import { qsa, esc } from './__utils.js';
 
@@ -59,10 +14,6 @@ const DEFAULT_PREFIX_COLORS = {
 };
 const FALLBACK_PREFIX_COLOR = '#d8d5cf';
 
-// Step-gradient background for the "# programs requiring" column: how
-// many white-mix steps to use, based on what fraction of the currently
-// visible programs require the course. Raw count is what's actually
-// displayed in the cell -- this only controls the shading.
 function countCellBackground(count, total) {
     if (total === 0 || count === 0) return 'transparent';
     const ratio = count / total;
@@ -74,9 +25,6 @@ function countCellBackground(count, total) {
     return `color-mix(in oklab, var(--color-accent-courses), white ${mix}%)`;
 }
 
-// Derives a course's status for one program directly from that
-// program's requirement data -- never stored per-course. A course
-// with two prefixes counts under either one for an open rule.
 function courseStatus(program, course) {
     if (program.required.includes(course.code)) return 'required';
     if (program.elective.list.includes(course.code)) return 'elective';
@@ -88,8 +36,6 @@ function courseStatus(program, course) {
     return 'not_required';
 }
 
-// Fixed course order: prefix(es) first, then plain numbers, then the
-// number-plus-letter ones (200T, 400T, ...), each numerically, then by letter.
 function courseOrder(a, b) {
     const pa = [...a.prefixes].sort().join('/'), pb = [...b.prefixes].sort().join('/');
     if (pa !== pb) return pa < pb ? -1 : 1;
@@ -100,7 +46,6 @@ function courseOrder(a, b) {
     return a.number < b.number ? -1 : a.number > b.number ? 1 : 0;
 }
 
-// Splits a trailing gen-ed code like "(QR)" off a title: [title, code|null].
 function splitGenEd(title, genEd) {
     const m = title.match(/\s*\(([A-Z]{2,3})\)$/);
     const known = m && Object.values(genEd).some(g => g.tags.includes(m[1]));
@@ -201,10 +146,6 @@ window._registerProject({
 
             function gridTemplate() {
                 const n = visiblePrograms().length;
-                // No minimum floor on program columns -- however many there
-                // are, they divide whatever width remains after the fixed
-                // course/count columns, so the whole table always fits the
-                // panel instead of needing horizontal scroll.
                 return `240px 58px 52px 54px repeat(${n}, minmax(0, 1fr))`;
             }
 
@@ -212,11 +153,9 @@ window._registerProject({
                 return state.prefixColors[prefix] || FALLBACK_PREFIX_COLOR;
             }
 
-            // Tag helpers (same look as the prefix pills).
             function tagHTML(text, color, title) {
                 return `<span class="curric-prefix-pill" style="background:${color}" title="${esc(title || '')}">${esc(text)}</span>`;
             }
-            // Department the program is housed in, as an abbreviation tag.
             function deptTagHTML(program) {
                 const dept = state.departments[program.house] || {};
                 return tagHTML(dept.abbr || program.house || '?', dept.color || FALLBACK_PREFIX_COLOR, dept.name);
@@ -225,7 +164,6 @@ window._registerProject({
                 const cat = Object.entries(state.genEd).find(([, g]) => g.tags.includes(tag));
                 return cat ? tagHTML(tag, cat[1].color, cat[0]) : '';
             }
-            // Instructor abbreviation tag, from the instructor whose `courses` lists this course.
             function instructorTagHTML(code) {
                 const name = Object.keys(state.instructors).find(n => state.instructors[n].courses.includes(code));
                 return name ? tagHTML(state.instructors[name].abbr, state.instructors[name].color, name) : '';
@@ -258,7 +196,6 @@ window._registerProject({
 
             }
 
-            // A solid star where a course is required, a hollow circle where elective.
             function statusCellHTML(program, course) {
                 const status = courseStatus(program, course);
                 if (status === 'not_required') return `<div class="curric-cell curric-cell-blank"></div>`;
@@ -325,7 +262,6 @@ window._registerProject({
 
             function render() { renderControls(); renderTable(); }
 
-            // ── Control panel events ──
             el.programList.addEventListener('change', e => {
                 const code = e.target.dataset.program;
                 if (!code) return;
@@ -361,7 +297,6 @@ window._registerProject({
                 render();
             });
 
-            // ── Column drag and drop (horizontal, reorders state.programs) ──
             function wireColumnDragHandles() {
                 qsa('.curric-col-drag-handle', el.table).forEach(handle => {
                     handle.addEventListener('pointerdown', onColDragStart);

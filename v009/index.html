@@ -2,11 +2,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <!--
-    ==========================================================================
-            HEAD
-    ==========================================================================
-    -->
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,23 +12,13 @@
         <link rel="stylesheet" href="./styles/merged.css">
     </head>
 
-    <!--
-    ==========================================================================
-            BODY
-    ==========================================================================
-    -->
     <body>
         
-        <!-- ── DOT GIRD ── -->
         <div id="dot-grid"></div>
         
-        <!-- ── PARTICLE LIFE CANVAS ── -->
         <canvas id="life-canvas"></canvas>
 
-        <!-- ── ROBOTICS: deployed-robot render layer (above particle life,
-             behind navbar/panels). The workshop's gear icon lives in the navbar. ── -->
         <canvas id="robo-canvas"></canvas>
-        <!-- ── ROBOTICS WORKSHOP (opened by the toolbox) ── -->
         <div id="robo-workshop">
             <div class="robo-workshop-titlebar">
                 <span>Robotics Workshop</span>
@@ -52,7 +37,6 @@
                         <button class="robo-btn robo-btn-withdraw" id="robo-withdraw-btn" hidden>Withdraw</button>
                         <button class="robo-btn robo-btn-deploy" id="robo-deploy-btn" disabled>Deploy</button>
                     </div>
-                    <!-- ROBASIC program editor (inline, below the parts) -->
                     <div class="robasic-section">
                         <div class="robasic-section-title">Program (ROBASIC)</div>
                         <div class="robasic-body">
@@ -68,7 +52,6 @@
             </div>
         </div>
 
-        <!-- ── NAVBAR ── -->
         <nav id="navbar">
             <div id="brand">
                 <span class="n1">Dr. Jacob</span>
@@ -83,8 +66,6 @@
             </div>
             <div id="nav-right">
                 <div id="robo-toolbox" title="Open the robotics workshop">
-                    <!-- Interlocking gears: pitch radii and speeds are proportional to
-                         tooth count (12 / 8 / 10), so the teeth stay meshed while turning. -->
                     <svg viewBox="4.1 1.1 55.3 58.1" xmlns="http://www.w3.org/2000/svg">
                       <g transform="translate(22.00 29.00)"><g class="robo-gear robo-gear-cw" style="animation-duration:2.4s"><g transform="rotate(0.00)"><path d="M12.64 -2.00 L15.76 -1.16 L15.76 1.16 L12.64 2.00 L11.95 4.59 L14.23 6.88 L13.07 8.88 L9.95 8.06 L8.06 9.95 L8.88 13.07 L6.88 14.23 L4.59 11.95 L2.00 12.64 L1.16 15.76 L-1.16 15.76 L-2.00 12.64 L-4.59 11.95 L-6.88 14.23 L-8.88 13.07 L-8.06 9.95 L-9.95 8.06 L-13.07 8.88 L-14.23 6.88 L-11.95 4.59 L-12.64 2.00 L-15.76 1.16 L-15.76 -1.16 L-12.64 -2.00 L-11.95 -4.59 L-14.23 -6.88 L-13.07 -8.88 L-9.95 -8.06 L-8.06 -9.95 L-8.88 -13.07 L-6.88 -14.23 L-4.59 -11.95 L-2.00 -12.64 L-1.16 -15.76 L1.16 -15.76 L2.00 -12.64 L4.59 -11.95 L6.88 -14.23 L8.88 -13.07 L8.06 -9.95 L9.95 -8.06 L13.07 -8.88 L14.23 -6.88 L11.95 -4.59 Z" fill="#1f1f1f" stroke-linejoin="round"/><circle r="2.59" class="robo-gear-hole"/></g></g></g>
                       <g transform="translate(40.91 14.22)"><g class="robo-gear robo-gear-ccw" style="animation-duration:1.6s"><g transform="rotate(152.50)"><path d="M7.78 -1.87 L10.93 -1.21 L10.93 1.21 L7.78 1.87 L6.82 4.18 L8.58 6.88 L6.88 8.58 L4.18 6.82 L1.87 7.78 L1.21 10.93 L-1.21 10.93 L-1.87 7.78 L-4.18 6.82 L-6.88 8.58 L-8.58 6.88 L-6.82 4.18 L-7.78 1.87 L-10.93 1.21 L-10.93 -1.21 L-7.78 -1.87 L-6.82 -4.18 L-8.58 -6.88 L-6.88 -8.58 L-4.18 -6.82 L-1.87 -7.78 L-1.21 -10.93 L1.21 -10.93 L1.87 -7.78 L4.18 -6.82 L6.88 -8.58 L8.58 -6.88 L6.82 -4.18 Z" fill="#1f1f1f" stroke-linejoin="round"/><circle r="1.80" class="robo-gear-hole"/></g></g></g>
@@ -94,10 +75,8 @@
             </div>
         </nav>
 
-        <!-- ── CONTENT AREA ── -->
         <div id="content-area">
 
-            <!-- ABOUT -->
             <div class="panel" id="panel-about">
                 <div class="panel-titlebar">
                     <div class="panel-tabs" data-tabgroup="about">
@@ -112,15 +91,12 @@
                     
                     <div id="about-a">
                         
-                        <!-- Left side (about-b) -->
                         <div id="about-b">
                             
-                            <!-- Portrait -->
                             <div id="about-portrait">
                                 <div id="sketch-o-self"></div>
                             </div>
                             
-                            <!-- Name, titles -->
                             <div class="pi pi-gold pi-shadow">
                                 <div id="about-titles" class="about-hero">
                                     <h1><span class="about-de-dr">Dr.</span>
@@ -129,12 +105,10 @@
                                 </div>
                             </div>
 
-                            <!-- Pixel portrait, under the post-it -->
                             <img id="about-pixel" src="./imgs/portrait-pixel.gif" alt="Pixel-art portrait">
                         
                         </div>
                         
-                        <!-- Right side (about-c) -->
                         <div class="about-c">
                             
                             <p class="about-bio">
@@ -158,7 +132,6 @@
                     
                     <div class="tab-page" data-tab="career">
                     
-                    <!-- Career path: vertical timeline, newest first. Degree stamps are drawn by _timeline.js from the data-* attributes. -->
                     <div class="tl">
                         <div class="tl-entry tl-current">
                             <div class="tl-dot"></div>
@@ -268,7 +241,6 @@
                 </div>
             </div>
 
-            <!-- COURSES -->
             <div class="panel" id="panel-courses">
                 
                 <div class="panel-titlebar">
@@ -282,7 +254,6 @@
             
             </div>
 
-            <!-- PROJECTS -->
             <div class="panel" id="panel-projects">
                 <div class="panel-titlebar">
                     <div class="panel-tabs" data-tabgroup="projects" id="projects-tabs"></div>
@@ -291,7 +262,6 @@
             </div>
             
             
-            <!-- RESEARCH -->
             <div class="panel" id="panel-research">
                 <div class="panel-titlebar">
                     <div class="panel-tabs" data-tabgroup="research">
@@ -322,7 +292,6 @@
                         <div class="taught_course_section_head">Projects</div>
                         <div class="taught_course_section">
                             
-                            <!-- Conference paper -->                           
                             <div class="research_paper_row">
                                 <div class="research_paper_thumbnail research_paper_thumbnail_tri_conf"></div>
                                 <div class="research_paper_text">
@@ -332,7 +301,6 @@
                                 </div>
                             </div>
                             
-                            <!-- EEG + TDA -->
                             <div class="research_paper_row">
                                 <div class="research_paper_thumbnail research_paper_thumbnail_tda_eeg"></div>
                                 <div class="research_paper_text">
@@ -342,7 +310,6 @@
                                 </div>
                             </div>
                             
-                            <!-- TDA + LLMs -->   
                             <div class="research_paper_row">
                                 <div class="research_paper_thumbnail research_paper_thumbnail_tda_llm"></div>
                                 <div class="research_paper_text">
@@ -352,7 +319,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Crocodile teeth + ML -->   
                             <div class="research_paper_row">
                                 <div class="research_paper_thumbnail research_paper_thumbnail_tooth"></div>
                                 <div class="research_paper_text">
@@ -362,7 +328,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Graph theoretic cycle bases as game world design tool -->   
                             <div class="research_paper_row">
                                 <div class="research_paper_thumbnail research_paper_thumbnail_cycle_basis"></div>
                                 <div class="research_paper_text">
@@ -441,11 +406,8 @@
             </div>
 
 
-        </div><!-- #content-area -->
+        </div>
         
-        <!-- ==========================================================================
-                 SCRIPTS — merged.js is the only import
-        =========================================================================== -->
         <script src="./scripts/merged.js" type="module"></script>
 
     </body>

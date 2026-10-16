@@ -37,9 +37,6 @@ import xml.etree.ElementTree as ET
 SVG_NS = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', SVG_NS)
 
-# Element types worth keeping when we lift artwork out of a source SVG --
-# everything else (defs, sodipodi/inkscape metadata, namedview, title...)
-# is editor cruft with nothing visible in it.
 DRAWABLE_TAGS = {'g', 'path', 'circle', 'rect', 'ellipse', 'polygon', 'polyline', 'line', 'text', 'use'}
 
 
@@ -88,10 +85,6 @@ def build_banner(icon_markup, icon_w, icon_h, bg_color, banner_w, banner_h, fill
 '''
 
 
-# ---------------------------------------------------------------------------
-# Course lookup -- same pattern as brightspace_grade_cheatsheet.py
-# ---------------------------------------------------------------------------
-
 def find_courses_dir():
     here = os.path.abspath('.')
     for _ in range(4):
@@ -139,10 +132,6 @@ def pick_course_interactively(courses_dir):
     key = ask_choice("\nWhich course?", labels)
     return os.path.join(courses_dir, f"{key}.json")
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a Brightspace banner SVG from a course's icon.")

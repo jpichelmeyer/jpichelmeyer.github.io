@@ -30,7 +30,6 @@
 .lv-stage:active { cursor: grabbing; }
 .lv-svg { display: block; width: 100%; height: auto; }
 
-/* edges */
 .lv-edge {
     stroke: color-mix(in oklab, var(--ink) 30%, transparent);
     stroke-width: 0.7;
@@ -41,7 +40,6 @@
 .lv-focus .lv-edge.lv-anc  { stroke: #8e5bd6; stroke-width: 1.8; opacity: 0.55; }
 .lv-focus .lv-edge.lv-desc { stroke: #e8c23c; stroke-width: 1.8; opacity: 0.65; }
 
-/* nodes */
 .lv-node { cursor: pointer; }
 .lv-node text {
     font-size: 6.5px;
@@ -60,7 +58,6 @@
 .lv-legend { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 22px; font-size: calc(11px * var(--mod-font-size)); }
 .lv-legend-item { display: flex; align-items: center; gap: 6px; }
 
-/* checklist + hidden */
 .lv-hidden { display: none; }
 .lv-main { display: grid; grid-template-columns: 230px 1fr; gap: 12px; align-items: start; }
 .lv-panel { position: relative; align-self: stretch; min-height: 200px; }

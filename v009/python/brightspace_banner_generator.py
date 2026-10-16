@@ -37,9 +37,6 @@ import xml.etree.ElementTree as ET
 SVG_NS = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', SVG_NS)
 
-# Element types worth keeping when we lift artwork out of a source SVG --
-# everything else (defs, sodipodi/inkscape metadata, namedview, title...)
-# is editor cruft with nothing visible in it.
 DRAWABLE_TAGS = {'g', 'path', 'circle', 'rect', 'ellipse', 'polygon', 'polyline', 'line', 'text', 'use'}
 
 
@@ -76,7 +73,6 @@ def build_banner(icon_markup, icon_w, icon_h, bg_color, banner_w, banner_h, fill
     """Centers the icon artwork on a courseColor background, scaled so its
     larger dimension takes up `fill_fraction` of the banner's height."""
     scale = (banner_h * fill_fraction) / max(icon_w, icon_h)
-    #tx = banner_w / 2 - (icon_w * scale) / 2
     tx = (0.75 * banner_w) - (0.5 * icon_w * scale)
     ty = banner_h / 2 - (icon_h * scale) / 2
 
@@ -88,10 +84,6 @@ def build_banner(icon_markup, icon_w, icon_h, bg_color, banner_w, banner_h, fill
 </svg>
 '''
 
-
-# ---------------------------------------------------------------------------
-# Course lookup -- same pattern as brightspace_grade_cheatsheet.py
-# ---------------------------------------------------------------------------
 
 def find_courses_dir():
     here = os.path.abspath('../courses/')
@@ -141,10 +133,6 @@ def pick_course_interactively(courses_dir):
     return os.path.join(courses_dir, f"{key}.json")
 
 
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
-
 def main():
     parser = argparse.ArgumentParser(description="Generate a Brightspace banner SVG from a course's icon.")
     parser.add_argument('course', nargs='?', help="course key (e.g. mth1220) or path to a course .json")
@@ -182,8 +170,6 @@ def main():
     banner_svg = build_banner(icon_markup, icon_w, icon_h, color, args.width, args.height, args.fill_fraction)
 
     key = os.path.splitext(os.path.basename(course_path))[0]
-    #out_path = os.path.join(os.path.dirname(course_path), f"banner_{key}.svg")
-    #os.path.abspath('../courses/')
     out_path = os.path.join(os.path.abspath('../imgs/'), f"banner_{key}.svg")
     with open(out_path, 'w') as f:
         f.write(banner_svg)

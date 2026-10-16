@@ -1,28 +1,4 @@
 // v009/site/scripts/_projects_desktop_language_visualizer.js
-//
-// Language Visualizer: the programming-language influence graph from
-// data/language_influence.txt (one "influencer  influenced" pair per
-// line). Languages are laid out in topological layers, left to right:
-// a language's layer is the length of the longest influence chain
-// leading to it, and each layer is listed alphabetically. Node shape
-// and color show a language's paradigm (anything not listed in
-// PARADIGMS is "hybrid").
-//
-//   - "Language names" toggles the labels (hovering still names a node).
-//   - Mouse wheel / trackpad two-finger scroll zooms toward the pointer
-//     (trackpad pinch and two-finger touch pinch work too); dragging or
-//     WASD pans. "Fit view" zooms to fit every visible language.
-//   - The right-hand checkbox beside a language highlights every ancestral
-//     path back to the roots (purple) and every descendant path (gold).
-//     Hovering does nothing, so panning and zooming stay calm.
-//   - The checkbox list shows/hides languages (and the edges between them);
-//     "Clear" empties the graph, "All languages" brings everything back.
-//     "↑ Ancestors" / "↓ Descendants" add every language one edge
-//     up / down from the visible languages.
-//     Positions stay put, and highlighted paths follow visible languages only.
-//
-// Self-contained: all state lives in init(); returns a cleanup function
-// (the projects panel calls it on close).
 
 import { esc } from './__utils.js';
 
@@ -62,7 +38,6 @@ window._registerProject({
 
         fetch(DATA_URL, { cache: 'no-store' }).then(r => r.text()).then(text => {
             if (!alive) return;
-            // ---- graph ----
             const edges = text.split('\n').map(l => l.trim().split(/\s+/)).filter(p => p.length === 2);
             const parents = {}, children = {};
             edges.forEach(([u, v]) => {
@@ -73,7 +48,7 @@ window._registerProject({
             const layer = {}, busy = new Set();
             const depth = n => {
                 if (n in layer) return layer[n];
-                if (busy.has(n)) return 0;                 // guards against a cycle in the data
+                if (busy.has(n)) return 0;
                 busy.add(n);
                 layer[n] = Math.max(-1, ...parents[n].map(depth)) + 1;
                 busy.delete(n);
@@ -87,13 +62,12 @@ window._registerProject({
                 pos[n] = [PAD_X + i * (W - 2 * PAD_X) / (cols.length - 1), PAD_Y + (j + .5) * (H - 2 * PAD_Y) / col.length];
             }));
             const visible = new Set(names);
-            const reach = (start, next) => {              // everything visible reachable from start
+            const reach = (start, next) => {
                 const seen = new Set(), todo = [start];
                 while (todo.length) next[todo.pop()].forEach(m => { if (visible.has(m) && !seen.has(m)) { seen.add(m); todo.push(m); } });
                 return seen;
             };
 
-            // ---- markup ----
             const edgeHTML = edges.map(([u, v]) => `<line class="lv-edge" x1="${pos[u][0].toFixed(1)}" y1="${pos[u][1].toFixed(1)}" x2="${pos[v][0].toFixed(1)}" y2="${pos[v][1].toFixed(1)}"/>`).join('');
             const nodeHTML = names.map(n => {
                 const p = PARADIGMS[PARADIGM_OF[n] || 'hybrid'];
@@ -123,10 +97,8 @@ window._registerProject({
             const edgeEls = [...root.querySelectorAll('.lv-edge')];
             const nodeEls = {}; root.querySelectorAll('.lv-node').forEach(g => { nodeEls[g.dataset.n] = g; });
 
-            // ---- names toggle ----
             root.querySelector('.lv-names').addEventListener('change', e => svg.classList.toggle('lv-names-off', !e.target.checked));
 
-            // ---- highlight: ancestral and descendant paths of the ticked languages ----
             const hl = new Set();
             let lit = [];
             const clear = () => {
@@ -152,7 +124,6 @@ window._registerProject({
                 svg.classList.add('lv-focus');
                 info.textContent = on.length === 1 ? sums[0] : `${on.length} languages highlighted`;
             };
-            // ---- language checklist ----
             const refresh = () => {
                 names.forEach(n => nodeEls[n].classList.toggle('lv-hidden', !visible.has(n)));
                 edges.forEach(([u, v], i) => edgeEls[i].classList.toggle('lv-hidden', !(visible.has(u) && visible.has(v))));
@@ -170,7 +141,6 @@ window._registerProject({
             root.querySelector('.lv-clear').addEventListener('click', () => { visible.clear(); refresh(); });
             clear();
 
-            // ---- zoom (wheel / trackpad / pinch) and pan (drag) ----
             let k = 1, x = 0, y = 0;
             const apply = () => {
                 k = Math.min(MAX_ZOOM, Math.max(1, k));
@@ -181,7 +151,7 @@ window._registerProject({
             const zoomAt = (px, py, f) => { const k2 = Math.min(MAX_ZOOM, Math.max(1, k * f)); x = px - (px - x) * k2 / k; y = py - (py - y) * k2 / k; k = k2; apply(); };
             svg.addEventListener('wheel', e => {
                 e.preventDefault();
-                const d = e.deltaY * (e.deltaMode === 1 ? 16 : 1) * (e.ctrlKey ? 0.01 : 0.0015);   // ctrl+wheel = trackpad pinch
+                const d = e.deltaY * (e.deltaMode === 1 ? 16 : 1) * (e.ctrlKey ? 0.01 : 0.0015);
                 zoomAt(...toSvg(e.clientX, e.clientY), Math.exp(-d));
             }, { passive: false });
             const ptrs = new Map(); let pinch = 0;
