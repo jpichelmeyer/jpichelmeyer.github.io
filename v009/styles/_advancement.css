@@ -63,7 +63,8 @@
     line-height: 1.15;
     color: var(--ink);
 }
-.inst-plab-tag { padding: 0 6px; border-radius: 6px; }
+.inst-plab-tag { padding: 0 6px; border-radius: 6px; color: var(--panel-bg); }
+.inst-plab-name-stack { line-height: 1.35; }
 .inst-plab-news-head { margin-top: 10px; }
 .inst-plab-date { background: #f4a7a7; margin-right: 4px; }
 .inst-plab-grid {
@@ -127,4 +128,6 @@
 @media (max-width: 600px) {
     .inst-course { flex-wrap: wrap; gap: 4px 10px; }
     .inst-plab-logo { width: 64px; height: 64px; }
+    .inst-plab-head { gap: 8px; }
+    .inst-plab-name { font-size: calc(12.5px * var(--mod-font-size)); white-space: nowrap; }
 }
