@@ -17,9 +17,9 @@
     display: inline-block;
     margin-bottom: 14px;
     padding: 7px 14px;
-    border: 1.5px solid var(--color-accent-projects);
+    border: 1.5px solid #5c1c23;
     border-radius: var(--border-radius2);
-    background: var(--bg-light);
+    background: #ffc2c8;
     color: var(--ink);
     font-weight: bold;
     text-decoration: none;
