@@ -1,5 +1,305 @@
 {
   "courses": {
+    "bio1010": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "1010",
+      "title": "Concepts in Biology (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "bio1011": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "1011",
+      "title": "Exploring Climate Change (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "bio1020": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "1020",
+      "title": "Plants and People (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "bio1030": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "1030",
+      "title": "Conservation for Educators (SE) (OC)",
+      "prereqs": [
+        
+      ]
+    },
+    "bio1040": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "1040",
+      "title": "Human Anatomy and Physiology (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "bio1051": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "1051",
+      "title": "Phage Hunters II",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
+    "bio": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "",
+      "title": "",
+      "prereqs": [
+        
+      ]
+    },
     "chm1010": {
       "prefixes": [
         "CHM"
@@ -1197,6 +1497,111 @@
   },
   "programs": [
     {
+      "code": "ba_biology",
+      "name": "B.A. Biology",
+      "house": "bio",
+      "degree": "BA",
+      "abbr": "Bio",
+      "credits": "na",
+      "required": [
+        "bio1110",
+        "bio1120",
+        "bio2100",
+        "bio2400",
+        "bio4120",
+        "chm1010",
+        "chm1020",
+        "chm2070",
+        "chm2080"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "bs_biology",
+      "name": "B.S. Biology",
+      "house": "bio",
+      "degree": "BS",
+      "abbr": "Bio",
+      "credits": "66 cr",
+      "required": [
+        "bio1110",
+        "bio1120",
+        "bio2100",
+        "bio2400",
+        "bio4100",
+        "bio4120",
+        "chm1010",
+        "chm1020",
+        "chm2070",
+        "chm2080",
+        "phy2100",
+        "phy2200"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "ba_biotechnology",
+      "name": "B.A. Biotechnology",
+      "house": "bio",
+      "degree": "BA",
+      "abbr": "BioTech",
+      "credits": "na",
+      "required": [
+        "bio1110",
+        "bio2400",
+        "chm1020",
+        "chm2070",
+        "chm2080",
+        "chm3010",
+        "egr1020"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "bs_biotechnology",
+      "name": "B.S. Biology",
+      "house": "bio",
+      "degree": "BS",
+      "abbr": "BioTech",
+      "credits": "na",
+      "required": [
+        "bio1110",
+        "bio2400",
+        "chm1020",
+        "chm2070",
+        "chm2080",
+        "chm3010",
+        "egr1020",
+        "mth1120",
+        "phy2100"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+
+        ],
+        "openRule": null
+      }
+    },
+    {
       "code": "ba_cs",
       "name": "B.A. Computer Science",
       "house": "csc",
@@ -1496,23 +1901,107 @@
         ],
         "openRule": null
       }
+    },
+    {
+      "code": "ba_physics",
+      "name": "B.A. Physics",
+      "house": "phy",
+      "degree": "BA",
+      "abbr": "Phy",
+      "credits": "56 cr",
+      "required": [
+        "mth1120",
+        "mth1220",
+        "mth2020",
+        "mth2120",
+        "phy1200",
+        "phy2200",
+        "phy2210",
+        "phy2300",
+        "phy2970",
+        "phy3960",
+        "phy3970",
+        "phy4120",
+        "phy4960"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+          
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "bs_physics",
+      "name": "B.S. Physics",
+      "house": "phy",
+      "degree": "BS",
+      "abbr": "Phy",
+      "credits": "72 cr",
+      "required": [
+        "mth1120",
+        "mth1220",
+        "mth2020",
+        "mth2120",
+        "phy1200",
+        "phy2200",
+        "phy2210",
+        "phy2300",
+        "phy2970",
+        "phy3960",
+        "phy3970",
+        "phy4120",
+        "phy4960"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+          "csc1810",
+          "egr2100",
+          "egr3100",
+          "egr3400",
+          "egr3600",
+          "egr4130",
+          "mth2090",
+          "phy3100",
+          "phy3120",
+          "phy3170",
+          "phy3450",
+          "phy3470",
+          "phy4100",
+          "phy4110",
+          "phy4150"
+        ],
+        "openRule": null
+      }
     }
   ],
   "departments": {
+    "bio": {
+      "name": "Biology",
+      "abbr": "Bio",
+      "color": "#8de0ce"
+    },
     "csc": {
       "name": "Computer Science",
       "abbr": "CS",
-      "color": "#3f9b72"
+      "color": "#adedc1"
     },
     "egr": {
       "name": "Engineering",
       "abbr": "Eng",
-      "color": "#4f7fc4"
+      "color": "#8dafe0"
     },
     "mth": {
       "name": "Mathematics",
       "abbr": "Math",
-      "color": "#d19a2a"
+      "color": "#f7dfa6"
+    },
+    "phy": {
+      "name": "Physics",
+      "abbr": "Phys",
+      "color": "#d5aded"
     }
   },
   "degreeColors": {
