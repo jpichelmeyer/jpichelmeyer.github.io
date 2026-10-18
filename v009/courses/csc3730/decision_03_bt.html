@@ -9,9 +9,6 @@
     <body>
         <p>Two lessons ago, an FSM solved decision trees' memory problem by giving each mode its own persistent, script-sized chunk of behavior. That solves memory, but it introduces a new problem of its own: every state needs to know, explicitly, which other states it might transition to. Four or five states is fine. Fifteen states, each with two or three possible transitions to other named states, gets tangled fast, informally called "transition spaghetti." A <strong>behavior tree</strong> (BT) is a different answer to the same original problem, one built to stay organized as it grows.</p>
 
-        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/bt/bt.html"></div>
-        <script src="../../scripts/godot_embed.js"></script>
-
         <h3>Part 1. Tick, and Three Answers</h3>
         <p>Instead of one state being "active," a behavior tree is a fixed hierarchy of nodes, and every frame the <strong>root</strong> is <strong>ticked</strong>. A tick is a function call that flows down through the tree and returns exactly one of three answers back up:</p>
 
@@ -24,7 +21,7 @@
 extends Node
 class_name BehaviorTree
 
-enum {
+enum SIGNAL {
 	SUCCESS,
 	FAILURE,
 	RUNNING
@@ -36,12 +33,12 @@ enum {
 
         <div class="icon-glossary">
             <div class="icon-glossary-item">
-                <img src="../../svgs/bt_tree.svg" alt="Behavior tree root icon">
+                <img src="../../svgs/bt_root.svg" alt="Behavior tree root icon">
                 <div class="name">Root</div>
                 <div class="desc">starts the tick</div>
             </div>
             <div class="icon-glossary-item">
-                <img src="../../svgs/bt_category_composite.svg" alt="Composite category icon">
+                <img src="../../svgs/bt_composite.svg" alt="Composite category icon">
                 <div class="name">Composite</div>
                 <div class="desc">has multiple children</div>
             </div>
@@ -56,19 +53,121 @@ enum {
                 <div class="desc">all must succeed</div>
             </div>
             <div class="icon-glossary-item">
-                <img src="../../svgs/bt_condition.svg" alt="Condition icon">
-                <div class="name">Condition</div>
-                <div class="desc">leaf, checks something</div>
+                <img src="../../svgs/bt_decorator.svg" alt="Decorator icon">
+                <div class="name">Decorator</div>
+                <div class="desc">wraps exactly one child</div>
             </div>
             <div class="icon-glossary-item">
-                <img src="../../svgs/bt_action.svg" alt="Action icon">
-                <div class="name">Action</div>
-                <div class="desc">leaf, does something</div>
+                <img src="../../svgs/bt_succeeder.svg" alt="Succeeder icon">
+                <div class="name">Succeeder</div>
+                <div class="desc">Upticks SUCCESS no matter what child ticks</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_failer.svg" alt="Failer icon">
+                <div class="name">Failer</div>
+                <div class="desc">Upticks FAILURE no matter what child ticks</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_runner.svg" alt="Runner icon">
+                <div class="name">Runner</div>
+                <div class="desc">Upticks RUNNING no matter what child ticks</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_inverter.svg" alt="Inverter icon">
+                <div class="name">Inverter</div>
+                <div class="desc">Upticks opposite boolean of child tick</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_leaf.svg" alt="Leaf icon">
+                <div class="name">Leaf</div>
+                <div class="desc">No children</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_checker.svg" alt="Checker icon">
+                <div class="name">Checker</div>
+                <div class="desc">Checks a condition. Returns SUCCESS or FAILURE only.</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_flipper.svg" alt="Flipper icon">
+                <div class="name">Flipper</div>
+                <div class="desc">Executes discrete, between-frame logic</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_activer.svg" alt="Activer icon">
+                <div class="name">Activer</div>
+                <div class="desc">A continuously running action</div>
             </div>
         </div>
 
-        <h3>Part 2. Leaves: Actions and Conditions</h3>
-        <p>Every <strong>leaf</strong> node (no children of its own) is either an <span class="code-lesson-il">Action</span> or a <span class="code-lesson-il">Condition</span>. The only difference between them is what they default to before you override <span class="code-lesson-il">tick()</span>, a small but deliberate detail:</p>
+        <p>Every icon above is a <span class="code-lesson-il">bt-node</span>. Here they are as a family tree.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 810 269" xmlns="http://www.w3.org/2000/svg" style="max-width:810px">
+    <path d="M180 172 V186 H141 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M180 172 V186 H219 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M414 172 V186 H297 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M414 172 V186 H375 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M414 172 V186 H453 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M414 172 V186 H531 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M687 172 V186 H609 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M687 172 V186 H687 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M687 172 V186 H765 V200" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M371 69 V83 H54 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M371 69 V83 H180 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M371 69 V83 H414 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M371 69 V83 H687 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="32" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="38" y="103" width="32" height="32"/>
+    <text x="54" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+    <text x="54" y="168" font-size="9.5" fill="#6a7885" text-anchor="middle">starts the tick</text>
+    <rect x="119" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="125" y="206" width="32" height="32"/>
+    <text x="141" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="197" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="203" y="206" width="32" height="32"/>
+    <text x="219" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <rect x="158" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_composite.svg" x="164" y="103" width="32" height="32"/>
+    <text x="180" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Composite</text>
+    <text x="180" y="168" font-size="9.5" fill="#6a7885" text-anchor="middle">many children</text>
+    <rect x="275" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_succeeder.svg" x="281" y="206" width="32" height="32"/>
+    <text x="297" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Succeeder</text>
+    <rect x="353" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_failer.svg" x="359" y="206" width="32" height="32"/>
+    <text x="375" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Failer</text>
+    <rect x="431" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_runner.svg" x="437" y="206" width="32" height="32"/>
+    <text x="453" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Runner</text>
+    <rect x="509" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_inverter.svg" x="515" y="206" width="32" height="32"/>
+    <text x="531" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Inverter</text>
+    <rect x="392" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_decorator.svg" x="398" y="103" width="32" height="32"/>
+    <text x="414" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Decorator</text>
+    <text x="414" y="168" font-size="9.5" fill="#6a7885" text-anchor="middle">one child</text>
+    <rect x="587" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="593" y="206" width="32" height="32"/>
+    <text x="609" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Checker</text>
+    <rect x="665" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="671" y="206" width="32" height="32"/>
+    <text x="687" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Flipper</text>
+    <rect x="743" y="200" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="749" y="206" width="32" height="32"/>
+    <text x="765" y="258" font-size="10.5" fill="#1f3b52" text-anchor="middle">Activer</text>
+    <rect x="665" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_leaf.svg" x="671" y="103" width="32" height="32"/>
+    <text x="687" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Leaf</text>
+    <text x="687" y="168" font-size="9.5" fill="#6a7885" text-anchor="middle">no children</text>
+    <rect x="334" y="6" width="74" height="44" rx="8" fill="#2a2f38"/>
+    <text x="371" y="32" font-size="12" fill="#e6edf3" text-anchor="middle" font-family="monospace" font-weight="bold">bt-node</text>
+    <text x="371" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Base class</text>
+</svg>
+            <div class="diagram-caption">The node hierarchy. Root starts the tick, composites have many children, decorators wrap one, leaves have none.</div>
+        </div>
+
+        <h3>Part 2. Leaves: Checkers, Flippers, and Activers</h3>
+        <p>Every <strong>leaf</strong> node (no children of its own) is a <strong>Checker</strong>, a <strong>Flipper</strong>, or an <strong>Activer</strong>. A Checker asks a yes/no question (SUCCESS or FAILURE, nothing else). A Flipper does one quick thing between frames. An Activer keeps doing something across frames and answers RUNNING until it's done. In the project's code that's two base classes, <span class="code-lesson-il">Condition</span> (Checkers) and <span class="code-lesson-il">Action</span> (Flippers and Activers), and the only difference between them is what they default to before you override <span class="code-lesson-il">tick()</span>, a small but deliberate detail:</p>
 
 <div class="code-block" data-lang="gdscript">
 <div class="code-block-header">
@@ -96,7 +195,7 @@ func tick(_actor, _blackboard, _delta):
 </span>
 </div>
 
-        <p>An <span class="code-lesson-il">Action</span> assumes success unless something goes wrong; a <span class="code-lesson-il">Condition</span> assumes failure unless it can prove otherwise. Here's a real condition from the demo project, one that checks the in-game clock:</p>
+        <p>An <span class="code-lesson-il">Action</span> (Flipper or Activer) assumes success unless something goes wrong; a <span class="code-lesson-il">Condition</span> (Checker) assumes failure unless it can prove otherwise. Here's a real Checker from the demo project, one that checks the in-game clock:</p>
 
 <div class="code-block" data-lang="gdscript">
 <div class="code-block-header">
@@ -169,72 +268,108 @@ func tick(actor, blackboard, delta):
         <p>A <strong>Selector</strong> is the opposite: it ticks its children left to right and stops the instant one <em>doesn't</em> <span class="code-lesson-il">FAILURE</span>. Read it as "or": <em>try this, or this, or this</em>, taking the first option that isn't a dead end, only reporting <span class="code-lesson-il">FAILURE</span> itself if every single child did. Order matters a lot here: children earlier in the list get first refusal.</p>
 
         <h3>Part 4. A Real Tree, Read End to End</h3>
-        <p>This is the actual behavior tree driving the day/night creature in the demo above, exactly as it's built in the scene tree (no code beyond what's already shown, just how the nodes are nested):</p>
+        <p>This is the actual behavior tree driving the day/night creature in the demo project (no code beyond what's already shown, just how the nodes are nested). Leaves get a small gold symbol under their standard icon showing what that leaf checks or does:</p>
 
         <div class="diagram">
-<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
-    <rect x="205" y="10" width="110" height="38" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
-    <text x="260" y="34" font-size="12.5" fill="#1f3b52" text-anchor="middle" font-weight="bold">Selector</text>
-
-    <rect x="40" y="90" width="180" height="38" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
-    <text x="130" y="114" font-size="12" fill="#1f3b52" text-anchor="middle">Sequencer "go to grass"</text>
-
-    <rect x="300" y="90" width="190" height="38" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
-    <text x="395" y="114" font-size="12" fill="#1f3b52" text-anchor="middle">Sequencer "go to shelter"</text>
-
-    <rect x="10" y="175" width="90" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
-    <text x="55" y="197" font-size="10.5" fill="#8a4526" text-anchor="middle">Check daylight</text>
-
-    <rect x="110" y="175" width="100" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
-    <text x="160" y="197" font-size="10.5" fill="#8a4526" text-anchor="middle">Find grass</text>
-
-    <rect x="220" y="230" width="100" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
-    <text x="270" y="252" font-size="10.5" fill="#8a4526" text-anchor="middle">Move there</text>
-
-    <rect x="300" y="175" width="140" height="34" rx="6" fill="#f3eefb" stroke="#6b4c9e" stroke-width="1.3"/>
-    <text x="370" y="197" font-size="10.5" fill="#4a3266" text-anchor="middle">Inverter</text>
-
-    <rect x="300" y="230" width="120" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
-    <text x="360" y="252" font-size="10.5" fill="#8a4526" text-anchor="middle">Check daylight</text>
-
-    <rect x="440" y="175" width="80" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
-    <text x="480" y="192" font-size="10" fill="#8a4526" text-anchor="middle">Find</text>
-    <text x="480" y="204" font-size="10" fill="#8a4526" text-anchor="middle">shelter</text>
-
-    <rect x="440" y="230" width="80" height="34" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.3"/>
-    <text x="480" y="247" font-size="10" fill="#8a4526" text-anchor="middle">Move</text>
-    <text x="480" y="259" font-size="10" fill="#8a4526" text-anchor="middle">there</text>
-
-    <line x1="245" y1="48" x2="130" y2="88" stroke="#8a8a8a" stroke-width="1.3"/>
-    <line x1="275" y1="48" x2="395" y2="88" stroke="#8a8a8a" stroke-width="1.3"/>
-
-    <line x1="90" y1="128" x2="55" y2="173" stroke="#8a8a8a" stroke-width="1.3"/>
-    <line x1="130" y1="128" x2="160" y2="173" stroke="#8a8a8a" stroke-width="1.3"/>
-    <line x1="160" y1="128" x2="270" y2="228" stroke="#8a8a8a" stroke-width="1.3"/>
-
-    <line x1="360" y1="128" x2="370" y2="173" stroke="#8a8a8a" stroke-width="1.3"/>
-    <line x1="400" y1="128" x2="480" y2="173" stroke="#8a8a8a" stroke-width="1.3"/>
-    <line x1="400" y1="128" x2="480" y2="228" stroke="#8a8a8a" stroke-width="1.3"/>
-    <line x1="370" y1="209" x2="360" y2="228" stroke="#8a8a8a" stroke-width="1.3"/>
+<svg viewBox="0 0 394 114" xmlns="http://www.w3.org/2000/svg" style="max-width:394px">
+    <rect x="23" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="29" y="12" width="32" height="32"/>
+    <text x="45" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Checker</text>
+    <rect x="112" y="6" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="118" y="12" width="32" height="32"/>
+    <g transform="translate(134,60)"><circle r="4.3" fill="#efd7a5"/><g fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="6.9" y1="0.0" x2="10.3" y2="0.0"/><line x1="4.9" y1="4.9" x2="7.3" y2="7.3"/><line x1="0.0" y1="6.9" x2="0.0" y2="10.3"/><line x1="-4.9" y1="4.9" x2="-7.3" y2="7.3"/><line x1="-6.9" y1="0.0" x2="-10.3" y2="0.0"/><line x1="-4.9" y1="-4.9" x2="-7.3" y2="-7.3"/><line x1="-0.0" y1="-6.9" x2="-0.0" y2="-10.3"/><line x1="4.9" y1="-4.9" x2="7.3" y2="-7.3"/></g></g>
+    <text x="134" y="90" font-size="10.5" fill="#1f3b52" text-anchor="middle">Checker:</text>
+    <text x="134" y="103" font-size="10.5" fill="#1f3b52" text-anchor="middle">is it daytime?</text>
+    <rect x="214" y="6" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="220" y="12" width="32" height="32"/>
+    <g transform="translate(236,60)"><path fill="#efd7a5" fill-rule="evenodd" d="M0 10.5 C-8 2 -8.5 -1 -8.5 -3.5 A8.5 8.5 0 0 1 8.5 -3.5 C8.5 -1 8 2 0 10.5Z M3 -3.5 a3 3 0 1 0 -6 0 a3 3 0 1 0 6 0Z"/></g>
+    <text x="236" y="90" font-size="10.5" fill="#1f3b52" text-anchor="middle">Flipper:</text>
+    <text x="236" y="103" font-size="10.5" fill="#1f3b52" text-anchor="middle">set move target</text>
+    <rect x="317" y="6" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="323" y="12" width="32" height="32"/>
+    <g transform="translate(339,60)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="339" y="90" font-size="10.5" fill="#1f3b52" text-anchor="middle">Activer:</text>
+    <text x="339" y="103" font-size="10.5" fill="#1f3b52" text-anchor="middle">move to target</text>
 </svg>
-            <div class="diagram-caption">The Gatherer's actual tree. Left branch: sequencer checking daylight, then finding grass, then moving to it (three "and"s -- any failure falls through to the right branch). Right branch: an Inverter flips the same daylight check into "is it night," then finds shelter and moves there. The Selector at the root picks whichever branch didn't fail.</div>
+            <div class="diagram-caption">A standard Checker (left), then extended leaves. Same shape and carve-out, plus a gold symbol below: a sun for daylight, a pin for a move target, an arrow for moving.</div>
         </div>
 
-        <p>Read it top to bottom: the root Selector tries the left Sequencer first. If it's daytime <em>and</em> grass is found <em>and</em> the creature successfully starts moving toward it, that whole Sequencer reports success (or <span class="code-lesson-il">RUNNING</span> while still en route), the Selector stops there, and the right branch never even gets ticked this frame. Only if the left Sequencer fails, which happens the instant "Check daylight" fails at night, does the Selector move on and try the shelter branch instead.</p>
+        <div class="diagram">
+<svg viewBox="0 0 486 517" xmlns="http://www.w3.org/2000/svg" style="max-width:486px">
+    <path d="M125 264 V278 H45 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M125 264 V278 H125 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M125 264 V278 H204 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M282 355 V388 H282 V422" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M362 264 V278 H282 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M362 264 V278 H362 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M362 264 V278 H441 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M243 160 V174 H125 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M243 160 V174 H362 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M243 69 V83 H243 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="23" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="29" y="298" width="32" height="32"/>
+    <g transform="translate(45,346)"><circle r="4.3" fill="#efd7a5"/><g fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="6.9" y1="0.0" x2="10.3" y2="0.0"/><line x1="4.9" y1="4.9" x2="7.3" y2="7.3"/><line x1="0.0" y1="6.9" x2="0.0" y2="10.3"/><line x1="-4.9" y1="4.9" x2="-7.3" y2="7.3"/><line x1="-6.9" y1="0.0" x2="-10.3" y2="0.0"/><line x1="-4.9" y1="-4.9" x2="-7.3" y2="-7.3"/><line x1="-0.0" y1="-6.9" x2="-0.0" y2="-10.3"/><line x1="4.9" y1="-4.9" x2="7.3" y2="-7.3"/></g></g>
+    <text x="45" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Is daytime</text>
+    <rect x="103" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="109" y="298" width="32" height="32"/>
+    <g transform="translate(125,346)"><path fill="#efd7a5" fill-rule="evenodd" d="M0 10.5 C-8 2 -8.5 -1 -8.5 -3.5 A8.5 8.5 0 0 1 8.5 -3.5 C8.5 -1 8 2 0 10.5Z M3 -3.5 a3 3 0 1 0 -6 0 a3 3 0 1 0 6 0Z"/></g>
+    <text x="125" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Set target:</text>
+    <text x="125" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">fruit</text>
+    <rect x="182" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="188" y="298" width="32" height="32"/>
+    <g transform="translate(204,346)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="204" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Move to</text>
+    <text x="204" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">target</text>
+    <rect x="103" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="109" y="194" width="32" height="32"/>
+    <text x="125" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="125" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Go to grass"</text>
+    <rect x="260" y="422" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="266" y="428" width="32" height="32"/>
+    <g transform="translate(282,476)"><circle r="4.3" fill="#efd7a5"/><g fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="6.9" y1="0.0" x2="10.3" y2="0.0"/><line x1="4.9" y1="4.9" x2="7.3" y2="7.3"/><line x1="0.0" y1="6.9" x2="0.0" y2="10.3"/><line x1="-4.9" y1="4.9" x2="-7.3" y2="7.3"/><line x1="-6.9" y1="0.0" x2="-10.3" y2="0.0"/><line x1="-4.9" y1="-4.9" x2="-7.3" y2="-7.3"/><line x1="-0.0" y1="-6.9" x2="-0.0" y2="-10.3"/><line x1="4.9" y1="-4.9" x2="7.3" y2="-7.3"/></g></g>
+    <text x="282" y="506" font-size="10.5" fill="#1f3b52" text-anchor="middle">Is daytime</text>
+    <rect x="260" y="292" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_inverter.svg" x="266" y="298" width="32" height="32"/>
+    <text x="282" y="350" font-size="10.5" fill="#1f3b52" text-anchor="middle">Inverter</text>
+    <rect x="340" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="346" y="298" width="32" height="32"/>
+    <g transform="translate(362,346)"><path fill="#efd7a5" fill-rule="evenodd" d="M0 10.5 C-8 2 -8.5 -1 -8.5 -3.5 A8.5 8.5 0 0 1 8.5 -3.5 C8.5 -1 8 2 0 10.5Z M3 -3.5 a3 3 0 1 0 -6 0 a3 3 0 1 0 6 0Z"/></g>
+    <text x="362" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Set target:</text>
+    <text x="362" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">shelter</text>
+    <rect x="419" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="425" y="298" width="32" height="32"/>
+    <g transform="translate(441,346)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="441" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Move to</text>
+    <text x="441" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">target</text>
+    <rect x="340" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="346" y="194" width="32" height="32"/>
+    <text x="362" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="362" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Go to shelter"</text>
+    <rect x="221" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="227" y="103" width="32" height="32"/>
+    <text x="243" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="221" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="227" y="12" width="32" height="32"/>
+    <text x="243" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption">The Gatherer's actual tree. Left branch: a Sequencer checking daylight, then setting fruit as the target, then moving to it (three "and"s -- any failure falls through to the right branch). Right branch: an Inverter flips the same daylight Checker into "is it night," then the target is set to shelter and the creature moves there. The Selector at the root picks whichever branch didn't fail.</div>
+        </div>
+
+        <p>Read it top to bottom: the root Selector tries the left Sequencer first. If it's daytime <em>and</em> grass is found <em>and</em> the creature successfully starts moving toward it, that whole Sequencer reports success (or <span class="code-lesson-il">RUNNING</span> while still en route), the Selector stops there, and the right branch never even gets ticked this frame. Only if the left Sequencer fails, which happens the instant the daylight Checker fails at night, does the Selector move on and try the shelter branch instead.</p>
         <p>Notice there's no explicit "go to shelter" state anywhere, and nothing that looks like a transition. The tree's <em>shape</em> encodes the priority (try grass first, shelter second) once, structurally, rather than as a rule living inside some other state.</p>
 
         <h3>Part 5. Try It</h3>
         <ol>
-            <li>In the demo project, find the actual "BT Gatherer" scene and locate its Selector's two Sequencer children in the scene tree. Match each node you see there to a box in the diagram above.</li>
+            <li>In the demo project, find the actual "BT Gatherer" scene and locate its Selector's two Sequencer children in the scene tree. Match each node you see there to an icon in the diagram above.</li>
             <li>Swap the order of the two Sequencer children under the root Selector (drag one above the other). Nothing about any script changes. Predict what changes in the creature's behavior, then run it and check.</li>
-            <li><span class="code-lesson-il">bt_node_leaf_act_print_running.gd</span> is a leaf that always returns <span class="code-lesson-il">RUNNING</span> and prints a timestamp. Temporarily drop one into a Sequencer ahead of an existing action and watch the console; confirm for yourself that a <span class="code-lesson-il">RUNNING</span> result stops that Sequencer right there, same as a <span class="code-lesson-il">FAILURE</span> would, just without reporting failure.</li>
+            <li><span class="code-lesson-il">bt_node_leaf_act_print_running.gd</span> is an Activer that always returns <span class="code-lesson-il">RUNNING</span> and prints a timestamp. Temporarily drop one into a Sequencer ahead of an existing Activer and watch the console; confirm for yourself that a <span class="code-lesson-il">RUNNING</span> result stops that Sequencer right there, same as a <span class="code-lesson-il">FAILURE</span> would, just without reporting failure.</li>
         </ol>
 
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
             <li>Name the three possible results of a tick, and explain what each one means in one sentence.</li>
-            <li>Explain the default return value difference between <span class="code-lesson-il">Action</span> and <span class="code-lesson-il">Condition</span> leaves, and why that default makes sense for each.</li>
+            <li>Explain the default return value difference between <span class="code-lesson-il">Condition</span> leaves (Checkers) and <span class="code-lesson-il">Action</span> leaves (Flippers and Activers), and why that default makes sense for each.</li>
             <li>Explain Sequencer and Selector's stopping rules in plain English ("and" / "or"), without reading the code back.</li>
             <li>Given the Gatherer's actual tree, say out loud what happens on a tick where it's night and no shelter exists nearby: what does each node along the way return, and what does the root ultimately report?</li>
             <li>Point to one specific way this tree avoids the "transition spaghetti" problem an FSM with the same behavior would risk.</li>
@@ -245,17 +380,17 @@ func tick(actor, blackboard, delta):
         <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
         <h3>Warm-up</h3>
         <ol>
-            <li>Build a tree that patrols until the player enters detection range. Agent → BehaviorTree → Selector/Sequence → condition and action leaves; detection uses Area2D + CollisionShape2D.</li>
+            <li>Build a tree that patrols until the player enters detection range. Agent → BehaviorTree → Selector/Sequence → checker, flipper and activer leaves; detection uses Area2D + CollisionShape2D.</li>
             <li>Test one normal case and one edge case; record the expected behavior.</li>
         </ol>
         <h3>Intermediate</h3>
         <ol>
-            <li>Add approach-then-interact behavior with RUNNING status across frames. Add condition/action nodes under the existing tree and test target movement.</li>
+            <li>Add approach-then-interact behavior with RUNNING status across frames. Add checker/flipper/activer nodes under the existing tree and test target movement.</li>
             <li>Test one normal case and one edge case; record the expected behavior.</li>
         </ol>
         <h3>Advanced</h3>
         <ol>
-            <li>Add a retry decorator with a bounded count, then fall back to patrol. Add a Retry node with one child and test reset after success/failure.</li>
+            <li>Switch off the chase branch with a Failer, make one step optional with a Succeeder, and confirm the tree falls back to patrol. Each decorator takes exactly one child; test with the Failer in and out.</li>
             <li>Test one normal case and one edge case; record the expected behavior.</li>
         </ol>
     </section>

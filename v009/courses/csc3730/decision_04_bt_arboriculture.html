@@ -11,7 +11,7 @@
 
         <div class="icon-glossary">
             <div class="icon-glossary-item">
-                <img src="../../svgs/bt_category_decorator.svg" alt="Decorator category icon">
+                <img src="../../svgs/bt_decorator.svg" alt="Decorator icon">
                 <div class="name">Decorator</div>
                 <div class="desc">wraps one child</div>
             </div>
@@ -21,9 +21,19 @@
                 <div class="desc">flips the result</div>
             </div>
             <div class="icon-glossary-item">
-                <img src="../../svgs/bt_limiter.svg" alt="Limiter icon">
-                <div class="name">Limiter</div>
-                <div class="desc">caps how often/long</div>
+                <img src="../../svgs/bt_succeeder.svg" alt="Succeeder icon">
+                <div class="name">Succeeder</div>
+                <div class="desc">always reports SUCCESS</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_failer.svg" alt="Failer icon">
+                <div class="name">Failer</div>
+                <div class="desc">always reports FAILURE</div>
+            </div>
+            <div class="icon-glossary-item">
+                <img src="../../svgs/bt_runner.svg" alt="Runner icon">
+                <div class="name">Runner</div>
+                <div class="desc">always reports RUNNING</div>
             </div>
             <div class="icon-glossary-item">
                 <img src="../../svgs/bt_blackboard.svg" alt="Blackboard icon">
@@ -74,8 +84,9 @@ func tick(actor, blackboard, delta):
 </div>
 
         <p><span class="code-lesson-il">Inverter</span> is the whole pattern in miniature: tick the one child, look up its answer in <span class="code-lesson-il">INVERT</span>, hand back the opposite. <span class="code-lesson-il">SUCCESS</span> becomes <span class="code-lesson-il">FAILURE</span> and back, <span class="code-lesson-il">RUNNING</span> passes through unchanged (there's no sensible "opposite" of still-in-progress). The child node itself never finds out it's being inverted; it ticks exactly the same as it would anywhere else in the tree.</p>
+        <p>The other three decorators are blunter. A <strong>Succeeder</strong>, a <strong>Failer</strong>, and a <strong>Runner</strong> tick their one child, then report <span class="code-lesson-il">SUCCESS</span>, <span class="code-lesson-il">FAILURE</span>, or <span class="code-lesson-il">RUNNING</span> no matter what it said. That's lying on purpose: it makes a step optional (Succeeder), switches a branch off without deleting it (Failer), or keeps a tree busy (Runner). Part 5 uses all four.</p>
 
-        <h3>Part 2. The Payoff: Reusing a Condition</h3>
+        <h3>Part 2. The Payoff: Reusing a Checker</h3>
         <p>Go back to the Gatherer's tree from last lesson. Both branches ask about daylight, but neither branch has its own "is it night" condition:</p>
 
 <div class="code-block" data-lang="html">
@@ -85,14 +96,14 @@ func tick(actor, blackboard, delta):
 </div>
 <span class="code-lesson-bl">Selector
 ├─ Sequencer "Go to grass during day"
-│  ├─ Check daylight              (Condition_Day)
-│  ├─ Set Move Target as Fruit    (Condition)
-│  └─ Move to Move Target         (Action)
+│  ├─ Check daylight              (Checker: Condition_Day)
+│  ├─ Set Move Target as Fruit    (Flipper)
+│  └─ Move to Move Target         (Activer)
 └─ Sequencer "Go to shelter at night"
    ├─ Inverter "Check for night"
-   │  └─ Check daylight           (the exact same Condition_Day script)
-   ├─ Set Move Target as Shelter  (Condition)
-   └─ Move to Move Target         (the exact same Action script)
+   │  └─ Check daylight           (the exact same Checker script)
+   ├─ Set Move Target as Shelter  (Flipper)
+   └─ Move to Move Target         (the exact same Activer script)
 </span>
 </div>
 
@@ -154,14 +165,444 @@ func set_running_leaf(action_leaf_node: Variant) -&gt; void:
         <ul>
             <li><strong>Name nodes for what they mean, not what they are.</strong> The Gatherer's scene tree doesn't have two nodes both named "Sequencer"; it has "Go to grass during day" and "Go to shelter at night". The node names <em>are</em> the documentation, readable without opening a single script.</li>
             <li><strong>Keep leaves small and single-purpose.</strong> <span class="code-lesson-il">Condition_Day</span> checks exactly one thing. That's what made it reusable under an Inverter with zero changes; a leaf that checked three unrelated things at once couldn't be recombined nearly as easily.</li>
-            <li><strong>Prefer a decorator over a near-duplicate leaf.</strong> Whenever you catch yourself about to copy a Condition and just negate its logic by hand, that's an Inverter instead.</li>
+            <li><strong>Prefer a decorator over a near-duplicate leaf.</strong> Whenever you catch yourself about to copy a Checker and just negate its logic by hand, that's an Inverter instead.</li>
             <li><strong>Selector order is priority order.</strong> Since a Selector stops at the first non-failure, put the behavior you want to win ties first, deliberately, not by whichever order you happened to drag the nodes in.</li>
         </ul>
 
-        <h3>Part 5. Try It</h3>
+        <h3>Part 5. A Gallery of Trees</h3>
+        <p>Here are some trees built from the full set. Read them the way a tick does: top to bottom, children left to right. The gold symbol under a leaf shows what it checks or does, and the label says it in words.</p>
+
+        <div class="diagram">
+<svg viewBox="0 0 639 413" xmlns="http://www.w3.org/2000/svg" style="max-width:639px">
+    <path d="M123 264 V284 H45 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M123 264 V284 H123 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M123 264 V284 H201 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M397 264 V284 H279 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M397 264 V284 H357 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M397 264 V284 H435 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M397 264 V284 H515 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M359 160 V174 H123 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M359 160 V174 H397 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M359 160 V174 H594 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M359 69 V83 H359 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="23" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="29" y="311" width="32" height="32"/>
+    <g transform="translate(45,359)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 Q0 -11 10.5 0 Q0 11 -10.5 0Z M3.2 0 a3.2 3.2 0 1 0 -6.4 0 a3.2 3.2 0 1 0 6.4 0Z"/></g>
+    <text x="45" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">See player</text>
+    <rect x="101" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="107" y="311" width="32" height="32"/>
+    <g transform="translate(123,359)"><circle r="6.3" fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M0 -10.5 V-4.5 M0 10.5 V4.5 M-10.5 0 H-4.5 M10.5 0 H4.5"/><circle r="1.8" fill="#efd7a5"/></g>
+    <text x="123" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Target:</text>
+    <text x="123" y="402" font-size="10.5" fill="#1f3b52" text-anchor="middle">player</text>
+    <rect x="179" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="185" y="311" width="32" height="32"/>
+    <g transform="translate(201,359)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="201" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Chase</text>
+    <rect x="101" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="107" y="194" width="32" height="32"/>
+    <text x="123" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="123" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Chase"</text>
+    <rect x="257" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="263" y="311" width="32" height="32"/>
+    <g transform="translate(279,359)"><path fill="#efd7a5" d="M-10.5 -3 H-6.5 L-1 -7.5 V7.5 L-6.5 3 H-10.5Z"/><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M2.5 -4 A5 5 0 0 1 2.5 4 M5.7 -7 A9 9 0 0 1 5.7 7"/></g>
+    <text x="279" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Hear noise</text>
+    <rect x="335" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="341" y="311" width="32" height="32"/>
+    <g transform="translate(357,359)"><path fill="#efd7a5" fill-rule="evenodd" d="M0 10.5 C-8 2 -8.5 -1 -8.5 -3.5 A8.5 8.5 0 0 1 8.5 -3.5 C8.5 -1 8 2 0 10.5Z M3 -3.5 a3 3 0 1 0 -6 0 a3 3 0 1 0 6 0Z"/></g>
+    <text x="357" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Target:</text>
+    <text x="357" y="402" font-size="10.5" fill="#1f3b52" text-anchor="middle">noise</text>
+    <rect x="413" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="419" y="311" width="32" height="32"/>
+    <g transform="translate(435,359)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="435" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Move there</text>
+    <rect x="493" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="499" y="311" width="32" height="32"/>
+    <g transform="translate(515,359)"><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M8 -3 A8.2 8.2 0 1 0 6 6"/><path fill="#efd7a5" d="M10.8 -8.5 L10.8 0.5 L2.8 -3Z"/></g>
+    <text x="515" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Look around</text>
+    <rect x="375" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="381" y="194" width="32" height="32"/>
+    <text x="397" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="397" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Investigate"</text>
+    <rect x="572" y="188" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="578" y="194" width="32" height="32"/>
+    <g transform="translate(594,242)"><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M-10.5 5 L-5.3 -5 L0 5 L5.3 -5 L10.5 5" stroke-width="2.3"/></g>
+    <text x="594" y="272" font-size="10.5" fill="#1f3b52" text-anchor="middle">Patrol</text>
+    <rect x="337" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="343" y="103" width="32" height="32"/>
+    <text x="359" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="337" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="343" y="12" width="32" height="32"/>
+    <text x="359" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption"><strong>The guard.</strong> Order is priority: chase beats investigate beats patrol. A noise only matters when no player is in sight.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 558 400" xmlns="http://www.w3.org/2000/svg" style="max-width:558px">
+    <path d="M123 264 V278 H45 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M123 264 V278 H123 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M123 264 V278 H201 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M318 264 V278 H279 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M318 264 V278 H357 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M474 264 V278 H435 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M474 264 V278 H513 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M298 160 V174 H123 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M298 160 V174 H318 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M298 160 V174 H474 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M298 69 V83 H298 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="23" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="29" y="298" width="32" height="32"/>
+    <g transform="translate(45,346)"><path fill="#efd7a5" d="M0 9.5 C-12 1 -9 -8 -4 -8 C-1.5 -8 0 -6 0 -5 C0 -6 1.5 -8 4 -8 C9 -8 12 1 0 9.5Z"/></g>
+    <text x="45" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Health low</text>
+    <rect x="101" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="107" y="298" width="32" height="32"/>
+    <g transform="translate(123,346)"><path fill="#efd7a5" fill-rule="evenodd" d="M0 10.5 C-8 2 -8.5 -1 -8.5 -3.5 A8.5 8.5 0 0 1 8.5 -3.5 C8.5 -1 8 2 0 10.5Z M3 -3.5 a3 3 0 1 0 -6 0 a3 3 0 1 0 6 0Z"/></g>
+    <text x="123" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Target:</text>
+    <text x="123" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">safe spot</text>
+    <rect x="179" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="185" y="298" width="32" height="32"/>
+    <g transform="translate(201,346)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="201" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Run</text>
+    <rect x="101" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="107" y="194" width="32" height="32"/>
+    <text x="123" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="123" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Flee"</text>
+    <rect x="257" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="263" y="298" width="32" height="32"/>
+    <g transform="translate(279,346)"><rect x="-10.5" y="-6.5" width="2.2" height="13" fill="#efd7a5"/><rect x="8.3" y="-6.5" width="2.2" height="13" fill="#efd7a5"/><path fill="#efd7a5" d="M-7.5 0 L-3 -3.8 V3.8Z M7.5 0 L3 -3.8 V3.8Z"/><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M-3.5 0 H3.5"/></g>
+    <text x="279" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">In range</text>
+    <rect x="335" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="341" y="298" width="32" height="32"/>
+    <g transform="translate(357,346)"><polygon fill="#efd7a5" points="0.0,-10.8 1.8,-4.2 7.6,-7.6 4.2,-1.8 10.8,0.0 4.2,1.8 7.6,7.6 1.8,4.2 0.0,10.8 -1.8,4.2 -7.6,7.6 -4.2,1.8 -10.8,0.0 -4.2,-1.8 -7.6,-7.6 -1.8,-4.2"/></g>
+    <text x="357" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Attack</text>
+    <rect x="296" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="302" y="194" width="32" height="32"/>
+    <text x="318" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="318" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Fight"</text>
+    <rect x="413" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="419" y="298" width="32" height="32"/>
+    <g transform="translate(435,346)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 Q0 -11 10.5 0 Q0 11 -10.5 0Z M3.2 0 a3.2 3.2 0 1 0 -6.4 0 a3.2 3.2 0 1 0 6.4 0Z"/></g>
+    <text x="435" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">See target</text>
+    <rect x="491" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="497" y="298" width="32" height="32"/>
+    <g transform="translate(513,346)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="513" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Approach</text>
+    <rect x="452" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="458" y="194" width="32" height="32"/>
+    <text x="474" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="474" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Close in"</text>
+    <rect x="276" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="282" y="103" width="32" height="32"/>
+    <text x="298" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="276" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="282" y="12" width="32" height="32"/>
+    <text x="298" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption"><strong>Fight or flee.</strong> Health is checked first, so low health always wins. After that: attack if in range, close in if the target is visible.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 324 543" xmlns="http://www.w3.org/2000/svg" style="max-width:324px">
+    <path d="M162 407 V421 H123 V435" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M162 407 V421 H201 V435" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M162 264 V298 H162 V331" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M162 173 V187 H45 V201" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M162 173 V187 H162 V201" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M162 173 V187 H279 V201" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M162 69 V83 H162 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="23" y="201" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="29" y="207" width="32" height="32"/>
+    <g transform="translate(45,255)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="45" y="285" font-size="10.5" fill="#1f3b52" text-anchor="middle">Move to</text>
+    <text x="45" y="298" font-size="10.5" fill="#1f3b52" text-anchor="middle">door</text>
+    <rect x="101" y="435" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="107" y="441" width="32" height="32"/>
+    <g transform="translate(123,489)"><circle cx="-5.5" cy="0" r="4" fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M-1.5 0 H10 M6 0 V4 M9.8 0 V3.5"/></g>
+    <text x="123" y="519" font-size="10.5" fill="#1f3b52" text-anchor="middle">Has key</text>
+    <rect x="179" y="435" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="185" y="441" width="32" height="32"/>
+    <g transform="translate(201,489)"><path fill="#efd7a5" fill-rule="evenodd" d="M-6.5 -10 H6.5 V10 H-6.5Z M3.9 0.5 a1.3 1.3 0 1 0 -2.6 0 a1.3 1.3 0 1 0 2.6 0Z"/></g>
+    <text x="201" y="519" font-size="10.5" fill="#1f3b52" text-anchor="middle">Unlock</text>
+    <text x="201" y="532" font-size="10.5" fill="#1f3b52" text-anchor="middle">door</text>
+    <rect x="140" y="331" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="146" y="337" width="32" height="32"/>
+    <text x="162" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="162" y="402" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Unlock if needed"</text>
+    <rect x="140" y="201" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_succeeder.svg" x="146" y="207" width="32" height="32"/>
+    <text x="162" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">Succeeder</text>
+    <rect x="257" y="201" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="263" y="207" width="32" height="32"/>
+    <g transform="translate(279,255)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="279" y="285" font-size="10.5" fill="#1f3b52" text-anchor="middle">Walk</text>
+    <text x="279" y="298" font-size="10.5" fill="#1f3b52" text-anchor="middle">through</text>
+    <rect x="140" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="146" y="103" width="32" height="32"/>
+    <text x="162" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="162" y="168" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Go through the door"</text>
+    <rect x="140" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="146" y="12" width="32" height="32"/>
+    <text x="162" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption"><strong>An optional step.</strong> The Succeeder turns "no key" into success, so the Sequencer keeps going and the character still walks up to the door. Without it, a missing key fails the whole Sequencer.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 246 504" xmlns="http://www.w3.org/2000/svg" style="max-width:246px">
+    <path d="M84 381 V395 H45 V409" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M84 381 V395 H123 V409" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M84 251 V278 H84 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M142 160 V174 H84 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M142 160 V174 H201 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M142 69 V83 H142 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="23" y="409" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="29" y="415" width="32" height="32"/>
+    <g transform="translate(45,463)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 Q0 -11 10.5 0 Q0 11 -10.5 0Z M3.2 0 a3.2 3.2 0 1 0 -6.4 0 a3.2 3.2 0 1 0 6.4 0Z"/></g>
+    <text x="45" y="493" font-size="10.5" fill="#1f3b52" text-anchor="middle">See player</text>
+    <rect x="101" y="409" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="107" y="415" width="32" height="32"/>
+    <g transform="translate(123,463)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="123" y="493" font-size="10.5" fill="#1f3b52" text-anchor="middle">Chase</text>
+    <rect x="62" y="305" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="68" y="311" width="32" height="32"/>
+    <text x="84" y="363" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="84" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Chase" (switched off)</text>
+    <rect x="62" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_failer.svg" x="68" y="194" width="32" height="32"/>
+    <text x="84" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Failer</text>
+    <rect x="179" y="188" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="185" y="194" width="32" height="32"/>
+    <g transform="translate(201,242)"><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M-10.5 5 L-5.3 -5 L0 5 L5.3 -5 L10.5 5" stroke-width="2.3"/></g>
+    <text x="201" y="272" font-size="10.5" fill="#1f3b52" text-anchor="middle">Patrol</text>
+    <rect x="120" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="126" y="103" width="32" height="32"/>
+    <text x="142" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="120" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="126" y="12" width="32" height="32"/>
+    <text x="142" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption"><strong>Muting a branch.</strong> The Failer reports FAILURE no matter what, so the Selector skips chasing and falls through to Patrol. Delete the Failer and chasing is back; nothing inside the branch changed.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 345 387" xmlns="http://www.w3.org/2000/svg" style="max-width:345px">
+    <path d="M131 264 V278 H50 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M131 264 V278 H134 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M131 264 V278 H213 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M296 251 V272 H296 V292" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M214 160 V174 H131 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M214 160 V174 H296 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M214 69 V83 H214 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="28" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="34" y="298" width="32" height="32"/>
+    <g transform="translate(50,346)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 Q0 -11 10.5 0 Q0 11 -10.5 0Z M3.2 0 a3.2 3.2 0 1 0 -6.4 0 a3.2 3.2 0 1 0 6.4 0Z"/></g>
+    <text x="50" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">See intruder</text>
+    <rect x="112" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="118" y="298" width="32" height="32"/>
+    <g transform="translate(134,346)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 -8.5 H10.5 V3.5 H1.5 L-4 9 V3.5 H-10.5Z M-5 -2.5 a1.3 1.3 0 1 0 2.6 0 a1.3 1.3 0 1 0 -2.6 0Z M-1.3 -2.5 a1.3 1.3 0 1 0 2.6 0 a1.3 1.3 0 1 0 -2.6 0Z M2.4 -2.5 a1.3 1.3 0 1 0 2.6 0 a1.3 1.3 0 1 0 -2.6 0Z"/></g>
+    <text x="134" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sound alarm</text>
+    <rect x="191" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="197" y="298" width="32" height="32"/>
+    <g transform="translate(213,346)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="213" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Chase</text>
+    <rect x="109" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="115" y="194" width="32" height="32"/>
+    <text x="131" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="131" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Raise alarm"</text>
+    <rect x="274" y="292" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="280" y="298" width="32" height="32"/>
+    <g transform="translate(296,346)"><circle r="6.3" fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M0 -10.5 V-4.5 M0 10.5 V4.5 M-10.5 0 H-4.5 M10.5 0 H4.5"/><circle r="1.8" fill="#efd7a5"/></g>
+    <text x="296" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">Face forward</text>
+    <rect x="274" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_runner.svg" x="280" y="194" width="32" height="32"/>
+    <text x="296" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Runner</text>
+    <rect x="192" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="198" y="103" width="32" height="32"/>
+    <text x="214" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="192" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="198" y="12" width="32" height="32"/>
+    <text x="214" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption"><strong>Always on duty.</strong> The Flipper finishes instantly, but the Runner reports RUNNING anyway, so with no intruder the tree reads as busy, not finished.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 501 517" xmlns="http://www.w3.org/2000/svg" style="max-width:501px">
+    <path d="M134 368 V395 H134 V422" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M131 264 V284 H50 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M131 264 V284 H134 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M131 264 V284 H213 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M337 264 V284 H296 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M337 264 V284 H378 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M294 160 V174 H131 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M294 160 V174 H337 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M294 160 V174 H456 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M294 69 V83 H294 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="28" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="34" y="311" width="32" height="32"/>
+    <g transform="translate(50,359)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 Q0 -11 10.5 0 Q0 11 -10.5 0Z M3.2 0 a3.2 3.2 0 1 0 -6.4 0 a3.2 3.2 0 1 0 6.4 0Z"/></g>
+    <text x="50" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">See predator</text>
+    <rect x="112" y="422" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="118" y="428" width="32" height="32"/>
+    <g transform="translate(134,476)"><rect x="-10.5" y="-6.5" width="2.2" height="13" fill="#efd7a5"/><rect x="8.3" y="-6.5" width="2.2" height="13" fill="#efd7a5"/><path fill="#efd7a5" d="M-7.5 0 L-3 -3.8 V3.8Z M7.5 0 L3 -3.8 V3.8Z"/><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M-3.5 0 H3.5"/></g>
+    <text x="134" y="506" font-size="10.5" fill="#1f3b52" text-anchor="middle">Wall nearby</text>
+    <rect x="112" y="305" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_inverter.svg" x="118" y="311" width="32" height="32"/>
+    <text x="134" y="363" font-size="10.5" fill="#1f3b52" text-anchor="middle">Inverter</text>
+    <rect x="191" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="197" y="311" width="32" height="32"/>
+    <g transform="translate(213,359)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="213" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Run</text>
+    <rect x="109" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="115" y="194" width="32" height="32"/>
+    <text x="131" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="131" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Run away"</text>
+    <rect x="274" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="280" y="311" width="32" height="32"/>
+    <g transform="translate(296,359)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 Q0 -11 10.5 0 Q0 11 -10.5 0Z M3.2 0 a3.2 3.2 0 1 0 -6.4 0 a3.2 3.2 0 1 0 6.4 0Z"/></g>
+    <text x="296" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">See predator</text>
+    <rect x="356" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="362" y="311" width="32" height="32"/>
+    <g transform="translate(378,359)"><polygon fill="#efd7a5" points="0.0,-10.8 1.8,-4.2 7.6,-7.6 4.2,-1.8 10.8,0.0 4.2,1.8 7.6,7.6 1.8,4.2 0.0,10.8 -1.8,4.2 -7.6,7.6 -4.2,1.8 -10.8,0.0 -4.2,-1.8 -7.6,-7.6 -1.8,-4.2"/></g>
+    <text x="378" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Fight back</text>
+    <rect x="315" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="321" y="194" width="32" height="32"/>
+    <text x="337" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="337" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Cornered"</text>
+    <rect x="434" y="188" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="440" y="194" width="32" height="32"/>
+    <g transform="translate(456,242)"><circle cx="0" cy="2.5" r="7.5" fill="#efd7a5"/><path fill="#efd7a5" d="M0 -4.5 Q2 -10 8.5 -9.5 Q6.5 -4 0 -4.5Z"/></g>
+    <text x="456" y="272" font-size="10.5" fill="#1f3b52" text-anchor="middle">Graze</text>
+    <rect x="272" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="278" y="103" width="32" height="32"/>
+    <text x="294" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="272" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="278" y="12" width="32" height="32"/>
+    <text x="294" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption"><strong>Flee unless cornered.</strong> The Inverter turns "wall nearby" into "room to run," so the first branch only fires when running is possible. A wall close by sends the tick to Fight back; no predator sends it to Graze.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 483 413" xmlns="http://www.w3.org/2000/svg" style="max-width:483px">
+    <path d="M125 264 V284 H47 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M125 264 V284 H126 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M125 264 V284 H204 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M321 264 V284 H282 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M321 264 V284 H360 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M282 160 V174 H125 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M282 160 V174 H321 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M282 160 V174 H438 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M282 69 V83 H282 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="25" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="31" y="311" width="32" height="32"/>
+    <g transform="translate(47,359)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 -5.5 H7.5 V5.5 H-10.5Z M-8.5 -3.5 V3.5 H5.5 V-3.5Z"/><rect x="8" y="-2.5" width="2.5" height="5" fill="#efd7a5"/><rect x="-7" y="-2" width="3.4" height="4" fill="#efd7a5"/></g>
+    <text x="47" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Battery low</text>
+    <rect x="104" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="110" y="311" width="32" height="32"/>
+    <g transform="translate(126,359)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="126" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Go to dock</text>
+    <rect x="182" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="188" y="311" width="32" height="32"/>
+    <g transform="translate(204,359)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 L0 -9.5 L10.5 0 H7.5 V9.5 H-7.5 V0Z M2 9.5 V3.2 H-2 V9.5Z"/></g>
+    <text x="204" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Charge</text>
+    <rect x="103" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="109" y="194" width="32" height="32"/>
+    <text x="125" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="125" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Recharge"</text>
+    <rect x="260" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="266" y="311" width="32" height="32"/>
+    <g transform="translate(282,359)"><circle r="8.6" fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M0 -5 V0 L4 2.2"/></g>
+    <text x="282" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Scheduled</text>
+    <text x="282" y="402" font-size="10.5" fill="#1f3b52" text-anchor="middle">time</text>
+    <rect x="338" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="344" y="311" width="32" height="32"/>
+    <g transform="translate(360,359)"><path fill="#efd7a5" d="M0 -10.5 Q1.6 -1.6 10.5 0 Q1.6 1.6 0 10.5 Q-1.6 1.6 -10.5 0 Q-1.6 -1.6 0 -10.5Z"/></g>
+    <text x="360" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Vacuum</text>
+    <rect x="299" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="305" y="194" width="32" height="32"/>
+    <text x="321" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="321" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Clean on schedule"</text>
+    <rect x="416" y="188" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="422" y="194" width="32" height="32"/>
+    <g transform="translate(438,242)"><path fill="#efd7a5" d="M-6.5 -10 H6.5 L1.2 0 L6.5 10 H-6.5 L-1.2 0Z"/></g>
+    <text x="438" y="272" font-size="10.5" fill="#1f3b52" text-anchor="middle">Wait</text>
+    <rect x="260" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="266" y="103" width="32" height="32"/>
+    <text x="282" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="260" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="266" y="12" width="32" height="32"/>
+    <text x="282" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption"><strong>A robot vacuum.</strong> Recharging beats cleaning, cleaning only happens on schedule, and Wait is the fallback. A low battery takes over on the very next tick, with no transition written anywhere.</div>
+        </div>
+
+        <div class="diagram">
+<svg viewBox="0 0 480 673" xmlns="http://www.w3.org/2000/svg" style="max-width:480px">
+    <path d="M201 511 V538 H123 V565" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M201 511 V538 H201 V565" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M201 511 V538 H279 V565" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M279 381 V408 H201 V435" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M279 381 V408 H357 V435" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M162 264 V284 H45 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M162 264 V284 H279 V305" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M298 160 V174 H162 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M298 160 V174 H435 V188" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <path d="M298 69 V83 H298 V97" fill="none" stroke="#8a8a8a" stroke-width="1.3"/>
+    <rect x="23" y="305" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="29" y="311" width="32" height="32"/>
+    <g transform="translate(45,359)"><circle r="8.6" fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M0 -5 V0 L4 2.2"/></g>
+    <text x="45" y="389" font-size="10.5" fill="#1f3b52" text-anchor="middle">Opening</text>
+    <text x="45" y="402" font-size="10.5" fill="#1f3b52" text-anchor="middle">hours</text>
+    <rect x="101" y="565" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_checker.svg" x="107" y="571" width="32" height="32"/>
+    <g transform="translate(123,619)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 Q0 -11 10.5 0 Q0 11 -10.5 0Z M3.2 0 a3.2 3.2 0 1 0 -6.4 0 a3.2 3.2 0 1 0 6.4 0Z"/></g>
+    <text x="123" y="649" font-size="10.5" fill="#1f3b52" text-anchor="middle">Customer</text>
+    <text x="123" y="662" font-size="10.5" fill="#1f3b52" text-anchor="middle">waiting</text>
+    <rect x="179" y="565" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="185" y="571" width="32" height="32"/>
+    <g transform="translate(201,619)"><path fill="#efd7a5" d="M-10.5 -3 H1 V-8 L10.5 0 L1 8 V3 H-10.5Z"/></g>
+    <text x="201" y="649" font-size="10.5" fill="#1f3b52" text-anchor="middle">Walk to</text>
+    <text x="201" y="662" font-size="10.5" fill="#1f3b52" text-anchor="middle">counter</text>
+    <rect x="257" y="565" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_flipper.svg" x="263" y="571" width="32" height="32"/>
+    <g transform="translate(279,619)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 -8.5 H10.5 V3.5 H1.5 L-4 9 V3.5 H-10.5Z M-5 -2.5 a1.3 1.3 0 1 0 2.6 0 a1.3 1.3 0 1 0 -2.6 0Z M-1.3 -2.5 a1.3 1.3 0 1 0 2.6 0 a1.3 1.3 0 1 0 -2.6 0Z M2.4 -2.5 a1.3 1.3 0 1 0 2.6 0 a1.3 1.3 0 1 0 -2.6 0Z"/></g>
+    <text x="279" y="649" font-size="10.5" fill="#1f3b52" text-anchor="middle">Greet</text>
+    <rect x="179" y="435" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="185" y="441" width="32" height="32"/>
+    <text x="201" y="493" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="201" y="506" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Serve"</text>
+    <rect x="335" y="435" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="341" y="441" width="32" height="32"/>
+    <g transform="translate(357,489)"><path fill="none" stroke="#efd7a5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M-10.5 5 L-5.3 -5 L0 5 L5.3 -5 L10.5 5" stroke-width="2.3"/></g>
+    <text x="357" y="519" font-size="10.5" fill="#1f3b52" text-anchor="middle">Tidy</text>
+    <text x="357" y="532" font-size="10.5" fill="#1f3b52" text-anchor="middle">shelves</text>
+    <rect x="257" y="305" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="263" y="311" width="32" height="32"/>
+    <text x="279" y="363" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <text x="279" y="376" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Serve or tidy"</text>
+    <rect x="140" y="188" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_sequencer.svg" x="146" y="194" width="32" height="32"/>
+    <text x="162" y="246" font-size="10.5" fill="#1f3b52" text-anchor="middle">Sequencer</text>
+    <text x="162" y="259" font-size="10.5" fill="#1f3b52" text-anchor="middle">"Shop open"</text>
+    <rect x="413" y="188" width="44" height="70" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_activer.svg" x="419" y="194" width="32" height="32"/>
+    <g transform="translate(435,242)"><path fill="#efd7a5" fill-rule="evenodd" d="M-10.5 0 L0 -9.5 L10.5 0 H7.5 V9.5 H-7.5 V0Z M2 9.5 V3.2 H-2 V9.5Z"/></g>
+    <text x="435" y="272" font-size="10.5" fill="#1f3b52" text-anchor="middle">Go home</text>
+    <rect x="276" y="97" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_selector.svg" x="282" y="103" width="32" height="32"/>
+    <text x="298" y="155" font-size="10.5" fill="#1f3b52" text-anchor="middle">Selector</text>
+    <rect x="276" y="6" width="44" height="44" rx="8" fill="#2a2f38"/>
+    <image href="../../svgs/bt_root.svg" x="282" y="12" width="32" height="32"/>
+    <text x="298" y="64" font-size="10.5" fill="#1f3b52" text-anchor="middle">Root</text>
+</svg>
+            <div class="diagram-caption"><strong>A shopkeeper.</strong> Composites nest. During opening hours the inner Selector serves a waiting customer, or else tidies up. Outside them the first Sequencer fails at its Checker and the tick falls through to Go home.</div>
+        </div>
+
+        <h3>Part 6. Try It</h3>
         <ol>
             <li>In the project, find <span class="code-lesson-il">bt_node_deco.gd</span> and read its <span class="code-lesson-il">_ready()</span> check again. What happens (in the editor, not at runtime) if you add a second child under an Inverter? Try it and see what gets printed.</li>
-            <li>Design (on paper) a <span class="code-lesson-il">Limiter</span> decorator, one that only lets its child tick a maximum number of times, then always returns <span class="code-lesson-il">FAILURE</span> after that. What state would it need to track internally that <span class="code-lesson-il">Inverter</span> doesn't need at all?</li>
+            <li>Design (on paper) a fifth decorator, a <span class="code-lesson-il">Limiter</span>, one that only lets its child tick a maximum number of times, then always returns <span class="code-lesson-il">FAILURE</span> after that. What state would it need to track internally that <span class="code-lesson-il">Inverter</span> doesn't need at all?</li>
             <li>Find one other place in the Gatherer's tree (besides the daylight check) where the same leaf script gets instanced more than once. What made that leaf reusable?</li>
         </ol>
 
@@ -179,12 +620,12 @@ func set_running_leaf(action_leaf_node: Variant) -&gt; void:
         <p>Build on the lesson project. Scene trees below are suggested; reuse existing nodes and packed scenes where possible.</p>
         <h3>Warm-up</h3>
         <ol>
-            <li>Add a blackboard target key and a condition that checks it. Agent → BehaviorTree → condition/action nodes; Blackboard (Node) belongs to Agent or tree.</li>
+            <li>Add a blackboard target key and a checker that checks it. Agent → BehaviorTree → checker/flipper/activer nodes; Blackboard (Node) belongs to Agent or tree.</li>
             <li>Test one normal case and one edge case; record the expected behavior.</li>
         </ol>
         <h3>Intermediate</h3>
         <ol>
-            <li>Wrap a condition in an Inverter decorator. Decorator node has exactly one child; display returned status in a DebugLabel under CanvasLayer.</li>
+            <li>Wrap a checker in an Inverter decorator. Decorator node has exactly one child; display returned status in a DebugLabel under CanvasLayer.</li>
             <li>Test one normal case and one edge case; record the expected behavior.</li>
         </ol>
         <h3>Advanced</h3>
