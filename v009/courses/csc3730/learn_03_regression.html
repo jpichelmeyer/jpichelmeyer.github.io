@@ -41,7 +41,7 @@
         <p>Every shot, hit or miss, produces one of these hindsight values, appended to Memory alongside the distance it was fired from. That's what makes this genuine regression rather than a hit/miss classifier in disguise: the label is a real, continuous, correct number for that exact shot, not just <span class="code-lesson-il">true</span> or <span class="code-lesson-il">false</span>.</p>
 
         <h3>Part 3. Loss: Measuring How Wrong a Line Is</h3>
-        <p>To improve the line, the model needs a number that says how badly it's currently doing, a <strong>loss</strong>. Sentry uses squared error: for each training example, the difference between the predicted lead and the ideal lead, squared. Squaring does two things at once &mdash; it makes every error positive (so overshooting and undershooting don't cancel out), and it punishes large errors much more than small ones.</p>
+        <p>To improve the line, the model needs a number that says how badly it's currently doing, a <strong>loss</strong>. Sentry uses squared error: for each training example, the difference between the predicted lead and the ideal lead, squared. Squaring does two things at once: it makes every error positive (so overshooting and undershooting don't cancel out), and it punishes large errors much more than small ones.</p>
 
         <h3>Part 4. Training: Gradient Descent</h3>
         <p>Rather than solving for the best-fit line in one shot, Sentry nudges its weights a little at a time, in whichever direction reduces the error for each example, repeated over many passes through Memory:</p>
@@ -70,10 +70,10 @@ func _train_on_memory() -> void:
         <p>Read the update line by line:</p>
         <ul>
             <li><span class="code-lesson-il">error = predicted - record.ideal_lead</span>: positive if the model over-predicted, negative if it under-predicted.</li>
-            <li><span class="code-lesson-il">weights[0] -= LEARNING_RATE * error</span>: nudge the intercept opposite the error &mdash; if predictions are running high, pull the whole line down a little.</li>
-            <li><span class="code-lesson-il">weights[1] -= LEARNING_RATE * error * x</span>: nudge the slope too, scaled by <span class="code-lesson-il">x</span> itself &mdash; a large-distance example with a big error moves the slope more than a small-distance one does, since the slope's effect on the prediction scales with <span class="code-lesson-il">x</span> in the first place.</li>
+            <li><span class="code-lesson-il">weights[0] -= LEARNING_RATE * error</span>: nudge the intercept opposite the error. If predictions are running high, pull the whole line down a little.</li>
+            <li><span class="code-lesson-il">weights[1] -= LEARNING_RATE * error * x</span>: nudge the slope too, scaled by <span class="code-lesson-il">x</span> itself, so a large-distance example with a big error moves the slope more than a small-distance one does, since the slope's effect on the prediction scales with <span class="code-lesson-il">x</span> in the first place.</li>
         </ul>
-        <p><span class="code-lesson-il">TRAINING_EPOCHS</span> is how many full passes over Memory each training cycle makes; <span class="code-lesson-il">LEARNING_RATE</span> is how big each individual nudge is. Both are worth experimenting with directly (see Part 5) &mdash; too high a learning rate can overshoot and never settle; too low, and 300 epochs might not be enough to get anywhere close to the best line.</p>
+        <p><span class="code-lesson-il">TRAINING_EPOCHS</span> is how many full passes over Memory each training cycle makes; <span class="code-lesson-il">LEARNING_RATE</span> is how big each individual nudge is. Both are worth experimenting with directly (see Part 5): too high a learning rate can overshoot and never settle; too low, and 300 epochs might not be enough to get anywhere close to the best line.</p>
 
         <div class="screenshot">
             <div class="label">Sentry's HUD panel</div>

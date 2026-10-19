@@ -95,11 +95,11 @@
         <div class="math-box-title">Simpson's Rule</div>
         <p>Requires $n$ even. Instead of straight-line trapezoid tops, fit a parabola through each consecutive triple of points, weighting alternately:</p>
         <p>$$\int_a^b f(x)\,dx \approx \frac{\Delta x}{3}\Big[f(x_0)+4f(x_1)+2f(x_2)+4f(x_3)+\cdots+4f(x_{n-1})+f(x_n)\Big]$$</p>
-        <p>For the same $n$, Simpson's Rule is typically far more accurate than the Trapezoidal Rule &mdash; it's exact whenever $f$ itself happens to be a polynomial of degree 3 or lower.</p>
+        <p>For the same $n$, Simpson's Rule is typically far more accurate than the Trapezoidal Rule: it's exact whenever $f$ itself happens to be a polynomial of degree 3 or lower.</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example &mdash; Trapezoidal Rule</div>
+        <div class="math-box-title">Example: Trapezoidal Rule</div>
         <p>Approximate $\displaystyle\int_0^2 x^2\,dx$ using the Trapezoidal Rule with $n=4$ (exact value: $\frac83\approx2.667$, from an earlier lesson).</p>
         <p>$\Delta x=0.5$; $x_0,\dots,x_4 = 0, 0.5, 1, 1.5, 2$; $f(x)=x^2$ gives values $0, 0.25, 1, 2.25, 4$.</p>
         <p>$$\frac{0.5}{2}\big[0+2(0.25)+2(1)+2(2.25)+4\big] = 0.25\big[0+0.5+2+4.5+4\big] = 0.25(11) = 2.75$$</p>
@@ -204,13 +204,13 @@
             <li><span class="ans-num">8.</span><span>$\frac{2 \sqrt{2}}{3} + 2 + \frac{4 \sqrt{3}}{3} \approx 5.252$</span></li>
             <li><span class="ans-num">9.</span><span>$\frac{\pi \left(\sqrt{3} + 4\right)}{9} \approx 2.001$</span></li>
             <li><span class="ans-num">10.</span><span>$\frac{1}{12 e} + \frac{1}{12} + \frac{1}{6 e^{\frac{1}{4}}} + \frac{1}{3 e^{\frac{9}{16}}} + \frac{1}{3 e^{\frac{1}{16}}} \approx 0.7469$</span></li>
-            <li><span class="ans-num">11.</span><span>$S_4=\dfrac{8}{3}$ (exact) — Simpson's Rule integrates any polynomial of degree $\le 3$ exactly, and $x^2$ certainly qualifies.</span></li>
+            <li><span class="ans-num">11.</span><span>$S_4=\dfrac{8}{3}$ (exact): Simpson's Rule integrates any polynomial of degree $\le 3$ exactly, and $x^2$ certainly qualifies.</span></li>
             <li><span class="ans-num">12.</span><span>$\frac{8011}{10200}$</span></li>
             <li><span class="ans-num">13.</span><span>$n \ge \sqrt{\dfrac{K(b-a)^3}{12\varepsilon}} = \sqrt{\dfrac{2}{12(0.0001)}}\approx 40.8$, so $n=41$.</span></li>
             <li><span class="ans-num">14.</span><span>$n \ge \left(\dfrac{K(b-a)^5}{180\varepsilon}\right)^{1/4} = \left(\dfrac{24}{180(0.0001)}\right)^{1/4}\approx 6.04$, so the smallest even $n$ that works is $n=8$.</span></li>
             <li><span class="ans-num">15.</span><span>$T_4 = 1\cdot\left(\dfrac{3}{2}+5+4+7+\dfrac{6}{2}\right) = 20.5$ m</span></li>
             <li><span class="ans-num">16.</span><span>$S_4 = \dfrac{1}{3}\big(3+4(5)+2(4)+4(7)+6\big) = \dfrac{65}{3}\approx 21.67$ m</span></li>
-            <li><span class="ans-num">17.</span><span>Overestimate — the trapezoid's top edge (a secant line) lies above a concave-up curve.</span></li>
+            <li><span class="ans-num">17.</span><span>Overestimate: the trapezoid's top edge (a secant line) lies above a concave-up curve.</span></li>
             <li><span class="ans-num">18.</span><span>$\left|E_T\right| \le \dfrac{K(b-a)^3}{12n^2}$, where $K$ is an upper bound for $|f''(x)|$ on $[a,b]$.</span></li>
             <li><span class="ans-num">19.</span><span>Simpson's Rule fits a parabola through each pair of subintervals rather than a straight line, so it integrates cubics exactly and its error shrinks like $1/n^4$ instead of $1/n^2$.</span></li>
             <li><span class="ans-num">20.</span><span>$\frac{1}{12} + \frac{\sqrt{2}}{6} + \frac{\sqrt{5}}{4} + \frac{\sqrt{13}}{6} \approx 1.479$</span></li>

@@ -86,7 +86,7 @@
     <p>Given a sequence $\{a_i\}$, its <strong>series</strong> is the sum of all its terms, $\displaystyle\sum_{i=1}^{\infty} a_i$. Since you can't literally add infinitely many numbers, this is defined through a new sequence built from the original one.</p>
 
     <div class="math-box">
-        <div class="math-box-title">Definition &mdash; Convergence of a series</div>
+        <div class="math-box-title">Definition: Convergence of a series</div>
         <p>The $i$-th <strong>partial sum</strong> is $s_i = a_1 + a_2 + \cdots + a_i$. The series $\sum a_i$ <strong>converges</strong> to $S$ if $\displaystyle\lim_{i\to\infty} s_i = S$, and then we write $\sum_{i=1}^{\infty} a_i = S$. If $\{s_i\}$ diverges, the series diverges.</p>
     </div>
 
@@ -99,7 +99,7 @@
 
     <div class="math-box">
         <div class="math-box-title">Test for Divergence</div>
-        <p>If $\displaystyle\lim_{i\to\infty} a_i \ne 0$ (or doesn't exist), then $\sum a_i$ diverges. Careful: the converse is false &mdash; $a_i\to 0$ does <em>not</em> guarantee convergence (the harmonic series $\sum \frac1i$ is the standard counterexample, covered later this chapter).</p>
+        <p>If $\displaystyle\lim_{i\to\infty} a_i \ne 0$ (or doesn't exist), then $\sum a_i$ diverges. Careful: the converse is false. $a_i\to 0$ does <em>not</em> guarantee convergence (the harmonic series $\sum \frac1i$ is the standard counterexample, covered later this chapter).</p>
     </div>
 
     <div class="math-example">
@@ -111,11 +111,11 @@
     <div class="math-example">
         <div class="math-box-title">Example 2</div>
         <p>Does $\displaystyle\sum_{i=1}^{\infty} \frac{i}{i+1}$ converge?</p>
-        <p>Here $a_i = \frac{i}{i+1} \to 1 \ne 0$, so by the Test for Divergence, the series diverges &mdash; no partial-sum computation needed.</p>
+        <p>Here $a_i = \frac{i}{i+1} \to 1 \ne 0$, so by the Test for Divergence, the series diverges, with no partial-sum computation needed.</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 3 &mdash; telescoping</div>
+        <div class="math-box-title">Example 3: telescoping</div>
         <p>Evaluate $\displaystyle\sum_{i=1}^{\infty} \left(\frac{1}{i} - \frac{1}{i+1}\right)$.</p>
         <p>The partial sum collapses: $s_i = \left(1-\frac12\right)+\left(\frac12-\frac13\right)+\cdots+\left(\frac1i-\frac1{i+1}\right) = 1 - \frac{1}{i+1}$. As $i\to\infty$, $s_i \to 1$, so the series converges to $1$.</p>
     </div>
@@ -212,19 +212,19 @@
             <li><span class="ans-num">2.</span><span>Converges (ratio $-\tfrac13$); sum $=\dfrac34$.</span></li>
             <li><span class="ans-num">3.</span><span>Converges; sum $=\dfrac23$.</span></li>
             <li><span class="ans-num">4.</span><span>Converges; sum $=\dfrac{20}{3}$.</span></li>
-            <li><span class="ans-num">5.</span><span>Diverges — ratio $\tfrac32>1$.</span></li>
+            <li><span class="ans-num">5.</span><span>Diverges: ratio $\tfrac32>1$.</span></li>
             <li><span class="ans-num">6.</span><span>$\displaystyle\sum_{i=1}^{\infty}\frac{7}{10^i}=\dfrac{7}{9}$</span></li>
             <li><span class="ans-num">7.</span><span>$1$</span></li>
             <li><span class="ans-num">8.</span><span>$\dfrac12$</span></li>
             <li><span class="ans-num">9.</span><span>$\dfrac34$</span></li>
-            <li><span class="ans-num">10.</span><span>The partial sum is $S_N=\ln\!\left(\dfrac{1}{N+1}\right)\to -\infty$ — telescoping doesn't guarantee convergence.</span></li>
+            <li><span class="ans-num">10.</span><span>The partial sum is $S_N=\ln\!\left(\dfrac{1}{N+1}\right)\to -\infty$: telescoping doesn't guarantee convergence.</span></li>
             <li><span class="ans-num">11.</span><span>$\displaystyle\lim_{i\to\infty}\frac{i}{i+1}=1\ne 0$, so the series diverges.</span></li>
             <li><span class="ans-num">12.</span><span>$\displaystyle\lim_{i\to\infty}\frac{2i^2+1}{i^2+3}=2\ne 0$, so the series diverges.</span></li>
             <li><span class="ans-num">13.</span><span>$\displaystyle\lim_{i\to\infty}\cos\!\left(\frac1i\right)=\cos(0)=1\ne 0$, so the series diverges.</span></li>
             <li><span class="ans-num">14.</span><span>The $i$th-Term Test only detects divergence when the terms don't go to $0$; when they do, the test is inconclusive. The harmonic series $\sum \tfrac1i$ is the classic example of terms $\to 0$ with a series that still diverges.</span></li>
-            <li><span class="ans-num">15.</span><span>Converges — a $p$-series converges exactly when $p>1$, and here $p=3>1$.</span></li>
-            <li><span class="ans-num">16.</span><span>Diverges — this is a $p$-series with $p=\tfrac12\le 1$.</span></li>
-            <li><span class="ans-num">17.</span><span>Diverges — $p$-series with $p=1$.</span></li>
+            <li><span class="ans-num">15.</span><span>Converges: a $p$-series converges exactly when $p>1$, and here $p=3>1$.</span></li>
+            <li><span class="ans-num">16.</span><span>Diverges: this is a $p$-series with $p=\tfrac12\le 1$.</span></li>
+            <li><span class="ans-num">17.</span><span>Diverges: $p$-series with $p=1$.</span></li>
             <li><span class="ans-num">18.</span><span>Total distance $=10+2\big(10(0.6)+10(0.6)^2+\cdots\big)=10+2\cdot\dfrac{6}{1-0.6}=10+30=40$ m.</span></li>
             <li><span class="ans-num">19.</span><span>If $\sum a_i$ converges, then $\displaystyle\lim_{i\to\infty}a_i=0$.</span></li>
             <li><span class="ans-num">20.</span><span>The sequence of partial sums $S_N=\sum_{i=1}^{N}a_i$ must itself converge to some finite limit $S$ as $N\to\infty$; that limit $S$ is defined to be the sum of the series.</span></li>

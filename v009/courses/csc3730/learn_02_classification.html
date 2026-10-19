@@ -10,7 +10,7 @@
         <p><strong>Classification</strong> is supervised learning where the output is one of a fixed set of discrete categories. Checker is this course's running example: every person who reaches the checkpoint gets sorted into exactly one of two categories, alien or human, based only on what's visible.</p>
 
         <h3>Part 1. Perceptor, Memory, and the Honesty Rule</h3>
-        <p>Mapped onto SAM: Checker's Perceptor reads three features off whoever's waiting at the checkpoint &mdash; <span class="code-lesson-il">head_tone</span>, <span class="code-lesson-il">shirt_color</span>, <span class="code-lesson-il">pants_color</span> &mdash; the only things it's ever allowed to look at before deciding. Whether that person is <em>actually</em> an alien (<span class="code-lesson-il">is_alien</span>) is ground truth the simulation itself knows, but Checker's Decider is never handed that value directly as an input; it only reaches Memory afterward, once accepted or denied, as the label to learn from:</p>
+        <p>Mapped onto SAM: Checker's Perceptor reads three features off whoever's waiting at the checkpoint: <span class="code-lesson-il">head_tone</span>, <span class="code-lesson-il">shirt_color</span>, <span class="code-lesson-il">pants_color</span>, the only things it's ever allowed to look at before deciding. Whether that person is <em>actually</em> an alien (<span class="code-lesson-il">is_alien</span>) is ground truth the simulation itself knows, but Checker's Decider is never handed that value directly as an input; it only reaches Memory afterward, once accepted or denied, as the label to learn from:</p>
 
 <div class="code-block" data-lang="gdscript">
 <div class="code-block-header">
@@ -28,7 +28,7 @@ memory.append({"features": features, "alien": person.is_alien})
 </span>
 </div>
 
-        <p>That ordering matters: features go in <em>before</em> a decision is made; the true label only gets appended <em>after</em>. A classifier that could peek at the label while deciding wouldn't be learning anything &mdash; it'd just be reading the answer.</p>
+        <p>That ordering matters: features go in <em>before</em> a decision is made; the true label only gets appended <em>after</em>. A classifier that could peek at the label while deciding wouldn't be learning anything: it'd just be reading the answer.</p>
 
         <h3>Part 2. The Decider: Naive Bayes</h3>
         <p>Checker's Decider is a <strong>Naive Bayes classifier</strong>. The idea: for each class (alien, human), keep a running count of how often each feature value shows up among training examples of that class. To classify a new person, multiply together how "typical" each of their features is for each class, weighted by how common that class is overall, and pick whichever class comes out on top.</p>
@@ -63,7 +63,7 @@ memory.append({"features": features, "alien": person.is_alien})
         <p>Two implementation details worth calling out by name:</p>
         <ul>
             <li><strong>Working in log-space.</strong> Multiplying several probabilities together (each less than 1) shrinks toward zero fast enough to lose precision. Adding their logarithms instead, and comparing sums, gives the same ranking without that problem.</li>
-            <li><strong>Laplace smoothing.</strong> Every feature-count table starts at <span class="code-lesson-il">1</span>, not <span class="code-lesson-il">0</span>, for every possible value (see <span class="code-lesson-il">_ready()</span>). Without that, a value never yet seen for some class would carry a raw count of zero, and <span class="code-lesson-il">log(0)</span> is negative infinity &mdash; one unseen combination would completely veto that class, forever, the instant it showed up. A starting count of 1 keeps every value possible, just unlikely, until data says otherwise.</li>
+            <li><strong>Laplace smoothing.</strong> Every feature-count table starts at <span class="code-lesson-il">1</span>, not <span class="code-lesson-il">0</span>, for every possible value (see <span class="code-lesson-il">_ready()</span>). Without that, a value never yet seen for some class would carry a raw count of zero, and <span class="code-lesson-il">log(0)</span> is negative infinity: one unseen combination would completely veto that class, forever, the instant it showed up. A starting count of 1 keeps every value possible, just unlikely, until data says otherwise.</li>
         </ul>
 
         <h3>Part 3. Training: Counting, Not Gradient Descent</h3>
@@ -89,7 +89,7 @@ memory.append({"features": features, "alien": person.is_alien})
 </span>
 </div>
 
-        <p>With a dataset this small, recomputing from scratch every cycle (rather than maintaining running totals incrementally) is simpler and no slower &mdash; worth noticing as a real engineering tradeoff, not a shortcut: the "right" way to update a model depends on how much data there is and how often you retrain, not on some universal rule.</p>
+        <p>With a dataset this small, recomputing from scratch every cycle (rather than maintaining running totals incrementally) is simpler and no slower, worth noticing as a real engineering tradeoff, not a shortcut: the "right" way to update a model depends on how much data there is and how often you retrain, not on some universal rule.</p>
 
         <h3>Part 4. Two Ways to Be Wrong</h3>
         <p>Overall accuracy (<span class="code-lesson-il">total_correct / total_evaluations</span>) hides an important asymmetry: this project tracks two specific mistakes separately, because they're not equally bad.</p>
@@ -97,7 +97,7 @@ memory.append({"features": features, "alien": person.is_alien})
             <li><span class="code-lesson-il">accepted_and_alien</span>: an alien got waved through. The dangerous kind of mistake.</li>
             <li><span class="code-lesson-il">denied_but_human</span>: an innocent human got turned away. The unfair kind of mistake.</li>
         </ul>
-        <p>A classifier that denies literally everyone would have zero of the dangerous mistakes and a perfect record on "letting no aliens through" &mdash; while being wrong (and unfair) constantly. Watching only overall accuracy can hide exactly that kind of failure; tracking both error types separately is what actually surfaces it.</p>
+        <p>A classifier that denies literally everyone would have zero of the dangerous mistakes and a perfect record on "letting no aliens through", while being wrong (and unfair) constantly. Watching only overall accuracy can hide exactly that kind of failure; tracking both error types separately is what actually surfaces it.</p>
 
         <div class="screenshot">
             <div class="label">Checker's HUD panel</div>

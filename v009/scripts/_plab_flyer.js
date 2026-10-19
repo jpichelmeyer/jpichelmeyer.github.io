@@ -92,7 +92,7 @@ async function mount(host, footerHost) {
         <div class="plab-apply">
             <div class="plab-apply-title">Interested? Apply by email.</div>
             <p class="plab-apply-text">
-                No forms or accounts &mdash; just email <b>${esc(emailAddress(cfg))}</b> in the
+                No forms or accounts, just email <b>${esc(emailAddress(cfg))}</b> in the
                 format below. Students of every experience level are encouraged to apply.
             </p>${pageWaysHtml(cfg)}
             <div class="plab-apply-buttons">
@@ -112,7 +112,7 @@ async function mount(host, footerHost) {
     host.querySelector('[data-plab="copy"]').addEventListener('click', async () => {
         const ok = await copyText(templateText(cfg));
         const status = host.querySelector('.plab-copy-status');
-        status.textContent = ok ? 'Copied \u2014 paste it into a new email.' : 'Copy failed; select the text below instead.';
+        status.textContent = ok ? 'Copied. Paste it into a new email.' : 'Copy failed; select the text below instead.';
         if (!ok) host.querySelector('.plab-template').open = true;
         setTimeout(() => { status.textContent = ''; }, 3500);
     });

@@ -89,18 +89,18 @@
         <div class="math-box-title">Shell method</div>
         <p>Revolving the region under $y=f(x)$ on $[a,b]$ (with $0\le a$) around the <strong>$y$-axis</strong> generates cylindrical shells: at position $x$, a thin shell of radius $x$, height $f(x)$, and thickness $dx$ has surface area (unrolled) $2\pi x\cdot f(x)$, giving</p>
         <p>$$V = 2\pi\int_a^b x\,f(x)\,dx$$</p>
-        <p>Reach for shells specifically when revolving around a vertical axis but the curve is naturally given as $y=f(x)$ &mdash; exactly the situation where washers would force solving for $x(y)$ first.</p>
+        <p>Reach for shells specifically when revolving around a vertical axis but the curve is naturally given as $y=f(x)$: exactly the situation where washers would force solving for $x(y)$ first.</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 1 &mdash; single curve</div>
+        <div class="math-box-title">Example 1: single curve</div>
         <p>Find the volume when the region under $y=x^2$ on $[0,2]$ is revolved around the $y$-axis.</p>
         <p>Washers here would need $x=\sqrt y$; shells avoid that entirely:</p>
         <p>$$V = 2\pi\int_0^2 x\cdot x^2\,dx = 2\pi\int_0^2 x^3\,dx = 2\pi\left[\frac{x^4}{4}\right]_0^2 = 2\pi(4) = 8\pi$$</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 2 &mdash; region between two curves</div>
+        <div class="math-box-title">Example 2: region between two curves</div>
         <p>Find the volume when the region between $y=x$ and $y=x^2$ (for $0\le x\le 1$) is revolved around the $y$-axis.</p>
         <p>Same shell radius $x$ as before, but now the shell's height is the gap between the curves, $x-x^2$, instead of a single function value:</p>
         <p>$$V = 2\pi\int_0^1 x\big(x-x^2\big)\,dx = 2\pi\int_0^1 \big(x^2-x^3\big)\,dx = 2\pi\left[\frac{x^3}{3}-\frac{x^4}{4}\right]_0^1 = 2\pi\left(\frac13-\frac14\right) = \frac{\pi}{6}$$</p>
@@ -123,7 +123,7 @@
             </li>
             <li class="practice-item">
                 <span class="practice-num">4</span>
-                <span class="practice-text">The region under $y=\sin(x^2)$ on $[0,\sqrt{\pi}]$ is revolved about the $y$-axis. Use shells to find the volume. (Disks would require solving $y=\sin(x^2)$ for $x$ — not elementary!)</span>
+                <span class="practice-text">The region under $y=\sin(x^2)$ on $[0,\sqrt{\pi}]$ is revolved about the $y$-axis. Use shells to find the volume. (Disks would require solving $y=\sin(x^2)$ for $x$, which is not elementary!)</span>
             </li>
             <li class="practice-item">
                 <span class="practice-num">5</span>
