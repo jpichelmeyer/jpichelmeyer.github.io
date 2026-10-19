@@ -100,17 +100,17 @@
 
     <div class="math-box">
         <div class="math-box-title">Mean Value Theorem for Integrals</div>
-        <p>If $f$ is continuous on $[a,b]$, there exists some $c$ in $[a,b]$ with $\displaystyle f(c) = \frac{1}{b-a}\int_a^b f(x)\,dx$ &mdash; the right side is called the <strong>average value</strong> of $f$ on $[a,b]$. Geometrically: some rectangle of width $b-a$ and height $f(c)$ has exactly the same area as the region under the curve.</p>
+        <p>If $f$ is continuous on $[a,b]$, there exists some $c$ in $[a,b]$ with $\displaystyle f(c) = \frac{1}{b-a}\int_a^b f(x)\,dx$: the right side is called the <strong>average value</strong> of $f$ on $[a,b]$. Geometrically: some rectangle of width $b-a$ and height $f(c)$ has exactly the same area as the region under the curve.</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 1 &mdash; FTC Part 2</div>
+        <div class="math-box-title">Example 1: FTC Part 2</div>
         <p>Evaluate $\displaystyle\int_0^2 x^2\,dx$ (the same integral estimated by a Riemann sum last lesson).</p>
         <p>An antiderivative of $x^2$ is $F(x)=\frac{x^3}{3}$. So $\int_0^2 x^2\,dx = \left[\frac{x^3}{3}\right]_0^2 = \frac83 - 0 = \frac83$, matching the estimate that the right Riemann sum ($3.75$) was expected to overshoot.</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 2 &mdash; FTC Part 1</div>
+        <div class="math-box-title">Example 2: FTC Part 1</div>
         <p>Find $\dfrac{d}{dx}\displaystyle\int_1^{x^2} \sqrt{t^3+1}\,dt$.</p>
         <p>The upper limit is $x^2$, not $x$, so combine FTC1 with the Chain Rule: $\dfrac{d}{dx}\displaystyle\int_1^{x^2}\sqrt{t^3+1}\,dt = \sqrt{(x^2)^3+1}\cdot \dfrac{d}{dx}(x^2) = 2x\sqrt{x^6+1}$.</p>
     </div>
@@ -214,10 +214,10 @@
             <li><span class="ans-num">9.</span><span>$g'(x)=\sqrt{1+x^3}$</span></li>
             <li><span class="ans-num">10.</span><span>$g'(x)=2x\sin(x^2)$ (chain rule)</span></li>
             <li><span class="ans-num">11.</span><span>$g'(x)=3x^2\ln(x^3)=9x^2\ln x$ (chain rule)</span></li>
-            <li><span class="ans-num">12.</span><span>$g'(x)=2x\cos(x^2)-\cos(x)$ (Leibniz rule — differentiate each limit separately)</span></li>
+            <li><span class="ans-num">12.</span><span>$g'(x)=2x\cos(x^2)-\cos(x)$ (Leibniz rule: differentiate each limit separately)</span></li>
             <li><span class="ans-num">13.</span><span>$g'(x)=-x^2$ (flip the limits to make $x$ the upper bound, picking up a minus sign)</span></li>
-            <li><span class="ans-num">14.</span><span>If $g(x)=\int_a^x f(t)\,dt$ with $f$ continuous, then $g$ is differentiable and $g'(x)=f(x)$ — differentiation undoes integration.</span></li>
-            <li><span class="ans-num">15.</span><span>If $F$ is any antiderivative of a continuous $f$ on $[a,b]$, then $\int_a^b f(x)\,dx = F(b)-F(a)$ — a definite integral can be evaluated from an antiderivative, with no limit process needed.</span></li>
+            <li><span class="ans-num">14.</span><span>If $g(x)=\int_a^x f(t)\,dt$ with $f$ continuous, then $g$ is differentiable and $g'(x)=f(x)$: differentiation undoes integration.</span></li>
+            <li><span class="ans-num">15.</span><span>If $F$ is any antiderivative of a continuous $f$ on $[a,b]$, then $\int_a^b f(x)\,dx = F(b)-F(a)$: a definite integral can be evaluated from an antiderivative, with no limit process needed.</span></li>
             <li><span class="ans-num">16.</span><span>Average value $=3$; solving $x^2=3$ on $[0,3]$ gives $c=\sqrt{3}$.</span></li>
             <li><span class="ans-num">17.</span><span>Average value $=\dfrac{7}{3}$; solving $x^2+1=\dfrac{7}{3}$ on $[0,2]$ gives $c=\dfrac{2\sqrt{3}}{3}$.</span></li>
             <li><span class="ans-num">18.</span><span>Average value $=\dfrac{2}{\pi}\approx 0.6366$; $c=\arcsin\!\left(\dfrac{2}{\pi}\right)\approx 0.6901$.</span></li>

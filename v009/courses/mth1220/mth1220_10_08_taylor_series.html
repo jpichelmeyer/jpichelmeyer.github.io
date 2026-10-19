@@ -83,10 +83,10 @@
 <body>
 
     <h3>Lesson</h3>
-    <p>Power series let you build a new function out of a series. Taylor series go the other direction: given a function you already know, find the power series that matches it &mdash; and all its derivatives &mdash; at a single point.</p>
+    <p>Power series let you build a new function out of a series. Taylor series go the other direction: given a function you already know, find the power series that matches it, and all its derivatives, at a single point.</p>
 
     <div class="math-box">
-        <div class="math-box-title">Definition &mdash; Taylor series</div>
+        <div class="math-box-title">Definition: Taylor series</div>
         <p>If $f$ has derivatives of every order at $a$, its Taylor series centered at $a$ is</p>
         <p>$$f(x) \sim \sum_{i=0}^{\infty} \frac{f^{(i)}(a)}{i!}(x-a)^i = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \cdots$$</p>
         <p>When $a=0$ this is also called a <strong>Maclaurin series</strong>. Truncating after the degree-$i$ term gives the degree-$i$ <strong>Taylor polynomial</strong> $T_i(x)$, the best polynomial approximation to $f$ near $a$ using derivative information up to order $i$.</p>
@@ -102,14 +102,14 @@
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 1 &mdash; from the definition</div>
+        <div class="math-box-title">Example 1: from the definition</div>
         <p>Find the Maclaurin series for $f(x) = \ln(1+x)$.</p>
         <p>Notice $f'(x) = \frac{1}{1+x}$, which is the known series above with $x$ replaced by $-x$: $\frac{1}{1+x} = \sum_{i=0}^{\infty} (-x)^i = \sum_{i=0}^{\infty} (-1)^i x^i$. Integrating term by term (and using $f(0)=\ln 1 = 0$ to fix the constant):</p>
         <p>$$\ln(1+x) = \sum_{i=0}^{\infty} \frac{(-1)^i x^{i+1}}{i+1} = x - \frac{x^2}{2} + \frac{x^3}{3} - \cdots$$</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 2 &mdash; by substitution</div>
+        <div class="math-box-title">Example 2: by substitution</div>
         <p>Find the Maclaurin series for $f(x) = e^{-x^2}$.</p>
         <p>Substitute $-x^2$ for $x$ directly in the known series for $e^x$:</p>
         <p>$$e^{-x^2} = \sum_{i=0}^{\infty} \frac{(-x^2)^i}{i!} = \sum_{i=0}^{\infty} \frac{(-1)^i x^{2i}}{i!} = 1 - x^2 + \frac{x^4}{2} - \frac{x^6}{6}+\cdots$$</p>
@@ -214,7 +214,7 @@
             <li><span class="ans-num">8.</span><span>$\displaystyle\sum_{i=0}^{\infty}(-1)^i(x-1)^i=1-(x-1)+(x-1)^2-\cdots$</span></li>
             <li><span class="ans-num">9.</span><span>$\displaystyle\sum_{i=1}^{\infty}\frac{(-1)^{i+1}(x-1)^i}{i}=(x-1)-\frac{(x-1)^2}{2}+\cdots$</span></li>
             <li><span class="ans-num">10.</span><span>$\dfrac12-\dfrac{\sqrt3}{2}\left(x-\dfrac{\pi}{3}\right)-\dfrac14\left(x-\dfrac{\pi}{3}\right)^2+\cdots$</span></li>
-            <li><span class="ans-num">11.</span><span>$T_4(0.1)\approx 1.1051708$; actual $e^{0.1}\approx 1.1051709$ — accurate to $6$ decimal places.</span></li>
+            <li><span class="ans-num">11.</span><span>$T_4(0.1)\approx 1.1051708$; actual $e^{0.1}\approx 1.1051709$: accurate to $6$ decimal places.</span></li>
             <li><span class="ans-num">12.</span><span>$T_2(0.2)=1-\dfrac{(0.2)^2}{2}=0.98$; actual $\cos(0.2)\approx 0.98007$.</span></li>
             <li><span class="ans-num">13.</span><span>$\displaystyle\sum_{i=0}^{\infty}\frac{(-1)^i x^{2i+1}}{(2i+1)!}$</span></li>
             <li><span class="ans-num">14.</span><span>$|R_3|\le \dfrac{M(0.1)^4}{4!}=\dfrac{(0.1)^4}{24}\approx 4.17\times10^{-6}$</span></li>
@@ -222,7 +222,7 @@
             <li><span class="ans-num">16.</span><span>$|R_3|\le \dfrac{6\,(0.1)^4}{4!}=2.5\times10^{-5}$</span></li>
             <li><span class="ans-num">17.</span><span>$\left|R_i(x)\right|\le \dfrac{M}{(i+1)!}\,|x-a|^{i+1}$</span></li>
             <li><span class="ans-num">18.</span><span>$\dfrac12$</span></li>
-            <li><span class="ans-num">19.</span><span>$\approx 0.94608$ (the true value, $\operatorname{Si}(1)$, is $\approx 0.94608$ as well — this integral has no elementary antiderivative, so a series is the practical way to approximate it).</span></li>
+            <li><span class="ans-num">19.</span><span>$\approx 0.94608$ (the true value, $\operatorname{Si}(1)$, is $\approx 0.94608$ as well: this integral has no elementary antiderivative, so a series is the practical way to approximate it).</span></li>
             <li><span class="ans-num">20.</span><span>$\displaystyle(1+x)^k=\sum_{i=0}^{\infty}\binom{k}{i}x^i$ where $\binom{k}{i}=\dfrac{k(k-1)\cdots(k-i+1)}{i!}$; radius of convergence $R=1$.</span></li>
         </ol>
     </div>

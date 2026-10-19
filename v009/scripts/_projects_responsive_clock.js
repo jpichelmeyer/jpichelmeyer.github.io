@@ -10,7 +10,7 @@ window._registerProject({
         container.innerHTML = `
             <div class="proj3-root">
                 <div class="proj3-time">--:--:--</div>
-                <div class="proj3-date">—</div>
+                <div class="proj3-date">--</div>
             </div>`;
 
         const timeEl = container.querySelector('.proj3-time');

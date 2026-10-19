@@ -93,7 +93,7 @@
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 1 &mdash; odd power present</div>
+        <div class="math-box-title">Example 1: odd power present</div>
         <p>Find $\displaystyle\int \sin^3 x\,\cos^2 x\,dx$.</p>
         <p>The power of sine is odd. Peel off one factor: $\sin^3x = \sin^2x\cdot\sin x = (1-\cos^2x)\sin x$.</p>
         <p>$$\int (1-\cos^2x)\cos^2x\,\sin x\,dx$$</p>
@@ -102,7 +102,7 @@
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 2 &mdash; both powers even</div>
+        <div class="math-box-title">Example 2: both powers even</div>
         <p>Find $\displaystyle\int \sin^2 x\,dx$.</p>
         <p>$$\int \sin^2x\,dx = \int \frac{1-\cos 2x}{2}\,dx = \frac{x}{2} - \frac{\sin 2x}{4} + C$$</p>
     </div>
@@ -111,11 +111,11 @@
         <div class="math-box-title">Strategy for $\int \tan^m x \sec^n x\,dx$</div>
         <p><strong>If $n$ is even:</strong> peel off a factor of $\sec^2x$, convert the rest to tangents via $\sec^2x=1+\tan^2x$, then substitute $u=\tan x$ (since $du=\sec^2x\,dx$).</p>
         <p><strong>If $m$ is odd:</strong> peel off a factor of $\sec x\tan x$, convert the rest ($\tan^{m-1}x$, now even) to secants via $\tan^2x=\sec^2x-1$, then substitute $u=\sec x$ (since $du=\sec x\tan x\,dx$).</p>
-        <p>(If neither applies &mdash; $m$ even and $n$ odd &mdash; the integral typically needs integration by parts instead; that case is rare enough to set aside here.)</p>
+        <p>(If neither applies, i.e. $m$ even and $n$ odd, the integral typically needs integration by parts instead; that case is rare enough to set aside here.)</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 3 &mdash; even power of secant</div>
+        <div class="math-box-title">Example 3: even power of secant</div>
         <p>Find $\displaystyle\int \tan^2 x\,\sec^4 x\,dx$.</p>
         <p>$n=4$ is even. Peel off $\sec^2x$: $\sec^4x = \sec^2x\cdot\sec^2x = (1+\tan^2x)\sec^2x$.</p>
         <p>$$\int \tan^2x\,(1+\tan^2x)\,\sec^2x\,dx$$</p>

@@ -7,7 +7,7 @@ window._registerProject({
     label: 'Counter',
     layout: 'desktop',
     thumb: 'dull.svg',
-    desc: 'A minimal click counter — increment, decrement, and reset. Demo project scaffolding for the plug-and-play project registry.',
+    desc: 'A minimal click counter: increment, decrement, and reset. Demo project scaffolding for the plug-and-play project registry.',
     init(container) {
         let count = 0;
 

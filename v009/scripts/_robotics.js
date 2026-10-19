@@ -211,8 +211,8 @@ function statLineBody(part, catKey) {
 
 const CATEGORY_LABELS = {
     power: 'Power', sensors: 'Input (sensors)', processors: 'Processing',
-    movement: 'Output \u2014 Movement', displays: 'Output \u2014 Display', generators: 'Output \u2014 Particle generator',
-    pulsers: 'Output \u2014 Pulse emitter',
+    movement: 'Output: Movement', displays: 'Output: Display', generators: 'Output: Particle generator',
+    pulsers: 'Output: Pulse emitter',
 };
 const ONE_PER_ROBOT = { processors: 'processor', power: 'power source', movement: 'movement suite' };
 

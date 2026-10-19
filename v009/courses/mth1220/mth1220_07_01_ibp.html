@@ -89,7 +89,7 @@
         <div class="math-box-title">The formula</div>
         <p>$$\int u\,dv = uv - \int v\,du$$</p>
         <p>Starting from $\int f(x)g'(x)\,dx$, choose $u=f(x)$ and $dv=g'(x)\,dx$, then compute $du$ (differentiate $u$) and $v$ (antidifferentiate $dv$). The goal is for $\int v\,du$ to be easier than the integral you started with.</p>
-        <p>The rough heuristic <strong>LIATE</strong> (Logarithmic, Inverse trig, Algebraic, Trigonometric, Exponential) ranks what usually makes a good choice for $u$, earlier categories first &mdash; a log or inverse-trig factor should almost always become $u$, since neither has an elementary antiderivative you'd want to be stuck computing as $v$.</p>
+        <p>The rough heuristic <strong>LIATE</strong> (Logarithmic, Inverse trig, Algebraic, Trigonometric, Exponential) ranks what usually makes a good choice for $u$, earlier categories first: a log or inverse-trig factor should almost always become $u$, since neither has an elementary antiderivative you'd want to be stuck computing as $v$.</p>
     </div>
 
     <div class="math-example">
@@ -100,14 +100,14 @@
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 2 &mdash; when $dv$ has to be the whole integrand</div>
+        <div class="math-box-title">Example 2: when $dv$ has to be the whole integrand</div>
         <p>Find $\displaystyle\int \ln x\,dx$.</p>
         <p>There's only one factor, so let $u=\ln x$, $dv=dx$. Then $du=\frac1x dx$, $v=x$.</p>
         <p>$$\int \ln x\,dx = x\ln x - \int x\cdot\frac1x\,dx = x\ln x - \int 1\,dx = x\ln x - x + C$$</p>
     </div>
 
     <div class="math-example">
-        <div class="math-box-title">Example 3 &mdash; applying it twice</div>
+        <div class="math-box-title">Example 3: applying it twice</div>
         <p>Find $\displaystyle\int x^2 e^x\,dx$.</p>
         <p>Let $u=x^2$, $dv=e^x dx$; then $du=2x\,dx$, $v=e^x$: $\int x^2e^x dx = x^2e^x - 2\int x\,e^x\,dx$. The remaining integral is Example 1, already solved: $x^2e^x - 2(xe^x-e^x)+C = e^x(x^2-2x+2)+C$.</p>
     </div>
@@ -217,7 +217,7 @@
             <li><span class="ans-num">15.</span><span>$\pi \approx 3.142$</span></li>
             <li><span class="ans-num">16.</span><span>$1$</span></li>
             <li><span class="ans-num">17.</span><span>$-2 + \frac{\pi^{2}}{4} \approx 0.4674$</span></li>
-            <li><span class="ans-num">18.</span><span>Let $u=\ln x$, $dv=x^3\,dx$ — $\ln x$ becomes simpler ($du=\tfrac1x dx$) while $x^3$ is easy to antidifferentiate, the key LIATE-style trade-off in choosing parts.</span></li>
+            <li><span class="ans-num">18.</span><span>Let $u=\ln x$, $dv=x^3\,dx$: $\ln x$ becomes simpler ($du=\tfrac1x dx$) while $x^3$ is easy to antidifferentiate, the key LIATE-style trade-off in choosing parts.</span></li>
             <li><span class="ans-num">19.</span><span>LIATE: prefer $u=$ Logarithmic, Inverse trig, Algebraic, Trigonometric, Exponential (in that priority order). Here $u=x$ (Algebraic beats Exponential).</span></li>
             <li><span class="ans-num">20.</span><span>$R(x) = 1-(x+1)e^{-x}$</span></li>
         </ol>

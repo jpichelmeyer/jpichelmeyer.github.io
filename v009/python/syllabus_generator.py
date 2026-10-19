@@ -580,7 +580,7 @@ def build_document(course, shared):
 </head>
 <body>
 
-<h1>{html.escape(title)}{' &mdash; ' if title and full else ''}{html.escape(full)}</h1>
+<h1>{html.escape(title)}{': ' if title and full else ''}{html.escape(full)}</h1>
 
 <div class="section">
 <h2>Overview</h2>
