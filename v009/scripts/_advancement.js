@@ -57,6 +57,8 @@ const PLAB_PROJECTS = [
         desc: 'Engineering core mechanics, optimize performance, handle production pipelines in Godot to take an indie game project from prototype to commercial publication.',
         outcomes: ['itch.io playtesting and public feedback cycle', 'Official Steam storefront release', 'Published commercial / indie software project'],
         news: [
+            { date: '2026 10 19', html: 'Additional languages (MATLAB and R) added. Monster sprites updated.' },
+            { date: '2026 10 17', html: 'Overworld and monster zones added.' },
             { date: '2026 10 15', html: 'Initial alpha proof of concept uploaded to <a href="https://jpichelmeyer.itch.io/error-monster" target="_blank" rel="noopener">itch.io</a>' },
         ],
     },
