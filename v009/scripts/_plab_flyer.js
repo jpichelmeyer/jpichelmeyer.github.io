@@ -120,9 +120,11 @@ async function mount(host, footerHost) {
     if (footerHost) {
         footerHost.innerHTML = `
             <div class="plab-footer">
+                <button type="button" class="plab-btn plab-btn-quiet" data-plab="prospect">Print prospective-student flyer&hellip;</button>
                 <button type="button" class="plab-btn plab-btn-quiet" data-plab="flyer">Print recruiting flyer&hellip;</button>
             </div>`;
         footerHost.querySelector('[data-plab="flyer"]').addEventListener('click', () => openFlyerDialog(cfg));
+        footerHost.querySelector('[data-plab="prospect"]').addEventListener('click', () => openFlyerDialog(cfg, true));
     }
 }
 
@@ -130,14 +132,14 @@ function projectList() {
     return Array.isArray(window._plabProjects) ? window._plabProjects : [];
 }
 
-function openFlyerDialog(cfg) {
+function openFlyerDialog(cfg, prospect = false) {
     const projects = projectList();
     const backdrop = document.createElement('div');
     backdrop.className = 'plab-modal-backdrop';
     backdrop.innerHTML = `
         <div class="plab-modal" role="dialog" aria-label="Flyer options">
-            <div class="plab-modal-title">Recruiting flyer</div>
-            <div class="plab-modal-sub">Built from the projects on this page, so it always matches what's listed here.</div>
+            <div class="plab-modal-title">${prospect ? 'Prospective-student flyer' : 'Recruiting flyer'}</div>
+            <div class="plab-modal-sub">Built from the projects on this page${prospect ? ' and your active CSC courses' : ''}, so it always matches what's listed here.</div>
 
             <label class="plab-label">Portrait</label>
             <div class="plab-radio-row">
@@ -145,14 +147,14 @@ function openFlyerDialog(cfg) {
                 <label><input type="radio" name="plab-portrait" value="sketch"> Sketch</label>
                 <label><input type="radio" name="plab-portrait" value="none"> None</label>
             </div>
-
+${prospect ? '' : `
             <label class="plab-label" for="plab-deadline">Application deadline</label>
             <input type="date" id="plab-deadline" value="${escA(cfg.flyer.defaultDeadline || '')}">
             <div class="plab-hint">Leave blank to print "${esc(cfg.flyer.noDeadlineText)}".</div>
 
             <label class="plab-label" for="plab-logistics">Logistics line (optional)</label>
             <input type="text" id="plab-logistics" value="${escA(cfg.flyer.logistics || '')}" placeholder="e.g. 10 weeks, ~10 hrs/week, paid stipend or course credit">
-            <div class="plab-hint">Students' first questions are pay, credit, and time commitment. Only what you type here is printed.</div>
+            <div class="plab-hint">Students' first questions are pay, credit, and time commitment. Only what you type here is printed.</div>`}
 
             <label class="plab-label">Projects to include</label>
             <div class="plab-project-checks">
@@ -174,8 +176,9 @@ function openFlyerDialog(cfg) {
     backdrop.querySelector('[data-plab-modal="go"]').addEventListener('click', () => {
         const opts = {
             portrait: backdrop.querySelector('input[name="plab-portrait"]:checked').value,
-            deadline: backdrop.querySelector('#plab-deadline').value,
-            logistics: backdrop.querySelector('#plab-logistics').value.trim(),
+            prospect,
+            deadline: backdrop.querySelector('#plab-deadline')?.value || '',
+            logistics: backdrop.querySelector('#plab-logistics')?.value.trim() || '',
             projectIdx: qsa('.plab-proj-check', backdrop).filter(c => c.checked).map(c => parseInt(c.value, 10)),
         };
         generateFlyer(cfg, opts);
@@ -210,17 +213,35 @@ function projectCardHtml(p) {
         </div>`;
 }
 
-function buildFlyerBody(cfg, opts) {
+function loadCourses(cfg) {
+    return fetch('./courses/manifest.json', { cache: 'no-store' }).then(r => r.json())
+        .then(keys => Promise.all(keys.map(k => fetch(`./courses/${k}.json`, { cache: 'no-store' }).then(r => r.json()))))
+        .then(list => list.filter(c => String(c.pre).startsWith('CSC')).concat(cfg.prospect.extraCourses || [])
+            .sort((a, b) => String(a.num).localeCompare(String(b.num))));
+}
+
+function courseHtml(cfg, c) {
+    const blurb = (cfg.prospect.courseBlurbs || {})[c.id] || String(c.catalog || '').split(/(?<=\.)\s/)[0];
+    return `
+        <div class="fl-course">
+            <img class="fl-course-icon" src="${escA(abs('./svgs/' + c.svg))}" alt="" style="background:${escA(c.courseColor || '#ddd')}">
+            <div><div class="fl-course-name">${esc(c.pre)} ${esc(c.num)}: ${esc(c.full)}</div>${esc(blurb)}</div>
+        </div>`;
+}
+
+function buildFlyerBody(cfg, opts, courses = []) {
     const all = projectList();
     const chosen = opts.projectIdx.map(i => all[i]).filter(Boolean);
     const research = chosen.filter(p => p.track === 'research');
     const applied = chosen.filter(p => p.track !== 'research');
+    const fc = opts.prospect ? { ...cfg.flyer, ...cfg.prospect } : cfg.flyer;
+    const hash = opts.prospect ? '' : cfg.deepLinkHash.replace(/^#?/, '#');
 
-    const shortUrl = cfg.siteUrl.replace(/^https?:\/\//, '') + cfg.deepLinkHash.replace(/^#?/, '#');
-    const fullUrl = cfg.siteUrl + cfg.deepLinkHash.replace(/^#?/, '#');
+    const shortUrl = cfg.siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, opts.prospect ? '' : '/') + hash;
+    const fullUrl = cfg.siteUrl + hash;
     const deadline = formatDeadline(opts.deadline);
 
-    const [orgFirst, orgSecond] = cfg.flyer.orgLine.split(' / ');
+    const [orgFirst, orgSecond] = fc.orgLine.split(' / ');
     const cols = (n, max) => Math.max(1, Math.min(n, max));
 
     let portraitHtml = '';
@@ -231,32 +252,41 @@ function buildFlyerBody(cfg, opts) {
     }
 
     const researchHtml = research.length ? `
-        <div class="fl-section-head">${esc(cfg.flyer.trackHeadings.research)}</div>
+        <div class="fl-section-head">${esc(fc.trackHeadings.research)}</div>
         <div class="fl-grid" style="grid-template-columns:repeat(${cols(research.length, 2)}, 1fr)">
             ${research.map(projectCardHtml).join('')}
         </div>` : '';
 
     const appliedHtml = applied.length ? `
-        <div class="fl-section-head">${esc(cfg.flyer.trackHeadings.applied)}</div>
+        <div class="fl-section-head">${esc(fc.trackHeadings.applied)}</div>
         <div class="fl-grid" style="grid-template-columns:repeat(${cols(applied.length, 3)}, 1fr)">
             ${applied.map(projectCardHtml).join('')}
         </div>` : '';
 
+    const coursesHtml = opts.prospect && courses.length ? `
+        <div class="fl-section-head">${esc(fc.coursesHeading)}</div>
+        <div class="fl-courses">${courses.map(c => courseHtml(cfg, c)).join('')}</div>` : '';
+
     return `
-    <div class="flyer">
+    <div class="flyer${opts.prospect ? ' fl-prospect' : ''}">${opts.prospect ? '' : `
         <div class="fl-org">
             <img class="fl-org-logo" src="${escA(abs('./imgs/logo_carthage.png'))}" alt="Carthage College">
             <div class="fl-org-text">${esc(orgFirst)}${orgSecond ? ` / <b>${esc(orgSecond)}</b>` : ''}</div>
-        </div>
+        </div>`}
 
         <div class="fl-top">
-            <div class="fl-top-left">
+            <div class="fl-top-left">${opts.prospect ? `
+                <div class="fl-org fl-org-big">
+                    <img class="fl-org-logo" src="${escA(abs('./imgs/logo_carthage.png'))}" alt="Carthage College">
+                    <div class="fl-org-text">${esc(orgFirst)}${orgSecond ? `<br><b>${esc(orgSecond)}</b>` : ''}</div>
+                </div>` : `
                 <div class="fl-titlerow">
-                    <h1 class="fl-headline">${esc(cfg.flyer.headline)}</h1>
+                    <h1 class="fl-headline">${esc(fc.headline)}</h1>
                     <img class="fl-plab-logo" src="${escA(abs('./svgs/plab.svg'))}" alt="PLAB">
-                </div>
+                </div>`}
                 <div class="fl-rule"></div>
-                <p class="fl-intro">${esc(cfg.flyer.intro)}</p>
+                <p class="fl-intro">${esc(fc.intro)}</p>${opts.prospect ? `
+                <ul class="fl-ways fl-why">${(fc.why || []).map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
                 ${researchHtml}
             </div>
             <div class="fl-contact-card">
@@ -273,13 +303,20 @@ function buildFlyerBody(cfg, opts) {
         </div>
 
         ${appliedHtml}
+        ${coursesHtml}
 
         <div class="fl-cta">
             <div class="fl-qr">
                 ${qrSvg(fullUrl)}
-                <div class="fl-qr-caption">Scan for project details and the email format</div>
+                <div class="fl-qr-caption">${opts.prospect ? esc(fc.qrCaption) : 'Scan for project details and the email format'}</div>
             </div>
-            <div class="fl-cta-text">
+            <div class="fl-cta-text">${opts.prospect ? `
+                <div class="fl-cta-head"><span class="fl-cta-title">${esc(fc.ctaTitle)}</span></div>
+                <p class="fl-cta-apply">${esc(fc.ctaText)}</p>
+                <ul class="fl-ways">${(fc.siteHighlights || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>
+                <div class="fl-logistics">Questions? Email me at <b>${esc(emailAddress(cfg))}</b>.</div>
+            </div>
+        </div>` : `
                 <div class="fl-cta-head">
                     <span class="fl-cta-title">HOW TO APPLY</span>
                     <span class="fl-deadline">${deadline ? `APPLY BY: <span>${esc(deadline)}</span>` : esc(cfg.flyer.noDeadlineText)}</span>
@@ -287,9 +324,9 @@ function buildFlyerBody(cfg, opts) {
                 <p class="fl-cta-apply">Email <b>${esc(emailAddress(cfg))}</b> with the subject <b>&ldquo;${esc(cfg.apply.subjectFormat)}&rdquo;</b>: your name, year and major, track(s) of interest, relevant experience (none is fine), and summer availability.</p>${flyerWaysHtml(cfg)}
                 ${opts.logistics ? `<div class="fl-logistics">${esc(opts.logistics)}</div>` : ''}
             </div>
-        </div>
+        </div>`}
 
-        <div class="fl-inclusive"><b>OPPORTUNITIES OPEN TO ALL:</b> ${esc(cfg.flyer.inclusiveStatement)}</div>
+        <div class="fl-inclusive"><b>OPPORTUNITIES OPEN TO ALL:</b> ${esc(fc.inclusiveStatement)}</div>
     </div>`;
 }
 
@@ -360,6 +397,15 @@ html, body { margin: 0; background: #d9d9d9; -webkit-print-color-adjust: exact; 
 .fl-deadline { font-weight: bold; font-size: 1.15em; text-align: right; }
 .fl-deadline span { background: #ffe58a; padding: 0 0.06in; }
 .fl-logistics { margin-top: 0.03in; font-style: italic; }
+.fl-prospect .fl-outcomes-head, .fl-prospect .fl-outcomes { display: none; }
+.fl-why { margin: 0.02in 0 0.04in; font-size: 1.02em; }
+.fl-courses { display: grid; grid-template-columns: 1fr 1fr; gap: 0.06in 0.2in; }
+.fl-course { display: flex; gap: 0.08in; align-items: flex-start; }
+.fl-course-icon { width: 0.4in; height: 0.4in; object-fit: contain; flex-shrink: 0; border-radius: 0.06in; padding: 0.02in; }
+.fl-org-big { gap: 0.16in; font-size: 2.6em; line-height: 1.15; padding: 0.04in 0; }
+.fl-org-big .fl-org-logo { height: 1.1in; }
+.fl-org-big b { font-size: .78em; }
+.fl-course-name { font-weight: bold; }
 
 .fl-inclusive { border: 1px solid #888; background: #f2f2f2; text-align: center; padding: 0.05in 0.12in; font-family: Georgia, 'Times New Roman', serif; font-size: 1.05em; }
 
@@ -398,15 +444,16 @@ const POPUP_SCRIPT = (preloads) => `
 })();
 `;
 
-function generateFlyer(cfg, opts) {
+async function generateFlyer(cfg, opts) {
     const win = window.open('', '_blank', 'width=900,height=1100');
     if (!win) {
         alert('Please allow popups for this site to generate the flyer.');
         return;
     }
+    const courses = opts.prospect ? await loadCourses(cfg).catch(() => []) : [];
     const preloads = opts.portrait === 'sketch' ? [abs('./imgs/portrait-sketch.png')] : [];
     win.document.write(`<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>PLAB recruiting flyer</title>
+<html lang="en"><head><meta charset="UTF-8"><title>PLAB ${opts.prospect ? 'prospective-student' : 'recruiting'} flyer</title>
 <style>${FLYER_CSS}</style></head>
 <body>
     <div class="fl-toolbar">
@@ -414,7 +461,7 @@ function generateFlyer(cfg, opts) {
         <button onclick="window.close()">Close</button>
         <span>Choose "Save as PDF" as the destination. Turn on "Background graphics" if colors look washed out.</span>
     </div>
-    <div class="sheet">${buildFlyerBody(cfg, opts)}</div>
+    <div class="sheet">${buildFlyerBody(cfg, opts, courses)}</div>
     <script>${POPUP_SCRIPT(preloads).replace(/<\/script>/g, '<\\/script>')}<\/script>
 </body></html>`);
     win.document.close();

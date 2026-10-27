@@ -124,16 +124,36 @@
     background-color: #a1458a;
 }
 .timeline-alife {
-    background-color: #6d9c7b;
+    background-color: #5c8996;
 }
 .timeline-art {
     background-color: #9c464f;
 }
+.timeline-cryptology {
+    background-color: #b08d5d;
+    color: #f1f1f1;
+}
 .timeline-cs {
-    background-color: #346382;
+    background-color: #487556;
 }
 .timeline-ds {
     background-color: #ad3e4f;
+}
+.timeline-engineering {
+    background-color: #6a6380;
+    color: #f1f1f1;
+}
+.timeline-gamedesign {
+    background-color: #c1703f;
+    color: #f1f1f1;
+}
+.timeline-gamedev {
+    background-color: #9e7847;
+    color: #f1f1f1;
+}
+.timeline-logic {
+    background-color: #252629;
+    color: #f1f1f1;
 }
 .timeline-math {
     background-color: #ad953e;
@@ -141,22 +161,10 @@
 .timeline-multi {
     background-color: #2b2b2b;
 }
-.timeline-logic {
-    background-color: #252629;
-    color: #f1f1f1;
+.timeline-robotics {
+    background-color: #595959;
 }
-.timeline-engineering {
-    background-color: #6a6380;
-    color: #f1f1f1;
-}
-.timeline-cryptology {
-    background-color: #b08d5d;
-    color: #f1f1f1;
-}
-.timeline-gamedesign {
-    background-color: #c1703f;
-    color: #f1f1f1;
-}
+
 .timeline_textbox_spec  { color: var(--timeline-highlight); font-size: 10px; }
 .timeline_textbox_place { color: var(--timeline-lowlight); font-size: 12px; }
 .timeline-place {
