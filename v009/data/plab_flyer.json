@@ -21,6 +21,49 @@
       "applied": "Applied Engineering and Development Tracks"
     }
   },
+  "prospect": {
+    "headline": "Future Students: Build Things With Me",
+    "intro": "I'm Dr. Jake Pichelmeyer, and I run PLAB, my lab for Autonomy and Bioemulation. At Carthage, undergraduates don't wait for grad school to do real research and development in AI, artificial life, robotics, and games.",
+    "why": [
+      "Small classes, taught directly by your professor.",
+      "Paid SURE summer research is open as early as the summer after your first year.",
+      "Earn credit for research (CSC 4900) and graduate with a real portfolio."
+    ],
+    "trackHeadings": {
+      "research": "Research You Could Join",
+      "applied": "Things You Could Build"
+    },
+    "coursesHeading": "Computer Science Courses I Teach",
+    "courseBlurbs": {
+      "csc1100": "Programming from zero in Python. No experience needed.",
+      "csc1810": "Where CS majors start: object-oriented programming in C#.",
+      "csc2710": "Project-based: build games across genres in Godot and Unity.",
+      "csc3530": "Build intelligent programs and learn what they reveal about the mind.",
+      "csc3730": "Pathfinding, behavior trees, and machine learning for games.",
+      "csc3750": "Design and analyze efficient algorithms.",
+      "csc4110": "Hands-on lab: sensors, microcontrollers, and networks."
+    },
+    "extraCourses": [
+      {
+        "id": "csc3630",
+        "pre": "CSC",
+        "num": "3630",
+        "full": "Reinforcement Learning",
+        "svg": "csc3630.svg",
+        "courseColor": "#ececec",
+        "catalog": "How AI agents learn by trial, error, and reward."
+      }
+    ],
+    "qrCaption": "Scan to visit my website",
+    "ctaTitle": "SEE IT FOR YOURSELF",
+    "ctaText": "See what working with me looks like. Most of it runs right in your browser:",
+    "siteHighlights": [
+      "Interactive simulations, games, and tools to try right now",
+      "Course pages with lessons and materials",
+      "PLAB project details and progress updates"
+    ],
+    "inclusiveStatement": "Students of every background and experience level are welcome. No programming experience is needed to start."
+  },
   "apply": {
     "subjectFormat": "PLAB Summer Application - [Your last name]",
     "fields": [
