@@ -14,18 +14,10 @@
     </head>
 
     <body>
-        <p>Everything in this course runs on a Raspberry Pi Pico W. This lesson gets one working: what is on the board, how MicroPython is installed, how Thonny talks to it, and what the difference is between running a program and saving it on the board. Do the setup steps on your own board as you read.</p>
+        <p>Everything in this course runs on a Raspberry Pi Pico W. This lesson gets one working: how MicroPython is installed, how Thonny talks to the board, how to run a program and how to save one, and how to make the on-board LED blink. Do the setup steps on your own board as you read.</p>
         <p><strong>SAM lens.</strong> This lesson sets up the body that will hold the Decider and Memory: the RP2040 runs your program (the Decider), its RAM holds what changes while it runs (Memory that is lost at power-off), and flash keeps the program and anything you choose to remember across restarts.</p>
 
-<h3>Part 1. What Is on the Board</h3>
-<p>The Pico W is a <strong>microcontroller</strong> board: one chip that holds a processor, memory, and a set of built-in hardware blocks for talking to the outside world, all on a board a few centimetres long. Unlike a laptop it has no operating system to speak of; it starts running your program the moment power arrives. Its chip is the RP2040, and a second small chip, the CYW43439, supplies WiFi.</p>
-        <div class="diagram">
-<svg viewBox="0 0 760 430" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="720" height="400" rx="12" fill="#fff" stroke="#5b6b78" stroke-width="2.5"/><text x="380" y="42" font-size="17" fill="#5b6b78" text-anchor="middle" font-weight="bold">Raspberry Pi Pico W</text><rect x="40" y="60" width="460" height="340" rx="10" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2.5"/><text x="270" y="86" font-size="16" fill="#2e5a80" text-anchor="middle" font-weight="bold">RP2040 microcontroller</text><rect x="60" y="100" width="200" height="60" rx="8" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="160" y="125.737" font-size="15.5" fill="#1f3b52" text-anchor="middle">Two processor cores</text><text x="160" y="145.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">125 MHz by default</text><rect x="280" y="100" width="200" height="60" rx="8" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="380" y="125.737" font-size="15.5" fill="#1f3b52" text-anchor="middle">RAM, 264 kB</text><text x="380" y="145.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">holds your variables</text><rect x="60" y="180" width="420" height="54" rx="8" fill="#e6f3ea" stroke="#3c8a5a" stroke-width="2"/><text x="270" y="212.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">GPIO: 26 pins you can use, 3.3 V logic</text><rect x="60" y="252" width="130" height="64" rx="8" fill="#fff" stroke="#3c8a5a" stroke-width="2"/><text x="125" y="279.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">ADC</text><text x="125" y="299.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">3 inputs</text><rect x="205" y="252" width="130" height="64" rx="8" fill="#fff" stroke="#3c8a5a" stroke-width="2"/><text x="270" y="279.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">PWM</text><text x="270" y="299.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">16 outputs</text><rect x="350" y="252" width="130" height="64" rx="8" fill="#fff" stroke="#3c8a5a" stroke-width="2"/><text x="415" y="279.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">I2C, SPI,</text><text x="415" y="299.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">UART</text><rect x="60" y="334" width="420" height="50" rx="8" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="270" y="364.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">Timers, interrupts, USB</text><rect x="530" y="100" width="190" height="76" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="625" y="134.15" font-size="14" fill="#1f3b52" text-anchor="middle">Flash memory, 2 MB</text><text x="625" y="151.65" font-size="14" fill="#1f3b52" text-anchor="middle">MicroPython + your files</text><rect x="530" y="210" width="190" height="76" rx="8" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/><text x="625" y="234.05" font-size="15.5" fill="#1f3b52" text-anchor="middle">CYW43439</text><text x="625" y="253.425" font-size="15.5" fill="#1f3b52" text-anchor="middle">WiFi radio and the</text><text x="625" y="272.8" font-size="15.5" fill="#1f3b52" text-anchor="middle">on-board LED</text><rect x="530" y="320" width="190" height="64" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="625" y="347.738" font-size="15.5" fill="#1f3b52" text-anchor="middle">USB connector</text><text x="625" y="367.113" font-size="15.5" fill="#1f3b52" text-anchor="middle">power + programming</text><line x1="489" y1="138" x2="521" y2="138" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="530.0,138.0 519.0,132.5 519.0,143.5" fill="#1f3b52"/><polygon points="480.0,138.0 491.0,143.5 491.0,132.5" fill="#1f3b52"/><line x1="489" y1="248" x2="521" y2="248" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="530.0,248.0 519.0,242.5 519.0,253.5" fill="#1f3b52"/><polygon points="480.0,248.0 491.0,253.5 491.0,242.5" fill="#1f3b52"/><line x1="489" y1="352" x2="521" y2="352" stroke="#1f3b52" stroke-width="2" stroke-linecap="round"/><polygon points="530.0,352.0 519.0,346.5 519.0,357.5" fill="#1f3b52"/><polygon points="480.0,352.0 491.0,357.5 491.0,346.5" fill="#1f3b52"/></svg>
-            <div class="diagram-caption">What is on the Pico W. The RP2040 chip holds the processor, the RAM and the hardware blocks that talk to the world. Program storage (flash), the WiFi chip and the USB connector sit beside it on the board.</div>
-        </div>
-
-<p>Your program lives in flash and runs from there; the RAM only holds what changes while it runs, and it is wiped each time power is lost. Three of those hardware blocks (the ADC, PWM and I2C) are the subject of the next four weeks. Each is a small circuit inside the chip that does one job for you, so your code only has to say what you want.</p>
-<h3>Part 2. Putting MicroPython on the Board</h3>
+<h3>Part 1. Putting MicroPython on the Board</h3>
 <p><strong>MicroPython</strong> is a version of Python small enough to run on a microcontroller. The board arrives without it, so the first job is to install it once. After that you simply write programs.</p>
         <div class="diagram">
 <svg viewBox="0 0 760 250" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="50" width="160" height="100" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="100" y="95.6" font-size="16" fill="#1f3b52" text-anchor="middle">Hold BOOTSEL,</text><text x="100" y="115.6" font-size="16" fill="#1f3b52" text-anchor="middle">plug in USB</text><circle cx="38" cy="50" r="16" fill="#fff" stroke="#1f3b52" stroke-width="2"/><text x="38" y="56" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">1</text><line x1="180" y1="100" x2="197" y2="100" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="206.0,100.0 195.0,94.5 195.0,105.5" fill="#1f3b52"/><rect x="206" y="50" width="160" height="100" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="286" y="95.6" font-size="16" fill="#1f3b52" text-anchor="middle">A drive named</text><text x="286" y="115.6" font-size="16" fill="#1f3b52" text-anchor="middle">RPI-RP2 appears</text><circle cx="224" cy="50" r="16" fill="#fff" stroke="#1f3b52" stroke-width="2"/><text x="224" y="56" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">2</text><line x1="366" y1="100" x2="383" y2="100" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="392.0,100.0 381.0,94.5 381.0,105.5" fill="#1f3b52"/><rect x="392" y="50" width="160" height="100" rx="8" fill="#eaf1f7" stroke="#2e5a80" stroke-width="2"/><text x="472" y="95.6" font-size="16" fill="#1f3b52" text-anchor="middle">Copy the Pico W</text><text x="472" y="115.6" font-size="16" fill="#1f3b52" text-anchor="middle">.uf2 file onto it</text><circle cx="410" cy="50" r="16" fill="#fff" stroke="#1f3b52" stroke-width="2"/><text x="410" y="56" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">3</text><line x1="552" y1="100" x2="569" y2="100" stroke="#1f3b52" stroke-width="2.4" stroke-linecap="round"/><polygon points="578.0,100.0 567.0,94.5 567.0,105.5" fill="#1f3b52"/><rect x="578" y="50" width="160" height="100" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="658" y="95.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">The board reboots</text><text x="658" y="115.112" font-size="15.5" fill="#1f3b52" text-anchor="middle">and the drive goes</text><circle cx="596" cy="50" r="16" fill="#fff" stroke="#1f3b52" stroke-width="2"/><text x="596" y="56" font-size="16" fill="#1f3b52" text-anchor="middle" font-weight="bold">4</text><text x="380" y="200" font-size="15.5" fill="#5b6b78" text-anchor="middle">Get the file from micropython.org: pick Raspberry Pi Pico W, and download the latest .uf2</text><text x="380" y="228" font-size="15.5" fill="#5b6b78" text-anchor="middle">Thonny can also do this for you: Tools, Options, Interpreter, Install or update MicroPython</text></svg>
@@ -33,7 +25,7 @@
         </div>
 
 <p>Make sure you download the file for the <strong>Pico W</strong> (WiFi) and not the plain Pico: the two are different. If a board ever stops responding properly, repeating these steps wipes it back to a clean start.</p>
-<h3>Part 3. Thonny</h3>
+<h3>Part 2. Thonny</h3>
 <p><strong>Thonny</strong> is the free editor we use. Install it on your laptop, plug in the Pico (without holding BOOTSEL this time), and choose <strong>MicroPython (Raspberry Pi Pico)</strong> as the interpreter in the bottom-right corner or in Tools, Options, Interpreter. If it cannot find the board, pick the right serial port in the same dialog.</p>
         <div class="diagram">
 <svg viewBox="0 0 760 360" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="14" width="720" height="330" rx="8" fill="#fff" stroke="#5b6b78" stroke-width="2.5"/><rect x="20" y="14" width="720" height="34" rx="8" fill="#5b6b78" stroke="#5b6b78" stroke-width="0"/><text x="40" y="38" font-size="16" fill="#fff" text-anchor="start" font-weight="bold">Thonny</text><rect x="36" y="62" width="450" height="170" rx="8" fill="#fff" stroke="#2e5a80" stroke-width="2"/><text x="261" y="132.6" font-size="16" fill="#1f3b52" text-anchor="middle">The editor</text><text x="261" y="152.6" font-size="16" fill="#1f3b52" text-anchor="middle">write your program here</text><text x="261" y="172.6" font-size="16" fill="#1f3b52" text-anchor="middle">Run (green button) sends it to the Pico</text><rect x="500" y="62" width="224" height="80" rx="8" fill="#f2f5f7" stroke="#5b6b78" stroke-width="2"/><text x="612" y="97.7375" font-size="15.5" fill="#1f3b52" text-anchor="middle">Files panel</text><text x="612" y="117.112" font-size="15.5" fill="#1f3b52" text-anchor="middle">this computer</text><rect x="500" y="152" width="224" height="80" rx="8" fill="#fbece3" stroke="#c0693f" stroke-width="2"/><text x="612" y="188.15" font-size="14" fill="#1f3b52" text-anchor="middle">Files panel</text><text x="612" y="205.65" font-size="14" fill="#1f3b52" text-anchor="middle">the Pico (MicroPython device)</text><rect x="36" y="246" width="688" height="82" rx="8" fill="#1f2124" stroke="#1f2124" stroke-width="2"/><text x="380" y="292.6" font-size="16" fill="#f1f1f1" text-anchor="middle">Shell / REPL: type a line, see the answer at once.  &gt;&gt;&gt;</text></svg>
@@ -58,6 +50,31 @@
 125000000
 </span>
 </div>
+<h3>Part 3. Blinking the On-board LED</h3>
+<p>The Pico W has a small LED on the board itself, so you can write your first program without wiring anything. MicroPython calls it <span class="code-lesson-il">"LED"</span> rather than giving it a number, because on the Pico W it is connected through the WiFi chip instead of directly to one of the numbered pins. A program that uses it looks like this. Type it in the editor, press the green Run button, and the LED starts to flash.</p>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">blink.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin
+from time import sleep
+
+led = Pin("LED", Pin.OUT)
+
+while True:
+    led.on()
+    sleep(0.5)
+    led.off()
+    sleep(0.5)
+</span>
+</div>
+<p>Read it line by line. The first two lines bring in the pieces you need: <span class="code-lesson-il">Pin</span> to control the LED and <span class="code-lesson-il">sleep</span> to wait. <span class="code-lesson-il">Pin("LED", Pin.OUT)</span> makes an object for the LED and says it is an output, something your program sets rather than reads. The loop then turns the LED on, waits half a second, turns it off, and waits half a second, forever. Press the Stop button (or Ctrl+C in the shell) to end it.</p>
+<p>Now change something. Make the waits 0.1 and see it flicker, then make them 2 and see it slow down. The LED is on half of each cycle, and one full on-off cycle takes the sum of the two waits, so the blink rate follows directly from what you wrote.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 210" style="max-width:1140px;min-width:608px" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="40" width="700" height="110" rx="4" fill="#fff" stroke="#d0dae2" stroke-width="1.5"/><polyline points="30.0,130.0 90.0,130.0 90.0,60.0 330.0,60.0 330.0,130.0 570.0,130.0 570.0,60.0 710.0,60.0" fill="none" stroke="#2e5a80" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="210" y="50" font-size="15" fill="#1f3b52" text-anchor="middle">on</text><text x="450" y="148" font-size="15" fill="#1f3b52" text-anchor="middle">off</text><line x1="90" y1="178" x2="326" y2="178" stroke="#c0693f" stroke-width="2.4" stroke-linecap="round"/><polygon points="330.0,178.0 319.0,172.5 319.0,183.5" fill="#c0693f"/><polygon points="90.0,178.0 101.0,183.5 101.0,172.5" fill="#c0693f"/><text x="210" y="198" font-size="15.5" fill="#8a4526" text-anchor="middle">sleep(0.5)</text><line x1="330" y1="178" x2="566" y2="178" stroke="#3c8a5a" stroke-width="2.4" stroke-linecap="round"/><polygon points="570.0,178.0 559.0,172.5 559.0,183.5" fill="#3c8a5a"/><polygon points="330.0,178.0 341.0,183.5 341.0,172.5" fill="#3c8a5a"/><text x="450" y="198" font-size="15.5" fill="#3c8a5a" text-anchor="middle">sleep(0.5)</text></svg>
+            <div class="diagram-caption">What the program does to the LED over time. The program spends nearly all its time inside <span class="code-lesson-il">sleep</span>, so the Pico does nothing else while the LED blinks. That is fine for a blinker and a problem for a robot, and the last exercise of this lesson shows the fix.</div>
+        </div>
 <h3>Part 4. Run Versus Save: main.py</h3>
 <p>Pressing Run executes the file in the editor on the Pico, but it does not store it there. When you unplug the board, the program is gone. To make a program start every time the board gets power, you <strong>save it on the Pico itself with the exact name main.py</strong> (File, Save as, choose the Raspberry Pi Pico).</p>
         <div class="diagram">
@@ -65,6 +82,7 @@
             <div class="diagram-caption">What the board does at power-up. It runs boot.py then main.py if they exist. A program that never finishes keeps the board busy, which is correct for a robot but surprising the first time you want to reprogram it.</div>
         </div>
 
+<p>Here is the blink once more, written shorter so that it makes a tidy <span class="code-lesson-il">main.py</span>. <span class="code-lesson-il">toggle()</span> flips the LED to the opposite state, and <span class="code-lesson-il">sleep_ms</span> takes milliseconds, the unit you will use from now on:</p>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">main.py</span>
@@ -99,9 +117,10 @@ while True:                    # blink forever: the board's first heartbeat
         <p><strong>Exercise 1: Run or Save?</strong> You wrote a program with a <span class="code-lesson-il">while True</span> loop. You press Run, it works, and you unplug the board. Later you plug it into a battery and nothing happens. Why? What would you do so that it starts by itself?</p>
         <p><strong>Exercise 2: Read the Boot Order.</strong> A student saves two files on the Pico, <span class="code-lesson-il">boot.py</span> and <span class="code-lesson-il">main.py</span>. Which runs first? What if the board only has <span class="code-lesson-il">blink.py</span>?</p>
         <h4>Intermediate</h4>
-        <p><strong>Exercise 3: Board Report.</strong> Write <span class="code-lesson-il">info.py</span> that prints the processor speed in MHz, the free RAM in kilobytes, and the board’s unique id in hexadecimal.</p>
+        <p><strong>Exercise 3: A Heartbeat.</strong> Change the blink so that the LED flashes twice quickly (100 ms on, 100 ms off, twice) and then stays off for 800 ms, over and over.</p>
+        <p><strong>Exercise 4: Board Report.</strong> Write <span class="code-lesson-il">info.py</span> that prints the processor speed in MHz, the free RAM in kilobytes, and the board’s unique id in hexadecimal.</p>
         <h4>Advanced</h4>
-        <p><strong>Exercise 4: A Blink You Can Interrupt.</strong> Write a blink that does not use <span class="code-lesson-il">sleep_ms</span> for its 500 ms wait, but checks the clock with <span class="code-lesson-il">ticks_ms</span> and <span class="code-lesson-il">ticks_diff</span> so the loop is free to do other work between toggles. Why is <span class="code-lesson-il">ticks_diff</span> used rather than subtracting?</p>
+        <p><strong>Exercise 5: A Blink You Can Interrupt.</strong> Write a blink that does not use <span class="code-lesson-il">sleep_ms</span> for its 500 ms wait, but checks the clock with <span class="code-lesson-il">ticks_ms</span> and <span class="code-lesson-il">ticks_diff</span> so the loop is free to do other work between toggles. Why is <span class="code-lesson-il">ticks_diff</span> used rather than subtracting?</p>
 
         <h3>Solutions</h3>
         <p>Give each exercise an honest try before opening its solution.</p>
@@ -116,7 +135,29 @@ while True:                    # blink forever: the board's first heartbeat
         </details>
         <h4>Intermediate</h4>
         <details>
-        <summary>Exercise 3: Board Report</summary>
+        <summary>Exercise 3: A Heartbeat</summary>
+<div class="code-block" data-lang="micropython">
+<div class="code-block-header">
+<span class="code-block-filename">heartbeat.py</span>
+<span class="code-block-lang">MicroPython</span>
+</div>
+<span class="code-lesson-bl">from machine import Pin
+from time import sleep_ms
+
+led = Pin("LED", Pin.OUT)
+
+while True:
+    for _ in range(2):
+        led.on()
+        sleep_ms(100)
+        led.off()
+        sleep_ms(100)
+    sleep_ms(800)
+</span>
+</div><p>The inner <span class="code-lesson-il">for</span> loop makes the two quick flashes, and the last <span class="code-lesson-il">sleep_ms</span> is the pause. One whole pattern takes 2 × 200 + 800 = 1200 ms. Any version that shows the same pattern is correct.</p>
+        </details>
+        <details>
+        <summary>Exercise 4: Board Report</summary>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">info.py</span>
@@ -133,7 +174,7 @@ print("board id:", hexlify(machine.unique_id()).decode())
         </details>
         <h4>Advanced</h4>
         <details>
-        <summary>Exercise 4: A Blink You Can Interrupt</summary>
+        <summary>Exercise 5: A Blink You Can Interrupt</summary>
 <div class="code-block" data-lang="micropython">
 <div class="code-block-header">
 <span class="code-block-filename">blink_nb.py</span>
@@ -159,38 +200,38 @@ while True:
         <h3>Paper Practice</h3>
         <p>Short problems for pencil and paper, in three levels: <em>Recall</em> (definitions and facts), <em>Apply</em> (calculations and traces) and <em>Analyze and Design</em> (explain, debug, choose, design). None needs a board or a computer. Answers follow the problems; try each one first.</p>
         <h4>Recall</h4>
-        <p><strong>P1. Two Chips.</strong> What does the RP2040 do on a Pico W, and what does the CYW43439 do?</p>
-        <p><strong>P2. What Survives.</strong> Which survives a power cut: a variable in RAM, a file in flash, or both? Where does your saved program live?</p>
-        <p><strong>P3. The REPL.</strong> What do the letters REPL stand for, and give two things it is the right tool for.</p>
-        <p><strong>P4. Boot Order.</strong> When the Pico W powers up, which files does it run, and in what order?</p>
+        <p><strong>P1. What Survives.</strong> Which survives a power cut: a variable in RAM, a file in flash, or both? Where does your saved program live?</p>
+        <p><strong>P2. The REPL.</strong> What do the letters REPL stand for, and give two things it is the right tool for.</p>
+        <p><strong>P3. Boot Order.</strong> When the Pico W powers up, which files does it run, and in what order?</p>
+        <p><strong>P4. The On-board LED.</strong> Which pin name does MicroPython use for the on-board LED of a Pico W, and why is it a name and not a number?</p>
         <h4>Apply</h4>
         <p><strong>P5. Clock Period.</strong> <span class="code-lesson-il">machine.freq()</span> returns 125000000. What is the duration of one processor clock cycle, in nanoseconds?</p>
         <p><strong>P6. Run Versus Save.</strong> A student presses Run on <span class="code-lesson-il">robot.py</span>, sees it work, unplugs the board and plugs it into a battery. Nothing happens. Explain, and say exactly what they should do.</p>
-        <p><strong>P7. Firmware Choice.</strong> Why must you install the Pico W firmware rather than the plain Pico firmware on your board? What would you notice if you installed the wrong one?</p>
-        <p><strong>P8. Case Matters.</strong> A student saves their program as <span class="code-lesson-il">Main.py</span>. At power-up it does not run. Why?</p>
+        <p><strong>P7. Case Matters.</strong> A student saves their program as <span class="code-lesson-il">Main.py</span>. At power-up it does not run. Why?</p>
+        <p><strong>P8. Blink Arithmetic.</strong> A loop turns the LED on, sleeps 200 ms, turns it off, and sleeps 800 ms. How many blinks per second does it make, and for what fraction of the time is the LED on?</p>
         <h4>Analyze and Design</h4>
-        <p><strong>P9. Locked Board.</strong> A <span class="code-lesson-il">main.py</span> contains <span class="code-lesson-il">while True:</span> with no sleep and floods the shell with prints. Thonny seems unable to talk to the board. Give the recovery steps.</p>
-        <p><strong>P10. Missing Library.</strong> <span class="code-lesson-il">import umqtt.simple</span> gives <span class="code-lesson-il">ImportError</span>. Describe two ways to install the library, and the one condition the second way needs.</p>
-        <p><strong>P11. Safe Mode.</strong> Design a safe-mode rule for a robot's <span class="code-lesson-il">main.py</span>: if button A (GP6, active low) is held at power-up, the robot must not start its motors but should leave the REPL usable. Write the few lines at the top of <span class="code-lesson-il">main.py</span> that do it.</p>
+        <p><strong>P9. Firmware Choice.</strong> Why must you install the Pico W firmware rather than the plain Pico firmware on your board? What would you notice if you installed the wrong one?</p>
+        <p><strong>P10. Locked Board.</strong> A <span class="code-lesson-il">main.py</span> contains <span class="code-lesson-il">while True:</span> with no sleep and floods the shell with prints. Thonny seems unable to talk to the board. Give the recovery steps.</p>
+        <p><strong>P11. Missing Library.</strong> <span class="code-lesson-il">import umqtt.simple</span> gives <span class="code-lesson-il">ImportError</span>. Describe two ways to install the library, and the one condition the second way needs.</p>
         <p><strong>P12. Development Habit.</strong> Explain why work-in-progress code should be run with the Run button and only finished code saved as <span class="code-lesson-il">main.py</span>.</p>
 
         <h3>Paper Practice: Answers</h3>
         <h4>Recall</h4>
         <details>
-        <summary>P1. Two Chips</summary>
-<p>The RP2040 is the microcontroller: processor, RAM and hardware blocks (ADC, PWM, I2C, SPI). The CYW43439 is the separate WiFi chip.</p>
-        </details>
-        <details>
-        <summary>P2. What Survives</summary>
+        <summary>P1. What Survives</summary>
 <p>Only the file in flash survives; RAM is wiped when power is lost. Your saved program (for example <span class="code-lesson-il">main.py</span>) lives in flash.</p>
         </details>
         <details>
-        <summary>P3. The REPL</summary>
+        <summary>P2. The REPL</summary>
 <p>Read, evaluate, print, loop. It is good for trying a pin or sensor interactively before writing a program, for listing files (<span class="code-lesson-il">os.listdir()</span>), and for checking free memory (<span class="code-lesson-il">gc.mem_free()</span>). Any two.</p>
         </details>
         <details>
-        <summary>P4. Boot Order</summary>
+        <summary>P3. Boot Order</summary>
 <p><span class="code-lesson-il">boot.py</span> first, then <span class="code-lesson-il">main.py</span>, if they exist.</p>
+        </details>
+        <details>
+        <summary>P4. The On-board LED</summary>
+<p><span class="code-lesson-il">"LED"</span>. On the Pico W the LED is wired through the WiFi chip rather than to one of the numbered GPIO pins, so it has no GP number. (A plain Pico has it on GP25, which is one reason the two boards need different firmware.)</p>
         </details>
         <h4>Apply</h4>
         <details>
@@ -202,38 +243,25 @@ while True:
 <p>Run executes the editor's file without storing it on the board; nothing was saved to start at power-up. Save the program on the Pico with the exact name <span class="code-lesson-il">main.py</span> (File, Save as, Raspberry Pi Pico).</p>
         </details>
         <details>
-        <summary>P7. Firmware Choice</summary>
-<p>Only the Pico W build contains the driver for the WiFi chip (and the on-board LED, which is wired through it). With the plain Pico firmware the network module would be missing and <span class="code-lesson-il">Pin("LED")</span> would not work.</p>
+        <summary>P7. Case Matters</summary>
+<p>The board looks for exactly <span class="code-lesson-il">main.py</span>; the file system distinguishes upper and lower case, so <span class="code-lesson-il">Main.py</span> is just an ordinary file.</p>
         </details>
         <details>
-        <summary>P8. Case Matters</summary>
-<p>The board looks for exactly <span class="code-lesson-il">main.py</span>; the file system distinguishes upper and lower case, so <span class="code-lesson-il">Main.py</span> is just an ordinary file.</p>
+        <summary>P8. Blink Arithmetic</summary>
+<p>One cycle takes 200 + 800 = 1000 ms, so <strong>1 blink per second</strong>. The LED is on for 200 ms of every 1000 ms: <strong>20 percent</strong> of the time. The ratio of on-time to the whole cycle is called the duty cycle, and you will meet it again in the PWM lesson.</p>
         </details>
         <h4>Analyze and Design</h4>
         <details>
-        <summary>P9. Locked Board</summary>
+        <summary>P9. Firmware Choice</summary>
+<p>Only the Pico W build contains the driver for the WiFi chip (and the on-board LED, which is wired through it). With the plain Pico firmware the network module would be missing and <span class="code-lesson-il">Pin("LED")</span> would not work.</p>
+        </details>
+        <details>
+        <summary>P10. Locked Board</summary>
 <p>Press Stop (or Ctrl+C) repeatedly until the REPL prompt returns, then rename, fix or delete <span class="code-lesson-il">main.py</span> in the Files panel. If that fails, reinstalling MicroPython through BOOTSEL wipes the board back to a clean start.</p>
         </details>
         <details>
-        <summary>P10. Missing Library</summary>
+        <summary>P11. Missing Library</summary>
 <p>Thonny's Tools, Manage packages (search for micropython-umqtt.simple); or <span class="code-lesson-il">import mip; mip.install("umqtt.simple")</span> on the board, which needs the board to be on WiFi. Either way the library lands in the <span class="code-lesson-il">lib</span> folder.</p>
-        </details>
-        <details>
-        <summary>P11. Safe Mode</summary>
-<div class="code-block" data-lang="micropython">
-<div class="code-block-header">
-<span class="code-block-filename">listing</span>
-<span class="code-block-lang">MicroPython</span>
-</div>
-<span class="code-lesson-bl">from machine import Pin
-import sys
-if Pin(6, Pin.IN, Pin.PULL_UP).value() == 0:   # held at boot
-    print('safe mode: robot not started')
-    sys.exit()                                   # back to the REPL
-# ... the robot program follows ...
-</span>
-</div>
-<p>Any version that checks the button before the robot starts and then stops cleanly is correct.</p>
         </details>
         <details>
         <summary>P12. Development Habit</summary>
@@ -243,9 +271,10 @@ if Pin(6, Pin.IN, Pin.PULL_UP).value() == 0:   # held at boot
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
         <ol>
-            <li>Name the main parts of the Pico W: processor, RAM, flash, GPIO, hardware blocks, WiFi chip.</li>
             <li>Put MicroPython on a board using BOOTSEL and the .uf2 file.</li>
+            <li>Connect Thonny to the Pico and say which interpreter and port are selected.</li>
             <li>Run a line in the REPL and a file with the Run button.</li>
+            <li>Blink the on-board LED, and change the rate.</li>
             <li>Explain the difference between Run and saving as main.py.</li>
             <li>Check that <span class="code-lesson-il">umqtt.simple</span> can be imported.</li>
         </ol>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 65 65"
+   width="65"
+   height="65"
+   version="1.1"
+   id="svg41"
+   sodipodi:docname="csc4110.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <sodipodi:namedview
+     id="namedview56"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     showgrid="false"
+     inkscape:zoom="5.4933333"
+     inkscape:cx="45.691748"
+     inkscape:cy="40.776699"
+     inkscape:window-width="1920"
+     inkscape:window-height="994"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg41" />
+  <title
+     id="title2">Internet of Robotic Things</title>
+  <defs
+     id="defs28">
+    <!-- One bot, facing right. Origin is the canvas origin; the right bot is a mirror. -->
+    <g
+       id="bot"
+       fill="#000000">
+      <!-- Breadboard base: board with center channel and holes cut out -->
+      <path
+         fill-rule="evenodd"
+         d="m 7,60 h 24 a 1,1 0 0 1 1,1 v 7 a 1,1 0 0 1 -1,1 H 7 A 1,1 0 0 1 6,68 v -7 a 1,1 0 0 1 1,-1 z m 0.5,4.1 h 23 v 0.8 h -23 z m 0.9,-2.5 h 1.2 v 1.2 H 8.4 Z m 4,0 h 1.2 v 1.2 h -1.2 z m 4,0 h 1.2 v 1.2 h -1.2 z m 4,0 h 1.2 v 1.2 h -1.2 z m 4,0 h 1.2 v 1.2 h -1.2 z m 4,0 h 1.2 v 1.2 h -1.2 z m -20,4.6 h 1.2 v 1.2 H 8.4 Z m 4,0 h 1.2 v 1.2 h -1.2 z m 4,0 h 1.2 v 1.2 h -1.2 z m 4,0 h 1.2 v 1.2 h -1.2 z m 4,0 h 1.2 v 1.2 h -1.2 z m 4,0 h 1.2 v 1.2 h -1.2 z"
+         id="path3" />
+      <!-- Micro servo neck: body, mounting tabs, output shaft, horn -->
+      <rect
+         x="15"
+         y="48"
+         width="8"
+         height="12"
+         rx="0.80000001"
+         id="rect5" />
+      <rect
+         x="12"
+         y="50"
+         width="14"
+         height="2"
+         rx="0.60000002"
+         id="rect7" />
+      <rect
+         x="17.5"
+         y="45"
+         width="3"
+         height="3"
+         id="rect9" />
+      <rect
+         x="14"
+         y="43.5"
+         width="10"
+         height="2"
+         rx="1"
+         id="rect11" />
+      <!-- HC-SR04 head, tilted toward its chat partner -->
+      <g
+         transform="rotate(8,19,44.5)"
+         id="g25">
+        <path
+           fill-rule="evenodd"
+           d="m 8.5,32 h 21 A 1.5,1.5 0 0 1 31,33.5 V 42 a 1.5,1.5 0 0 1 -1.5,1.5 H 8.5 A 1.5,1.5 0 0 1 7,42 V 33.5 A 1.5,1.5 0 0 1 8.5,32 Z m 0.1,5.75 a 4.4,4.4 0 1 0 8.8,0 4.4,4.4 0 1 0 -8.8,0 z m 12,0 a 4.4,4.4 0 1 0 8.8,0 4.4,4.4 0 1 0 -8.8,0 z"
+           id="path13" />
+        <!-- transducer "eyes" with a little highlight -->
+        <path
+           fill-rule="evenodd"
+           d="m 9.8,37.75 a 3.2,3.2 0 1 0 6.4,0 3.2,3.2 0 1 0 -6.4,0 z m 4.3,-1.35 a 1,1 0 1 0 2,0 1,1 0 1 0 -2,0 z m 7.7,1.35 a 3.2,3.2 0 1 0 6.4,0 3.2,3.2 0 1 0 -6.4,0 z m 4.3,-1.35 a 1,1 0 1 0 2,0 1,1 0 1 0 -2,0 z"
+           id="path15" />
+        <!-- header pins -->
+        <rect
+           x="16.1"
+           y="29.799999"
+           width="0.89999998"
+           height="2.4000001"
+           id="rect17" />
+        <rect
+           x="18"
+           y="29.799999"
+           width="0.89999998"
+           height="2.4000001"
+           id="rect19" />
+        <rect
+           x="19.9"
+           y="29.799999"
+           width="0.89999998"
+           height="2.4000001"
+           id="rect21" />
+        <rect
+           x="21.799999"
+           y="29.799999"
+           width="0.89999998"
+           height="2.4000001"
+           id="rect23" />
+      </g>
+    </g>
+  </defs>
+  <!-- Bots -->
+  <use
+     xlink:href="#bot"
+     href="#bot"
+     id="use30"
+     transform="translate(-3.760529,-7.6982435)" />
+  <use
+     xlink:href="#bot"
+     href="#bot"
+     transform="matrix(-1,0,0,1,68.953831,-7.099996)"
+     id="use32" />
+  <!-- Speech bubbles -->
+  <g
+     fill="none"
+     stroke="#000000"
+     stroke-width="1.8"
+     stroke-linejoin="round"
+     id="g38"
+     transform="translate(-4.0461692,-7.099996)">
+    <path
+       d="m 18.505151,9.1000736 h 10 a 6.0000002,6.0000002 0 0 1 0,12.0000004 h -9 l -5.5,4 1.5,-4.8 a 6,6 0 0 1 3,-11.2000004 z"
+       id="path34" />
+    <path
+       transform="matrix(-1,0,0,1,75,6)"
+       d="m 20,4 h 10 a 6,6 0 0 1 0,12 H 21 L 15.5,20 17,15.2 A 6,6 0 0 1 20,4 Z"
+       id="path36" />
+  </g>
+  <g
+     fill="#000000"
+     id="g46"
+     transform="translate(-5.5461696,-2.1999958)">
+    <circle
+       cx="19.5"
+       cy="10"
+       r="1.5"
+       id="circle40" />
+    <circle
+       cx="25"
+       cy="10"
+       r="1.5"
+       id="circle42" />
+    <circle
+       cx="30.5"
+       cy="10"
+       r="1.5"
+       id="circle44" />
+  </g>
+  <g
+     stroke="#000000"
+     stroke-width="1.8"
+     stroke-linecap="round"
+     id="g52"
+     transform="translate(-3.0410181,-6.6999958)">
+    <line
+       x1="43"
+       y1="14"
+       x2="55"
+       y2="14"
+       id="line48" />
+    <line
+       x1="43"
+       y1="18"
+       x2="51"
+       y2="18"
+       id="line50" />
+  </g>
+  <metadata
+     id="metadata326">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Internet of Robotic Things</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>
