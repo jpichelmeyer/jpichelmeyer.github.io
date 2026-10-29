@@ -65,6 +65,7 @@
       "trs": [
         {
           "Situated agents and IoT architecture": "csc4110/architecture.html",
+          "Electronics basics": "csc4110/electronics.html",
           "Thonny and MicroPython": "csc4110/thonny.html",
           "Circuits and GPIO": "csc4110/circuits_gpio.html",
           "Lab 1": "csc4110/lab1.html"
