@@ -14,7 +14,9 @@
 .em-shots { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
 .em-shots img { width: 100%; border-radius: var(--border-radius2); border: 1px solid var(--panel-bd); }
 .em-play {
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     margin-bottom: 14px;
     padding: 7px 14px;
     border: 1.5px solid #5c1c23;
@@ -22,6 +24,9 @@
     background: #ffc2c8;
     color: var(--ink);
     font-weight: bold;
+    font-size: 18px;
     text-decoration: none;
+    width: 360px;
+    height: 60px;
 }
 .em-play:hover { border-color: var(--ink); background: var(--bg2); }

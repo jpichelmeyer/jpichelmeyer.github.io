@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>A policy is only as good as the numbers behind it, and so far those numbers have appeared by magic. This lesson shows where they come from. <strong>Q-learning</strong> is one of the most important algorithms in reinforcement learning, and the idea fits in one line: after every move, nudge your estimate of how good that move was toward what you just observed.</p>
+        <p>Open the demo on the first preset (the sparse goal) and press <em>Step</em> repeatedly with the speed turned down, watching the Options panel and the colors. Don't worry about understanding yet; just watch where the numbers change.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/gridworld/gridworld.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        <h3>Part 1. A Table That Learns</h3>
+        <p>The agent keeps a table with one row for each state and one column for each action, so each cell of the table holds one Q value. In the demo that is the dictionary <span class="code-lesson-il">q</span> in <span class="code-lesson-il">QAgent</span>: a state maps to a list of four numbers (up, down, left, right). It starts empty, which means all zeros. Everything the agent will ever know about the world is what it manages to write into that table.</p>
+        <p>The agent does not know the map, the rewards, or where the goal is. All it can do is move, watch the reward it gets and the state it lands in, and update one entry of its table.</p>
+
+        <h3>Part 2. The Update</h3>
+        <p>Suppose the agent was in state <em>s</em>, took action <em>a</em>, received reward <em>r</em>, and landed in state <em>s&prime;</em>. It now knows one fresh fact about <em>s, a</em>: taking that action gave an immediate <em>r</em>, and put it somewhere whose best option is worth <em>max Q(s&prime;, &middot;)</em>. So a better estimate of <em>Q(s, a)</em> would be:</p>
+        <p style="text-align:center"><strong>target = r + &gamma; &times; max Q(s&prime;, a&prime;)</strong></p>
+        <p>The agent doesn't swap its old number for the target, since one sample can be noisy or misleading. It moves part of the way, by a fraction &alpha; (alpha, the <strong>learning rate</strong>):</p>
+        <p style="text-align:center"><strong>Q(s, a) &larr; Q(s, a) + &alpha; &times; ( target &minus; Q(s, a) )</strong></p>
+        <div class="diagram">
+<svg viewBox="0 0 590 150" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="20" y="20" width="150" height="56" rx="8" fill="#f3f3f3" stroke="#8a8a8a" stroke-width="1.5"/>
+    <text x="95" y="45" font-size="13" fill="#333" text-anchor="middle" font-weight="bold">Old Q(s, a)</text>
+    <text x="95" y="61" font-size="11" fill="#5b6b78" text-anchor="middle">what I believed</text>
+    <rect x="210" y="20" width="170" height="56" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="295" y="45" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">target</text>
+    <text x="295" y="61" font-size="11" fill="#5b6b78" text-anchor="middle">r + gamma x max Q(s', a')</text>
+    <rect x="420" y="20" width="150" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="495" y="45" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">New Q(s, a)</text>
+    <text x="495" y="61" font-size="11" fill="#5b6b78" text-anchor="middle">moved toward target</text>
+    <path d="M 172 48 L 208 48" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <path d="M 382 48 L 418 48" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <text x="295" y="112" font-size="12" fill="#5b6b78" text-anchor="middle">difference = target - old is the "surprise"</text>
+    <text x="295" y="132" font-size="12" fill="#2e5a80" text-anchor="middle" font-weight="bold">new = old + alpha x surprise</text>
+
+</svg>
+            <div class="diagram-caption">One Q-learning update. The learning rate alpha says how much of the surprise to absorb.</div>
+        </div>
+        <p>The "surprise," target minus old estimate, has a name in the literature, the <strong>temporal-difference (TD) error</strong>. When it is zero the table already agrees with experience, and when it is large the agent learned something. Here is the whole algorithm in the project:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">q_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func learn(obs: int, action: int, reward: float, next_obs: int, done: bool, next_action: int) -&gt; void:
+    var target := reward
+    if not done:
+        if use_sarsa:
+            target += gamma * peek(next_obs)[next_action]
+        else:
+            target += gamma * best_value(next_obs)
+    var v := values(obs)
+    v[action] += alpha * (target - v[action])
+</span>
+</div>
+        <p>Two cases appear. If the move ended the episode (<span class="code-lesson-il">done</span>), there is no next state to look ahead to, so the target is just the reward. Otherwise the target adds the discounted best value of the next state. The final two lines are the update itself.</p>
+
+        <h3>Part 3. A Hand Trace</h3>
+        <p>Take the corridor from the last lesson: four cells, a +10 goal at the right end, a step cost of &minus;1. Use &alpha; = 0.5 and &gamma; = 0.9, with every Q value starting at 0, and suppose the agent walks straight to the goal in every episode. Only the "right" entries matter. Each episode updates cells 0, 1, 2, 3 in order, always using the other entries as they are right then:</p>
+        <ul>
+            <li><strong>Episode 1.</strong> Cell 0: target = &minus;1 + 0.9 &times; 0 = &minus;1, so Q goes from 0 to &minus;0.5. Cells 1 and 2 do the same: &minus;0.5. Cell 3 steps into the goal: target = 10, so Q becomes 0 + 0.5 &times; (10 &minus; 0) = <strong>5.0</strong>.</li>
+            <li><strong>Episode 2.</strong> Cells 0 and 1 find their neighbors' best Q is still 0 (the other actions are untried), so they drift to &minus;0.75. Cell 2 finally looks at cell 3: target = &minus;1 + 0.9 &times; 5.0 = 3.5, so Q goes from &minus;0.5 to &minus;0.5 + 0.5 &times; (3.5 + 0.5) = <strong>1.5</strong>. Cell 3 rises to 7.5.</li>
+            <li><strong>Episode 3.</strong> Now cell 1 sees cell 2's 1.5: target = &minus;1 + 0.9 &times; 1.5 = 0.35, so it jumps from &minus;0.75 to <strong>&minus;0.2</strong>. Cell 2 becomes 3.625 and cell 3 becomes 8.75.</li>
+            <li><strong>Episode 4.</strong> Cell 1 turns positive (1.03) and cells 2 and 3 reach 5.25 and 9.38. Cell 0 still sees a best neighbor value of 0, because the untried actions in cell 1 still sit at zero, so it has to wait one more pass.</li>
+        </ul>
+        <p>Watch what happened. The reward only exists at the goal. In episode 1, only the cell touching the goal learned about it. In episode 2, the cell before that learned. In episode 3, the one before that. <strong>Information about the reward travels backward through the table, one step per pass.</strong> That is how a reward at the end of a long path eventually shapes the decision at the very start, even though the agent never reasons about the path at all. The final answer (4.58, 6.2, 8.0, 10.0 for the best action) is exactly the value table from the last lesson, and the numbers above are on their way there.</p>
+        <p>You can watch the same thing happen on the sparse-goal preset: the colored glow starts at the goal cell and spreads outward as the episodes go by.</p>
+
+        <h3>Part 4. The Training Loop</h3>
+        <p>Everything the agent does, one move at a time, happens in two functions. <span class="code-lesson-il">run_step()</span> picks an action (with the epsilon-greedy policy from last lesson) and hands it to <span class="code-lesson-il">take()</span>, which plays it in the world and calls <span class="code-lesson-il">learn()</span>:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func run_step() -&gt; void:
+    var o := observe(pos)
+    var a := next_action if next_action &gt;= 0 else agent.choose(o)
+    take(a)
+</span>
+</div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func take(a: int) -&gt; void:
+    var o := observe(pos)
+    var res := data.step(pos, a)
+    var next_pos: Vector2i = res["pos"]
+    var done: bool = res["done"]
+    var reward: float = res["reward"]
+    var o2 := observe(next_pos)
+    episode_steps += 1
+    var a2 := -1
+    if learn_on:
+        if agent.use_sarsa and not done:
+            a2 = agent.choose(o2)
+        agent.learn(o, a, reward, o2, done, a2)
+    last_action = a
+    last_reward = reward
+    episode_return += reward
+    pos = next_pos
+    next_action = a2
+    if done or episode_steps &gt;= max_steps():
+        end_episode()
+</span>
+</div>
+        <p>Read <span class="code-lesson-il">take()</span> as the four-beat rhythm of every RL system: <strong>observe</strong> where you are, <strong>act</strong> in the world, <strong>look</strong> at the reward and the new state, <strong>learn</strong>. When the episode ends (a terminal cell, or the step limit), <span class="code-lesson-il">end_episode()</span> sends the agent back to the start with its table intact. The table is the only thing that persists, and it is what the save button writes to disk.</p>
+        <p>The "Train 200 episodes" button simply calls <span class="code-lesson-il">run_step()</span> in a loop with no drawing between moves, which is why it finishes in a blink.</p>
+
+        <h3>Part 5. The Three Knobs</h3>
+        <ul>
+            <li><strong>&alpha; (alpha), the learning rate.</strong> How far each update moves toward the target. A tiny &alpha; learns slowly. A large &alpha; learns quickly but jumps around when the target is noisy. This world has no randomness, so large values work well, but in a world with chance in it you would use a smaller one, or one that shrinks as the agent gains experience.</li>
+            <li><strong>&gamma; (gamma), the discount.</strong> How much the future counts. At &gamma; = 0 the agent only cares about the immediate reward and never learns to work toward a goal more than one step away. Near 1 it plans far ahead, but the backward flow of information takes more passes.</li>
+            <li><strong>&epsilon; (epsilon), the exploration rate.</strong> Too small and the agent can lock onto the first decent route it finds, as the prize preset showed. Too large and it keeps throwing away good moves, which makes its <em>online</em> returns poor even when its table is excellent.</li>
+        </ul>
+
+        <h3>Part 6. Learning About the Best, Not the Chosen</h3>
+        <p>Look once more at the target: it uses <span class="code-lesson-il">best_value(next_obs)</span>, the best Q in the next state, even though the agent may well choose a <em>random</em> action there when exploring. Q-learning pretends the agent will behave greedily from the next step on. It learns the value of the best policy while actually following a different, more adventurous one. An algorithm that learns about a policy other than the one it is following is called <strong>off-policy</strong>. That sounds like a technicality, but it has real consequences, as the next lesson shows.</p>
+
+        <h3>Part 7. Try It</h3>
+        <ol>
+            <li>On preset 1, set &alpha; to 1.0 and &gamma; to 0.9, turn "Explore early" off and set epsilon to 0.3. Use <em>Step</em> a few dozen times. Which cells light up first, and how many episodes does it take for the glow to reach the start?</li>
+            <li>Set &gamma; to 0 and run preset 2 for a few hundred episodes. What do the arrows look like, and why?</li>
+            <li>Set &alpha; to 0.05 and train 200 episodes. Compare the colors to a run with &alpha; = 0.5.</li>
+            <li>Set epsilon to 0.9 and watch "Last return" while training. Press <em>Greedy run</em>. Why does the learned policy look so much better than the training runs?</li>
+            <li><em>Stretch:</em> use the hand trace as a recipe and compute the first two episodes for a corridor of five cells with &alpha; = 1, &gamma; = 0.9, step cost 0.</li>
+        </ol>
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Write the Q-learning update from memory and say what each symbol means.</li>
+            <li>Explain what "target minus old estimate" tells the agent.</li>
+            <li>In the hand trace, explain why Q at cell 2 did not change toward a good value until episode 2.</li>
+            <li>Explain why the update has no target-next-state term when the episode just ended.</li>
+            <li>Explain what "off-policy" means and which line of code shows it.</li>
+            <li>Say what goes wrong at &gamma; = 0, and at epsilon = 0.</li>
+        </ol>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Using &alpha; = 1 and &gamma; = 0.5, compute Q(2, right) after the first time the agent reaches cell 3 when Q(3, right) = 10.</li>
+            <li>In the hand trace, what would episode 1 produce if the step cost were 0 instead of &minus;1?</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Make &alpha; decay as the agent gains experience, for example <span class="code-lesson-il">alpha = 1.0 / (1.0 + 0.02 * visits)</span> with a per-state visit count. Does the final policy change?</li>
+            <li>Count how many episodes it takes the agent to find the optimal path on preset 2, averaged over ten resets. Plot it against epsilon.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add a stochastic "slippery floor": with probability 0.1 the chosen action is replaced by a random one. How do the learned Q values change, and why does a large &alpha; now hurt?</li>
+            <li>Implement double Q-learning (two tables, alternate which one chooses and which one evaluates) and compare it on the cliff.</li>
+        </ol>
+    </section>
+
+</body>
+</html>

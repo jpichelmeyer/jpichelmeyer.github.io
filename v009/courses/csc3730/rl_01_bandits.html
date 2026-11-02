@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Everything in the decision unit so far was written by you. The FSM and the behavior tree both followed rules you typed in ahead of time. This unit flips that around: the agent starts out knowing nothing about which choices are good, and it <strong>learns</strong> by trying things and watching what happens. The simplest version of that problem has a long, famous name, the <strong>multi-armed bandit</strong>, and it comes from the old nickname for a slot machine: a "one-armed bandit," because it has one lever and it takes your money.</p>
+
+        <p>Play with the demo below for a minute before reading on. Click a machine to pull it yourself, then switch on <em>Auto-play</em> and watch the agent do it. Don't turn on <em>Show the true odds</em> yet: the whole point is that nobody tells the agent those.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/bandits/bandits.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        <h3>Part 1. One Decision, Over and Over</h3>
+        <p>Here is the whole problem. There are five slot machines. Every pull costs nothing and either pays out some number of coins or pays nothing. Each machine has its own hidden rules for how often it pays and how much it pays. You get a fixed number of pulls and you want as many coins as possible by the end.</p>
+        <p>Compare this with the situations from earlier units. There is no map, no position, no "state" to track: the situation is exactly the same before every pull. The only thing the agent chooses is <em>which arm</em>. That makes bandits the smallest possible learning problem, and a good place to meet the one idea that every later algorithm in this unit still has to deal with.</p>
+        <div class="diagram">
+<svg viewBox="0 0 600 190" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="20" y="60" width="110" height="60" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="75" y="87" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Agent</text>
+    <text x="75" y="103" font-size="11" fill="#5b6b78" text-anchor="middle">picks an arm</text>
+    <rect x="200" y="40" width="62" height="100" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="231" y="87" font-size="14" fill="#8a4526" text-anchor="middle" font-weight="bold">A</text>
+    <text x="231" y="103" font-size="12" fill="#5b6b78" text-anchor="middle">p ? pays ?</text>
+    <rect x="280" y="40" width="62" height="100" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="311" y="87" font-size="14" fill="#8a4526" text-anchor="middle" font-weight="bold">B</text>
+    <text x="311" y="103" font-size="12" fill="#5b6b78" text-anchor="middle">p ? pays ?</text>
+    <rect x="360" y="40" width="62" height="100" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="391" y="87" font-size="14" fill="#8a4526" text-anchor="middle" font-weight="bold">C</text>
+    <text x="391" y="103" font-size="12" fill="#5b6b78" text-anchor="middle">p ? pays ?</text>
+    <rect x="440" y="40" width="62" height="100" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="471" y="87" font-size="14" fill="#8a4526" text-anchor="middle" font-weight="bold">D</text>
+    <text x="471" y="103" font-size="12" fill="#5b6b78" text-anchor="middle">p ? pays ?</text>
+    <rect x="520" y="40" width="62" height="100" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="551" y="87" font-size="14" fill="#8a4526" text-anchor="middle" font-weight="bold">E</text>
+    <text x="551" y="103" font-size="12" fill="#5b6b78" text-anchor="middle">p ? pays ?</text>
+    <path d="M 132 90 L 196 90" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <text x="164" y="80" font-size="11" fill="#2e5a80" text-anchor="middle">pull</text>
+    <path d="M 430 160 L 130 160" fill="none" stroke="#c0693f" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <text x="280" y="178" font-size="11" fill="#8a4526" text-anchor="middle">reward (maybe 0)</text>
+
+</svg>
+            <div class="diagram-caption">One state, five possible actions. After each pull the agent sees only the reward from the arm it chose.</div>
+        </div>
+        <p>Two facts make it hard. First, the agent only ever sees the machine it actually pulled, so it learns nothing new about the other four on that turn. Second, payouts are random: a machine that pays 100 coins once might be a gold mine or might be pure luck.</p>
+        <h3>Part 2. What a Machine Is</h3>
+        <p>Each machine in the demo is described by two numbers: a <strong>probability</strong> of paying out, and a <strong>payout</strong> amount when it does. The agent can't see either. What matters for planning is the average coin count per pull, the <strong>expected value</strong>:</p>
+        <p style="text-align:center"><strong>expected value = probability &times; payout</strong></p>
+        <p>These are the five machines in the default set. Switch on <em>Show the true odds</em> in the demo and the same numbers appear under the machines.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 224" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <text x="24" y="41" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">A</text>
+    <text x="60" y="41" font-size="12" fill="#5b6b78" text-anchor="start">30% x 10</text>
+    <rect x="160" y="24" width="210" height="24" rx="4" fill="#9db7cc"/>
+    <text x="378" y="41" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">3.0</text>
+    <text x="24" y="79" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">B</text>
+    <text x="60" y="79" font-size="12" fill="#5b6b78" text-anchor="start">8% x 50</text>
+    <rect x="160" y="62" width="280" height="24" rx="4" fill="#9db7cc"/>
+    <text x="448" y="79" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">4.0</text>
+    <text x="24" y="117" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">C</text>
+    <text x="60" y="117" font-size="12" fill="#5b6b78" text-anchor="start">25% x 20</text>
+    <rect x="160" y="100" width="350" height="24" rx="4" fill="#2e8b57"/>
+    <text x="518" y="117" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">5.0</text>
+    <text x="24" y="155" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">D</text>
+    <text x="60" y="155" font-size="12" fill="#5b6b78" text-anchor="start">70% x 5</text>
+    <rect x="160" y="138" width="245" height="24" rx="4" fill="#9db7cc"/>
+    <text x="413" y="155" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">3.5</text>
+    <text x="24" y="193" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">E</text>
+    <text x="60" y="193" font-size="12" fill="#5b6b78" text-anchor="start">3% x 100</text>
+    <rect x="160" y="176" width="210" height="24" rx="4" fill="#9db7cc"/>
+    <text x="378" y="193" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">3.0</text>
+    <line x1="160" y1="14" x2="160" y2="210" stroke="#8a8a8a" stroke-width="1.2"/>
+
+</svg>
+            <div class="diagram-caption">Expected coins per pull. The best machine (C, green) is neither the one that pays most when it hits (E) nor the one that hits most often (D).</div>
+        </div>
+        <p>Look at what this says about intuition. Machine E has the biggest jackpot, 100 coins, but it only hits 3% of the time, so it is worth just 3.0 per pull. Machine D hits 70% of the time, but each hit is only 5 coins. The best machine, C, is a middling payout at a middling rate. An agent that chases the biggest number it has seen, or the most frequent win, will pick wrong.</p>
+
+        <h3>Part 3. Estimating Value from Experience</h3>
+        <p>The agent can't read expected values. It has to estimate them from what it has seen. The most natural estimate is the plain average: for each arm, add up the rewards it has paid and divide by how many times you pulled it. We call that estimate <strong>Q</strong> (for "quality") and write it <span class="code-lesson-il">Q(a)</span> for arm <span class="code-lesson-il">a</span>.</p>
+        <p>You don't need to remember every past reward to keep a running average. You only need the count so far, <span class="code-lesson-il">n</span>, and the current estimate. Each new reward <span class="code-lesson-il">r</span> nudges the estimate toward itself by a fraction <span class="code-lesson-il">1/n</span> of the gap:</p>
+        <p style="text-align:center"><strong>Q &larr; Q + (r &minus; Q) / n</strong></p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bandit_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func update(arm: int, reward: float) -&gt; void:
+    n[arm] += 1
+    q[arm] += (reward - q[arm]) / float(n[arm])
+    total_pulls += 1
+    total_reward += reward
+</span>
+</div>
+        <p>Work it through for machine C (which pays 20 with probability 0.25). Suppose the first four pulls pay 0, 0, 20, 0:</p>
+        <ol>
+            <li>Pull 1 pays 0: n = 1, Q = 0 + (0 &minus; 0)/1 = 0.</li>
+            <li>Pull 2 pays 0: n = 2, Q = 0 + (0 &minus; 0)/2 = 0.</li>
+            <li>Pull 3 pays 20: n = 3, Q = 0 + (20 &minus; 0)/3 = 6.67.</li>
+            <li>Pull 4 pays 0: n = 4, Q = 6.67 + (0 &minus; 6.67)/4 = 5.0.</li>
+        </ol>
+        <p>That last value is exactly the average of the four rewards, 20/4 = 5.0, and it happens to equal the true value of C. Don't get excited: with only four samples that is luck. The early estimates are noisy, and that noise is the heart of the next part.</p>
+
+        <h3>Part 4. Explore or Exploit</h3>
+        <p>Once the agent has some estimates, an obvious rule appears: always pull the arm with the highest <span class="code-lesson-il">Q</span>. That is called <strong>exploiting</strong> what you know, and a purely greedy agent does exactly that. It has a nasty flaw. Every estimate starts at zero, so the first arm that happens to pay anything instantly looks best, and the greedy agent keeps pulling it. The other four never get a fair test. If the arm it locked on to wasn't the best one, it will never find out.</p>
+        <p>The opposite approach is to <strong>explore</strong>, to pull arms at random just to gather information. Pure exploring learns everything and wastes every pull. A good agent has to do both, and every learning algorithm in this course has to settle the same tension. The simplest compromise is <strong>epsilon-greedy</strong>: with a small probability &epsilon; (epsilon) pick a random arm, otherwise pick the best-looking one.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 172" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="180" y="14" width="200" height="44" rx="8" fill="#f3f3f3" stroke="#8a8a8a" stroke-width="1.5"/>
+    <text x="280" y="40" font-size="13" fill="#333" text-anchor="middle" font-weight="bold">random() < epsilon ?</text>
+    <rect x="30" y="100" width="220" height="56" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="140" y="125" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">Explore</text>
+    <text x="140" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">pull a random arm</text>
+    <rect x="310" y="100" width="220" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="420" y="125" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Exploit</text>
+    <text x="420" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">pull the arm with the best Q</text>
+    <path d="M 250 58 L 140 98" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <path d="M 310 58 L 420 98" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <text x="172" y="74" font-size="12" fill="#8a4526" text-anchor="middle">yes</text>
+    <text x="388" y="74" font-size="12" fill="#2e5a80" text-anchor="middle">no</text>
+
+</svg>
+            <div class="diagram-caption">Epsilon-greedy in one picture. With epsilon = 0.1 the agent explores about one pull in ten.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bandit_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _epsilon_greedy() -&gt; int:
+    if rng.randf() &lt; epsilon:
+        last_explore = true
+        return rng.randi_range(0, n_arms - 1)
+    last_explore = false
+    return greedy()
+</span>
+</div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bandit_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func greedy() -&gt; int:
+    var best := -INF
+    var ties: Array[int] = []
+    for i in n_arms:
+        if q[i] &gt; best + 1e-9:
+            best = q[i]
+            ties = [i]
+        elif absf(q[i] - best) &lt;= 1e-9:
+            ties.append(i)
+    return ties[rng.randi_range(0, ties.size() - 1)]
+</span>
+</div>
+        <p>Notice what <span class="code-lesson-il">greedy()</span> does when two arms have the same Q: it picks among the ties at random. That matters at the very start, when every arm sits at zero. Without it the agent would always begin with arm A, and every run would look alike.</p>
+        <p>To see how much exploring pays off, we ran each setting 1000 times, 1000 pulls per run, on the default five machines. The best possible average is 5.0 coins per pull.</p>
+        <ul>
+            <li><strong>epsilon = 0 (pure greedy):</strong> 3.68 per pull, pulling the best machine 17% of the time.</li>
+            <li><strong>epsilon = 0.01:</strong> 3.89 per pull, 29%.</li>
+            <li><strong>epsilon = 0.1:</strong> 4.24 per pull, 49%.</li>
+            <li><strong>epsilon = 0.3:</strong> 4.27 per pull, 52%.</li>
+            <li><strong>epsilon = 1 (always random):</strong> 3.69 per pull, 20%.</li>
+        </ul>
+        <p>Pure greedy and pure random score about the same, for opposite reasons. The best settings sit in the middle. Also notice that 0.1 and 0.3 are nearly tied over 1000 pulls. Over a much longer run the smaller epsilon would pull ahead, because once the agent is sure, exploring is pure waste.</p>
+
+        <h3>Part 5. Keeping Score</h3>
+        <p>The line chart in the demo shows the average reward per pull as it goes. A good agent's line climbs and levels off near the green line (the best machine's expected value, which only shows when you reveal the odds). A second number, <strong>regret</strong>, measures the same thing as a cost: for every pull, count how much worse the arm you chose was than the best arm, and add it up.</p>
+        <p style="text-align:center"><strong>regret = sum over all pulls of (best value &minus; value of the arm chosen)</strong></p>
+        <p>An agent that picks the best arm every time has zero regret. An agent that is still exploring pays some regret, and that is the price of learning. The goal of a bandit algorithm is to keep that total as small as possible.</p>
+
+        <h3>Part 6. Two More Strategies</h3>
+        <p>The strategy menu in the demo includes two others. <strong>Random</strong> is the always-explore baseline you computed above. <strong>UCB1</strong> (upper confidence bound) replaces coin flips with an idea sometimes called "optimism in the face of uncertainty." Each arm gets a score equal to its estimate plus a bonus that shrinks the more it has been tried:</p>
+        <p style="text-align:center"><strong>score = Q + c &times; sqrt( ln(t) / n )</strong></p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bandit_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _ucb() -&gt; int:
+    for i in n_arms:
+        if n[i] == 0:
+            last_explore = true
+            return i
+    var best := -INF
+    var pick := 0
+    for i in n_arms:
+        var score := q[i] + UCB_C * sqrt(log(float(total_pulls)) / float(n[i]))
+        if score &gt; best:
+            best = score
+            pick = i
+    last_explore = pick != greedy()
+    return pick
+</span>
+</div>
+        <div class="diagram">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <text x="140" y="22" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Arm X: well tested</text>
+    <rect x="40" y="36" width="48" height="30" fill="#2e5a80"/>
+    <rect x="88" y="36" width="33.72" height="30" fill="#b9d3e8"/>
+    <text x="129.72" y="56" font-size="12" fill="#1f3b52" text-anchor="start">Q 4.0 + bonus 2.8 = 6.8</text>
+    <text x="140" y="100" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">Arm Y: tried twice</text>
+    <rect x="40" y="114" width="36" height="30" fill="#c0693f"/>
+    <rect x="76" y="114" width="168.6" height="30" fill="#f1c9b4"/>
+    <text x="252.6" y="134" font-size="12" fill="#8a4526" text-anchor="start">Q 3.0 + bonus 14.1 = 17.1</text>
+
+</svg>
+            <div class="diagram-caption">UCB scores after 52 pulls with c = 10 (dark: estimate, light: bonus). The rarely tried arm wins the next pull despite a lower estimate.</div>
+        </div>
+        <p>UCB has no randomness and no epsilon to tune. An arm gets pulled either because it looks good or because it is under-explored, and as the counts grow the bonuses fade. In the same 1000-run test it averaged 4.39 per pull and chose the best machine 60% of the time, better than any epsilon above. The constant <span class="code-lesson-il">c</span> is not free, though: it has to match the scale of the rewards, and with payouts up to 100 in this demo a value of 10 works well.</p>
+
+        <h3>Part 7. Try It</h3>
+        <ol>
+            <li>Leave the true odds hidden. Pull the machines yourself, about 30 times, and write down which one you believe is best. Then reveal the odds. How close were you?</li>
+            <li>Set the strategy to Epsilon-greedy with epsilon at 0. Turn on Auto-play at a high speed for a few thousand pulls. Press <span class="code-lesson-il">Forget</span> and repeat five times. How often does it find the best machine?</li>
+            <li>Repeat with epsilon 0.1. Compare the final average reward and the regret.</li>
+            <li>Press <span class="code-lesson-il">New bandits</span> and run your favorite setting again. Is the best setting still the best on a different set of machines?</li>
+            <li><em>Stretch:</em> switch to UCB1 and watch the <span class="code-lesson-il">n=</span> counts under each machine. In what order does it try the arms?</li>
+        </ol>
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Explain why a machine that pays 100 coins can be a worse choice than one that pays 20.</li>
+            <li>Compute the running average Q for the reward sequence 10, 0, 10, 10 using the update rule, and say what the final count n is.</li>
+            <li>Explain, in your own words, why a purely greedy agent can lock onto the wrong arm and never recover.</li>
+            <li>Describe what epsilon controls, and what goes wrong with epsilon = 0 and epsilon = 1.</li>
+            <li>Define regret and say why an agent that is still learning cannot have zero.</li>
+        </ol>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Compute the expected value of a machine with probability 0.45 and payout 12, and of one with probability 0.02 and payout 250. Which is better?</li>
+            <li>With rewards 0, 8, 0, 0, 8 on one arm, compute Q after each pull using the incremental rule.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Modify <span class="code-lesson-il">PRESET</span> in <span class="code-lesson-il">main.gd</span> so the best machine is the one with the <em>highest</em> payout. Does epsilon-greedy now do better or worse? Why?</li>
+            <li>Change <span class="code-lesson-il">UCB_C</span> to 1, then to 50. Describe what each does to the choices and the final regret.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add a sixth machine. You will need to change <span class="code-lesson-il">ARMS</span>, the preset list, and the layout code that positions machines. What assumes there are exactly five?</li>
+            <li>Make the best machine change halfway through (swap two machines' payouts after 500 pulls). How well does a sample-average agent recover, and what would you change about the update rule to help it?</li>
+        </ol>
+    </section>
+
+</body>
+</html>

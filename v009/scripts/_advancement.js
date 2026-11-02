@@ -6,19 +6,50 @@ const CURRICULUM_URL = './data/curriculum.json';
 const FALLBACK_PREFIX_COLOR = '#d8d5cf';
 
 const TERMS = [
-    { label: 'AY 2026-2027 Spring', courses: [
-        { prefixes: ['CSC'],        num: '1810', name: 'Principles of CS I' },
-        { prefixes: ['CSC'],        num: '2710', name: 'Game Development I' },
-        { prefixes: ['CSC'],        num: '3530', name: 'Artificial Intelligence and Cognitive Modeling' },
-        { prefixes: ['CSC', 'EGR'], num: '4110', name: 'Internet of Things' },
+    { label: 'AY 2027-2028 Spring', courses: [
+        { prefixes: ['CSC'],        num: '1810', name: 'Principles of CS I',                                nameShort: 'Principles of CS I' },
+        { prefixes: ['CSC'],        num: '2710', name: 'Game Development I',                                nameShort: 'Game Development I' },
+        { prefixes: ['CSC'],        num: '3510', name: 'Computer Organization',                             nameShort: 'Computer Organization' },
     ]},
-    { label: 'AY 2026-2027 J-term', courses: [] },
+    { label: 'AY 2027-2028 J-term', courses: [
+        { prefixes: ['CSC'],        num: '2430', name: 'Artificial Life',                                   nameShort: 'Artificial Life' },
+    ]},
+    { label: 'AY 2027-2028 Fall', courses: [
+        { prefixes: ['CSC'],        num: '1100', name: 'Introduction to Computing',                         nameShort: 'Intro to Computing' },
+        { prefixes: ['CSC'],        num: '1820', name: 'Principles of CS II',                               nameShort: 'Principles of CS II' },
+        { prefixes: ['CSC'],        num: '2560', name: 'Data Structures and Algorithms',                    nameShort: 'Data Structures' },
+    ]},
+    { label: 'AY 2026-2027 Spring', courses: [
+        { prefixes: ['CSC'],        num: '1810', name: 'Principles of CS I',                                nameShort: 'Principles of CS I' },
+        { prefixes: ['CSC'],        num: '2710', name: 'Game Development I',                                nameShort: 'Game Development I' },
+        { prefixes: ['CSC'],        num: '3530', name: 'Artificial Intelligence and Cognitive Modeling',    nameShort: 'AI for Cognitive Mod' },
+        { prefixes: ['CSC', 'EGR'], num: '4110', name: 'Internet of Things',                                nameShort: 'Internet of Things' },
+    ]},
+    { label: 'AY 2026-2027 J-term', courses: [
+    
+    ]},
     { label: 'AY 2026-2027 Fall', courses: [
-        { prefixes: ['CSC'], num: '1100', name: 'Introduction to Computing' },
-        { prefixes: ['CSC'], num: '3730', name: 'Artificial Intelligence for Simulations' },
-        { prefixes: ['MTH'], num: '1220', name: 'Calculus II' },
+        { prefixes: ['CSC'],        num: '1100', name: 'Introduction to Computing',                         nameShort: 'Intro to Computing' },
+        { prefixes: ['CSC'],        num: '3730', name: 'Artificial Intelligence for Simulations',           nameShort: 'AI for Simulations' },
+        { prefixes: ['MTH'],        num: '1220', name: 'Calculus II',                                       nameShort: 'Calculus II' },
     ]},
 ];
+
+const CATEGORIES = ['General Education / Outreach', 'Core CS / Game Dev / SE', 'Core Game Dev', 'Elective'];
+
+const COURSE_CATEGORY = {
+    'CSC 1100': ['General Education / Outreach', 'Intro to Computing'],
+    'CSC 2430': ['General Education / Outreach', 'Calculus II'],
+    'MTH 1220': ['General Education / Outreach', 'Artificial Life'],
+    'CSC 1810': ['Core CS / Game Dev / SE', 'Principles of CS I'],
+    'CSC 1820': ['Core CS / Game Dev / SE', 'Principles of CS II'],
+    'CSC 2560': ['Core CS / Game Dev / SE', 'Data Structures and Alg'],
+    'CSC 3510': ['Core CS / Game Dev / SE', 'Computer Organization'],
+    'CSC 2710': ['Core Game Dev', 'Game Development I'],
+    'CSC 3530': ['Elective', 'AI and Cognitive Mod'],
+    'CSC 3730': ['Elective', 'AI for Simulations'],
+    'CSC 4110': ['Elective', 'Internet of Things'],
+};
 
 const PLAB_PROJECTS = [
     {
@@ -51,15 +82,33 @@ const PLAB_PROJECTS = [
         outcomes: ['Portfolio-ready simulation architecture', 'Interactive public web demo build', 'Playable demonstration at regional showcases'],
     },
     {
-        icon: 'plab_project_godot_to_steam.svg',
+        icon: '../imgs/error_monster_icon.png',
         track: 'applied',
-        name: 'Godot Game to Steam',
-        desc: 'Engineering core mechanics, optimize performance, handle production pipelines in Godot to take an indie game project from prototype to commercial publication.',
-        outcomes: ['itch.io playtesting and public feedback cycle', 'Official Steam storefront release', 'Published commercial / indie software project'],
+        name: 'Error Monster Programming Education Game',
+        desc: 'Error Monster is a creature collector game where players battle and collect error monsters by injecting and resolving programming errors across real programming languages such as Python, MATLAB, and C-sharp. Assist with game development or with educational research.',
+        outcomes: [
+            'Conference presentations', 
+            'Paper submission to academic journals', 
+            'Steam storefront release'
+        ],
         news: [
             { date: '2026 10 19', html: 'Additional languages (MATLAB and R) added. Monster sprites updated.' },
             { date: '2026 10 17', html: 'Overworld and monster zones added.' },
             { date: '2026 10 15', html: 'Initial alpha proof of concept uploaded to <a href="https://jpichelmeyer.itch.io/error-monster" target="_blank" rel="noopener">itch.io</a>' },
+        ],
+    },
+    {
+        icon: 'plab_bio_rover.svg',
+        track: 'applied',
+        name: 'Astro Bio Search Rover',
+        desc: 'Help build an automated rover that collects samples and runs custom search algorithms for sample collection and analysis of biosignatures.',
+        outcomes: [
+            'Hardware and systems engineering', 
+            'Algorithmic search and biosignature analysis', 
+            'Academic communication and dissemination'
+        ],
+        news: [
+        
         ],
     },
 ];
@@ -73,15 +122,29 @@ const COMMITTEES = [];
 
 function renderTeaching(prefixColors) {
     const pill = p => `<span class="curric-prefix-pill" style="background:${esc(prefixColors[p] || FALLBACK_PREFIX_COLOR)}">${esc(p)}</span>`;
-    document.getElementById('adv-tab-teaching').innerHTML = TERMS.map(t => `
-        <div class="inst-term">
-            <div class="inst-term-head">${esc(t.label)}</div>
-            ${t.courses.length ? t.courses.map(c => `
+    const row = c => `
                 <div class="inst-course">
                     <span class="inst-course-code">${c.prefixes.map(pill).join('')}<span class="inst-course-num">${esc(c.num)}</span></span>
                     <span class="inst-course-name">${esc(c.name)}</span>
-                </div>`).join('')
-            : `<div class="inst-empty">(None)</div>`}
+                </div>`;
+    const taught = new Map();
+    TERMS.forEach(t => t.courses.forEach(c => taught.has(`${c.prefixes[0]} ${c.num}`) || taught.set(`${c.prefixes[0]} ${c.num}`, c)));
+    const groups = [...CATEGORIES, 'Uncategorized'].map(name => ({
+        name,
+        courses: [...taught].filter(([k]) => ((COURSE_CATEGORY[k] || [])[0] || 'Uncategorized') === name).map(([, c]) => c).sort((a, b) => a.num.localeCompare(b.num)),
+    })).filter(g => g.courses.length || CATEGORIES.includes(g.name));
+    document.getElementById('adv-tab-teaching').innerHTML = `
+        <div class="taught_course_section_head">All Courses Taught</div>
+        <div class="inst-cat-grid">${groups.map(g => `
+            <div class="inst-term">
+                <div class="inst-term-head">${esc(g.name)}</div>
+                ${g.courses.length ? g.courses.map(c => row({ ...c, name: c.nameShort })).join('') : `<div class="inst-empty">(None)</div>`}
+            </div>`).join('')}
+        </div>
+        <div class="taught_course_section_head">By Term</div>` + TERMS.map(t => `
+        <div class="inst-term">
+            <div class="inst-term-head">${esc(t.label)}</div>
+            ${t.courses.length ? t.courses.map(row).join('') : `<div class="inst-empty">(None)</div>`}
         </div>`).join('');
 }
 

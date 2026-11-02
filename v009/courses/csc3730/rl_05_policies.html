@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>An agent that has learned something has to <em>use</em> it, and in an MDP the thing it uses is called a <strong>policy</strong>. You've been looking at policies since the first demo: they're the arrows drawn in every cell. This lesson makes that picture precise, introduces the numbers behind it, and then asks a question you can play with directly in the demo: what happens if the agent can't see everything?</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/gridworld/gridworld.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        <h3>Part 1. A Policy Is a Rule for Every State</h3>
+        <p>A <strong>policy</strong> answers one question: <em>in this state, what do I do?</em> It is usually written &pi;(s), "pi of s," and it can be as simple as a lookup table with one action for each state. In a gridworld the whole policy is one arrow per cell.</p>
+        <div class="diagram">
+<svg viewBox="0 0 620 262" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="40" y="16" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 56 46 L 86 46" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="100" y="16" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 116 46 L 146 46" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="160" y="16" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 176 46 L 206 46" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="220" y="16" width="60" height="60" fill="#9bd9a3" stroke="#8a8a8a" stroke-width="1.2"/>
+    <text x="250" y="52" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">+10</text>
+    <rect x="40" y="76" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 70 120 L 70 90" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="100" y="76" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 116 106 L 146 106" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="160" y="76" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 190 120 L 190 90" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="220" y="76" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 250 120 L 250 90" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="40" y="136" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 70 180 L 70 150" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="100" y="136" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 130 180 L 130 150" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="160" y="136" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 190 180 L 190 150" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="220" y="136" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 250 180 L 250 150" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="40" y="196" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 70 240 L 70 210" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="100" y="196" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 116 226 L 146 226" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="160" y="196" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 190 240 L 190 210" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <rect x="220" y="196" width="60" height="60" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <path d="M 250 240 L 250 210" fill="none" stroke="#2e5a80" stroke-width="2.4" marker-end="url(#rlArrow)"/>
+    <text x="380" y="100" font-size="13" fill="#1f3b52" text-anchor="start" font-weight="bold">One arrow per state.</text>
+    <text x="380" y="122" font-size="13" fill="#1f3b52" text-anchor="start">That table is the policy.</text>
+    <text x="380" y="160" font-size="12" fill="#5b6b78" text-anchor="start">(Not every arrow here is the best one.</text>
+    <text x="380" y="178" font-size="12" fill="#5b6b78" text-anchor="start">A policy can be bad. Learning is how it</text>
+    <text x="380" y="196" font-size="12" fill="#5b6b78" text-anchor="start">gets better.)</text>
+
+</svg>
+            <div class="diagram-caption">A policy for a 4 x 4 grid: for every cell, the action to take there.</div>
+        </div>
+        <p>A policy is either <strong>deterministic</strong>, always the same action in a given state (the table above), or <strong>stochastic</strong>, a set of probabilities over actions. Epsilon-greedy, which you met with the bandits, is a stochastic policy: mostly the best-looking action, sometimes a random one.</p>
+
+        <h3>Part 2. How Good Is This Place: V and Q</h3>
+        <p>To improve a policy you need a way to say how good things are. Reinforcement learning uses two closely related scores:</p>
+        <ul>
+            <li><strong>V(s)</strong>, the <em>value of a state</em>: the discounted return you expect from state s onward if you follow your policy.</li>
+            <li><strong>Q(s, a)</strong>, the <em>value of an action in a state</em>: the discounted return you expect if you take action a now, and follow your policy afterward.</li>
+        </ul>
+        <p>Q is the one the agent in the demo stores, and the one it shows you in the four boxes under "Options (Q values)". Once an agent has a good Q, its policy writes itself: in every state, take the action with the highest Q. That choice is called the <strong>greedy</strong> policy.</p>
+        <p>A tiny example makes the numbers concrete. Here is a corridor of four cells with a +10 goal at the right end. Every move costs &minus;1 and &gamma; = 0.9. Work backward from the goal:</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 166" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="30" y="30" width="100" height="70" fill="#eef4f9" stroke="#8a8a8a" stroke-width="1.2"/>
+    <text x="80" y="62" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">V = 4.58</text>
+    <text x="80" y="84" font-size="12" fill="#5b6b78" text-anchor="middle">cell 0</text>
+    <rect x="130" y="30" width="100" height="70" fill="#eef4f9" stroke="#8a8a8a" stroke-width="1.2"/>
+    <text x="180" y="62" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">V = 6.20</text>
+    <text x="180" y="84" font-size="12" fill="#5b6b78" text-anchor="middle">cell 1</text>
+    <rect x="230" y="30" width="100" height="70" fill="#eef4f9" stroke="#8a8a8a" stroke-width="1.2"/>
+    <text x="280" y="62" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">V = 8.00</text>
+    <text x="280" y="84" font-size="12" fill="#5b6b78" text-anchor="middle">cell 2</text>
+    <rect x="330" y="30" width="100" height="70" fill="#eef4f9" stroke="#8a8a8a" stroke-width="1.2"/>
+    <text x="380" y="62" font-size="15" fill="#1f3b52" text-anchor="middle" font-weight="bold">V = 10.00</text>
+    <text x="380" y="84" font-size="12" fill="#5b6b78" text-anchor="middle">cell 3</text>
+    <rect x="430" y="30" width="100" height="70" fill="#9bd9a3" stroke="#8a8a8a" stroke-width="1.2"/>
+    <text x="480" y="70" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">+10 goal</text>
+    <path d="M 50 120 L 110 120" fill="none" stroke="#2e5a80" stroke-width="2" marker-end="url(#rlArrow)"/>
+    <path d="M 150 120 L 210 120" fill="none" stroke="#2e5a80" stroke-width="2" marker-end="url(#rlArrow)"/>
+    <path d="M 250 120 L 310 120" fill="none" stroke="#2e5a80" stroke-width="2" marker-end="url(#rlArrow)"/>
+    <path d="M 350 120 L 410 120" fill="none" stroke="#2e5a80" stroke-width="2" marker-end="url(#rlArrow)"/>
+    <text x="280" y="150" font-size="12" fill="#2e5a80" text-anchor="middle">best action everywhere: right</text>
+
+</svg>
+            <div class="diagram-caption">Values for a four-cell corridor with a step cost of -1 and gamma = 0.9.</div>
+        </div>
+        <ol>
+            <li>In cell 3, moving right enters the goal and pays +10 at once, so <strong>V(3) = 10</strong>.</li>
+            <li>In cell 2, moving right costs 1 and lands you in cell 3: &minus;1 + 0.9 &times; 10 = <strong>8.0</strong>.</li>
+            <li>In cell 1: &minus;1 + 0.9 &times; 8.0 = <strong>6.2</strong>.</li>
+            <li>In cell 0: &minus;1 + 0.9 &times; 6.2 = <strong>4.58</strong>.</li>
+        </ol>
+        <p>Now ask for Q in cell 2, one value per action, assuming you play well afterward. Right is 8.0, as above. Left lands in cell 1: &minus;1 + 0.9 &times; 6.2 = 4.58. Up and down bump into the corridor wall: you stay in cell 2 and pay &minus;1, so each is &minus;1 + 0.9 &times; 8.0 = 6.2. A wasted move is better than going backward, because at least you haven't moved away. The greedy action is right, and the numbers tell you <em>how much</em> better it is than the others, not just that it wins.</p>
+
+        <h3>Part 3. Greedy, and Epsilon-Greedy</h3>
+        <p>The agent's policy in code is the same two-way choice as before. With probability epsilon it takes a random action; otherwise it takes the best one:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">q_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func choose(obs: int) -&gt; int:
+    if rng.randf() &lt; current_epsilon():
+        last_explore = true
+        return rng.randi_range(0, 3)
+    last_explore = false
+    return greedy_random(obs)
+</span>
+</div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">q_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func greedy_random(obs: int) -&gt; int:
+    var v := peek(obs)
+    var best: float = v.max()
+    var ties: Array[int] = []
+    for a in 4:
+        if v[a] &gt;= best - 1e-9:
+            ties.append(a)
+    return ties[rng.randi_range(0, ties.size() - 1)]
+</span>
+</div>
+        <p>Two versions of "best action" exist on purpose. <span class="code-lesson-il">greedy_random</span> picks randomly among ties, which keeps early behavior varied, and is used when the agent is acting. <span class="code-lesson-il">greedy_fixed</span> always takes the first of the tied actions, which is used for drawing arrows, so the picture doesn't flicker from frame to frame.</p>
+        <p>The demo also has an <em>Explore early</em> switch. With it on, the effective epsilon starts at 1 (pure random) and slides down to your slider's value over the first 300 episodes (shown as "Epsilon now"). The reason is in the fourth preset. A small prize sits next to the start, and a big goal sits farther away. An agent with a small fixed epsilon finds the prize first, starts exploiting it, and almost never wanders far enough to learn the big goal exists. Starting with a lot of exploration and shrinking it lets the agent see the whole map before it commits. Try the preset with the switch on and off.</p>
+        <p>The <em>Greedy run</em> button shows a finished policy at work: it sets epsilon to 0, turns off learning, and replays the agent's best behavior.</p>
+
+        <h3>Part 4. What the Agent Can See</h3>
+        <p>So far the agent has known exactly which cell it is in. Real agents rarely do. A robot has sensors, and sensors report <em>what is nearby</em>, not a map coordinate. The difference between the true situation and what the agent perceives is the difference between a <strong>state</strong> and an <strong>observation</strong>, and it is the Perceptor's job from the first week.</p>
+        <p>The demo has a dropdown for this, <em>Agent sees</em>. With "Its exact position," the observation is the cell number, so every cell gets its own row of Q values. With "Only left and right," the agent can sense only its two horizontal neighbors, and each reports one of four things:</p>
+        <ul>
+            <li><strong>blocked</strong>: a wall or the edge of the grid,</li>
+            <li><strong>plain</strong>: an ordinary open cell,</li>
+            <li><strong>good</strong>: a cell that pays more than an ordinary step,</li>
+            <li><strong>bad</strong>: a cell that pays less than an ordinary step.</li>
+        </ul>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func observe(c: Vector2i) -&gt; int:
+    if obs_mode == 0:
+        return data.index(c)
+    return sense(c + Vector2i(-1, 0)) * 4 + sense(c + Vector2i(1, 0))
+</span>
+</div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func sense(c: Vector2i) -&gt; int:
+    if not data.inside(c) or data.kind_at(c) == GridData.Kind.WALL:
+        return 1
+    if rewards_mode != 0:
+        return 0
+    var d := data.reward_at(c) - data.step_reward
+    if d &gt; 0.01:
+        return 2
+    if d &lt; -0.01:
+        return 3
+    return 0
+</span>
+</div>
+        <p>With four possibilities on each side, the agent has at most sixteen observations, no matter how big the grid is. Its Q table is indexed by observation, not by cell.</p>
+        <p>The last two lines of <span class="code-lesson-il">sense()</span> are the connection to the other dropdown, <em>Rewards visible</em>. A neighbor can only look "good" or "bad" to the agent when rewards are visible <strong>during learning</strong>. If you choose "Only at the end" or "Never," the agent's sensors report only walls and open space, and it has to discover rewards by walking onto them. That same setting also controls the numbers drawn in the cells for <em>you</em>: "Only at the end" hides them while the agent is running and reveals them the moment you press Pause, and "Never" hides the special cells entirely and marks them with question marks.</p>
+        <div class="diagram">
+<svg viewBox="0 0 500 186" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="30" y="50" width="70" height="70" fill="#38404a" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="100" y="50" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="170" y="50" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="240" y="50" width="70" height="70" fill="#eef4f9" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="310" y="50" width="70" height="70" fill="#38404a" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="380" y="50" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <circle cx="275" cy="85" r="20" fill="#2e5a80"/>
+    <text x="275" y="90" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">you</text>
+    <rect x="172" y="52" width="66" height="66" fill="none" stroke="#2e8bd9" stroke-width="3"/>
+    <rect x="312" y="52" width="66" height="66" fill="none" stroke="#2e8bd9" stroke-width="3"/>
+    <text x="205" y="40" font-size="12" fill="#2e5a80" text-anchor="middle" font-weight="bold">left: plain</text>
+    <text x="345" y="40" font-size="12" fill="#2e5a80" text-anchor="middle" font-weight="bold">right: wall</text>
+    <text x="225" y="150" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Observation = (plain, wall).</text>
+    <text x="225" y="170" font-size="12" fill="#5b6b78" text-anchor="middle">Any other cell with an open cell to its left and a wall to its right looks exactly the same.</text>
+
+</svg>
+            <div class="diagram-caption">The agent sees only its left and right neighbors. Cells that look the same to the agent have to share one action.</div>
+        </div>
+        <p>That last sentence is the heart of it, and it is called <strong>perceptual aliasing</strong>: different situations that produce the same observation. A single Q row means a single decision for all of them, even when the right move is different. Try it. On the plain step-cost grid, the sensor-only agent still reaches the goal, because "go up when you can, otherwise go right" works from every cell. On the maze and the cliff, in our tests, the greedy run never reached the goal after 3,000 training episodes: the agent kept doing the best average thing for what it could see and wandered until the step limit. Giving the agent better eyes (or a memory, which you'll add in an exercise) is how you fix that. This is the same trade-off as in the alien-and-sentry project you saw earlier, where the state was a coarse "near, medium, far, targeted?" description rather than exact coordinates.</p>
+
+        <h3>Part 5. Reading the HUD</h3>
+        <ul>
+            <li><strong>Options (Q values).</strong> The four boxes show Q for the agent's <em>current</em> observation. A green outline marks the greedy action. A blue fill marks the move it just made.</li>
+            <li><strong>Policy.</strong> The mini map shows the greedy arrow for every cell, computed from the agent's observation of that cell. In sensor mode you can watch aliasing happen: whole columns of cells share one arrow.</li>
+            <li><strong>Value colors.</strong> Green cells have a high best-Q, red cells a low one. Early in training only cells near the goal glow, and the glow spreads outward.</li>
+            <li><strong>Policy arrows.</strong> Turns the arrows on the big grid on and off.</li>
+        </ul>
+
+        <h3>Part 6. Try It</h3>
+        <ol>
+            <li>Run preset 2 until the policy settles. Press <em>Greedy run</em> and describe the path. Does the policy have an arrow for every cell, including cells the agent rarely visits?</li>
+            <li>On preset 4, run three separate trials with "Explore early" off (press <em>Reset agent</em> between them). Does the agent find the big goal? Repeat with it on.</li>
+            <li>Switch <em>Agent sees</em> to "Only left and right" on preset 5. Describe the policy you see. Which cells share an arrow, and why can't they have different ones?</li>
+            <li>Set <em>Rewards visible</em> to "Only at the end" and watch the agent run for a minute with the grid hidden. Does it behave any differently than with the numbers shown? (Think about what the agent sees versus what <em>you</em> see.)</li>
+        </ol>
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Define a policy and give one example of a deterministic and one of a stochastic policy.</li>
+            <li>Compute V for each cell of a three-cell corridor with a +10 goal at the right end, a step cost of &minus;1 and &gamma; = 0.9.</li>
+            <li>Explain the difference between V(s) and Q(s, a), and which one the demo's Options panel shows.</li>
+            <li>Explain why the greedy policy is read off Q with an argmax.</li>
+            <li>Explain the difference between a state and an observation, and what perceptual aliasing is.</li>
+            <li>Describe what each setting of "Rewards visible" changes for you, and what it changes for the agent.</li>
+        </ol>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>For the corridor above, recompute all four V values with &gamma; = 0.5. How does the best action in cell 0 compare to the other actions?</li>
+            <li>In sensor mode, how many distinct observations are possible if each neighbor has four possible reports?</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add a fifth report to <span class="code-lesson-il">sense()</span> for terminal cells, so the agent can tell a goal from an ordinary good cell. Does that help or hurt on preset 4?</li>
+            <li>Make the sensors see up and down as well as left and right. How many observations are possible now?</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Give the agent a memory of its <em>last action</em> and include it in the observation. Does the sensor-only agent now solve the maze?</li>
+            <li>Add a "sight range" of two cells instead of one. What happens to the number of observations, and to the Q table?</li>
+        </ol>
+    </section>
+
+</body>
+</html>

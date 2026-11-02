@@ -37,7 +37,7 @@ import xml.etree.ElementTree as ET
 SVG_NS = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', SVG_NS)
 
-DRAWABLE_TAGS = {'g', 'path', 'circle', 'rect', 'ellipse', 'polygon', 'polyline', 'line', 'text', 'use'}
+DRAWABLE_TAGS = {'g', 'path', 'circle', 'rect', 'ellipse', 'polygon', 'polyline', 'line', 'text', 'use', 'switch'}
 
 
 def local_tag(elem):
