@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>The last four lessons were about ideas; this one opens the gridworld project and shows where each idea lives. Like the bandit project, it follows the Situated Agent Model, and like the bandit project, it keeps the learning code free of any pictures so the brain can be understood, and tested, on its own.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/gridworld/gridworld.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        <h3>Part 1. Who Does What</h3>
+        <div class="diagram">
+<svg viewBox="0 0 600 208" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="200" y="14" width="180" height="52" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="290" y="37" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">main.gd</text>
+    <text x="290" y="53" font-size="11" fill="#5b6b78" text-anchor="middle">HUD, loop, observe, save</text>
+    <rect x="10" y="130" width="150" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="85" y="155" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">GridData</text>
+    <text x="85" y="171" font-size="11" fill="#5b6b78" text-anchor="middle">the environment</text>
+    <rect x="180" y="130" width="130" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="245" y="155" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">QAgent</text>
+    <text x="245" y="171" font-size="11" fill="#5b6b78" text-anchor="middle">memory + decider</text>
+    <rect x="330" y="130" width="130" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="395" y="155" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">GridView</text>
+    <text x="395" y="171" font-size="11" fill="#5b6b78" text-anchor="middle">draws and paints</text>
+    <rect x="480" y="130" width="110" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="535" y="155" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">ActionPanel</text>
+    <text x="535" y="171" font-size="11" fill="#5b6b78" text-anchor="middle">the four boxes</text>
+    <path d="M 290 66 L 85 128" fill="none" stroke="#2e5a80" stroke-width="1.3" marker-end="url(#rlArrow)"/>
+    <path d="M 290 66 L 245 128" fill="none" stroke="#2e5a80" stroke-width="1.3" marker-end="url(#rlArrow)"/>
+    <path d="M 290 66 L 395 128" fill="none" stroke="#2e5a80" stroke-width="1.3" marker-end="url(#rlArrow)"/>
+    <path d="M 290 66 L 535 128" fill="none" stroke="#2e5a80" stroke-width="1.3" marker-end="url(#rlArrow)"/>
+
+</svg>
+            <div class="diagram-caption">The gridworld project. Main creates and connects everything else.</div>
+        </div>
+        <ul>
+            <li><span class="code-lesson-il">grid_data.gd</span>: the <strong>Environment</strong>. Cells, rewards, the six presets, and the <span class="code-lesson-il">step()</span> function from the MDP lesson. No pictures.</li>
+            <li><span class="code-lesson-il">q_agent.gd</span>: <strong>Memory</strong> (the Q table) and the <strong>Decider</strong> (epsilon-greedy), plus the learning rule for both Q-learning and SARSA. No pictures either.</li>
+            <li><span class="code-lesson-il">main.gd</span>: the <strong>Perceptor</strong> (<span class="code-lesson-il">observe()</span>), the <strong>Actuator</strong> (<span class="code-lesson-il">take()</span>), the training loop, the HUD controls, and save and load.</li>
+            <li><span class="code-lesson-il">grid_view.gd</span>: a <span class="code-lesson-il">Control</span> that draws a grid. It appears twice, once large and interactive, once small as the policy map.</li>
+            <li><span class="code-lesson-il">action_panel.gd</span>: the four-box Options display.</li>
+            <li><span class="code-lesson-il">main.tscn</span>: a lone <span class="code-lesson-il">Node2D</span> with <span class="code-lesson-il">main.gd</span> attached. As with the bandits, everything else is built in code.</li>
+        </ul>
+
+        <h3>Part 2. Data You Can Read</h3>
+        <p>The presets are plain text so you can see the map in the source. Each is a title, a step reward, and one string per row:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">grid_data.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">    {
+        "title": "3. Cliff",
+        "step": -1.0,
+        "rows": ["............", "............", "............", "SCCCCCCCCCCG"],
+    },
+</span>
+</div>
+        <p><span class="code-lesson-il">from_ascii()</span> reads each character and turns it into a cell: <span class="code-lesson-il">S</span> is the start, <span class="code-lesson-il">#</span> a wall, <span class="code-lesson-il">G</span> a +10 goal, <span class="code-lesson-il">X</span> a &minus;10 pit, <span class="code-lesson-il">C</span> a cliff, <span class="code-lesson-il">b</span> a breadcrumb, <span class="code-lesson-il">w</span> a puddle, and everything else an ordinary cell that pays the grid's step reward. Adding a preset is one new entry in the list.</p>
+        <p>Underneath, a grid is two flat arrays, <span class="code-lesson-il">kinds</span> and <span class="code-lesson-il">rewards</span>, one entry per cell, and a cell at column x and row y lives at index <span class="code-lesson-il">y * width + x</span>:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">grid_data.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func index(c: Vector2i) -&gt; int:
+    return c.y * width + c.x
+</span>
+</div>
+        <p>The same index is the agent's <em>state number</em> in the default "exact position" mode, which is why the Q table can simply be a dictionary from integers to four numbers.</p>
+
+        <h3>Part 3. Perception, Action, and the Loop</h3>
+        <p>You have already read <span class="code-lesson-il">observe()</span> and <span class="code-lesson-il">sense()</span> (the Perceptor), <span class="code-lesson-il">take()</span> (the Actuator and the learning step), and <span class="code-lesson-il">run_step()</span>. What remains is the driver that calls them. In <span class="code-lesson-il">_process()</span>, the same accumulate-and-fire pattern from the bandit project turns the speed slider into a number of steps per frame. The fast button skips drawing entirely:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func train(count: int) -&gt; void:
+    var target := agent.episodes + count
+    var guard := 0
+    while agent.episodes &lt; target and guard &lt; 400000:
+        run_step()
+        guard += 1
+    refresh()
+</span>
+</div>
+        <p>There is a guard on that loop. If a bad grid made an episode never end, <span class="code-lesson-il">guard</span> would keep the game from freezing forever. Every loop in a program that a user can configure deserves one.</p>
+
+        <h3>Part 4. Drawing and Editing the Grid</h3>
+        <p>A <span class="code-lesson-il">GridView</span> doesn't store any grid of its own. It is handed a <span class="code-lesson-il">GridData</span>, a <span class="code-lesson-il">QAgent</span>, and a <span class="code-lesson-il">Callable</span> (a function reference) that turns a cell into an observation. Handing it the function is what lets the big view and the mini view show whichever perception mode is active without knowing anything about it. Everything is drawn from three small geometry functions:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">grid_view.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func cell_size() -&gt; float:
+    if data == null:
+        return 1.0
+    return minf((size.x - 8.0) / data.width, (size.y - 8.0) / data.height)
+</span>
+</div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">grid_view.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func origin() -&gt; Vector2:
+    var cs := cell_size()
+    return Vector2((size.x - cs * data.width) / 2.0, (size.y - cs * data.height) / 2.0)
+</span>
+</div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">grid_view.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func cell_rect(c: Vector2i) -&gt; Rect2:
+    var cs := cell_size()
+    return Rect2(origin() + Vector2(c) * cs, Vector2(cs, cs))
+</span>
+</div>
+        <p>The cell size is the smaller of "how wide could a cell be" and "how tall could it be," which is why grids of any shape fit the same panel. The origin centers whatever is left over.</p>
+        <p>The same arithmetic runs backward for painting. A mouse press or drag becomes a cell coordinate, and the view announces it with a <strong>signal</strong>, leaving the decision about what to do to <span class="code-lesson-il">main.gd</span>:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">grid_view.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _gui_input(event: InputEvent) -&gt; void:
+    if data == null:
+        return
+    var pressed := false
+    if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+        pressed = true
+    elif event is InputEventMouseMotion and (event.button_mask &amp; MOUSE_BUTTON_MASK_LEFT) != 0:
+        pressed = true
+    if pressed:
+        var cs := cell_size()
+        var c := Vector2i(((event.position - origin()) / cs).floor())
+        if data.inside(c):
+            cell_clicked.emit(c)
+</span>
+</div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func paint(c: Vector2i) -&gt; void:
+    if c == data.start and tool_index != 0:
+        return
+    make_custom()
+    match tool_index:
+        0:
+            data.start = c
+            data.set_empty(c)
+        1:
+            data.set_empty(c)
+        2:
+            data.set_cell(c, GridData.Kind.WALL, 0.0)
+        3:
+            data.set_cell(c, GridData.Kind.EMPTY, value_spin.value)
+        4:
+            data.set_cell(c, GridData.Kind.TERMINAL, value_spin.value)
+        5:
+            data.set_cell(c, GridData.Kind.CLIFF, value_spin.value)
+    edited()
+</span>
+</div>
+        <p>Here a signal keeps the pieces apart. The view knows about pixels and mouse clicks and nothing about tools or rewards. <span class="code-lesson-il">paint()</span> knows about tools and rewards and nothing about pixels. The first edit to a preset makes a private copy (<span class="code-lesson-il">make_custom()</span>), so the originals are never damaged, and every edit clears the agent's table, because a table learned on one set of rewards is a promise about a world that no longer exists. You met that idea in the bandit save file.</p>
+        <p>One more detail in the view makes it feel alive: the agent sprite doesn't jump from cell to cell, it glides.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">grid_view.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _process(delta: float) -&gt; void:
+    if data != null and sprite != null:
+        var cs := cell_size()
+        var target := center_of(agent_cell)
+        if snap:
+            sprite.position = target
+            snap = false
+        else:
+            sprite.position = sprite.position.lerp(target, 1.0 - exp(-16.0 * delta))
+        var s := cs * 0.8 / sprite.texture.get_width()
+        sprite.scale = Vector2(s, s)
+    queue_redraw()
+</span>
+</div>
+        <p>Each frame, the sprite moves a fraction of the remaining distance to its target. Writing that fraction as <span class="code-lesson-il">1.0 - exp(-16.0 * delta)</span> instead of a fixed number keeps the motion the same on a slow computer and a fast one. At very high training speeds the agent can't keep up with where it "really" is, and that is fine: the table is what matters, and the picture is just a window onto it.</p>
+
+        <h3>Part 5. Saving the Agent and Its World</h3>
+        <p>The bandit file stored a seed that could rebuild the machines. A grid can be edited, so a seed isn't enough. The gridworld save file stores the grid itself next to the agent, plus the settings that give the table meaning:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func save_agent() -&gt; void:
+    var out := {
+        "version": 1,
+        "grid": data.to_dict(),
+        "obs_mode": obs_mode,
+        "rewards_mode": rewards_mode,
+        "sarsa": agent.use_sarsa,
+        "alpha": agent.alpha,
+        "gamma": agent.gamma,
+        "epsilon": agent.epsilon,
+        "decay": agent.decay_episodes,
+        "agent": agent.to_dict(),
+    }
+    var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+    if f == null:
+        status_label.text = "Could not write the save file."
+        return
+    f.store_string(JSON.stringify(out, "  "))
+    f.close()
+    status_label.text = "Saved the agent and its grid (%d episodes)." % agent.episodes
+</span>
+</div>
+        <p>The list is worth reading as a checklist of "what does this knowledge depend on?" A Q table is indexed by observations, so the observation mode matters. Sensor-based entries mean different things depending on whether rewards were visible. SARSA and Q-learning tables are not interchangeable in spirit even if they are in shape. Loading restores all of it, and the grid arrives in the editable "Custom grid" slot. The loader checks that the grid's arrays have the right length before accepting it, the same defensive habit from the saving lesson.</p>
+
+        <h3>Part 6. Exporting to the Web</h3>
+        <p>The demos in these lessons are the same projects exported with <em>Project &gt; Export &gt; Web</em> using the GL Compatibility renderer and without thread support, so the page needs no special server headers. Exporting from the editor produces an HTML page, a JavaScript loader, a <span class="code-lesson-il">.wasm</span> engine file, and a <span class="code-lesson-il">.pck</span> with your scripts and assets. They must be served over HTTP (a double-clicked file won't run), and on the course site they are embedded with the <span class="code-lesson-il">godot-embed-wrap</span> element that every lesson here uses.</p>
+
+        <h3>Part 7. Try It</h3>
+        <ol>
+            <li>Add a seventh preset to the list in <span class="code-lesson-il">grid_data.gd</span>: a small grid of your own design. Run it and see whether the agent learns what you intended.</li>
+            <li>Add a new tile letter to <span class="code-lesson-il">from_ascii()</span>, for example <span class="code-lesson-il">"$"</span> for a +5 terminal prize. Use it in a new preset.</li>
+            <li>Change <span class="code-lesson-il">max_steps()</span> to <span class="code-lesson-il">width * height</span>. Which presets now behave differently, and why?</li>
+            <li>Build a grid in the editor, train an agent, Save, close the page, reopen it, and Load. Confirm that both the grid and the policy come back.</li>
+        </ol>
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Name each file in the project and say which part of the Situated Agent Model it represents.</li>
+            <li>Explain why a cell at (x, y) lives at index <span class="code-lesson-il">y * width + x</span> in a flat array.</li>
+            <li>Explain what a signal does in <span class="code-lesson-il">GridView</span> and why the view doesn't call <span class="code-lesson-il">paint()</span> directly.</li>
+            <li>Explain why editing the grid clears the agent's table.</li>
+            <li>List the things the save file stores and say why each is needed to reuse the agent.</li>
+        </ol>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Change the starting color of the grid cells and the arrow color in <span class="code-lesson-il">grid_view.gd</span>.</li>
+            <li>Display the current episode number in the window title.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add a "slippery floor" setting: with some probability a chosen move is replaced by a random move. Put the probability in <span class="code-lesson-il">GridData.step()</span> and add a slider. What happens to the greedy path on the cliff?</li>
+            <li>Add three save slots with a dropdown, following the bandit lesson's exercise.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add a key and a locked door tile. The agent can only pass the door after stepping on the key. What does the state need to contain now, and how many states does a 5 &times; 5 grid have?</li>
+            <li>Add a <span class="code-lesson-il">last_action</span> to the sensor observation so the left-and-right-only agent has a one-step memory. Does it solve preset 5?</li>
+            <li>Replace the Q table with a neural network that takes the (x, y) position as input. What new problems appear?</li>
+        </ol>
+    </section>
+
+</body>
+</html>

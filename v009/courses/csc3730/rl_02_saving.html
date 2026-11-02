@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>Last lesson's agent learned something real: after a few hundred pulls it knew which machines were worth playing. Then you closed the program and every bit of that was gone. A learning agent that forgets everything on quit has to start from scratch every time, which is a strange thing to ask of something whose entire purpose is to remember what it has seen. This lesson adds <strong>saving and loading</strong> so an agent can keep what it has learned.</p>
+        <p>Try it first. Run the demo, let the agent play a few hundred pulls, press <em>Save agent</em>, then <em>Forget</em>, then <em>Load agent</em>. The estimates under every machine should come back exactly as they were.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/bandits/bandits.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        <h3>Part 1. What the Agent Knows</h3>
+        <p>The first design question is what exactly goes into a save file. The answer comes straight from the Situated Agent Model: save the agent's <strong>Memory</strong>. For the bandit agent that is small:</p>
+        <ul>
+            <li>the estimate <span class="code-lesson-il">q</span> for each arm,</li>
+            <li>the pull count <span class="code-lesson-il">n</span> for each arm (it is needed to keep averaging correctly),</li>
+            <li>running totals for pulls and reward, and the chosen strategy and epsilon.</li>
+        </ul>
+        <p>What does <em>not</em> belong in the agent's save is the true probability and payout of each machine. Those belong to the world, and the agent is not supposed to know them. If you saved them into the agent's file you would be building an agent that cheats the moment it is loaded.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 170" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="20" y="16" width="230" height="140" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="135" y="42" font-size="14" fill="#1f3b52" text-anchor="middle" font-weight="bold">Agent (saved)</text>
+    <text x="135" y="78" font-size="12" fill="#1f3b52" text-anchor="middle">q: the estimates</text>
+    <text x="135" y="98" font-size="12" fill="#1f3b52" text-anchor="middle">n: the pull counts</text>
+    <text x="135" y="118" font-size="12" fill="#1f3b52" text-anchor="middle">strategy, epsilon, totals</text>
+    <rect x="310" y="16" width="230" height="140" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="425" y="42" font-size="14" fill="#8a4526" text-anchor="middle" font-weight="bold">World (not saved)</text>
+    <text x="425" y="78" font-size="12" fill="#8a4526" text-anchor="middle">true probabilities</text>
+    <text x="425" y="98" font-size="12" fill="#8a4526" text-anchor="middle">true payouts</text>
+    <text x="425" y="118" font-size="12" fill="#8a4526" text-anchor="middle">rebuilt from a seed</text>
+
+</svg>
+            <div class="diagram-caption">The agent's memory goes in the save file. The world is described by a single number, its seed, so it can be rebuilt without storing the answers.</div>
+        </div>
+        <h3>Part 2. From Variables to JSON</h3>
+        <p>Godot can only write text and bytes to disk, not live objects, so we first flatten the memory into a <span class="code-lesson-il">Dictionary</span> of plain numbers and lists. Then <span class="code-lesson-il">JSON.stringify()</span> turns that dictionary into text. The agent knows how to describe itself, and how to rebuild itself from a description:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bandit_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func to_dict() -&gt; Dictionary:
+    return {
+        "q": Array(q),
+        "n": Array(n),
+        "pulls": total_pulls,
+        "reward": total_reward,
+        "strategy": strategy,
+        "epsilon": epsilon,
+    }
+</span>
+</div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bandit_agent.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func from_dict(d: Dictionary) -&gt; bool:
+    if not (d.has("q") and d.has("n")):
+        return false
+    var qs: Array = d["q"]
+    var ns: Array = d["n"]
+    if qs.size() != n_arms or ns.size() != n_arms:
+        return false
+    for i in n_arms:
+        q[i] = float(qs[i])
+        n[i] = int(ns[i])
+    total_pulls = int(d.get("pulls", 0))
+    total_reward = float(d.get("reward", 0.0))
+    strategy = int(d.get("strategy", 0))
+    epsilon = float(d.get("epsilon", 0.1))
+    return true
+</span>
+</div>
+        <p>Two details are worth slowing down for. <span class="code-lesson-il">from_dict</span> returns a <span class="code-lesson-il">bool</span>: <span class="code-lesson-il">true</span> if the data fits, <span class="code-lesson-il">false</span> otherwise. It refuses a file whose arrays are the wrong length instead of half loading it. And <span class="code-lesson-il">d.get("pulls", 0)</span> supplies a default when a key is missing, so a save made by an older version of the program still loads.</p>
+        <p>Here is a real save file from the demo after twelve pulls:</p>
+<div class="code-block" data-lang="json">
+<div class="code-block-header">
+<span class="code-block-filename">bandit_agent.json</span>
+<span class="code-block-lang">JSON</span>
+</div>
+<span class="code-lesson-bl">{
+  "agent": {
+    "epsilon": 0.1,
+    "n": [10, 0, 1, 1, 0],
+    "pulls": 12,
+    "q": [4.0, 0.0, 0.0, 0.0, 0.0],
+    "reward": 40.0,
+    "strategy": 0
+  },
+  "optimal_pulls": 1,
+  "regret": 21.5,
+  "version": 1,
+  "world_seed": 0
+}
+</span>
+</div>
+        <p>You can read it like a story: ten pulls on machine A (average 4.0), one each on C and D that paid nothing. The <span class="code-lesson-il">"version"</span> key is a note to your future self. The day you add a new field, you can check the version number and decide how to treat old files. (The file above is shown with the arrays on one line to save space; Godot writes one number per line.)</p>
+
+        <h3>Part 3. Writing the File</h3>
+        <p>Files you create at run time belong in the special <span class="code-lesson-il">user://</span> folder. Unlike <span class="code-lesson-il">res://</span>, the project's own files, which are read-only once the game is exported, <span class="code-lesson-il">user://</span> is writable on every platform and is kept per project. On a desktop it is a folder in your account (open it from the editor with <em>Project &gt; Open User Data Folder</em>). In a web build, Godot stores it in the browser's IndexedDB, so the save survives page reloads but disappears if the visitor clears their site data.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func save_agent() -&gt; void:
+    var data := {
+        "version": 1,
+        "world_seed": world_seed,
+        "optimal_pulls": optimal_pulls,
+        "regret": regret,
+        "agent": agent.to_dict(),
+    }
+    var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+    if f == null:
+        status_label.text = "Could not write the save file."
+        return
+    f.store_string(JSON.stringify(data, "  "))
+    f.close()
+    status_label.text = "Saved %d pulls of experience." % agent.total_pulls
+</span>
+</div>
+        <p>Walk through it. Build the dictionary. <span class="code-lesson-il">FileAccess.open()</span> with <span class="code-lesson-il">WRITE</span> either gives you a file or <span class="code-lesson-il">null</span>, so check before using it. <span class="code-lesson-il">store_string()</span> writes the text, and <span class="code-lesson-il">close()</span> finishes the job. The final line tells the person what happened. A save button that fails silently is worse than no save button.</p>
+
+        <h3>Part 4. Reading It Back, Carefully</h3>
+        <p>Loading is the same trip in reverse, with one big difference: you can't trust what you read. The file might not exist yet. It might have been edited by hand, damaged, or written by a different version of your program. Every one of those cases deserves a calm message rather than a crash.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func load_agent() -&gt; void:
+    if not FileAccess.file_exists(SAVE_PATH):
+        status_label.text = "No saved agent yet. Press Save agent first."
+        return
+    var data = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
+    if typeof(data) != TYPE_DICTIONARY or not data.has("agent"):
+        status_label.text = "That save file could not be read."
+        return
+    build_world(int(data.get("world_seed", 0)))
+    agent.setup(ARMS)
+    if not agent.from_dict(data["agent"]):
+        status_label.text = "The save file does not match these machines."
+        return
+    reset_history()
+    optimal_pulls = int(data.get("optimal_pulls", 0))
+    regret = float(data.get("regret", 0.0))
+    eps_slider.set_value_no_signal(agent.epsilon)
+    eps_value.text = "%.2f" % agent.epsilon
+    strat_option.select(agent.strategy)
+    if agent.total_pulls &gt; 0:
+        chart.cumulative.append(agent.total_reward / agent.total_pulls)
+    refresh()
+    status_label.text = "Loaded an agent with %d pulls of experience." % agent.total_pulls
+</span>
+</div>
+        <p>Count the guards. First <span class="code-lesson-il">file_exists()</span>. Then <span class="code-lesson-il">JSON.parse_string()</span>, which returns <span class="code-lesson-il">null</span> on a parse error, so the code checks the result is a <span class="code-lesson-il">Dictionary</span> that has an <span class="code-lesson-il">"agent"</span> key. Then the world is rebuilt from the saved seed <em>before</em> the agent's numbers go in, and <span class="code-lesson-il">from_dict</span> has the final say on whether the numbers fit. Only after everything has passed does the code overwrite the live agent.</p>
+
+        <h3>Part 5. A Save Is a Promise About the World</h3>
+        <p>The agent's estimates only mean something for the machines they were learned on. Load a memory that says "machine C pays about 5 per pull" into a world where C has been rewired, and the agent will confidently walk straight into regret. That is why the file stores <span class="code-lesson-il">"world_seed"</span> and why loading rebuilds the same machines first. Pressing <em>New bandits</em> creates different machines and makes the agent forget, for the same reason.</p>
+        <p>This is a general lesson about saved learning. A trained agent is a pair: what it knows and the situation that taught it. Whenever you save one, ask what else the knowledge depends on, and save that too, or save a way to rebuild it.</p>
+
+        <h3>Part 6. Try It</h3>
+        <ol>
+            <li>Run 300 pulls, Save, Forget, Load. Confirm the Q values and counts return. The pull total and regret should too.</li>
+            <li>Save, press <em>New bandits</em>, then press <em>Load agent</em>. Which machines come back? Why?</li>
+            <li>On a desktop copy of the project, open the user data folder from the editor and open <span class="code-lesson-il">bandit_agent.json</span>. Change one of the <span class="code-lesson-il">q</span> numbers to 50 and load it. What does the agent do next, and why?</li>
+            <li>Delete the <span class="code-lesson-il">"agent"</span> key from the file and press Load. What message appears, and where in <span class="code-lesson-il">load_agent</span> does it come from?</li>
+        </ol>
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Say what belongs in the agent's save file and what does not, and explain why.</li>
+            <li>Explain the difference between <span class="code-lesson-il">res://</span> and <span class="code-lesson-il">user://</span>.</li>
+            <li>List three things that can go wrong when loading, and show where the code guards against each.</li>
+            <li>Explain why the save file stores a world seed instead of the machines' real probabilities.</li>
+            <li>Say what the <span class="code-lesson-il">"version"</span> key is for.</li>
+        </ol>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Add the number of pulls to the status message shown after a load.</li>
+            <li>Change the save file name to include the strategy, for example <span class="code-lesson-il">bandit_agent_ucb.json</span>.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add three save slots with a small dropdown to choose among them.</li>
+            <li>Autosave every 500 pulls. Where should the check go, and how will you avoid writing the file on every single frame?</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Save the reward history that feeds the chart, so a loaded agent also restores its line. How large can the file grow, and how would you keep it small?</li>
+            <li>Write a <span class="code-lesson-il">"version": 2</span> format that adds a field, and make <span class="code-lesson-il">load_agent</span> accept both versions.</li>
+        </ol>
+    </section>
+
+</body>
+</html>

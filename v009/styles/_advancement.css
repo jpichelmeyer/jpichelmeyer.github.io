@@ -13,6 +13,11 @@
     padding: 12px 16px 10px;
     margin-bottom: 14px;
 }
+.inst-cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 14px;
+}
 .inst-term-head {
     font-family: var(--mono);
     font-size: calc(11px * var(--mod-font-size));
@@ -123,6 +128,7 @@
 .inst-committee-meta { color: var(--ink-faint); }
 
 @media (max-width: 600px) {
+    .inst-cat-grid { grid-template-columns: 1fr; }
     .inst-course { flex-wrap: wrap; gap: 4px 10px; }
     .inst-plab-logo { width: 64px; height: 64px; }
     .inst-plab-head { gap: 8px; }

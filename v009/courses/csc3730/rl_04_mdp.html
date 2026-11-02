@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>A bandit agent faces the same situation on every turn. Real agents don't: a robot in a hallway can step forward only if there's room, a game character near a pit has different good moves than one in an open field. As soon as <em>where you are</em> changes what your actions do, you've left the bandit world and entered the setting where almost all of reinforcement learning lives, the <strong>Markov decision process</strong>, or MDP. The name is intimidating. The thing itself is a grid you already know how to draw.</p>
+        <p>Open the demo below and try the first preset. Pause the agent, then use the WASD or arrow keys to walk it to the green goal yourself. The number in each cell is the reward you get for stepping onto it.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/gridworld/gridworld.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        <h3>Part 1. The Pieces</h3>
+        <p>An MDP has five ingredients, and the gridworld has a concrete version of each:</p>
+        <ul>
+            <li><strong>States</strong>: the situations the agent can be in. Here, one state per cell. A 5 &times; 5 grid has 25 states.</li>
+            <li><strong>Actions</strong>: what the agent can choose. Here, always four: up, down, left, right.</li>
+            <li><strong>Transitions</strong>: what an action does. Move one cell in that direction, unless the move runs into a wall or the edge, in which case you stay put.</li>
+            <li><strong>Rewards</strong>: a number handed back after each move, based on the cell you land on.</li>
+            <li><strong>Episodes</strong>: one run from the start cell until something ends it, usually reaching a terminal cell.</li>
+        </ul>
+        <div class="diagram">
+<svg viewBox="0 0 510 240" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="150" y="20" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="220" y="20" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="290" y="20" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="150" y="90" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="220" y="90" width="70" height="70" fill="#eef4f9" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="290" y="90" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="150" y="160" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="220" y="160" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <rect x="290" y="160" width="70" height="70" fill="#ffffff" stroke="#8a8a8a" stroke-width="1.2"/>
+    <circle cx="255" cy="125" r="18" fill="#2e5a80"/>
+    <text x="255" y="130" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="bold">you</text>
+    <path d="M 255 100 L 255 52" fill="none" stroke="#c0693f" stroke-width="2" marker-end="url(#rlArrow)"/>
+    <text x="255" y="34" font-size="12" fill="#8a4526" text-anchor="middle" font-weight="bold">Up</text>
+    <path d="M 255 150 L 255 198" fill="none" stroke="#c0693f" stroke-width="2" marker-end="url(#rlArrow)"/>
+    <text x="255" y="228" font-size="12" fill="#8a4526" text-anchor="middle" font-weight="bold">Down</text>
+    <path d="M 230 125 L 182 125" fill="none" stroke="#c0693f" stroke-width="2" marker-end="url(#rlArrow)"/>
+    <text x="116" y="129" font-size="12" fill="#8a4526" text-anchor="middle" font-weight="bold">Left</text>
+    <path d="M 280 125 L 328 125" fill="none" stroke="#c0693f" stroke-width="2" marker-end="url(#rlArrow)"/>
+    <text x="394" y="129" font-size="12" fill="#8a4526" text-anchor="middle" font-weight="bold">Right</text>
+
+</svg>
+            <div class="diagram-caption">Four actions from the middle cell. Each leads to a different next state and may pay a different reward.</div>
+        </div>
+        <h3>Part 2. Transitions and Rewards in Code</h3>
+        <p>The whole world fits in a few lines. <span class="code-lesson-il">GridData.step()</span> takes a cell and an action and answers three questions: where did you end up, what reward did you get, and is the episode over?</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">grid_data.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func step(c: Vector2i, action: int) -&gt; Dictionary:
+    var n: Vector2i = c + DIRS[action]
+    if not inside(n) or kind_at(n) == Kind.WALL:
+        return {"pos": c, "reward": step_reward, "done": false}
+    var r := reward_at(n)
+    match kind_at(n):
+        Kind.TERMINAL:
+            return {"pos": n, "reward": r, "done": true}
+        Kind.CLIFF:
+            return {"pos": start, "reward": r, "done": false}
+    return {"pos": n, "reward": r, "done": false}
+</span>
+</div>
+        <p>Read the cases in order. A move into a wall or off the grid leaves you where you are and costs the ordinary step reward. Stepping onto a <strong>terminal</strong> cell pays that cell's reward and sets <span class="code-lesson-il">done</span> to true. Stepping onto a <strong>cliff</strong> cell pays its (very negative) reward and sends you back to the start without ending the episode. Anything else just moves you and pays whatever number is stored in that cell.</p>
+        <p>Notice what <em>isn't</em> in this function: no probabilities, no history. The result depends only on where you are and which action you pick. That property, that the present state is all you need to know what happens next, is the <strong>Markov property</strong>, and it's the "M" in MDP. It is what lets an agent learn one number per state and action instead of having to remember every path it ever took.</p>
+
+        <h3>Part 3. Return: Adding Up the Future</h3>
+        <p>In the bandit lesson one pull gave one reward. Now an episode is a <em>sequence</em> of rewards: a few step costs and then, if all goes well, a big prize at the end. What the agent is really trying to maximize is the whole sum, called the <strong>return</strong>. Walk the first preset in the demo (step cost 0) and the return is 10. Walk the second (step cost &minus;1) in the shortest possible way, eight moves, and it is 3: seven steps at &minus;1 and then +10.</p>
+        <p>Most learning algorithms add one more ingredient, a <strong>discount</strong> factor &gamma; (gamma) between 0 and 1. A reward that arrives <em>k</em> steps from now is multiplied by &gamma; raised to the power <em>k</em> &minus; 1, so rewards far in the future count for less:</p>
+        <p style="text-align:center"><strong>return = r<sub>1</sub> + &gamma; r<sub>2</sub> + &gamma;<sup>2</sup> r<sub>3</sub> + &gamma;<sup>3</sup> r<sub>4</sub> + ...</strong></p>
+        <p>Two reasons to do this. A discount makes a sooner reward better than the same reward later, which gives the agent a reason to hurry even when steps cost nothing. And it keeps the total finite even if an episode could, in principle, go on forever.</p>
+        <div class="diagram">
+<svg viewBox="0 0 580 240" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="60" y="80" width="24" height="110" fill="#2e5a80"/>
+    <rect x="86" y="80" width="24" height="110" fill="#c0693f"/>
+    <text x="85" y="208" font-size="12" fill="#333" text-anchor="middle">1</text>
+    <rect x="122" y="91" width="24" height="99" fill="#2e5a80"/>
+    <rect x="148" y="135" width="24" height="55" fill="#c0693f"/>
+    <text x="147" y="208" font-size="12" fill="#333" text-anchor="middle">2</text>
+    <rect x="184" y="100.9" width="24" height="89.1" fill="#2e5a80"/>
+    <rect x="210" y="162.5" width="24" height="27.5" fill="#c0693f"/>
+    <text x="209" y="208" font-size="12" fill="#333" text-anchor="middle">3</text>
+    <rect x="246" y="109.81" width="24" height="80.19" fill="#2e5a80"/>
+    <rect x="272" y="176.25" width="24" height="13.75" fill="#c0693f"/>
+    <text x="271" y="208" font-size="12" fill="#333" text-anchor="middle">4</text>
+    <rect x="308" y="117.829" width="24" height="72.171" fill="#2e5a80"/>
+    <rect x="334" y="183.125" width="24" height="6.875" fill="#c0693f"/>
+    <text x="333" y="208" font-size="12" fill="#333" text-anchor="middle">5</text>
+    <rect x="370" y="125.046" width="24" height="64.9539" fill="#2e5a80"/>
+    <rect x="396" y="186.562" width="24" height="3.4375" fill="#c0693f"/>
+    <text x="395" y="208" font-size="12" fill="#333" text-anchor="middle">6</text>
+    <rect x="432" y="131.541" width="24" height="58.4585" fill="#2e5a80"/>
+    <rect x="458" y="188.281" width="24" height="1.71875" fill="#c0693f"/>
+    <text x="457" y="208" font-size="12" fill="#333" text-anchor="middle">7</text>
+    <rect x="494" y="137.387" width="24" height="52.6127" fill="#2e5a80"/>
+    <rect x="520" y="189.141" width="24" height="0.859375" fill="#c0693f"/>
+    <text x="519" y="208" font-size="12" fill="#333" text-anchor="middle">8</text>
+    <line x1="50" y1="190" x2="560" y2="190" stroke="#8a8a8a" stroke-width="1.2"/>
+    <text x="300" y="228" font-size="12" fill="#5b6b78" text-anchor="middle">steps until the +10 arrives</text>
+    <text x="60" y="20" font-size="12" fill="#2e5a80" text-anchor="start">gamma = 0.9 (blue) loses about 10% per step</text>
+    <text x="60" y="38" font-size="12" fill="#8a4526" text-anchor="start">gamma = 0.5 (orange) halves the reward each step</text>
+
+</svg>
+            <div class="diagram-caption">What a +10 reward is worth today, depending on how many steps away it is.</div>
+        </div>
+        <p>With &gamma; = 0.9, a +10 prize five steps away is worth 10 &times; 0.9<sup>4</sup> = 6.56 to the agent right now. With &gamma; = 0.5 the same prize is worth only 0.63, and the agent becomes short-sighted: it prefers small rewards close by to large ones far away. You will set &gamma; with a slider in the demo.</p>
+
+        <h3>Part 4. Reward Design: You Get What You Reward</h3>
+        <p>The agent never sees what you <em>meant</em>. It sees numbers. Designing those numbers, the <strong>reward function</strong>, is often the hardest part of a real project, and the six presets are six small lessons in it. Run each for a while and compare the greedy path the agent settles on.</p>
+        <ul>
+            <li><strong>1. Sparse goal.</strong> Only the goal pays. The only thing pushing the agent to hurry is the discount &gamma;. Nothing says one route is better, as long as it ends at the goal.</li>
+            <li><strong>2. Step cost.</strong> The same grid with a &minus;1 charge for every move. Now the shortest path is clearly best: eight moves return 3, a wandering twelve-move path returns &minus;1.</li>
+            <li><strong>3. Cliff.</strong> The bottom row between start and goal is a cliff worth &minus;100 that throws the agent back to the start. The shortest route runs right along its edge and returns &minus;2. A safer detour along the top row returns &minus;6, a much longer trip, but one that can't fall.</li>
+            <li><strong>4. Prize, pits and a big goal.</strong> A small prize (+2) two steps to the left, a big goal (+10) five steps to the lower right, and pits (&minus;10) around. Taking the prize returns +1; the goal returns +6. A short-sighted or under-explored agent settles for the prize.</li>
+            <li><strong>5. Maze with a puddle.</strong> A puddle cell costs &minus;3 instead of &minus;1. The shortest path wades through it and returns &minus;6; a path one step longer around it returns &minus;4. The puddle changes which path is best, not just how long it is.</li>
+            <li><strong>6. Breadcrumbs.</strong> Four cells near the start pay +2 each time you step on them. Someone meant them as a trail that guides the agent. Watch what it actually does.</li>
+        </ul>
+        <p>The sixth preset is the important one. A reward that is paid every time you step on a cell can be collected over and over. A clever agent doesn't walk the trail to the goal; it circles on two breadcrumb cells, earning +2 per step until the time limit stops it, for a return of about 270, far more than the single +10 for finishing. The agent isn't misbehaving. It found exactly what you rewarded. If you want an agent to <em>progress</em>, the reward has to be tied to progress, for example paid once or paid for getting closer and charged for moving away, rather than paid for standing on a spot.</p>
+
+        <h3>Part 5. Try It</h3>
+        <ol>
+            <li>On preset 2 pause the agent and walk it with the keys. What return do you get for the shortest path? For a path with one extra step?</li>
+            <li>On preset 3, walk the edge path and then the top-row path. Predict both returns before you finish, then compare to the HUD's "Return so far".</li>
+            <li>On preset 6, step onto the same breadcrumb cell, off, and on again. How much did you collect? How many such steps would it take to beat the +10 at the goal?</li>
+            <li>Switch to the custom grid (or just start painting on a preset). Build a grid where taking the shorter route means a worse return than a longer one.</li>
+        </ol>
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Name the five ingredients of an MDP and point to each in the gridworld.</li>
+            <li>State the Markov property in one sentence and say what <span class="code-lesson-il">step()</span> would need if it didn't hold.</li>
+            <li>Compute the return for a path with four moves at a step cost of &minus;1 that ends on a +10 goal, first with &gamma; = 1 and then with &gamma; = 0.9.</li>
+            <li>Explain why the discount makes the agent hurry even when steps cost nothing.</li>
+            <li>Explain how the breadcrumb preset breaks the designer's intent, and suggest one change to its rewards that would fix it.</li>
+        </ol>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>In preset 1, if &gamma; = 0.9, what is the discounted value of the +10 goal as seen from the start (eight moves away)?</li>
+            <li>Why does a step cost of 0 give a sparse-goal agent no reason to avoid a long wandering path (before discounting)?</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>In the custom grid, make a corridor with a +1 prize one step from the start and a +10 goal ten steps away. At what discount &gamma; does the prize become better than the goal for a perfect agent?</li>
+            <li>Change the breadcrumbs so they can be collected only once. What does the code need to remember that <span class="code-lesson-il">GridData.step()</span> currently doesn't?</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Add a terminal cell with reward 0 (a "do nothing" exit) to preset 2. With step cost &minus;1, what does a perfect agent do? What if the goal is moved far away?</li>
+            <li>Write the reward for a cell so the agent receives the <em>change in distance to the goal</em> after each move. Show that going around in a circle sums to zero.</li>
+        </ol>
+    </section>
+
+</body>
+</html>

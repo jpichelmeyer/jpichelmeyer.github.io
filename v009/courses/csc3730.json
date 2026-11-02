@@ -151,17 +151,16 @@
           "Finite state machines": "csc3730/decision_01_fsm.html"
         },
         {
-          "Decision trees": "csc3730/decision_02_dtree.html",
           "Behavior trees": "csc3730/decision_03_bt.html"
         },
         {
-          "Behavior tree arboriculture": "csc3730/decision_04_bt_arboriculture.html"
-        },
-        {
-          "Behavior trees vs FSMs (memory)": "csc3730/decision_05_bt_vs_fsm.html"
+          "Behavior trees": "csc3730/decision_03_bt.html"
         },
         {
           "Presentation 2: The Progress": ""
+        },
+        {
+          "Behavior tree arboriculture": "csc3730/decision_04_bt_arboriculture.html"
         }
       ]
     },
@@ -169,19 +168,19 @@
       "theme": "Learning",
       "trs": [
         {
-          "Machine learning overview": "csc3730/learn_01_overview.html",
-          "Classification": "csc3730/learn_02_classification.html",
-          "Regression": "csc3730/learn_03_regression.html"
-        },
-        {
-          "Reinforcement Learning": "csc3730/learn_04_reinforcement.html",
-          "Artificial Neural Networks": "csc3730/learn_05_ann.html"
+          "Multi-arm bandits": "csc3730/rl_01_bandits.html",
+          "Saving/loading": "csc3730/rl_02_saving.html",
+          "MAB in Godot": "csc3730/rl_03_bandits_godot.html"
         },
         {
           "BREAK": ""
         },
         {
-          "Project assist": ""
+          "MDPs": "csc3730/rl_04_mdp.html",
+          "Policies": "csc3730/rl_05_policies.html",
+          "Q-learning": "csc3730/rl_06_qlearning.html",
+          "SARSA": "csc3730/rl_07_sarsa.html",
+          "RL in Godot": "csc3730/rl_08_gridworld_godot.html"
         },
         {
           "Presentation 3: The...Perfection?": ""
@@ -235,6 +234,8 @@
   "materials": "Laptop, writing utensils, paper",
   "credits": "4",
   "files" : [
+    "zips/csc3730_2026_11_01_b_gridworld_rl_project.zip",
+    "zips/csc3730_2026_11_01_a_multi_arm_bandit_project.zip",
     "zips/csc3730_2026_10_18_d_pink_link_bt_with_student_todos.zip",
     "zips/csc3730_2026_10_13_b_fsm_pink_link.zip",
     "zips/csc3730_2026_10_08_c_filled_in_todos.zip",

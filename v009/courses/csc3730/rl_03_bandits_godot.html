@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 3730</title>
+        <link rel="stylesheet" href="../../styles/lessons_shared.css">
+    </head>
+
+    <body>
+        <p>The last two lessons described the bandit agent as an idea. This lesson opens the project and shows where each piece lives. Nothing here is new machinery: the project is the Situated Agent Model from the first week, with a slot machine for an environment.</p>
+
+        <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/bandits/bandits.html"></div>
+        <script src="../../scripts/godot_embed.js"></script>
+        <h3>Part 1. The Project in One Picture</h3>
+        <div class="diagram">
+<svg viewBox="0 0 580 262" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+    </defs>
+    <rect x="10" y="100" width="150" height="56" rx="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="85" y="125" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">Environment</text>
+    <text x="85" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">five Bandit nodes</text>
+    <rect x="230" y="14" width="130" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="295" y="39" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Perceptor</text>
+    <text x="295" y="55" font-size="11" fill="#5b6b78" text-anchor="middle">the reward</text>
+    <rect x="230" y="100" width="130" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="295" y="125" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Memory</text>
+    <text x="295" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">q and n arrays</text>
+    <rect x="430" y="100" width="130" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="495" y="125" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Decider</text>
+    <text x="495" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">choose()</text>
+    <rect x="230" y="190" width="130" height="56" rx="8" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="295" y="215" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Actuator</text>
+    <text x="295" y="231" font-size="11" fill="#5b6b78" text-anchor="middle">do_pull()</text>
+    <path d="M 160 112 L 228 56" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <path d="M 295 72 L 295 98" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <path d="M 362 42 L 470 98" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <path d="M 362 128 L 428 128" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <path d="M 480 158 L 362 206" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <path d="M 228 218 L 90 158" fill="none" stroke="#c0693f" stroke-width="1.6" marker-end="url(#rlArrow)"/>
+    <text x="170" y="70" font-size="11" fill="#2e5a80" text-anchor="end">reward</text>
+    <text x="302" y="90" font-size="11" fill="#2e5a80" text-anchor="start">update()</text>
+    <text x="120" y="204" font-size="11" fill="#8a4526" text-anchor="middle">pull</text>
+
+</svg>
+            <div class="diagram-caption">The bandit project, labeled with the Situated Agent Model. The reward is perceived, folded into memory, and memory drives the next decision.</div>
+        </div>
+        <p>Five script files make up the project:</p>
+        <ul>
+            <li><span class="code-lesson-il">bandit_agent.gd</span>: the agent's brain (memory and decider). It knows nothing about pictures or buttons.</li>
+            <li><span class="code-lesson-il">bandit.gd</span>: one slot machine. It holds the true odds and knows how to draw itself.</li>
+            <li><span class="code-lesson-il">reward_chart.gd</span>: the line chart.</li>
+            <li><span class="code-lesson-il">main.gd</span>: builds the world and the HUD, runs the loop, saves and loads.</li>
+            <li><span class="code-lesson-il">main.tscn</span>: a single <span class="code-lesson-il">Node2D</span> that runs <span class="code-lesson-il">main.gd</span>. Everything else is created in code.</li>
+        </ul>
+        <p>Keeping the brain in its own file, free of any Godot node, is deliberate. <span class="code-lesson-il">BanditAgent</span> extends <span class="code-lesson-il">RefCounted</span>, the lightest base class there is, and you could test it with no screen at all. That is exactly how we tested the numbers in the last two lessons.</p>
+
+        <h3>Part 2. The Environment: Bandit Nodes</h3>
+        <p>Each machine is an instance of the <span class="code-lesson-il">Bandit</span> class, created in <span class="code-lesson-il">build_world()</span>. It stores its two secret numbers, and anything the HUD wants to show about the agent's beliefs (<span class="code-lesson-il">est</span>, <span class="code-lesson-il">pulls</span>) is simply copied into it each refresh so it can draw them under itself.</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func build_world(seed_value: int) -&gt; void:
+    world_seed = seed_value
+    for m in machines:
+        m.queue_free()
+    machines.clear()
+    var params := _make_params(seed_value)
+    best_value = -1.0
+    for i in ARMS:
+        var m := Bandit.new()
+        m.letter = char(65 + i)
+        m.probability = params[i][0]
+        m.payout = params[i][1]
+        m.hue = float(i) / ARMS
+        m.position = Vector2(180.0 + i * 230.0, MACHINE_Y)
+        m.reveal = reveal_check != null and reveal_check.button_pressed
+        add_child(m)
+        machines.append(m)
+        if m.expected_value() &gt; best_value:
+            best_value = m.expected_value()
+            best_arm = i
+</span>
+</div>
+        <p>The odds come from <span class="code-lesson-il">_make_params(seed)</span>. A seed of 0 returns the hand-picked <span class="code-lesson-il">PRESET</span> list. Any other seed feeds a <span class="code-lesson-il">RandomNumberGenerator</span> so the same seed always rebuilds the same five machines, which is what lets the save file store one number instead of ten.</p>
+
+        <h3>Part 3. Drawing a Machine with Code</h3>
+        <p>There are no image files for the slot machines. A <span class="code-lesson-il">Node2D</span> can draw itself by overriding <span class="code-lesson-il">_draw()</span>, which is called whenever the node asks for a redraw. Inside it, the <span class="code-lesson-il">draw_rect</span>, <span class="code-lesson-il">draw_circle</span>, <span class="code-lesson-il">draw_colored_polygon</span> and <span class="code-lesson-il">draw_string</span> functions paint straight onto the canvas. Here is the face and bandana:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bandit.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">    draw_rect(Rect2(-62.0, 12.0, 124.0, 84.0), Color("f2d6b3"))
+    draw_circle(Vector2(-28.0, 38.0), 12.0, Color.WHITE)
+    draw_circle(Vector2(28.0, 38.0), 12.0, Color.WHITE)
+    draw_circle(Vector2(-28.0 + look * 5.0, 39.0), 5.0, dark)
+    draw_circle(Vector2(28.0 + look * 5.0, 39.0), 5.0, dark)
+    draw_line(Vector2(-44.0, 20.0), Vector2(-16.0, 27.0), dark, 4.0)
+    draw_line(Vector2(44.0, 20.0), Vector2(16.0, 27.0), dark, 4.0)
+
+    var red := Color("c43b3b")
+    draw_colored_polygon(PackedVector2Array([Vector2(-62.0, 54.0), Vector2(62.0, 54.0), Vector2(0.0, 96.0)]), red)
+    draw_rect(Rect2(-62.0, 48.0, 124.0, 10.0), Color("9e2a2a"))
+    draw_colored_polygon(PackedVector2Array([Vector2(62.0, 46.0), Vector2(80.0, 38.0), Vector2(80.0, 66.0)]), Color("9e2a2a"))
+    for p in [Vector2(-30.0, 64.0), Vector2(-12.0, 61.0), Vector2(26.0, 63.0), Vector2(0.0, 74.0), Vector2(14.0, 80.0)]:
+        draw_circle(p, 3.0, Color.WHITE)
+</span>
+</div>
+        <p>Everything is drawn in the node's own coordinate system, with the origin at the top center, so moving the whole machine is just changing <span class="code-lesson-il">position</span>. The pupils shift by <span class="code-lesson-il">look</span>, a number between &minus;1 and 1 that <span class="code-lesson-il">main.gd</span> sets each frame from the agent's position, so the machines watch the agent walk by.</p>
+        <p>Animation works the same way. <span class="code-lesson-il">show_result()</span> only records what should happen (final reels, a spin time, a popup), and <span class="code-lesson-il">_process()</span> advances timers and asks for a redraw:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bandit.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func show_result(win: bool, amount: int, spin_time: float) -&gt; void:
+    if win:
+        _final = ["7", "7", "7"]
+    else:
+        var pool := ["7", "$", "*"]
+        _final = [pool.pick_random(), pool.pick_random(), pool.pick_random()]
+        if _final[0] == _final[1] and _final[1] == _final[2]:
+            _final[2] = "#"
+    _spin = spin_time
+    if spin_time &lt;= 0.0:
+        _reels = _final.duplicate()
+    _lever = 1.0
+    _pop_win = win
+    _pop_text = "+%d" % amount if win else "0"
+    _pop_t = 1.0
+</span>
+</div>
+        <p>Rolling a win or loss does <em>not</em> happen here. The machine only decides what to show. The dice are rolled in <span class="code-lesson-il">main.gd</span>, so one place holds all the game's randomness.</p>
+
+        <h3>Part 4. One Pull, End to End</h3>
+        <p>Every pull, whether the agent chose it or you clicked a machine, goes through <span class="code-lesson-il">do_pull()</span>. Reading it top to bottom gives you the whole learning loop in a dozen lines:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func do_pull(arm: int, why: String) -&gt; void:
+    var m := machines[arm]
+    var reward := float(m.payout) if rng.randf() &lt; m.probability else 0.0
+    agent.update(arm, reward)
+    var spin_time := 0.35
+    if auto_on:
+        spin_time = 0.0 if speed &gt; 12.0 else minf(0.35, 0.7 / speed)
+    m.show_result(reward &gt; 0.0, int(reward), spin_time)
+    agent_target_x = m.position.x
+    mood = why
+    if arm == best_arm:
+        optimal_pulls += 1
+    regret += best_value - m.expected_value()
+    var cumulative := agent.total_reward / float(agent.total_pulls)
+    chart.cumulative.append(cumulative)
+    window_sum.append(reward)
+    if window_sum.size() &gt; 50:
+        window_sum.pop_front()
+    var s := 0.0
+    for v in window_sum:
+        s += v
+    chart.recent.append(s / window_sum.size())
+    refresh()
+</span>
+</div>
+        <p>It rolls the machine, hands the reward to the agent's memory with <span class="code-lesson-il">agent.update()</span>, tells the machine what to animate, sends the agent sprite to that machine, and records bookkeeping for the chart. The agent's decision lives one function up:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func agent_pull() -&gt; void:
+    var arm := agent.choose()
+    do_pull(arm, "Exploring" if agent.last_explore else "Exploiting")
+</span>
+</div>
+        <p>And Auto-play is just a timer accumulating in <span class="code-lesson-il">_process()</span>:</p>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">main.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">func _process(delta: float) -&gt; void:
+    if auto_on:
+        acc += delta * speed
+        var count := 0
+        while acc &gt;= 1.0 and count &lt; 300:
+            acc -= 1.0
+            count += 1
+            agent_pull()
+        if count == 300:
+            acc = 0.0
+</span>
+</div>
+        <p>Instead of waiting for a timer node for each pull, the code adds up <span class="code-lesson-il">delta &times; speed</span> and fires one pull for each whole unit that builds up. That is why the speed slider can go from one pull per second to hundreds: at high speeds the loop simply runs several pulls in one frame (with a cap, so a slow frame can't snowball).</p>
+
+        <h3>Part 5. Try It</h3>
+        <ol>
+            <li>Open <span class="code-lesson-il">main.gd</span> and change the numbers in <span class="code-lesson-il">PRESET</span>. Predict which machine becomes best before you run it, then confirm in the demo.</li>
+            <li>In <span class="code-lesson-il">bandit_agent.gd</span> change the first line of <span class="code-lesson-il">setup()</span> so every <span class="code-lesson-il">q</span> starts at 20 instead of 0 (an <strong>optimistic start</strong>). Run a greedy agent (epsilon 0). Why does it explore even though epsilon is zero?</li>
+            <li>Replace <span class="code-lesson-il">q[arm] += (reward - q[arm]) / float(n[arm])</span> with a fixed step size, <span class="code-lesson-il">q[arm] += 0.1 * (reward - q[arm])</span>. Describe how the estimates behave differently over the first 10 pulls and over the last 1000.</li>
+            <li><em>Stretch:</em> make epsilon shrink over time, for example <span class="code-lesson-il">epsilon = 1.0 / (1.0 + total_pulls * 0.01)</span>, and compare its total reward to a fixed epsilon of 0.1 over 2000 pulls.</li>
+        </ol>
+        <h3>Checkpoint</h3>
+        <p>Before moving on, make sure you can:</p>
+        <ol>
+            <li>Label the Perceptor, Memory, Decider, Actuator and Environment in the bandit project, and name the file or function for each.</li>
+            <li>Explain why <span class="code-lesson-il">BanditAgent</span> extends <span class="code-lesson-il">RefCounted</span> and contains no drawing code.</li>
+            <li>Describe what <span class="code-lesson-il">_draw()</span> does and what must happen for it to run again.</li>
+            <li>Trace one click on a machine through <span class="code-lesson-il">do_pull()</span> and say which line changes the agent's memory.</li>
+            <li>Explain how the speed slider can ask for hundreds of pulls per second without hundreds of timers.</li>
+        </ol>
+    <section class="exercises">
+        <h2>Exercises</h2>
+        <h3>Warm-up</h3>
+        <ol>
+            <li>Change the reel symbols and colors in <span class="code-lesson-il">bandit.gd</span>.</li>
+            <li>Make the HUD show the best machine's letter in a different color.</li>
+        </ol>
+        <h3>Intermediate</h3>
+        <ol>
+            <li>Add a pull cost of 1 coin per pull so the reward is payout minus 1. How do the numbers in the chart change, and does the best machine change?</li>
+            <li>Add a sixth strategy to <span class="code-lesson-il">BanditAgent</span>: "Greedy with optimistic start." Wire it into the dropdown.</li>
+        </ol>
+        <h3>Advanced</h3>
+        <ol>
+            <li>Make one machine non-stationary: its probability drifts by a small random amount each pull. Which strategy copes best?</li>
+            <li>Build a second agent that plays the same machines at the same time and show both charts. Is it a fair comparison if they use different random numbers?</li>
+        </ol>
+    </section>
+
+</body>
+</html>
