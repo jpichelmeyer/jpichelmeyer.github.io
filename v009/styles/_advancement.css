@@ -52,7 +52,11 @@
     color: var(--ink-faint);
     font-style: italic;
 }
-
+.inst-plab-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
 .inst-plab-head {
     display: flex;
     align-items: center;
@@ -66,8 +70,37 @@
     line-height: 1.15;
     color: var(--ink);
 }
-.inst-plab-tag { padding: 0 6px; border-radius: 6px; color: var(--panel-bg); }
-.inst-plab-name-stack { line-height: 1.35; }
+.inst-plab-tag { 
+    padding: 0px 6px 0px 6px; 
+    border-radius: 6px; 
+    color: var(--panel-bg);
+}
+.inst-plab-logo-cols {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: stretch;
+    gap: 6px;
+}
+.inst-plab-logo-cols-left {
+    display: flex;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    align-items: center;
+    justify-content: center;
+    font-size: 18pt;
+    font-style: bold;
+    padding: 10px 4px;
+}
+.inst-plab-name-stack { 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.35;
+}
+.inst-plab-info {
+    font-size: 10pt;
+}
 .inst-plab-news-head { margin-top: 10px; }
 .inst-plab-date { background: #f4a7a7; margin-right: 4px; }
 .inst-plab-grid {

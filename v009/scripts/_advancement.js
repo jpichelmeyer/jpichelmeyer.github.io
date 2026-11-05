@@ -55,6 +55,7 @@ const PLAB_PROJECTS = [
     {
         icon: 'plab_explainable_ai.svg',
         track: 'research',
+        status: 'future',
         name: 'Explainable AI',
         desc: 'Applying mathematical and applied computing tools to the study of artificial intelligence and machine learning models in order to better understand and explain what is happening in AI black boxes.',
         outcomes: ['Paper submission to academic journals', 'Presentation at relevant conferences'],
@@ -62,6 +63,7 @@ const PLAB_PROJECTS = [
     {
         icon: 'plab_alife.svg',
         track: 'research',
+        status: 'future',
         name: 'Artificial Life',
         sub: 'Life as it could be',
         desc: 'Using inspiration from biology to study the computational advancement of life as it could be under new and novel computational paradigms.',
@@ -70,6 +72,7 @@ const PLAB_PROJECTS = [
     {
         icon: 'plab_responsive_robotics.svg',
         track: 'applied',
+        status: 'future',
         name: 'Responsive Robotics',
         desc: 'Deploy lightweight machine learning and other artificial intelligence models on low-power embedded hardware to drive real-time autonomous decision-making in real world robotics.',
         outcomes: ['Gain experience with physical computing hardware', 'Gain experience with MicroPython and Edge AI / TinyML development'],
@@ -77,6 +80,7 @@ const PLAB_PROJECTS = [
     {
         icon: 'plab_ecosystem_game_world.svg',
         track: 'applied',
+        status: 'future',
         name: 'Living Game Worlds',
         desc: 'Design and build a complex, dynamic virtual ecosystem where autonomous agents, emergent behaviors and interactive environments evolve in real time as a player moves through it.',
         outcomes: ['Portfolio-ready simulation architecture', 'Interactive public web demo build', 'Playable demonstration at regional showcases'],
@@ -84,6 +88,7 @@ const PLAB_PROJECTS = [
     {
         icon: '../imgs/error_monster_icon.png',
         track: 'applied',
+        status: 'active',
         name: 'Error Monster Programming Education Game',
         desc: 'Error Monster is a creature collector game where players battle and collect error monsters by injecting and resolving programming errors across real programming languages such as Python, MATLAB, and C-sharp. Assist with game development or with educational research.',
         outcomes: [
@@ -92,23 +97,65 @@ const PLAB_PROJECTS = [
             'Steam storefront release'
         ],
         news: [
-            { date: '2026 10 19', html: 'Additional languages (MATLAB and R) added. Monster sprites updated.' },
-            { date: '2026 10 17', html: 'Overworld and monster zones added.' },
-            { date: '2026 10 15', html: 'Initial alpha proof of concept uploaded to <a href="https://jpichelmeyer.itch.io/error-monster" target="_blank" rel="noopener">itch.io</a>' },
+            { 
+                date: '2026 10 19', 
+                html: 'Additional languages (MATLAB and R) added. Monster sprites updated.' 
+            },
+            { 
+                date: '2026 10 17', 
+                html: 'Overworld and monster zones added.' 
+            },
+            { 
+                date: '2026 10 15', 
+                html: 'Initial alpha proof of concept uploaded to <a href="https://jpichelmeyer.itch.io/error-monster" target="_blank" rel="noopener">itch.io</a>' 
+            },
         ],
     },
     {
         icon: 'plab_bio_rover.svg',
         track: 'applied',
+        status: 'active',
         name: 'Astro Bio Search Rover',
-        desc: 'Help build an automated rover that collects samples and runs custom search algorithms for sample collection and analysis of biosignatures.',
+        desc: 'The Astro Bio Search Rover (ABSR) is an automated rover that collects samples and runs custom search algorithms for sample collection and analysis of biosignatures. The initial chassis is based on NASA`s Open Source Rover framework, but will be modified to allow for a sample-collecting arm and sample storage. Internally, the brains of the rover will run on Ubuntu Linux, Robot Operating System 2, and will feature custom algorithmic techniques that include machine learning and topological data analysis.',
         outcomes: [
-            'Hardware and systems engineering', 
-            'Algorithmic search and biosignature analysis', 
-            'Academic communication and dissemination'
+            'Presentation of plans and work at the Carthage Celebration of Scholars.', 
+            'Presentation of work at the Wisconsin Space Grant Consortium conference.', 
+            'Paper submission to journals regarding the outcome of our application of novel algorithmic techniques.'
         ],
         news: [
-        
+            { 
+                date: '2026 11 03', 
+                html: 'Application route plotted.' 
+            },
+            { 
+                date: '2026 10 28', 
+                html: 'Initial plan for project hatched.' 
+            },
+        ],
+    },
+    {
+        icon: 'plab_mouse.svg',
+        track: 'applied',
+        status: 'active',
+        name: 'M.O.U.S.E. Puzzle and Education Game',
+        desc: 'M.O.U.S.E. is a puzzle game where players help little mice escape captivity by shaping their behavior. The central mechanic is to use modifiable behavior trees to indirectly guide the mice through a series of trials and escape to their loving forever home.',
+        outcomes: [
+            'Game published to STEAM', 
+            'Presentation at CS and/or Game education conferences'
+        ],
+        news: [
+            { 
+                date: '2026 11 04', 
+                html: 'Game updated based on feedback.' 
+            },
+            { 
+                date: '2026 11 03', 
+                html: 'Player feedback collected.' 
+            },
+            { 
+                date: '2026 11 03', 
+                html: 'Initial prototype posted to <a href="https://jpichelmeyer.itch.io/mouse" target="_blank" rel="noopener">itch.io</a>' 
+            },
         ],
     },
 ];
@@ -150,14 +197,45 @@ function renderTeaching(prefixColors) {
 
 function renderScholarship() {
     document.getElementById('adv-tab-scholarship').innerHTML = `
-        <div class="inst-plab-head">
-            <div class="inst-plab-name"><span class="inst-plab-tag" style="background:#55d46e">Pichelmeyer</span>'s</div>
-            <img class="inst-plab-logo" src="./svgs/plab.svg" alt="PLAB logo" />
-            <div class="inst-plab-name inst-plab-name-stack"><span class="inst-plab-tag" style="background:#dea357">Lab</span> for<br><span class="inst-plab-tag" style="background:#de575e">Autonomy</span> and<br><span class="inst-plab-tag" style="background:#1ac0ff">Bioemulation</span></div>
+    
+        
+        <div class="inst-plab-split">
+        
+            <div class="inst-plab-head">
+                
+                <div class="inst-plab-logo-cols">
+                    
+                    <div class="inst-plab-logo-cols-left inst-plab-tag" style="background:#1f1f1f">
+                        PICHELMEYER'S
+                    </div>
+                    
+                    <div class="inst-plab-name inst-plab-name-stack">
+                        <div> <span class="inst-plab-tag" style="background:#dea357">Lab</span> for </div>
+                        <div> <span class="inst-plab-tag" style="background:#de575e">Autonomy</span> </div>
+                        <div> <span class="inst-plab-tag" style="background:#1ac0ff">Bioexploration</span> </div>
+                        <div> <span class="inst-plab-tag" style="background:#49c98f">Cooperation</span> and  </div>
+                        <div> <span class="inst-plab-tag" style="background:#9f75bf">Education</span>  </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+
+            <div class="inst-plab-info">
+                Welcome, students, peers, and potential collaborators! Please feel free to check out the projects below. Some are being actively worked on. Others are ideas for potential future projects. If any of them seem of interest to you, please feel free to get in touch with me via email (jpichelmeyer@carthage.edu) or find me in person in my office (DSC 72). I would love to chat! Depending on the project, there is potential for students to get research funding, or upper level elective CS credits (that would look great on a transcript... :).
+            </div>
+        
         </div>
-        <div id="plab-actions"></div>
+        
+        
+        
+        
+        <!-- <div id="plab-actions"></div> -->
+        
+        ${[['active', 'Active projects'], ['future', 'Potential future projects'], ['completed', 'Completed projects']].map(([st, head]) => `
+        <div class="taught_course_section_head">${head}</div>
         <div class="inst-plab-grid">
-            ${PLAB_PROJECTS.map(p => `
+            ${PLAB_PROJECTS.filter(p => p.status === st).map(p => `
                 <div class="inst-plab-card">
                     <div class="inst-plab-card-head">
                         <img src="./svgs/${esc(p.icon)}" alt="" />
@@ -172,8 +250,10 @@ function renderScholarship() {
                     ${p.news ? `<div class="inst-plab-card-outcomes-head inst-plab-news-head">Progress / News</div>
                     <ul class="inst-plab-card-outcomes">${p.news.map(n => `<li><span class="curric-prefix-pill inst-plab-date">${esc(n.date)}</span> ${n.html}</li>`).join('')}</ul>` : ''}
                 </div>`).join('')}
-        </div>
+        </div>`).join('')}
+        
         <div id="plab-footer"></div>`;
+        
     window._plabUI?.mount(document.getElementById('plab-actions'), document.getElementById('plab-footer'));
 }
 
