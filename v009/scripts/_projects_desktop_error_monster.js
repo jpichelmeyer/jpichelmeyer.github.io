@@ -11,7 +11,12 @@ window._registerProject({
     init(container) {
         container.innerHTML = `
             <div class="em-root">
-                <a href="${ITCH_URL}" target="_blank" rel="noopener"><img class="em-cover" src="./imgs/error_monster_screen_shot_2026_10_17_z.png" alt="Error Monster cover art" /></a>
+                <div class="em-shots">
+                    <a href="${ITCH_URL}" target="_blank" rel="noopener"><img src="./imgs/error_monster_screen_2026_10_19_a.png" alt="Error Monster screenshot" /></a>
+                    <a href="${ITCH_URL}" target="_blank" rel="noopener"><img src="./imgs/error_monster_screen_2026_11_05_a.png" alt="Error Monster screenshot" /></a>
+                    <a href="${ITCH_URL}" target="_blank" rel="noopener"><img src="./imgs/error_monster_screen_2026_11_05_b.png" alt="Error Monster type-a-dex" /></a>
+                    <a href="${ITCH_URL}" target="_blank" rel="noopener"><img src="./imgs/error_monster_screen_shot_2026_10_17_w.png" alt="Error Monster screenshot" /></a>
+                </div>
                 
                 <a class="em-play" href="${ITCH_URL}" target="_blank" rel="noopener">Play Error Monster on itch.io ↗</a>                
                 
