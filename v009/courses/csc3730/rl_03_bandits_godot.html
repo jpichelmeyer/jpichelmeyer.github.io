@@ -7,11 +7,69 @@
     </head>
 
     <body>
-        <p>The last two lessons described the bandit agent as an idea. This lesson opens the project and shows where each piece lives. Nothing here is new machinery: the project is the Situated Agent Model from the first week, with a slot machine for an environment.</p>
+        <p>The first lesson described every bandit algorithm as an idea. This lesson makes each one real. First comes a quick look at how the demo project is organized, and then every strategy in the family tree gets its own small Godot scenario and a GDScript agent.</p>
 
         <div class="godot-embed-wrap" data-godot-src="../../godot/csc3730/bandits/bandits.html"></div>
         <script src="../../scripts/godot_embed.js"></script>
-        <h3>Part 1. The Project in One Picture</h3>
+        <h3>Part 1. Where We Are in the Family Tree</h3>
+        <p>Here is the family tree from the first lesson again. Each of the 13 boxes has its own scenario later in this lesson.</p>
+        <div class="diagram">
+<svg viewBox="0 0 760 300" style="max-width:760px" xmlns="http://www.w3.org/2000/svg">
+    <rect x="280" y="8" width="200" height="38" rx="8" fill="#1f3b52" stroke="#1f3b52" stroke-width="1.5"/>
+    <text x="380" y="32" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="bold">Bandit strategies</text>
+    <path d="M 380 46 L 380 66 M 80 66 L 680 66" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 80 66 L 80 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 80 128 L 80 272" fill="none" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="10" y="88" width="140" height="40" rx="8" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="113" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Semi-uniform</text>
+    <rect x="15" y="150" width="130" height="28" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="168" font-size="14" fill="#1f3b52" text-anchor="middle">Epsilon-greedy</text>
+    <rect x="15" y="186" width="130" height="28" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="204" font-size="14" fill="#1f3b52" text-anchor="middle">Epsilon-decay</text>
+    <rect x="15" y="222" width="130" height="28" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="240" font-size="14" fill="#1f3b52" text-anchor="middle">Softmax</text>
+    <rect x="15" y="258" width="130" height="28" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="276" font-size="14" fill="#1f3b52" text-anchor="middle">Optimistic start</text>
+    <path d="M 230 66 L 230 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 230 128 L 230 236" fill="none" stroke="#c0693f" stroke-width="1.5"/>
+    <rect x="160" y="88" width="140" height="40" rx="8" fill="#c0693f" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="230" y="113" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Optimistic bounds</text>
+    <rect x="165" y="150" width="130" height="28" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="230" y="168" font-size="14" fill="#8a4526" text-anchor="middle">UCB1</text>
+    <rect x="165" y="186" width="130" height="28" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="230" y="204" font-size="14" fill="#8a4526" text-anchor="middle">UCB2</text>
+    <rect x="165" y="222" width="130" height="28" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="230" y="240" font-size="14" fill="#8a4526" text-anchor="middle">KL-UCB</text>
+    <path d="M 380 66 L 380 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 380 128 L 380 200" fill="none" stroke="#2e8b57" stroke-width="1.5"/>
+    <rect x="310" y="88" width="140" height="40" rx="8" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="380" y="113" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Bayesian</text>
+    <rect x="315" y="150" width="130" height="28" rx="6" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="380" y="168" font-size="14" fill="#1d5c3a" text-anchor="middle">Thompson</text>
+    <rect x="315" y="186" width="130" height="28" rx="6" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="380" y="204" font-size="14" fill="#1d5c3a" text-anchor="middle">Bayes-UCB</text>
+    <path d="M 530 66 L 530 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 530 128 L 530 236" fill="none" stroke="#6a4c93" stroke-width="1.5"/>
+    <rect x="460" y="88" width="140" height="40" rx="8" fill="#6a4c93" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="530" y="105" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Contextual and</text>
+    <text x="530" y="120" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">non-stationary</text>
+    <rect x="465" y="150" width="130" height="28" rx="6" fill="#f1ecf7" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="530" y="168" font-size="14" fill="#45306a" text-anchor="middle">LinUCB</text>
+    <rect x="465" y="186" width="130" height="28" rx="6" fill="#f1ecf7" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="530" y="204" font-size="14" fill="#45306a" text-anchor="middle">Contextual TS</text>
+    <rect x="465" y="222" width="130" height="28" rx="6" fill="#f1ecf7" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="530" y="240" font-size="14" fill="#45306a" text-anchor="middle">Discounted UCB</text>
+    <path d="M 680 66 L 680 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 680 128 L 680 164" fill="none" stroke="#6b7780" stroke-width="1.5"/>
+    <rect x="610" y="88" width="140" height="40" rx="8" fill="#6b7780" stroke="#6b7780" stroke-width="1.5"/>
+    <text x="680" y="113" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Preference based</text>
+    <rect x="615" y="150" width="130" height="28" rx="6" fill="#f3f3f3" stroke="#6b7780" stroke-width="1.5"/>
+    <text x="680" y="168" font-size="14" fill="#333333" text-anchor="middle">Gradient bandit</text>
+</svg>
+            <div class="diagram-caption">The family tree of bandit strategies. Each family answers the explore or exploit question in a different way.</div>
+        </div>
+
+        <h3>Part 2. The Demo Project in One Picture</h3>
         <div class="diagram">
 <svg viewBox="0 0 580 262" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -50,15 +108,15 @@
         <p>Five script files make up the project:</p>
         <ul>
             <li><span class="code-lesson-il">bandit_agent.gd</span>: the agent's brain (memory and decider). It knows nothing about pictures or buttons.</li>
-            <li><span class="code-lesson-il">bandit.gd</span>: one slot machine. It holds the true odds and knows how to draw itself.</li>
+            <li><span class="code-lesson-il">bandit.gd</span>: one slot machine. It holds the true odds.</li>
             <li><span class="code-lesson-il">reward_chart.gd</span>: the line chart.</li>
             <li><span class="code-lesson-il">main.gd</span>: builds the world and the HUD, runs the loop, saves and loads.</li>
             <li><span class="code-lesson-il">main.tscn</span>: a single <span class="code-lesson-il">Node2D</span> that runs <span class="code-lesson-il">main.gd</span>. Everything else is created in code.</li>
         </ul>
         <p>Keeping the brain in its own file, free of any Godot node, is deliberate. <span class="code-lesson-il">BanditAgent</span> extends <span class="code-lesson-il">RefCounted</span>, the lightest base class there is, and you could test it with no screen at all. That is exactly how we tested the numbers in the last two lessons.</p>
 
-        <h3>Part 2. The Environment: Bandit Nodes</h3>
-        <p>Each machine is an instance of the <span class="code-lesson-il">Bandit</span> class, created in <span class="code-lesson-il">build_world()</span>. It stores its two secret numbers, and anything the HUD wants to show about the agent's beliefs (<span class="code-lesson-il">est</span>, <span class="code-lesson-il">pulls</span>) is simply copied into it each refresh so it can draw them under itself.</p>
+        <h3>Part 3. The Environment: Bandit Nodes</h3>
+        <p>Each machine is an instance of the <span class="code-lesson-il">Bandit</span> class, created in <span class="code-lesson-il">build_world()</span>. It stores its two secret numbers, and the estimates the HUD shows (<span class="code-lesson-il">est</span>, <span class="code-lesson-il">pulls</span>) are copied into it on each refresh.</p>
 <div class="code-block" data-lang="gdscript">
 <div class="code-block-header">
 <span class="code-block-filename">main.gd</span>
@@ -87,55 +145,6 @@
 </span>
 </div>
         <p>The odds come from <span class="code-lesson-il">_make_params(seed)</span>. A seed of 0 returns the hand-picked <span class="code-lesson-il">PRESET</span> list. Any other seed feeds a <span class="code-lesson-il">RandomNumberGenerator</span> so the same seed always rebuilds the same five machines, which is what lets the save file store one number instead of ten.</p>
-
-        <h3>Part 3. Drawing a Machine with Code</h3>
-        <p>There are no image files for the slot machines. A <span class="code-lesson-il">Node2D</span> can draw itself by overriding <span class="code-lesson-il">_draw()</span>, which is called whenever the node asks for a redraw. Inside it, the <span class="code-lesson-il">draw_rect</span>, <span class="code-lesson-il">draw_circle</span>, <span class="code-lesson-il">draw_colored_polygon</span> and <span class="code-lesson-il">draw_string</span> functions paint straight onto the canvas. Here is the face and bandana:</p>
-<div class="code-block" data-lang="gdscript">
-<div class="code-block-header">
-<span class="code-block-filename">bandit.gd</span>
-<span class="code-block-lang">GDScript</span>
-</div>
-<span class="code-lesson-bl">    draw_rect(Rect2(-62.0, 12.0, 124.0, 84.0), Color("f2d6b3"))
-    draw_circle(Vector2(-28.0, 38.0), 12.0, Color.WHITE)
-    draw_circle(Vector2(28.0, 38.0), 12.0, Color.WHITE)
-    draw_circle(Vector2(-28.0 + look * 5.0, 39.0), 5.0, dark)
-    draw_circle(Vector2(28.0 + look * 5.0, 39.0), 5.0, dark)
-    draw_line(Vector2(-44.0, 20.0), Vector2(-16.0, 27.0), dark, 4.0)
-    draw_line(Vector2(44.0, 20.0), Vector2(16.0, 27.0), dark, 4.0)
-
-    var red := Color("c43b3b")
-    draw_colored_polygon(PackedVector2Array([Vector2(-62.0, 54.0), Vector2(62.0, 54.0), Vector2(0.0, 96.0)]), red)
-    draw_rect(Rect2(-62.0, 48.0, 124.0, 10.0), Color("9e2a2a"))
-    draw_colored_polygon(PackedVector2Array([Vector2(62.0, 46.0), Vector2(80.0, 38.0), Vector2(80.0, 66.0)]), Color("9e2a2a"))
-    for p in [Vector2(-30.0, 64.0), Vector2(-12.0, 61.0), Vector2(26.0, 63.0), Vector2(0.0, 74.0), Vector2(14.0, 80.0)]:
-        draw_circle(p, 3.0, Color.WHITE)
-</span>
-</div>
-        <p>Everything is drawn in the node's own coordinate system, with the origin at the top center, so moving the whole machine is just changing <span class="code-lesson-il">position</span>. The pupils shift by <span class="code-lesson-il">look</span>, a number between &minus;1 and 1 that <span class="code-lesson-il">main.gd</span> sets each frame from the agent's position, so the machines watch the agent walk by.</p>
-        <p>Animation works the same way. <span class="code-lesson-il">show_result()</span> only records what should happen (final reels, a spin time, a popup), and <span class="code-lesson-il">_process()</span> advances timers and asks for a redraw:</p>
-<div class="code-block" data-lang="gdscript">
-<div class="code-block-header">
-<span class="code-block-filename">bandit.gd</span>
-<span class="code-block-lang">GDScript</span>
-</div>
-<span class="code-lesson-bl">func show_result(win: bool, amount: int, spin_time: float) -&gt; void:
-    if win:
-        _final = ["7", "7", "7"]
-    else:
-        var pool := ["7", "$", "*"]
-        _final = [pool.pick_random(), pool.pick_random(), pool.pick_random()]
-        if _final[0] == _final[1] and _final[1] == _final[2]:
-            _final[2] = "#"
-    _spin = spin_time
-    if spin_time &lt;= 0.0:
-        _reels = _final.duplicate()
-    _lever = 1.0
-    _pop_win = win
-    _pop_text = "+%d" % amount if win else "0"
-    _pop_t = 1.0
-</span>
-</div>
-        <p>Rolling a win or loss does <em>not</em> happen here. The machine only decides what to show. The dice are rolled in <span class="code-lesson-il">main.gd</span>, so one place holds all the game's randomness.</p>
 
         <h3>Part 4. One Pull, End to End</h3>
         <p>Every pull, whether the agent chose it or you clicked a machine, goes through <span class="code-lesson-il">do_pull()</span>. Reading it top to bottom gives you the whole learning loop in a dozen lines:</p>
@@ -169,7 +178,7 @@
     refresh()
 </span>
 </div>
-        <p>It rolls the machine, hands the reward to the agent's memory with <span class="code-lesson-il">agent.update()</span>, tells the machine what to animate, sends the agent sprite to that machine, and records bookkeeping for the chart. The agent's decision lives one function up:</p>
+        <p>It rolls the machine, hands the reward to the agent's memory with <span class="code-lesson-il">agent.update()</span>, tells the machine what to show, sends the agent sprite to that machine, and records bookkeeping for the chart. The agent's decision lives one function up:</p>
 <div class="code-block" data-lang="gdscript">
 <div class="code-block-header">
 <span class="code-block-filename">main.gd</span>
@@ -200,7 +209,1165 @@
 </div>
         <p>Instead of waiting for a timer node for each pull, the code adds up <span class="code-lesson-il">delta &times; speed</span> and fires one pull for each whole unit that builds up. That is why the speed slider can go from one pull per second to hundreds: at high speeds the loop simply runs several pulls in one frame (with a cap, so a slow frame can't snowball).</p>
 
-        <h3>Part 5. Try It</h3>
+        <h3>Part 5. A Field Guide to Bandit Algorithms</h3>
+        <p>Parts 2 to 4 showed one agent with epsilon-greedy and a few friends. The family tree above holds many more strategies, and they cluster into the families: <strong>semi-uniform</strong> (random exploration with simple rules), <strong>optimistic bounds</strong> (UCB and relatives), <strong>Bayesian</strong> (keep a belief, then sample or take a quantile), and <strong>contextual and non-stationary</strong> (use the situation, or forget the past), plus one <strong>preference based</strong> method. Each one below has the idea, a small Godot scenario, and a GDScript agent. All share the same Memory and Decider shape from Part 2 (Memory feeds the Decider): a <span class="code-lesson-il">choose()</span> function and a <span class="code-lesson-il">learn()</span> function. The code uses simplified sample scenes and a few approximations, noted where they apply.</p>
+        <h4>Semi-uniform strategies</h4>
+        <h4>1. Epsilon-Greedy: The Foraging Bee</h4>
+        <p><strong>The idea.</strong> Epsilon-greedy is the simplest honest answer to the explore or exploit question. Most of the time the agent does the thing that has worked best so far. A small fraction of the time, it ignores its memory and picks at random, just in case its memory is wrong.</p>
+        <p><strong>The scenario.</strong> A bee visits flower patches. Each visit yields a noisy amount of nectar, and the bee keeps a running average per patch. On each timer tick, one time in ten it flies to a random patch; otherwise it flies to the patch with the best average.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 190" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <circle cx="60" cy="95" r="22" fill="#fff3c4" stroke="#b8860b" stroke-width="1.5"/>
+    <text x="60" y="99" font-size="12" fill="#5a4200" text-anchor="middle" font-weight="bold">Bee</text>
+    <rect x="20" y="125" width="80" height="26" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="60" y="142" font-size="12" fill="#8a4526" text-anchor="middle">Hive</text>
+    <rect x="340" y="14" width="150" height="44" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="415" y="33" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Patch A</text>
+    <text x="415" y="50" font-size="11" fill="#5b6b78" text-anchor="middle">average nectar q = 2.1</text>
+    <rect x="340" y="72" width="150" height="44" rx="6" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="415" y="91" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Patch B</text>
+    <text x="415" y="108" font-size="11" fill="#5b6b78" text-anchor="middle">average nectar q = 4.6</text>
+    <rect x="340" y="130" width="150" height="44" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="415" y="149" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Patch C</text>
+    <text x="415" y="166" font-size="11" fill="#5b6b78" text-anchor="middle">average nectar q = 3.0</text>
+    <path d="M 84 88 L 336 56" fill="none" stroke="#2e8b57" stroke-width="1.6" marker-end="url(#ar1)"/>
+    <text x="200" y="64" font-size="12" fill="#1d5c3a" text-anchor="middle">9 times in 10: best q</text>
+    <path d="M 84 100 L 336 138" fill="none" stroke="#c0693f" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ao1)"/>
+    <text x="200" y="134" font-size="12" fill="#8a4526" text-anchor="middle">1 time in 10: random</text>
+</svg>
+            <div class="diagram-caption">The bee usually flies to the patch with the best average, and now and then to a random one.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">bee_forager.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node2D
+
+const EPSILON := 0.1
+
+@export var patches: Array[FlowerPatch] = []
+var q: Array[float] = []
+var n: Array[int] = []
+
+func _ready() -&gt; void:
+    for i in patches.size():
+        q.append(0.0)
+        n.append(0)
+    $Timer.timeout.connect(_on_timer_timeout)
+
+func choose() -&gt; int:
+    if randf() &lt; EPSILON:
+        return randi() % patches.size()
+    return q.find(q.max())
+
+func learn(arm: int, nectar: float) -&gt; void:
+    n[arm] += 1
+    q[arm] += (nectar - q[arm]) / n[arm]
+
+func _on_timer_timeout() -&gt; void:
+    var arm := choose()
+    var tween := create_tween()
+    tween.tween_property(self, "position", patches[arm].position, 0.5)
+    await tween.finished
+    learn(arm, patches[arm].sample())
+</span>
+</div>
+        <p><strong>Takeaway.</strong> Exploration never stops. Even after the bee knows the best patch, it wastes about <span class="code-lesson-il">EPSILON</span> of its trips, and when it explores it is just as likely to revisit a terrible patch as a promising one.</p>
+        <h4>2. Epsilon-Decreasing: The Fishing Boat</h4>
+        <p><strong>The idea.</strong> Early on the agent knows nothing, so exploring is cheap and valuable. Later, exploring costs real reward. Epsilon-decreasing lets the exploration rate shrink as experience piles up, so the agent starts curious and ends focused.</p>
+        <p><strong>The scenario.</strong> A boat chooses a fishing spot each morning. Epsilon starts at 1.0 (pure random) and is multiplied by 0.97 every day, with a floor of 0.02 so it never becomes completely stubborn. The <span class="code-lesson-il">day_started</span> signal lets a HUD show epsilon falling.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 190" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <rect x="20" y="66" width="84" height="56" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="62" y="90" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Boat</text>
+    <text x="62" y="108" font-size="11" fill="#5b6b78" text-anchor="middle">one spot a day</text>
+    <rect x="150" y="14" width="110" height="44" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="205" y="41" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Spot A</text>
+    <path d="M 106 94 L 148 36" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <rect x="150" y="72" width="110" height="44" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="205" y="99" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Spot B</text>
+    <path d="M 106 94 L 148 94" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <rect x="150" y="130" width="110" height="44" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="205" y="157" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Spot C</text>
+    <path d="M 106 94 L 148 152" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#ar2)"/>
+    <path d="M 330 30 L 330 150" fill="none" stroke="#8a8a8a" stroke-width="1.6"/>
+    <path d="M 330 150 L 530 150" fill="none" stroke="#8a8a8a" stroke-width="1.6"/>
+    <path d="M 330.0 30.0 L 334.0 37.1 L 338.0 43.8 L 342.0 50.0 L 346.0 56.0 L 350.0 61.5 L 354.0 66.7 L 358.0 71.7 L 362.0 76.3 L 366.0 80.6 L 370.0 84.7 L 374.0 88.6 L 378.0 92.2 L 382.0 95.6 L 386.0 98.9 L 390.0 101.9 L 394.0 104.7 L 398.0 107.4 L 402.0 109.9 L 406.0 112.3 L 410.0 114.5 L 414.0 116.6 L 418.0 118.6 L 422.0 120.4 L 426.0 122.2 L 430.0 123.8 L 434.0 125.4 L 438.0 126.8 L 442.0 128.2 L 446.0 129.5 L 450.0 130.7 L 454.0 131.8 L 458.0 132.9 L 462.0 133.9 L 466.0 134.9 L 470.0 135.8 L 474.0 136.6 L 478.0 137.4 L 482.0 138.1 L 486.0 138.8 L 490.0 139.5 L 494.0 140.1 L 498.0 140.7 L 502.0 141.3 L 506.0 141.8 L 510.0 142.3 L 514.0 142.7 L 518.0 143.1 L 522.0 143.6 L 526.0 143.9 L 530.0 144.3" fill="none" stroke="#c0693f" stroke-width="1.8"/>
+    <text x="430" y="172" font-size="12" fill="#5b6b78" text-anchor="middle">days</text>
+    <text x="322" y="40" font-size="11" fill="#5b6b78" text-anchor="end">1.0</text>
+    <text x="322" y="150" font-size="11" fill="#5b6b78" text-anchor="end">0</text>
+    <text x="430" y="20" font-size="12" fill="#8a4526" text-anchor="middle" font-weight="bold">epsilon falls each day</text>
+    <path d="M 330 147.6 L 530 147.6" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <text x="526" y="142" font-size="11" fill="#5b6b78" text-anchor="end">floor 0.02</text>
+</svg>
+            <div class="diagram-caption">Early on the boat tries spots at random. As epsilon decays, it settles on the spot it has learned is best.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">fishing_boat.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node
+
+signal day_started(day: int)
+
+const EPS_START := 1.0
+const EPS_MIN := 0.02
+const DECAY := 0.97
+
+@export var spots: Array[FishingSpot] = []
+var q: Array[float] = []
+var n: Array[int] = []
+var day := 0
+
+func _ready() -&gt; void:
+    for i in spots.size():
+        q.append(0.0)
+        n.append(0)
+
+func epsilon() -&gt; float:
+    return maxf(EPS_MIN, EPS_START * pow(DECAY, day))
+
+func choose() -&gt; int:
+    if randf() &lt; epsilon():
+        return randi() % spots.size()
+    return q.find(q.max())
+
+func learn(arm: int, fish: float) -&gt; void:
+    n[arm] += 1
+    q[arm] += (fish - q[arm]) / n[arm]
+
+func start_day() -&gt; void:
+    day += 1
+    day_started.emit(day)
+    var arm := choose()
+    learn(arm, spots[arm].cast())
+</span>
+</div>
+        <p><strong>Takeaway.</strong> You must pick the schedule by hand. Decay too fast and the boat locks onto a spot it only half understood; too slowly and it keeps wasting mornings.</p>
+        <h4>3. Optimistic Initial Values: The Mining Bot</h4>
+        <p><strong>The idea.</strong> This one needs no random numbers at all. Start every estimate higher than any real reward could be. Each disappointing result pulls an estimate down toward reality, so the agent keeps drifting to whichever option it has not yet been disappointed by. Exploration falls out of the initial values.</p>
+        <p><strong>The scenario.</strong> A mining bot sees three ore veins. It believes every vein is worth 10, which is more than any of them pays, and always drives to the vein it currently rates highest. Each visit nudges that vein's estimate toward the real ore yield with a fixed step size, so the bot soon tries the others.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 230" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <text x="280" y="18" font-size="12" fill="#5b6b78" text-anchor="middle">Every estimate starts at 10 (dashed). Visits pull it toward the real yield.</text>
+    <rect x="150" y="100" width="60" height="100" rx="3" fill="none" stroke="#2e5a80" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <rect x="150" y="160" width="60" height="40" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="180" y="216" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Vein A</text>
+    <text x="180" y="230" font-size="11" fill="#5b6b78" text-anchor="middle">visited, now 4</text>
+    <rect x="300" y="100" width="60" height="100" rx="3" fill="none" stroke="#2e5a80" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <rect x="300" y="130" width="60" height="70" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="330" y="216" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Vein B</text>
+    <text x="330" y="230" font-size="11" fill="#5b6b78" text-anchor="middle">visited, now 7</text>
+    <rect x="450" y="100" width="60" height="100" rx="3" fill="none" stroke="#2e5a80" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <rect x="450" y="100" width="60" height="100" rx="3" fill="#bfe3cd" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="480" y="216" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Vein C</text>
+    <text x="480" y="230" font-size="11" fill="#5b6b78" text-anchor="middle">not visited, still 10</text>
+    <circle cx="50" cy="150" r="20" fill="#fff3c4" stroke="#b8860b" stroke-width="1.5"/>
+    <text x="50" y="154" font-size="12" fill="#5a4200" text-anchor="middle" font-weight="bold">Bot</text>
+    <path d="M 72 150 L 140 128" fill="none" stroke="#2e8b57" stroke-width="1.6" marker-end="url(#ar3)"/>
+    <text x="84" y="112" font-size="11" fill="#1d5c3a" text-anchor="start">goes to the</text>
+    <text x="84" y="125" font-size="11" fill="#1d5c3a" text-anchor="start">tallest bar</text>
+</svg>
+            <div class="diagram-caption">The bot always drives to the tallest estimate. Each disappointment shortens a bar, so the bot moves on to the vein that has not let it down yet.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">mining_bot.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">class_name MiningBot
+extends CharacterBody2D
+
+const OPTIMISM := 10.0
+const STEP := 0.1
+const SPEED := 90.0
+
+@onready var veins: Array[Node] = $Veins.get_children()
+var q: Array[float] = []
+var target := 0
+
+func _ready() -&gt; void:
+    q.resize(veins.size())
+    q.fill(OPTIMISM)
+    target = q.find(q.max())
+
+func learn(arm: int, ore: float) -&gt; void:
+    q[arm] += STEP * (ore - q[arm])
+
+func _physics_process(_delta: float) -&gt; void:
+    var spot: Vector2 = veins[target].global_position
+    velocity = global_position.direction_to(spot) * SPEED
+    move_and_slide()
+    if global_position.distance_to(spot) &lt; 8.0:
+        learn(target, veins[target].mine())
+        target = q.find(q.max())
+</span>
+</div>
+        <p><strong>Takeaway.</strong> It explores hard at the start and then stops, so it is good for stable problems and weak when payouts change later. The starting value must be on the same scale as your rewards.</p>
+        <h4>4. Softmax (Boltzmann): The Cat and the Scratching Posts</h4>
+        <p><strong>The idea.</strong> Epsilon-greedy explores blindly. Softmax explores in proportion to how good things look: every arm gets a probability, higher estimates get larger probabilities, and a temperature number controls how sharply the agent favors the leader. High temperature acts nearly random, low temperature acts nearly greedy.</p>
+        <p><strong>The scenario.</strong> A cat chooses among four scratching posts and purrs a different amount at each. An <span class="code-lesson-il">HSlider</span> sets the temperature, so you can watch behavior slide from wandering to decisive. Subtracting the top value before <span class="code-lesson-il">exp()</span> keeps the numbers from overflowing.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 256" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <text x="280" y="18" font-size="12" fill="#5b6b78" text-anchor="middle">Chance of choosing each post when the temperature is 2</text>
+    <rect x="80" y="153.197" width="60" height="16.8025" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="110" y="147.197" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">13%</text>
+    <text x="110" y="186" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Post A</text>
+    <text x="110" y="200" font-size="11" fill="#5b6b78" text-anchor="middle">q = 2</text>
+    <rect x="190" y="142.297" width="60" height="27.7026" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="220" y="136.297" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">21%</text>
+    <text x="220" y="186" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Post B</text>
+    <text x="220" y="200" font-size="11" fill="#5b6b78" text-anchor="middle">q = 3</text>
+    <rect x="300" y="94.6964" width="60" height="75.3036" rx="3" fill="#bfe3cd" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="330" y="88.6964" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">58%</text>
+    <text x="330" y="186" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Post C</text>
+    <text x="330" y="200" font-size="11" fill="#5b6b78" text-anchor="middle">q = 5</text>
+    <rect x="410" y="159.809" width="60" height="10.1912" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="440" y="153.809" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">8%</text>
+    <text x="440" y="186" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Post D</text>
+    <text x="440" y="200" font-size="11" fill="#5b6b78" text-anchor="middle">q = 1</text>
+    <path d="M 80 234 L 500 234" fill="none" stroke="#8a8a8a" stroke-width="1.6"/>
+    <circle cx="330" cy="234" r="8" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="80" y="250" font-size="11" fill="#5b6b78" text-anchor="start">low: nearly greedy</text>
+    <text x="500" y="250" font-size="11" fill="#5b6b78" text-anchor="end">high: nearly random</text>
+    <text x="330" y="222" font-size="11" fill="#8a4526" text-anchor="middle">temperature slider</text>
+</svg>
+            <div class="diagram-caption">Every post keeps a chance. Better posts get more of it, and the slider decides how lopsided the chances are.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">cat_posts.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node2D
+
+@onready var temperature: HSlider = $UI/Temperature
+var q: Array[float] = [0.0, 0.0, 0.0, 0.0]
+var n: Array[int] = [0, 0, 0, 0]
+
+func choose() -&gt; int:
+    var tau := maxf(temperature.value, 0.01)
+    var top: float = q.max()
+    var weights: Array[float] = []
+    var total := 0.0
+    for value in q:
+        var w: float = exp((value - top) / tau)
+        weights.append(w)
+        total += w
+    var roll := randf() * total
+    for i in weights.size():
+        roll -= weights[i]
+        if roll &lt;= 0.0:
+            return i
+    return weights.size() - 1
+
+func learn(arm: int, purr: float) -&gt; void:
+    n[arm] += 1
+    q[arm] += (purr - q[arm]) / n[arm]
+</span>
+</div>
+        <p><strong>Takeaway.</strong> A second-best post gets visited more than a terrible one, which is the improvement over epsilon-greedy. Like epsilon, the temperature is a knob you have to tune.</p>
+        <h4>Optimistic bounds strategies</h4>
+        <h4>5. UCB1: The Charging Drone</h4>
+        <p><strong>The idea.</strong> UCB1 gives each arm a score that is its average plus a bonus for how little it has been tried. Arms with few pulls get a big bonus, so they look promising until tested. As an arm is pulled, its bonus shrinks and the average takes over. The motto is optimism in the face of uncertainty, and it needs no randomness.</p>
+        <p><strong>The scenario.</strong> A drone flies between charging stations that deliver different amounts of charge. Each time it docks, it updates the station's average and a global count <span class="code-lesson-il">t</span>. It heads to the station with the highest <span class="code-lesson-il">q + C * sqrt(ln t / n)</span>. Untried stations go first.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 200" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <circle cx="40" cy="100" r="20" fill="#fff3c4" stroke="#b8860b" stroke-width="1.5"/>
+    <text x="40" y="104" font-size="11" fill="#5a4200" text-anchor="middle" font-weight="bold">Drone</text>
+    <text x="100" y="44" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Station A</text>
+    <text x="100" y="59" font-size="11" fill="#5b6b78" text-anchor="middle">n = 40</text>
+    <rect x="150" y="28" width="200" height="30" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="350" y="28" width="25" height="30" rx="3" fill="#f1c9b4" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="383" y="48" font-size="12" fill="#1f3b52" text-anchor="start">4.0 + 0.5 = 4.5</text>
+    <text x="100" y="102" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Station B</text>
+    <text x="100" y="117" font-size="11" fill="#5b6b78" text-anchor="middle">n = 6</text>
+    <rect x="150" y="86" width="150" height="30" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="300" y="86" width="90" height="30" rx="3" fill="#bfe3cd" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="398" y="106" font-size="12" fill="#1d5c3a" text-anchor="start" font-weight="bold">3.0 + 1.8 = 4.8</text>
+    <text x="100" y="160" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Station C</text>
+    <text x="100" y="175" font-size="11" fill="#5b6b78" text-anchor="middle">n = 20</text>
+    <rect x="150" y="144" width="170" height="30" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="320" y="144" width="45" height="30" rx="3" fill="#f1c9b4" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="373" y="164" font-size="12" fill="#1f3b52" text-anchor="start">3.4 + 0.9 = 4.3</text>
+    <text x="380" y="192" font-size="11" fill="#5b6b78" text-anchor="middle">dark: estimate    light: bonus for being under-tested</text>
+</svg>
+            <div class="diagram-caption">The drone scores each station as estimate plus bonus. Station B has the lowest estimate, but it has been tried so rarely that its bonus wins.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">charging_drone.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends CharacterBody2D
+
+const C := 1.4
+
+@export var stations: Array[ChargingStation] = []
+var q: Array[float] = []
+var n: Array[int] = []
+var t := 0
+
+func _ready() -&gt; void:
+    for i in stations.size():
+        q.append(0.0)
+        n.append(0)
+        stations[i].body_entered.connect(_on_station_entered.bind(i))
+
+func choose() -&gt; int:
+    for i in n.size():
+        if n[i] == 0:
+            return i
+    var best := 0
+    var best_score := -INF
+    for i in n.size():
+        var score := q[i] + C * sqrt(log(t) / n[i])
+        if score &gt; best_score:
+            best_score = score
+            best = i
+    return best
+
+func learn(arm: int, charge: float) -&gt; void:
+    t += 1
+    n[arm] += 1
+    q[arm] += (charge - q[arm]) / n[arm]
+
+func _on_station_entered(body: Node2D, arm: int) -&gt; void:
+    if body == self:
+        learn(arm, stations[arm].recharge())
+</span>
+</div>
+        <p><strong>Takeaway.</strong> The constant <span class="code-lesson-il">C</span> must match the scale of your rewards. If charge ranges from 0 to 50, a bonus near 1 is too timid to matter, so scale <span class="code-lesson-il">C</span> to the reward range.</p>
+        <h4>6. UCB2: The Turret and the Lanes</h4>
+        <p><strong>The idea.</strong> UCB2 is UCB1 with commitment. Once it chooses an arm, it sticks with it for a whole epoch before recomputing scores, and each epoch for the same arm is longer than the last. That means far fewer score calculations and a more patient style of play.</p>
+        <p><strong>The scenario.</strong> A turret defends several lanes of enemies. Each time it picks a lane, it keeps firing at that lane for the epoch length given by <span class="code-lesson-il">tau(r)</span>, which grows by a factor of 1.5 each time. Only at the end of an epoch does it recompute the bonus.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 246" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar6" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao6" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <rect x="190" y="14" width="80" height="100" rx="3" fill="#f7f9fb" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="230" y="34" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Lane A</text>
+    <circle cx="206" cy="70" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="230" cy="77" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="254" cy="84" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <rect x="310" y="14" width="80" height="100" rx="3" fill="#f7f9fb" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="350" y="34" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Lane B</text>
+    <circle cx="324" cy="70" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="337" cy="77" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="350" cy="84" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="363" cy="91" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="376" cy="98" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <rect x="430" y="14" width="80" height="100" rx="3" fill="#f7f9fb" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="470" y="34" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Lane C</text>
+    <circle cx="446" cy="70" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="470" cy="77" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="494" cy="84" r="5" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <rect x="40" y="140" width="60" height="30" rx="6" fill="#f3f3f3" stroke="#6b7780" stroke-width="1.5"/>
+    <text x="70" y="160" font-size="12" fill="#333333" text-anchor="middle" font-weight="bold">Turret</text>
+    <text x="280" y="194" font-size="12" fill="#5b6b78" text-anchor="middle">Order of lanes fired at:</text>
+    <rect x="80" y="202" width="34" height="16" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="97" y="214" font-size="11" fill="#1f3b52" text-anchor="middle" font-weight="bold">A</text>
+    <rect x="118" y="202" width="34" height="16" rx="3" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="135" y="214" font-size="11" fill="#1d5c3a" text-anchor="middle" font-weight="bold">B</text>
+    <rect x="156" y="202" width="34" height="16" rx="3" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="173" y="214" font-size="11" fill="#8a4526" text-anchor="middle" font-weight="bold">C</text>
+    <rect x="194" y="202" width="34" height="16" rx="3" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="211" y="214" font-size="11" fill="#1d5c3a" text-anchor="middle" font-weight="bold">B</text>
+    <rect x="232" y="202" width="34" height="16" rx="3" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="249" y="214" font-size="11" fill="#1d5c3a" text-anchor="middle" font-weight="bold">B</text>
+    <rect x="270" y="202" width="34" height="16" rx="3" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="287" y="214" font-size="11" fill="#1f3b52" text-anchor="middle" font-weight="bold">A</text>
+    <rect x="308" y="202" width="34" height="16" rx="3" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="325" y="214" font-size="11" fill="#1d5c3a" text-anchor="middle" font-weight="bold">B</text>
+    <rect x="346" y="202" width="34" height="16" rx="3" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="363" y="214" font-size="11" fill="#1d5c3a" text-anchor="middle" font-weight="bold">B</text>
+    <rect x="384" y="202" width="34" height="16" rx="3" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="401" y="214" font-size="11" fill="#1d5c3a" text-anchor="middle" font-weight="bold">B</text>
+    <text x="300" y="238" font-size="11" fill="#5b6b78" text-anchor="middle">first pulls try each lane, then the winning lane gets longer and longer stretches</text>
+</svg>
+            <div class="diagram-caption">The turret commits to a lane for a whole stretch before rescoring. The lane that keeps winning gets longer stretches each time.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">turret_ucb2.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node2D
+
+const ALPHA := 0.5
+
+@export var lanes: Array[Lane] = []
+var q: Array[float] = []
+var n: Array[int] = []
+var epoch: Array[int] = []
+var t := 0
+var current := 0
+var remaining := 0
+
+func _ready() -&gt; void:
+    for i in lanes.size():
+        q.append(0.0)
+        n.append(0)
+        epoch.append(0)
+
+func tau(r: int) -&gt; int:
+    return ceili(pow(1.0 + ALPHA, r))
+
+func choose() -&gt; int:
+    if remaining &gt; 0:
+        remaining -= 1
+        return current
+    for i in n.size():
+        if n[i] == 0:
+            current = i
+            return i
+    var best_score := -INF
+    for i in n.size():
+        var r := tau(epoch[i])
+        var bonus := sqrt((1.0 + ALPHA) * log(exp(1.0) * t / r) / (2.0 * r))
+        if q[i] + bonus &gt; best_score:
+            best_score = q[i] + bonus
+            current = i
+    remaining = tau(epoch[current] + 1) - tau(epoch[current]) - 1
+    epoch[current] += 1
+    return current
+
+func learn(arm: int, kills: float) -&gt; void:
+    t += 1
+    n[arm] += 1
+    q[arm] += (kills - q[arm]) / n[arm]
+</span>
+</div>
+        <p><strong>Takeaway.</strong> It is useful when switching is costly, such as a turret that has to rotate or a unit that has to walk across the map.</p>
+        <h4>7. KL-UCB: The Shopkeeper</h4>
+        <p><strong>The idea.</strong> UCB1's bonus ignores what kind of rewards you get. KL-UCB asks a sharper question: what is the largest true success rate that still makes my observed results not too surprising? Surprise is measured with Kullback-Leibler divergence, and the answer is found by bisection. It suits win or lose rewards best.</p>
+        <p><strong>The scenario.</strong> A shopkeeper pitches different wares and each customer either buys or does not. For every ware the code searches between the observed rate and 1.0 for the highest rate whose divergence from the observed rate fits inside a budget of <span class="code-lesson-il">ln t / n</span>, then pitches the ware with the highest bound.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 200" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar7" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao7" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <text x="280" y="16" font-size="12" fill="#5b6b78" text-anchor="middle">Observed rate (solid) and the highest rate that is still believable (light)</text>
+    <path d="M 140 170 L 460 170" fill="none" stroke="#8a8a8a" stroke-width="1.6"/>
+    <text x="140" y="188" font-size="11" fill="#5b6b78" text-anchor="middle">0</text>
+    <text x="300" y="188" font-size="11" fill="#5b6b78" text-anchor="middle">0.5</text>
+    <text x="460" y="188" font-size="11" fill="#5b6b78" text-anchor="middle">1</text>
+    <text x="60" y="54" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Ware A</text>
+    <text x="60" y="68" font-size="11" fill="#5b6b78" text-anchor="middle">8 of 10 sold</text>
+    <rect x="140" y="38" width="310.4" height="26" rx="3" fill="#bfe3cd" stroke="#2e8b57" stroke-width="1.5"/>
+    <rect x="140" y="38" width="256.0" height="26" rx="3" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="455.5" y="56" font-size="12" fill="#1f3b52" text-anchor="start" font-weight="bold">bound 0.97</text>
+    <text x="60" y="98" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Ware B</text>
+    <text x="60" y="112" font-size="11" fill="#5b6b78" text-anchor="middle">30 of 60 sold</text>
+    <rect x="140" y="82" width="201.6" height="26" rx="3" fill="#c9dceb" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="140" y="82" width="160.0" height="26" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="346.7" y="100" font-size="12" fill="#1f3b52" text-anchor="start">bound 0.63</text>
+    <text x="60" y="142" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Ware C</text>
+    <text x="60" y="156" font-size="11" fill="#5b6b78" text-anchor="middle">5 of 50 sold</text>
+    <rect x="140" y="126" width="76.8" height="26" rx="3" fill="#c9dceb" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="140" y="126" width="32.0" height="26" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="221.9" y="144" font-size="12" fill="#1f3b52" text-anchor="start">bound 0.24</text>
+</svg>
+            <div class="diagram-caption">Ware A has a high observed rate but only ten pitches, so its believable ceiling is the highest. The shopkeeper pitches it next.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">shopkeeper_klucb.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node
+
+@export var wares: Array[Ware] = []
+var wins: Array[int] = []
+var tries: Array[int] = []
+var t := 0
+
+func _ready() -&gt; void:
+    for i in wares.size():
+        wins.append(0)
+        tries.append(0)
+
+func kl(p: float, q: float) -&gt; float:
+    p = clampf(p, 1e-6, 1.0 - 1e-6)
+    q = clampf(q, 1e-6, 1.0 - 1e-6)
+    return p * log(p / q) + (1.0 - p) * log((1.0 - p) / (1.0 - q))
+
+func upper_bound(arm: int) -&gt; float:
+    var mean := float(wins[arm]) / tries[arm]
+    var budget := log(t) / tries[arm]
+    var low := mean
+    var high := 1.0
+    for step in 20:
+        var mid := (low + high) / 2.0
+        if kl(mean, mid) &gt; budget:
+            high = mid
+        else:
+            low = mid
+    return low
+
+func choose() -&gt; int:
+    for i in tries.size():
+        if tries[i] == 0:
+            return i
+    var best := 0
+    for i in tries.size():
+        if upper_bound(i) &gt; upper_bound(best):
+            best = i
+    return best
+
+func pitch() -&gt; void:
+    var arm := choose()
+    var sold: bool = wares[arm].customer_buys()
+    t += 1
+    tries[arm] += 1
+    if sold:
+        wins[arm] += 1
+</span>
+</div>
+        <p><strong>Takeaway.</strong> The bounds are tighter than UCB1's for yes or no outcomes, so it wastes fewer pitches. The price is a little extra math per decision.</p>
+        <h4>Bayesian strategies</h4>
+        <h4>8. Thompson Sampling: The Shooting Gallery</h4>
+        <p><strong>The idea.</strong> Thompson sampling keeps a belief about each arm, not just a single number. To choose, it draws one random guess from each belief and plays the arm whose guess is highest. Uncertain arms have wide beliefs, so they often produce high guesses and get tried; well-understood arms produce steady guesses. Probability matching does the exploring.</p>
+        <p><strong>The scenario.</strong> A fairground has several shooting booths, and every shot either hits or misses. The beliefs are Beta distributions built from hit and miss counts. To keep the GDScript short, the code draws from a normal curve with the same mean and spread as the Beta, using <span class="code-lesson-il">randfn()</span>.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 230" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar8" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao8" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <path d="M 60 170 L 500 170" fill="none" stroke="#8a8a8a" stroke-width="1.6"/>
+    <text x="60" y="186" font-size="11" fill="#5b6b78" text-anchor="middle">0</text>
+    <text x="280" y="186" font-size="11" fill="#5b6b78" text-anchor="middle">0.5</text>
+    <text x="500" y="186" font-size="11" fill="#5b6b78" text-anchor="middle">1</text>
+    <path d="M 60.0 170.0 L 64.4 170.0 L 68.8 170.0 L 73.2 170.0 L 77.6 170.0 L 82.0 170.0 L 86.4 170.0 L 90.8 170.0 L 95.2 170.0 L 99.6 170.0 L 104.0 170.0 L 108.4 170.0 L 112.8 170.0 L 117.2 170.0 L 121.6 170.0 L 126.0 170.0 L 130.4 170.0 L 134.8 170.0 L 139.2 170.0 L 143.6 170.0 L 148.0 170.0 L 152.4 170.0 L 156.8 170.0 L 161.2 170.0 L 165.6 170.0 L 170.0 170.0 L 174.4 170.0 L 178.8 170.0 L 183.2 170.0 L 187.6 170.0 L 192.0 170.0 L 196.4 170.0 L 200.8 170.0 L 205.2 170.0 L 209.6 170.0 L 214.0 170.0 L 218.4 170.0 L 222.8 170.0 L 227.2 170.0 L 231.6 170.0 L 236.0 170.0 L 240.4 170.0 L 244.8 170.0 L 249.2 170.0 L 253.6 170.0 L 258.0 170.0 L 262.4 170.0 L 266.8 170.0 L 271.2 170.0 L 275.6 170.0 L 280.0 170.0 L 284.4 169.9 L 288.8 169.8 L 293.2 169.7 L 297.6 169.3 L 302.0 168.8 L 306.4 167.8 L 310.8 166.3 L 315.2 163.8 L 319.6 160.2 L 324.0 155.1 L 328.4 148.2 L 332.8 139.4 L 337.2 128.7 L 341.6 116.5 L 346.0 103.3 L 350.4 90.1 L 354.8 78.1 L 359.2 68.5 L 363.6 62.2 L 368.0 60.0 L 372.4 62.2 L 376.8 68.5 L 381.2 78.1 L 385.6 90.1 L 390.0 103.3 L 394.4 116.5 L 398.8 128.7 L 403.2 139.4 L 407.6 148.2 L 412.0 155.1 L 416.4 160.2 L 420.8 163.8 L 425.2 166.3 L 429.6 167.8 L 434.0 168.8 L 438.4 169.3 L 442.8 169.7 L 447.2 169.8 L 451.6 169.9 L 456.0 170.0 L 460.4 170.0 L 464.8 170.0 L 469.2 170.0 L 473.6 170.0 L 478.0 170.0 L 482.4 170.0 L 486.8 170.0 L 491.2 170.0 L 495.6 170.0 L 500.0 170.0" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.8"/>
+    <path d="M 359.2 170 L 359.2 120" fill="none" stroke="#2e5a80" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <circle cx="359.2" cy="170" r="5" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="368" y="54" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">Booth A</text>
+    <path d="M 60.0 165.4 L 64.4 164.8 L 68.8 164.1 L 73.2 163.4 L 77.6 162.6 L 82.0 161.7 L 86.4 160.7 L 90.8 159.7 L 95.2 158.5 L 99.6 157.2 L 104.0 155.9 L 108.4 154.4 L 112.8 152.8 L 117.2 151.1 L 121.6 149.3 L 126.0 147.4 L 130.4 145.4 L 134.8 143.2 L 139.2 141.0 L 143.6 138.6 L 148.0 136.1 L 152.4 133.5 L 156.8 130.8 L 161.2 128.0 L 165.6 125.2 L 170.0 122.2 L 174.4 119.2 L 178.8 116.1 L 183.2 113.0 L 187.6 109.9 L 192.0 106.7 L 196.4 103.5 L 200.8 100.4 L 205.2 97.3 L 209.6 94.2 L 214.0 91.2 L 218.4 88.3 L 222.8 85.5 L 227.2 82.8 L 231.6 80.3 L 236.0 77.9 L 240.4 75.7 L 244.8 73.7 L 249.2 71.8 L 253.6 70.2 L 258.0 68.9 L 262.4 67.7 L 266.8 66.8 L 271.2 66.2 L 275.6 65.8 L 280.0 65.6 L 284.4 65.8 L 288.8 66.2 L 293.2 66.8 L 297.6 67.7 L 302.0 68.9 L 306.4 70.2 L 310.8 71.8 L 315.2 73.7 L 319.6 75.7 L 324.0 77.9 L 328.4 80.3 L 332.8 82.8 L 337.2 85.5 L 341.6 88.3 L 346.0 91.2 L 350.4 94.2 L 354.8 97.3 L 359.2 100.4 L 363.6 103.5 L 368.0 106.7 L 372.4 109.9 L 376.8 113.0 L 381.2 116.1 L 385.6 119.2 L 390.0 122.2 L 394.4 125.2 L 398.8 128.0 L 403.2 130.8 L 407.6 133.5 L 412.0 136.1 L 416.4 138.6 L 420.8 141.0 L 425.2 143.2 L 429.6 145.4 L 434.0 147.4 L 438.4 149.3 L 442.8 151.1 L 447.2 152.8 L 451.6 154.4 L 456.0 155.9 L 460.4 157.2 L 464.8 158.5 L 469.2 159.7 L 473.6 160.7 L 478.0 161.7 L 482.4 162.6 L 486.8 163.4 L 491.2 164.1 L 495.6 164.8 L 500.0 165.4" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.8"/>
+    <path d="M 416.4 170 L 416.4 70" fill="none" stroke="#2e8b57" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <circle cx="416.4" cy="170" r="5" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="280" y="120" font-size="12" fill="#1d5c3a" text-anchor="middle" font-weight="bold">Booth B</text>
+    <path d="M 60.0 168.8 L 64.4 168.4 L 68.8 167.8 L 73.2 167.1 L 77.6 166.3 L 82.0 165.2 L 86.4 163.8 L 90.8 162.2 L 95.2 160.2 L 99.6 157.9 L 104.0 155.1 L 108.4 151.9 L 112.8 148.2 L 117.2 144.1 L 121.6 139.4 L 126.0 134.3 L 130.4 128.7 L 134.8 122.7 L 139.2 116.5 L 143.6 109.9 L 148.0 103.3 L 152.4 96.6 L 156.8 90.1 L 161.2 83.9 L 165.6 78.1 L 170.0 72.9 L 174.4 68.5 L 178.8 64.8 L 183.2 62.2 L 187.6 60.5 L 192.0 60.0 L 196.4 60.5 L 200.8 62.2 L 205.2 64.8 L 209.6 68.5 L 214.0 72.9 L 218.4 78.1 L 222.8 83.9 L 227.2 90.1 L 231.6 96.6 L 236.0 103.3 L 240.4 109.9 L 244.8 116.5 L 249.2 122.7 L 253.6 128.7 L 258.0 134.3 L 262.4 139.4 L 266.8 144.1 L 271.2 148.2 L 275.6 151.9 L 280.0 155.1 L 284.4 157.9 L 288.8 160.2 L 293.2 162.2 L 297.6 163.8 L 302.0 165.2 L 306.4 166.3 L 310.8 167.1 L 315.2 167.8 L 319.6 168.4 L 324.0 168.8 L 328.4 169.1 L 332.8 169.3 L 337.2 169.5 L 341.6 169.7 L 346.0 169.8 L 350.4 169.8 L 354.8 169.9 L 359.2 169.9 L 363.6 169.9 L 368.0 170.0 L 372.4 170.0 L 376.8 170.0 L 381.2 170.0 L 385.6 170.0 L 390.0 170.0 L 394.4 170.0 L 398.8 170.0 L 403.2 170.0 L 407.6 170.0 L 412.0 170.0 L 416.4 170.0 L 420.8 170.0 L 425.2 170.0 L 429.6 170.0 L 434.0 170.0 L 438.4 170.0 L 442.8 170.0 L 447.2 170.0 L 451.6 170.0 L 456.0 170.0 L 460.4 170.0 L 464.8 170.0 L 469.2 170.0 L 473.6 170.0 L 478.0 170.0 L 482.4 170.0 L 486.8 170.0 L 491.2 170.0 L 495.6 170.0 L 500.0 170.0" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.8"/>
+    <path d="M 178.8 170 L 178.8 120" fill="none" stroke="#c0693f" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <circle cx="178.8" cy="170" r="5" fill="#c0693f" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="192" y="54" font-size="12" fill="#8a4526" text-anchor="middle" font-weight="bold">Booth C</text>
+    <text x="402" y="30" font-size="12" fill="#1d5c3a" text-anchor="end" font-weight="bold">highest draw: fire at B</text>
+    <text x="280" y="220" font-size="11" fill="#5b6b78" text-anchor="middle">curve: what we believe about each booth    dot: one random draw</text>
+</svg>
+            <div class="diagram-caption">Booth A is well understood, so its draws stay near 0.7. Booth B is a mystery, so its draws vary widely and this time one lands highest.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">shooting_gallery.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node2D
+
+@export var booths: Array[Booth] = []
+var hits: Array[int] = []
+var misses: Array[int] = []
+
+func _ready() -&gt; void:
+    for i in booths.size():
+        hits.append(0)
+        misses.append(0)
+
+func choose() -&gt; int:
+    var best := 0
+    var best_draw := -INF
+    for i in booths.size():
+        var a := hits[i] + 1.0
+        var b := misses[i] + 1.0
+        var mean := a / (a + b)
+        var spread := sqrt(a * b / ((a + b) * (a + b) * (a + b + 1.0)))
+        var draw := randfn(mean, spread)
+        if draw &gt; best_draw:
+            best_draw = draw
+            best = i
+    return best
+
+func learn(arm: int, hit: bool) -&gt; void:
+    if hit:
+        hits[arm] += 1
+    else:
+        misses[arm] += 1
+
+func fire() -&gt; void:
+    var arm := choose()
+    learn(arm, booths[arm].shoot())
+</span>
+</div>
+        <p><strong>Takeaway.</strong> There is no exploration constant to tune. This approximation is rough when counts are tiny, and an exact Beta sampler would be the next step.</p>
+        <h4>9. Bayes-UCB: The Room Director</h4>
+        <p><strong>The idea.</strong> Bayes-UCB keeps the same beliefs as Thompson sampling but chooses deterministically: it takes a high quantile of each belief as an optimistic estimate of the arm and plays the highest. It is UCB, but with the width taken from a probability distribution.</p>
+        <p><strong>The scenario.</strong> A roguelike room director chooses which room template to spawn next, hoping for the one players survive about half the time. Each template tracks rooms cleared and rooms failed. The upper bound is the mean plus <span class="code-lesson-il">sqrt(2 ln t)</span> standard deviations, a simple stand-in for an exact quantile.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 200" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar9" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao9" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <text x="94" y="18" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Template A</text>
+    <path d="M 14.0 130.0 L 15.6 130.0 L 17.2 130.0 L 18.8 130.0 L 20.4 130.0 L 22.0 130.0 L 23.6 130.0 L 25.2 130.0 L 26.8 130.0 L 28.4 130.0 L 30.0 130.0 L 31.6 130.0 L 33.2 130.0 L 34.8 130.0 L 36.4 130.0 L 38.0 130.0 L 39.6 130.0 L 41.2 130.0 L 42.8 130.0 L 44.4 130.0 L 46.0 130.0 L 47.6 130.0 L 49.2 130.0 L 50.8 130.0 L 52.4 130.0 L 54.0 130.0 L 55.6 130.0 L 57.2 130.0 L 58.8 130.0 L 60.4 130.0 L 62.0 130.0 L 63.6 130.0 L 65.2 130.0 L 66.8 130.0 L 68.4 130.0 L 70.0 130.0 L 71.6 130.0 L 73.2 130.0 L 74.8 130.0 L 76.4 130.0 L 78.0 130.0 L 79.6 130.0 L 81.2 130.0 L 82.8 130.0 L 84.4 130.0 L 86.0 130.0 L 87.6 130.0 L 89.2 130.0 L 90.8 130.0 L 92.4 130.0 L 94.0 130.0 L 95.6 129.9 L 97.2 129.9 L 98.8 129.8 L 100.4 129.5 L 102.0 129.1 L 103.6 128.4 L 105.2 127.3 L 106.8 125.5 L 108.4 122.9 L 110.0 119.2 L 111.6 114.2 L 113.2 107.8 L 114.8 100.0 L 116.4 91.1 L 118.0 81.5 L 119.6 71.9 L 121.2 63.2 L 122.8 56.2 L 124.4 51.6 L 126.0 50.0 L 127.6 51.6 L 129.2 56.2 L 130.8 63.2 L 132.4 71.9 L 134.0 81.5 L 135.6 91.1 L 137.2 100.0 L 138.8 107.8 L 140.4 114.2 L 142.0 119.2 L 143.6 122.9 L 145.2 125.5 L 146.8 127.3 L 148.4 128.4 L 150.0 129.1 L 151.6 129.5 L 153.2 129.8 L 154.8 129.9 L 156.4 129.9 L 158.0 130.0 L 159.6 130.0 L 161.2 130.0 L 162.8 130.0 L 164.4 130.0 L 166.0 130.0 L 167.6 130.0 L 169.2 130.0 L 170.8 130.0 L 172.4 130.0 L 174.0 130.0" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.8"/>
+    <path d="M 142.0 130.0 L 142.0 119.2 L 143.6 122.9 L 145.2 125.5 L 146.8 127.3 L 148.4 128.4 L 150.0 129.1 L 151.6 129.5 L 153.2 129.8 L 154.8 129.9 L 156.4 129.9 L 158.0 130.0 L 159.6 130.0 L 161.2 130.0 L 162.8 130.0 L 164.4 130.0 L 166.0 130.0 L 167.6 130.0 L 169.2 130.0 L 170.8 130.0 L 172.4 130.0 L 174.0 130.0 L 174.0 130.0" fill="#f1c9b4" stroke="#2e5a80" stroke-width="1"/>
+    <path d="M 14 130 L 174 130" fill="none" stroke="#8a8a8a" stroke-width="1.6"/>
+    <path d="M 142 134 L 142 40" fill="none" stroke="#c0693f" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <text x="94" y="152" font-size="12" fill="#1f3b52" text-anchor="middle">upper bound 0.80</text>
+    <text x="274" y="18" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Template B</text>
+    <path d="M 194.0 126.7 L 195.6 126.2 L 197.2 125.7 L 198.8 125.2 L 200.4 124.6 L 202.0 124.0 L 203.6 123.3 L 205.2 122.5 L 206.8 121.6 L 208.4 120.7 L 210.0 119.7 L 211.6 118.7 L 213.2 117.5 L 214.8 116.3 L 216.4 115.0 L 218.0 113.6 L 219.6 112.1 L 221.2 110.5 L 222.8 108.9 L 224.4 107.2 L 226.0 105.4 L 227.6 103.5 L 229.2 101.5 L 230.8 99.5 L 232.4 97.4 L 234.0 95.3 L 235.6 93.1 L 237.2 90.8 L 238.8 88.6 L 240.4 86.3 L 242.0 84.0 L 243.6 81.7 L 245.2 79.4 L 246.8 77.1 L 248.4 74.9 L 250.0 72.7 L 251.6 70.6 L 253.2 68.6 L 254.8 66.6 L 256.4 64.8 L 258.0 63.0 L 259.6 61.4 L 261.2 59.9 L 262.8 58.6 L 264.4 57.4 L 266.0 56.4 L 267.6 55.6 L 269.2 55.0 L 270.8 54.5 L 272.4 54.2 L 274.0 54.1 L 275.6 54.2 L 277.2 54.5 L 278.8 55.0 L 280.4 55.6 L 282.0 56.4 L 283.6 57.4 L 285.2 58.6 L 286.8 59.9 L 288.4 61.4 L 290.0 63.0 L 291.6 64.8 L 293.2 66.6 L 294.8 68.6 L 296.4 70.6 L 298.0 72.7 L 299.6 74.9 L 301.2 77.1 L 302.8 79.4 L 304.4 81.7 L 306.0 84.0 L 307.6 86.3 L 309.2 88.6 L 310.8 90.8 L 312.4 93.1 L 314.0 95.3 L 315.6 97.4 L 317.2 99.5 L 318.8 101.5 L 320.4 103.5 L 322.0 105.4 L 323.6 107.2 L 325.2 108.9 L 326.8 110.5 L 328.4 112.1 L 330.0 113.6 L 331.6 115.0 L 333.2 116.3 L 334.8 117.5 L 336.4 118.7 L 338.0 119.7 L 339.6 120.7 L 341.2 121.6 L 342.8 122.5 L 344.4 123.3 L 346.0 124.0 L 347.6 124.6 L 349.2 125.2 L 350.8 125.7 L 352.4 126.2 L 354.0 126.7" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.8"/>
+    <path d="M 338.0 130.0 L 338.0 119.7 L 339.6 120.7 L 341.2 121.6 L 342.8 122.5 L 344.4 123.3 L 346.0 124.0 L 347.6 124.6 L 349.2 125.2 L 350.8 125.7 L 352.4 126.2 L 354.0 126.7 L 354.0 130.0" fill="#bfe3cd" stroke="#2e8b57" stroke-width="1"/>
+    <path d="M 194 130 L 354 130" fill="none" stroke="#8a8a8a" stroke-width="1.6"/>
+    <path d="M 338 134 L 338 40" fill="none" stroke="#c0693f" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <text x="274" y="152" font-size="12" fill="#1d5c3a" text-anchor="middle" font-weight="bold">upper bound 0.90</text>
+    <text x="454" y="18" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Template C</text>
+    <path d="M 374.0 129.1 L 375.6 128.8 L 377.2 128.4 L 378.8 127.9 L 380.4 127.3 L 382.0 126.5 L 383.6 125.5 L 385.2 124.3 L 386.8 122.9 L 388.4 121.2 L 390.0 119.2 L 391.6 116.8 L 393.2 114.2 L 394.8 111.1 L 396.4 107.8 L 398.0 104.0 L 399.6 100.0 L 401.2 95.6 L 402.8 91.1 L 404.4 86.3 L 406.0 81.5 L 407.6 76.6 L 409.2 71.9 L 410.8 67.4 L 412.4 63.2 L 414.0 59.4 L 415.6 56.2 L 417.2 53.5 L 418.8 51.6 L 420.4 50.4 L 422.0 50.0 L 423.6 50.4 L 425.2 51.6 L 426.8 53.5 L 428.4 56.2 L 430.0 59.4 L 431.6 63.2 L 433.2 67.4 L 434.8 71.9 L 436.4 76.6 L 438.0 81.5 L 439.6 86.3 L 441.2 91.1 L 442.8 95.6 L 444.4 100.0 L 446.0 104.0 L 447.6 107.8 L 449.2 111.1 L 450.8 114.2 L 452.4 116.8 L 454.0 119.2 L 455.6 121.2 L 457.2 122.9 L 458.8 124.3 L 460.4 125.5 L 462.0 126.5 L 463.6 127.3 L 465.2 127.9 L 466.8 128.4 L 468.4 128.8 L 470.0 129.1 L 471.6 129.3 L 473.2 129.5 L 474.8 129.7 L 476.4 129.8 L 478.0 129.8 L 479.6 129.9 L 481.2 129.9 L 482.8 129.9 L 484.4 130.0 L 486.0 130.0 L 487.6 130.0 L 489.2 130.0 L 490.8 130.0 L 492.4 130.0 L 494.0 130.0 L 495.6 130.0 L 497.2 130.0 L 498.8 130.0 L 500.4 130.0 L 502.0 130.0 L 503.6 130.0 L 505.2 130.0 L 506.8 130.0 L 508.4 130.0 L 510.0 130.0 L 511.6 130.0 L 513.2 130.0 L 514.8 130.0 L 516.4 130.0 L 518.0 130.0 L 519.6 130.0 L 521.2 130.0 L 522.8 130.0 L 524.4 130.0 L 526.0 130.0 L 527.6 130.0 L 529.2 130.0 L 530.8 130.0 L 532.4 130.0 L 534.0 130.0" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.8"/>
+    <path d="M 454.0 130.0 L 454.0 119.2 L 455.6 121.2 L 457.2 122.9 L 458.8 124.3 L 460.4 125.5 L 462.0 126.5 L 463.6 127.3 L 465.2 127.9 L 466.8 128.4 L 468.4 128.8 L 470.0 129.1 L 471.6 129.3 L 473.2 129.5 L 474.8 129.7 L 476.4 129.8 L 478.0 129.8 L 479.6 129.9 L 481.2 129.9 L 482.8 129.9 L 484.4 130.0 L 486.0 130.0 L 487.6 130.0 L 489.2 130.0 L 490.8 130.0 L 492.4 130.0 L 494.0 130.0 L 495.6 130.0 L 497.2 130.0 L 498.8 130.0 L 500.4 130.0 L 502.0 130.0 L 503.6 130.0 L 505.2 130.0 L 506.8 130.0 L 508.4 130.0 L 510.0 130.0 L 511.6 130.0 L 513.2 130.0 L 514.8 130.0 L 516.4 130.0 L 518.0 130.0 L 519.6 130.0 L 521.2 130.0 L 522.8 130.0 L 524.4 130.0 L 526.0 130.0 L 527.6 130.0 L 529.2 130.0 L 530.8 130.0 L 532.4 130.0 L 534.0 130.0 L 534.0 130.0" fill="#f1c9b4" stroke="#2e5a80" stroke-width="1"/>
+    <path d="M 374 130 L 534 130" fill="none" stroke="#8a8a8a" stroke-width="1.6"/>
+    <path d="M 454 134 L 454 40" fill="none" stroke="#c0693f" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <text x="454" y="152" font-size="12" fill="#1f3b52" text-anchor="middle">upper bound 0.50</text>
+    <text x="280" y="188" font-size="11" fill="#5b6b78" text-anchor="middle">shaded: the optimistic top slice of each belief. Highest bound wins.</text>
+</svg>
+            <div class="diagram-caption">Each template gets a belief and an optimistic edge. The uncertain template B has the highest edge, so the director spawns it next.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">room_director_bayesucb.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node
+
+@export var templates: Array[PackedScene] = []
+var cleared: Array[int] = []
+var failed: Array[int] = []
+var t := 1
+
+func _ready() -&gt; void:
+    for i in templates.size():
+        cleared.append(0)
+        failed.append(0)
+
+func upper_quantile(arm: int) -&gt; float:
+    var a := cleared[arm] + 1.0
+    var b := failed[arm] + 1.0
+    var mean := a / (a + b)
+    var spread := sqrt(a * b / ((a + b) * (a + b) * (a + b + 1.0)))
+    return mean + sqrt(2.0 * log(t)) * spread
+
+func choose() -&gt; int:
+    var best := 0
+    for i in templates.size():
+        if upper_quantile(i) &gt; upper_quantile(best):
+            best = i
+    return best
+
+func spawn_next_room() -&gt; void:
+    var arm := choose()
+    var room := templates[arm].instantiate()
+    add_child(room)
+    room.finished.connect(_on_room_finished.bind(arm))
+
+func _on_room_finished(survived: bool, arm: int) -&gt; void:
+    t += 1
+    if survived:
+        cleared[arm] += 1
+    else:
+        failed[arm] += 1
+</span>
+</div>
+        <p><strong>Takeaway.</strong> Good when you want Bayesian beliefs but repeatable decisions, which helps when debugging.</p>
+        <h4>Contextual strategies</h4>
+        <h4>10. LinUCB: The NPC Choosing Attacks</h4>
+        <p><strong>The idea.</strong> Everything so far assumed the best arm is the same every time. A contextual bandit sees a description of the situation first. LinUCB assumes each arm's reward is a weighted sum of context numbers, learns those weights, and adds an uncertainty bonus that is large in situations it has not seen.</p>
+        <p><strong>The scenario.</strong> An NPC picks one of three attacks. The context is a <span class="code-lesson-il">Vector3</span>: how far away the player is, the player's health, and a constant 1. Each attack stores a 3 by 3 matrix <span class="code-lesson-il">a</span> (a <span class="code-lesson-il">Basis</span>) and a vector <span class="code-lesson-il">b</span>. The weights are <span class="code-lesson-il">a<sup>-1</sup> b</span>.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 210" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar10" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao10" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <circle cx="50" cy="70" r="22" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="50" y="74" font-size="12" fill="#8a4526" text-anchor="middle" font-weight="bold">NPC</text>
+    <circle cx="210" cy="70" r="22" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="210" y="74" font-size="11" fill="#1f3b52" text-anchor="middle" font-weight="bold">Player</text>
+    <path d="M 74 70 L 186 70" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#ar10)"/>
+    <text x="130" y="60" font-size="12" fill="#2e5a80" text-anchor="middle">distance 0.3</text>
+    <rect x="166" y="100" width="88" height="12" rx="3" fill="#fff" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="166" y="100" width="35.2" height="12" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="210" y="128" font-size="12" fill="#2e5a80" text-anchor="middle">health 0.4</text>
+    <rect x="30" y="160" width="240" height="34" rx="6" fill="#f1ecf7" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="150" y="182" font-size="13" fill="#45306a" text-anchor="middle" font-weight="bold">context x = [0.3, 0.4, 1]</text>
+    <path d="M 150 150 L 150 158" fill="none" stroke="#6a4c93" stroke-width="1.6"/>
+    <path d="M 280 100 L 330 100" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#ar10)"/>
+    <text x="360" y="52" font-size="13" fill="#1d5c3a" text-anchor="end" font-weight="bold">Sword</text>
+    <rect x="370" y="38" width="105" height="26" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="475" y="38" width="28" height="26" rx="3" fill="#bfe3cd" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="509" y="56" font-size="12" fill="#1f3b52" text-anchor="start" font-weight="bold">1.9</text>
+    <text x="360" y="102" font-size="13" fill="#1f3b52" text-anchor="end" font-weight="bold">Bow</text>
+    <rect x="370" y="88" width="56" height="26" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="426" y="88" width="21" height="26" rx="3" fill="#f1c9b4" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="453" y="106" font-size="12" fill="#1f3b52" text-anchor="start">1.1</text>
+    <text x="360" y="152" font-size="13" fill="#1f3b52" text-anchor="end" font-weight="bold">Spell</text>
+    <rect x="370" y="138" width="42" height="26" rx="3" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="412" y="138" width="14" height="26" rx="3" fill="#f1c9b4" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="432" y="156" font-size="12" fill="#1f3b52" text-anchor="start">0.8</text>
+    <text x="480" y="200" font-size="11" fill="#5b6b78" text-anchor="middle">estimate for this context + bonus</text>
+</svg>
+            <div class="diagram-caption">The NPC turns the situation into numbers, scores every attack for that exact situation, and picks the best. At another distance the ranking could flip.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">npc_linucb.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends CharacterBody2D
+
+const ALPHA := 0.8
+
+var a: Array[Basis] = []
+var b: Array[Vector3] = []
+
+func _ready() -&gt; void:
+    for i in 3:
+        a.append(Basis.IDENTITY)
+        b.append(Vector3.ZERO)
+
+func context(player: Node2D) -&gt; Vector3:
+    var distance := clampf(global_position.distance_to(player.global_position) / 400.0, 0.0, 1.0)
+    return Vector3(distance, player.health / 100.0, 1.0)
+
+func choose(x: Vector3) -&gt; int:
+    var best := 0
+    var best_score := -INF
+    for i in a.size():
+        var inverse := a[i].inverse()
+        var theta := inverse * b[i]
+        var score := theta.dot(x) + ALPHA * sqrt(x.dot(inverse * x))
+        if score &gt; best_score:
+            best_score = score
+            best = i
+    return best
+
+func learn(arm: int, x: Vector3, damage: float) -&gt; void:
+    a[arm] = Basis(a[arm].x + x * x.x, a[arm].y + x * x.y, a[arm].z + x * x.z)
+    b[arm] += x * damage
+</span>
+</div>
+        <p><strong>Takeaway.</strong> Close range might favor the sword and long range the bow; a plain bandit would average the two and learn neither.</p>
+        <h4>11. Contextual Thompson Sampling: The Difficulty Director</h4>
+        <p><strong>The idea.</strong> This is Thompson sampling with context. Instead of sampling a reward, the agent samples a whole set of plausible weights for each arm, scores the current context with them, and plays the best score. Unsure arms vary more and get tried.</p>
+        <p><strong>The scenario.</strong> A game director picks among three difficulty tweaks for a player and observes engagement. It uses the same <span class="code-lesson-il">a</span> and <span class="code-lesson-il">b</span> bookkeeping as LinUCB. To stay simple, it draws each weight independently using only the diagonal of the inverse matrix, which is an approximation.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 220" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar11" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao11" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <text x="96" y="18" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Mild tweak</text>
+    <rect x="14" y="28" width="164" height="130" rx="6" fill="#fff" stroke="#2e5a80" stroke-width="1.5"/>
+    <circle cx="96.3" cy="90.0" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="92.2" cy="90.7" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="103.6" cy="90.3" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="108.8" cy="98.8" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="96.6" cy="97.6" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="89.6" cy="94.2" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="97.8" cy="90.3" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="100.2" cy="78.5" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="103.1" cy="103.4" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="97.7" cy="97.0" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="91.8" cy="84.5" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="94.2" cy="105.7" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="98.5" cy="94.9" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="86.4" cy="99.0" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="90.9" cy="93.2" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="92.5" cy="92.5" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="111.1" cy="98.2" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="89.4" cy="94.6" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="105.0" cy="97.6" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="107.8" cy="101.5" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="87.5" cy="93.4" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="88.9" cy="97.0" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="99.7" cy="88.3" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="96.9" cy="94.8" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="107.0" cy="90.4" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="94.1" cy="85.1" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="99.28" cy="96.9" r="6" fill="#f1c9b4" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="96" cy="93" r="3" fill="#1f3b52" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="96" y="178" font-size="12" fill="#1f3b52" text-anchor="middle">draw scores 0.54</text>
+    <text x="278" y="18" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Hard tweak</text>
+    <rect x="196" y="28" width="164" height="130" rx="6" fill="#fff" stroke="#2e8b57" stroke-width="1.5"/>
+    <circle cx="229.1" cy="75.3" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="285.4" cy="80.3" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="240.9" cy="70.0" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="242.1" cy="97.0" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="224.7" cy="42.7" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="241.8" cy="47.0" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="275.3" cy="87.5" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="285.7" cy="72.2" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="266.3" cy="119.4" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="264.2" cy="54.4" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="279.2" cy="51.5" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="315.4" cy="68.2" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="332.9" cy="123.3" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="252.9" cy="152.0" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="291.2" cy="77.3" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="322.5" cy="90.5" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="172.0" cy="43.4" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="213.2" cy="116.3" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="255.3" cy="62.0" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="243.2" cy="74.7" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="172.0" cy="34.0" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="259.2" cy="76.6" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="282.7" cy="75.2" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="268.8" cy="106.5" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="257.5" cy="67.5" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="299.2" cy="83.4" r="2.2" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="294.4" cy="64.4" r="6" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5"/>
+    <circle cx="261.6" cy="80" r="3" fill="#1f3b52" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="278" y="178" font-size="12" fill="#1d5c3a" text-anchor="middle" font-weight="bold">draw scores 0.81</text>
+    <text x="460" y="18" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Story beat</text>
+    <rect x="378" y="28" width="164" height="130" rx="6" fill="#fff" stroke="#2e5a80" stroke-width="1.5"/>
+    <circle cx="477.9" cy="101.6" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="485.8" cy="103.3" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="472.3" cy="112.6" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="494.8" cy="102.2" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="476.7" cy="60.8" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="490.9" cy="94.9" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="478.9" cy="119.2" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="495.0" cy="107.1" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="477.3" cy="92.6" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="493.1" cy="102.9" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="476.7" cy="78.7" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="485.8" cy="119.3" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="488.7" cy="104.0" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="476.9" cy="97.1" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="480.2" cy="79.9" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="479.7" cy="102.7" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="495.4" cy="113.3" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="493.0" cy="106.8" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="495.8" cy="117.0" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="483.3" cy="126.8" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="469.2" cy="105.8" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="484.5" cy="80.3" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="506.5" cy="123.4" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="464.0" cy="89.7" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="483.6" cy="123.8" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="484.4" cy="120.6" r="2.2" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="468.2" cy="100.8" r="6" fill="#f1c9b4" stroke="#c0693f" stroke-width="1.5"/>
+    <circle cx="476.4" cy="106" r="3" fill="#1f3b52" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="460" y="178" font-size="12" fill="#1f3b52" text-anchor="middle">draw scores 0.50</text>
+    <text x="280" y="208" font-size="11" fill="#5b6b78" text-anchor="middle">small dots: plausible weights for each tweak. Large dot: the draw made now.</text>
+</svg>
+            <div class="diagram-caption">A tight cloud means the director is sure about that tweak. A wide cloud means unsure, so the single draw can land high, and the director tries it.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">director_cts.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node
+
+const SPREAD := 0.5
+
+var a: Array[Basis] = []
+var b: Array[Vector3] = []
+
+func _ready() -&gt; void:
+    for i in 3:
+        a.append(Basis.IDENTITY)
+        b.append(Vector3.ZERO)
+
+func sample_theta(arm: int) -&gt; Vector3:
+    var inverse := a[arm].inverse()
+    var mean := inverse * b[arm]
+    return Vector3(
+        randfn(mean.x, SPREAD * sqrt(inverse.x.x)),
+        randfn(mean.y, SPREAD * sqrt(inverse.y.y)),
+        randfn(mean.z, SPREAD * sqrt(inverse.z.z)))
+
+func choose(x: Vector3) -&gt; int:
+    var best := 0
+    var best_draw := -INF
+    for i in a.size():
+        var draw := sample_theta(i).dot(x)
+        if draw &gt; best_draw:
+            best_draw = draw
+            best = i
+    return best
+
+func learn(arm: int, x: Vector3, engagement: float) -&gt; void:
+    a[arm] = Basis(a[arm].x + x * x.x, a[arm].y + x * x.y, a[arm].z + x * x.z)
+    b[arm] += x * engagement
+</span>
+</div>
+        <p><strong>Takeaway.</strong> It often matches LinUCB in practice and needs one fewer bonus term, only a spread number to tune.</p>
+        <h4>Non-stationary strategies</h4>
+        <h4>12. Discounted UCB: The Courier</h4>
+        <p><strong>The idea.</strong> Everything above assumes the world holds still. If payoffs change, old data becomes misleading. Discounted UCB multiplies all stored totals and counts by a number slightly below 1 every step, so old pulls fade and recent ones matter most. A sliding window does the same by simply dropping data older than N pulls.</p>
+        <p><strong>The scenario.</strong> A courier chooses among roads whose speed changes as traffic builds and clears. After every trip all totals and weights shrink by <span class="code-lesson-il">GAMMA</span> = 0.98, then the chosen road gets a fresh full-weight observation. UCB runs on these discounted values.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 220" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar12" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao12" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <text x="140" y="18" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Traffic changes</text>
+    <text x="75" y="40" font-size="12" fill="#5b6b78" text-anchor="middle">Morning</text>
+    <rect x="20" y="60" width="28" height="90" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="34" y="166" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">A</text>
+    <rect x="56" y="100" width="28" height="50" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="70" y="166" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">B</text>
+    <rect x="92" y="120" width="28" height="30" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="106" y="166" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">C</text>
+    <text x="205" y="40" font-size="12" fill="#5b6b78" text-anchor="middle">Evening</text>
+    <rect x="150" y="130" width="28" height="20" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="164" y="166" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">A</text>
+    <rect x="186" y="100" width="28" height="50" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="200" y="166" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">B</text>
+    <rect x="222" y="60" width="28" height="90" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="236" y="166" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">C</text>
+    <path d="M 138 110 L 150 110" fill="none" stroke="#8a8a8a" stroke-width="1.6" marker-end="url(#ar12)"/>
+    <text x="140" y="190" font-size="11" fill="#5b6b78" text-anchor="middle">speed of roads A, B, C</text>
+    <text x="420" y="18" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Old trips count less</text>
+    <circle cx="320" cy="90" r="16" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="1"/>
+    <text x="320" y="125" font-size="12" fill="#1f3b52" text-anchor="middle">1.00</text>
+    <text x="320" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">newest</text>
+    <circle cx="370" cy="90" r="16" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.603465"/>
+    <text x="370" y="125" font-size="12" fill="#1f3b52" text-anchor="middle">0.60</text>
+    <text x="370" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">25 ago</text>
+    <circle cx="420" cy="90" r="16" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.36417"/>
+    <text x="420" y="125" font-size="12" fill="#1f3b52" text-anchor="middle">0.36</text>
+    <text x="420" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">50 ago</text>
+    <circle cx="470" cy="90" r="16" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.219764"/>
+    <text x="470" y="125" font-size="12" fill="#1f3b52" text-anchor="middle">0.22</text>
+    <text x="470" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">75 ago</text>
+    <circle cx="520" cy="90" r="16" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5" opacity="0.13262"/>
+    <text x="520" y="125" font-size="12" fill="#1f3b52" text-anchor="middle">0.13</text>
+    <text x="520" y="141" font-size="11" fill="#5b6b78" text-anchor="middle">100 ago</text>
+    <text x="420" y="168" font-size="12" fill="#5b6b78" text-anchor="middle">weight = 0.98 to the power of the trip age</text>
+    <text x="420" y="190" font-size="12" fill="#5b6b78" text-anchor="middle">so the courier relearns when roads change</text>
+</svg>
+            <div class="diagram-caption">When traffic swaps the best road, the old data fades away. A few recent trips are enough to convince the courier to change roads.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">courier_ducb.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends CharacterBody2D
+
+const GAMMA := 0.98
+const C := 1.0
+
+@export var roads: Array[Road] = []
+var total: Array[float] = []
+var weight: Array[float] = []
+
+func _ready() -&gt; void:
+    for i in roads.size():
+        total.append(0.0)
+        weight.append(0.0)
+
+func choose() -&gt; int:
+    for i in weight.size():
+        if weight[i] &lt; 0.001:
+            return i
+    var all_weight := 0.0
+    for w in weight:
+        all_weight += w
+    var best := 0
+    var best_score := -INF
+    for i in weight.size():
+        var score := total[i] / weight[i] + C * sqrt(log(all_weight) / weight[i])
+        if score &gt; best_score:
+            best_score = score
+            best = i
+    return best
+
+func learn(arm: int, speed: float) -&gt; void:
+    for i in weight.size():
+        total[i] *= GAMMA
+        weight[i] *= GAMMA
+    total[arm] += speed
+    weight[arm] += 1.0
+</span>
+</div>
+        <p><strong>Takeaway.</strong> The effective memory is about 1 / (1 - GAMMA) trips, here 50. Too short a memory makes the courier jumpy; too long and it stays loyal to a road that has jammed.</p>
+        <h4>Preference based strategies</h4>
+        <h4>13. Gradient Bandit: The Conveyor Robot</h4>
+        <p><strong>The idea.</strong> Every strategy so far estimates how much each arm pays. The gradient bandit instead learns a preference for each arm and turns the preferences into probabilities with softmax. After a reward, it raises the preference of the chosen arm if the reward beat a running average baseline and lowers it if not, and does the opposite for the others.</p>
+        <p><strong>The scenario.</strong> A robot sorts parcels into three bins. The bars in the HUD show its current probabilities, so you can watch the policy sharpen. The baseline is what lets it tell a good outcome from an ordinary one.</p>
+        <div class="diagram">
+<svg viewBox="0 0 560 244" style="max-width:560px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="ar13" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
+        </marker>
+        <marker id="ao13" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#c0693f" />
+        </marker>
+    </defs>
+    <rect x="20" y="20" width="200" height="30" rx="6" fill="#e6e9ec" stroke="#6b7780" stroke-width="1.5"/>
+    <rect x="34" y="26" width="30" height="18" rx="2" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <rect x="80" y="26" width="30" height="18" rx="2" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <rect x="126" y="26" width="30" height="18" rx="2" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <rect x="172" y="26" width="30" height="18" rx="2" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="120" y="66" font-size="11" fill="#5b6b78" text-anchor="middle">belt of parcels</text>
+    <rect x="240" y="16" width="70" height="38" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="275" y="40" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Robot</text>
+    <path d="M 222 35 L 238 35" fill="none" stroke="#2e5a80" stroke-width="1.6" marker-end="url(#ar13)"/>
+    <path d="M 310 35 L 375 60" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <rect x="350" y="80" width="50" height="110" rx="3" fill="none" stroke="#2e5a80" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <rect x="350" y="184.5" width="50" height="5.5" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="375" y="206" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">Bin 1</text>
+    <path d="M 310 35 L 445 60" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <rect x="420" y="80" width="50" height="110" rx="3" fill="none" stroke="#2e5a80" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <rect x="420" y="91" width="50" height="99" rx="3" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="445" y="206" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">Bin 2</text>
+    <path d="M 310 35 L 515 60" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <rect x="490" y="80" width="50" height="110" rx="3" fill="none" stroke="#2e5a80" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <rect x="490" y="184.5" width="50" height="5.5" rx="3" fill="#9db7cc" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="515" y="206" font-size="12" fill="#1f3b52" text-anchor="middle" font-weight="bold">Bin 3</text>
+    <text x="35" y="110" font-size="12" fill="#1f3b52" text-anchor="start" font-weight="bold">Reward above the average:</text>
+    <text x="35" y="128" font-size="12" fill="#1f3b52" text-anchor="start">raise the chosen bin, lower the rest.</text>
+    <text x="35" y="152" font-size="12" fill="#1f3b52" text-anchor="start" font-weight="bold">Reward below the average:</text>
+    <text x="35" y="170" font-size="12" fill="#1f3b52" text-anchor="start">do the opposite.</text>
+    <text x="455" y="238" font-size="11" fill="#5b6b78" text-anchor="middle">dashed: 100%    solid: chance after learning</text>
+</svg>
+            <div class="diagram-caption">The robot nudges its preferences after every parcel. Over time the probability bars slide toward the bin that keeps paying more than average.</div>
+        </div>
+<div class="code-block" data-lang="gdscript">
+<div class="code-block-header">
+<span class="code-block-filename">conveyor_robot.gd</span>
+<span class="code-block-lang">GDScript</span>
+</div>
+<span class="code-lesson-bl">extends Node
+
+const ALPHA := 0.1
+
+@onready var bars: Array[Node] = $HUD/Bars.get_children()
+var h: Array[float] = [0.0, 0.0, 0.0]
+var baseline := 0.0
+var steps := 0
+
+func policy() -&gt; Array[float]:
+    var top: float = h.max()
+    var pi: Array[float] = []
+    var total := 0.0
+    for x in h:
+        var w: float = exp(x - top)
+        pi.append(w)
+        total += w
+    for i in pi.size():
+        pi[i] /= total
+    return pi
+
+func choose() -&gt; int:
+    var roll := randf()
+    var pi := policy()
+    for i in pi.size():
+        roll -= pi[i]
+        if roll &lt;= 0.0:
+            return i
+    return pi.size() - 1
+
+func learn(arm: int, reward: float) -&gt; void:
+    steps += 1
+    baseline += (reward - baseline) / steps
+    var pi := policy()
+    var gap := ALPHA * (reward - baseline)
+    for i in h.size():
+        if i == arm:
+            h[i] += gap * (1.0 - pi[i])
+        else:
+            h[i] -= gap * pi[i]
+    pi = policy()
+    for i in bars.size():
+        bars[i].value = pi[i]
+</span>
+</div>
+        <p><strong>Takeaway.</strong> It works well when only relative differences matter. The baseline matters: without it, a uniformly positive reward would push up whichever arm happened to be chosen.</p>
+        <h4>Which one should I use?</h4>
+        <ul>
+            <li>A quick prototype or a stable game: epsilon-greedy or optimistic initial values.</li>
+            <li>Rewards that are wins or losses: Thompson sampling, or KL-UCB if you want deterministic choices.</li>
+            <li>The best option depends on the situation: LinUCB or contextual Thompson sampling.</li>
+            <li>Players or the world change over time: discounted UCB, or a constant step size in any of the others.</li>
+        </ul>
+
+        <h3>Part 6. Try It</h3>
         <ol>
             <li>Open <span class="code-lesson-il">main.gd</span> and change the numbers in <span class="code-lesson-il">PRESET</span>. Predict which machine becomes best before you run it, then confirm in the demo.</li>
             <li>In <span class="code-lesson-il">bandit_agent.gd</span> change the first line of <span class="code-lesson-il">setup()</span> so every <span class="code-lesson-il">q</span> starts at 20 instead of 0 (an <strong>optimistic start</strong>). Run a greedy agent (epsilon 0). Why does it explore even though epsilon is zero?</li>
@@ -212,7 +1379,6 @@
         <ol>
             <li>Label the Perceptor, Memory, Decider, Actuator and Environment in the bandit project, and name the file or function for each.</li>
             <li>Explain why <span class="code-lesson-il">BanditAgent</span> extends <span class="code-lesson-il">RefCounted</span> and contains no drawing code.</li>
-            <li>Describe what <span class="code-lesson-il">_draw()</span> does and what must happen for it to run again.</li>
             <li>Trace one click on a machine through <span class="code-lesson-il">do_pull()</span> and say which line changes the agent's memory.</li>
             <li>Explain how the speed slider can ask for hundreds of pulls per second without hundreds of timers.</li>
         </ol>
@@ -220,8 +1386,8 @@
         <h2>Exercises</h2>
         <h3>Warm-up</h3>
         <ol>
-            <li>Change the reel symbols and colors in <span class="code-lesson-il">bandit.gd</span>.</li>
-            <li>Make the HUD show the best machine's letter in a different color.</li>
+            <li>In the bee scenario, change <span class="code-lesson-il">EPSILON</span> to 0.3 and describe how the trips change.</li>
+            <li>In the cat scenario, drag the temperature slider from 0.01 to 5 and describe what the cat does at each end.</li>
         </ol>
         <h3>Intermediate</h3>
         <ol>

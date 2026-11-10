@@ -119,27 +119,21 @@ var agent:Node2D
 var perceptor:Perceptor
 var actuator:Actuator
 
-## Called once by the owning FSM after the whole tree is ready.
 func setup(fsm_ref:FSM, agent_ref:Node2D, perceptor_ref:Perceptor, actuator_ref:Actuator) -&gt; void:
 	fsm = fsm_ref
 	agent = agent_ref
 	perceptor = perceptor_ref
 	actuator = actuator_ref
 
-## Called once, the moment this state becomes the active state.
 func enter() -&gt; void:
 	pass
 
-## Called once, the moment this state stops being the active state.
 func exit() -&gt; void:
 	pass
 
-## Called every frame while this state is active.
 func update(_delta:float) -&gt; void:
 	pass
 
-## Perception hooks: the FSM forwards Perceptor signals to whichever state
-## is currently active, so each state decides for itself whether/how to react.
 func on_target_detected(_target:Node2D) -&gt; void:
 	pass
 
@@ -166,9 +160,6 @@ func on_target_lost(_target:Node2D) -&gt; void:
 </div>
 <span class="code-lesson-bl">@export var initial_state_name:StringName = &amp;""
 
-## Shared "working memory" a state can stash things in (e.g. which target to
-## chase) for another state to pick up later. Kept generic on purpose -- it's
-## the FSM equivalent of a behavior tree's blackboard.
 var focus_target:Node2D
 
 var current_state:FSMState
@@ -197,7 +188,6 @@ func _process(delta:float) -&gt; void:
 	if current_state != null:
 		current_state.update(delta)
 
-## The one and only way a state cartridge changes the active state.
 func transition_to(state_name:StringName) -&gt; void:
 	if not _states_by_name.has(state_name):
 		push_warning("FSM: no state named '%s' among children of %s" % [state_name, name])

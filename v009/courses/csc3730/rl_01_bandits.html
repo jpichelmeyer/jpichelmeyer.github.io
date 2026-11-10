@@ -185,58 +185,157 @@
         <p style="text-align:center"><strong>regret = sum over all pulls of (best value &minus; value of the arm chosen)</strong></p>
         <p>An agent that picks the best arm every time has zero regret. An agent that is still exploring pays some regret, and that is the price of learning. The goal of a bandit algorithm is to keep that total as small as possible.</p>
 
-        <h3>Part 6. Two More Strategies</h3>
-        <p>The strategy menu in the demo includes two others. <strong>Random</strong> is the always-explore baseline you computed above. <strong>UCB1</strong> (upper confidence bound) replaces coin flips with an idea sometimes called "optimism in the face of uncertainty." Each arm gets a score equal to its estimate plus a bonus that shrinks the more it has been tried:</p>
-        <p style="text-align:center"><strong>score = Q + c &times; sqrt( ln(t) / n )</strong></p>
-<div class="code-block" data-lang="gdscript">
-<div class="code-block-header">
-<span class="code-block-filename">bandit_agent.gd</span>
-<span class="code-block-lang">GDScript</span>
-</div>
-<span class="code-lesson-bl">func _ucb() -&gt; int:
-    for i in n_arms:
-        if n[i] == 0:
-            last_explore = true
-            return i
-    var best := -INF
-    var pick := 0
-    for i in n_arms:
-        var score := q[i] + UCB_C * sqrt(log(float(total_pulls)) / float(n[i]))
-        if score &gt; best:
-            best = score
-            pick = i
-    last_explore = pick != greedy()
-    return pick
-</span>
-</div>
+        <h3>Part 6. The Family Tree of Bandit Strategies</h3>
+        <p>Epsilon-greedy is only one answer to the explore or exploit question. Researchers have invented many others, and they sort into a handful of families by how they decide when to explore. The rest of this lesson walks through the tree one family at a time and explains each strategy with ideas first and code later.</p>
         <div class="diagram">
-<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <marker id="rlArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#2e5a80" />
-        </marker>
-    </defs>
-    <text x="140" y="22" font-size="13" fill="#1f3b52" text-anchor="middle" font-weight="bold">Arm X: well tested</text>
-    <rect x="40" y="36" width="48" height="30" fill="#2e5a80"/>
-    <rect x="88" y="36" width="33.72" height="30" fill="#b9d3e8"/>
-    <text x="129.72" y="56" font-size="12" fill="#1f3b52" text-anchor="start">Q 4.0 + bonus 2.8 = 6.8</text>
-    <text x="140" y="100" font-size="13" fill="#8a4526" text-anchor="middle" font-weight="bold">Arm Y: tried twice</text>
-    <rect x="40" y="114" width="36" height="30" fill="#c0693f"/>
-    <rect x="76" y="114" width="168.6" height="30" fill="#f1c9b4"/>
-    <text x="252.6" y="134" font-size="12" fill="#8a4526" text-anchor="start">Q 3.0 + bonus 14.1 = 17.1</text>
-
+<svg viewBox="0 0 760 300" style="max-width:760px" xmlns="http://www.w3.org/2000/svg">
+    <rect x="280" y="8" width="200" height="38" rx="8" fill="#1f3b52" stroke="#1f3b52" stroke-width="1.5"/>
+    <text x="380" y="32" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="bold">Bandit strategies</text>
+    <path d="M 380 46 L 380 66 M 80 66 L 680 66" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 80 66 L 80 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 80 128 L 80 272" fill="none" stroke="#2e5a80" stroke-width="1.5"/>
+    <rect x="10" y="88" width="140" height="40" rx="8" fill="#2e5a80" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="113" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Semi-uniform</text>
+    <rect x="15" y="150" width="130" height="28" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="168" font-size="14" fill="#1f3b52" text-anchor="middle">Epsilon-greedy</text>
+    <rect x="15" y="186" width="130" height="28" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="204" font-size="14" fill="#1f3b52" text-anchor="middle">Epsilon-decay</text>
+    <rect x="15" y="222" width="130" height="28" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="240" font-size="14" fill="#1f3b52" text-anchor="middle">Softmax</text>
+    <rect x="15" y="258" width="130" height="28" rx="6" fill="#eef4f9" stroke="#2e5a80" stroke-width="1.5"/>
+    <text x="80" y="276" font-size="14" fill="#1f3b52" text-anchor="middle">Optimistic start</text>
+    <path d="M 230 66 L 230 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 230 128 L 230 236" fill="none" stroke="#c0693f" stroke-width="1.5"/>
+    <rect x="160" y="88" width="140" height="40" rx="8" fill="#c0693f" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="230" y="113" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Optimistic bounds</text>
+    <rect x="165" y="150" width="130" height="28" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="230" y="168" font-size="14" fill="#8a4526" text-anchor="middle">UCB1</text>
+    <rect x="165" y="186" width="130" height="28" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="230" y="204" font-size="14" fill="#8a4526" text-anchor="middle">UCB2</text>
+    <rect x="165" y="222" width="130" height="28" rx="6" fill="#fbf1ea" stroke="#c0693f" stroke-width="1.5"/>
+    <text x="230" y="240" font-size="14" fill="#8a4526" text-anchor="middle">KL-UCB</text>
+    <path d="M 380 66 L 380 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 380 128 L 380 200" fill="none" stroke="#2e8b57" stroke-width="1.5"/>
+    <rect x="310" y="88" width="140" height="40" rx="8" fill="#2e8b57" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="380" y="113" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Bayesian</text>
+    <rect x="315" y="150" width="130" height="28" rx="6" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="380" y="168" font-size="14" fill="#1d5c3a" text-anchor="middle">Thompson</text>
+    <rect x="315" y="186" width="130" height="28" rx="6" fill="#eaf5ee" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="380" y="204" font-size="14" fill="#1d5c3a" text-anchor="middle">Bayes-UCB</text>
+    <path d="M 530 66 L 530 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 530 128 L 530 236" fill="none" stroke="#6a4c93" stroke-width="1.5"/>
+    <rect x="460" y="88" width="140" height="40" rx="8" fill="#6a4c93" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="530" y="105" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Contextual and</text>
+    <text x="530" y="120" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">non-stationary</text>
+    <rect x="465" y="150" width="130" height="28" rx="6" fill="#f1ecf7" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="530" y="168" font-size="14" fill="#45306a" text-anchor="middle">LinUCB</text>
+    <rect x="465" y="186" width="130" height="28" rx="6" fill="#f1ecf7" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="530" y="204" font-size="14" fill="#45306a" text-anchor="middle">Contextual TS</text>
+    <rect x="465" y="222" width="130" height="28" rx="6" fill="#f1ecf7" stroke="#6a4c93" stroke-width="1.5"/>
+    <text x="530" y="240" font-size="14" fill="#45306a" text-anchor="middle">Discounted UCB</text>
+    <path d="M 680 66 L 680 88" fill="none" stroke="#8a8a8a" stroke-width="1.5"/>
+    <path d="M 680 128 L 680 164" fill="none" stroke="#6b7780" stroke-width="1.5"/>
+    <rect x="610" y="88" width="140" height="40" rx="8" fill="#6b7780" stroke="#6b7780" stroke-width="1.5"/>
+    <text x="680" y="113" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">Preference based</text>
+    <rect x="615" y="150" width="130" height="28" rx="6" fill="#f3f3f3" stroke="#6b7780" stroke-width="1.5"/>
+    <text x="680" y="168" font-size="14" fill="#333333" text-anchor="middle">Gradient bandit</text>
 </svg>
-            <div class="diagram-caption">UCB scores after 52 pulls with c = 10 (dark: estimate, light: bonus). The rarely tried arm wins the next pull despite a lower estimate.</div>
+            <div class="diagram-caption">The family tree of bandit strategies. Each family answers the explore or exploit question in a different way.</div>
         </div>
-        <p>UCB has no randomness and no epsilon to tune. An arm gets pulled either because it looks good or because it is under-explored, and as the counts grow the bonuses fade. In the same 1000-run test it averaged 4.39 per pull and chose the best machine 60% of the time, better than any epsilon above. The constant <span class="code-lesson-il">c</span> is not free, though: it has to match the scale of the rewards, and with payouts up to 100 in this demo a value of 10 works well.</p>
 
-        <h3>Part 7. Try It</h3>
+        <h3>Part 7. Semi-Uniform Strategies</h3>
+        <p>These strategies use simple rules of thumb to split time between the best-looking arm and some form of random choice. They are the easiest to understand and the easiest to code.</p>
+        <h4>1. Epsilon-Greedy</h4>
+        <p><strong>The idea.</strong> With a small probability &epsilon;, pick any arm at random. Otherwise pick the arm with the highest estimate. You met this in Part 4.</p>
+        <p><strong>Picture it.</strong> You eat at your favorite restaurant most nights, but one night in ten you pick a place at random in case something better opened up.</p>
+        <p style="text-align:center"><strong>with probability &epsilon;: random arm; otherwise: arm with the highest Q</strong></p>
+        <p><strong>Strengths and limits.</strong> It is simple and surprisingly hard to beat for how little it costs. It explores blindly, though: a random pick is as likely to be a terrible arm as a promising one, and it keeps wasting about &epsilon; of its pulls forever.</p>
+        <h4>2. Epsilon-Decreasing (Decay)</h4>
+        <p><strong>The idea.</strong> Start with a large &epsilon; and shrink it as evidence builds. Early exploration is cheap and valuable because the agent knows nothing; late exploration costs real reward because the agent already knows a lot.</p>
+        <p><strong>Picture it.</strong> A new student arrives in town and tries a different lunch spot every day for the first weeks, then gradually settles into a routine.</p>
+        <p style="text-align:center"><strong>&epsilon;(t) = max(&epsilon;<sub>min</sub>, &epsilon;<sub>0</sub> &times; &gamma;<sup>t</sup>)</strong></p>
+        <p><strong>Strengths and limits.</strong> It fixes the long-term waste of fixed &epsilon;. You must choose the schedule by hand: decay too fast and the agent locks in early on a half-tested favorite; too slowly and it behaves like plain epsilon-greedy.</p>
+        <h4>3. Optimistic Initial Values</h4>
+        <p><strong>The idea.</strong> Use no random choices at all. Set every starting estimate higher than any real reward could be. Each real result is a disappointment that pulls its arm's estimate down, so the agent keeps moving on to arms that have not disappointed it yet.</p>
+        <p><strong>Picture it.</strong> Every job on the board is rumored to pay amazingly. You try one, it pays only average, so you try the next rumor, until reality has caught up with all of them.</p>
+        <p style="text-align:center"><strong>Q<sub>0</sub>(a) = a value above the best possible reward</strong></p>
+        <p><strong>Strengths and limits.</strong> It gives strong early exploration for free, but the effect is used up once every estimate has come down, so it copes poorly if payouts change later. The start value has to match the scale of your rewards.</p>
+        <h4>4. Softmax (Boltzmann Exploration)</h4>
+        <p><strong>The idea.</strong> Turn the estimates into probabilities. A higher estimate means a higher chance of being picked, but every arm keeps some chance. A <strong>temperature</strong> &tau; controls how sharp the preference is: a high &tau; is nearly random and a low &tau; is nearly greedy.</p>
+        <p><strong>Picture it.</strong> Choosing a dish by rolling a weighted die: the dish you love gets most of the faces, the so-so one gets a few, and the one that made you sick gets almost none.</p>
+        <p style="text-align:center"><strong>P(a) = e<sup>Q(a)/&tau;</sup> / sum of e<sup>Q(b)/&tau;</sup> over all arms b</strong></p>
+        <p><strong>Strengths and limits.</strong> It explores smartly: a second-best arm is tried more than a terrible one, which epsilon-greedy cannot do. The temperature must be tuned, and its right value depends on the reward scale.</p>
+        <h3>Part 8. Optimistic Bound Strategies</h3>
+        <p>These follow one principle, <strong>optimism in the face of uncertainty</strong>. Build a plausible upper limit for how good each arm could be, and play the arm with the highest limit. An arm has a high limit for one of two reasons: it looks good, or it is barely tested. Both are good reasons to pull it.</p>
+        <h4>5. UCB1 (Upper Confidence Bound)</h4>
+        <p><strong>The idea.</strong> Score each arm by its average plus a bonus that shrinks the more the arm has been pulled. The arm with the highest score is played. No randomness is needed.</p>
+        <p><strong>Picture it.</strong> You are choosing between a movie with three 5-star reviews and one with 500 reviews averaging 4.5. The first one could really be better or just lucky, so it deserves a look.</p>
+        <p style="text-align:center"><strong>score(a) = Q(a) + c &times; sqrt( ln(t) / n(a) )</strong></p>
+        <p><strong>Strengths and limits.</strong> It is deterministic and elegant, and it has strong mathematical guarantees. The constant c has to match the size of the rewards, and the method assumes the arms do not change over time.</p>
+        <h4>6. UCB2</h4>
+        <p><strong>The idea.</strong> A variant of UCB1 that works in <strong>epochs</strong>. After choosing an arm it commits to playing it a stretch of times in a row before looking at the scores again, and each stretch for the same arm is longer than the last.</p>
+        <p><strong>Picture it.</strong> A coach who picks a drill, runs it for a whole practice session, and only then reviews which drill to use next.</p>
+        <p style="text-align:center"><strong>arm a is played &tau;(r+1) &minus; &tau;(r) times, where &tau;(r) = ceiling of (1 + &alpha;)<sup>r</sup></strong></p>
+        <p><strong>Strengths and limits.</strong> It means far fewer score calculations and a more patient style, which helps when switching arms is expensive. The price is a slower reaction when a commitment turns out to be wrong.</p>
+        <h4>7. KL-UCB</h4>
+        <p><strong>The idea.</strong> UCB1 ignores what kind of rewards it is seeing. KL-UCB asks a sharper question: what is the largest true success rate that would still make my observed results believable? "Believable" is measured with Kullback-Leibler divergence, a number for how surprising one rate is under another.</p>
+        <p><strong>Picture it.</strong> A detective sees 3 wins in 10 tries and asks how high the real rate could be before 3 in 10 would look suspiciously unlucky.</p>
+        <p style="text-align:center"><strong>index(a) = largest q such that n(a) &times; KL(Q(a), q) &le; ln(t)</strong></p>
+        <p><strong>Strengths and limits.</strong> The bounds are tighter than UCB1's for win or lose rewards, so fewer pulls are wasted. It needs a little extra math, usually solved by a quick search for q.</p>
+        <h3>Part 9. Bayesian Strategies</h3>
+        <p>A Bayesian agent keeps an explicit <strong>belief</strong> about each arm, a probability distribution over how good it might be, and updates the belief as results arrive. For win or lose arms the belief is a Beta distribution built from the win and loss counts.</p>
+        <h4>8. Thompson Sampling</h4>
+        <p><strong>The idea.</strong> To choose, draw one random sample from every arm's belief and play the arm whose sample is highest. This is also called posterior sampling or probability matching.</p>
+        <p><strong>Picture it.</strong> Each arm hands you a hat full of numbers. A well-understood arm's hat has numbers all about the same. A mystery arm's hat has numbers all over the place, so you often pull out a surprisingly high one and give the arm a try.</p>
+        <p style="text-align:center"><strong>draw s(a) from Beta(1 + wins(a), 1 + losses(a)); play the arm with the largest s(a)</strong></p>
+        <p><strong>Strengths and limits.</strong> It is simple, has no exploration constant to tune, and is very widely used in industry. It is random, so two runs differ, and it needs a belief model that fits the rewards.</p>
+        <h4>9. Bayes-UCB</h4>
+        <p><strong>The idea.</strong> Use the same beliefs as Thompson sampling but choose deterministically: take a high quantile of each belief, such as its 95th percentile, as the arm's optimistic estimate and play the highest.</p>
+        <p><strong>Picture it.</strong> Instead of asking each arm for a random guess, you ask each one for its best-case number, the value it beats only 5 times in 100.</p>
+        <p style="text-align:center"><strong>index(a) = the quantile of arm a's belief at level 1 &minus; 1/t</strong></p>
+        <p><strong>Strengths and limits.</strong> It joins Bayesian beliefs to the clear structure of UCB, and the choices are repeatable, which helps debugging. The quantile can be awkward to compute exactly, so approximations are common.</p>
+        <h3>Part 10. Contextual and Non-Stationary Strategies</h3>
+        <p>So far, the best arm was the same every time and forever. These strategies relax that. A <strong>contextual</strong> bandit sees a description of the situation (a context) before choosing. A <strong>non-stationary</strong> bandit lives in a world where payoffs drift, so old data goes stale.</p>
+        <h4>10. LinUCB</h4>
+        <p><strong>The idea.</strong> Assume each arm's reward is a weighted sum of the context numbers. Learn the weights for each arm from experience, and add an uncertainty bonus that is large in situations the agent has not met before.</p>
+        <p><strong>Picture it.</strong> A game NPC picks an attack. At short range the sword works best and at long range the bow does, so a single average for each attack would hide the pattern. Knowing the distance fixes that.</p>
+        <p style="text-align:center"><strong>score(a) = &theta;(a) &middot; x + &alpha; &times; sqrt( x<sup>T</sup> A(a)<sup>-1</sup> x ), where &theta;(a) = A(a)<sup>-1</sup> b(a)</strong></p>
+        <p><strong>Strengths and limits.</strong> It is the standard choice for recommendation systems and personalization. Each update only adds one outer product to a small matrix: A += x x<sup>T</sup> and b += reward &times; x.</p>
+        <h4>11. Contextual Thompson Sampling</h4>
+        <p><strong>The idea.</strong> Thompson sampling with context. Instead of sampling a reward, sample a whole set of plausible weights for each arm, score the current context with them, and play the best score.</p>
+        <p><strong>Picture it.</strong> The same NPC, but instead of computing an optimistic score for each attack, it imagines one plausible version of how each attack really behaves and acts on that.</p>
+        <p style="text-align:center"><strong>sample &theta;~(a) from a distribution centered on &theta;(a); play the arm with the largest &theta;~(a) &middot; x</strong></p>
+        <p><strong>Strengths and limits.</strong> It blends context with Thompson's natural exploration, and often performs about as well as LinUCB. It has a spread number to tune and needs matrix math to sample correctly.</p>
+        <h4>12. Discounted and Sliding-Window Bandits</h4>
+        <p><strong>The idea.</strong> Make the agent forget. A discounted bandit multiplies all its stored totals and counts by a number slightly below 1 at every step, so old pulls fade away. A sliding window keeps only the last W pulls. Either one can then run UCB on what is left.</p>
+        <p><strong>Picture it.</strong> A delivery driver who trusts this week's traffic far more than last month's, because roads get jammed and clear again.</p>
+        <p style="text-align:center"><strong>total(a) and count(a) are multiplied by &gamma; (for example 0.98) every step, then the new result is added</strong></p>
+        <p><strong>Strengths and limits.</strong> These are essential when payoffs change with time, such as seasons or shifting player habits. The effective memory is about 1 / (1 &minus; &gamma;) steps; too short and the agent is jumpy, too long and it stays loyal to something that has stopped working.</p>
+        <h3>Part 11. A Different Idea: Preferences</h3>
+        <p>Every strategy above estimates how much each arm pays. One more important family does not estimate payoffs at all.</p>
+        <h4>13. Gradient Bandit</h4>
+        <p><strong>The idea.</strong> Keep a <strong>preference</strong> number for each arm and turn the preferences into probabilities with softmax. After each reward, compare it to the running average reward (the <strong>baseline</strong>). If the reward beat the baseline, raise the chosen arm's preference and lower the others; if it fell short, do the reverse.</p>
+        <p><strong>Picture it.</strong> A parent nudging a child's habits: praise what worked better than usual, discourage what worked worse than usual, and the habits drift toward better ones.</p>
+        <p style="text-align:center"><strong>H(a) += &alpha; &times; (reward &minus; baseline) &times; (1 &minus; P(a)), and for the other arms H(b) &minus;= &alpha; &times; (reward &minus; baseline) &times; P(b)</strong></p>
+        <p><strong>Strengths and limits.</strong> It works well when only relative differences matter. The baseline is what keeps it honest: without one, a reward that is always positive would raise whichever arm happened to be chosen.</p>
+        <h3>Part 12. Choosing a Strategy</h3>
+        <ul>
+            <li><strong>A quick prototype, or a stable situation:</strong> epsilon-greedy, or optimistic initial values.</li>
+            <li><strong>You want exploring that respects what you know:</strong> softmax.</li>
+            <li><strong>You want repeatable decisions with a proven guarantee:</strong> UCB1, and KL-UCB for win or lose rewards.</li>
+            <li><strong>Rewards are wins and losses and you want the best practical performance:</strong> Thompson sampling.</li>
+            <li><strong>The best arm depends on the situation:</strong> LinUCB or contextual Thompson sampling.</li>
+            <li><strong>The world drifts:</strong> discounted or sliding-window bandits, or a fixed step size instead of a running average.</li>
+        </ul>
+        <p>The demo above has only random, epsilon-greedy and UCB1 built in. In the third lesson of this unit you will see every algorithm in this family tree running as a small Godot scene.</p>
+
+        <h3>Part 13. Try It</h3>
         <ol>
             <li>Leave the true odds hidden. Pull the machines yourself, about 30 times, and write down which one you believe is best. Then reveal the odds. How close were you?</li>
             <li>Set the strategy to Epsilon-greedy with epsilon at 0. Turn on Auto-play at a high speed for a few thousand pulls. Press <span class="code-lesson-il">Forget</span> and repeat five times. How often does it find the best machine?</li>
             <li>Repeat with epsilon 0.1. Compare the final average reward and the regret.</li>
             <li>Press <span class="code-lesson-il">New bandits</span> and run your favorite setting again. Is the best setting still the best on a different set of machines?</li>
-            <li><em>Stretch:</em> switch to UCB1 and watch the <span class="code-lesson-il">n=</span> counts under each machine. In what order does it try the arms?</li>
+            <li>Switch to UCB1 and watch the <span class="code-lesson-il">n=</span> counts under each machine. In what order does it try the arms?</li>
         </ol>
         <h3>Checkpoint</h3>
         <p>Before moving on, make sure you can:</p>
@@ -246,6 +345,8 @@
             <li>Explain, in your own words, why a purely greedy agent can lock onto the wrong arm and never recover.</li>
             <li>Describe what epsilon controls, and what goes wrong with epsilon = 0 and epsilon = 1.</li>
             <li>Define regret and say why an agent that is still learning cannot have zero.</li>
+            <li>Name the four families in the family tree and say how each one handles exploration.</li>
+            <li>Explain which strategies need a context and which need a forgetting rule, and why.</li>
         </ol>
     <section class="exercises">
         <h2>Exercises</h2>

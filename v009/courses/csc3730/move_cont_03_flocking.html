@@ -69,7 +69,6 @@ func _on_detection_area_exited(area: Area2D) -> void:
 
 func _steer_flock(delta_passed: float) -> void:
 
-	# Nothing nearby: just wander until a neighbor shows up
 	if _neighbors.is_empty():
 		_rotation_wander(delta_passed)
 		_move_forward(delta_passed, RATE_MOVE)
@@ -87,13 +86,10 @@ func _steer_flock(delta_passed: float) -> void:
 		var offset: Vector2 = global_position - neighbor.global_position
 		var dist: float = offset.length()
 
-		# Separation: push away harder the closer a neighbor is, only within a tight radius
 		if dist > 0.0 and dist < FLOCK_SEPARATION_RADIUS:
 			separation += offset.normalized() / dist
 
-		# Alignment: match the average heading of neighbors
 		heading_sum += neighbor._get_agent_forward()
-		# Cohesion: drift toward the average position of neighbors
 		position_sum += neighbor.global_position
 		count += 1
 
@@ -121,8 +117,6 @@ const FLOCK_COHESION_WEIGHT: float = 0.9
 
 	var desired: Vector2 = Vector2.ZERO
 
-	# Instead of overwriting or aggressively adding normalized vectors,
-	# accumulate the weighted behaviors naturally
 	if separation.length_squared() > 0.0:
 		desired += separation.normalized() * FLOCK_SEPARATION_WEIGHT
 	if alignment.length_squared() > 0.0:
@@ -131,11 +125,9 @@ const FLOCK_COHESION_WEIGHT: float = 0.9
 		desired += cohesion.normalized() * FLOCK_COHESION_WEIGHT
 
 	if desired.length_squared() > 0.01:
-		# Cruise at maximum movement speed
 		var final_desired: Vector2 = desired.normalized() * RATE_MOVE
 		_apply_velocity(delta_passed, final_desired)
 	else:
-		# If no distinct steering desired, smoothly friction out to zero or wander
 		_apply_velocity(delta_passed, Vector2.ZERO)
 </span>
 </div>
@@ -149,16 +141,12 @@ const FLOCK_COHESION_WEIGHT: float = 0.9
 <span class="code-block-lang">GDScript</span>
 </div>
 <span class="code-lesson-bl">func _apply_velocity(delta_passed: float, desired_velocity: Vector2) -> void:
-	# 1. Smoothly transition the velocity (Inertia/Acceleration)
-	# Lower weight (e.g., 5.0) = wider, smoother turns. Higher = sharper turns.
 	var acceleration_speed: float = 8.0
 	velocity = velocity.lerp(desired_velocity, acceleration_speed * delta_passed)
 
-	# 2. Smoothly rotate the agent to face where it's going
 	if velocity.length_squared() > 0.01:
 		var target_rotation: float = Vector2(0, -1).angle_to(velocity)
 
-		# lerp_angle prevents the agent from spinning 360 degrees when crossing PI/-PI
 		var rotation_speed: float = 10.0
 		rotation = lerp_angle(rotation, target_rotation, rotation_speed * delta_passed)
 
@@ -180,9 +168,8 @@ const AGENT_SCENE: PackedScene = preload("res://scenes/agent.tscn")
 const AGENT_COUNT: int = 10
 const SPAWN_RADIUS: float = 500.0
 
-# Populate with agents
-const MIN_DISTANCE: float = 50.0 # Adjust this value as needed
-const MAX_ATTEMPTS: int = 100    # Prevents infinite loops if the area is full
+const MIN_DISTANCE: float = 50.0
+const MAX_ATTEMPTS: int = 100
 
 func _ready():
 
@@ -191,35 +178,28 @@ func _ready():
 		var valid_position: bool = false
 		var spawn_pos: Vector2 = Vector2.ZERO
 
-		# Attempt to find a clear spot
 		for attempt in range(MAX_ATTEMPTS):
-			# 1. Pick a random position
 			spawn_pos = Vector2(
 				randf_range(-SPAWN_RADIUS, SPAWN_RADIUS),
 				randf_range(-SPAWN_RADIUS, SPAWN_RADIUS)
 			)
 
-			# 2. Check distance against all agents already added to the tree
 			var too_close: bool = false
 			for other_agent in get_children():
 				if other_agent is Agent2D:
-					# distance_to is faster than manually calculating distances
 					if spawn_pos.distance_to(other_agent.position) < MIN_DISTANCE:
 						too_close = true
-						break # Stop checking other agents, this position failed
+						break
 
-			# 3. If the spot is clear, we found our position
 			if not too_close:
 				valid_position = true
 				break
 
-		# Optional: Skip spawning this agent if the map is too crowded
 		if not valid_position:
 			push_warning("Could not find a valid spawn position for agent ", i)
-			agent.queue_free() # Free the unused instance to prevent memory leaks
+			agent.queue_free()
 			continue
 
-		# Apply properties and add to scene
 		agent.position = spawn_pos
 		agent.rotation = randf_range(0.0, TAU)
 		agent.color = Color(randf_range(0.4, 0.9), randf_range(0.4, 0.9), randf_range(0.4, 0.9), 1.0)
