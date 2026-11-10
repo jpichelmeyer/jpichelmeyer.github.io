@@ -129,7 +129,7 @@ async function mount(host, footerHost) {
 }
 
 function projectList() {
-    return Array.isArray(window._plabProjects) ? window._plabProjects : [];
+    return Array.isArray(window._plabProjects) ? window._plabProjects.filter(p => p.status !== 'completed') : [];
 }
 
 function openFlyerDialog(cfg, prospect = false) {
@@ -209,7 +209,9 @@ function projectCardHtml(p) {
             </div>
             <p class="fl-card-desc">${esc(p.desc)}</p>
             <div class="fl-outcomes-head">Target Outcomes:</div>
-            <ul class="fl-outcomes">${p.outcomes.map(o => `<li>${esc(o)}</li>`).join('')}</ul>
+            <ul class="fl-outcomes">${p.outcomes.map(o => `<li>${esc(o)}</li>`).join('')}</ul>${p.news ? `
+            <div class="fl-outcomes-head">Latest:</div>
+            <div class="fl-desc-news">${esc(p.news[0].date)}: ${esc(p.news[0].html.replace(/<[^>]+>/g, ''))}</div>` : ''}
         </div>`;
 }
 
@@ -397,7 +399,8 @@ html, body { margin: 0; background: #d9d9d9; -webkit-print-color-adjust: exact; 
 .fl-deadline { font-weight: bold; font-size: 1.15em; text-align: right; }
 .fl-deadline span { background: #ffe58a; padding: 0 0.06in; }
 .fl-logistics { margin-top: 0.03in; font-style: italic; }
-.fl-prospect .fl-outcomes-head, .fl-prospect .fl-outcomes { display: none; }
+.fl-desc-news { font-size: 0.92em; }
+.fl-prospect .fl-outcomes-head, .fl-prospect .fl-outcomes, .fl-prospect .fl-desc-news { display: none; }
 .fl-why { margin: 0.02in 0 0.04in; font-size: 1.02em; }
 .fl-courses { display: grid; grid-template-columns: 1fr 1fr; gap: 0.06in 0.2in; }
 .fl-course { display: flex; gap: 0.08in; align-items: flex-start; }
