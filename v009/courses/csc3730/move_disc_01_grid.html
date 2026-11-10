@@ -160,7 +160,6 @@ func _draw() -> void:
 	var visual_size: float = cell_size - cell_visual_padding
 	var half_padding: float = cell_visual_padding * 0.5
 
-	# Draw underlying base grid
 	for x in range(grid_width):
 		for y in range(grid_height):
 			var cell := Vector2i(x, y)

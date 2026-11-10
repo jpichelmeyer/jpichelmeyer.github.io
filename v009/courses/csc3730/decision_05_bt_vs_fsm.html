@@ -22,8 +22,6 @@
 <span class="code-block-lang">GDScript</span>
 </div>
 <span class="code-lesson-bl">func _physics_process(delta):
-	# If RUNNING returned, tick directly to the running leaf 
-	#    without going through the whole tree again
 	"""
 	if response_last == RUNNING:
 		response_last = blackboard.board["Running leaf"].tick(actor, blackboard, delta)

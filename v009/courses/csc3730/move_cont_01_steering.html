@@ -65,7 +65,7 @@ func _process(delta: float) -> void:
 			else:
 				_rotation_wander(delta)
 				_move_forward(delta, RATE_MOVE)
-		_: # SteeringMode.WANDER, or a target-requiring mode with no target set
+		_:
 			_rotation_wander(delta)
 			_move_forward(delta, RATE_MOVE)
 
@@ -200,7 +200,6 @@ func _steer_arrive(delta_passed: float) -> void:
 		velocity = Vector2.ZERO
 		return
 
-	# Linearly ramp speed down inside the slow radius, full speed outside it
 	var speed: float = RATE_MOVE
 	if dist < ARRIVE_SLOW_RADIUS:
 		speed = RATE_MOVE * (dist / ARRIVE_SLOW_RADIUS)

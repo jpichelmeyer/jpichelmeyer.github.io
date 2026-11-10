@@ -23,8 +23,8 @@
 <span class="code-block-filename">path_grid.gd</span>
 <span class="code-block-lang">GDScript</span>
 </div>
-<span class="code-lesson-bl">@export var pheromone_evaporation_rate: float = 0.12   # strength lost per second
-@export var pheromone_visual_max: float = 6.0           # strength that reads as "fully lit"
+<span class="code-lesson-bl">@export var pheromone_evaporation_rate: float = 0.12
+@export var pheromone_visual_max: float = 6.0
 @export var show_pheromone: bool = true
 
 var pheromone: Dictionary = {}
@@ -79,12 +79,7 @@ func _process(delta: float) -> void:
 <span class="code-block-filename">path_grid.gd</span>
 <span class="code-block-lang">GDScript</span>
 </div>
-<span class="code-lesson-bl">	# Draw pheromone strength as a soft green glow. This layer changes
-	# continuously (every deposit, every evaporation tick), so it uses a
-	# plain draw_rect rather than a cached StyleBoxFlat: caching only pays
-	# off for the two static styles above, not a value that's different
-	# almost every cell, almost every frame.
-	if show_pheromone and not pheromone.is_empty():
+<span class="code-lesson-bl">	if show_pheromone and not pheromone.is_empty():
 		for cell in pheromone.keys():
 			var strength: float = clamp(pheromone[cell] / pheromone_visual_max, 0.0, 1.0)
 			if strength <= 0.01:
@@ -167,15 +162,15 @@ func _update_label() -> void:
 </div>
 <span class="code-lesson-bl">enum ForageState { SEARCHING, RETURNING }
 
-const FORAGE_MAX_STEPS: int = 400          # give up and reset if a search runs this long
-const FORAGE_DEPOSIT_TOTAL: float = 10.0   # split across the (pruned) outbound path on success
-const FORAGE_PHEROMONE_MIN: float = 0.05   # small baseline so unmarked cells are still choosable
+const FORAGE_MAX_STEPS: int = 400
+const FORAGE_DEPOSIT_TOTAL: float = 10.0
+const FORAGE_PHEROMONE_MIN: float = 0.05
 
 @export var nest: Node2D
 @export var food: Node2D
 
 var _forage_state: ForageState = ForageState.SEARCHING
-var _forage_out_path: Array[Vector2i] = []  # cells visited outbound, nest -> food
+var _forage_out_path: Array[Vector2i] = []
 var _forage_return_index: int = 0
 var _forage_steps: int = 0
 
@@ -309,7 +304,6 @@ func _deposit_pheromone_along(path: Array[Vector2i]) -> void:
 	if candidates.is_empty():
 		return current_cell
 
-	# Prefer not to immediately backtrack, unless it's the only option (a dead end)
 	var forward_candidates: Array[Vector2i] = []
 	for c in candidates:
 		if c != previous_cell:
@@ -317,10 +311,6 @@ func _deposit_pheromone_along(path: Array[Vector2i]) -> void:
 	if not forward_candidates.is_empty():
 		candidates = forward_candidates
 
-	# Weight = (pheromone here, plus a small baseline) * (closeness to food).
-	# Neither term alone is enough: pheromone with no heuristic can't get a
-	# colony started (nothing has pheromone yet), and closeness with no
-	# pheromone never improves on a single ant's first guess.
 	var weights: Array[float] = []
 	var total_weight: float = 0.0
 	for c in candidates:

@@ -247,13 +247,10 @@ var running_time: float = 0.0
 
 func _rotation_wander(delta_passed: float) -> void:
 
-	# Running time increase
 	running_time += delta_passed
 
-	# Adjust rate_rotation_wander (between -RATE_ROTATION_MAX and RATE_ROTATION_MAX)
 	rate_rotation_wander += delta_passed * cos(running_time) * RATE_ROTATION_MAX
 
-	# Rotate according to the adjusted rate_rotation_wander
 	rotation += delta_passed * rate_rotation_wander
 </span>
 </div>
@@ -265,7 +262,6 @@ func _rotation_wander(delta_passed: float) -> void:
 <span class="code-block-lang">GDScript</span>
 </div>
 <span class="code-lesson-bl">func _process(delta: float) -> void:
-	#_rotation_auto_simple(delta, RATE_ROTATION)
 	_rotation_wander(delta)
 	_move_forward(delta, RATE_MOVE)
 </span>

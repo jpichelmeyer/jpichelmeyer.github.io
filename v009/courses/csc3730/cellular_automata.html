@@ -131,9 +131,6 @@ func wrap_cell(x: int, y: int) -> Variant:
 	return count
 
 func step_generation() -> void:
-	# Conway's rules (B3/S23), computed into a fresh dictionary so every
-	# cell's next state is based on this generation, not one already
-	# half-updated by cells processed earlier in the same pass.
 	var next_alive: Dictionary = {}
 
 	for x in range(grid_width):
@@ -204,8 +201,6 @@ func _draw() -> void:
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
-	# _unhandled_input (rather than _input) means clicks on the UI buttons
-	# never reach here, Godot marks those as handled first.
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var local: Vector2 = get_global_mouse_position() - global_position
 		if local.x < 0 or local.y < 0:
