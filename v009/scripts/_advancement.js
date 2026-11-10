@@ -124,6 +124,10 @@ const PLAB_PROJECTS = [
         ],
         news: [
             { 
+                date: '2026 11 06', 
+                html: 'Initial drafts of Wisconsin Space Grant Consortium Early-Stage Investigator proposal created.' 
+            },
+            { 
                 date: '2026 11 03', 
                 html: 'Application route plotted.' 
             },
@@ -158,6 +162,28 @@ const PLAB_PROJECTS = [
             },
         ],
     },
+    {
+        icon: 'plab_hopeful_agent.svg',
+        track: 'applied',
+        status: 'active',
+        name: 'The Hopeful Agent',
+        desc: 'We explore work on how an agent can improve trust and cooperation with a low-trust, high-defection multi-agent iterative dilemma system.',
+        outcomes: [
+            'Submission of initial work to arXiv',
+            'Presentation at conferences on Artificial Intelligence and Evolutionary Game Theory', 
+            'Submission of work to a fitting journal for publication'
+        ],
+        news: [
+            { 
+                date: '2026 11 08', 
+                html: 'Initial draft of paper produced' 
+            },
+            { 
+                date: '2026 11 07', 
+                html: 'Experiments designed and run' 
+            },
+        ],
+    },
 ];
 
 const latestNews = p => (p.news || []).map(n => n.date).sort().pop() || '';
@@ -165,7 +191,62 @@ PLAB_PROJECTS.sort((a, b) => latestNews(b).localeCompare(latestNews(a)) || a.nam
 
 window._plabProjects = PLAB_PROJECTS;
 
-const COMMITTEES = [];
+const COMMITTEES = [
+    { ay: 'AY 2027-2028', items: [
+        { name: 'TBD' },
+    ]},
+    { ay: 'AY 2026-2027', items: [
+        { name: 'Curriculum Committee Oversight and Planning' },
+        { name: 'AI Advisory Quick-Turnaround Group', meta: 'Mahoney, Dinc, Anderson, Pichelmeyer' },
+    ]},
+];
+
+const ADVISING = [
+    { ay: 'AY 2026-2027', mine: 5, total: 84 },
+    { ay: 'AY 2027-2028', mine: 5, total: 85 },
+];
+
+const SCHOLARSHIP_AREAS = [
+    { key: 'discovery', name: 'Scholarship of Discovery', color: '#fbe3e3', blurb: 'Original research that creates new knowledge.' },
+    { key: 'integration', name: 'Scholarship of Integration', color: '#e2edfb', blurb: 'Connecting ideas across disciplines and placing them in wider context.' },
+    { key: 'teaching', name: 'Scholarship of Teaching', color: '#e3f4e0', blurb: 'Developing and sharing new ways of teaching and learning.' },
+    { key: 'application', name: 'Scholarship of Application and Engagement', color: '#fcf0d0', blurb: 'Applying expertise to practical problems, with students and the community.' },
+];
+
+const SCHOLARSHIP_ITEMS = [
+    { area: 'teaching', date: '', html: 'Created the course proposal for <b>CSC 2430 Artificial Life</b> from scratch and secured approval through the Department, Divisional Curriculum Committee, NSS Division vote, Curriculum Committee approvals, and Academic Senate, with discussion and support from the Biology department.' },
+    { area: 'teaching', date: '', html: 'Created the course proposal for <b>CSC 3630 Reinforcement Learning</b> from scratch and secured approval through the Department, Divisional Curriculum Committee, NSS Division vote, Curriculum Committee approvals, and Academic Senate, with discussion and support from the Mathematics department.' },
+    { area: 'teaching', date: '', html: 'Created the course proposal for <b>CSC 3830 Generative Artificial Intelligence</b> from scratch and secured approval through the Department, Divisional Curriculum Committee, NSS Division vote, Curriculum Committee approvals, and Academic Senate, with discussion and support from the Mathematics department.' },
+];
+
+const scholarshipItems = a => [
+    ...SCHOLARSHIP_ITEMS.filter(i => i.area === a.key),
+    ...PLAB_PROJECTS.filter(p => p.status !== 'future' && (p.track === 'research' ? 'discovery' : 'application') === a.key)
+        .flatMap(p => (p.news || []).map(n => ({ date: n.date, html: `<b>${esc(p.name)}:</b> ${n.html}` }))),
+].sort((x, y) => y.date.localeCompare(x.date));
+
+const RECRUITMENT = [
+    { label: 'AY 2026-2027 J-term', events: [
+        { date: '2027 01 18', day: 'Monday', name: 'Engineering and Computing Scholars Day' },
+    ]},
+    { label: 'AY 2026-2027 Fall', events: [
+        { date: '2026 11 11', day: 'Wednesday', name: 'Science and Engineering Career Fair' },
+        { date: '2026 10 24', day: 'Saturday', name: 'Science and Engineering Visit Day' },
+        { date: '2026 10 12', day: 'Monday', name: 'Explore Carthage' },
+    ]},
+];
+
+const AY_COLORS = ['#f4a7a7', '#f4c987', '#a9d8a0', '#9fd0e8', '#c6b0e6'];
+
+const byAY = (items, html) => items.reduce((g, t) => {
+    const k = t.label.slice(0, 12);
+    g.at(-1)?.k === k ? g.at(-1).t.push(t) : g.push({ k, t: [t] });
+    return g;
+}, []).map(g => `
+    <div class="inst-ay">
+        <div class="inst-ay-bar" style="background:${AY_COLORS[parseInt(g.k.slice(3)) % AY_COLORS.length]}">${esc(g.k)}</div>
+        <div class="inst-ay-terms">${g.t.map(html).join('')}</div>
+    </div>`).join('');
 
 function renderTeaching(prefixColors) {
     const pill = p => `<span class="curric-prefix-pill" style="background:${esc(prefixColors[p] || FALLBACK_PREFIX_COLOR)}">${esc(p)}</span>`;
@@ -188,11 +269,11 @@ function renderTeaching(prefixColors) {
                 ${g.courses.length ? g.courses.map(c => row({ ...c, name: c.nameShort })).join('') : `<div class="inst-empty">(None)</div>`}
             </div>`).join('')}
         </div>
-        <div class="taught_course_section_head">By Term</div>` + TERMS.map(t => `
+        <div class="taught_course_section_head">By Term</div>` + byAY(TERMS, t => `
         <div class="inst-term">
             <div class="inst-term-head">${esc(t.label)}</div>
             ${t.courses.length ? t.courses.map(row).join('') : `<div class="inst-empty">(None)</div>`}
-        </div>`).join('');
+        </div>`);
 }
 
 function renderScholarship() {
@@ -252,9 +333,22 @@ function renderScholarship() {
                 </div>`).join('')}
         </div>`).join('')}
         
+        <div class="taught_course_section_head">Scholarship Statement Areas</div>
+        <div class="inst-plab-grid">${SCHOLARSHIP_AREAS.map(a => `
+            <div class="inst-plab-card" style="background:${a.color}">
+                <div class="inst-plab-card-name">${esc(a.name)}</div>
+                <p class="inst-plab-card-desc">${esc(a.blurb)}</p>
+                <ul class="inst-plab-card-outcomes">${scholarshipItems(a).map(i => `<li>${i.date ? `<span class="curric-prefix-pill inst-plab-date">${esc(i.date)}</span> ` : ''}${i.html}</li>`).join('') || '<li>(Nothing yet)</li>'}</ul>
+            </div>`).join('')}
+        </div>
+
+        <div class="plab-footer">
+            <button type="button" class="plab-btn plab-btn-quiet" data-dossier="midpoint">Print third-year review packet&hellip;</button>
+            <button type="button" class="plab-btn plab-btn-quiet" data-dossier="tenure">Print tenure packet&hellip;</button>
+        </div>
         <div id="plab-footer"></div>`;
         
-    window._plabUI?.mount(document.getElementById('plab-actions'), document.getElementById('plab-footer'));
+    window._plabUI?.mount(document.getElementById('plab-actions') || document.createElement('div'), document.getElementById('plab-footer'));
 }
 
 function renderService() {
@@ -266,15 +360,23 @@ function renderService() {
             <a href="#" class="inst-link" id="inst-open-planner">Curriculum Planner</a>
             to see required and elective courses for each program side by side.
         </div>
-        <div class="taught_course_section_head">Committees</div>
-        <div class="inst-service-block">
-            ${COMMITTEES.length ? COMMITTEES.map(c => `
-                <div class="inst-committee">
-                    <span class="inst-committee-name">${esc(c.name)}</span>
-                    <span class="inst-committee-meta">${esc(c.role || '')}${c.years ? ', ' + esc(c.years) : ''}</span>
-                </div>`).join('')
-            : `<div class="inst-empty">No committee assignments listed yet.</div>`}
-        </div>`;
+        <div id="adv-plot"></div>
+        <div class="taught_course_section_head">Governance</div>
+        <div id="gov-diagram"></div>
+        ${COMMITTEES.map(c => `
+        <div class="inst-term">
+            <div class="inst-term-head">${esc(c.ay)}</div>
+            <ul class="inst-bullets">${c.items.map(i => `<li><b>${esc(i.name)}</b>${i.meta ? ` (${esc(i.meta)})` : ''}</li>`).join('')}</ul>
+        </div>`).join('')}
+        <div class="taught_course_section_head">Recruitment</div>
+        ${byAY(RECRUITMENT, t => `
+        <div class="inst-term">
+            <div class="inst-term-head">${esc(t.label)}</div>
+            ${t.events.map(e => `<div class="inst-committee inst-rec"><span class="curric-prefix-pill inst-rec-date">${esc(e.date)}</span> ${esc(e.day)}, ${esc(e.name)}</div>`).join('')}
+        </div>`)}`;
+
+    window._govUI?.advising(host.querySelector('#adv-plot'), ADVISING);
+    window._govUI?.diagram(host.querySelector('#gov-diagram'));
 
     host.querySelector('#inst-open-planner').addEventListener('click', (e) => {
         e.preventDefault();
@@ -284,6 +386,8 @@ function renderService() {
         if (row && !row.classList.contains('open')) row.querySelector('.proj-row-head')?.click();
     });
 }
+
+window._advData = { TERMS, CATEGORIES, COURSE_CATEGORY, PLAB_PROJECTS, SCHOLARSHIP_AREAS, scholarshipItems , COMMITTEES, ADVISING, RECRUITMENT };
 
 (async function initInstitution() {
     let prefixColors = {};
