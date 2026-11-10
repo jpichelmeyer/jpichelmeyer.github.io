@@ -192,12 +192,12 @@ PLAB_PROJECTS.sort((a, b) => latestNews(b).localeCompare(latestNews(a)) || a.nam
 window._plabProjects = PLAB_PROJECTS;
 
 const COMMITTEES = [
-    { ay: 'AY 2027-2028', items: [
-        { name: 'TBD' },
-    ]},
     { ay: 'AY 2026-2027', items: [
         { name: 'Curriculum Committee Oversight and Planning' },
         { name: 'AI Advisory Quick-Turnaround Group', meta: 'Mahoney, Dinc, Anderson, Pichelmeyer' },
+    ]},
+    { ay: 'AY 2027-2028', items: [
+        { name: 'TBD' },
     ]},
 ];
 
@@ -205,25 +205,6 @@ const ADVISING = [
     { ay: 'AY 2026-2027', mine: 5, total: 84 },
     { ay: 'AY 2027-2028', mine: 5, total: 85 },
 ];
-
-const SCHOLARSHIP_AREAS = [
-    { key: 'discovery', name: 'Scholarship of Discovery', color: '#fbe3e3', blurb: 'Original research that creates new knowledge.' },
-    { key: 'integration', name: 'Scholarship of Integration', color: '#e2edfb', blurb: 'Connecting ideas across disciplines and placing them in wider context.' },
-    { key: 'teaching', name: 'Scholarship of Teaching', color: '#e3f4e0', blurb: 'Developing and sharing new ways of teaching and learning.' },
-    { key: 'application', name: 'Scholarship of Application and Engagement', color: '#fcf0d0', blurb: 'Applying expertise to practical problems, with students and the community.' },
-];
-
-const SCHOLARSHIP_ITEMS = [
-    { area: 'teaching', date: '', html: 'Created the course proposal for <b>CSC 2430 Artificial Life</b> from scratch and secured approval through the Department, Divisional Curriculum Committee, NSS Division vote, Curriculum Committee approvals, and Academic Senate, with discussion and support from the Biology department.' },
-    { area: 'teaching', date: '', html: 'Created the course proposal for <b>CSC 3630 Reinforcement Learning</b> from scratch and secured approval through the Department, Divisional Curriculum Committee, NSS Division vote, Curriculum Committee approvals, and Academic Senate, with discussion and support from the Mathematics department.' },
-    { area: 'teaching', date: '', html: 'Created the course proposal for <b>CSC 3830 Generative Artificial Intelligence</b> from scratch and secured approval through the Department, Divisional Curriculum Committee, NSS Division vote, Curriculum Committee approvals, and Academic Senate, with discussion and support from the Mathematics department.' },
-];
-
-const scholarshipItems = a => [
-    ...SCHOLARSHIP_ITEMS.filter(i => i.area === a.key),
-    ...PLAB_PROJECTS.filter(p => p.status !== 'future' && (p.track === 'research' ? 'discovery' : 'application') === a.key)
-        .flatMap(p => (p.news || []).map(n => ({ date: n.date, html: `<b>${esc(p.name)}:</b> ${n.html}` }))),
-].sort((x, y) => y.date.localeCompare(x.date));
 
 const RECRUITMENT = [
     { label: 'AY 2026-2027 J-term', events: [
@@ -333,22 +314,9 @@ function renderScholarship() {
                 </div>`).join('')}
         </div>`).join('')}
         
-        <div class="taught_course_section_head">Scholarship Statement Areas</div>
-        <div class="inst-plab-grid">${SCHOLARSHIP_AREAS.map(a => `
-            <div class="inst-plab-card" style="background:${a.color}">
-                <div class="inst-plab-card-name">${esc(a.name)}</div>
-                <p class="inst-plab-card-desc">${esc(a.blurb)}</p>
-                <ul class="inst-plab-card-outcomes">${scholarshipItems(a).map(i => `<li>${i.date ? `<span class="curric-prefix-pill inst-plab-date">${esc(i.date)}</span> ` : ''}${i.html}</li>`).join('') || '<li>(Nothing yet)</li>'}</ul>
-            </div>`).join('')}
-        </div>
-
-        <div class="plab-footer">
-            <button type="button" class="plab-btn plab-btn-quiet" data-dossier="midpoint">Print third-year review packet&hellip;</button>
-            <button type="button" class="plab-btn plab-btn-quiet" data-dossier="tenure">Print tenure packet&hellip;</button>
-        </div>
         <div id="plab-footer"></div>`;
         
-    window._plabUI?.mount(document.getElementById('plab-actions') || document.createElement('div'), document.getElementById('plab-footer'));
+    window._plabUI?.mount(document.getElementById('plab-actions'), document.getElementById('plab-footer'));
 }
 
 function renderService() {
@@ -366,13 +334,17 @@ function renderService() {
         ${COMMITTEES.map(c => `
         <div class="inst-term">
             <div class="inst-term-head">${esc(c.ay)}</div>
-            <ul class="inst-bullets">${c.items.map(i => `<li><b>${esc(i.name)}</b>${i.meta ? ` (${esc(i.meta)})` : ''}</li>`).join('')}</ul>
+            ${c.items.map(i => `
+                <div class="inst-committee">
+                    <span class="inst-committee-name">${esc(i.name)}</span>
+                    <span class="inst-committee-meta">${esc(i.meta || '')}</span>
+                </div>`).join('')}
         </div>`).join('')}
         <div class="taught_course_section_head">Recruitment</div>
         ${byAY(RECRUITMENT, t => `
         <div class="inst-term">
             <div class="inst-term-head">${esc(t.label)}</div>
-            ${t.events.map(e => `<div class="inst-committee inst-rec"><span class="curric-prefix-pill inst-rec-date">${esc(e.date)}</span> ${esc(e.day)}, ${esc(e.name)}</div>`).join('')}
+            ${t.events.map(e => `<div class="inst-committee"><span class="curric-prefix-pill inst-plab-date">${esc(e.date)}</span> ${esc(e.day)}, ${esc(e.name)}</div>`).join('')}
         </div>`)}`;
 
     window._govUI?.advising(host.querySelector('#adv-plot'), ADVISING);
@@ -386,8 +358,6 @@ function renderService() {
         if (row && !row.classList.contains('open')) row.querySelector('.proj-row-head')?.click();
     });
 }
-
-window._advData = { TERMS, CATEGORIES, COURSE_CATEGORY, PLAB_PROJECTS, SCHOLARSHIP_AREAS, scholarshipItems , COMMITTEES, ADVISING, RECRUITMENT };
 
 (async function initInstitution() {
     let prefixColors = {};

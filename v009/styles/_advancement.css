@@ -182,9 +182,6 @@
 .inst-link { color: var(--color-accent-advancement); font-weight: bold; }
 .inst-committee { display: flex; gap: 10px; padding: 3px 0; }
 .inst-committee-name { color: var(--ink); font-weight: bold; }
-.inst-bullets { margin: 0; padding-left: 18px; list-style: disc; font-size: calc(10.5px * var(--mod-font-size)); line-height: 1.5; color: var(--ink-soft); }
-.inst-rec { font-size: calc(10.5px * var(--mod-font-size)); align-items: baseline; }
-.inst-rec .inst-rec-date { background: #f9e3e3; }
 .inst-committee-meta { color: var(--ink-faint); }
 
 @media (max-width: 600px) {
