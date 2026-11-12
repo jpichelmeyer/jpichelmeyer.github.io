@@ -20,7 +20,11 @@ window._mountGodotProject = function (container, path) {
             <iframe src="${path}" loading="lazy"
                 allow="autoplay; fullscreen; gamepad"
                 referrerpolicy="no-referrer"></iframe>
-        </div>`;
+        </div>
+        <button type="button" class="godot-fs-btn">Full screen</button>`;
+    container.querySelector('.godot-fs-btn').addEventListener('click', () => {
+        container.querySelector('iframe').requestFullscreen();
+    });
 };
 
 window._mountBlazorProject = window._mountGodotProject;

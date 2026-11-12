@@ -54,6 +54,7 @@
         controls.appendChild(makeButton('Start', start));
         controls.appendChild(makeButton('Stop', () => { userStopped = true; stop(); }));
         controls.appendChild(makeButton('Reset', reset));
+        controls.appendChild(makeButton('Full screen', () => { if (iframe) iframe.requestFullscreen(); }));
 
         root.innerHTML = '';
         root.appendChild(stage);
