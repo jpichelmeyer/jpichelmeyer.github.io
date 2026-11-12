@@ -21,6 +21,18 @@
     display: block;
 }
 
+.godot-fs-btn {
+    margin-top: 8px;
+    font-family: var(--sans);
+    font-size: calc(13px * var(--mod-font-size));
+    padding: 6px 14px;
+    border-radius: var(--border-radius2);
+    border: 1px solid var(--panel-bd);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
 .proj-list { display: flex; flex-direction: column; }
 
 .proj-row {
