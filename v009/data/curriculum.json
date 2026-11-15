@@ -60,242 +60,443 @@
         
       ]
     },
-    "bio": {
+    "bio1110": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "1110",
+      "title": "Molecules, Cells, and Organisms (SE)",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio1120": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "1120",
+      "title": "Organisms, Populations, and Systems",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2010": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2010",
+      "title": "Human Anatomy and Physiology for the Health Professional I",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2020": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2020",
+      "title": "Human Anatomy and Physiology for the Health Professional II",
+      "prereqs": [
+        "bio2010"
+      ]
+    },
+    "bio2030": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "2030",
+      "title": "Introductory Microbiology for the Health Professional",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2100": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2100",
+      "title": "Reflections in Biology",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2110": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2110",
+      "title": "Reflections in Biotechnology I",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2120": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2120",
+      "title": "Reflections in Biotechnology II",
+      "prereqs": [
+        "bio2110"
+      ]
+    },
+    "bio2200": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "2200",
+      "title": "Introduction to Ecology",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2300": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2300",
+      "title": "Cell Biology",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2330": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2330",
+      "title": "Vertebrte Field Paleontology (SE)",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2400": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2400",
+      "title": "Genetics",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio2500": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "2500",
+      "title": "Medical Ethnobotony",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2650": {
       "prefixes": [
-        "BIO"
+        "BIO",
+        "ENV"
       ],
-      "number": "",
-      "title": "",
+      "number": "2650",
+      "title": "Photographing Nature Investigating Biodiversity and Conservation (SE) (IDP)",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio2810": {
       "prefixes": [
-        "BIO"
+        "BIO",
+        "GEO"
       ],
-      "number": "",
-      "title": "",
+      "number": "2810",
+      "title": "Geography and Biology of China",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio3050": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "3050",
+      "title": "Plant Physiology",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio3100": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3100",
+      "title": "General Ecology",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio3200": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3200",
+      "title": "Aquatic Ecology",
+      "prereqs": [
+        "bio1110",
+        "bio1120",
+        "env1000"
+      ]
+    },
+    "bio3210": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3210",
+      "title": "Animal Behavior",
+      "prereqs": [
+        "bio1110",
+        "bio1120",
+        "env1000"
+      ]
+    },
+    "bio3300": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3300",
+      "title": "Advanced Human Anatomical Systems",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio3310": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3310",
+      "title": "Advanced uman Physiological Systems",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio3320": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3320",
+      "title": "Entomology",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio3330": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3330",
+      "title": "Comparative Anatomy of Vertebrates",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio3340": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3340",
+      "title": "Microbiology",
+      "prereqs": [
+        "bio2400"
+      ]
+    },
+    "bio3350": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3350",
+      "title": "Parasitology",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio3400": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3400",
+      "title": "Conservation Science",
+      "prereqs": [
+        "bio1120",
+        "env1000"
+      ]
+    },
+    "bio3450": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3450",
+      "title": "Bioinformatics: Phage Hunters II (OC)",
+      "prereqs": [
+        "bio1110"
+      ]
+    },
+    "bio3500": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "3500",
+      "title": "Advanced Cell Biology",
+      "prereqs": [
+        "bio1110",
+        "bio1120"
+      ]
+    },
+    "bio4100": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4100",
+      "title": "Biostatistics (QR)",
+      "prereqs": [
+        "bio2400"
+      ]
+    },
+    "bio4120": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4120",
+      "title": "Senior Seminar in Biology",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "bio4130": {
       "prefixes": [
         "BIO"
       ],
-      "number": "",
-      "title": "",
+      "number": "4130",
+      "title": "Senior Seminar in Biotechnology",
+      "prereqs": [
+        "bio2110",
+        "bio2120"
+      ]
+    },
+    "bio4150": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4150",
+      "title": "Field Botany and Mycology",
+      "prereqs": [
+        "bio1120",
+        "env1000"
+      ]
+    },
+    "bio4200": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4200",
+      "title": "Advanced Ecology",
+      "prereqs": [
+        "bio1110",
+        "bio1120",
+        "env1000"
+      ]
+    },
+    "bio4250": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4250",
+      "title": "Global Change Biology (OC) (ITL)",
+      "prereqs": [
+        "bio1120",
+        "env1000"
+      ]
+    },
+    "bio4300": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4300",
+      "title": "Immunology (OC)",
+      "prereqs": [
+        "bio2400"
+      ]
+    },
+    "bio4310": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4310",
+      "title": "Developmental Biology",
+      "prereqs": [
+        "bio2400"
+      ]
+    },
+    "bio4350": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4350",
+      "title": "Dinosaur Evolution and Extinction",
+      "prereqs": [
+        "bio"
+      ]
+    },
+    "bio4400": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4400",
+      "title": "Molecular Biology of Cancer",
+      "prereqs": [
+        "bio2400"
+      ]
+    },
+    "bio4420": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4420",
+      "title": "Comparative Physiology",
+      "prereqs": [
+        "bio2400"
+      ]
+    },
+    "bio4600": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4600",
+      "title": "Molecular Biology Techniques",
+      "prereqs": [
+        "bio2400"
+      ]
+    },
+    "bio4900": {
+      "prefixes": [
+        "BIO"
+      ],
+      "number": "4900",
+      "title": "Research in Biology",
       "prereqs": [
         
       ]
     },
-    "bio": {
+    "chm1000": {
       "prefixes": [
-        "BIO"
+        "CHM"
       ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
-      "prereqs": [
-        
-      ]
-    },
-    "bio": {
-      "prefixes": [
-        "BIO"
-      ],
-      "number": "",
-      "title": "",
+      "number": "1000",
+      "title": "Better Living Through Chemistry (SE)",
       "prereqs": [
         
       ]
@@ -305,8 +506,202 @@
         "CHM"
       ],
       "number": "1010",
-      "title": "General Chemistry I",
+      "title": "General Chemistry I (SE)",
       "prereqs": []
+    },
+    "chm1020": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "1020",
+      "title": "General Chemistry II",
+      "prereqs": [
+        "chm1010"
+      ]
+    },
+    "chm2070": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "2070",
+      "title": "Organic Chemistry",
+      "prereqs": [
+        "chm1020"
+      ]
+    },
+    "chm2075": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "2075",
+      "title": "Organic Chemistry II Emphasis in Biological Chemistry",
+      "prereqs": [
+        "chm2070",
+        "bio2400"
+      ]
+    },
+    "chm2080": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "2080",
+      "title": "Organic Chemistry II",
+      "prereqs": [
+        "2070"
+      ]
+    },
+    "chm2120": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "2120",
+      "title": "Inorganic Chemistry",
+      "prereqs": [
+        "chm2070"
+      ]
+    },
+    "chm3010": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3010",
+      "title": "Biochemistry I: Structural Biochemistry",
+      "prereqs": [
+        "chm2080"
+      ]
+    },
+    "chm3020": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3020",
+      "title": "Biochemistry II: Metabolic Biochemistry",
+      "prereqs": [
+        "chm3010"
+      ]
+    },
+    "chm3100": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3100",
+      "title": "Advanced Synthesis Laboratory",
+      "prereqs": [
+        "chm2080"
+      ]
+    },
+    "chm3110": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3110",
+      "title": "Advanced Integrated Laboratory",
+      "prereqs": [
+        "chm3230"
+      ]
+    },
+    "chm3130": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3130",
+      "title": "Physical Chemistry I (QR)",
+      "prereqs": [
+        "chm2080",
+        "mth1220",
+        "phy2200"
+      ]
+    },
+    "chm3140": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3140",
+      "title": "Physical Chemistry II",
+      "prereqs": [
+        "chm3130",
+        "phy2210"
+      ]
+    },
+    "chm3230": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3230",
+      "title": "Analytical Chemistry I",
+      "prereqs": [
+        "chm2080"
+      ]
+    },
+    "chm3240": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3240",
+      "title": "Analytical Chemistry II",
+      "prereqs": [
+        "chm3230"
+      ]
+    },
+    "chm3900": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "3900",
+      "title": "Reading the Chemical Literature",
+      "prereqs": [
+        "chm2070"
+      ]
+    },
+    "chm4000": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "4000",
+      "title": "Chemistry Seminar",
+      "prereqs": [
+        
+      ]
+    },
+    "chm4010": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "4010",
+      "title": "Advanced Biochemistry",
+      "prereqs": [
+        "chm3020"
+      ]
+    },
+    "chm4070": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "4070",
+      "title": "Advanced Organic Chemistry (OC)",
+      "prereqs": [
+        "chm2080"
+      ]
+    },
+    "chm4120": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "chm2120",
+      "title": "Advanced Inorganic Chemistry",
+      "prereqs": [
+        "chm2120"
+      ]
+    },
+    "chm4900": {
+      "prefixes": [
+        "CHM"
+      ],
+      "number": "4900",
+      "title": "Research in Chemistry",
+      "prereqs": [
+        
+      ]
     },
     "csc1100": {
       "prefixes": [
@@ -979,6 +1374,456 @@
       "title": "Senior Capstone Completion",
       "prereqs": []
     },
+    "env1000": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "1000",
+      "title": "Introduction to Environmental Science (SE)",
+      "prereqs": [
+      
+      ]
+    },
+    "env2010": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "2010",
+      "title": "Environmental Chemistry",
+      "prereqs": [
+      
+      ]
+    },
+    "env2100": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "2100",
+      "title": "Quantitative Environmental Analysis",
+      "prereqs": [
+        "env1000"
+      ]
+    },
+    "env2550": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "2550",
+      "title": "Environmental Pollutants",
+      "prereqs": [
+      
+      ]
+    },
+    "env2610": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "2610",
+      "title": "Case Studies in Environmental Science",
+      "prereqs": [
+        "env1000"
+      ]
+    },
+    "env2750": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "2750",
+      "title": "Sustainable Agriculture (SE)",
+      "prereqs": [
+      
+      ]
+    },
+    "env3000": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "3000",
+      "title": "Research Design",
+      "prereqs": [
+        "env2100"
+      ]
+    },
+    "env3400": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "3400",
+      "title": "Conservation Science",
+      "prereqs": [
+        "bio1120",
+        "env1000"
+      ]
+    },
+    "env4000": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "4000",
+      "title": "Senior Seminar",
+      "prereqs": [
+        "env3000"
+      ]
+    },
+    "env4900": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "4900",
+      "title": "Research in Environmental Science",
+      "prereqs": [
+        
+      ]
+    },
+    "env4980": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "4980",
+      "title": "Applied Experience in the Discipline",
+      "prereqs": [
+        
+      ]
+    },
+    "env4990": {
+      "prefixes": [
+        "ENV"
+      ],
+      "number": "4990",
+      "title": "Senior Thesis Completion",
+      "prereqs": [
+
+      ]
+    },
+    "geo1210": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "1210",
+      "title": "Internet Mapping and Web GIS (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo1500": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "1500",
+      "title": "Human Geography An Introduction (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo1600": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "1600",
+      "title": "Earth Revealed (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo1610": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "1610",
+      "title": "Introduction to Geographic Information Science (QR)(SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo1700": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "1700",
+      "title": "Natural Disasters (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo1770": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "1770",
+      "title": "Unmanned Aerial Systems in Geosciences (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo1800": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "1800",
+      "title": "Great Lakes Basin (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo1900": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "1900",
+      "title": "Geology of National Parks (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2150": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2150",
+      "title": "Business Geographics and Data Visualization (QR)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2210": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2210",
+      "title": "Internet Mapping and Web GIS (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2450": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2450",
+      "title": "Biogeography (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2500": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2500",
+      "title": "Natural Disasters",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2525": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2525",
+      "title": "Greak Lakes Basin",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2550": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2550",
+      "title": "Meteorology (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2610": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2610",
+      "title": "Advanced Geographic Information Science and Analytical Cartography (QR)",
+      "prereqs": [
+        "geo1610"
+      ]
+    },
+    "geo2700": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2700",
+      "title": "Satellite Image and Air Photo Analysis (QR)",
+      "prereqs": [
+        "geo1610"
+      ]
+    },
+    "geo2800": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2800",
+      "title": "Geography of East Asia (ITL)(SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2850": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2850",
+      "title": "Geology of National Parks",
+      "prereqs": [
+        
+      ]
+    },
+    "geo2950": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "2950",
+      "title": "Geomorphology",
+      "prereqs": [
+        "geo1610"
+      ]
+    },
+    "geo3200": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "3200",
+      "title": "Hydrology (QR)",
+      "prereqs": [
+        "geo1610",
+        "env1000"
+      ]
+    },
+    "geo3300": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "3300",
+      "title": "Analytical Techniques in Geospatial Science",
+      "prereqs": [
+        
+      ]
+    },
+    "geo3400": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "3400",
+      "title": "Forest Ecology (QR)",
+      "prereqs": [
+        "geo1610",
+        "env1000"
+      ]
+    },
+    "geo3610": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "3610",
+      "title": "Applied Projects in Geographic Information Science (QR)",
+      "prereqs": [
+        "geo1610",
+        "geo1210",
+        "geo2210"
+      ]
+    },
+    "geo3700": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "3700",
+      "title": "Climatology (QR)",
+      "prereqs": [
+        "geo1600",
+        "env1000"
+      ]
+    },
+    "geo3800": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "3800",
+      "title": "Soil Science (QR)",
+      "prereqs": [
+        "geo1600",
+        "env1000"
+      ]
+    },
+    "geo3900": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "3900",
+      "title": "Methods of Field Research",
+      "prereqs": [
+        "geo1600",
+        "env1000"
+      ]
+    },
+    "geo3950": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "3950",
+      "title": "Process Geomorphology",
+      "prereqs": [
+        "geo1600"
+      ]
+    },
+    "geo4000": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "4000",
+      "title": "Senior Seminar in Geospatial Science",
+      "prereqs": [
+        
+      ]
+    },
+    "geo4150": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "4150",
+      "title": "Science of Global Climate Change (IDP)",
+      "prereqs": [
+        "geo3700",
+        "phy2200"
+      ]
+    },
+    "geo4600": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "4600",
+      "title": "Applied Projects in Geographic Information Science (QR)",
+      "prereqs": [
+        "geo1600",
+        "geo2610"
+      ]
+    },
+    "geo4900": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "4900",
+      "title": "Geospatial Science Research",
+      "prereqs": [
+        
+      ]
+    },
+    "geo4990": {
+      "prefixes": [
+        "GEO"
+      ],
+      "number": "4990",
+      "title": "Senior Thesis Completion",
+      "prereqs": [
+        
+      ]
+    },
     "mth1030": {
       "prefixes": [
         "MTH"
@@ -1331,7 +2176,7 @@
         "PHY"
       ],
       "number": "2300",
-      "title": "MOdern Physics (OC)",
+      "title": "Modern Physics (OC)",
       "prereqs": [
         
       ]
@@ -1493,6 +2338,626 @@
       "prereqs": [
         "phy3970"
       ]
+    },
+    "pol1030": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "1030",
+      "title": "Introduction to Comparative Politics (SI) (ITL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol1040": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "1040",
+      "title": "Introduction to Public Policy (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol1050": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "1050",
+      "title": "Introduction to International Relations (SI) (ITL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol1070": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "1070",
+      "title": "Introduction to Political Theory (CL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol1500": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "1500",
+      "title": "American Government: National, State, and Local (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol1600": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "1600",
+      "title": "Model United Nations and Global Politics (ITL) (SI) (OC)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol1900": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "1900",
+      "title": "Constitutional Rights: Freedom of Expression (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol1910": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "1910",
+      "title": "Law and Society (SI) (IDP)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol2050": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "2050",
+      "title": "Philosophical Foundations of Political Economy (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol2100": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "2100",
+      "title": "Politics and Film (IDP) (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3000": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3000",
+      "title": "American Political Thought (DIV)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3100": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3100",
+      "title": "Logic of Political Inquiry",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3110": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3110",
+      "title": "Women's and Gender Studies Theory (DIV) (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3200": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3200",
+      "title": "Women and Politics (SI) (DIV)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3240": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3240",
+      "title": "Contemporary Political Theory (IDP)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3250": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3250",
+      "title": "Classics of Political Thought (IDP)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3260": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3260",
+      "title": "Studies in Political Theory (DIV)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3270": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3270",
+      "title": "Religion and Politics in the United States (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3291": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3291",
+      "title": "Globalism and Nationalism",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3330": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3330",
+      "title": "MIddle East Politics (SI) (ITL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3350": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3350",
+      "title": "Human Rights (SI) (ITL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3360": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3360",
+      "title": "Latin American Politics (SI) (ITL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3370": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3370",
+      "title": "Russian / East European Politics (SI) (ITL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3380": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3380",
+      "title": "West European Politics",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3390": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3390",
+      "title": "Rplitics of Rapid Growth in East Asia",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3400": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3400",
+      "title": "Chinese Politics",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3510": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3510",
+      "title": "Campaigns and Elections (SI) (IDP)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3520": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3520",
+      "title": "Ameerica at War (SI) (ITL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3530": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3530",
+      "title": "Congress and the Presidency (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3580": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3580",
+      "title": "American Foreign Policy (SI) (OC) (ITL)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3600": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3600",
+      "title": "International Security (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3610": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3610",
+      "title": "Nuclear Proliferation (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3620": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3620",
+      "title": "Environmental Politics",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3900": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3900",
+      "title": "Comparative Law",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3910": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3910",
+      "title": "Constitutional Law: Civil LIberties and Civil Rights (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3920": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3920",
+      "title": "Constitutional Law and the Separation of Powers (SI) (OC)",
+      "prereqs": [
+        
+      ]
+    },
+    "pol3930": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "3930",
+      "title": "Environmental Law",
+      "prereqs": [
+        
+      ]
+    },
+    "pol4000": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "4000",
+      "title": "Senior Seminar in Political Science",
+      "prereqs": [
+        
+      ]
+    },
+    "pol4050": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "4050",
+      "title": "Seminar in INternational Political Economy",
+      "prereqs": [
+        
+      ]
+    },
+    "pol4090": {
+      "prefixes": [
+        "POL"
+      ],
+      "number": "4090",
+      "title": "Senior Thesis Completion",
+      "prereqs": [
+        
+      ]
+    },
+    "pyc1500": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "1500",
+      "title": "Introduction to Psychological Science (SE)",
+      "prereqs": [
+        
+      ]
+    },
+    "pyc1850": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "1850",
+      "title": "Lifespan Developmental Psychology for the Health Professional (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pyc1900": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "1900",
+      "title": "Cognitive Science of Magic (IDP)",
+      "prereqs": [
+        
+      ]
+    },
+    "pyc2010": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "2010",
+      "title": "Research Methods and Statistics I (QR)",
+      "prereqs": [
+        "pyc1500"
+      ]
+    },
+    "pyc2100": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "2100",
+      "title": "Interpersonal Dynamics",
+      "prereqs": [
+        "pyc1500"
+      ]
+    },
+    "pyc2150": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "2150",
+      "title": "Sensation and Perception",
+      "prereqs": [
+        "pyc2010"
+      ]
+    },
+    "pyc2200": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "2200",
+      "title": "Social Psychology",
+      "prereqs": [
+        "pyc2010"
+      ]
+    },
+    "pyc2300": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "2300",
+      "title": "Cognitive Psychology",
+      "prereqs": [
+        "pyc2010"
+      ]
+    },
+    "pyc2850": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "2850",
+      "title": "Child and Adolescent Development (SI)",
+      "prereqs": [
+        
+      ]
+    },
+    "pyc3010": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "3010",
+      "title": "Research Methods and Statistics II",
+      "prereqs": [
+        "pyc2010",
+        "pyc2150",
+        "pyc2200",
+        "pyc2300"
+      ]
+    },
+    "pyc3460": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "3460",
+      "title": "Psychology of Women and Gender",
+      "prereqs": [
+        "pyc2200",
+        "rgs1100"
+      ]
+    },
+    "pyc3500": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "3500",
+      "title": "Abnormal Psychology",
+      "prereqs": [
+        "pyc2010"
+      ]
+    },
+    "pyc3600": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "3600",
+      "title": "Organizational Psychology",
+      "prereqs": [
+        "pyc2200"
+      ]
+    },
+    "pyc3650": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "3650",
+      "title": "Childhood Psychopathology",
+      "prereqs": [
+        "pyc2850",
+        "pyc2010"
+      ]
+    },
+    "pyc3750": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "3750",
+      "title": "Psychology of Personality",
+      "prereqs": [
+        "pyc2200",
+        "pyc3010"
+      ]
+    },
+    "pyc3850": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "3850",
+      "title": "Adult Development and Aging (SI)",
+      "prereqs": [
+        "pyc2850"
+      ]
+    },
+    "pyc4010": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "4010",
+      "title": "Psychology of Stress",
+      "prereqs": [
+        "pyc2200",
+        "pyc2150",
+        "pyc2850"
+      ]
+    },
+    "pyc4150": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "4150",
+      "title": "Cultural Psychology (ITL)",
+      "prereqs": [
+        "pyc2200",
+        "pyc2150",
+        "pyc2850"
+      ]
+    },
+    "pyc4700": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "4700",
+      "title": "Fieldwork in Psychological Science",
+      "prereqs": [
+        "pyc3010"
+      ]
+    },
+    "pyc4800": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "4800",
+      "title": "Thesis in Psychological Science",
+      "prereqs": [
+        "pyc3010"
+      ]
+    },
+    "pyc4990": {
+      "prefixes": [
+        "PYC"
+      ],
+      "number": "4990",
+      "title": "Thesis in Psychological Science",
+      "prereqs": [
+        "pyc3010"
+      ]
     }
   },
   "programs": [
@@ -1577,7 +3042,7 @@
     },
     {
       "code": "bs_biotechnology",
-      "name": "B.S. Biology",
+      "name": "B.S. Biotechnology",
       "house": "bio",
       "degree": "BS",
       "abbr": "BioTech",
@@ -1591,6 +3056,141 @@
         "chm3010",
         "egr1020",
         "mth1120",
+        "phy2100"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "ba_chemistry",
+      "name": "B.A. Chemistry",
+      "house": "chm",
+      "degree": "BA",
+      "abbr": "Chem",
+      "credits": "na",
+      "required": [
+        "chm1020",
+        "chm2070",
+        "chm2080",
+        "chm2120",
+        "chm3110",
+        "chm3130",
+        "chm3140",
+        "chm3230",
+        "chm4000",
+        "mth1120",
+        "mth1220",
+        "phy2200",
+        "phy2210"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+
+        ],
+        "openRule": {
+          "prefix": "CHM",
+          "minNumber": 3000
+        }
+      }
+    },
+    {
+      "code": "bs_chemistry",
+      "name": "B.S. Chemistry",
+      "house": "chm",
+      "degree": "BS",
+      "abbr": "Chem",
+      "credits": "na",
+      "required": [
+        "chm1020",
+        "chm2070",
+        "chm2080",
+        "chm2120",
+        "chm3010",
+        "chm3100",
+        "chm3110",
+        "chm3130",
+        "chm3140",
+        "chm3230",
+        "chm3240",
+        "chm4000",
+        "chm4120",
+        "chm4980",
+        "mth1120",
+        "mth1220",
+        "phy2200",
+        "phy2210"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+          "mth2020",
+          "mth2040",
+          "mth2120",
+          "dat1030",
+          "csc1810"
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "ba_biochemistry",
+      "name": "B.A. Biochemistry",
+      "house": "chm",
+      "degree": "BS",
+      "abbr": "BioChem",
+      "credits": "na",
+      "required": [
+        "chm1020",
+        "chm2070",
+        "chm2080",
+        "chm3130",
+        "chm4000",
+        "bio2400",
+        "bio1110",
+        "bio3500",
+        "chm3010",
+        "chm3020",
+        "mth1120",
+        "phy2200"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "bs_biochemistry",
+      "name": "B.S. Biochemistry",
+      "house": "chm",
+      "degree": "BS",
+      "abbr": "BioChem",
+      "credits": "na",
+      "required": [
+        "chm1020",
+        "chm2070",
+        "chm2080",
+        "chm3130",
+        "chm3230",
+        "chm4900",
+        "chm4000",
+        "bio2400",
+        "bio1110",
+        "bio3500",
+        "chm3010",
+        "chm3020",
+        "chm4010",
+        "mth1120",
+        "mth1220",
+        "phy2200",
         "phy2100"
       ],
       "elective": {
@@ -1841,8 +3441,96 @@
         "pick": null,
         "list": [],
         "openRule": {
-          "prefix": "EGR",
-          "minNumber": 4100
+
+        }
+      }
+    },
+    {
+      "code": "b_environmentalscience",
+      "name": "B. Environmental Science",
+      "house": "env",
+      "degree": "B",
+      "abbr": "ENV",
+      "credits": "credits n/a",
+      "required": [
+        "env1000",
+        "env2610",
+        "env3000",
+        "env4000",
+        "env2100",
+        "geo1610",
+        "pol3620",
+        "ecn3050",
+        "env4980",
+        "env4990"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [],
+        "openRule": {
+          
+        }
+      }
+    },
+    {
+      "code": "b_geoscience",
+      "name": "B. Geoscience",
+      "house": "geo",
+      "degree": "B",
+      "abbr": "GEO",
+      "credits": "credits n/a",
+      "required": [
+        "geo1210",
+        "geo1610",
+        "geo1600",
+        "geo3900",
+        "geo4000"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+          "geo1700",
+          "geo1800",
+          "geo1900",
+          "geo2450",
+          "geo2550",
+          "geo2950",
+          "geo3200",
+          "geo3400",
+          "geo3700",
+          "geo3900"
+        ],
+        "openRule": {
+        }
+      }
+    },
+    {
+      "code": "b_geoinfoscience",
+      "name": "B. Geographic Information Science",
+      "house": "geo",
+      "degree": "B",
+      "abbr": "GEO",
+      "credits": "credits n/a",
+      "required": [
+        "geo1210",
+        "geo1610",
+        "geo1770",
+        "geo2610",
+        "geo2700",
+        "geo3610",
+        "geo4000",
+        "csc1100",
+        "dat1030",
+        "mth1050"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+          "csc2810"
+        ],
+        "openRule": {
+          "prefix": "GEO",
+          "minNumber": 1000
         }
       }
     },
@@ -1975,6 +3663,47 @@
         ],
         "openRule": null
       }
+    },
+    {
+      "code": "b_politicalscience",
+      "name": "B. Political Science",
+      "house": "pol",
+      "degree": "B",
+      "abbr": "Pol",
+      "credits": "",
+      "required": [
+
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+
+        ],
+        "openRule": null
+      }
+    },
+    {
+      "code": "b_psychologicalscience",
+      "name": "B. Psychological Science",
+      "house": "pyc",
+      "degree": "B",
+      "abbr": "Pyc",
+      "credits": "",
+      "required": [
+        "pyc1500",
+        "pyc2010",
+        "pyc3010",
+        "pyc4700",
+        "pyc4800",
+        "pyc4990"
+      ],
+      "elective": {
+        "pick": null,
+        "list": [
+          
+        ],
+        "openRule": null
+      }
     }
   ],
   "departments": {
@@ -1982,6 +3711,11 @@
       "name": "Biology",
       "abbr": "Bio",
       "color": "#8de0ce"
+    },
+    "chm": {
+      "name": "Chemistry",
+      "abbr": "Chm",
+      "color": "#ebc09d"
     },
     "csc": {
       "name": "Computer Science",
@@ -1991,7 +3725,17 @@
     "egr": {
       "name": "Engineering",
       "abbr": "Eng",
-      "color": "#8dafe0"
+      "color": "#adc8ed"
+    },
+    "env": {
+      "name": "Environmental Science",
+      "abbr": "Env",
+      "color": "#a1d6c3"
+    },
+    "geo": {
+      "name": "Geospatial Science",
+      "abbr": "Geo",
+      "color": "#b1dee6"
     },
     "mth": {
       "name": "Mathematics",
@@ -2001,7 +3745,17 @@
     "phy": {
       "name": "Physics",
       "abbr": "Phys",
-      "color": "#d5aded"
+      "color": "#cfd0d1"
+    },
+    "pol": {
+      "name": "Political Science",
+      "abbr": "Poli",
+      "color": "#ddc7eb"
+    },
+    "pyc": {
+      "name": "Psychological Science",
+      "abbr": "Psych",
+      "color": "#ebc7d4"
     }
   },
   "degreeColors": {
@@ -2011,16 +3765,16 @@
   },
   "genEd": {
     "Explorations": {
-      "color": "#a9cbf0",
+      "color": "#edc6ad",
       "tags": [
-        "ART",
+        "AI",
         "CL",
         "SI",
         "SE"
       ]
     },
     "Abilities": {
-      "color": "#eeaad8",
+      "color": "#adc8ed",
       "tags": [
         "WC",
         "OC",
@@ -2029,11 +3783,11 @@
       ]
     },
     "Perspectives": {
-      "color": "#efd78e",
+      "color": "#b4dbc8",
       "tags": [
-        "RP",
+        "REL",
         "DIV",
-        "ILP",
+        "ITL",
         "IDP"
       ]
     }
@@ -2041,7 +3795,7 @@
   "instructors": {
     "Rick Bingen": {
       "abbr": "RB",
-      "color": "#ffb272",
+      "color": "#ebc09d",
       "courses": [
         "csc2720",
         "csc3710",
@@ -2052,7 +3806,7 @@
     },
     "Jacob Pichelmeyer": {
       "abbr": "JP",
-      "color": "#92ffa3",
+      "color": "#9debca",
       "courses": [
         "csc2430",
         "csc3530",
@@ -2064,7 +3818,7 @@
     },
     "Elizabeth Zak": {
       "abbr": "EZ",
-      "color": "#bf9ed5",
+      "color": "#cfb9eb",
       "courses": [
         "csc2350",
         "csc3030",
@@ -2074,7 +3828,7 @@
     },
     "Mark Mahoney": {
       "abbr": "MM",
-      "color": "#86d4ff",
+      "color": "#b9d6eb",
       "courses": [
         "csc2910",
         "csc3210",
@@ -2087,11 +3841,16 @@
     }
   },
   "prefixColors": {
+    "BIO": "#8de0ce",
+    "CHM": "#ebc09d",
     "CSC": "#8fc9ab",
-    "EGR": "#a9c4e8",
     "DAT": "#e8a9c0",
-    "PHY": "#c9b7e0",
-    "CHM": "#c7d97e",
-    "MTH": "#e3c682"
+    "EGR": "#a9c4e8",
+    "ENV": "#7accba",
+    "GEO": "#b1dee6",
+    "MTH": "#e3c682",
+    "PHY": "#cfd0d1",
+    "POL": "#ddc7eb",
+    "PYC": "#ebc7d4"
   }
 }
