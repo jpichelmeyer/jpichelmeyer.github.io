@@ -13,6 +13,7 @@ import './_projects_desktop_language_visualizer.js';
 import './_projects_desktop_error_monster.js';
 import './_projects_desktop_mouse.js';
 import './_projects_desktop_maba.js';
+import './_projects_desktop_gwa.js';
 import './_projects_desktop_prerequisite_visualizer.js';
 import './_governance.js';
 import './_advancement.js';
