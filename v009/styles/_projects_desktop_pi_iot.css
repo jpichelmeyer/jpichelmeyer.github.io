@@ -1,0 +1,38 @@
+/* v009/site/styles/_projects_desktop_pi_iot.css */
+
+.pi-root { display: grid; grid-template-columns: 170px 1fr; gap: 14px; font-family: var(--sans); color: var(--ink); }
+.pi-side { display: flex; flex-direction: column; gap: 4px; }
+.pi-card, .pi-sub {
+    font-family: var(--sans); font-size: calc(10.5px * var(--mod-font-size)); text-align: left;
+    padding: 7px 10px; border: 1px solid var(--panel-bd); border-radius: 6px;
+    background: var(--bg-light); color: var(--ink); cursor: pointer;
+}
+.pi-card:hover, .pi-sub:hover { border-color: var(--ink); }
+.pi-card.active, .pi-sub.active { background: var(--color-accent-projects); border-color: var(--ink); font-weight: bold; }
+.pi-subs { display: flex; flex-wrap: wrap; gap: 5px; padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--panel-bd); }
+.pi-sub { padding: 4px 10px; }
+.pi-main { min-width: 0; }
+.pi-view { font-size: calc(11px * var(--mod-font-size)); line-height: 1.55; }
+.pi-h { font-weight: bold; margin: 12px 0 5px; }
+.pi-h:first-child { margin-top: 0; }
+.pi-code { position: relative; margin-bottom: 8px; }
+.pi-code pre {
+    margin: 0; padding: 10px 56px 10px 12px; overflow-x: auto;
+    font-family: var(--mono); font-size: calc(10px * var(--mod-font-size)); line-height: 1.5;
+    background: #1d1f21; color: #e6e4dc; border-radius: var(--border-radius2);
+}
+.pi-copy {
+    position: absolute; top: 6px; right: 6px; padding: 2px 8px;
+    font-family: var(--sans); font-size: calc(9px * var(--mod-font-size));
+    border: 1px solid #5a5d60; border-radius: 5px; background: #2b2e31; color: #e6e4dc; cursor: pointer;
+}
+.pi-copy:hover { border-color: #e6e4dc; }
+.pi-note {
+    margin: 8px 0; padding: 8px 12px; color: var(--ink-soft);
+    background: var(--bg-light); border-left: 3px solid var(--color-accent-projects); border-radius: 0 6px 6px 0;
+}
+.pi-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+.pi-table th, .pi-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--panel-bd); vertical-align: top; }
+.pi-table th { color: var(--ink-faint); font-weight: normal; text-transform: uppercase; letter-spacing: 0.03em; font-size: calc(9.5px * var(--mod-font-size)); }
+.pi-table code { font-family: var(--mono); font-size: calc(10px * var(--mod-font-size)); word-break: break-word; }
+.pi-diagram { display: block; width: 100%; max-width: 480px; margin: 4px 0 8px; color: var(--ink); font-family: var(--mono); }
