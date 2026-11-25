@@ -68,12 +68,12 @@ function body(D, cfg, type) {
     <h3>Courses taught and scheduled</h3>
     <table><tr><th>Term</th><th>Courses</th></tr>${termRows(D)}</table>
     <h3>Courses by category</h3>
-    ${D.CATEGORIES.map(cat => [cat, [...new Set(D.TERMS.flatMap(t => t.courses).filter(c => D.catOf(c) === cat).map(c => `${c.prefixes[0]} ${c.num}: ${c.name}`))]]).filter(x => x[1].length).map(([cat, l]) => `<div><b>${esc(cat)}</b>${ul(l.map(esc))}</div>`).join('')}
+    ${D.CATEGORIES.map(cat => [cat, [...new Set(D.TERMS.flatMap(t => t.courses).filter(c => D.catOf(c).includes(cat)).map(c => `${c.prefixes[0]} ${c.num}: ${c.name}`))]]).filter(x => x[1].length).map(([cat, l]) => `<div><b>${esc(cat)}</b>${ul(l.map(esc))}</div>`).join('')}
     <h3>New courses developed</h3>
     ${ul(D.SCHOLARSHIP_AREAS.filter(a => a.key === 'teaching').flatMap(a => D.scholarshipItems(a)).map(i => i.html))}
 
     <h2>2. Scholarship</h2>
-    <p>Organized by the four areas of scholarship named in the Faculty Handbook (Section 4.8.2).</p>
+    <p>Organized by the six areas of scholarship named in the Department Scholarship Expectations and Guidelines.</p>
     ${D.SCHOLARSHIP_AREAS.map(a => `<h3>${esc(a.name)}</h3><div class="note">${esc(a.blurb)}</div>${ul(D.scholarshipItems(a).map(i => `${i.date ? `<span class="tag">${esc(i.date)}</span> ` : ''}${i.html}`)) || ''}`).join('')}
     <h3>PLAB research and development projects</h3>
     ${statuses.map(([st, head]) => { const l = D.PLAB_PROJECTS.filter(p => p.status === st); return l.length ? `<h3>${head}</h3>${l.map(projectCard).join('')}` : ''; }).join('')}
@@ -91,7 +91,7 @@ async function open(type) {
     const win = window.open('', '_blank', 'width=900,height=1100');
     if (!win) { alert('Please allow popups for this site to generate the packet.'); return; }
     const D = window._advData;
-    D.catOf = c => (D.COURSE_CATEGORY[`${c.prefixes[0]} ${c.num}`] || [])[0];
+    D.catOf = c => D.COURSE_CATEGORY[`${c.prefixes[0]} ${c.num}`] || [];
     const cfg = await fetch('./data/plab_flyer.json', { cache: 'no-store' }).then(r => r.json());
     win.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${type === 'tenure' ? 'Tenure' : 'Third-year review'} packet</title><style>${CSS}</style></head>
 <body><div class="tb"><button onclick="window.print()">Print / Save as PDF</button><button onclick="window.close()">Close</button><span>Choose "Save as PDF" as the destination.</span></div>

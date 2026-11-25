@@ -36,3 +36,13 @@
 .pi-table th { color: var(--ink-faint); font-weight: normal; text-transform: uppercase; letter-spacing: 0.03em; font-size: calc(9.5px * var(--mod-font-size)); }
 .pi-table code { font-family: var(--mono); font-size: calc(10px * var(--mod-font-size)); word-break: break-word; }
 .pi-diagram { display: block; width: 100%; max-width: 480px; margin: 4px 0 8px; color: var(--ink); font-family: var(--mono); }
+
+@media (max-width: 700px) {
+    .pi-root { grid-template-columns: 1fr; gap: 10px; }
+    .pi-side { flex-direction: row; flex-wrap: wrap; }
+    .pi-card { padding: 5px 9px; }
+    .pi-table, .pi-table tbody, .pi-table tr, .pi-table th, .pi-table td { display: block; width: 100%; box-sizing: border-box; }
+    .pi-table tr:first-child { display: none; }
+    .pi-table tr { padding: 4px 0; border-bottom: 1px solid var(--panel-bd); }
+    .pi-table td { border: none; padding: 2px 8px; }
+}

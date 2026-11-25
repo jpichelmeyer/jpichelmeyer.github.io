@@ -6,6 +6,7 @@ window._registerProject({
     id: 'error-monster',
     label: 'Error Monster',
     layout: 'desktop',
+    cats: ['Educational', 'Games'],
     thumb: '../imgs/error_monster_icon.png',
     desc: 'A retro indie creature collector that focuses on using programming error injection and resolution as core game mechanics!',
     init(container) {

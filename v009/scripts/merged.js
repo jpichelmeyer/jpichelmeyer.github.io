@@ -17,6 +17,7 @@ import './_projects_desktop_gwa.js';
 import './_projects_desktop_circuit.js';
 import './_projects_desktop_pi_iot.js';
 import './_projects_desktop_prerequisite_visualizer.js';
+import './_projects_desktop_posters.js';
 import './_governance.js';
 import './_advancement.js';
 import './_plab_flyer.js';

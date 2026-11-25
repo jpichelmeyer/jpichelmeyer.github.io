@@ -44,7 +44,101 @@ const AR = (x1, y, x2) => { const d = x2 > x1 ? -1 : 1; return `<path d="M${x1} 
 const LED = (x, y) => `<path d="M${x - 14} ${y}h28l-14 26z" fill="#e05340" fill-opacity=".55"/><path d="M${x - 14} ${y + 26}h28M${x + 18} ${y + 2}l12-10M${x + 22} ${y + 14}l12-10"/>`;
 const WIRE = (y, c) => `<path d="M110 ${y}H300" stroke="${c}"/><circle cx="300" cy="${y}" r="3.5" fill="currentColor"/>`;
 
+const PUBCODE = `import network, time
+from umqtt.simple import MQTTClient
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect("${SSID}", "${PW}")
+while not wlan.isconnected():
+    time.sleep(0.5)
+
+client = MQTTClient("breadbot_01", "${BROKER}")
+client.connect()
+
+count = 0
+while True:
+    count += 1
+    client.publish(b"breadbot_01/count", str(count).encode())
+    print("Published:", count)
+    time.sleep(2)`;
+
+const SUBCODE = `import network, time, machine
+from umqtt.simple import MQTTClient
+
+led = machine.Pin("LED", machine.Pin.OUT)
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect("${SSID}", "${PW}")
+while not wlan.isconnected():
+    time.sleep(0.5)
+
+def on_message(topic, msg):
+    text = msg.decode().strip().upper()
+    print("Topic:", topic.decode(), "| Msg:", text)
+    if text == "ON":
+        led.value(1)
+    elif text == "OFF":
+        led.value(0)
+
+client = MQTTClient("breadbot_02", "${BROKER}")
+client.set_callback(on_message)
+client.connect()
+client.subscribe(b"pico/led")
+
+while True:
+    client.check_msg()
+    time.sleep(0.05)`;
+
+const SENDER = `import network, time
+from umqtt.simple import MQTTClient
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect("${SSID}", "${PW}")
+while not wlan.isconnected():
+    time.sleep(0.5)
+
+client = MQTTClient("pico_sender", "${BROKER}")
+client.connect()
+
+state = "ON"
+while True:
+    client.publish(b"lab/hello", state.encode())
+    print("Pico #1 Sent:", state)
+    state = "OFF" if state == "ON" else "ON"
+    time.sleep(2)`;
+
+const RECEIVER = `import network, time, machine
+from umqtt.simple import MQTTClient
+
+led = machine.Pin("LED", machine.Pin.OUT)
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect("${SSID}", "${PW}")
+while not wlan.isconnected():
+    time.sleep(0.5)
+
+def on_msg(topic, msg):
+    val = msg.decode().strip()
+    print("Pico #2 Received:", val)
+    led.value(1 if val == "ON" else 0)
+
+client = MQTTClient("pico_receiver", "${BROKER}")
+client.set_callback(on_msg)
+client.connect()
+client.subscribe(b"lab/hello")
+
+while True:
+    client.check_msg()
+    time.sleep(0.05)`;
+
+const RULES = 'Three golden rules for umqtt.simple: (1) every Pico needs a unique client ID or Mosquitto kicks them off in a reconnect loop, (2) call client.set_callback(...) before client.connect(), (3) pass b"bytes" to publish() and subscribe(), and call .decode() inside your callback.';
+
 const DG = {
+    hello: SV(150, BOX(10, 20, 100, 70, 'Pico #1', 'sender.py') + BOX(160, 20, 100, 70, 'Pi broker', 'lab/hello') + BOX(310, 20, 100, 70, 'Pico #2', 'receiver.py') + AR(110, 55, 160) + AR(260, 55, 310) + T(60, 108, 'a0', 'middle', 10) + T(360, 108, 'a1', 'middle', 10) + T(360, 122, 'onboard LED blinks', 'middle', 10) + T(60, 122, 'publishes ON / OFF', 'middle', 10)),
     wifi: SV(135, PICO(120, []) + BOX(310, 10, 100, 100, 'Raspberry Pi', 'hotspot 10.42.0.1') + '<path d="M110 100H310" stroke-dasharray="4 6"/><path d="M199.4 89.4Q210 80.6 220.6 89.4M188.8 78.8Q210 61.2 231.2 78.8M178.2 68.2Q210 41.8 241.8 68.2"/><circle cx="210" cy="100" r="3" fill="currentColor"/>' + T(210, 126, 'SSID + password', 'middle', 10)),
     blink: SV(125, '<rect x="60" y="20" width="300" height="70" rx="8"/><rect x="40" y="40" width="20" height="30"/><rect x="190" y="35" width="50" height="40"/>' + T(215, 60, 'chip', 'middle', 11) + '<circle cx="310" cy="45" r="7" fill="#e05340" fill-opacity=".7"/><path d="M322 38l10-8M324 48l12-6"/>' + T(310, 72, 'onboard LED', 'middle', 10) + T(50, 90, 'USB', 'middle', 10) + T(210, 112, 'No wiring: Pin("LED") is built into the board', 'middle', 10)),
     button: SV(190, PICO(190, [[40, 'GP14 (pin 19)'], [100, 'GP15 (pin 20)'], [160, 'GND (pin 18)']]) + '<path d="M110 40H170M210 40H240V160M110 160H290M170 40L204 22"/><circle cx="170" cy="40" r="3.5" fill="currentColor"/><circle cx="210" cy="40" r="3.5" fill="currentColor"/><circle cx="240" cy="160" r="3.5" fill="currentColor"/><path d="M110 100h20"/><path d="' + RES(130, 100) + 'H290V118"/>' + LED(290, 118).replace(/M\d+ 144h28/, 'M276 144h28') + '<path d="M290 144V160"/>' + T(190, 62, 'button', 'middle', 10) + T(168, 86, '330 ohm', 'middle', 10) + T(306, 156, 'red LED', 'start', 11)),
@@ -70,6 +164,55 @@ const CARDS = [
             h('5. Test from the Pi'),
             c('mosquitto_sub -h localhost -t "#" -v\nmosquitto_pub -h localhost -t "pico/led" -m "ON"'),
             n(`Every Pico needs its own client ID. The Pi hotspot address is ${BROKER}, which is the BROKER_IP in every Pico script.`)
+        ]],
+        ['Flash the SD Card', [
+            h('One time, on your laptop or PC'),
+            t(['Step', 'What to do'], [
+                ['1. Install Imager', 'Download Raspberry Pi Imager and insert a microSD card (16 GB or larger).'],
+                ['2. Device and OS', 'Choose your Pi model, then Raspberry Pi OS (or Raspberry Pi OS Lite if you only want the command line).'],
+                ['3. Settings', 'Click Next, then Edit Settings. Set the username and password, join an internet Wi-Fi network (needed once to download packages) and enable SSH under Services.'],
+                ['4. Write and boot', 'Click Yes to flash, put the card in the Pi and connect power (5V, 2.5A or better).']
+            ])
+        ]],
+        ['Provision a Pico', [
+            t(['Step', 'What to do'], [
+                ['1. BOOTSEL', 'Hold the white BOOTSEL button while plugging the Pico in by USB, then release. A drive named RPI-RP2 appears.'],
+                ['2. Firmware', 'Drag the matching MicroPython .uf2 onto the drive: RPI_PICO_W for a Pico WH, RPI_PICO2_W for a Pico 2 W. The board reboots by itself.'],
+                ['3. Check', 'Plug it into the Pi and run the command below.'],
+                ['4. MQTT library', 'Install umqtt.simple while the Pi has internet.']
+            ]),
+            c('mpremote devs\nmpremote a0 mip install umqtt.simple')
+        ]],
+        ['Verify', [
+            h('Broker and hotspot'),
+            c('hostname -I\nsystemctl is-active mosquitto'),
+            n(`hostname -I should print ${BROKER} and the second command should print active.`),
+            h('Run a script on the Pico from RAM only (flash untouched)'),
+            c('mpremote a0 run my_script.py')
+        ]]
+    ]],
+    ['Smoke Test', [
+        ['Check', [
+            ['d', DG.hello],
+            n('Two-Pico hello world: Pico #1 publishes ON and OFF through the Pi broker and Pico #2 blinks its onboard LED. Both Picos need MicroPython and umqtt.simple.'),
+            h('Plug in both Picos, then on the Pi'),
+            c('sudo nmcli connection up Hotspot\nsudo systemctl restart mosquitto\nmpremote devs'),
+            n('mpremote devs should list two boards, for example ttyACM0 and ttyACM1.')
+        ]],
+        ['sender.py', [
+            n('Save with nano sender.py on the Pi. It runs on Pico #1 (a0) and alternates ON and OFF on lab/hello every 2 seconds.'),
+            c(SENDER)
+        ]],
+        ['receiver.py', [
+            n('Save with nano receiver.py on the Pi. It runs on Pico #2 (a1) and sets its onboard LED from each message on lab/hello.'),
+            c(RECEIVER)
+        ]],
+        ['Run', [
+            h('Start the receiver in the background, then the sender'),
+            c('mpremote a1 run receiver.py &\nmpremote a0 run sender.py'),
+            h('Optional: watch the messages in another terminal'),
+            c(`mosquitto_sub -h ${BROKER} -t "lab/hello" -v`),
+            n('Pico #2 blinks every 2 seconds over Wi-Fi. Press Ctrl+C to stop.')
         ]]
     ]],
     ['Pi Basics', [
@@ -212,6 +355,7 @@ const CARDS = [
             t(['Command', 'Action'], [
                 ['mpremote a0 run test.py', 'Run in RAM only, main.py untouched'],
                 ['mpremote a0 cp node.py :main.py + reset', 'Save as main.py and reboot, runs on every power up'],
+                ['mpremote a1 run receiver.py &', 'Run on a second Pico in the background'],
                 ['mpremote a0 soft-reset', 'Restart the MicroPython runtime']
             ])
         ]],
@@ -269,7 +413,19 @@ const CARDS = [
             n('Reads the temperature sensor built into the Pico.'),
             c('import machine, time\n\nadc = machine.ADC(4)\n\nwhile True:\n    volts = adc.read_u16() * 3.3 / 65535\n    print(round(27 - (volts - 0.706) / 0.001721, 1), "C")\n    time.sleep(1)')
         ]],
-        ['MQTT', [
+        ['MQTT Publish', [
+            ['d', DG.mqtt],
+            n('Sensor edge node: connects to the broker and publishes a reading every 2 seconds. Topics and payloads must be bytes, so prefix strings with b or call .encode().'),
+            c(PUBCODE),
+            n(RULES)
+        ]],
+        ['MQTT Subscribe', [
+            ['d', DG.mqtt],
+            n('Actuator edge node: the callback runs whenever a message arrives, and check_msg() polls for packets without freezing the Pico.'),
+            c(SUBCODE),
+            n(RULES)
+        ]],
+        ['MQTT Two-Way', [
             ['d', DG.mqtt],
             n('Every Pico needs a unique CLIENT_ID. Duplicates make Mosquitto disconnect the boards over and over.'),
             c(`import network, time, machine
@@ -350,7 +506,8 @@ const block = ([k, a, b]) => {
 window._registerProject({
     id: 'pi-iot',
     label: 'Pi MQTT IoT Reference',
-    layout: 'desktop',
+    layout: 'responsive',
+    cats: ['Tools'],
     thumb: 'pi_iot.svg',
     desc: 'A quick reference for Raspberry Pi command line setup, a private hotspot, the Mosquitto MQTT broker, mpremote, and MicroPython snippets for Pico WH boards, with a circuit or block diagram for every Pico snippet.',
     init(container) {

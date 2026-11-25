@@ -204,7 +204,7 @@
 .teaching-listing { padding: 20px 24px 32px; }
 
 .taught_course { padding: 4px 0 20px; }
-.taught_course_title { font-weight: bold; font-size: calc(13px * var(--mod-font-size)); text-transform: uppercase; color: var(--ink); }
+.taught_course_title { font-family: 'JetBrains Mono', var(--mono); font-weight: 700; letter-spacing: 0.02em; font-size: calc(13px * var(--mod-font-size)); text-transform: uppercase; color: var(--ink); }
 .taught_course_tags {
     padding: 4px 0;
     display: flex;
@@ -212,8 +212,7 @@
     gap: 6px;
     text-transform: uppercase;
     font-size: calc(9px * var(--mod-font-size));
-    font-weight: bold;
-    opacity: 0.85;
+    font-weight: 500;
 }
 .taught_course_description {
     font-family: var(--sans);
@@ -228,10 +227,12 @@
     height: fit-content;
     border-radius: 4px;
     text-align: center;
-    padding: 4px 6px;
+    padding: 3px 6px;
     color: #f1f1f1;
-    font-size: calc(8.5px * var(--mod-font-size));
-    opacity: 0.85;
+    font-size: calc(8px * var(--mod-font-size));
+    letter-spacing: 0.03em;
+    opacity: 0.7;
+    filter: saturate(0.8);
 }
 .tag_aseprite           { background:#dddddd; color:#111111; }
 .tag_blender            { background:#f27718; }
@@ -474,10 +475,15 @@
     background: var(--bg3);
 }
 .cx-tab {
-    padding: 10px 18px;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    padding: 10px 8px;
     font-family: var(--mono);
     font-size: calc(9px * var(--mod-font-size));
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: rgb(24, 24, 24, 0.55);
     cursor: pointer;

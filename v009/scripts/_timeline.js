@@ -69,7 +69,7 @@ const SHAPES = {
     },
 };
 
-function renderStamp(el) {
+export function renderStamp(el) {
     const n = ++stampCount;
     const id = 'tl-stamp-' + n;
     const d = {};

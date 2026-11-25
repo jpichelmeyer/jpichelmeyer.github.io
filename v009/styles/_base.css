@@ -161,6 +161,7 @@ html, body {
 #panel-courses  .panel-titlebar { background: var(--color-accent-courses); }
 #panel-projects .panel-titlebar { background: var(--color-accent-projects); }
 #panel-research .panel-titlebar { background: var(--color-accent-research); }
+#panel-research .panel-tab { color: #2b2b2b; }
 #panel-advancement .panel-titlebar { background: var(--color-accent-advancement); }
 
 .panel-title {
@@ -388,6 +389,8 @@ html, body {
         letter-spacing: 0.03em;
     }
     #nav-right { display: none; }
+    .panel-tabs { padding-left: 8px; overflow-x: auto; }
+    .panel-body { padding: 20px 14px; }
 
     #about-a { flex-direction: column; }
 }

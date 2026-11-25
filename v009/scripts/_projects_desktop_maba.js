@@ -4,6 +4,7 @@ window._registerProject({
     id: 'maba',
     label: 'Multi-Armed Bandit Arena',
     layout: 'desktop',
+    cats: ['Educational', 'RL'],
     thumb: 'maba.svg',
     desc: 'Student-designed agents compete on a floor of slot machines with hidden odds. Choose up to ten machines and watch each agent balance exploring and exploiting to win the most coins.',
     init(container) {

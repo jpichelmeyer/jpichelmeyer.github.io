@@ -76,7 +76,8 @@ function buildWorkingState(data) {
 window._registerProject({
     id: 'curriculum-planner',
     label: 'Curriculum Planner',
-    layout: 'desktop',
+    layout: 'responsive',
+    cats: ['Advising', 'Tools'],
     thumb: 'curriculum_planner.svg',
     desc: 'Compare degree programs side by side against their courses: a star marks a required course and a circle an elective. Choose programs one at a time, by department, or by degree, filter courses by prefix, and drag columns to reorder them.',
     init(container) {
