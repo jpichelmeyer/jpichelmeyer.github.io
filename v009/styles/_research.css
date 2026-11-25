@@ -30,6 +30,8 @@
 .research_paper_thumbnail {
     width: 170px;
     flex-shrink: 0;
+    align-self: flex-start;
+    height: auto;
     border-radius: 5px;
     border: 1px solid var(--panel-bd);
 }
@@ -42,6 +44,8 @@
 .research_paper_thumbnail_genera     { content: url(../imgs/thumb_genera_knots.png); }
 .research_paper_thumbnail_para       { content: url(../imgs/thumb_para.png); }
 
+.research_paper_text { flex: 1; min-width: 240px; }
+.research_paper_text, #research-body .inst-sec-body { font-family: var(--sans); }
 .research_paper_text_title  { 
     color: var(--ink); 
     font-weight: bold; 

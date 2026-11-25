@@ -53,3 +53,9 @@
     stroke: var(--bg-light); stroke-width: 3px; paint-order: stroke;
 }
 .pv-picked text { font-weight: bold; }
+
+@media (max-width: 700px) {
+    .pv-main { grid-template-columns: 1fr; }
+    .pv-list { max-height: 240px; }
+    .pv-stage { max-height: 420px; }
+}

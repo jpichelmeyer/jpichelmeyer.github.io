@@ -8,11 +8,9 @@ window._registerProject = function (project) {
     registry.push(project);
 };
 
-const LAYOUTS = [
-    { id: 'desktop',    label: 'Desktop' },
-    { id: 'mobile',     label: 'Mobile' },
-    { id: 'responsive', label: 'Responsive' },
-];
+const CATS = ['All', 'Advising', 'Educational', 'Games', 'RL', 'Tools'];
+
+const DEVICES = { desktop: ['Desktop'], mobile: ['Mobile'], responsive: ['Desktop', 'Mobile'] };
 
 window._mountGodotProject = function (container, path) {
     container.innerHTML = `
@@ -78,7 +76,7 @@ function buildProjectRow(project) {
         <div class="proj-row-head">
             <img class="proj-thumb" src="./svgs/${project.thumb || 'dull.svg'}" alt="" />
             <div class="proj-text">
-                <div class="proj-title">${project.label}</div>
+                <div class="proj-title">${project.label}<span class="proj-tags">${[...(project.cats || []), ...DEVICES[project.layout]].map(t => `<span class="proj-tag proj-tag-${t.toLowerCase()}">${t}</span>`).join('')}</span></div>
                 <div class="proj-desc">${project.desc || ''}</div>
             </div>
             <span class="proj-chevron">\u25be</span>
@@ -100,7 +98,8 @@ function buildProjectsPanel() {
     const bodyHost = el('projects-body');
     if (!tabsHost || !bodyHost) return;
 
-    LAYOUTS.forEach((layout, i) => {
+    CATS.forEach((cat, i) => {
+        const layout = { id: cat.toLowerCase(), label: cat };
         const isFirst = i === 0;
 
         const tab = document.createElement('button');
@@ -121,7 +120,7 @@ function buildProjectsPanel() {
             page.classList.add('active');
         });
 
-        const projectsForLayout = registry.filter(p => p.layout === layout.id).sort((a, b) => a.label.localeCompare(b.label));
+        const projectsForLayout = registry.filter(p => cat === 'All' || (p.cats || []).includes(cat)).sort((a, b) => a.label.localeCompare(b.label));
         if (projectsForLayout.length === 0) {
             page.innerHTML = `<div class="projects-empty">No ${layout.label.toLowerCase()} projects yet.</div>`;
             return;

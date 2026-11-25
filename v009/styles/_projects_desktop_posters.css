@@ -1,0 +1,32 @@
+/* v009/site/styles/_projects_desktop_posters.css */
+
+.poster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+.poster-thumb {
+    display: flex; flex-direction: column; gap: 8px; padding: 8px; text-align: left;
+    font-family: var(--sans); font-size: calc(10.5px * var(--mod-font-size)); color: var(--ink);
+    background: var(--bg-light); border: 1px solid var(--panel-bd); border-radius: var(--border-radius2); cursor: pointer;
+}
+.poster-thumb:hover { border-color: var(--ink); }
+.poster-thumb img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 3px; }
+
+.poster-view {
+    position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center;
+    gap: 12px; padding: 16px; background: rgba(15, 15, 15, 0.92); cursor: zoom-out;
+}
+.poster-view[hidden] { display: none; }
+.poster-view figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 0; max-height: 100%; }
+.poster-view img { max-width: min(80vw, 100%); max-height: calc(100vh - 80px); object-fit: contain; background: #fff; }
+.poster-view figcaption { font-family: var(--sans); font-size: calc(12px * var(--mod-font-size)); color: #e6e4dc; }
+.poster-nav {
+    font-size: 40px; line-height: 1; padding: 8px 14px; color: #e6e4dc; cursor: pointer;
+    background: transparent; border: 1px solid #5a5d60; border-radius: 8px;
+}
+.poster-nav:hover { border-color: #e6e4dc; }
+.poster-pdf {
+    position: absolute; top: 14px; right: 16px; padding: 4px 12px; color: #e6e4dc; text-decoration: none;
+    font-family: var(--sans); font-size: calc(11px * var(--mod-font-size)); border: 1px solid #5a5d60; border-radius: 6px;
+}
+@media (max-width: 700px) {
+    .poster-view { gap: 4px; padding: 8px; }
+    .poster-nav { font-size: 28px; padding: 6px 8px; }
+}

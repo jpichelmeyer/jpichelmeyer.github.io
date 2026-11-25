@@ -11,7 +11,8 @@ const key = s => String(s).toLowerCase().replace(/\s+/g, '');
 window._registerProject({
     id: 'prerequisite-visualizer',
     label: 'Prerequisite Visualizer',
-    layout: 'desktop',
+    layout: 'responsive',
+    cats: ['Advising', 'Tools'],
     thumb: 'prerequisite_visualizer.svg',
     desc: 'Pick courses from the list to see each one along with every prerequisite it builds on, laid out left to right by how far down the chain it sits. Nodes are colored by course prefix.',
     init(container) {

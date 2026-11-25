@@ -129,7 +129,7 @@ async function mount(host, footerHost) {
 }
 
 function projectList() {
-    return Array.isArray(window._plabProjects) ? window._plabProjects.filter(p => p.status !== 'completed') : [];
+    return Array.isArray(window._plabProjects) ? window._plabProjects.filter(p => p.status !== 'completed' && !p.hidden) : [];
 }
 
 function openFlyerDialog(cfg, prospect = false) {

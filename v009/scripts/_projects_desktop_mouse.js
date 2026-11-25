@@ -6,6 +6,7 @@ window._registerProject({
     id: 'mouse',
     label: 'M.O.U.S.E.',
     layout: 'desktop',
+    cats: ['Educational', 'Games'],
     thumb: 'plab_mouse.svg',
     desc: 'Help mice escape captivity by shaping their behavior in this puzzle game about friendship and liberation.',
     init(container) {
